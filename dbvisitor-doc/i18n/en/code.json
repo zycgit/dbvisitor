@@ -1,6 +1,6 @@
 {
   "commons.search": {
-    "message": "Index"
+    "message": "Quick Search"
   },
   "commons.document": {
     "message": "Document"
@@ -9,22 +9,22 @@
     "message": "Full-featured"
   },
   "dbv.feature1_desc": {
-    "message": "Entity mapping, TypeHandler, dynamic Command, Stored procedures, Paging Queries, Transactions, Isolation, multiple DataSource"
+    "message": "ObjectMapping, TypeHandler, Dynamic Command, Stored procedures, Paging Queries, Transactions, Isolation, Multiple DataSource"
   },
   "dbv.feature2_title": {
-    "message": "Familiar"
+    "message": "Multiple DataSource"
   },
   "dbv.feature2_desc": {
-    "message": "Compatible with Spring JdbcTemplate, Compatible with MyBatis Mapping File, Single Table CRUD"
+    "message": "Supports relational databases such as MySQL, Oracle, PostgreSQL, etc., and non-relational databases such as {redis}, {mongo}, etc."
   },
   "dbv.feature3_title": {
     "message": "Feature"
   },
   "dbv.feature3_desc": {
-    "message": "Independent, More TypeHandler, Dialect 20+, Conditional Builder, INSERT Strategy, Multi-Statement/Multi-ResultSet"
+    "message": "Most straightforward, No cognitive burden, No hidden SQL, No magic, MyBatis compatible"
   },
   "dbv.tagline": {
-    "message": "smart, compact, functional database ORM tool"
+    "message": "dbVisitor provides a unified and simple way to access various types of databases."
   },
   "faker.feature1_title": {
     "message": "Full types"

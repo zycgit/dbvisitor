@@ -4,6 +4,7 @@ title: Using Rules for Complex Conditions
 description: Define more complex conditions with dbVisitor AND/OR rules.
 authors: [ZhaoYongChun]
 tags: [Rule, DynamicSQL]
+language: en
 ---
 
 ## AND/OR rule basics

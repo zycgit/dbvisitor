@@ -4,6 +4,7 @@ title: Streaming a Huge MySQL Table
 description: Use dbVisitor ORM to query and process a very large table with streaming.
 authors: [ZhaoYongChun]
 tags: [Streaming]
+language: en
 ---
 
 When querying a huge table, enable streaming results; otherwise the result set can easily exhaust memory. Each database enables streaming differently, but all require configuring `Statement`/`PreparedStatement` parameters.

@@ -3,6 +3,7 @@ slug: mongodb-mybatis-style
 title: dbVisitor 使用 MyBatis 方式操作 MongoDB
 authors: [ZhaoYongChun]
 tags: [mongodb, mybatis, orm, jdbc, dbvisitor]
+language: zh-cn
 ---
 
 在 Java 生态中，操作 MongoDB 最常见的方式莫过于使用官方的 `mongo-java-driver` 或者 Spring 家族的 `spring-data-mongodb`。这些工具非常强大，但对于习惯了关系型数据库（RDBMS）和 MyBatis 开发模式的开发者来说，切换到 MongoDB 往往意味着需要适应一套全新的 API 和思维模式。

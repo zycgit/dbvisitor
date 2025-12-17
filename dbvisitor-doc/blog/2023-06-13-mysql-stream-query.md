@@ -4,6 +4,7 @@ title: MySQL 流式读取超大表
 description: 使用 dbVisitor ORM 查询并处理一张超大表。
 authors: [ZhaoYongChun]
 tags: [Streaming]
+language: zh-cn
 ---
 
 当查询一张超大表并获取它的结果集时要使用 `流式返回` 否则内存极易出现溢出。

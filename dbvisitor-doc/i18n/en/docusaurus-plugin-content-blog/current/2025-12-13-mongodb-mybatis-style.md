@@ -3,6 +3,7 @@ slug: mongodb-mybatis-style
 title: Using dbVisitor to Work with MongoDB in a MyBatis Style
 authors: [ZhaoYongChun]
 tags: [mongodb, mybatis, orm, jdbc, dbvisitor]
+language: en
 ---
 
 In Java, MongoDB is typically accessed via the official `mongo-java-driver` or Spring’s `spring-data-mongodb`. They are powerful, but for teams accustomed to RDBMS and MyBatis, switching to MongoDB often means learning a completely different API and mindset.
