@@ -6,6 +6,8 @@ import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.dbvisitor.adapter.elastic.parser.ElasticParser.*;
 import net.hasor.dbvisitor.driver.AdapterReceive;
 import net.hasor.dbvisitor.driver.AdapterRequest;
+import org.elasticsearch.client.Request;
+import org.elasticsearch.client.Response;
 
 class ElasticCommandsForCrud extends ElasticCommands {
     public static Future<?> execSearch(Future<Object> sync, ElasticCmd elasticCmd, SelectContext c, SelectPathContext path, AdapterRequest request, AdapterReceive receive, AtomicInteger argIndex, Map<String, Object> hints, ElasticConn conn) throws SQLException {
@@ -25,6 +27,10 @@ class ElasticCommandsForCrud extends ElasticCommands {
     }
 
     public static Future<?> execSelectPath(Future<Object> sync, ElasticCmd elasticCmd, SelectContext c, AdapterRequest request, AdapterReceive receive, AtomicInteger argIndex, Map<String, Object> hints, ElasticConn conn) throws SQLException {
+        String endpoint = c.path().getText();
+        if (endpoint.equals("/_aliases") || endpoint.startsWith("/_aliases?")) {
+             return ElasticCommandsForIndex.execAliases(sync, elasticCmd, null, request, receive, argIndex, hints, conn);
+        }
         return failed(sync, new SQLException("Elastic select path command not implemented."));
     }
 
@@ -41,7 +47,19 @@ class ElasticCommandsForCrud extends ElasticCommands {
     }
 
     public static Future<?> execInsertPath(Future<Object> sync, ElasticCmd elasticCmd, InsertContext c, AdapterRequest request, AdapterReceive receive, AtomicInteger argIndex, Map<String, Object> hints, ElasticConn conn) throws SQLException {
-        return failed(sync, new SQLException("Elastic insert path command not implemented."));
+        try {
+            String method = "PUT";
+            String endpoint = c.path().getText();
+            Request esRequest = new Request(method, endpoint);
+            if (c.json() != null) {
+                esRequest.setJsonEntity(c.json().getText());
+            }
+            elasticCmd.getClient().performRequest(esRequest);
+            receive.responseUpdateCount(request, 1);
+            return completed(sync);
+        } catch (Exception e) {
+            return failed(sync, new SQLException(e));
+        }
     }
 
     public static Future<?> execUpdateByQuery(Future<Object> sync, ElasticCmd elasticCmd, UpdateContext c, UpdatePathContext path, AdapterRequest request, AdapterReceive receive, AtomicInteger argIndex, Map<String, Object> hints, ElasticConn conn) throws SQLException {
@@ -61,6 +79,18 @@ class ElasticCommandsForCrud extends ElasticCommands {
     }
 
     public static Future<?> execDeleteDoc(Future<Object> sync, ElasticCmd elasticCmd, DeleteContext c, AdapterRequest request, AdapterReceive receive, AtomicInteger argIndex, Map<String, Object> hints, ElasticConn conn) throws SQLException {
-        return failed(sync, new SQLException("Elastic delete doc command not implemented."));
+        try {
+            String method = "DELETE";
+            String endpoint = c.path().getText();
+            Request esRequest = new Request(method, endpoint);
+            if (c.json() != null) {
+                esRequest.setJsonEntity(c.json().getText());
+            }
+            elasticCmd.getClient().performRequest(esRequest);
+            receive.responseUpdateCount(request, 1);
+            return completed(sync);
+        } catch (Exception e) {
+            return failed(sync, new SQLException(e));
+        }
     }
 }
