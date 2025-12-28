@@ -47,6 +47,11 @@ public class ElasticParserTest {
         runTestFromFile("elastic_tests/hint_commands.txt");
     }
 
+    @Test
+    public void testCatCommands() throws IOException {
+        runTestFromFile("elastic_tests/cat_commands.txt");
+    }
+
     private void runTestFromFile(String resourcePath) throws IOException {
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(resourcePath)) {
             if (inputStream == null) {

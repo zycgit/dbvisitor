@@ -56,6 +56,7 @@ SETTINGS_KW: '_settings';
 ALIASES_KW : '_aliases';
 OPEN_KW    : '_open';
 CLOSE_KW   : '_close';
+CAT_KW     : '_cat';
 
 // String
 STRING    : '"' ( ~["\\] | '\\' . )* '"';

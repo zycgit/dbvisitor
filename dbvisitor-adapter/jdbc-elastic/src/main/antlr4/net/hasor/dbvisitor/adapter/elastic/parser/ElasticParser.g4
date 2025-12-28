@@ -43,69 +43,141 @@ hintValue
     | ALIASES_KW
     | OPEN_KW
     | CLOSE_KW
-    | ARG2
+    | CAT_KW
     ;
 
 esCmd
-    : index
-    | select
-    | insert
+    : search
+    | count
+    | msearch
+    | mapping
+    | settings
+    | open
+    | close
+    | aliases
+    | doc
+    | create
     | update
-    | delete
+    | updateByQuery
+    | deleteByQuery
+    | cat
     | generic
     ;
 
-index
-    : (PUT | GET | HEAD) indexMgmtPath (json)? SEM?
-    | POST indexMgmtPath (json)? SEM?
-    | POST aliasesPath (json)? SEM?
+search
+    : (GET | POST) searchPath (json)? SEM?
     ;
 
-indexMgmtPath
-    : pathPart* SLASH (MAPPING_KW | SETTINGS_KW | OPEN_KW | CLOSE_KW) (ARG1 queryParams)?
+searchPath
+    : pathPart* SLASH SEARCH_KW (ARG1 queryParams)?
+    ;
+
+count
+    : (GET | POST) countPath (json)? SEM?
+    ;
+
+countPath
+    : pathPart* SLASH COUNT_KW (ARG1 queryParams)?
+    ;
+
+msearch
+    : (GET | POST) msearchPath (json)? SEM?
+    ;
+
+msearchPath
+    : pathPart* SLASH MSEARCH_KW (ARG1 queryParams)?
+    ;
+
+mapping
+    : (GET | PUT | POST) mappingPath (json)? SEM?
+    ;
+
+mappingPath
+    : pathPart* SLASH MAPPING_KW (ARG1 queryParams)?
+    ;
+
+settings
+    : (GET | PUT) settingsPath (json)? SEM?
+    ;
+
+settingsPath
+    : pathPart* SLASH SETTINGS_KW (ARG1 queryParams)?
+    ;
+
+open
+    : POST openPath (json)? SEM?
+    ;
+
+openPath
+    : pathPart* SLASH OPEN_KW (ARG1 queryParams)?
+    ;
+
+close
+    : POST closePath (json)? SEM?
+    ;
+
+closePath
+    : pathPart* SLASH CLOSE_KW (ARG1 queryParams)?
+    ;
+
+aliases
+    : (GET | POST) aliasesPath (json)? SEM?
     ;
 
 aliasesPath
     : SLASH ALIASES_KW (ARG1 queryParams)?
     ;
 
-select
-    : (GET | HEAD) path (json)? SEM?
-    | POST selectPath (json)? SEM?
+cat
+    : GET catPath SEM?
     ;
 
-selectPath
-    : pathPart* SLASH (SEARCH_KW | COUNT_KW | MSEARCH_KW) (ARG1 queryParams)?
+catPath
+    : SLASH CAT_KW pathPart* (ARG1 queryParams)?
     ;
 
-delete
-    : DELETE path (json)? SEM?
-    | POST deletePath (json)? SEM?
+doc
+    : (POST | PUT) docPath (json)? SEM?
     ;
 
-deletePath
-    : pathPart* SLASH DELETE_BY_QUERY_KW (ARG1 queryParams)?
+docPath
+    : pathPart* SLASH DOC_KW pathPart* (ARG1 queryParams)?
+    ;
+
+create
+    : (POST | PUT) createPath (json)? SEM?
+    ;
+
+createPath
+    : pathPart* SLASH CREATE_KW pathPart* (ARG1 queryParams)?
     ;
 
 update
-    : POST updatePath (json)? SEM?
+    : POST updateDocPath (json)? SEM?
     ;
 
-updatePath
-    : pathPart* SLASH (UPDATE_KW | UPDATE_BY_QUERY_KW) pathPart* (ARG1 queryParams)?
+updateDocPath
+    : pathPart* SLASH UPDATE_KW pathPart* (ARG1 queryParams)?
     ;
 
-insert
-    : PUT path (json)? SEM?
-    | POST insertPath (json)? SEM?
+updateByQuery
+    : POST updateByQueryPath (json)? SEM?
     ;
 
-insertPath
-    : pathPart* SLASH (DOC_KW | CREATE_KW) pathPart* (ARG1 queryParams)?
+updateByQueryPath
+    : pathPart* SLASH UPDATE_BY_QUERY_KW (ARG1 queryParams)?
+    ;
+
+deleteByQuery
+    : POST deleteByQueryPath (json)? SEM?
+    ;
+
+deleteByQueryPath
+    : pathPart* SLASH DELETE_BY_QUERY_KW (ARG1 queryParams)?
     ;
 
 generic
-    : (OPTIONS | PATCH | POST) path (json)? SEM?
+    : method path (json)? SEM?
     ;
 
 method
@@ -131,7 +203,7 @@ queryParams
     ;
 
 queryParam
-    : ID EQUALS (ID | NUMBER | STRING | TRUE | FALSE | ARG2)
+    : ID (EQUALS (ID | NUMBER | STRING | TRUE | FALSE | ARG2))?
     ;
 
 json

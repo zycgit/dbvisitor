@@ -228,14 +228,20 @@ public class ElasticConn extends AdapterConnection {
 
             Future<Object> sync = new BasicFuture<>();
             if (argCount > 0) {
-                argVisitor.reset();
-                esCmd.accept(argVisitor);
+                ElasticArgVisitor subVisitor = new ElasticArgVisitor();
+                esCmd.accept(subVisitor);
                 ElasticDistributeCall.execElasticCmd(sync, this.elasticCmd, esCmd, request, receive, startArgIdx, this);
-                startArgIdx += argVisitor.getArgCount();
+                startArgIdx += subVisitor.getArgCount();
             } else {
                 ElasticDistributeCall.execElasticCmd(sync, this.elasticCmd, esCmd, request, receive, startArgIdx, this);
             }
+
             sync.await();
+
+            if (sync.isDone() && sync.getCause() != null) {
+                receive.responseFailed(request, sync.getCause());
+                return;
+            }
         }
 
         receive.responseFinish(request);

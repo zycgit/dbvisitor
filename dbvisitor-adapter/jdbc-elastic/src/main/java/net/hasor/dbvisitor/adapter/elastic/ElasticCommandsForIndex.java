@@ -2,54 +2,105 @@ package net.hasor.dbvisitor.adapter.elastic;
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.hasor.cobble.concurrent.future.Future;
-import net.hasor.dbvisitor.adapter.elastic.parser.ElasticParser.IndexContext;
-import net.hasor.dbvisitor.adapter.elastic.parser.ElasticParser.IndexMgmtPathContext;
 import net.hasor.dbvisitor.driver.AdapterReceive;
-import net.hasor.dbvisitor.driver.AdapterRequest;
+import net.hasor.dbvisitor.driver.JdbcColumn;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 
 class ElasticCommandsForIndex extends ElasticCommands {
-    public static Future<?> execAliases(Future<Object> sync, ElasticCmd elasticCmd, IndexContext c, AdapterRequest request, AdapterReceive receive, AtomicInteger argIndex, Map<String, Object> hints, ElasticConn conn) throws SQLException {
-        try {
-            Response response = elasticCmd.getClient().performRequest(new Request("GET", "/_aliases"));
-            List<String> indexNames = new ArrayList<>();
+    // POST or GET /_aliases
+    public static Future<?> execAliases(Future<Object> sync, ElasticCmd cmd, ElasticOperation o, Object jsonBody, AdapterReceive receive) throws Exception {
+        Request esRequest = new Request(o.getMethod().name(), o.getEndpoint());
+        if (jsonBody != null) {
+            ObjectMapper mapper = new ObjectMapper();
+            esRequest.setJsonEntity(mapper.writeValueAsString(jsonBody));
+        }
+
+        if (o.getMethod() == ElasticHttpMethod.GET) {
+            Response response = cmd.getClient().performRequest(esRequest);
             try (InputStream content = response.getEntity().getContent()) {
-                JsonNode root = ((ElasticRequest) request).getJson().readTree(content);
-                if (root != null && root.isObject()) {
-                    root.fieldNames().forEachRemaining(indexNames::add);
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode root = mapper.readTree(content);
+                List<String> indices = new ArrayList<>();
+                Iterator<String> fieldNames = root.fieldNames();
+                while (fieldNames.hasNext()) {
+                    indices.add(fieldNames.next());
                 }
+                receive.responseResult(o.getRequest(), listResult(o.getRequest(), new JdbcColumn("NAME", "VARCHAR", "", "", ""), indices));
+            }
+        } else {
+            cmd.getClient().performRequest(esRequest);
+            receive.responseUpdateCount(o.getRequest(), 1);
+        }
+        return completed(sync);
+    }
+
+    public static Future<?> execIndexOpen(Future<Object> sync, ElasticCmd elasticCmd, ElasticOperation operation, AdapterReceive receive) throws Exception {
+        Request esRequest = new Request(ElasticHttpMethod.POST.name(), operation.getEndpoint());
+        elasticCmd.getClient().performRequest(esRequest);
+        receive.responseUpdateCount(operation.getRequest(), 1);
+        return completed(sync);
+    }
+
+    public static Future<?> execIndexClose(Future<Object> sync, ElasticCmd elasticCmd, ElasticOperation operation, AdapterReceive receive) throws Exception {
+        Request esRequest = new Request(ElasticHttpMethod.POST.name(), operation.getEndpoint());
+        elasticCmd.getClient().performRequest(esRequest);
+        receive.responseUpdateCount(operation.getRequest(), 1);
+        return completed(sync);
+    }
+
+    public static Future<?> execIndexMapping(Future<Object> sync, ElasticCmd elasticCmd, ElasticOperation operation, Object jsonBody, AdapterReceive receive) throws Exception {
+        try {
+            Request esRequest = new Request(operation.getMethod().name(), operation.getEndpoint());
+            if (jsonBody != null) {
+                ObjectMapper mapper = new ObjectMapper();
+                esRequest.setJsonEntity(mapper.writeValueAsString(jsonBody));
             }
 
-            receive.responseResult(request, listResult(request, COL_NAME_STRING, indexNames));
+            if (operation.getMethod() == ElasticHttpMethod.GET) {
+                Response response = elasticCmd.getClient().performRequest(esRequest);
+                try (InputStream content = response.getEntity().getContent()) {
+                    ObjectMapper mapper = new ObjectMapper();
+                    JsonNode root = mapper.readTree(content);
+                    receive.responseResult(operation.getRequest(), singleResult(operation.getRequest(), COL_JSON_STRING, root.toString()));
+                }
+            } else {
+                elasticCmd.getClient().performRequest(esRequest);
+                receive.responseUpdateCount(operation.getRequest(), 1);
+            }
             return completed(sync);
         } catch (Exception e) {
-            return failed(sync, e);
+            return failed(sync, new SQLException(e));
         }
     }
 
-    public static Future<?> execIndexMapping(Future<Object> sync, ElasticCmd elasticCmd, IndexContext c, IndexMgmtPathContext path, AdapterRequest request, AdapterReceive receive, AtomicInteger argIndex, Map<String, Object> hints, ElasticConn conn) throws SQLException {
-        return failed(sync, new SQLException("Elastic index mapping command not implemented."));
-    }
+    public static Future<?> execIndexSettings(Future<Object> sync, ElasticCmd elasticCmd, ElasticOperation operation, Object jsonBody, AdapterReceive receive) throws Exception {
+        try {
+            Request esRequest = new Request(operation.getMethod().name(), operation.getEndpoint());
+            if (jsonBody != null) {
+                ObjectMapper mapper = new ObjectMapper();
+                esRequest.setJsonEntity(mapper.writeValueAsString(jsonBody));
+            }
 
-    public static Future<?> execIndexSettings(Future<Object> sync, ElasticCmd elasticCmd, IndexContext c, IndexMgmtPathContext path, AdapterRequest request, AdapterReceive receive, AtomicInteger argIndex, Map<String, Object> hints, ElasticConn conn) throws SQLException {
-        return failed(sync, new SQLException("Elastic index settings command not implemented."));
-    }
-
-    public static Future<?> execIndexOpen(Future<Object> sync, ElasticCmd elasticCmd, IndexContext c, IndexMgmtPathContext path, AdapterRequest request, AdapterReceive receive, AtomicInteger argIndex, Map<String, Object> hints, ElasticConn conn) throws SQLException {
-        return failed(sync, new SQLException("Elastic index open command not implemented."));
-    }
-
-    public static Future<?> execIndexClose(Future<Object> sync, ElasticCmd elasticCmd, IndexContext c, IndexMgmtPathContext path, AdapterRequest request, AdapterReceive receive, AtomicInteger argIndex, Map<String, Object> hints, ElasticConn conn) throws SQLException {
-        return failed(sync, new SQLException("Elastic index close command not implemented."));
-    }
-
-    public static Future<?> execIndexGeneric(Future<Object> sync, ElasticCmd elasticCmd, IndexContext c, IndexMgmtPathContext path, AdapterRequest request, AdapterReceive receive, AtomicInteger argIndex, Map<String, Object> hints, ElasticConn conn) throws SQLException {
-        return failed(sync, new SQLException("Elastic index generic command not implemented."));
+            if (operation.getMethod() == ElasticHttpMethod.GET) {
+                Response response = elasticCmd.getClient().performRequest(esRequest);
+                try (InputStream content = response.getEntity().getContent()) {
+                    ObjectMapper mapper = new ObjectMapper();
+                    JsonNode root = mapper.readTree(content);
+                    receive.responseResult(operation.getRequest(), singleResult(operation.getRequest(), COL_JSON_STRING, root.toString()));
+                }
+            } else {
+                elasticCmd.getClient().performRequest(esRequest);
+                receive.responseUpdateCount(operation.getRequest(), 1);
+            }
+            return completed(sync);
+        } catch (Exception e) {
+            return failed(sync, new SQLException(e));
+        }
     }
 }

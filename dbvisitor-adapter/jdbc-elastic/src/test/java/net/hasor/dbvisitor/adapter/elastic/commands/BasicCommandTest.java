@@ -14,6 +14,9 @@ public class BasicCommandTest extends AbstractJdbcTest {
                 assert false;
             }
         } catch (SQLException e) {
+            if (!e.getMessage().contains("param size not match.")) {
+                e.printStackTrace();
+            }
             assert e.getMessage().contains("param size not match.");
         }
     }

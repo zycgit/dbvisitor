@@ -1,0 +1,5 @@
+GET /_cat/nodes;
+GET /_cat/indices?v;
+GET /_cat/health;
+GET /_cat/shards;
+GET /_cat/allocation?v;

@@ -8,32 +8,21 @@ import net.hasor.dbvisitor.driver.*;
 
 abstract class ElasticCommands {
     // for db and collections
-    protected static final JdbcColumn COL_ID_STRING              = new JdbcColumn("_ID", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_JSON_STRING            = new JdbcColumn("_JSON", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_DATABASE_STRING        = new JdbcColumn("DATABASE", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_COLLECTION_STRING      = new JdbcColumn("COLLECTION", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_VALUE_STRING           = new JdbcColumn("VALUE", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_COUNT_LONG             = new JdbcColumn("COUNT", AdapterType.Long, "", "", "");
-    protected static final JdbcColumn COL_NAME_STRING            = new JdbcColumn("NAME", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_TYPE_STRING            = new JdbcColumn("TYPE", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_OPTIONS_STRING         = new JdbcColumn("OPTIONS", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_INFO_STRING            = new JdbcColumn("INFO", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_ID_STRING           = new JdbcColumn("_ID", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_JSON_STRING         = new JdbcColumn("_JSON", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_VALUE_STRING        = new JdbcColumn("VALUE", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_COUNT_LONG          = new JdbcColumn("COUNT", AdapterType.Long, "", "", "");
+    protected static final JdbcColumn COL_NAME_STRING         = new JdbcColumn("NAME", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_INFO_STRING         = new JdbcColumn("INFO", AdapterType.String, "", "", "");
     // for index
-    protected static final JdbcColumn COL_IDX_V_INT              = new JdbcColumn("V", AdapterType.Int, "", "", "");
-    protected static final JdbcColumn COL_IDX_KEY_STRING         = new JdbcColumn("KEY", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_IDX_NAME_STRING        = new JdbcColumn("NAME", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_IDX_NS_STRING          = new JdbcColumn("NS", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_IDX_UNIQUE_BOOLEAN     = new JdbcColumn("UNIQUE", AdapterType.Boolean, "", "", "");
-    protected static final JdbcColumn COL_IDX_SPARSE_BOOLEAN     = new JdbcColumn("SPARSE", AdapterType.Boolean, "", "", "");
-    protected static final JdbcColumn COL_IDX_BACKGROUND_BOOLEAN = new JdbcColumn("BACKGROUND", AdapterType.Boolean, "", "", "");
-    protected static final JdbcColumn COL_IDX_HIDDEN_BOOLEAN     = new JdbcColumn("HIDDEN", AdapterType.Boolean, "", "", "");
-    // for user and role
-    protected static final JdbcColumn COL_USER_STRING            = new JdbcColumn("USER", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_DB_STRING              = new JdbcColumn("DB", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_ROLES_STRING           = new JdbcColumn("ROLES", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_ROLE_STRING            = new JdbcColumn("ROLE", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_IS_BUILTIN_BOOLEAN     = new JdbcColumn("IS_BUILTIN", AdapterType.Boolean, "", "", "");
-    protected static final JdbcColumn COL_INHERITED_ROLES_STRING = new JdbcColumn("INHERITED_ROLES", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_IDX_V_INT           = new JdbcColumn("V", AdapterType.Int, "", "", "");
+    protected static final JdbcColumn COL_HEALTH_STRING       = new JdbcColumn("health", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_STATUS_STRING       = new JdbcColumn("status", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_PRIMARIES_STRING    = new JdbcColumn("primaries", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_REPLICAS_STRING     = new JdbcColumn("replicas", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_DOCS_COUNT_STRING   = new JdbcColumn("docs_count", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_STORAGE_SIZE_STRING = new JdbcColumn("storage_size", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_DATA_STREAM_STRING  = new JdbcColumn("data_stream", AdapterType.String, "", "", "");
 
     protected static Object getArg(AtomicInteger argIndex, AdapterRequest request) throws SQLException {
         int argIdx = argIndex.getAndIncrement();
@@ -87,6 +76,22 @@ abstract class ElasticCommands {
         int affectRows = 0;
         for (Object item : result) {
             receiveCur.pushData(CollectionUtils.asMap(col.name, item));
+
+            affectRows++;
+            if (maxRows > 0 && affectRows >= maxRows) {
+                break;
+            }
+        }
+        receiveCur.pushFinish();
+        return receiveCur;
+    }
+
+    protected static AdapterResultCursor listResult(AdapterRequest request, List<JdbcColumn> columns, List<Map<String, Object>> result) throws SQLException {
+        long maxRows = request.getMaxRows();
+        AdapterResultCursor receiveCur = new AdapterResultCursor(request, columns);
+        int affectRows = 0;
+        for (Map<String, Object> item : result) {
+            receiveCur.pushData(item);
 
             affectRows++;
             if (maxRows > 0 && affectRows >= maxRows) {
