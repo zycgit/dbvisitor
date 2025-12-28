@@ -222,7 +222,13 @@ public class MongoConn extends AdapterConnection {
             } else {
                 MongoDistributeCall.execMongoCmd(sync, this.mongoCmd, mongoCmd, request, receive, startArgIdx, this);
             }
+
             sync.await();
+
+            if (sync.isDone() && sync.getCause() != null) {
+                receive.responseFailed(request, sync.getCause());
+                return;
+            }
         }
 
         receive.responseFinish(request);

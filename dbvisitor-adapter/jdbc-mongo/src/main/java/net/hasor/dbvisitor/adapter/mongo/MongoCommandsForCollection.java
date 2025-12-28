@@ -270,7 +270,7 @@ class MongoCommandsForCollection extends MongoCommands {
         InsertManyResult insertResult = mongoColl.insertMany((List<Document>) (List<?>) docList);
         AdapterResultCursor generatedKeys = null;
 
-        if (request.isGeneratedKeys()) {
+        if (request.isGeneratedKeys() && insertResult.getInsertedIds() != null) {
             Map<Integer, BsonValue> insertedIds = insertResult.getInsertedIds();
             generatedKeys = listResult(request, COL_ID_STRING, insertedIds, docList.size());
         }
@@ -702,7 +702,7 @@ class MongoCommandsForCollection extends MongoCommands {
         InsertManyResult insertResult = mongoColl.insertMany(docs, options);
         AdapterResultCursor generatedKeys = null;
 
-        if (request.isGeneratedKeys()) {
+        if (request.isGeneratedKeys() && insertResult.getInsertedIds() != null) {
             Map<Integer, BsonValue> insertedIds = insertResult.getInsertedIds();
             generatedKeys = listResult(request, COL_ID_STRING, insertedIds, docs.size());
         }

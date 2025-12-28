@@ -97,25 +97,25 @@ services:
   #
   #  doris_fe:
   #    image: apache/doris:fe-2.1.9
-  #    hostname: fe
-  #    ports:
-  #      - 18030:8030
-  #      - 19030:9030
-  #      - 19010:9010
+  #    hostname: doris_fe
   #    environment:
-  #      - FE_SERVERS=fe1:doris_fe:9010
+  #      - FE_SERVERS=fe1:127.0.0.1:9010
   #      - FE_ID=1
+  #    ports:
+  #      - "8030:8030"
+  #      - "9030:9030"
+  #    network_mode: host
   #  doris_be:
   #    image: apache/doris:be-2.1.9
-  #    hostname: be
-  #    ports:
-  #      - 18040:8040
-  #      - 19050:9050
+  #    hostname: doris_be
   #    environment:
-  #      - FE_SERVERS=fe1:doris_fe:9010
-  #      - BE_ADDR=doris_be:9050
+  #      - FE_SERVERS=fe1:127.0.0.1:9010
+  #      - BE_ADDR=127.0.0.1:9050
   #    depends_on:
   #      - doris_fe
+  #    ports:
+  #      - "8040:8040"
+  #    network_mode: host
   #
   #  ob_ce_4_9_0:
   #    image: oceanbase/oceanbase-ce:4.9.0

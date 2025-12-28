@@ -3,7 +3,9 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import com.mongodb.MongoNamespace;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
@@ -11,9 +13,13 @@ import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.*;
 import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.InsertManyResult;
+import com.mongodb.client.result.InsertOneResult;
 import com.mongodb.client.result.UpdateResult;
 import net.hasor.dbvisitor.adapter.mongo.AbstractJdbcTest;
 import net.hasor.dbvisitor.adapter.mongo.MongoCommandInterceptor;
+import org.bson.BsonInt32;
+import org.bson.BsonValue;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.junit.Test;
@@ -30,7 +36,10 @@ public class CollectionNewCommandsTest extends AbstractJdbcTest {
                 PowerMockito.when(mockColl.insertOne(any(Document.class), any(InsertOneOptions.class))).thenAnswer(inv -> {
                     Document doc = inv.getArgument(0);
                     assert doc.get("name").equals("zhangsan");
-                    return null;
+                    InsertOneResult res = PowerMockito.mock(InsertOneResult.class);
+                    PowerMockito.when(res.getInsertedId()).thenReturn(new BsonInt32(123));
+                    PowerMockito.when(res.wasAcknowledged()).thenReturn(true);
+                    return res;
                 });
                 return mockColl;
             }
@@ -54,7 +63,13 @@ public class CollectionNewCommandsTest extends AbstractJdbcTest {
                 PowerMockito.when(mockColl.insertMany(any(List.class), any(InsertManyOptions.class))).thenAnswer(inv -> {
                     List<Document> docs = inv.getArgument(0);
                     assert docs.size() == 2;
-                    return null;
+                    InsertManyResult res = PowerMockito.mock(InsertManyResult.class);
+                    Map<Integer, BsonValue> ids = new HashMap<>();
+                    ids.put(0, new BsonInt32(123));
+                    ids.put(1, new BsonInt32(124));
+                    PowerMockito.when(res.getInsertedIds()).thenReturn(ids);
+                    PowerMockito.when(res.wasAcknowledged()).thenReturn(true);
+                    return res;
                 });
                 return mockColl;
             }

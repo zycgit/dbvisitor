@@ -2,16 +2,22 @@ package net.hasor.dbvisitor.adapter.mongo.commands;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.BulkWriteOptions;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.InsertManyResult;
+import com.mongodb.client.result.InsertOneResult;
 import com.mongodb.client.result.UpdateResult;
 import net.hasor.dbvisitor.adapter.mongo.AbstractJdbcTest;
 import net.hasor.dbvisitor.adapter.mongo.MongoCommandInterceptor;
+import org.bson.BsonInt32;
+import org.bson.BsonValue;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.junit.Test;
@@ -34,10 +40,16 @@ public class CollectionWriteTest extends AbstractJdbcTest {
                 assert args[0].equals("mycol");
 
                 MongoCollection<Document> mockColl = PowerMockito.mock(MongoCollection.class);
-                PowerMockito.when(mockColl.insertOne(any())).thenAnswer(inv -> {
-                    Document doc = inv.getArgument(0);
-                    assert doc.get("name").equals("zhangsan");
-                    return null;
+                PowerMockito.when(mockColl.insertMany(any())).thenAnswer(inv -> {
+                    List<Document> docs = inv.getArgument(0);
+                    assert docs.size() == 1;
+                    assert docs.get(0).get("name").equals("zhangsan");
+                    InsertManyResult res = PowerMockito.mock(InsertManyResult.class);
+                    Map<Integer, BsonValue> ids = new HashMap<>();
+                    ids.put(0, new BsonInt32(123));
+                    PowerMockito.when(res.getInsertedIds()).thenReturn(ids);
+                    PowerMockito.when(res.wasAcknowledged()).thenReturn(true);
+                    return res;
                 });
                 return mockColl;
             }
@@ -72,7 +84,13 @@ public class CollectionWriteTest extends AbstractJdbcTest {
                     assert docs.size() == 2;
                     assert docs.get(0).get("name").equals("zhangsan");
                     assert docs.get(1).get("name").equals("lisi");
-                    return null;
+                    InsertManyResult res = PowerMockito.mock(InsertManyResult.class);
+                    Map<Integer, BsonValue> ids = new HashMap<>();
+                    ids.put(0, new BsonInt32(123));
+                    ids.put(1, new BsonInt32(124));
+                    PowerMockito.when(res.getInsertedIds()).thenReturn(ids);
+                    PowerMockito.when(res.wasAcknowledged()).thenReturn(true);
+                    return res;
                 });
                 return mockColl;
             }
