@@ -60,29 +60,29 @@ class ElasticCommandsForIndex extends ElasticCommands {
         return completed(sync);
     }
 
-    public static Future<?> execIndexOpen(Future<Object> sync, ElasticCmd elasticCmd, ElasticOperation operation, AdapterReceive receive) throws Exception {
-        Request esRequest = new Request(ElasticHttpMethod.POST.name(), operation.getEndpoint());
-        elasticCmd.getClient().performRequest(esRequest);
-        receive.responseUpdateCount(operation.getRequest(), 1);
+    public static Future<?> execIndexOpen(Future<Object> sync, ElasticCmd cmd, ElasticOperation o, AdapterReceive receive) throws Exception {
+        Request esRequest = new Request(ElasticHttpMethod.POST.name(), o.getEndpoint());
+        cmd.getClient().performRequest(esRequest);
+        receive.responseUpdateCount(o.getRequest(), 1);
         return completed(sync);
     }
 
-    public static Future<?> execIndexClose(Future<Object> sync, ElasticCmd elasticCmd, ElasticOperation operation, AdapterReceive receive) throws Exception {
-        Request esRequest = new Request(ElasticHttpMethod.POST.name(), operation.getEndpoint());
-        elasticCmd.getClient().performRequest(esRequest);
-        receive.responseUpdateCount(operation.getRequest(), 1);
+    public static Future<?> execIndexClose(Future<Object> sync, ElasticCmd cmd, ElasticOperation o, AdapterReceive receive) throws Exception {
+        Request esRequest = new Request(ElasticHttpMethod.POST.name(), o.getEndpoint());
+        cmd.getClient().performRequest(esRequest);
+        receive.responseUpdateCount(o.getRequest(), 1);
         return completed(sync);
     }
 
-    public static Future<?> execIndexMapping(Future<Object> sync, ElasticCmd elasticCmd, ElasticOperation operation, Object jsonBody, AdapterReceive receive) throws Exception {
-        Request esRequest = new Request(operation.getMethod().name(), operation.getEndpoint());
+    public static Future<?> execIndexMapping(Future<Object> sync, ElasticCmd cmd, ElasticOperation o, Object jsonBody, AdapterReceive receive) throws Exception {
+        Request esRequest = new Request(o.getMethod().name(), o.getEndpoint());
         if (jsonBody != null) {
             ObjectMapper mapper = new ObjectMapper();
             esRequest.setJsonEntity(mapper.writeValueAsString(jsonBody));
         }
 
-        if (operation.getMethod() == ElasticHttpMethod.GET) {
-            Response response = elasticCmd.getClient().performRequest(esRequest);
+        if (o.getMethod() == ElasticHttpMethod.GET) {
+            Response response = cmd.getClient().performRequest(esRequest);
             try (InputStream content = response.getEntity().getContent()) {
                 ObjectMapper mapper = new ObjectMapper();
                 JsonNode root = mapper.readTree(content);
@@ -154,33 +154,61 @@ class ElasticCommandsForIndex extends ElasticCommands {
                 }
 
                 List<JdbcColumn> columns = Arrays.asList(COL_NAME_STRING, COL_MAPPING_STRING, COL_FIELD_STRING, COL_TYPE_STRING, COL_NESTED_BOOLEAN, COL_OPTION_JSON);
-                receive.responseResult(operation.getRequest(), listResult(operation.getRequest(), columns, result));
+                receive.responseResult(o.getRequest(), listResult(o.getRequest(), columns, result));
             }
         } else {
-            elasticCmd.getClient().performRequest(esRequest);
-            receive.responseUpdateCount(operation.getRequest(), 1);
+            cmd.getClient().performRequest(esRequest);
+            receive.responseUpdateCount(o.getRequest(), 1);
         }
         return completed(sync);
     }
 
-    public static Future<?> execIndexSettings(Future<Object> sync, ElasticCmd elasticCmd, ElasticOperation operation, Object jsonBody, AdapterReceive receive) throws Exception {
-        Request esRequest = new Request(operation.getMethod().name(), operation.getEndpoint());
+    public static Future<?> execGetIndexSettings(Future<Object> sync, ElasticCmd cmd, ElasticOperation o, AdapterReceive receive) throws Exception {
+        Request esRequest = new Request(ElasticHttpMethod.GET.name(), o.getEndpoint());
+        Response response = cmd.getClient().performRequest(esRequest);
+        try (InputStream content = response.getEntity().getContent()) {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(content);
+
+            List<Map<String, Object>> result = new ArrayList<>();
+            Iterator<String> indexNames = root.fieldNames();
+            while (indexNames.hasNext()) {
+                String indexName = indexNames.next();
+                JsonNode indexNode = root.get(indexName);
+                JsonNode settingsNode = indexNode.get("settings");
+
+                if (settingsNode != null) {
+                    flattenSettings(indexName, "", settingsNode, result);
+                }
+            }
+
+            List<JdbcColumn> columns = Arrays.asList(COL_NAME_STRING, COL_SETTING_STRING, COL_VALUE_STRING);
+            receive.responseResult(o.getRequest(), listResult(o.getRequest(), columns, result));
+        }
+        return completed(sync);
+    }
+
+    private static void flattenSettings(String indexName, String prefix, JsonNode node, List<Map<String, Object>> result) {
+        if (node.isObject()) {
+            Iterator<String> fieldNames = node.fieldNames();
+            while (fieldNames.hasNext()) {
+                String fieldName = fieldNames.next();
+                String newPrefix = prefix.isEmpty() ? fieldName : prefix + "." + fieldName;
+                flattenSettings(indexName, newPrefix, node.get(fieldName), result);
+            }
+        } else {
+            result.add(CollectionUtils.asMap(COL_NAME_STRING.name, indexName, COL_SETTING_STRING.name, prefix, COL_VALUE_STRING.name, node.asText()));
+        }
+    }
+
+    public static Future<?> execSetIndexSettings(Future<Object> sync, ElasticCmd cmd, ElasticOperation o, Object jsonBody, AdapterReceive receive) throws Exception {
+        Request esRequest = new Request(o.getMethod().name(), o.getEndpoint());
         if (jsonBody != null) {
             ObjectMapper mapper = new ObjectMapper();
             esRequest.setJsonEntity(mapper.writeValueAsString(jsonBody));
         }
-
-        if (operation.getMethod() == ElasticHttpMethod.GET) {
-            Response response = elasticCmd.getClient().performRequest(esRequest);
-            try (InputStream content = response.getEntity().getContent()) {
-                ObjectMapper mapper = new ObjectMapper();
-                JsonNode root = mapper.readTree(content);
-                receive.responseResult(operation.getRequest(), singleResult(operation.getRequest(), COL_JSON_STRING, root.toString()));
-            }
-        } else {
-            elasticCmd.getClient().performRequest(esRequest);
-            receive.responseUpdateCount(operation.getRequest(), 1);
-        }
+        cmd.getClient().performRequest(esRequest);
+        receive.responseUpdateCount(o.getRequest(), 1);
         return completed(sync);
     }
 }

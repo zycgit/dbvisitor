@@ -63,7 +63,11 @@ class ElasticDistributeCall {
                 ElasticHttpMethod method = h.settings().PUT() != null ? ElasticHttpMethod.PUT : ElasticHttpMethod.GET;
                 ElasticOperation op = createOperation(h.settings().settingsPath(), hints, argIndex, method, request);
                 Object jsonBody = resolveJson(h.settings().json(), argIndex, request);
-                return ElasticCommandsForIndex.execIndexSettings(sync, elasticCmd, op, jsonBody, receive);
+                if (method == ElasticHttpMethod.GET) {
+                    return ElasticCommandsForIndex.execGetIndexSettings(sync, elasticCmd, op, receive);
+                } else {
+                    return ElasticCommandsForIndex.execSetIndexSettings(sync, elasticCmd, op, jsonBody, receive);
+                }
             }
             if (h.open() != null) {
                 ElasticOperation op = createOperation(h.open().openPath(), hints, argIndex, ElasticHttpMethod.POST, request);

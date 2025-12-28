@@ -248,12 +248,19 @@ public class ElasticIndexMappingTest {
     public void testGetWildcardMapping() throws Exception {
         try (Connection conn = DriverManager.getConnection(ES_URL); Statement stmt = conn.createStatement()) {
             try (ResultSet rs = stmt.executeQuery("GET /dbv_*_test_idx_*/_mapping")) {
-                boolean found = false;
+                boolean found1 = false;
+                boolean found2 = false;
                 while (rs.next()) {
-                    if (INDEX_NAME_1.equals(rs.getString("NAME")))
-                        found = true;
+                    String name = rs.getString("NAME");
+                    if (INDEX_NAME_1.equals(name)) {
+                        found1 = true;
+                    }
+                    if (INDEX_NAME_2.equals(name)) {
+                        found2 = true;
+                    }
                 }
-                assertTrue(found);
+                assertTrue("Should find index 1", found1);
+                assertTrue("Should find index 2", found2);
             }
         }
     }

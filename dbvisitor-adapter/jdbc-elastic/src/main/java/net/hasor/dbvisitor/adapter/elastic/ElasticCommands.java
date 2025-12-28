@@ -7,30 +7,19 @@ import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.dbvisitor.driver.*;
 
 abstract class ElasticCommands {
-    // for db and collections
-    protected static final JdbcColumn COL_ID_STRING           = new JdbcColumn("_ID", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_JSON_STRING         = new JdbcColumn("_JSON", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_VALUE_STRING        = new JdbcColumn("VALUE", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_COUNT_LONG          = new JdbcColumn("COUNT", AdapterType.Long, "", "", "");
-    protected static final JdbcColumn COL_NAME_STRING         = new JdbcColumn("NAME", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_SOURCE_STRING       = new JdbcColumn("SOURCE", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_ALIASES_BOOLEAN     = new JdbcColumn("ALIASES", AdapterType.Boolean, "", "", "");
-    protected static final JdbcColumn COL_MAPPING_STRING      = new JdbcColumn("MAPPING", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_FIELD_STRING        = new JdbcColumn("FIELD", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_TYPE_STRING         = new JdbcColumn("TYPE", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_NESTED_BOOLEAN      = new JdbcColumn("NESTED", AdapterType.Boolean, "", "", "");
-    protected static final JdbcColumn COL_OPTION_JSON         = new JdbcColumn("OPTION", AdapterType.String, "", "", "");
-    //
-    protected static final JdbcColumn COL_INFO_STRING         = new JdbcColumn("INFO", AdapterType.String, "", "", "");
-    // for index
-    protected static final JdbcColumn COL_IDX_V_INT           = new JdbcColumn("V", AdapterType.Int, "", "", "");
-    protected static final JdbcColumn COL_HEALTH_STRING       = new JdbcColumn("health", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_STATUS_STRING       = new JdbcColumn("status", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_PRIMARIES_STRING    = new JdbcColumn("primaries", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_REPLICAS_STRING     = new JdbcColumn("replicas", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_DOCS_COUNT_STRING   = new JdbcColumn("docs_count", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_STORAGE_SIZE_STRING = new JdbcColumn("storage_size", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_DATA_STREAM_STRING  = new JdbcColumn("data_stream", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_ID_STRING       = new JdbcColumn("_ID", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_JSON_STRING     = new JdbcColumn("_JSON", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_VALUE_STRING    = new JdbcColumn("VALUE", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_COUNT_LONG      = new JdbcColumn("COUNT", AdapterType.Long, "", "", "");
+    protected static final JdbcColumn COL_NAME_STRING     = new JdbcColumn("NAME", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_SOURCE_STRING   = new JdbcColumn("SOURCE", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_ALIASES_BOOLEAN = new JdbcColumn("ALIASES", AdapterType.Boolean, "", "", "");
+    protected static final JdbcColumn COL_MAPPING_STRING  = new JdbcColumn("MAPPING", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_FIELD_STRING    = new JdbcColumn("FIELD", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_TYPE_STRING     = new JdbcColumn("TYPE", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_NESTED_BOOLEAN  = new JdbcColumn("NESTED", AdapterType.Boolean, "", "", "");
+    protected static final JdbcColumn COL_OPTION_JSON     = new JdbcColumn("OPTION", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_SETTING_STRING  = new JdbcColumn("SETTING", AdapterType.String, "", "", "");
 
     protected static Object getArg(AtomicInteger argIndex, AdapterRequest request) throws SQLException {
         int argIdx = argIndex.getAndIncrement();

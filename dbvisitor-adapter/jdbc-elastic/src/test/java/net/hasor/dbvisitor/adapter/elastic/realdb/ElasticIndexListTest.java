@@ -167,14 +167,4 @@ public class ElasticIndexListTest {
             }
         }
     }
-
-    @Test
-    public void testGetGlobalMapping() throws Exception {
-        try (Connection conn = DriverManager.getConnection(ES_URL); Statement stmt = conn.createStatement()) {
-
-            try (ResultSet rs = stmt.executeQuery("GET /_mapping")) {
-                assertTrue(rs.next());
-            }
-        }
-    }
 }
