@@ -311,6 +311,7 @@ class JdbcStatement implements Statement, Closeable {
             throw (SQLException) ((ee instanceof SQLException) ? ee : new SQLException(ee));
         } catch (Throwable e) {
             this.container.responseFailed(req, e);
+            this.container.onReady();
             throw (SQLException) ((e instanceof SQLException) ? e : new SQLException(e));
         } finally {
             if (this.closeOnCompletion) {
