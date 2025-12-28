@@ -1,11 +1,15 @@
 lexer grammar ElasticLexer;
 
+@members {
+    private boolean allowHintEnd = false;
+}
+
 // Whitespace
 WHITESPACE : [ \t\r\n]+ -> skip;
 
 // Hint comments (kept for parser)
-HintCommentStart  : '/*+';
-HintCommentEnd    : '*/';
+HintCommentStart  : '/*+' { allowHintEnd = true; };
+HintCommentEnd    : '*/' { allowHintEnd }? { allowHintEnd = false; };
 // Comments
 BLOCK_COMMENT : '/*' ~'+' .*? '*/' -> skip;
 LINE_COMMENT : '//' ~[\r\n]* -> skip;
