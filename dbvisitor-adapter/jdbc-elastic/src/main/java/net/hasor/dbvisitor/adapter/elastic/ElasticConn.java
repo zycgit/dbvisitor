@@ -187,7 +187,7 @@ public class ElasticConn extends AdapterConnection {
             return parser.esCommands();
         } catch (QueryParseException e) {
             String errorMsg = "command '" + ((ElasticRequest) request).getCommandBody() + "' parserFailed.";
-            throw new SQLException(errorMsg, JdbcErrorCode.SQL_STATE_SYNTAX_ERROR);
+            throw new SQLException(errorMsg, JdbcErrorCode.SQL_STATE_SYNTAX_ERROR, e);
         }
     }
 

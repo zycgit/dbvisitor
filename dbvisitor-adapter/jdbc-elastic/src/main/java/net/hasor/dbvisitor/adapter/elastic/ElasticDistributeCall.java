@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.dbvisitor.adapter.elastic.parser.ElasticJsonVisitor;
@@ -112,7 +113,14 @@ class ElasticDistributeCall {
             }
             if (h.cat() != null) {
                 ElasticOperation op = createOperation(h.cat().catPath(), hints, argIndex, ElasticHttpMethod.GET, request);
-                return ElasticCommandsForCat.execCat(sync, elasticCmd, op, null, receive);
+                String path = op.getQueryPath();
+                if (StringUtils.startsWithIgnoreCase(path, "/_cat/indices")) {
+                    return ElasticCommandsForCat.execCatIndices(sync, elasticCmd, op, receive);
+                } else if (StringUtils.startsWithIgnoreCase(path, "/_cat/nodes")) {
+                    return ElasticCommandsForCat.execCatNodes(sync, elasticCmd, op, receive);
+                } else if (StringUtils.startsWithIgnoreCase(path, "/_cat/health")) {
+                    return ElasticCommandsForCat.execCatHealth(sync, elasticCmd, op, receive);
+                }
             }
             if (h.generic() != null) {
                 ElasticHttpMethod method = ElasticHttpMethod.valueOf(h.generic().method().getText().toUpperCase());

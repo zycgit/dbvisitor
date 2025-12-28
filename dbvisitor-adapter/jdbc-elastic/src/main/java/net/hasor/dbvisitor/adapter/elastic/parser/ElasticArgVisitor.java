@@ -27,11 +27,50 @@ public class ElasticArgVisitor extends ElasticParserBaseVisitor<Object> {
     }
 
     @Override
-    public Object visitTerminal(TerminalNode node) {
-        int type = node.getSymbol().getType();
-        if (type == ElasticLexer.ARG1 || type == ElasticLexer.ARG2) {
+    public Object visitHintValue(ElasticParser.HintValueContext ctx) {
+        if (ctx.ARG1() != null) {
             this.argCount++;
         }
-        return super.visitTerminal(node);
+        return super.visitHintValue(ctx);
+    }
+
+    @Override
+    public Object visitJson(ElasticParser.JsonContext ctx) {
+        if (ctx.ARG1() != null) {
+            this.argCount++;
+        }
+        return super.visitJson(ctx);
+    }
+
+    @Override
+    public Object visitPair(ElasticParser.PairContext ctx) {
+        if (ctx.ARG1() != null) {
+            this.argCount++;
+        }
+        return super.visitPair(ctx);
+    }
+
+    @Override
+    public Object visitValue(ElasticParser.ValueContext ctx) {
+        if (ctx.ARG1() != null) {
+            this.argCount++;
+        }
+        return super.visitValue(ctx);
+    }
+
+    @Override
+    public Object visitPathValue(ElasticParser.PathValueContext ctx) {
+        if (ctx.ARG2() != null && !ctx.ARG2().isEmpty()) {
+            this.argCount += ctx.ARG2().size();
+        }
+        return super.visitPathValue(ctx);
+    }
+
+    @Override
+    public Object visitQueryParam(ElasticParser.QueryParamContext ctx) {
+        if (ctx.ARG2() != null) {
+            this.argCount++;
+        }
+        return super.visitQueryParam(ctx);
     }
 }
