@@ -28,18 +28,16 @@ public class ElasticParserTest {
     }
 
     @Test
-    public void testAnywherePlaceholder() throws IOException {
-        runTestFromFile("elastic_tests/anywhere_placeholder.txt");
-    }
-
-    @Test
     public void testOperationTypes() throws IOException {
         runTestFromFile("elastic_tests/operation_types.txt");
     }
 
     @Test
     public void testIndexManagement() throws IOException {
+        runTestFromFile("elastic_tests/index_aliases.txt");
         runTestFromFile("elastic_tests/index_management.txt");
+        runTestFromFile("elastic_tests/index_mapping.txt");
+        runTestFromFile("elastic_tests/index_open_close.txt");
     }
 
     @Test

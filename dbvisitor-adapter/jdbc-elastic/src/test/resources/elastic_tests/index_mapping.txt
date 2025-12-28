@@ -1,0 +1,66 @@
+GET /my_index/_mapping
+
+GET /index1,index2/_mapping
+
+GET /*_index/_mapping
+
+GET /_all/_mapping
+
+GET /my_index/_mapping/field/title,content
+
+GET /my_index/_mapping?filter_path=my_index.mappings.properties
+
+POST /my_index/_mapping
+{
+  "properties": {
+    "new_field": {
+      "type": "text",
+      "analyzer": "ik_max_word"
+    }
+  }
+}
+
+POST /my_index/_mapping
+{
+  "properties": {
+    "field1": { "type": "integer" },
+    "field2": { "type": "date", "format": "yyyy-MM-dd" }
+  }
+}
+
+POST /my_index/_mapping
+{
+  "properties": {
+    "existing_field": {
+      "type": "text",
+      "index": false  // 修改现有字段的 index 属性（仅部分属性可改）
+    }
+  }
+}
+
+PUT /my_index
+{
+  "mappings": {
+    "properties": {
+      "title": { "type": "text" },
+      "content": { "type": "text" },
+      "create_time": { "type": "date" }
+    }
+  }
+}
+
+PUT /my_index/_mapping
+{
+  "properties": {
+    "email": { "type": "keyword" }
+  }
+}
+
+PUT /my_index/_mapping
+{
+  "properties": {
+    "new_field": { "type": "keyword" }
+  }
+}
+
+GET /my_index/_mapping/_doc

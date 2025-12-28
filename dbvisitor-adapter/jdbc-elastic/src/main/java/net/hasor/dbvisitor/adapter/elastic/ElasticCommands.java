@@ -13,6 +13,14 @@ abstract class ElasticCommands {
     protected static final JdbcColumn COL_VALUE_STRING        = new JdbcColumn("VALUE", AdapterType.String, "", "", "");
     protected static final JdbcColumn COL_COUNT_LONG          = new JdbcColumn("COUNT", AdapterType.Long, "", "", "");
     protected static final JdbcColumn COL_NAME_STRING         = new JdbcColumn("NAME", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_SOURCE_STRING       = new JdbcColumn("SOURCE", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_ALIASES_BOOLEAN     = new JdbcColumn("ALIASES", AdapterType.Boolean, "", "", "");
+    protected static final JdbcColumn COL_MAPPING_STRING      = new JdbcColumn("MAPPING", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_FIELD_STRING        = new JdbcColumn("FIELD", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_TYPE_STRING         = new JdbcColumn("TYPE", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_NESTED_BOOLEAN      = new JdbcColumn("NESTED", AdapterType.Boolean, "", "", "");
+    protected static final JdbcColumn COL_OPTION_JSON         = new JdbcColumn("OPTION", AdapterType.String, "", "", "");
+    //
     protected static final JdbcColumn COL_INFO_STRING         = new JdbcColumn("INFO", AdapterType.String, "", "", "");
     // for index
     protected static final JdbcColumn COL_IDX_V_INT           = new JdbcColumn("V", AdapterType.Int, "", "", "");

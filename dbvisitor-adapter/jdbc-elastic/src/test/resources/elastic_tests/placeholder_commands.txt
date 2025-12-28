@@ -4,3 +4,26 @@ POST /users/doc { "name": ?, "age": ? };
 POST /users/search { "query": { "term": { "name": ? } } };
 PUT /users/doc/{?} { "name": "Fixed", "age": ? };
 PUT /users/doc/{?} ?;
+
+
+POST /index/_doc/1
+{
+  ?: "value_is_string",
+  "key_is_string": ?,
+  ?: ?,
+  "nested": {
+    ?: "inner_key_is_placeholder"
+  },
+  "array_test": [?, "val", ?]
+}
+
+PUT /index/_doc/2 ?
+
+POST /_search
+{
+    "query": {
+        "term": {
+            ?: ?
+        }
+    }
+}

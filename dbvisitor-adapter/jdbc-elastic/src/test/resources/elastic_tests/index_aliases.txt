@@ -1,0 +1,56 @@
+POST /_aliases
+{
+    "actions": [
+        { "add": { "index": "test1", "alias": "alias1" } }
+    ]
+}
+
+POST /_aliases
+{
+  "actions": [
+    { "add": { "index": "user_data_202401", "alias": "user_data_current" } }
+  ]
+}
+
+POST /_aliases
+{
+  "actions": [
+    { "remove": { "index": "user_data_202312", "alias": "user_data_current" } }
+  ]
+}
+
+POST /_aliases
+{
+  "actions": [
+    { "remove": { "index": "user_data_202312", "alias": "user_data_current" } },
+    { "add": { "index": "user_data_202401", "alias": "user_data_current" } }
+  ]
+}
+
+POST /_aliases
+{
+  "actions": [
+    { "add": { "index": "logs_202401", "alias": "logs", "is_write_index": true } },
+    { "add": { "index": "logs_202312", "alias": "logs" } }
+  ]
+}
+
+POST /_aliases
+{
+  "actions": [
+    { "add": { "index": "logs_*", "alias": "all_logs" } }
+  ]
+}
+
+POST /_aliases
+{
+  "actions": [
+    {
+      "add": {
+        "index": "user_data",
+        "alias": "active_users",
+        "filter": { "term": { "status": "active" } }
+      }
+    }
+  ]
+}
