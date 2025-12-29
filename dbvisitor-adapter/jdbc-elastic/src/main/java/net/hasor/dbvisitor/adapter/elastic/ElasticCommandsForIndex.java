@@ -6,11 +6,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.dbvisitor.driver.AdapterReceive;
+import net.hasor.dbvisitor.driver.AdapterType;
 import net.hasor.dbvisitor.driver.JdbcColumn;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 
 class ElasticCommandsForIndex extends ElasticCommands {
+    protected static final JdbcColumn COL_NAME_STRING     = new JdbcColumn("NAME", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_SOURCE_STRING   = new JdbcColumn("SOURCE", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_ALIASES_BOOLEAN = new JdbcColumn("ALIASES", AdapterType.Boolean, "", "", "");
+    protected static final JdbcColumn COL_MAPPING_STRING  = new JdbcColumn("MAPPING", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_FIELD_STRING    = new JdbcColumn("FIELD", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_TYPE_STRING     = new JdbcColumn("TYPE", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_NESTED_BOOLEAN  = new JdbcColumn("NESTED", AdapterType.Boolean, "", "", "");
+    protected static final JdbcColumn COL_OPTION_JSON     = new JdbcColumn("OPTION", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_SETTING_STRING  = new JdbcColumn("SETTING", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_VALUE_STRING    = new JdbcColumn("VALUE", AdapterType.String, "", "", "");
+
     // POST or GET /_aliases
     public static Future<?> execAliases(Future<Object> sync, ElasticCmd cmd, ElasticOperation o, Object jsonBody, AdapterReceive receive) throws Exception {
         Request esRequest = new Request(o.getMethod().name(), o.getEndpoint());

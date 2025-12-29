@@ -44,10 +44,14 @@ hintValue
     | OPEN_KW
     | CLOSE_KW
     | CAT_KW
+    | MGET_KW
+    | EXPLAIN_KW
+    | SOURCE_KW
     ;
 
 esCmd
-    : search
+    : header
+    | search
     | count
     | msearch
     | mapping
@@ -57,11 +61,29 @@ esCmd
     | aliases
     | doc
     | create
+    | queryOne
+    | mget
+    | explain
+    | insert
     | update
     | updateByQuery
     | deleteByQuery
+    | delete
     | cat
-    | generic
+    | createIndex
+    | addDoc
+    ;
+
+header
+    : HEAD path (json)? SEM?
+    ;
+
+delete
+    : DELETE deletePath SEM?
+    ;
+
+deletePath
+    : pathPart+ (ARG1 queryParams)?
     ;
 
 search
@@ -152,6 +174,34 @@ createPath
     : pathPart* SLASH CREATE_KW pathPart* (ARG1 queryParams)?
     ;
 
+insert
+    : GET path (json)? SEM?
+    ;
+
+mget
+    : (GET | POST) mgetPath (json)? SEM?
+    ;
+
+mgetPath
+    : pathPart* SLASH MGET_KW (ARG1 queryParams)?
+    ;
+
+explain
+    : (GET | POST) explainPath (json)? SEM?
+    ;
+
+explainPath
+    : pathPart* SLASH EXPLAIN_KW pathPart* (ARG1 queryParams)?
+    ;
+
+queryOne
+    : GET queryOnePath (json)? SEM?
+    ;
+
+queryOnePath
+    : pathPart* SLASH SOURCE_KW pathPart* (ARG1 queryParams)?
+    ;
+
 update
     : POST updateDocPath (json)? SEM?
     ;
@@ -176,16 +226,16 @@ deleteByQueryPath
     : pathPart* SLASH DELETE_BY_QUERY_KW (ARG1 queryParams)?
     ;
 
-generic
-    : method path (json)? SEM?
+createIndex
+    : PUT path (json)? SEM?
+    ;
+
+addDoc
+    : POST path (json)? SEM?
     ;
 
 method
-    : GET
-    | POST
-    | PUT
-    | DELETE
-    | HEAD
+    : HEAD
     | OPTIONS
     | PATCH
     ;
@@ -199,7 +249,7 @@ pathPart
     ;
 
 pathValue
-    : (ID | STAR | NUMBER | ARG2 | SEARCH_KW | COUNT_KW | MSEARCH_KW | DOC_KW | CREATE_KW | UPDATE_KW | UPDATE_BY_QUERY_KW | DELETE_BY_QUERY_KW | MAPPING_KW | SETTINGS_KW | ALIASES_KW | OPEN_KW | CLOSE_KW | CAT_KW)+
+    : (ID | STAR | NUMBER | ARG2 | SEARCH_KW | COUNT_KW | MSEARCH_KW | DOC_KW | CREATE_KW | UPDATE_KW | UPDATE_BY_QUERY_KW | DELETE_BY_QUERY_KW | MAPPING_KW | SETTINGS_KW | ALIASES_KW | OPEN_KW | CLOSE_KW | CAT_KW | MGET_KW | EXPLAIN_KW | SOURCE_KW)+
     ;
 
 queryParams

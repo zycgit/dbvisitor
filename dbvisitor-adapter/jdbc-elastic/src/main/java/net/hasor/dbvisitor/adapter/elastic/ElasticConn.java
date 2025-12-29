@@ -29,8 +29,8 @@ public class ElasticConn extends AdapterConnection {
     private final        long         preReadThreshold;
     private final        long         preReadMaxFileSize;
     private final        java.io.File preReadCacheDir;
-    private volatile     boolean      cancelled = false;
     private final        ObjectMapper json      = new ObjectMapper();
+    private volatile     boolean      cancelled = false;
 
     public ElasticConn(Connection owner, ElasticCmd elasticCmd, String jdbcUrl, Map<String, String> prop) {
         super(jdbcUrl, prop.get(ElasticKeys.USERNAME));

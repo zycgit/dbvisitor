@@ -2,7 +2,6 @@ package net.hasor.dbvisitor.adapter.elastic.parser;
 import java.util.ArrayList;
 import java.util.List;
 import net.hasor.dbvisitor.adapter.elastic.parser.ElasticParser.HintCommandContext;
-import org.antlr.v4.runtime.tree.TerminalNode;
 
 public class ElasticArgVisitor extends ElasticParserBaseVisitor<Object> {
     private final List<HintCommandContext> commandList = new ArrayList<>();

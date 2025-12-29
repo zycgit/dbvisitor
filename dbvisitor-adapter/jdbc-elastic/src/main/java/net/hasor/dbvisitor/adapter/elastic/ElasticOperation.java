@@ -1,7 +1,6 @@
 package net.hasor.dbvisitor.adapter.elastic;
 import java.util.Collections;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 import net.hasor.dbvisitor.driver.AdapterRequest;
 
 class ElasticOperation {
@@ -15,7 +14,7 @@ class ElasticOperation {
     private final AdapterRequest      request;
 
     public ElasticOperation(ElasticHttpMethod method, String endpoint, String queryPath, Map<String, Object> queryParams,//
-            Map<String, Object> hints, AdapterRequest request, AtomicInteger argIndex) {
+            Map<String, Object> hints, AdapterRequest request) {
         this.method = method;
         this.endpoint = endpoint;
         this.queryPath = queryPath;

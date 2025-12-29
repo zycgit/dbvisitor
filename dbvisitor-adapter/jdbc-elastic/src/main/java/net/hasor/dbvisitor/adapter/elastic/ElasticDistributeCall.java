@@ -33,19 +33,19 @@ class ElasticDistributeCall {
                 ElasticHttpMethod method = h.search().POST() != null ? ElasticHttpMethod.POST : ElasticHttpMethod.GET;
                 ElasticOperation op = createOperation(h.search().searchPath(), hints, argIndex, method, request);
                 Object jsonBody = resolveJson(h.search().json(), argIndex, request);
-                return ElasticCommandsForCrud.execSearch(sync, elasticCmd, op, jsonBody, receive);
+                return ElasticCommandsForQuery.execSearch(sync, elasticCmd, op, jsonBody, receive, conn);
             }
             if (h.count() != null) {
                 ElasticHttpMethod method = h.count().POST() != null ? ElasticHttpMethod.POST : ElasticHttpMethod.GET;
                 ElasticOperation op = createOperation(h.count().countPath(), hints, argIndex, method, request);
                 Object jsonBody = resolveJson(h.count().json(), argIndex, request);
-                return ElasticCommandsForCrud.execCount(sync, elasticCmd, op, jsonBody, receive);
+                return ElasticCommandsForQuery.execCount(sync, elasticCmd, op, jsonBody, receive);
             }
             if (h.msearch() != null) {
                 ElasticHttpMethod method = h.msearch().POST() != null ? ElasticHttpMethod.POST : ElasticHttpMethod.GET;
                 ElasticOperation op = createOperation(h.msearch().msearchPath(), hints, argIndex, method, request);
                 Object jsonBody = resolveJson(h.msearch().json(), argIndex, request);
-                return ElasticCommandsForCrud.execMultiSearch(sync, elasticCmd, op, jsonBody, receive);
+                return ElasticCommandsForQuery.execMultiSearch(sync, elasticCmd, op, jsonBody, receive, conn);
             }
             if (h.mapping() != null) {
                 ElasticHttpMethod method;
@@ -106,10 +106,50 @@ class ElasticDistributeCall {
                 Object jsonBody = resolveJson(h.updateByQuery().json(), argIndex, request);
                 return ElasticCommandsForCrud.execUpdateByQuery(sync, elasticCmd, op, jsonBody, receive);
             }
+            if (h.header() != null) {
+                ElasticOperation op = createOperation(h.header().path(), hints, argIndex, ElasticHttpMethod.HEAD, request);
+                return ElasticCommandsForQuery.execHeader(sync, elasticCmd, op, receive);
+            }
+            if (h.queryOne() != null) {
+                ElasticOperation op = createOperation(h.queryOne().queryOnePath(), hints, argIndex, ElasticHttpMethod.GET, request);
+                Object jsonBody = resolveJson(h.queryOne().json(), argIndex, request);
+                return ElasticCommandsForQuery.execGetSource(sync, elasticCmd, op, jsonBody, receive, conn);
+            }
+            if (h.mget() != null) {
+                ElasticHttpMethod method = h.mget().POST() != null ? ElasticHttpMethod.POST : ElasticHttpMethod.GET;
+                ElasticOperation op = createOperation(h.mget().mgetPath(), hints, argIndex, method, request);
+                Object jsonBody = resolveJson(h.mget().json(), argIndex, request);
+                return ElasticCommandsForQuery.execMGet(sync, elasticCmd, op, jsonBody, receive, conn);
+            }
+            if (h.explain() != null) {
+                ElasticHttpMethod method = h.explain().POST() != null ? ElasticHttpMethod.POST : ElasticHttpMethod.GET;
+                ElasticOperation op = createOperation(h.explain().explainPath(), hints, argIndex, method, request);
+                Object jsonBody = resolveJson(h.explain().json(), argIndex, request);
+                return ElasticCommandsForQuery.execExplain(sync, elasticCmd, op, jsonBody, receive);
+            }
+            if (h.insert() != null) {
+                ElasticOperation op = createOperation(h.insert().path(), hints, argIndex, ElasticHttpMethod.GET, request);
+                Object jsonBody = resolveJson(h.insert().json(), argIndex, request);
+                return ElasticCommandsForCrud.execInsert(sync, elasticCmd, op, jsonBody, receive);
+            }
             if (h.deleteByQuery() != null) {
                 ElasticOperation op = createOperation(h.deleteByQuery().deleteByQueryPath(), hints, argIndex, ElasticHttpMethod.POST, request);
                 Object jsonBody = resolveJson(h.deleteByQuery().json(), argIndex, request);
                 return ElasticCommandsForCrud.execDeleteByQuery(sync, elasticCmd, op, jsonBody, receive);
+            }
+            if (h.delete() != null) {
+                ElasticOperation op = createOperation(h.delete().deletePath(), hints, argIndex, ElasticHttpMethod.DELETE, request);
+                return ElasticCommandsForCrud.execDelete(sync, elasticCmd, op, null, receive);
+            }
+            if (h.createIndex() != null) {
+                ElasticOperation op = createOperation(h.createIndex().path(), hints, argIndex, ElasticHttpMethod.PUT, request);
+                Object jsonBody = resolveJson(h.createIndex().json(), argIndex, request);
+                return ElasticCommandsForCrud.execInsertCreate(sync, elasticCmd, op, jsonBody, receive);
+            }
+            if (h.addDoc() != null) {
+                ElasticOperation op = createOperation(h.addDoc().path(), hints, argIndex, ElasticHttpMethod.POST, request);
+                Object jsonBody = resolveJson(h.addDoc().json(), argIndex, request);
+                return ElasticCommandsForCrud.execInsertDoc(sync, elasticCmd, op, jsonBody, receive);
             }
             if (h.cat() != null) {
                 ElasticOperation op = createOperation(h.cat().catPath(), hints, argIndex, ElasticHttpMethod.GET, request);
@@ -121,12 +161,6 @@ class ElasticDistributeCall {
                 } else if (StringUtils.startsWithIgnoreCase(path, "/_cat/health")) {
                     return ElasticCommandsForCat.execCatHealth(sync, elasticCmd, op, receive);
                 }
-            }
-            if (h.generic() != null) {
-                ElasticHttpMethod method = ElasticHttpMethod.valueOf(h.generic().method().getText().toUpperCase());
-                ElasticOperation op = createOperation(h.generic().path(), hints, argIndex, method, request);
-                Object jsonBody = resolveJson(h.generic().json(), argIndex, request);
-                return ElasticCommandsForCrud.execGeneric(sync, elasticCmd, op, jsonBody, receive);
             }
 
             sync.failed(new SQLException("unknown command."));
@@ -206,7 +240,11 @@ class ElasticDistributeCall {
                 } else if (hv.NUMBER() != null) {
                     String num = hv.NUMBER().getText();
                     try {
-                        value = num.contains(".") ? Double.parseDouble(num) : Long.parseLong(num);
+                        if (StringUtils.contains(num, ".")) {
+                            value = Double.parseDouble(num);
+                        } else {
+                            value = Long.parseLong(num);
+                        }
                     } catch (NumberFormatException e) {
                         value = num;
                     }
@@ -249,7 +287,7 @@ class ElasticDistributeCall {
             }
         }
 
-        return new ElasticOperation(method, endpoint, queryPath, queryParams, hints, request, argIndex);
+        return new ElasticOperation(method, endpoint, queryPath, queryParams, hints, request);
     }
 
     private static void buildEndpoint(ParseTree tree, StringBuilder builder, AtomicInteger argIndex, AdapterRequest request) throws SQLException {

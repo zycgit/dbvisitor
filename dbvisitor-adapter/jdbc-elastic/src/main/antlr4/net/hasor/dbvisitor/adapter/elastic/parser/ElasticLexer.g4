@@ -61,6 +61,9 @@ ALIASES_KW : '_aliases';
 OPEN_KW    : '_open';
 CLOSE_KW   : '_close';
 CAT_KW     : '_cat';
+MGET_KW    : '_mget';
+EXPLAIN_KW : '_explain';
+SOURCE_KW  : '_source';
 
 // String
 STRING    : '"' ( ~["\\] | '\\' . )* '"';
