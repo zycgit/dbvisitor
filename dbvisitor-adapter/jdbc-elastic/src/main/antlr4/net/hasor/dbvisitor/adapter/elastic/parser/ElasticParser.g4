@@ -51,6 +51,7 @@ hintValue
 
 esCmd
     : header
+    | explain
     | search
     | count
     | msearch
@@ -63,13 +64,12 @@ esCmd
     | create
     | queryOne
     | mget
-    | explain
+    | delete
+    | cat
     | insert
     | update
     | updateByQuery
     | deleteByQuery
-    | delete
-    | cat
     | createIndex
     | addDoc
     ;
@@ -175,7 +175,7 @@ createPath
     ;
 
 insert
-    : GET path (json)? SEM?
+    : (POST | PUT) path (json)? SEM?
     ;
 
 mget

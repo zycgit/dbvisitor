@@ -1,6 +1,6 @@
-/*+route=primary*/ GET /users/doc/1;
-/*+timeout=30;trace=true*/ POST /users/search { "query": { "match_all": {} }, "size": 1 };
+/*+route=primary*/ GET /users/_source/1;
+/*+route=primary*/ POST /users/search { "query": { "match_all": {} }, "size": 1 };
 /*+retry=3,refresh=?*/ POST /users/bulk [ { "index": { "_id": "10" } }, { "name": "Zoe" } ];
-/*+scroll=1m*/ DELETE /users/doc/4;
-/*+type=_doc*/ PUT /users/doc/5 { "name": "Neo", "age": 35 };
-/*+shard=?;trace=?*/ GET /users/doc/6;
+/*+scroll=1m*/ DELETE /users/_doc/4;
+/*+type=_doc*/ PUT /users/_doc/5 { "name": "Neo", "age": 35 };
+/*+shard=?;trace=?*/ GET /users/_source/6;

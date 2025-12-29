@@ -10,6 +10,18 @@ import org.junit.Test;
 public class ElasticSearchTest {
     private static final String ES_URL = "jdbc:dbvisitor:elastic://127.0.0.1:19200";
 
+    private boolean isEs7OrLater() throws Exception {
+        try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
+            try (ResultSet rs = s.executeQuery("GET /_cat/nodes?h=version")) {
+                if (rs.next()) {
+                    String version = rs.getString("VERSION");
+                    return version != null && (version.startsWith("7.") || version.startsWith("8."));
+                }
+            }
+        }
+        return false;
+    }
+
     @Before
     public void before() throws Exception {
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
@@ -305,7 +317,14 @@ public class ElasticSearchTest {
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
             s.executeUpdate("POST /test_search/_doc/99?refresh=true { \"name\": \"User99\", \"value\": 99 }");
 
-            try (ResultSet rs = s.executeQuery("GET /test_search/_source/99")) {
+            String sql;
+            if (isEs7OrLater()) {
+                sql = "GET /test_search/_source/99";
+            } else {
+                sql = "GET /test_search/_doc/99/_source";
+            }
+
+            try (ResultSet rs = s.executeQuery(sql)) {
                 if (rs.next()) {
                     String name = rs.getString("name");
                     int value = rs.getInt("value");
@@ -327,7 +346,14 @@ public class ElasticSearchTest {
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
             s.executeUpdate("POST /test_search/_doc/99?refresh=true { \"name\": \"User99\", \"value\": 99 }");
 
-            try (ResultSet rs = s.executeQuery("POST /test_search/_explain/99 { \"query\": { \"match_all\": {} } }")) {
+            String sql;
+            if (isEs7OrLater()) {
+                sql = "POST /test_search/_explain/99 { \"query\": { \"match_all\": {} } }";
+            } else {
+                sql = "POST /test_search/_doc/99/_explain { \"query\": { \"match_all\": {} } }";
+            }
+
+            try (ResultSet rs = s.executeQuery(sql)) {
                 if (rs.next()) {
                     boolean matched = rs.getBoolean("matched");
                     if (!matched) {

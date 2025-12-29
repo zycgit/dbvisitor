@@ -1,6 +1,6 @@
-GET /;
-GET /cat/indices?format=json;
+GET /_cat/health;
+GET /_cat/indices?format=json;
 PUT /users;
 POST /users/doc { "name": "Tom", "age": 22 };
-GET /users/doc/1;
+GET /users/_source/1;
 DELETE /users/doc/1;

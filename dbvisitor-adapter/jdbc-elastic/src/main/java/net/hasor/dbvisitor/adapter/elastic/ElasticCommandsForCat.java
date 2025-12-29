@@ -34,6 +34,7 @@ class ElasticCommandsForCat extends ElasticCommands {
     protected static final JdbcColumn COL_LOAD_5M_STRING               = new JdbcColumn("LOAD_5M", AdapterType.String, "", "", "");
     protected static final JdbcColumn COL_LOAD_15M_STRING              = new JdbcColumn("LOAD_15M", AdapterType.String, "", "", "");
     protected static final JdbcColumn COL_NODE_ROLE_STRING             = new JdbcColumn("NODE.ROLE", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_VERSION_STRING               = new JdbcColumn("VERSION", AdapterType.String, "", "", "");
     // for /_cat/health
     protected static final JdbcColumn COL_CLUSTER_STRING               = new JdbcColumn("CLUSTER", AdapterType.String, "", "", "");
     protected static final JdbcColumn COL_NODE_TOTAL_STRING            = new JdbcColumn("NODE.TOTAL", AdapterType.String, "", "", "");
@@ -72,7 +73,8 @@ class ElasticCommandsForCat extends ElasticCommands {
                 COL_LOAD_1M_STRING,              //
                 COL_LOAD_5M_STRING,              //
                 COL_LOAD_15M_STRING,             //
-                COL_NODE_ROLE_STRING             //
+                COL_NODE_ROLE_STRING,            //
+                COL_VERSION_STRING               //
         ));
     }
 

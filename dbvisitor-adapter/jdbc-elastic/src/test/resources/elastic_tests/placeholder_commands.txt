@@ -1,5 +1,5 @@
-GET /users/doc/{?};
-GET /users/search?q={?};
+GET /users/_source/{?};
+GET /users/_search?q={?};
 POST /users/doc { "name": ?, "age": ? };
 POST /users/search { "query": { "term": { "name": ? } } };
 PUT /users/doc/{?} { "name": "Fixed", "age": ? };

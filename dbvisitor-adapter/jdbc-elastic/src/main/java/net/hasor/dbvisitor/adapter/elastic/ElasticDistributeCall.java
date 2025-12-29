@@ -128,7 +128,8 @@ class ElasticDistributeCall {
                 return ElasticCommandsForQuery.execExplain(sync, elasticCmd, op, jsonBody, receive);
             }
             if (h.insert() != null) {
-                ElasticOperation op = createOperation(h.insert().path(), hints, argIndex, ElasticHttpMethod.GET, request);
+                ElasticHttpMethod method = h.insert().POST() != null ? ElasticHttpMethod.POST : ElasticHttpMethod.PUT;
+                ElasticOperation op = createOperation(h.insert().path(), hints, argIndex, method, request);
                 Object jsonBody = resolveJson(h.insert().json(), argIndex, request);
                 return ElasticCommandsForCrud.execInsert(sync, elasticCmd, op, jsonBody, receive);
             }

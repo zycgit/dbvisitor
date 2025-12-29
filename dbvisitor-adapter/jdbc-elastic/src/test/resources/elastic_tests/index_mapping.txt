@@ -6,7 +6,7 @@ GET /*_index/_mapping
 
 GET /_all/_mapping
 
-GET /my_index/_mapping/field/title,content
+GET /my_index/_mapping?fields=title&fields=content
 
 GET /my_index/_mapping?filter_path=my_index.mappings.properties
 
@@ -63,4 +63,4 @@ PUT /my_index/_mapping
   }
 }
 
-GET /my_index/_mapping/_doc
+GET /my_index/_mapping

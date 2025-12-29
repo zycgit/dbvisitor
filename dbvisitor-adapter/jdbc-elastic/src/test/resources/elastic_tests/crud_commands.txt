@@ -1,12 +1,12 @@
 PUT /users?pretty=true { "settings": { "number_of_shards": 1 }, "mappings": { "properties": { "name": { "type": "text" }, "age": { "type": "integer" } } } };
 POST /users/doc { "name": "Alice", "age": 30 };
-GET /users/doc/1;
+GET /users/_source/1;
 POST /users/doc/1/update { "doc": { "age": 31, "tags": ["vip", "beta"], "address": { "city": "Hangzhou", "zip": "310000" } } };
 POST /users/bulk?refresh=true [ { "index": { "id": "2" } }, { "name": "Bob", "age": 25 }, { "index": { "id": "3" } }, { "name": "Carol", "age": 27, "skills": ["java", "search"] } ];
 POST /users/search { "query": { "bool": { "must": [ { "term": { "name": "Bob" } } ], "filter": [ { "range": { "age": { "gte": 20, "lt": 30 } } } ] } }, "sort": [ { "age": { "order": "desc" } } ], "from": 0, "size": 5 };
 POST /users/updatebyquery { "script": { "source": "ctx._source.age += params.inc", "lang": "painless", "params": { "inc": 1 } }, "query": { "term": { "name": "Bob" } } };
 DELETE /users/doc/2?refresh=true;
-GET /users/search?pretty=true { "query": { "match": { "skills": "java" } } };
+GET /users/_search?pretty=true { "query": { "match": { "skills": "java" } } };
 PUT /users/doc/4 { "name": "Dave", "age": 40 };
 POST /users/bulk [ { "delete": { "_id": "3" } } ];
 POST /users/bulk [ { "update": { "_id": "1" } }, { "doc": { "age": 32 } } ];
