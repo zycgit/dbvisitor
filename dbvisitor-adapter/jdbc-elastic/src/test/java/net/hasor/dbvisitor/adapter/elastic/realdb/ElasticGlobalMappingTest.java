@@ -33,7 +33,7 @@ public class ElasticGlobalMappingTest {
             }
 
             try (Statement stmt = conn.createStatement()) {
-                String putIndex1 = "PUT /" + INDEX_NAME_1 + " {" +        //
+                String putIndex1_v6 = "PUT /" + INDEX_NAME_1 + " {" +     //
                         "\"mappings\": {" +                               //
                         "  \"_doc\": {" +                                 //
                         "    \"properties\": {" +                         //
@@ -42,9 +42,20 @@ public class ElasticGlobalMappingTest {
                         "  }" +                                           //
                         "}" +                                             //
                         "}";                                              //
-                stmt.executeUpdate(putIndex1);
+                String putIndex1_v7 = "PUT /" + INDEX_NAME_1 + " {" +     //
+                        "\"mappings\": {" +                               //
+                        "    \"properties\": {" +                         //
+                        "      \"name\": { \"type\": \"text\" }" +        //
+                        "    }" +                                         //
+                        "}" +                                             //
+                        "}";                                              //
+                try {
+                    stmt.executeUpdate(putIndex1_v6);
+                } catch (Exception e) {
+                    stmt.executeUpdate(putIndex1_v7);
+                }
 
-                String putIndex2 = "PUT /" + INDEX_NAME_2 + " {" + //
+                String putIndex2_v6 = "PUT /" + INDEX_NAME_2 + " {" + //
                         "\"mappings\": {" +                        //
                         "  \"_doc\": {" +                          //
                         "    \"properties\": {" +                  //
@@ -53,7 +64,18 @@ public class ElasticGlobalMappingTest {
                         "  }" +                                    //
                         "}" +                                      //
                         "}";
-                stmt.executeUpdate(putIndex2);
+                String putIndex2_v7 = "PUT /" + INDEX_NAME_2 + " {" + //
+                        "\"mappings\": {" +                        //
+                        "    \"properties\": {" +                  //
+                        "      \"title\": { \"type\": \"text\" }" +//
+                        "    }" +                                  //
+                        "}" +                                      //
+                        "}";
+                try {
+                    stmt.executeUpdate(putIndex2_v6);
+                } catch (Exception e) {
+                    stmt.executeUpdate(putIndex2_v7);
+                }
             }
         }
     }

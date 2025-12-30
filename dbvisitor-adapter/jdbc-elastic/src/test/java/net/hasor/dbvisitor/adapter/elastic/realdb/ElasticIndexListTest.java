@@ -28,8 +28,13 @@ public class ElasticIndexListTest {
             }
             try (Statement stmt = conn.createStatement()) {
                 // Create index with a dummy mapping so that GET /_mapping returns rows
-                String mapping = "{\"mappings\": {\"_doc\": {\"properties\": {\"dummy\": {\"type\": \"keyword\"}}}}}";
-                stmt.executeUpdate("PUT /" + INDEX_NAME + " " + mapping);
+                String mapping_v6 = "{\"mappings\": {\"_doc\": {\"properties\": {\"dummy\": {\"type\": \"keyword\"}}}}}";
+                String mapping_v7 = "{\"mappings\": {\"properties\": {\"dummy\": {\"type\": \"keyword\"}}}}";
+                try {
+                    stmt.executeUpdate("PUT /" + INDEX_NAME + " " + mapping_v6);
+                } catch (Exception e) {
+                    stmt.executeUpdate("PUT /" + INDEX_NAME + " " + mapping_v7);
+                }
             }
         }
     }
