@@ -152,19 +152,19 @@ class ElasticDistributeCall {
             sync.failed(new SQLException("unknown command."));
             return sync;
         } catch (Exception e) {
-            sync.failed(readError(e));
+            sync.failed(readError(e, request));
             return sync;
         }
     }
 
-    private static SQLException readError(Exception e) {
+    private static SQLException readError(Exception e, AdapterRequest request) {
         if (e instanceof ResponseException) {
             String errorMsg = null;
             Response response = ((ResponseException) e).getResponse();
             try {
                 if (response.getEntity() != null) {
                     try (InputStream content = response.getEntity().getContent()) {
-                        ObjectMapper mapper = new ObjectMapper();
+                        ObjectMapper mapper = ((ElasticRequest) request).getJson();
                         JsonNode jsonNode = mapper.readTree(content);
                         if (jsonNode.has("error")) {
                             JsonNode errorNode = jsonNode.get("error");

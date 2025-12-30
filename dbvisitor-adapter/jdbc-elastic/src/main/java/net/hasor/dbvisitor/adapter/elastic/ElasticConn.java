@@ -109,7 +109,7 @@ public class ElasticConn extends AdapterConnection {
         try {
             Response response = elasticCmd.getClient().performRequest(new Request("GET", "/"));
             try (InputStream content = response.getEntity().getContent()) {
-                ObjectMapper mapper = new ObjectMapper();
+                ObjectMapper mapper = this.json;
                 JsonNode rootNode = mapper.readTree(content);
                 JsonNode versionNode = rootNode.path("version");
 

@@ -115,7 +115,7 @@ class ElasticCommandsForCat extends ElasticCommands {
         Request esRequest = new Request(o.getMethod().name(), endpoint);
         Response response = cmd.getClient().performRequest(esRequest);
         try (InputStream content = response.getEntity().getContent()) {
-            ObjectMapper mapper = new ObjectMapper();
+            ObjectMapper mapper = ((ElasticRequest) o.getRequest()).getJson();
             JsonNode root = mapper.readTree(content);
 
             List<Map<String, Object>> result = new ArrayList<>();

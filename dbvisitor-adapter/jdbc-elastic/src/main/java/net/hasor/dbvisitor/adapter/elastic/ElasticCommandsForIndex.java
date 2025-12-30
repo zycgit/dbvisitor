@@ -27,14 +27,14 @@ class ElasticCommandsForIndex extends ElasticCommands {
     public static Future<?> execAliases(Future<Object> sync, ElasticCmd cmd, ElasticOperation o, Object jsonBody, AdapterReceive receive) throws Exception {
         Request esRequest = new Request(o.getMethod().name(), o.getEndpoint());
         if (jsonBody != null) {
-            ObjectMapper mapper = new ObjectMapper();
+            ObjectMapper mapper = ((ElasticRequest) o.getRequest()).getJson();
             esRequest.setJsonEntity(mapper.writeValueAsString(jsonBody));
         }
 
         if (o.getMethod() == ElasticHttpMethod.GET) {
             Response response = cmd.getClient().performRequest(esRequest);
             try (InputStream content = response.getEntity().getContent()) {
-                ObjectMapper mapper = new ObjectMapper();
+                ObjectMapper mapper = ((ElasticRequest) o.getRequest()).getJson();
                 JsonNode root = mapper.readTree(content);
 
                 List<Map<String, Object>> result = new ArrayList<>();
@@ -89,14 +89,14 @@ class ElasticCommandsForIndex extends ElasticCommands {
     public static Future<?> execIndexMapping(Future<Object> sync, ElasticCmd cmd, ElasticOperation o, Object jsonBody, AdapterReceive receive) throws Exception {
         Request esRequest = new Request(o.getMethod().name(), o.getEndpoint());
         if (jsonBody != null) {
-            ObjectMapper mapper = new ObjectMapper();
+            ObjectMapper mapper = ((ElasticRequest) o.getRequest()).getJson();
             esRequest.setJsonEntity(mapper.writeValueAsString(jsonBody));
         }
 
         if (o.getMethod() == ElasticHttpMethod.GET) {
             Response response = cmd.getClient().performRequest(esRequest);
             try (InputStream content = response.getEntity().getContent()) {
-                ObjectMapper mapper = new ObjectMapper();
+                ObjectMapper mapper = ((ElasticRequest) o.getRequest()).getJson();
                 JsonNode root = mapper.readTree(content);
 
                 List<Map<String, Object>> result = new ArrayList<>();
@@ -179,7 +179,7 @@ class ElasticCommandsForIndex extends ElasticCommands {
         Request esRequest = new Request(ElasticHttpMethod.GET.name(), o.getEndpoint());
         Response response = cmd.getClient().performRequest(esRequest);
         try (InputStream content = response.getEntity().getContent()) {
-            ObjectMapper mapper = new ObjectMapper();
+            ObjectMapper mapper = ((ElasticRequest) o.getRequest()).getJson();
             JsonNode root = mapper.readTree(content);
 
             List<Map<String, Object>> result = new ArrayList<>();
@@ -216,7 +216,7 @@ class ElasticCommandsForIndex extends ElasticCommands {
     public static Future<?> execSetIndexSettings(Future<Object> sync, ElasticCmd cmd, ElasticOperation o, Object jsonBody, AdapterReceive receive) throws Exception {
         Request esRequest = new Request(o.getMethod().name(), o.getEndpoint());
         if (jsonBody != null) {
-            ObjectMapper mapper = new ObjectMapper();
+            ObjectMapper mapper = ((ElasticRequest) o.getRequest()).getJson();
             esRequest.setJsonEntity(mapper.writeValueAsString(jsonBody));
         }
         cmd.getClient().performRequest(esRequest);
