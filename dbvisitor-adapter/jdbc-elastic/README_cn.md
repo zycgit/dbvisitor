@@ -1,192 +1,137 @@
+# jdbc-elastic
+
 ## 介绍
 
-jdbc-mongo 是一个 MongoDB 的 JDBC 驱动适配器，它允许开发者使用标准的 JDBC 接口和原始命令来操作 MongoDB 数据。
-目的是通过熟悉 JDBC 编程模型，使开发者能够无缝地使用 MongoDB。
+jdbc-elastic 是一个 ElasticSearch 的 JDBC 驱动适配器，它允许开发者使用标准的 JDBC 接口和 ElasticSearch 原生 REST API 风格的命令来操作 ElasticSearch。
+目的是通过熟悉 JDBC 编程模型，使开发者能够无缝地集成和使用 ElasticSearch。
 
-## 特性：
+## 特性
 
-- 支持 MongoDB 的常用命令，包括 CRUD、聚合、索引管理等。
-- 支持 JDBC 标准接口，包括 Connection、Statement、PreparedStatement、ResultSet 等。
-- 支持 命令参数占位符 “?”，并使用 PreparedStatement 设置参数。
-- 支持 多命令执行并通过 JDBC 标准方法获取多命令执行结果。
-- 支持 Statement 的 maxRows、fetchSize、timeoutSec 属性设置。
-- 支持 指令拦截器，可用于日志记录、性能监控等场景。
-- 支持 类型转换，例如 结果集返回为 LONG 类型时，可通过 ResultSet.getInt 或 ResultSet.getString 获取数据。
-- 支持 预读配置，优化大文件或大量数据的读取性能。
+- **原生命令支持**：支持 ElasticSearch 的常用 REST API 命令，包括 `GET`, `POST`, `PUT`, `DELETE`, `HEAD`。
+- **JDBC 标准接口**：支持 `Connection`, `Statement`, `PreparedStatement`, `ResultSet` 等标准接口。
+- **参数占位符**：支持在 URL 路径和 JSON Body 中使用 `?` 占位符，并使用 `PreparedStatement` 设置参数。
+- **结果集映射**：自动将 ElasticSearch 的 JSON 响应映射为 JDBC `ResultSet`。
+- **多命令支持**：支持 `_mget`, `_msearch` 等批量操作。
+- **索引管理**：支持索引的创建、删除、Mapping 设置、Settings 设置、别名管理等。
+- **预读优化**：支持大结果集的预读配置，优化读取性能。
 
-## 技术实现
-
-### 架构设计
-
-jdbc-mongo 项目采用了适配器模式，将标准的 JDBC 接口适配到 MongoDB 命令体系。主要组件包括：
-- MongoConn：实现了 JDBC Connection 接口，是整个适配器的核心，负责连接管理和命令执行。
-- MongoCmd：封装了 MongoDB 客户端的各种命令接口。
-- MongoRequest：表示一个 MongoDB 命令请求。
-- ANTLR4 解析器：用于解析 SQL 风格的 MongoDB 命令，生成执行计划。
-
-### 命令执行流程
-
-- 用户通过 JDBC API 创建 Connection、Statement 并执行 MongoDB 命令。
-- MongoConn 接收命令，使用 ANTLR4 解析器解析命令。
-- 解析后的命令通过 MongoCmd 转发给底层的 MongoDB 官方驱动执行。
-- 执行结果通过标准的 ResultSet 或更新计数返回给用户。
-
-### 依赖技术
-- MongoDB Driver：MongoDB 官方 Java 客户端。
-- ANTLR4：强大的语法解析器生成工具，用于解析 MongoDB 命令。
-- dbVisitor-driver：基础的数据库驱动框架。
-
-## 使用方法
+## 快速开始
 
 ### 引入依赖
 
-```xml title='Maven 依赖'
+```xml
 <dependency>
     <groupId>net.hasor</groupId>
-    <artifactId>jdbc-mongo</artifactId>
-    <version>6.3.0</version>
+    <artifactId>jdbc-elastic</artifactId>
+    <version>6.3.2</version> <!-- 请使用最新版本 -->
 </dependency>
 ```
 
 ### 连接配置
 
-使用标准的 JDBC URL 格式连接 MongoDB：
+使用标准的 JDBC URL 格式连接 ElasticSearch：
 
 ```java
-String url = "jdbc:dbvisitor:mongo://127.0.0.1:27017/testdb?connectTimeout=5000";
+String url = "jdbc:dbvisitor:elastic://127.0.0.1:9200";
 Properties props = new Properties();
-props.setProperty("username", "user");
-props.setProperty("password", "pass");
+props.setProperty("username", "elastic");
+props.setProperty("password", "changeme");
 Connection conn = DriverManager.getConnection(url, props);
 ```
 
-主要的连接参数包括：
-- host/port：MongoDB 服务地址。
-- database：数据库名称。
-- username/password：认证信息。
-- mechanism：认证机制，支持 PLAIN, SCRAM-SHA-1, SCRAM-SHA-256, GSSAPI, X-509。
-- connectTimeout：连接超时时间（毫秒）。
-- socketTimeout：Socket 读取超时时间（毫秒）。
-- retryWrites/retryReads：读写重试策略。
+**支持的连接参数：**
+
+| 参数名 | 说明 | 默认值 |
+| --- | --- | --- |
+| `username` | 认证用户名 | 无 |
+| `password` | 认证密码 | 无 |
+| `connectTimeout` | 连接超时时间（毫秒） | - |
+| `socketTimeout` | Socket 读取超时时间（毫秒） | - |
+| `preRead` | 是否开启预读 | `true` |
+| `preReadThreshold` | 预读阈值（字节），超过该大小触发文件缓存 | `5MB` |
+| `preReadMaxFileSize` | 预读最大文件大小 | `20MB` |
+| `preReadCacheDir` | 预读缓存目录 | 系统临时目录 |
 
 ### 示例代码
 
-```java
-public class MongoJdbcExample {
-  public static void main(String[] args) throws Exception {
-    String url = "jdbc:dbvisitor:mongo://127.0.0.1:27017/testdb";
-    try (Connection conn = DriverManager.getConnection(url)) {
-      // Statement Example
-      try (Statement stmt = conn.createStatement()) {
-        try (ResultSet rs = stmt.executeQuery("find my_collection limit 10")) {
-          while (rs.next()) {
-            System.out.println(rs.getString("name"));
-          }
-        }
-      }
+#### 1. 执行查询 (Search)
 
-      // PreparedStatement Example
-      try (PreparedStatement pstmt = conn.prepareStatement("test.user_info.insert({name: ?, age: ?})")) {
-        pstmt.setString(1, "acc");
-        pstmt.setString(2, "123");
-        pstmt.executeUpdate();
-      }
+```java
+try (Connection conn = DriverManager.getConnection(url, props)) {
+    try (Statement stmt = conn.createStatement()) {
+        // 执行 DSL 查询
+        String dsl = "POST /my_index/_search { \"query\": { \"match_all\": {} } }";
+        try (ResultSet rs = stmt.executeQuery(dsl)) {
+            while (rs.next()) {
+                System.out.println("ID: " + rs.getString("_ID"));
+                System.out.println("Source: " + rs.getString("_DOC")); // _DOC 返回原始 JSON
+            }
+        }
     }
-  }
 }
 ```
 
-## 限制
+#### 2. 使用 PreparedStatement (带参数)
 
-- 在使用 DatabaseMetaData 接口时获取的属性不可信。
-- 在使用 resultSetType、resultSetConcurrency、resultSetHoldability、fetchDirection 参数时只能选择如下默认值：
-  - resultSetType = TYPE_FORWARD_ONLY
-  - resultSetConcurrency = CONCUR_READ_ONLY
-  - resultSetHoldability = HOLD_CURSORS_OVER_COMMIT
-  - fetchDirection = FETCH_FORWARD
-- 在使用 ResultSet 时结果集时
-  - 不支持如 ResultSet.update/insert/deleteXXX 系列方法。
-- 在使用 Statement、PreparedStatement 接口时不支持如下参数的重载方法
-  - xxx(String sql, int[] columnIndexes) 方法
-  - xxx(String sql, String[] columnNames) 方法
-- 不支持 的 JDBC 数据类型有
-  - SQLXML、REF_CURSOR、RowId、Ref、Struct、DISTINCT
-- 不支持 addBatch、clearBatch 批量化操作
-- 不支持 savepoint 操作
-
-## Driver Parameters
-
-``` title='JDBC URL Format'
-jdbc:dbvisitor:mongo://server:17017/database?param1=value1&param2=value2
+```java
+String dsl = "POST /my_index/_search { \"query\": { \"term\": { \"user\": ? } } }";
+try (PreparedStatement pstmt = conn.prepareStatement(dsl)) {
+    pstmt.setString(1, "kimchy");
+    try (ResultSet rs = pstmt.executeQuery()) {
+        while (rs.next()) {
+            // ...
+        }
+    }
+}
 ```
 
-| 参数名                  | 描述                                                                 | 默认值                 |
-|----------------------|--------------------------------------------------------------------|---------------------|
-| `username`           | 数据库用户名                                                             | 无                   |
-| `password`           | 数据库密码                                                              | 无                   |
-| `database`           | 数据库名称                                                              | 无                   |
-| `mechanism`          | 认证机制，支持 `PLAIN`, `SCRAM-SHA-1`, `SCRAM-SHA-256`, `GSSAPI`, `X-509` | 自动协商                |
-| `clientName`         | 客户端名称，显示在 MongoDB 服务器日志中                                           | `Mongo-JDBC-Client` |
-| `connectTimeout`     | 连接超时时间（毫秒）                                                         | 驱动默认值               |
-| `socketTimeout`      | Socket 读取超时时间（毫秒）                                                  | 驱动默认值               |
-| `socketSndBuffer`    | Socket 发送缓冲区大小（字节）                                                 | 驱动默认值               |
-| `socketRcvBuffer`    | Socket 接收缓冲区大小（字节）                                                 | 驱动默认值               |
-| `retryWrites`        | 是否启用重试写入                                                           | `true`              |
-| `retryReads`         | 是否启用重试读取                                                           | `true`              |
-| `preRead`            | 是否启用预读                                                             | `false`             |
-| `preReadThreshold`   | 预读阈值（MB），超过此大小触发预读                                                 | -                   |
-| `preReadMaxFileSize` | 预读最大文件大小（MB）                                                       | -                   |
-| `preReadCacheDir`    | 预读缓存目录                                                             | -                   |
+#### 3. 插入/更新文档
 
-## 支持的命令列表
+```java
+String insertSql = "POST /my_index/_doc/1 { \"user\": \"kimchy\", \"post_date\": \"2009-11-15T14:12:12\", \"message\": \"trying out Elasticsearch\" }";
+try (Statement stmt = conn.createStatement()) {
+    stmt.executeUpdate(insertSql);
+}
+```
 
-- 值：使用 executeUpdate / getUpdateCount 获取影响行数。
-- 结果集：使用 executeQuery / getResultSet 获取结果集。
+#### 4. 索引管理
 
-| 命令                    | 描述                                                 | 官方文档                                                                                              |
-|-----------------------|----------------------------------------------------|---------------------------------------------------------------------------------------------------|
-| 集合命令                  |                                                    |                                                                                                   |
-| `find`                | 查询文档，支持 `limit`, `skip`, `sort`, `explain`, `hint` | [find](https://www.mongodb.com/docs/manual/reference/command/find/)                               |
-| `findOne`             | 查询单个文档                                             | [findOne](https://www.mongodb.com/docs/manual/reference/method/db.collection.findOne/)            |
-| `insert`              | 插入文档                                               | [insert](https://www.mongodb.com/docs/manual/reference/command/insert/)                           |
-| `insertOne`           | 插入单个文档                                             | [insertOne](https://www.mongodb.com/docs/manual/reference/method/db.collection.insertOne/)        |
-| `insertMany`          | 插入多个文档                                             | [insertMany](https://www.mongodb.com/docs/manual/reference/method/db.collection.insertMany/)      |
-| `update`              | 更新文档                                               | [update](https://www.mongodb.com/docs/manual/reference/command/update/)                           |
-| `updateOne`           | 更新单个文档                                             | [updateOne](https://www.mongodb.com/docs/manual/reference/method/db.collection.updateOne/)        |
-| `updateMany`          | 更新多个文档                                             | [updateMany](https://www.mongodb.com/docs/manual/reference/method/db.collection.updateMany/)      |
-| `replaceOne`          | 替换单个文档                                             | [replaceOne](https://www.mongodb.com/docs/manual/reference/method/db.collection.replaceOne/)      |
-| `remove`              | 删除文档                                               | [delete](https://www.mongodb.com/docs/manual/reference/command/delete/)                           |
-| `deleteOne`           | 删除单个文档                                             | [deleteOne](https://www.mongodb.com/docs/manual/reference/method/db.collection.deleteOne/)        |
-| `deleteMany`          | 删除多个文档                                             | [deleteMany](https://www.mongodb.com/docs/manual/reference/method/db.collection.deleteMany/)      |
-| `count`               | 统计文档数量                                             | [count](https://www.mongodb.com/docs/manual/reference/command/count/)                             |
-| `distinct`            | 获取唯一值                                              | [distinct](https://www.mongodb.com/docs/manual/reference/command/distinct/)                       |
-| `aggregate`           | 聚合操作                                               | [aggregate](https://www.mongodb.com/docs/manual/reference/command/aggregate/)                     |
-| `bulkWrite`           | 批量写入操作                                             | [bulkWrite](https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/)        |
-| `renameCollection`    | 重命名集合                                              | [renameCollection](https://www.mongodb.com/docs/manual/reference/command/renameCollection/)       |
-| `drop`                | 删除集合                                               | [drop](https://www.mongodb.com/docs/manual/reference/command/drop/)                               |
-| 数据库管理                 |                                                    |                                                                                                   |
-| `createCollection`    | 创建集合                                               | [create](https://www.mongodb.com/docs/manual/reference/command/create/)                           |
-| `createView`          | 创建视图                                               | [createView](https://www.mongodb.com/docs/manual/reference/command/create/)                       |
-| `dropDatabase`        | 删除当前数据库                                            | [dropDatabase](https://www.mongodb.com/docs/manual/reference/command/dropDatabase/)               |
-| `getCollectionNames`  | 获取集合名称列表                                           | [listCollections](https://www.mongodb.com/docs/manual/reference/command/listCollections/)         |
-| `getCollectionInfos`  | 获取集合信息                                             | [listCollections](https://www.mongodb.com/docs/manual/reference/command/listCollections/)         |
-| `runCommand`          | 运行任意数据库命令                                          | [runCommand](https://www.mongodb.com/docs/manual/reference/command/runCommand/)                   |
-| `serverStatus`        | 获取服务器状态                                            | [serverStatus](https://www.mongodb.com/docs/manual/reference/command/serverStatus/)               |
-| `stats`               | 获取数据库统计信息                                          | [dbStats](https://www.mongodb.com/docs/manual/reference/command/dbStats/)                         |
-| `version`             | 获取服务器版本                                            | [buildInfo](https://www.mongodb.com/docs/manual/reference/command/buildInfo/)                     |
-| 索引管理                  |                                                    |                                                                                                   |
-| `createIndex`         | 创建索引                                               | [createIndexes](https://www.mongodb.com/docs/manual/reference/command/createIndexes/)             |
-| `dropIndex`           | 删除索引                                               | [dropIndexes](https://www.mongodb.com/docs/manual/reference/command/dropIndexes/)                 |
-| `getIndexes`          | 获取索引列表                                             | [listIndexes](https://www.mongodb.com/docs/manual/reference/command/listIndexes/)                 |
-| 用户管理                  |                                                    |                                                                                                   |
-| `createUser`          | 创建用户                                               | [createUser](https://www.mongodb.com/docs/manual/reference/command/createUser/)                   |
-| `dropUser`            | 删除用户                                               | [dropUser](https://www.mongodb.com/docs/manual/reference/command/dropUser/)                       |
-| `updateUser`          | 更新用户                                               | [updateUser](https://www.mongodb.com/docs/manual/reference/command/updateUser/)                   |
-| `changeUserPassword`  | 修改用户密码                                             | [updateUser](https://www.mongodb.com/docs/manual/reference/command/updateUser/)                   |
-| `grantRolesToUser`    | 授予用户角色                                             | [grantRolesToUser](https://www.mongodb.com/docs/manual/reference/command/grantRolesToUser/)       |
-| `revokeRolesFromUser` | 撤销用户角色                                             | [revokeRolesFromUser](https://www.mongodb.com/docs/manual/reference/command/revokeRolesFromUser/) |
-| 其他命令                  |                                                    |                                                                                                   |
-| `use <database>`      | 切换当前数据库。                                           |                                                                                                   | 
-| `show dbs`            | 显示所有数据库。                                           |                                                                                                   |    
-| `show collections`    | 显示当前数据库的所有集合。                                      |                                                                                                   |    
-| `show tables`         | 同 `show collections`。                              |                                                                                                   |    
+```java
+try (Statement stmt = conn.createStatement()) {
+    // 创建索引
+    stmt.execute("PUT /new_index");
+    
+    // 设置 Mapping
+    stmt.execute("PUT /new_index/_mapping { \"properties\": { \"field1\": { \"type\": \"text\" } } }");
+    
+    // 删除索引
+    stmt.execute("DELETE /new_index");
+}
+```
+
+#### 5. 查看集群信息 (_cat)
+
+```java
+try (Statement stmt = conn.createStatement()) {
+    try (ResultSet rs = stmt.executeQuery("GET /_cat/nodes?h=ip,port,heapPercent,name")) {
+        while (rs.next()) {
+            System.out.println(rs.getString("name") + " - " + rs.getString("ip"));
+        }
+    }
+}
+```
+
+## 支持的命令概览
+
+jdbc-elastic 通过解析 SQL 风格的命令，将其转换为底层的 REST 请求。支持的命令模式如下：
+
+- **查询**: `GET/POST .../_search`, `_count`, `_msearch`, `_mget`, `_explain`, `_source`
+- **文档操作**: `PUT/POST .../_doc/...`, `_create`, `_update`, `DELETE ...`
+- **索引操作**: `PUT/DELETE /index`, `_open`, `_close`, `_mapping`, `_settings`, `_aliases`, `_reindex`, `_refresh`
+- **集群信息**: `GET /_cat/...`
+- **通用请求**: 支持任意 `GET`, `POST`, `PUT`, `DELETE`, `HEAD` 请求。
+
+## 限制
+
+- 事务支持：ElasticSearch 本身不支持 ACID 事务，因此 `commit` 和 `rollback` 操作无效（默认为自动提交）。
+- SQL 支持：目前主要支持 REST API 风格的命令，暂不支持标准 SQL 语法（如 `SELECT * FROM ...`）。

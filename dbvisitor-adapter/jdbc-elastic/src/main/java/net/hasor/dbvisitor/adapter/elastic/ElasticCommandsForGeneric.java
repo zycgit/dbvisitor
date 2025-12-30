@@ -1,5 +1,7 @@
 package net.hasor.dbvisitor.adapter.elastic;
 
+import java.io.InputStream;
+import java.util.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.hasor.cobble.concurrent.future.Future;
@@ -9,9 +11,6 @@ import net.hasor.dbvisitor.driver.AdapterType;
 import net.hasor.dbvisitor.driver.JdbcColumn;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
-
-import java.io.InputStream;
-import java.util.*;
 
 class ElasticCommandsForGeneric extends ElasticCommands {
     public static Future<?> execGeneric(Future<Object> sync, ElasticCmd cmd, ElasticOperation o, Object jsonBody, AdapterReceive receive) throws Exception {
@@ -24,7 +23,7 @@ class ElasticCommandsForGeneric extends ElasticCommands {
 
         try (InputStream inputStream = response.getEntity().getContent()) {
             JsonNode rootNode = jsonMapper.readTree(inputStream);
-            
+
             List<Map<String, Object>> dataList = new ArrayList<>();
             Set<String> keys = new LinkedHashSet<>();
 

@@ -86,6 +86,35 @@ class ElasticCommandsForIndex extends ElasticCommands {
         return completed(sync);
     }
 
+    public static Future<?> execIndexRefresh(Future<Object> sync, ElasticCmd cmd, ElasticOperation o, AdapterReceive receive) throws Exception {
+        Request esRequest = new Request(o.getMethod().name(), o.getEndpoint());
+        cmd.getClient().performRequest(esRequest);
+        receive.responseUpdateCount(o.getRequest(), 1);
+        return completed(sync);
+    }
+
+    public static Future<?> execReindex(Future<Object> sync, ElasticCmd cmd, ElasticOperation o, Object jsonBody, AdapterReceive receive) throws Exception {
+        Request esRequest = new Request(o.getMethod().name(), o.getEndpoint());
+        if (jsonBody != null) {
+            ObjectMapper mapper = ((ElasticRequest) o.getRequest()).getJson();
+            String jsonString = mapper.writeValueAsString(jsonBody);
+            esRequest.setJsonEntity(jsonString);
+        }
+
+        Response response = cmd.getClient().performRequest(esRequest);
+        try (InputStream content = response.getEntity().getContent()) {
+            ObjectMapper mapper = ((ElasticRequest) o.getRequest()).getJson();
+            JsonNode root = mapper.readTree(content);
+            if (root.has("total")) {
+                int total = root.get("total").asInt();
+                receive.responseUpdateCount(o.getRequest(), total);
+            } else {
+                receive.responseResult(o.getRequest(), singleResult(o.getRequest(), COL_DOC_JSON, root.toString()));
+            }
+        }
+        return completed(sync);
+    }
+
     public static Future<?> execIndexMapping(Future<Object> sync, ElasticCmd cmd, ElasticOperation o, Object jsonBody, AdapterReceive receive) throws Exception {
         Request esRequest = new Request(o.getMethod().name(), o.getEndpoint());
         if (jsonBody != null) {

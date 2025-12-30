@@ -11,14 +11,12 @@ hintIt      : hintName=ID (EQUALS hintVal=hintValue)?;
 hintValue   : ID | NUMBER | STRING | TRUE | FALSE | ARG1 | STAR | DOC_KW | CREATE_KW
             | UPDATE_KW | UPDATE_BY_QUERY_KW | DELETE_BY_QUERY_KW | SEARCH_KW | COUNT_KW
             | MSEARCH_KW | MAPPING_KW | SETTINGS_KW | ALIASES_KW | OPEN_KW | CLOSE_KW
-            | CAT_KW | MGET_KW | EXPLAIN_KW | SOURCE_KW
+            | CAT_KW | MGET_KW | EXPLAIN_KW | SOURCE_KW | REFRESH_KW | REINDEX_KW
             ;
 
-esCmd       : header | mapping | settings | open
-            | close | aliases | cat
-            | update | updateQuery | delete | deleteQuery
-            | query | insert
-            | generic
+esCmd       : header | mapping | settings | open | close | aliases | cat
+            | update | updateQuery | delete | deleteQuery | query
+            | refresh | reindex | insert | generic
             ;
 
 // Specific Commands
@@ -36,6 +34,12 @@ aliasesPath : pathPart? SLASH ALIASES_KW pathPart* (ARG1 queryParams)?;
 
 cat         : GET catPath SEM?;
 catPath     : SLASH CAT_KW pathPart* (ARG1 queryParams)?;
+
+refresh     : (POST | GET) refreshPath (json)? SEM?;
+refreshPath : pathPart? SLASH REFRESH_KW (ARG1 queryParams)?;
+
+reindex     : POST reindexPath (json)? SEM?;
+reindexPath : SLASH REINDEX_KW (ARG1 queryParams)?;
 
 mapping     : (GET | PUT | POST) mappingPath (json)? SEM?;
 mappingPath : pathPart? SLASH MAPPING_KW pathPart* (ARG1 queryParams)?;
@@ -76,7 +80,7 @@ header      : HEAD path (json)? SEM?;
 // basic Commands
 path        : pathPart+ (ARG1 queryParams)?;
 pathPart    : SLASH (pathValue (COMMA pathValue)*)?;
-pathValue   : (ID | STAR | NUMBER | ARG2 | SEARCH_KW | COUNT_KW | MSEARCH_KW | DOC_KW | CREATE_KW | UPDATE_KW | UPDATE_BY_QUERY_KW | DELETE_BY_QUERY_KW | MAPPING_KW | SETTINGS_KW | ALIASES_KW | OPEN_KW | CLOSE_KW | CAT_KW | MGET_KW | EXPLAIN_KW | SOURCE_KW)+;
+pathValue   : (ID | STAR | NUMBER | ARG2 | SEARCH_KW | COUNT_KW | MSEARCH_KW | DOC_KW | CREATE_KW | UPDATE_KW | UPDATE_BY_QUERY_KW | DELETE_BY_QUERY_KW | MAPPING_KW | SETTINGS_KW | ALIASES_KW | OPEN_KW | CLOSE_KW | CAT_KW | MGET_KW | EXPLAIN_KW | SOURCE_KW | REFRESH_KW | REINDEX_KW)+;
 
 queryParams: queryParam (AMPERSAND queryParam)*;
 queryParam : ID (EQUALS (ID | NUMBER | STRING | TRUE | FALSE | ARG2))?;

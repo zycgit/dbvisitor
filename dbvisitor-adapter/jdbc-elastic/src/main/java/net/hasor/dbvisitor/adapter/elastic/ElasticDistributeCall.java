@@ -127,7 +127,16 @@ class ElasticDistributeCall {
                     return ElasticCommandsForCat.execCatHealth(sync, elasticCmd, op, receive);
                 }
             }
-
+            if (h.refresh() != null) {
+                ElasticHttpMethod method = h.refresh().POST() != null ? ElasticHttpMethod.POST : ElasticHttpMethod.GET;
+                ElasticOperation op = createOperation(h.refresh().refreshPath(), hints, argIndex, method, request);
+                return ElasticCommandsForIndex.execIndexRefresh(sync, elasticCmd, op, receive);
+            }
+            if (h.reindex() != null) {
+                ElasticOperation op = createOperation(h.reindex().reindexPath(), hints, argIndex, ElasticHttpMethod.POST, request);
+                Object jsonBody = resolveJson(h.reindex().json(), argIndex, request);
+                return ElasticCommandsForIndex.execReindex(sync, elasticCmd, op, jsonBody, receive);
+            }
             if (h.generic() != null) {
                 ElasticHttpMethod method;
                 if (h.generic().GET() != null) {
@@ -141,7 +150,7 @@ class ElasticDistributeCall {
                 }
                 ElasticOperation op = createOperation(h.generic().path(), hints, argIndex, method, request);
                 Object jsonBody = resolveJson(h.generic().json(), argIndex, request);
-                
+
                 if (method == ElasticHttpMethod.GET) {
                     return ElasticCommandsForGeneric.execGeneric(sync, elasticCmd, op, jsonBody, receive);
                 } else {

@@ -64,6 +64,8 @@ CAT_KW     : '_cat';
 MGET_KW    : '_mget';
 EXPLAIN_KW : '_explain';
 SOURCE_KW  : '_source';
+REFRESH_KW : '_refresh';
+REINDEX_KW : '_reindex';
 
 // String
 STRING    : '"' ( ~["\\] | '\\' . )* '"';
