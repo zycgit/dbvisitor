@@ -10,7 +10,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class Elastic7DeleteTest {
-    private static final String ES_URL     = "jdbc:dbvisitor:elastic://localhost:19201";
+    private static final String ES_URL     = "jdbc:dbvisitor:elastic://127.0.0.1:19201?indexRefresh=true";
     private static final String INDEX_NAME = "dbv_delete_test_idx";
 
     @Before
@@ -51,14 +51,12 @@ public class Elastic7DeleteTest {
         try (Connection conn = DriverManager.getConnection(ES_URL); Statement stmt = conn.createStatement()) {
             // Insert a document
             stmt.executeUpdate("POST /" + INDEX_NAME + "/_doc/1 { \"name\": \"John\", \"age\": 30 }");
-            stmt.executeUpdate("POST /" + INDEX_NAME + "/_refresh");
 
             // Delete the document
             int count = stmt.executeUpdate("DELETE /" + INDEX_NAME + "/_doc/1");
             assertEquals(1, count);
 
             // Verify delete
-            stmt.executeUpdate("POST /" + INDEX_NAME + "/_refresh");
             try (ResultSet rs = stmt.executeQuery("POST /" + INDEX_NAME + "/_search { \"query\": { \"ids\": { \"values\": [\"1\"] } } }")) {
                 assertFalse(rs.next());
             }
@@ -73,17 +71,11 @@ public class Elastic7DeleteTest {
             stmt.executeUpdate("POST /" + INDEX_NAME + "/_doc/2 { \"name\": \"Jane\", \"age\": 25 }");
             stmt.executeUpdate("POST /" + INDEX_NAME + "/_doc/3 { \"name\": \"Bob\", \"age\": 30 }");
 
-            // Refresh
-            stmt.executeUpdate("POST /" + INDEX_NAME + "/_refresh");
-
             // Delete by query
             String deleteByQuery = "POST /" + INDEX_NAME + "/_delete_by_query {" + "\"query\": {" + "  \"term\": {" + "    \"age\": 30" + "  }" + "}" + "}";
 
             int count = stmt.executeUpdate(deleteByQuery);
             assertEquals(2, count); // John and Bob should be deleted
-
-            // Refresh
-            stmt.executeUpdate("POST /" + INDEX_NAME + "/_refresh");
 
             // Verify
             try (ResultSet rs = stmt.executeQuery("POST /" + INDEX_NAME + "/_search { \"query\": { \"ids\": { \"values\": [\"1\"] } } }")) {

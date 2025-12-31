@@ -1,19 +1,13 @@
 package net.hasor.dbvisitor.adapter.elastic.realdb.es6;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class Elastic6CrudPlaceholderTest {
-    private static final String ES_URL = "jdbc:dbvisitor:elastic://127.0.0.1:19200";
+    private static final String ES_URL     = "jdbc:dbvisitor:elastic://127.0.0.1:19200?indexRefresh=true";
     private static final String INDEX_NAME = "test_crud_placeholder";
 
     @Before
@@ -52,19 +46,12 @@ public class Elastic6CrudPlaceholderTest {
                 assertEquals(1, count);
             }
 
-            Thread.sleep(1500); // refresh
-
             // Verify
             // Use match query to avoid case sensitivity issues for text fields
-            try (Statement s = c.createStatement();
-                    ResultSet rs = s.executeQuery(
-                            "POST /" + INDEX_NAME + "/_search { \"query\": { \"match\": { \"name\": \"Alice\" } } }")) {
-                if (rs.next()) {
-                    assertEquals("Alice", rs.getString("name"));
-                    assertEquals(30, rs.getInt("age"));
-                } else {
-                    throw new Exception("Data not found");
-                }
+            try (Statement s = c.createStatement(); ResultSet rs = s.executeQuery("POST /" + INDEX_NAME + "/_search { \"query\": { \"match\": { \"name\": \"Alice\" } } }")) {
+                assertTrue("Data not found", rs.next());
+                assertEquals("Alice", rs.getString("name"));
+                assertEquals(30, rs.getInt("age"));
             }
         }
     }
@@ -76,7 +63,6 @@ public class Elastic6CrudPlaceholderTest {
             try (Statement s = c.createStatement()) {
                 s.executeUpdate("POST /" + INDEX_NAME + "/_doc/1 { \"name\": \"Bob\", \"age\": 25 }");
             }
-            Thread.sleep(1500);
 
             // Test GET with placeholder in URL
             // GET /{index}/_doc/{id}/_source (ES 6 compatible) to get flattened fields
@@ -86,12 +72,9 @@ public class Elastic6CrudPlaceholderTest {
                 ps.setString(2, "1");
 
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        assertEquals("Bob", rs.getString("name"));
-                        assertEquals(25, rs.getInt("age"));
-                    } else {
-                        throw new Exception("Data not found");
-                    }
+                    assertTrue("Data not found", rs.next());
+                    assertEquals("Bob", rs.getString("name"));
+                    assertEquals(25, rs.getInt("age"));
                 }
             }
         }
@@ -105,7 +88,6 @@ public class Elastic6CrudPlaceholderTest {
                 s.executeUpdate("POST /" + INDEX_NAME + "/_doc/1 { \"name\": \"Charlie\", \"age\": 35 }");
                 s.executeUpdate("POST /" + INDEX_NAME + "/_doc/2 { \"name\": \"Dave\", \"age\": 40 }");
             }
-            Thread.sleep(1500); // refresh
 
             // Test SEARCH with placeholder in Body
             String sql = "POST /{?}/_search { \"query\": { \"term\": { \"age\": ? } } }";
@@ -114,11 +96,8 @@ public class Elastic6CrudPlaceholderTest {
                 ps.setInt(2, 35);
 
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        assertEquals("Charlie", rs.getString("name"));
-                    } else {
-                        throw new Exception("Data not found");
-                    }
+                    assertTrue("Data not found", rs.next());
+                    assertEquals("Charlie", rs.getString("name"));
                 }
             }
         }
@@ -131,7 +110,6 @@ public class Elastic6CrudPlaceholderTest {
             try (Statement s = c.createStatement()) {
                 s.executeUpdate("POST /" + INDEX_NAME + "/_doc/1 { \"name\": \"Eve\", \"age\": 20 }");
             }
-            Thread.sleep(1500); // refresh
 
             // Test UPDATE with placeholder
             // POST /{index}/_doc/{id}/_update
@@ -145,17 +123,10 @@ public class Elastic6CrudPlaceholderTest {
                 assertEquals(1, count);
             }
 
-            Thread.sleep(1500); // refresh
-
             // Verify using _search to ensure flattened result
-            try (Statement s = c.createStatement();
-                    ResultSet rs = s.executeQuery(
-                            "POST /" + INDEX_NAME + "/_search { \"query\": { \"term\": { \"_id\": \"1\" } } }")) {
-                if (rs.next()) {
-                    assertEquals(21, rs.getInt("age"));
-                } else {
-                    throw new Exception("Data not found");
-                }
+            try (Statement s = c.createStatement(); ResultSet rs = s.executeQuery("POST /" + INDEX_NAME + "/_search { \"query\": { \"term\": { \"_id\": \"1\" } } }")) {
+                assertTrue("Data not found", rs.next());
+                assertEquals(21, rs.getInt("age"));
             }
         }
     }
@@ -167,7 +138,6 @@ public class Elastic6CrudPlaceholderTest {
             try (Statement s = c.createStatement()) {
                 s.executeUpdate("POST /" + INDEX_NAME + "/_doc/1 { \"name\": \"Frank\", \"age\": 50 }");
             }
-            Thread.sleep(1500); // refresh
 
             // Test DELETE with placeholder
             // DELETE /{index}/_doc/{id}
@@ -180,12 +150,8 @@ public class Elastic6CrudPlaceholderTest {
                 assertEquals(1, count);
             }
 
-            Thread.sleep(1500); // refresh
-
             // Verify using search
-            try (Statement s = c.createStatement();
-                    ResultSet rs = s.executeQuery(
-                            "POST /" + INDEX_NAME + "/_search { \"query\": { \"term\": { \"_id\": \"1\" } } }")) {
+            try (Statement s = c.createStatement(); ResultSet rs = s.executeQuery("POST /" + INDEX_NAME + "/_search { \"query\": { \"term\": { \"_id\": \"1\" } } }")) {
                 assertFalse("Data should be deleted", rs.next());
             }
         }

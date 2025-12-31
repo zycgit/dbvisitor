@@ -12,8 +12,9 @@ class ElasticOperation {
     //
     private final Map<String, Object> hints;
     private final AdapterRequest      request;
+    private       boolean             useRefresh = false;
 
-    public ElasticOperation(ElasticHttpMethod method, String endpoint, String queryPath, Map<String, Object> queryParams,//
+    public ElasticOperation(ElasticHttpMethod method, String endpoint, String queryPath, Map<String, Object> queryParams, //
             Map<String, Object> hints, AdapterRequest request) {
         this.method = method;
         this.endpoint = endpoint;
@@ -46,5 +47,28 @@ class ElasticOperation {
 
     public AdapterRequest getRequest() {
         return this.request;
+    }
+
+    public void setUseRefresh(boolean useRefresh) {
+        this.useRefresh = useRefresh;
+    }
+
+    public boolean hasRefreshParam() {
+        return this.queryParams.containsKey("refresh");
+    }
+
+    public String getEndpointWithRefresh() {
+        if (!useRefresh || hasRefreshParam()) {
+            return endpoint;
+        }
+
+        StringBuilder sb = new StringBuilder(queryPath);
+        boolean first = queryParams.isEmpty();
+        for (Map.Entry<String, Object> e : queryParams.entrySet()) {
+            sb.append(first ? "?" : "&").append(e.getKey()).append("=").append(e.getValue());
+            first = false;
+        }
+        sb.append(first ? "?" : "&").append("refresh=true");
+        return sb.toString();
     }
 }

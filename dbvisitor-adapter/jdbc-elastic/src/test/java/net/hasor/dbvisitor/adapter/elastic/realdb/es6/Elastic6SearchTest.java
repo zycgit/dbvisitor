@@ -4,11 +4,13 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class Elastic6SearchTest {
-    private static final String ES_URL = "jdbc:dbvisitor:elastic://127.0.0.1:19200";
+    private static final String ES_URL = "jdbc:dbvisitor:elastic://127.0.0.1:19200?indexRefresh=true";
 
     @Before
     public void before() throws Exception {
@@ -34,8 +36,27 @@ public class Elastic6SearchTest {
             s.executeUpdate("POST /test_search/_doc/1 { \"name\": \"Alice\", \"age\": 30, \"city\": \"New York\" }");
             s.executeUpdate("POST /test_search/_doc/2 { \"name\": \"Bob\", \"age\": 25, \"city\": \"Los Angeles\" }");
             s.executeUpdate("POST /test_search/_doc/3 { \"name\": \"Charlie\", \"age\": 35, \"city\": \"New York\" }");
+        }
+    }
 
-            Thread.sleep(1500); // wait for refresh
+    @After
+    public void after() throws Exception {
+        try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
+            try {
+                s.execute("DELETE /test_msearch_1");
+            } catch (Exception e) {
+                // ignore
+            }
+            try {
+                s.execute("DELETE /test_msearch_2");
+            } catch (Exception e) {
+                // ignore
+            }
+            try {
+                s.execute("DELETE /test_search");
+            } catch (Exception e) {
+                // ignore
+            }
         }
     }
 
@@ -46,11 +67,8 @@ public class Elastic6SearchTest {
                 int count = 0;
                 while (rs.next()) {
                     count++;
-                    System.out.println("Found: " + rs.getString("name"));
                 }
-                if (count != 3) {
-                    throw new Exception("Expected 3 results, got " + count);
-                }
+                Assert.assertEquals("Expected 3 results", 3, count);
             }
         }
     }
@@ -63,13 +81,9 @@ public class Elastic6SearchTest {
                 while (rs.next()) {
                     count++;
                     String city = rs.getString("city");
-                    if (!city.contains("York")) {
-                        throw new Exception("Unexpected city: " + city);
-                    }
+                    Assert.assertTrue("Unexpected city: " + city, city.contains("York"));
                 }
-                if (count != 2) {
-                    throw new Exception("Expected 2 results for 'York', got " + count);
-                }
+                Assert.assertEquals("Expected 2 results for 'York'", 2, count);
             }
         }
     }
@@ -79,15 +93,11 @@ public class Elastic6SearchTest {
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
             try (ResultSet rs = s.executeQuery("POST /test_search/_search { \"from\": 0, \"size\": 1, \"sort\": [{\"age\": \"asc\"}] }")) {
                 if (rs.next()) {
-                    if (!"Bob".equals(rs.getString("name"))) {
-                        throw new Exception("Expected Bob as first result");
-                    }
+                    Assert.assertEquals("Expected Bob as first result", "Bob", rs.getString("name"));
                 } else {
-                    throw new Exception("Expected 1 result");
+                    Assert.fail("Expected 1 result");
                 }
-                if (rs.next()) {
-                    throw new Exception("Expected only 1 result");
-                }
+                Assert.assertFalse("Expected only 1 result", rs.next());
             }
         }
     }
@@ -99,21 +109,25 @@ public class Elastic6SearchTest {
                 if (rs.next()) {
                     long count = rs.getLong("COUNT");
                     if (count != 3) {
-                        throw new Exception("Expected count 3, got " + count);
+                        System.err.println("DEBUG: Found " + count + " docs. Listing them:");
+                        try (ResultSet rs2 = s.executeQuery("POST /test_search/_search { \"query\": { \"match_all\": {} } }")) {
+                            while (rs2.next()) {
+                                System.err.println("Doc: " + rs2.getString("name"));
+                            }
+                        }
+                        Assert.assertEquals("Expected count 3", 3, count);
                     }
                 } else {
-                    throw new Exception("No result for count");
+                    Assert.fail("No result for count");
                 }
             }
 
             try (ResultSet rs = s.executeQuery("POST /test_search/_count { \"query\": { \"match\": { \"city\": \"York\" } } }")) {
                 if (rs.next()) {
                     long count = rs.getLong("COUNT");
-                    if (count != 2) {
-                        throw new Exception("Expected count 2 for 'York', got " + count);
-                    }
+                    Assert.assertEquals("Expected count 2 for 'York'", 2, count);
                 } else {
-                    throw new Exception("No result for count");
+                    Assert.fail("No result for count");
                 }
             }
         }
@@ -122,11 +136,11 @@ public class Elastic6SearchTest {
     @Test
     public void testMultiSearch() throws Exception {
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
-            boolean hasResult = s.execute("POST /_msearch \n" +     //
-                    "[ \n" +                                        //
-                    "    { \"index\": \"test_msearch_1\" }, \n" +   //
-                    "    { \"query\": { \"match_all\": {} } }, \n" +//
-                    "    { \"index\": \"test_msearch_2\" }, \n" +   //
+            boolean hasResult = s.execute("POST /_msearch \n" + //
+                    "[ \n" + //
+                    "    { \"index\": \"test_msearch_1\" }, \n" + //
+                    "    { \"query\": { \"match_all\": {} } }, \n" + //
+                    "    { \"index\": \"test_msearch_2\" }, \n" + //
                     "    { \"query\": { \"match_all\": {} } } \n" + //
                     "]");
 
@@ -134,11 +148,9 @@ public class Elastic6SearchTest {
                 try (ResultSet rs = s.getResultSet()) {
                     if (rs.next()) {
                         System.out.println("Result 1 ID: " + rs.getString("_ID"));
-                        if (!"1".equals(rs.getString("_ID"))) {
-                            throw new Exception("First result should be doc 1");
-                        }
+                        Assert.assertEquals("First result should be doc 1", "1", rs.getString("_ID"));
                     } else {
-                        throw new Exception("First result set empty");
+                        Assert.fail("First result set empty");
                     }
                 }
 
@@ -146,18 +158,16 @@ public class Elastic6SearchTest {
                     try (ResultSet rs = s.getResultSet()) {
                         if (rs.next()) {
                             System.out.println("Result 2 ID: " + rs.getString("_ID"));
-                            if (!"2".equals(rs.getString("_ID"))) {
-                                throw new Exception("Second result should be doc 2");
-                            }
+                            Assert.assertEquals("Second result should be doc 2", "2", rs.getString("_ID"));
                         } else {
-                            throw new Exception("Second result set empty");
+                            Assert.fail("Second result set empty");
                         }
                     }
                 } else {
-                    throw new Exception("Expected more results");
+                    Assert.fail("Expected more results");
                 }
             } else {
-                throw new Exception("No results returned");
+                Assert.fail("No results returned");
             }
         }
     }
@@ -169,30 +179,22 @@ public class Elastic6SearchTest {
             String sql1 = "/*+ overwrite_find_limit=1; overwrite_find_skip=0 */ POST /test_search/_search { \"sort\": [{\"age\": \"asc\"}] }";
             try (ResultSet rs = s.executeQuery(sql1)) {
                 if (rs.next()) {
-                    if (!"Bob".equals(rs.getString("name"))) {
-                        throw new Exception("Expected Bob as first result, but got " + rs.getString("name"));
-                    }
+                    Assert.assertEquals("Expected Bob as first result", "Bob", rs.getString("name"));
                 } else {
-                    throw new Exception("Expected 1 result");
+                    Assert.fail("Expected 1 result");
                 }
-                if (rs.next()) {
-                    throw new Exception("Expected only 1 result");
-                }
+                Assert.assertFalse("Expected only 1 result", rs.next());
             }
 
             // Page 2: limit=1, skip=1
             String sql2 = "/*+ overwrite_find_limit=1; overwrite_find_skip=1 */ POST /test_search/_search { \"sort\": [{\"age\": \"asc\"}] }";
             try (ResultSet rs = s.executeQuery(sql2)) {
                 if (rs.next()) {
-                    if (!"Alice".equals(rs.getString("name"))) {
-                        throw new Exception("Expected Alice as second result, but got " + rs.getString("name"));
-                    }
+                    Assert.assertEquals("Expected Alice as second result", "Alice", rs.getString("name"));
                 } else {
-                    throw new Exception("Expected 1 result");
+                    Assert.fail("Expected 1 result");
                 }
-                if (rs.next()) {
-                    throw new Exception("Expected only 1 result");
-                }
+                Assert.assertFalse("Expected only 1 result", rs.next());
             }
         }
     }
@@ -205,47 +207,39 @@ public class Elastic6SearchTest {
             // Request 2: match_all on test_search (sorted by age)
             // Hints: limit=1, skip=0 -> Both should return Bob (first result)
 
-            String sql = "/*+ overwrite_find_limit=1; overwrite_find_skip=0 */ POST /_msearch \n" +//
-                    "[ " +                                                                         //
-                    "  { \"index\": \"test_search\" }, " +                                         //
-                    "  { \"query\": { \"match_all\": {} }, \"sort\": [{\"age\": \"asc\"}] }, " +   //
-                    "  { \"index\": \"test_search\" }, " +                                         //
-                    "  { \"query\": { \"match_all\": {} }, \"sort\": [{\"age\": \"asc\"}] } " +    //
+            String sql = "/*+ overwrite_find_limit=1; overwrite_find_skip=0 */ POST /_msearch \n" + //
+                    "[ " + //
+                    "  { \"index\": \"test_search\" }, " + //
+                    "  { \"query\": { \"match_all\": {} }, \"sort\": [{\"age\": \"asc\"}] }, " + //
+                    "  { \"index\": \"test_search\" }, " + //
+                    "  { \"query\": { \"match_all\": {} }, \"sort\": [{\"age\": \"asc\"}] } " + //
                     "]";
 
             boolean hasResult = s.execute(sql);
             if (hasResult) {
                 try (ResultSet rs = s.getResultSet()) {
                     if (rs.next()) {
-                        if (!"Bob".equals(rs.getString("name"))) {
-                            throw new Exception("Expected Bob in first msearch result, but got " + rs.getString("name"));
-                        }
+                        Assert.assertEquals("Expected Bob in first msearch result", "Bob", rs.getString("name"));
                     } else {
-                        throw new Exception("Expected result for first query");
+                        Assert.fail("Expected result for first query");
                     }
-                    if (rs.next()) {
-                        throw new Exception("Expected only 1 row in first result set");
-                    }
+                    Assert.assertFalse("Expected only 1 row in first result set", rs.next());
                 }
             } else {
-                throw new Exception("Expected first result set");
+                Assert.fail("Expected first result set");
             }
 
             if (s.getMoreResults()) {
                 try (ResultSet rs = s.getResultSet()) {
                     if (rs.next()) {
-                        if (!"Bob".equals(rs.getString("name"))) {
-                            throw new Exception("Expected Bob in second msearch result, but got " + rs.getString("name"));
-                        }
+                        Assert.assertEquals("Expected Bob in second msearch result", "Bob", rs.getString("name"));
                     } else {
-                        throw new Exception("Expected result for second query");
+                        Assert.fail("Expected result for second query");
                     }
-                    if (rs.next()) {
-                        throw new Exception("Expected only 1 row in second result set");
-                    }
+                    Assert.assertFalse("Expected only 1 row in second result set", rs.next());
                 }
             } else {
-                throw new Exception("Expected second result set");
+                Assert.fail("Expected second result set");
             }
         }
     }
@@ -256,22 +250,18 @@ public class Elastic6SearchTest {
             try (ResultSet rs = s.executeQuery("HEAD /test_search")) {
                 if (rs.next()) {
                     int status = rs.getInt("STATUS");
-                    if (status != 200) {
-                        throw new Exception("Expected status 200, got " + status);
-                    }
+                    Assert.assertEquals("Expected status 200", 200, status);
                 } else {
-                    throw new Exception("Expected result for HEAD request");
+                    Assert.fail("Expected result for HEAD request");
                 }
             }
 
             try (ResultSet rs = s.executeQuery("HEAD /test_search_not_exist")) {
                 if (rs.next()) {
                     int status = rs.getInt("STATUS");
-                    if (status != 404) {
-                        throw new Exception("Expected status 404, got " + status);
-                    }
+                    Assert.assertEquals("Expected status 404", 404, status);
                 } else {
-                    throw new Exception("Expected result for HEAD request");
+                    Assert.fail("Expected result for HEAD request");
                 }
             }
         }
@@ -287,14 +277,10 @@ public class Elastic6SearchTest {
                     String name = rs.getString("name");
                     String id = rs.getString("_ID");
 
-                    if (!"User99".equals(name)) {
-                        throw new Exception("Expected name User99, got " + name);
-                    }
-                    if (!"99".equals(id)) {
-                        throw new Exception("Expected _id 99, got " + id);
-                    }
+                    Assert.assertEquals("Expected name User99", "User99", name);
+                    Assert.assertEquals("Expected _id 99", "99", id);
                 } else {
-                    throw new Exception("Expected 1 result, got 0");
+                    Assert.fail("Expected 1 result, got 0");
                 }
             }
         }
@@ -311,14 +297,10 @@ public class Elastic6SearchTest {
                 if (rs.next()) {
                     String name = rs.getString("name");
                     int value = rs.getInt("value");
-                    if (!"User99".equals(name)) {
-                        throw new Exception("Expected name User99, got " + name);
-                    }
-                    if (value != 99) {
-                        throw new Exception("Expected value 99, got " + value);
-                    }
+                    Assert.assertEquals("Expected name User99", "User99", name);
+                    Assert.assertEquals("Expected value 99", 99, value);
                 } else {
-                    throw new Exception("Expected 1 result, got 0");
+                    Assert.fail("Expected 1 result, got 0");
                 }
             }
         }
@@ -334,11 +316,9 @@ public class Elastic6SearchTest {
             try (ResultSet rs = s.executeQuery(sql)) {
                 if (rs.next()) {
                     boolean matched = rs.getBoolean("matched");
-                    if (!matched) {
-                        throw new Exception("Expected matched=true");
-                    }
+                    Assert.assertTrue("Expected matched=true", matched);
                 } else {
-                    throw new Exception("Expected 1 result, got 0");
+                    Assert.fail("Expected 1 result, got 0");
                 }
             }
         }

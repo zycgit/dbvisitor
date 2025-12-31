@@ -84,11 +84,13 @@ class ElasticDistributeCall {
             }
             if (h.update() != null) {
                 ElasticOperation op = createOperation(h.update().updatePath1(), hints, argIndex, ElasticHttpMethod.POST, request);
+                op.setUseRefresh(((ElasticRequest) request).isIndexRefresh());
                 Object jsonBody = resolveJson(h.update().json(), argIndex, request);
                 return ElasticCommandsForCrud.execUpdateDoc(sync, elasticCmd, op, jsonBody, receive);
             }
             if (h.updateQuery() != null) {
                 ElasticOperation op = createOperation(h.updateQuery().updatePath2(), hints, argIndex, ElasticHttpMethod.POST, request);
+                op.setUseRefresh(((ElasticRequest) request).isIndexRefresh());
                 Object jsonBody = resolveJson(h.updateQuery().json(), argIndex, request);
                 return ElasticCommandsForCrud.execUpdateByQuery(sync, elasticCmd, op, jsonBody, receive);
             }
@@ -100,16 +102,19 @@ class ElasticDistributeCall {
             if (h.insert() != null) {
                 ElasticHttpMethod method = h.insert().POST() != null ? ElasticHttpMethod.POST : ElasticHttpMethod.PUT;
                 ElasticOperation op = createOperation(h.insert().insertPath(), hints, argIndex, method, request);
+                op.setUseRefresh(((ElasticRequest) request).isIndexRefresh());
                 Object jsonBody = resolveJson(h.insert().json(), argIndex, request);
                 return ElasticCommandsForCrud.execInsert(sync, elasticCmd, op, jsonBody, receive);
             }
             if (h.deleteQuery() != null) {
                 ElasticOperation op = createOperation(h.deleteQuery().deletePath2(), hints, argIndex, ElasticHttpMethod.POST, request);
+                op.setUseRefresh(((ElasticRequest) request).isIndexRefresh());
                 Object jsonBody = resolveJson(h.deleteQuery().json(), argIndex, request);
                 return ElasticCommandsForCrud.execDeleteByQuery(sync, elasticCmd, op, jsonBody, receive);
             }
             if (h.delete() != null) {
                 ElasticOperation op = createOperation(h.delete().deletePath1(), hints, argIndex, ElasticHttpMethod.DELETE, request);
+                op.setUseRefresh(((ElasticRequest) request).isIndexRefresh());
                 return ElasticCommandsForCrud.execDelete(sync, elasticCmd, op, null, receive);
             }
             if (h.cat() != null) {
@@ -157,6 +162,7 @@ class ElasticDistributeCall {
                     method = ElasticHttpMethod.DELETE;
                 }
                 ElasticOperation op = createOperation(h.generic().path(), hints, argIndex, method, request);
+                op.setUseRefresh(((ElasticRequest) request).isIndexRefresh());
                 Object jsonBody = resolveJson(h.generic().json(), argIndex, request);
 
                 if (method == ElasticHttpMethod.GET) {

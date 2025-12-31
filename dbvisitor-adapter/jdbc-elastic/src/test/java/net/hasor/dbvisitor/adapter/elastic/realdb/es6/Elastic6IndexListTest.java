@@ -13,7 +13,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class Elastic6IndexListTest {
-    private static final String ES_URL     = "jdbc:dbvisitor:elastic://localhost:19200";
+    private static final String ES_URL     = "jdbc:dbvisitor:elastic://localhost:19200?indexRefresh=true";
     private static final String INDEX_NAME = "dbv_mapping_test";
 
     @Before
@@ -22,6 +22,11 @@ public class Elastic6IndexListTest {
             try (Statement stmt = conn.createStatement()) {
                 try {
                     stmt.executeUpdate("DELETE /" + INDEX_NAME);
+                } catch (Exception e) {
+                    // ignore if not exists
+                }
+                try {
+                    stmt.executeUpdate("DELETE /dbv_es_mgmt");
                 } catch (Exception e) {
                     // ignore if not exists
                 }
@@ -39,6 +44,11 @@ public class Elastic6IndexListTest {
         try (Connection conn = DriverManager.getConnection(ES_URL); Statement stmt = conn.createStatement()) {
             try {
                 stmt.executeUpdate("DELETE /" + INDEX_NAME);
+            } catch (Exception e) {
+                // ignore
+            }
+            try {
+                stmt.executeUpdate("DELETE /dbv_es_mgmt");
             } catch (Exception e) {
                 // ignore
             }
@@ -66,7 +76,6 @@ public class Elastic6IndexListTest {
             try (Statement stmt = conn.createStatement()) {
                 // 0. Prepare Data
                 stmt.executeUpdate("POST /" + INDEX_NAME + "/_doc {\"name\": \"test_alias_data\"}");
-                Thread.sleep(1000);// wait for refresh
 
                 // 1. Add Alias
                 String aliasCmd = "POST /_aliases {\"actions\" : [{ \"add\" : { \"index\" : \"" + INDEX_NAME + "\", \"alias\" : \"dbv_es_alias_name\" } }]}";
@@ -84,7 +93,6 @@ public class Elastic6IndexListTest {
                         if (INDEX_NAME.equals(name)) {
                             // It's the index itself
                             assertTrue(source == null || source.isEmpty());
-                            // assertFalse(isAlias); // Depending on implementation, might be false or null->false
                             found.add(name);
                         } else if ("dbv_es_alias_name".equals(name)) {
                             // It's the alias

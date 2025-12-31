@@ -1,4 +1,5 @@
 package net.hasor.dbvisitor.adapter.elastic;
+
 import net.hasor.dbvisitor.driver.JdbcDriver;
 
 public class ElasticKeys {
@@ -20,12 +21,15 @@ public class ElasticKeys {
 
     // options
     public static final String CLIENT_NAME  = "clientName";
-    public static final String CONN_TIMEOUT = "connectTimeout";         // milliseconds
-    public static final String SO_TIMEOUT   = "socketTimeout";          // milliseconds
+    public static final String CONN_TIMEOUT = "connectTimeout"; // milliseconds
+    public static final String SO_TIMEOUT   = "socketTimeout"; // milliseconds
 
     // pre-read options
     public static final String PREREAD_ENABLED       = "preRead";
     public static final String PREREAD_THRESHOLD     = "preReadThreshold"; // MB
     public static final String PREREAD_MAX_FILE_SIZE = "preReadMaxFileSize"; // MB
     public static final String PREREAD_CACHE_DIR     = "preReadCacheDir";
+
+    // index refresh
+    public static final String INDEX_REFRESH = "indexRefresh";
 }

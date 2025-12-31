@@ -80,7 +80,9 @@ public class ElasticConnFactory implements AdapterFactory {
 
     @Override
     public String[] getPropertyNames() {
-        return new String[] { ElasticKeys.SERVER, ElasticKeys.ADAPTER_NAME, ElasticKeys.TIME_ZONE, ElasticKeys.CONN_TIMEOUT, ElasticKeys.SO_TIMEOUT, ElasticKeys.USERNAME, ElasticKeys.PASSWORD, ElasticKeys.CLIENT_NAME };
+        return new String[] { ElasticKeys.SERVER, ElasticKeys.ADAPTER_NAME, ElasticKeys.TIME_ZONE,//
+                ElasticKeys.CONN_TIMEOUT, ElasticKeys.SO_TIMEOUT, ElasticKeys.USERNAME, ElasticKeys.PASSWORD,//
+                ElasticKeys.CLIENT_NAME, ElasticKeys.INDEX_REFRESH };
     }
 
     @Override

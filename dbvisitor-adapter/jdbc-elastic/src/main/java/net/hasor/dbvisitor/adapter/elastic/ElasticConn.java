@@ -1,4 +1,5 @@
 package net.hasor.dbvisitor.adapter.elastic;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -29,6 +30,7 @@ public class ElasticConn extends AdapterConnection {
     private final        long         preReadThreshold;
     private final        long         preReadMaxFileSize;
     private final        java.io.File preReadCacheDir;
+    private final        boolean      indexRefresh;
     private final        ObjectMapper json      = new ObjectMapper();
     private volatile     boolean      cancelled = false;
 
@@ -42,6 +44,7 @@ public class ElasticConn extends AdapterConnection {
         this.preReadMaxFileSize = parseSize(prop.get(ElasticKeys.PREREAD_MAX_FILE_SIZE), 20 * 1024 * 1024); // Default 20MB
         String cacheDirStr = prop.get(ElasticKeys.PREREAD_CACHE_DIR);
         this.preReadCacheDir = StringUtils.isBlank(cacheDirStr) ? new java.io.File(System.getProperty("java.io.tmpdir")) : new java.io.File(cacheDirStr);
+        this.indexRefresh = "true".equalsIgnoreCase(prop.getOrDefault(ElasticKeys.INDEX_REFRESH, "false"));
     }
 
     @Override
@@ -90,6 +93,10 @@ public class ElasticConn extends AdapterConnection {
 
     public java.io.File getPreReadCacheDir() {
         return this.preReadCacheDir;
+    }
+
+    public boolean isIndexRefresh() {
+        return this.indexRefresh;
     }
 
     protected Connection getOwner() {
@@ -154,7 +161,7 @@ public class ElasticConn extends AdapterConnection {
 
     @Override
     public AdapterRequest newRequest(String sql) {
-        ElasticRequest request = new ElasticRequest(sql, this.preRead);
+        ElasticRequest request = new ElasticRequest(sql, this.preRead, this.indexRefresh);
         request.setJson(this.json);
         return request;
     }
@@ -240,7 +247,7 @@ public class ElasticConn extends AdapterConnection {
 
             if (sync.isDone() && sync.getCause() != null) {
                 receive.responseFailed(request, sync.getCause());
-                return;
+                break;
             }
         }
 

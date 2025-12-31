@@ -13,7 +13,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class Elastic7IndexListTest {
-    private static final String ES_URL     = "jdbc:dbvisitor:elastic://localhost:19201";
+    private static final String ES_URL     = "jdbc:dbvisitor:elastic://127.0.0.1:19201?indexRefresh=true";
     private static final String INDEX_NAME = "dbv_mapping_test";
 
     @Before
@@ -66,7 +66,6 @@ public class Elastic7IndexListTest {
             try (Statement stmt = conn.createStatement()) {
                 // 0. Prepare Data
                 stmt.executeUpdate("POST /" + INDEX_NAME + "/_doc {\"name\": \"test_alias_data\"}");
-                Thread.sleep(1000);// wait for refresh
 
                 // 1. Add Alias
                 String aliasCmd = "POST /_aliases {\"actions\" : [{ \"add\" : { \"index\" : \"" + INDEX_NAME + "\", \"alias\" : \"dbv_es_alias_name\" } }]}";

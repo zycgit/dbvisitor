@@ -10,7 +10,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class Elastic6CatTest {
-    private static final String ES_URL     = "jdbc:dbvisitor:elastic://localhost:19200";
+    private static final String ES_URL     = "jdbc:dbvisitor:elastic://localhost:19200?indexRefresh=true";
     private static final String INDEX_NAME = "dbv_test_idx";
 
     @Before

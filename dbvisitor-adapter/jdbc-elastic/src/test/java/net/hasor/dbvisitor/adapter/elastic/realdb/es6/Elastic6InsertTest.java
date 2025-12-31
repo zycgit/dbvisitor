@@ -4,17 +4,40 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class Elastic6InsertTest {
-    private static final String ES_URL = "jdbc:dbvisitor:elastic://127.0.0.1:19200";
+    private static final String ES_URL = "jdbc:dbvisitor:elastic://127.0.0.1:19200?indexRefresh=true";
 
     @Before
     public void before() throws Exception {
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
             try {
                 s.execute("DELETE /test_insert_doc");
+            } catch (Exception e) {
+                // ignore
+            }
+            try {
+                s.execute("DELETE /test_insert_generic");
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+    }
+
+    @After
+    public void after() throws Exception {
+        try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
+            try {
+                s.execute("DELETE /test_insert_doc");
+            } catch (Exception e) {
+                // ignore
+            }
+            try {
+                s.execute("DELETE /test_insert_generic");
             } catch (Exception e) {
                 // ignore
             }
@@ -26,20 +49,14 @@ public class Elastic6InsertTest {
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
             long randomValue = new java.util.Random().nextLong();
             int count = s.executeUpdate("POST /test_insert_doc/_doc { \"name\": \"doc1\", \"value\": " + randomValue + " }");
-            if (count != 1) {
-                throw new Exception("Insert failed");
-            }
-
-            Thread.sleep(1000); // wait for refresh
+            Assert.assertEquals("Insert failed", 1, count);
 
             try (ResultSet rs = s.executeQuery("POST /test_insert_doc/_search { \"query\": { \"term\": { \"value\": " + randomValue + " } } }")) {
                 if (rs.next()) {
                     long val = rs.getLong("value");
-                    if (val != randomValue) {
-                        throw new Exception("Data mismatch: expected " + randomValue + ", got " + val);
-                    }
+                    Assert.assertEquals("Data mismatch: expected " + randomValue + ", got " + val, randomValue, val);
                 } else {
-                    throw new Exception("Data not found for value: " + randomValue);
+                    Assert.fail("Data not found for value: " + randomValue);
                 }
             }
         }
@@ -49,14 +66,12 @@ public class Elastic6InsertTest {
     public void testInsertDocAndReturnKeys() throws Exception {
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
             int count = s.executeUpdate("POST /test_insert_doc/_doc { \"name\": \"doc1\", \"value\": 123 }", Statement.RETURN_GENERATED_KEYS);
-            if (count != 1) {
-                throw new Exception("Insert failed");
-            }
+            Assert.assertEquals("Insert failed", 1, count);
             try (ResultSet rs = s.getGeneratedKeys()) {
                 if (rs.next()) {
                     System.out.println("Generated ID: " + rs.getString(1));
                 } else {
-                    throw new Exception("No generated key returned for POST /_doc");
+                    Assert.fail("No generated key returned for POST /_doc");
                 }
             }
         }
@@ -67,20 +82,14 @@ public class Elastic6InsertTest {
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
             long randomValue = new java.util.Random().nextLong();
             int count = s.executeUpdate("PUT /test_insert_doc/_doc/2 { \"name\": \"doc2\", \"value\": " + randomValue + " }");
-            if (count != 1) {
-                throw new Exception("Insert failed");
-            }
-
-            Thread.sleep(1000); // wait for refresh
+            Assert.assertEquals("Insert failed", 1, count);
 
             try (ResultSet rs = s.executeQuery("POST /test_insert_doc/_search { \"query\": { \"term\": { \"_id\": \"2\" } } }")) {
                 if (rs.next()) {
                     long val = rs.getLong("value");
-                    if (val != randomValue) {
-                        throw new Exception("Data mismatch: expected " + randomValue + ", got " + val);
-                    }
+                    Assert.assertEquals("Data mismatch: expected " + randomValue + ", got " + val, randomValue, val);
                 } else {
-                    throw new Exception("Data not found for id: 2");
+                    Assert.fail("Data not found for id: 2");
                 }
             }
         }
@@ -90,18 +99,14 @@ public class Elastic6InsertTest {
     public void testInsertDocWithIdAndReturnKeys() throws Exception {
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
             int count = s.executeUpdate("PUT /test_insert_doc/_doc/3 { \"name\": \"doc2\", \"value\": 456 }", Statement.RETURN_GENERATED_KEYS);
-            if (count != 1) {
-                throw new Exception("Insert failed");
-            }
+            Assert.assertEquals("Insert failed", 1, count);
             try (ResultSet rs = s.getGeneratedKeys()) {
                 if (rs.next()) {
                     String id = rs.getString(1);
                     System.out.println("Generated ID: " + id);
-                    if (!"3".equals(id)) {
-                        throw new Exception("Expected ID 3, but got " + id);
-                    }
+                    Assert.assertEquals("Expected ID 3, but got " + id, "3", id);
                 } else {
-                    throw new Exception("No generated key returned for PUT /_doc/3");
+                    Assert.fail("No generated key returned for PUT /_doc/3");
                 }
             }
         }
@@ -113,20 +118,14 @@ public class Elastic6InsertTest {
             long randomValue = new java.util.Random().nextLong();
             String sql = "PUT /test_insert_doc/_doc/4/_create { \"name\": \"doc3\", \"value\": " + randomValue + " }";
             int count = s.executeUpdate(sql);
-            if (count != 1) {
-                throw new Exception("Insert failed");
-            }
-
-            Thread.sleep(1000); // wait for refresh
+            Assert.assertEquals("Insert failed", 1, count);
 
             try (ResultSet rs = s.executeQuery("POST /test_insert_doc/_search { \"query\": { \"term\": { \"_id\": \"4\" } } }")) {
                 if (rs.next()) {
                     long val = rs.getLong("value");
-                    if (val != randomValue) {
-                        throw new Exception("Data mismatch: expected " + randomValue + ", got " + val);
-                    }
+                    Assert.assertEquals("Data mismatch: expected " + randomValue + ", got " + val, randomValue, val);
                 } else {
-                    throw new Exception("Data not found for id: 4");
+                    Assert.fail("Data not found for id: 4");
                 }
             }
         }
@@ -137,18 +136,14 @@ public class Elastic6InsertTest {
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
             String sql = "PUT /test_insert_doc/_doc/5/_create { \"name\": \"doc3\", \"value\": 789 }";
             int count = s.executeUpdate(sql, Statement.RETURN_GENERATED_KEYS);
-            if (count != 1) {
-                throw new Exception("Insert failed");
-            }
+            Assert.assertEquals("Insert failed", 1, count);
             try (ResultSet rs = s.getGeneratedKeys()) {
                 if (rs.next()) {
                     String id = rs.getString(1);
                     System.out.println("Generated ID: " + id);
-                    if (!"5".equals(id)) {
-                        throw new Exception("Expected ID 5, but got " + id);
-                    }
+                    Assert.assertEquals("Expected ID 5, but got " + id, "5", id);
                 } else {
-                    throw new Exception("No generated key returned for PUT /_create/5");
+                    Assert.fail("No generated key returned for PUT /_create/5");
                 }
             }
         }
@@ -160,20 +155,13 @@ public class Elastic6InsertTest {
             long randomValue = new java.util.Random().nextLong();
             String sql = "POST /test_insert_doc/_doc/6/_create { \"name\": \"doc4\", \"value\": " + randomValue + " }";
             int count = s.executeUpdate(sql);
-            if (count != 1) {
-                throw new Exception("Insert failed");
-            }
-
-            Thread.sleep(1000); // wait for refresh
-
+            Assert.assertEquals("Insert failed", 1, count);
             try (ResultSet rs = s.executeQuery("POST /test_insert_doc/_search { \"query\": { \"term\": { \"_id\": \"6\" } } }")) {
                 if (rs.next()) {
                     long val = rs.getLong("value");
-                    if (val != randomValue) {
-                        throw new Exception("Data mismatch: expected " + randomValue + ", got " + val);
-                    }
+                    Assert.assertEquals("Data mismatch: expected " + randomValue + ", got " + val, randomValue, val);
                 } else {
-                    throw new Exception("Data not found for id: 6");
+                    Assert.fail("Data not found for id: 6");
                 }
             }
         }
@@ -184,18 +172,14 @@ public class Elastic6InsertTest {
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
             String sql = "POST /test_insert_doc/_doc/7/_create { \"name\": \"doc4\", \"value\": 101112 }";
             int count = s.executeUpdate(sql, Statement.RETURN_GENERATED_KEYS);
-            if (count != 1) {
-                throw new Exception("Insert failed");
-            }
+            Assert.assertEquals("Insert failed", 1, count);
             try (ResultSet rs = s.getGeneratedKeys()) {
                 if (rs.next()) {
                     String id = rs.getString(1);
                     System.out.println("Generated ID: " + id);
-                    if (!"7".equals(id)) {
-                        throw new Exception("Expected ID 7, but got " + id);
-                    }
+                    Assert.assertEquals("Expected ID 7, but got " + id, "7", id);
                 } else {
-                    throw new Exception("No generated key returned for POST /_create/7");
+                    Assert.fail("No generated key returned for POST /_create/7");
                 }
             }
         }
@@ -210,21 +194,13 @@ public class Elastic6InsertTest {
             String sql = "PUT /test_insert_generic/mytype/1 { \"name\": \"generic\", \"value\": " + randomValue + " }";
 
             int count = s.executeUpdate(sql);
-            if (count != 1) {
-                throw new Exception("Insert failed");
-            }
-
-            Thread.sleep(1000); // wait for refresh
-
-            // Verify with search
+            Assert.assertEquals("Insert failed", 1, count);
             try (ResultSet rs = s.executeQuery("POST /test_insert_generic/_search { \"query\": { \"term\": { \"_id\": \"1\" } } }")) {
                 if (rs.next()) {
                     long val = rs.getLong("value");
-                    if (val != randomValue) {
-                        throw new Exception("Data mismatch: expected " + randomValue + ", got " + val);
-                    }
+                    Assert.assertEquals("Data mismatch: expected " + randomValue + ", got " + val, randomValue, val);
                 } else {
-                    throw new Exception("Data not found for id: 1");
+                    Assert.fail("Data not found for id: 1");
                 }
             }
         }
@@ -237,19 +213,16 @@ public class Elastic6InsertTest {
             String sql = "POST /test_insert_generic/mytype { \"name\": \"generic_auto\", \"value\": 999 }";
 
             int count = s.executeUpdate(sql, Statement.RETURN_GENERATED_KEYS);
-            if (count != 1) {
-                throw new Exception("Insert failed");
-            }
+            Assert.assertEquals("Insert failed", 1, count);
 
             try (ResultSet rs = s.getGeneratedKeys()) {
                 if (rs.next()) {
                     String id = rs.getString(1);
                     System.out.println("Generated ID: " + id);
-                    if (id == null || id.isEmpty()) {
-                        throw new Exception("Expected generated ID, got null/empty");
-                    }
+                    Assert.assertNotNull("Expected generated ID, got null", id);
+                    Assert.assertFalse("Expected generated ID, got empty", id.isEmpty());
                 } else {
-                    throw new Exception("No generated key returned for POST /test_insert_generic/mytype");
+                    Assert.fail("No generated key returned for POST /test_insert_generic/mytype");
                 }
             }
         }

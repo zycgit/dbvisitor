@@ -12,7 +12,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 
 public class Elastic6GlobalMappingTest {
-    private static final String ES_URL       = "jdbc:dbvisitor:elastic://localhost:19200";
+    private static final String ES_URL       = "jdbc:dbvisitor:elastic://localhost:19200?indexRefresh=true";
     private static final String INDEX_NAME_1 = "dbv_global_mapping_test_idx_1";
     private static final String INDEX_NAME_2 = "dbv_global_mapping_test_idx_2";
 
@@ -34,24 +34,24 @@ public class Elastic6GlobalMappingTest {
 
             try (Statement stmt = conn.createStatement()) {
                 String putIndex1 = "PUT /" + INDEX_NAME_1 + " {" + //
-                        "\"mappings\": {" +                        //
-                        "  \"_doc\": {" +                          //
-                        "    \"properties\": {" +                  //
+                        "\"mappings\": {" + //
+                        "  \"_doc\": {" + //
+                        "    \"properties\": {" + //
                         "      \"name\": { \"type\": \"text\" }" + //
-                        "    }" +                                  //
-                        "  }" +                                    //
-                        "}" +                                      //
-                        "}";                                       //
+                        "    }" + //
+                        "  }" + //
+                        "}" + //
+                        "}"; //
                 stmt.executeUpdate(putIndex1);
 
                 String putIndex2 = "PUT /" + INDEX_NAME_2 + " {" + //
-                        "\"mappings\": {" +                        //
-                        "  \"_doc\": {" +                          //
-                        "    \"properties\": {" +                  //
-                        "      \"title\": { \"type\": \"text\" }" +//
-                        "    }" +                                  //
-                        "  }" +                                    //
-                        "}" +                                      //
+                        "\"mappings\": {" + //
+                        "  \"_doc\": {" + //
+                        "    \"properties\": {" + //
+                        "      \"title\": { \"type\": \"text\" }" + //
+                        "    }" + //
+                        "  }" + //
+                        "}" + //
                         "}";
                 stmt.executeUpdate(putIndex2);
             }

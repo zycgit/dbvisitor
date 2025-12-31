@@ -10,7 +10,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class Elastic6DeleteTest {
-    private static final String ES_URL     = "jdbc:dbvisitor:elastic://localhost:19200";
+    private static final String ES_URL     = "jdbc:dbvisitor:elastic://localhost:19200?indexRefresh=true";
     private static final String INDEX_NAME = "dbv_delete_test_idx";
 
     @Before
@@ -23,15 +23,15 @@ public class Elastic6DeleteTest {
             }
 
             // Create index
-            String putIndex = "PUT /" + INDEX_NAME + " {" +       //
-                    "\"mappings\": {" +                           //
-                    "  \"_doc\": {" +                             //
-                    "    \"properties\": {" +                     //
-                    "      \"name\": { \"type\": \"keyword\" }," +//
-                    "      \"age\": { \"type\": \"integer\" }" +  //
-                    "    }" +                                     //
-                    "  }" +                                       //
-                    "}" +                                         //
+            String putIndex = "PUT /" + INDEX_NAME + " {" + //
+                    "\"mappings\": {" + //
+                    "  \"_doc\": {" + //
+                    "    \"properties\": {" + //
+                    "      \"name\": { \"type\": \"keyword\" }," + //
+                    "      \"age\": { \"type\": \"integer\" }" + //
+                    "    }" + //
+                    "  }" + //
+                    "}" + //
                     "}";
             stmt.executeUpdate(putIndex);
         }
