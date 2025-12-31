@@ -14,6 +14,7 @@ jdbc-elastic 是一个 ElasticSearch 的 JDBC 驱动适配器，它允许开发�
 - **多命令支持**：支持 `_mget`, `_msearch` 等批量操作。
 - **索引管理**：支持索引的创建、删除、Mapping 设置、Settings 设置、别名管理等。
 - **预读优化**：支持大结果集的预读配置，优化读取性能。
+- **多版本兼容**：无需调整依赖，同时兼容 ES6/ES7/ES8。
 
 ## 快速开始
 
@@ -47,6 +48,7 @@ Connection conn = DriverManager.getConnection(url, props);
 | `password` | 认证密码 | 无 |
 | `connectTimeout` | 连接超时时间（毫秒） | - |
 | `socketTimeout` | Socket 读取超时时间（毫秒） | - |
+| `indexRefresh` | 是否在写入操作后自动刷新索引 | `false` |
 | `preRead` | 是否开启预读 | `true` |
 | `preReadThreshold` | 预读阈值（字节），超过该大小触发文件缓存 | `5MB` |
 | `preReadMaxFileSize` | 预读最大文件大小 | `20MB` |

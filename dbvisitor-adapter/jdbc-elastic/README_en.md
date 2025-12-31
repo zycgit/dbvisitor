@@ -14,6 +14,7 @@ The goal is to enable developers to seamlessly integrate and use ElasticSearch b
 - **Multi-Command Support**: Supports batch operations like `_mget`, `_msearch`.
 - **Index Management**: Supports index creation, deletion, Mapping settings, Settings configuration, alias management, etc.
 - **Pre-read Optimization**: Supports pre-read configuration for large result sets to optimize reading performance.
+- **Multi-Version Compatibility**: Compatible with ES6/ES7/ES8 simultaneously without dependency adjustments.
 
 ## Quick Start
 
@@ -47,6 +48,7 @@ Connection conn = DriverManager.getConnection(url, props);
 | `password` | Authentication password | None |
 | `connectTimeout` | Connection timeout (milliseconds) | - |
 | `socketTimeout` | Socket read timeout (milliseconds) | - |
+| `indexRefresh` | Whether to automatically refresh the index after write operations | `false` |
 | `preRead` | Whether to enable pre-reading | `true` |
 | `preReadThreshold` | Pre-read threshold (bytes), triggers file caching if exceeded | `5MB` |
 | `preReadMaxFileSize` | Maximum pre-read file size | `20MB` |

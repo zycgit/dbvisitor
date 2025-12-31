@@ -220,7 +220,7 @@ public class JedisConn extends AdapterConnection {
 
             if (sync.isDone() && sync.getCause() != null) {
                 receive.responseFailed(request, sync.getCause());
-                return;
+                break;
             }
         }
 
