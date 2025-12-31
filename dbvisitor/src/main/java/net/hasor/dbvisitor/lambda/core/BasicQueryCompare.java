@@ -46,7 +46,7 @@ import net.hasor.dbvisitor.types.TypeHandlerRegistry;
  * @author 赵永春 (zyc@hasor.net)
  * @version 2020-10-27
  */
-public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> implements QueryCompare<R, T, P> {
+public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, P> implements QueryCompare<R, T, P> {
     private ConditionLogic nextLogic = ConditionLogic.AND;
 
     public BasicQueryCompare(Class<?> exampleType, TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc, QueryContext ctx) {

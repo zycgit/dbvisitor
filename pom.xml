@@ -55,7 +55,6 @@
         <module>dbvisitor-adapter/jdbc-redis</module>
         <module>dbvisitor-adapter/jdbc-mongo</module>
         <module>dbvisitor-adapter/jdbc-elastic</module>
-        <!-- <module>dbvisitor-adapter/adapter-es7</module>-->
     </modules>
 
     <dependencyManagement>
@@ -88,6 +87,11 @@
             <dependency>
                 <groupId>net.hasor</groupId>
                 <artifactId>jdbc-mongo</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.hasor</groupId>
+                <artifactId>jdbc-elastic</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

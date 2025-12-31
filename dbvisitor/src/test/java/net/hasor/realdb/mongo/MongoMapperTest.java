@@ -5,7 +5,6 @@ import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.dialect.Page;
 import net.hasor.dbvisitor.dialect.PageObject;
 import net.hasor.dbvisitor.dialect.PageResult;
-import net.hasor.dbvisitor.dialect.provider.MongoDialect;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.core.OrderType;
 import net.hasor.dbvisitor.session.Configuration;
@@ -29,7 +28,6 @@ public class MongoMapperTest {
     @Test
     public void using_mapper_api_1() throws Exception {
         Configuration config = new Configuration();
-        config.options().setDialect(new MongoDialect());
         config.options().mapUnderscoreToCamelCase(true);
 
         try (Session s = config.newSession(DsUtils.mongoConn())) {
@@ -84,7 +82,6 @@ public class MongoMapperTest {
     @Test
     public void using_mapper_api_2() throws Exception {
         Configuration config = new Configuration();
-        config.options().setDialect(new MongoDialect());
         config.options().mapUnderscoreToCamelCase(true);
 
         try (Session s = config.newSession(DsUtils.mongoConn())) {
@@ -128,7 +125,6 @@ public class MongoMapperTest {
     @Test
     public void using_mapper_file_1() throws Exception {
         Configuration config = new Configuration();
-        config.options().setDialect(new MongoDialect());
         config.options().mapUnderscoreToCamelCase(true);
 
         try (Session s = config.newSession(DsUtils.mongoConn())) {
@@ -179,7 +175,6 @@ public class MongoMapperTest {
     @Test
     public void using_mapper_file_2() throws Exception {
         Configuration config = new Configuration();
-        config.options().setDialect(new MongoDialect());
         config.options().mapUnderscoreToCamelCase(true);
 
         try (Session s = config.newSession(DsUtils.mongoConn())) {
@@ -222,7 +217,6 @@ public class MongoMapperTest {
     @Test
     public void using_mapper_result_map() throws Exception {
         Configuration config = new Configuration();
-        config.options().setDialect(new MongoDialect());
         config.options().mapUnderscoreToCamelCase(true);
 
         try (Session s = config.newSession(DsUtils.mongoConn())) {
@@ -266,7 +260,6 @@ public class MongoMapperTest {
     @Test
     public void using_mapper_annotation_map() throws Exception {
         Configuration config = new Configuration();
-        config.options().setDialect(new MongoDialect());
         config.options().mapUnderscoreToCamelCase(true);
 
         try (Session s = config.newSession(DsUtils.mongoConn())) {
@@ -310,7 +303,6 @@ public class MongoMapperTest {
     @Test
     public void using_base_mapper_pageBySample() throws Exception {
         Configuration config = new Configuration();
-        config.options().setDialect(new MongoDialect());
         config.options().mapUnderscoreToCamelCase(true);
 
         try (Session s = config.newSession(DsUtils.mongoConn())) {
@@ -359,7 +351,6 @@ public class MongoMapperTest {
     @Test
     public void using_mapper_result_map_pageByParam() throws Exception {
         Configuration config = new Configuration();
-        config.options().setDialect(new MongoDialect());
         config.options().mapUnderscoreToCamelCase(true);
 
         try (Session s = config.newSession(DsUtils.mongoConn())) {
@@ -401,7 +392,6 @@ public class MongoMapperTest {
     @Test
     public void using_base_mapper_pageInit() throws Exception {
         Configuration config = new Configuration();
-        config.options().setDialect(new MongoDialect());
         config.options().mapUnderscoreToCamelCase(true);
 
         try (Session s = config.newSession(DsUtils.mongoConn())) {

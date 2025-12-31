@@ -125,14 +125,22 @@ public class SqlDialectRegister {
         return dialect;
     }
 
+    private static SqlDialect getDialectFromOptions(Options option) {
+        if (option != null && option.getDialect() != null) {
+            return option.getDialect();
+        }
+        return null;
+    }
+
     /**
      * 查找配置中的方言或返回默认方言
      * @param option 配置选项
      * @return 方言实例
      */
     public static SqlDialect findOrDefault(Options option) {
-        if (option != null && option.getDialect() != null) {
-            return option.getDialect();
+        SqlDialect dialect = getDialectFromOptions(option);
+        if (dialect != null) {
+            return dialect;
         } else {
             log.warn("No SQL dialect is specified, the default dialect is selected");
             return DefaultSqlDialect.DEFAULT;
@@ -146,9 +154,25 @@ public class SqlDialectRegister {
      * @throws SQLException 如果获取元数据失败
      */
     public static SqlDialect findDialect(Connection conn) throws SQLException {
-        DatabaseMetaData metaData = conn.getMetaData();
-        String tmpDbType = JdbcHelper.getDbType(metaData.getURL(), metaData.getDriverName());
-        SqlDialect tempDialect = SqlDialectRegister.findOrCreate(tmpDbType);
-        return tempDialect == null ? DefaultSqlDialect.DEFAULT : tempDialect;
+        return findDialect(null, conn);
+    }
+
+    public static SqlDialect findDialect(Options option, Connection conn) throws SQLException {
+        SqlDialect dialect = getDialectFromOptions(option);
+        if (dialect != null) {
+            return dialect;
+        }
+
+        if (conn != null) {
+            DatabaseMetaData metaData = conn.getMetaData();
+            String tmpDbType = JdbcHelper.getDbType(metaData.getURL(), metaData.getDriverName());
+            SqlDialect tempDialect = SqlDialectRegister.findOrCreate(tmpDbType);
+            if (tempDialect != null) {
+                return tempDialect;
+            }
+        }
+
+        log.warn("No SQL dialect is specified, the default dialect is selected");
+        return DefaultSqlDialect.DEFAULT;
     }
 }

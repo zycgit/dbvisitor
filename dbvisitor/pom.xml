@@ -53,6 +53,13 @@
             <optional>true</optional>
         </dependency>
         <dependency>
+            <groupId>org.elasticsearch.client</groupId>
+            <artifactId>elasticsearch-rest-client</artifactId>
+            <version>7.17.10</version>
+            <scope>compile</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
             <groupId>org.locationtech.jts</groupId>
             <artifactId>jts-core</artifactId>
             <version>1.19.0</version>
@@ -165,6 +172,11 @@
         <dependency>
             <groupId>net.hasor</groupId>
             <artifactId>jdbc-mongo</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.hasor</groupId>
+            <artifactId>jdbc-elastic</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

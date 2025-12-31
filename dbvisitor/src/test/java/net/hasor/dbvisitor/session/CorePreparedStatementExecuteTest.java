@@ -174,20 +174,4 @@ public class CorePreparedStatementExecuteTest {
             assert pageData.size() == 1;
         }
     }
-
-    @Test
-    public void page_error() throws Exception {
-        Configuration config = new Configuration();
-        PreparedStatementExecute exec = new PreparedStatementExecute(config);
-
-        config.loadMapper(CorePreparedStatementExecuteMapper.class);
-        StatementDef def = config.findStatement(CorePreparedStatementExecuteMapper.class, "selectByPage");
-
-        try (Connection con = DsUtils.mysqlConn()) {
-            exec.execute(con, def, null, new PageObject(0, 2, 0), true);
-            assert false;
-        } catch (Exception e) {
-            assert e instanceof UnsupportedOperationException;
-        }
-    }
 }

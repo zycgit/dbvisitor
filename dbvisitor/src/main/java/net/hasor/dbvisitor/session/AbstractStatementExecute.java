@@ -92,7 +92,7 @@ public abstract class AbstractStatementExecute {
         // prepare page
         long resultCount = 0L;
         if (SessionHelper.usingPage(pageInfo)) {
-            PageSqlDialect dialect = (PageSqlDialect) SqlDialectRegister.findOrDefault(this.registry.options());
+            PageSqlDialect dialect = (PageSqlDialect) SqlDialectRegister.findDialect(this.registry.options(), conn);
             long position = pageInfo.getFirstRecordPosition();
             long pageSize = pageInfo.getPageSize();
             execSql = dialect.pageSql(oriSql, position, pageSize);

@@ -18,7 +18,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import net.hasor.cobble.ClassUtils;
-import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
 import net.hasor.dbvisitor.dynamic.DynamicSql;
 import net.hasor.dbvisitor.dynamic.MacroRegistry;
 import net.hasor.dbvisitor.dynamic.QueryContext;
@@ -50,7 +49,7 @@ public class Configuration implements QueryContext {
     private final SessionPrototype    prototype;
 
     public Configuration() {
-        this(Options.of().dialect(DefaultSqlDialect.DEFAULT));
+        this(Options.of());
     }
 
     public Configuration(Options options) {

@@ -70,13 +70,8 @@ public class MongoJdbcTest {
             jdbc.execute("test.user_info.insert([{name: 'mali', age: 26}, {name: 'dative', age: 32}])");
 
             // 3. count
-            // Assuming count() returns a result set with a single column/row or similar.
-            // If not supported by driver as a query returning int, this might fail.
-            // But let's try queryForInt if the driver maps the result to a single number.
-            // Based on MongoCommandTest, it seems we only saw find().
-            // Let's try to use find() size for now as I am not sure about count() return format in this driver.
-            List<Map<String, Object>> list = jdbc.queryForList("test.user_info.find()");
-            assert list.size() == 2;
+            int count = jdbc.queryForInt("test.user_info.count()");
+            assert count == 2;
         }
     }
 }

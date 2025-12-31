@@ -21,11 +21,11 @@ import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.dbvisitor.dialect.BoundSql;
-import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
 import net.hasor.dbvisitor.dialect.builder.CommandBuilder;
 import net.hasor.dbvisitor.dynamic.QueryContext;
+import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
@@ -36,7 +36,7 @@ import net.hasor.dbvisitor.mapping.def.TableMapping;
  * @author 赵永春 (zyc@hasor.net)
  * @version 2020-10-27
  */
-public abstract class BasicLambda<R, T, P> {
+public abstract class BasicLambda<R, P> {
     protected static final Logger          logger = LoggerFactory.getLogger(BasicLambda.class);
     private final          Class<?>        exampleType;
     private final          boolean         exampleIsMap;
@@ -56,12 +56,23 @@ public abstract class BasicLambda<R, T, P> {
         this.jdbc = jdbc;
         this.queryContext = ctx;
 
-        SqlDialect dialect = SqlDialectRegister.findOrDefault(registry.getGlobalOptions());
-        if (dialect == DefaultSqlDialect.DEFAULT && jdbc != null) {
+        SqlDialect dialect = null;
+        if (jdbc != null) {
             try {
-                dialect = this.jdbc.execute(SqlDialectRegister::findDialect);
+                dialect = this.jdbc.execute((ConnectionCallback<SqlDialect>) c -> {
+                    return SqlDialectRegister.findDialect(registry.getGlobalOptions(), c);
+                });
+            } catch (Exception e) {
+                logger.error("find dialect error.", e);
+            }
+        }
+
+        if (dialect == null) {
+            try {
+                dialect = SqlDialectRegister.findDialect(registry.getGlobalOptions(), null);
             } catch (SQLException e) {
                 logger.error("find dialect error.", e);
+                dialect = net.hasor.dbvisitor.dialect.DefaultSqlDialect.DEFAULT;
             }
         }
 

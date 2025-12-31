@@ -644,6 +644,15 @@ public final class TypeHandlerRegistry {
             }
         }
 
+        // maybe classType is array
+        if (typeClass.isArray()) {
+            typeHandler = this.cachedByJavaType.get(Object[].class.getName());
+            if (typeHandler != null) {
+                this.cachedByJavaType.put(typeClassName, typeHandler);
+                return typeHandler;
+            }
+        }
+
         // maybe classType is enum
         if (Enum.class.isAssignableFrom(typeClass)) {
             return this.cachedByJavaType.computeIfAbsent(typeClass.getName(), s -> {

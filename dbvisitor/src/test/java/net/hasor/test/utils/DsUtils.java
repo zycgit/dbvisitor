@@ -17,6 +17,7 @@ package net.hasor.test.utils;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Properties;
 import net.hasor.dbvisitor.adapter.redis.JedisKeys;
@@ -32,11 +33,12 @@ public class DsUtils {
     //    public static String TEST_SERVER       = "192.168.0.176";
     public static String TEST_SERVER       = "127.0.0.1";
     public static String MYSQL_SCHEMA_NAME = "devtester";
-    public static String MYSQL_JDBC_URL    = "jdbc:mysql://" + TEST_SERVER + ":13306/devtester?allowMultiQueries=true";
+    public static String MYSQL_JDBC_URL    = "jdbc:mysql://" + TEST_SERVER + ":13306/?allowMultiQueries=true&noAccessToProcedureBodies=true";
     public static String PG_JDBC_URL       = "jdbc:postgresql://" + TEST_SERVER + ":15432/postgres";
     public static String ORACLE_JDBC_URL   = "jdbc:oracle:thin:@" + TEST_SERVER + ":11521:ORCLCDB";
     public static String REDIS_JDBC_URL    = "jdbc:dbvisitor:jedis://" + TEST_SERVER + ":16379?database=0&uncheckNumKeys=true&separatorChar=;";
     public static String MONGO_JDBC_URL    = "jdbc:dbvisitor:mongo://" + TEST_SERVER + ":17017/admin";
+    public static String ES7_JDBC_URL      = "jdbc:dbvisitor:elastic://" + TEST_SERVER + ":19201?indexRefresh=true";
 
     private static void initH2(JdbcTemplate jdbcTemplate) {
         try {
@@ -61,8 +63,8 @@ public class DsUtils {
     private static void initMySql(JdbcTemplate jdbcTemplate) {
         try {
             jdbcTemplate.execute("use information_schema;");
-            jdbcTemplate.execute("drop database devtester;");
-            jdbcTemplate.execute("create database devtester;");
+            jdbcTemplate.execute("drop database if exists devtester;");
+            jdbcTemplate.execute("create database if not exists devtester;");
             jdbcTemplate.execute("use devtester;");
             jdbcTemplate.loadSQL("dbvisitor_coverage/user_info_for_mysql.sql");
             jdbcTemplate.loadSQL("dbvisitor_coverage/all_types/tb_mysql_types.sql");
@@ -132,6 +134,10 @@ public class DsUtils {
         return DriverManager.getConnection(MONGO_JDBC_URL, prop);
     }
 
+    public static Connection es7Conn() throws SQLException {
+        return DriverManager.getConnection(ES7_JDBC_URL);
+    }
+
     public static Connection mysqlConn() throws SQLException {
         Connection conn = DriverManager.getConnection(MYSQL_JDBC_URL, "root", "123456");
         JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
@@ -176,6 +182,7 @@ public class DsUtils {
         pool.setDriverClassName("com.mysql.cj.jdbc.Driver");
         pool.setUsername("root");
         pool.setPassword("123456");
+        pool.setConnectionInitSqls(Arrays.asList("use devtester;"));
         return pool;
     }
 

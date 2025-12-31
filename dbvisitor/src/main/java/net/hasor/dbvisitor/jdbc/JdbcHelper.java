@@ -59,7 +59,6 @@ public class JdbcHelper {
     public static final String KYLIN            = "kylin";//org.apache.kylin.jdbc.Driver
     public static final String SQLITE           = "sqlite";
     public static final String PRESTO           = "presto";
-    public static final String ELASTIC_SEARCH   = "elastic_search";
     public static final String CLICKHOUSE       = "clickhouse";
     public static final String KDB              = "kdb";
     /** Aliyun PolarDB */
@@ -67,6 +66,8 @@ public class JdbcHelper {
     // nosql
     public static final String REDIS            = "redis";
     public static final String MONGO            = "mongo";
+    public static final String ELASTIC          = "elastic";
+    public static final String ELASTIC_SEARCH   = "elastic_search";
 
     /**
      * 根据 JDBC URL和驱动类名获取数据库类型
@@ -164,8 +165,6 @@ public class JdbcHelper {
             return HIVE;
         } else if (rawUrl.startsWith("jdbc:phoenix:")) {
             return PHOENIX;
-        } else if (rawUrl.startsWith("jdbc:elastic:")) {
-            return ELASTIC_SEARCH;
         } else if (rawUrl.startsWith("jdbc:clickhouse:")) {
             return CLICKHOUSE;
         } else if (rawUrl.startsWith("jdbc:presto:") || rawUrl.startsWith("presto:")) {
@@ -178,6 +177,10 @@ public class JdbcHelper {
             return REDIS;
         } else if (rawUrl.startsWith("jdbc:dbvisitor:mongo")) {
             return MONGO;
+        } else if (rawUrl.startsWith("jdbc:dbvisitor:elastic")) {
+            return ELASTIC;
+        } else if (rawUrl.startsWith("jdbc:elastic:")) {
+            return ELASTIC_SEARCH;
         } else {
             return null;
         }

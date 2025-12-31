@@ -39,7 +39,7 @@ import net.hasor.dbvisitor.types.TypeHandlerRegistry;
  * @author 赵永春 (zyc@hasor.net)
  * @version 2020-10-27
  */
-public abstract class AbstractInsert<R, T, P> extends BasicLambda<R, T, P> implements InsertExecute<R, T> {
+public abstract class AbstractInsert<R, T, P> extends BasicLambda<R, P> implements InsertExecute<R, T> {
     protected final List<ColumnMapping>  primaryKeys;
     protected final List<ColumnMapping>  insertProperties;
     protected final List<ColumnMapping>  fillBeforeProperties;
