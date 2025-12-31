@@ -1,4 +1,4 @@
-package net.hasor.dbvisitor.adapter.elastic.realdb;
+package net.hasor.dbvisitor.adapter.elastic.realdb.es7;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -6,8 +6,8 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import org.junit.Test;
 
-public class ElasticGenericTest {
-    private static final String ES_URL = "jdbc:dbvisitor:elastic://127.0.0.1:19200";
+public class Elastic7GenericTest {
+    private static final String ES_URL = "jdbc:dbvisitor:elastic://127.0.0.1:19201";
 
     @Test
     public void testGenericGet() throws Exception {
@@ -16,8 +16,6 @@ public class ElasticGenericTest {
             assert result;
             try (ResultSet rs = s.getResultSet()) {
                 assert rs.next();
-                // The root response of ES usually contains "name", "cluster_name", "version", etc.
-                // We just check if we got a result.
                 System.out.println("Generic GET / result: " + rs.getObject(1));
             }
         }
@@ -31,10 +29,10 @@ public class ElasticGenericTest {
             } catch (Exception e) {
                 // ignore
             }
-            
+
             // Create index/doc using GENERIC
             s.execute("POST /test_generic/_doc/1 { \"name\": \"generic_test\" }");
-            
+
             Thread.sleep(1000);
 
             // Verify with standard GET
@@ -43,9 +41,9 @@ public class ElasticGenericTest {
                 String source = rs.getString("_source");
                 assert source.contains("generic_test");
             }
-            
+
             // Clean up
-             try {
+            try {
                 s.execute("DELETE /test_generic");
             } catch (Exception e) {
                 // ignore

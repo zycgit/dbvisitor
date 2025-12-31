@@ -52,12 +52,6 @@ services:
       - 19200:9200
     environment:
       - discovery.type=single-node
-    # elasticsearch.yml
-    #   http.cors.enabled: true
-    #   http.cors.allow-origin: "*"
-    # ./bin/elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v6.8.3/elasticsearch-analysis-ik-6.8.3.zip
-    # ./bin/elasticsearch-plugin install ingest-attachment
-    # http://localhost:9200
   kibana_6_8_3:
     image: kibana:6.8.3
     privileged: true
@@ -67,6 +61,24 @@ services:
       - ELASTICSEARCH_URL=http://es_6_8_3:9200
     depends_on:
       - es_6_8_3
+
+  es_7_17_27:
+    image: elasticsearch:7.17.27
+    privileged: true
+    ports:
+      - 19301:9300
+      - 19201:9200
+    environment:
+      - discovery.type=single-node
+  kibana_7_17_27:
+    image: kibana:7.17.27
+    privileged: true
+    ports:
+      - 15602:5601
+    environment:
+      ELASTICSEARCH_HOSTS: '["http://es_7_17_27:9200"]'
+    depends_on:
+      - es_7_17_27
 
   #  oracle_12c:
   #    image: truevoly/oracle-12c
@@ -171,6 +183,6 @@ services:
   #    restart: always
   #    depends_on:
   #      - ob_ce_4_9_0
-
+  #
   # 达梦
   # https://download.dameng.com/eco/dm8/dm8_20230808_rev197096_x86_rh6_64_single.tar

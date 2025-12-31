@@ -43,10 +43,6 @@ class ElasticDistributeCall {
                     return ElasticCommandsForQuery.execMultiSearch(sync, elasticCmd, op, jsonBody, receive, conn);
                 } else if (path.contains("/_mget")) {
                     return ElasticCommandsForQuery.execMGet(sync, elasticCmd, op, jsonBody, receive, conn);
-                } else if (path.contains("/_explain")) {
-                    return ElasticCommandsForQuery.execExplain(sync, elasticCmd, op, jsonBody, receive);
-                } else if (path.contains("/_source")) {
-                    return ElasticCommandsForQuery.execGetSource(sync, elasticCmd, op, jsonBody, receive, conn);
                 }
             }
             if (h.mapping() != null) {
@@ -136,6 +132,18 @@ class ElasticDistributeCall {
                 ElasticOperation op = createOperation(h.reindex().reindexPath(), hints, argIndex, ElasticHttpMethod.POST, request);
                 Object jsonBody = resolveJson(h.reindex().json(), argIndex, request);
                 return ElasticCommandsForIndex.execReindex(sync, elasticCmd, op, jsonBody, receive);
+            }
+            if (h.explain() != null) {
+                ElasticHttpMethod method = h.explain().POST() != null ? ElasticHttpMethod.POST : ElasticHttpMethod.GET;
+                ElasticOperation op = createOperation(h.explain().explainPath(), hints, argIndex, method, request);
+                Object jsonBody = resolveJson(h.explain().json(), argIndex, request);
+                return ElasticCommandsForQuery.execExplain(sync, elasticCmd, op, jsonBody, receive);
+            }
+            if (h.source() != null) {
+                ElasticHttpMethod method = h.source().POST() != null ? ElasticHttpMethod.POST : ElasticHttpMethod.GET;
+                ElasticOperation op = createOperation(h.source().sourcePath(), hints, argIndex, method, request);
+                Object jsonBody = resolveJson(h.source().json(), argIndex, request);
+                return ElasticCommandsForQuery.execGetSource(sync, elasticCmd, op, jsonBody, receive, conn);
             }
             if (h.generic() != null) {
                 ElasticHttpMethod method;

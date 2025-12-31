@@ -1,4 +1,4 @@
-package net.hasor.dbvisitor.adapter.elastic.realdb;
+package net.hasor.dbvisitor.adapter.elastic.realdb.es6;
 
 import java.sql.*;
 import java.util.HashSet;
@@ -9,7 +9,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-public class ElasticCatTest {
+public class Elastic6CatTest {
     private static final String ES_URL     = "jdbc:dbvisitor:elastic://localhost:19200";
     private static final String INDEX_NAME = "dbv_test_idx";
 

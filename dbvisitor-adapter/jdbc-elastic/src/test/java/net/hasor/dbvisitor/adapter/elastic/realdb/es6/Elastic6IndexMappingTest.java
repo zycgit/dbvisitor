@@ -1,4 +1,4 @@
-package net.hasor.dbvisitor.adapter.elastic.realdb;
+package net.hasor.dbvisitor.adapter.elastic.realdb.es6;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -14,7 +14,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class ElasticIndexMappingTest {
+public class Elastic6IndexMappingTest {
     private static final String ES_URL       = "jdbc:dbvisitor:elastic://localhost:19200";
     private static final String INDEX_NAME_1 = "dbv_mapping_test_idx_1";
     private static final String INDEX_NAME_2 = "dbv_mapping_test_idx_2";
@@ -36,7 +36,7 @@ public class ElasticIndexMappingTest {
             }
 
             try (Statement stmt = conn.createStatement()) {
-                String putIndex1_v6 = "PUT /" + INDEX_NAME_1 + " {" +     //
+                String putIndex1 = "PUT /" + INDEX_NAME_1 + " {" +        //
                         "\"mappings\": {" +                               //
                         "  \"_doc\": {" +                                 //
                         "    \"properties\": {" +                         //
@@ -58,33 +58,9 @@ public class ElasticIndexMappingTest {
                         "  }" +                                           //
                         "}" +                                             //
                         "}";                                              //
-                String putIndex1_v7 = "PUT /" + INDEX_NAME_1 + " {" +     //
-                        "\"mappings\": {" +                               //
-                        "    \"properties\": {" +                         //
-                        "      \"name\": {" +                             //
-                        "        \"type\": \"text\"," +                   //
-                        "        \"fields\": {" +                         //
-                        "          \"raw\": { \"type\": \"keyword\" }," + //
-                        "          \"count\": { \"type\": \"token_count\", \"analyzer\": \"standard\" }" + //
-                        "        }" +                                     //
-                        "      }," +                                      //
-                        "      \"age\": { \"type\": \"integer\" }," +     //
-                        "      \"address\": {" +                          //
-                        "        \"properties\": {" +                     //
-                        "          \"city\": { \"type\": \"keyword\" }," +//
-                        "          \"zip\": { \"type\": \"keyword\" }" +  //
-                        "        }" +                                     //
-                        "      }" +                                       //
-                        "    }" +                                         //
-                        "}" +                                             //
-                        "}";                                              //
-                try {
-                    stmt.executeUpdate(putIndex1_v6);
-                } catch (Exception e) {
-                    stmt.executeUpdate(putIndex1_v7);
-                }
+                stmt.executeUpdate(putIndex1);
 
-                String putIndex2_v6 = "PUT /" + INDEX_NAME_2 + " {" + //
+                String putIndex2 = "PUT /" + INDEX_NAME_2 + " {" + //
                         "\"mappings\": {" +                        //
                         "  \"_doc\": {" +                          //
                         "    \"properties\": {" +                  //
@@ -93,18 +69,7 @@ public class ElasticIndexMappingTest {
                         "  }" +                                    //
                         "}" +                                      //
                         "}";
-                String putIndex2_v7 = "PUT /" + INDEX_NAME_2 + " {" + //
-                        "\"mappings\": {" +                        //
-                        "    \"properties\": {" +                  //
-                        "      \"title\": { \"type\": \"text\" }" +//
-                        "    }" +                                  //
-                        "}" +                                      //
-                        "}";
-                try {
-                    stmt.executeUpdate(putIndex2_v6);
-                } catch (Exception e) {
-                    stmt.executeUpdate(putIndex2_v7);
-                }
+                stmt.executeUpdate(putIndex2);
             }
         }
     }
@@ -212,24 +177,13 @@ public class ElasticIndexMappingTest {
     public void testPostMapping() throws Exception {
         try (Connection conn = DriverManager.getConnection(ES_URL); Statement stmt = conn.createStatement()) {
             // Add new fields to existing mapping
-            String postMapping_v6 = "POST /" + INDEX_NAME_1 + "/_mapping/_doc {" +//
+            String postMapping = "POST /" + INDEX_NAME_1 + "/_mapping/_doc {" +//
                     "\"properties\": {" +//
                     "  \"email\": { \"type\": \"keyword\" }," +//
                     "  \"order_date\": { \"type\": \"date\", \"format\": \"yyyy-MM-dd HH:mm:ss\" }" +//
                     "}" +//
                     "}";
-            String postMapping_v7 = "PUT /" + INDEX_NAME_1 + "/_mapping {" +//
-                    "\"properties\": {" +//
-                    "  \"email\": { \"type\": \"keyword\" }," +//
-                    "  \"order_date\": { \"type\": \"date\", \"format\": \"yyyy-MM-dd HH:mm:ss\" }" +//
-                    "}" +//
-                    "}";
-
-            try {
-                stmt.executeUpdate(postMapping_v6);
-            } catch (Exception e) {
-                stmt.executeUpdate(postMapping_v7);
-            }
+            stmt.executeUpdate(postMapping);
 
             try (ResultSet rs = stmt.executeQuery("GET /" + INDEX_NAME_1 + "/_mapping")) {
                 boolean foundEmail = false;
@@ -264,22 +218,12 @@ public class ElasticIndexMappingTest {
     public void testPutMapping() throws Exception {
         try (Connection conn = DriverManager.getConnection(ES_URL); Statement stmt = conn.createStatement()) {
             // Add new fields to existing mapping using PUT
-            String putMapping_v6 = "PUT /" + INDEX_NAME_1 + "/_mapping/_doc {" +//
+            String putMapping = "PUT /" + INDEX_NAME_1 + "/_mapping/_doc {" +//
                     "\"properties\": {" +                                    //
                     "  \"phone\": { \"type\": \"keyword\" }" +               //
                     "}" +                                                    //
                     "}";
-            String putMapping_v7 = "PUT /" + INDEX_NAME_1 + "/_mapping {" +//
-                    "\"properties\": {" +                                    //
-                    "  \"phone\": { \"type\": \"keyword\" }" +               //
-                    "}" +                                                    //
-                    "}";
-
-            try {
-                stmt.executeUpdate(putMapping_v6);
-            } catch (Exception e) {
-                stmt.executeUpdate(putMapping_v7);
-            }
+            stmt.executeUpdate(putMapping);
 
             try (ResultSet rs = stmt.executeQuery("GET /" + INDEX_NAME_1 + "/_mapping")) {
                 boolean foundPhone = false;

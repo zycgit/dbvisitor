@@ -1,4 +1,4 @@
-package net.hasor.dbvisitor.adapter.elastic.realdb;
+package net.hasor.dbvisitor.adapter.elastic.realdb.es7;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -7,20 +7,8 @@ import java.sql.Statement;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ElasticSearchTest {
-    private static final String ES_URL = "jdbc:dbvisitor:elastic://127.0.0.1:19200";
-
-    private boolean isEs7OrLater() throws Exception {
-        try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
-            try (ResultSet rs = s.executeQuery("GET /_cat/nodes?h=version")) {
-                if (rs.next()) {
-                    String version = rs.getString("VERSION");
-                    return version != null && (version.startsWith("7.") || version.startsWith("8."));
-                }
-            }
-        }
-        return false;
-    }
+public class Elastic7SearchTest {
+    private static final String ES_URL = "jdbc:dbvisitor:elastic://127.0.0.1:19201";
 
     @Before
     public void before() throws Exception {
@@ -317,12 +305,7 @@ public class ElasticSearchTest {
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
             s.executeUpdate("POST /test_search/_doc/99?refresh=true { \"name\": \"User99\", \"value\": 99 }");
 
-            String sql;
-            if (isEs7OrLater()) {
-                sql = "GET /test_search/_source/99";
-            } else {
-                sql = "GET /test_search/_doc/99/_source";
-            }
+            String sql = "GET /test_search/_source/99";
 
             try (ResultSet rs = s.executeQuery(sql)) {
                 if (rs.next()) {
@@ -346,12 +329,7 @@ public class ElasticSearchTest {
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
             s.executeUpdate("POST /test_search/_doc/99?refresh=true { \"name\": \"User99\", \"value\": 99 }");
 
-            String sql;
-            if (isEs7OrLater()) {
-                sql = "POST /test_search/_explain/99 { \"query\": { \"match_all\": {} } }";
-            } else {
-                sql = "POST /test_search/_doc/99/_explain { \"query\": { \"match_all\": {} } }";
-            }
+            String sql = "POST /test_search/_explain/99 { \"query\": { \"match_all\": {} } }";
 
             try (ResultSet rs = s.executeQuery(sql)) {
                 if (rs.next()) {

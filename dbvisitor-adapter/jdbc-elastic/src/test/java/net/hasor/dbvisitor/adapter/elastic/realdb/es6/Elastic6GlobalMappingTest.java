@@ -1,4 +1,4 @@
-package net.hasor.dbvisitor.adapter.elastic.realdb;
+package net.hasor.dbvisitor.adapter.elastic.realdb.es6;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -11,7 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 
-public class ElasticGlobalMappingTest {
+public class Elastic6GlobalMappingTest {
     private static final String ES_URL       = "jdbc:dbvisitor:elastic://localhost:19200";
     private static final String INDEX_NAME_1 = "dbv_global_mapping_test_idx_1";
     private static final String INDEX_NAME_2 = "dbv_global_mapping_test_idx_2";
@@ -33,29 +33,18 @@ public class ElasticGlobalMappingTest {
             }
 
             try (Statement stmt = conn.createStatement()) {
-                String putIndex1_v6 = "PUT /" + INDEX_NAME_1 + " {" +     //
-                        "\"mappings\": {" +                               //
-                        "  \"_doc\": {" +                                 //
-                        "    \"properties\": {" +                         //
-                        "      \"name\": { \"type\": \"text\" }" +        //
-                        "    }" +                                         //
-                        "  }" +                                           //
-                        "}" +                                             //
-                        "}";                                              //
-                String putIndex1_v7 = "PUT /" + INDEX_NAME_1 + " {" +     //
-                        "\"mappings\": {" +                               //
-                        "    \"properties\": {" +                         //
-                        "      \"name\": { \"type\": \"text\" }" +        //
-                        "    }" +                                         //
-                        "}" +                                             //
-                        "}";                                              //
-                try {
-                    stmt.executeUpdate(putIndex1_v6);
-                } catch (Exception e) {
-                    stmt.executeUpdate(putIndex1_v7);
-                }
+                String putIndex1 = "PUT /" + INDEX_NAME_1 + " {" + //
+                        "\"mappings\": {" +                        //
+                        "  \"_doc\": {" +                          //
+                        "    \"properties\": {" +                  //
+                        "      \"name\": { \"type\": \"text\" }" + //
+                        "    }" +                                  //
+                        "  }" +                                    //
+                        "}" +                                      //
+                        "}";                                       //
+                stmt.executeUpdate(putIndex1);
 
-                String putIndex2_v6 = "PUT /" + INDEX_NAME_2 + " {" + //
+                String putIndex2 = "PUT /" + INDEX_NAME_2 + " {" + //
                         "\"mappings\": {" +                        //
                         "  \"_doc\": {" +                          //
                         "    \"properties\": {" +                  //
@@ -64,18 +53,7 @@ public class ElasticGlobalMappingTest {
                         "  }" +                                    //
                         "}" +                                      //
                         "}";
-                String putIndex2_v7 = "PUT /" + INDEX_NAME_2 + " {" + //
-                        "\"mappings\": {" +                        //
-                        "    \"properties\": {" +                  //
-                        "      \"title\": { \"type\": \"text\" }" +//
-                        "    }" +                                  //
-                        "}" +                                      //
-                        "}";
-                try {
-                    stmt.executeUpdate(putIndex2_v6);
-                } catch (Exception e) {
-                    stmt.executeUpdate(putIndex2_v7);
-                }
+                stmt.executeUpdate(putIndex2);
             }
         }
     }

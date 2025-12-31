@@ -16,7 +16,7 @@ hintValue   : ID | NUMBER | STRING | TRUE | FALSE | ARG1 | STAR | DOC_KW | CREAT
 
 esCmd       : header | mapping | settings | open | close | aliases | cat
             | update | updateQuery | delete | deleteQuery | query
-            | refresh | reindex | insert | generic
+            | refresh | reindex | insert | explain | source | generic
             ;
 
 // Specific Commands
@@ -44,6 +44,12 @@ reindexPath : SLASH REINDEX_KW (ARG1 queryParams)?;
 mapping     : (GET | PUT | POST) mappingPath (json)? SEM?;
 mappingPath : pathPart? SLASH MAPPING_KW pathPart* (ARG1 queryParams)?;
 
+explain     : (GET | POST) explainPath (json)? SEM?;
+explainPath : pathPart+ SLASH EXPLAIN_KW (pathPart)? (ARG1 queryParams)?;
+
+source      : (GET | POST) sourcePath (json)? SEM?;
+sourcePath  : pathPart+ SLASH SOURCE_KW (pathPart)? (ARG1 queryParams)?;
+
 // Insert Commands
 insert      : (POST | PUT) insertPath (json)? SEM?;
 insertPath  : pathPart (pathPart)? SLASH (DOC_KW | CREATE_KW) (pathPart)? (ARG1 queryParams)?
@@ -67,9 +73,7 @@ deletePath2 : pathPart? SLASH DELETE_BY_QUERY_KW (ARG1 queryParams)?;
 
 // query Commands
 query       : (GET | POST) queryPath (json)? SEM?;
-queryPath   : (pathPart (pathPart)?)? SLASH (SEARCH_KW | COUNT_KW | MSEARCH_KW | MGET_KW) (ARG1 queryParams)?
-            | pathPart (pathPart)? SLASH (EXPLAIN_KW | SOURCE_KW) pathPart (ARG1 queryParams)?
-            ;
+queryPath   : (pathPart (pathPart)?)? SLASH (SEARCH_KW | COUNT_KW | MSEARCH_KW | MGET_KW) (ARG1 queryParams)?;
 
 // Generic Command (Fallback)
 generic     : (GET | POST | PUT | DELETE) path (json)? SEM?;

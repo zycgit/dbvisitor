@@ -1,4 +1,4 @@
-package net.hasor.dbvisitor.adapter.elastic.realdb;
+package net.hasor.dbvisitor.adapter.elastic.realdb.es7;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -12,8 +12,8 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class ElasticIndexListTest {
-    private static final String ES_URL     = "jdbc:dbvisitor:elastic://localhost:19200";
+public class Elastic7IndexListTest {
+    private static final String ES_URL     = "jdbc:dbvisitor:elastic://localhost:19201";
     private static final String INDEX_NAME = "dbv_mapping_test";
 
     @Before
@@ -28,13 +28,8 @@ public class ElasticIndexListTest {
             }
             try (Statement stmt = conn.createStatement()) {
                 // Create index with a dummy mapping so that GET /_mapping returns rows
-                String mapping_v6 = "{\"mappings\": {\"_doc\": {\"properties\": {\"dummy\": {\"type\": \"keyword\"}}}}}";
-                String mapping_v7 = "{\"mappings\": {\"properties\": {\"dummy\": {\"type\": \"keyword\"}}}}";
-                try {
-                    stmt.executeUpdate("PUT /" + INDEX_NAME + " " + mapping_v6);
-                } catch (Exception e) {
-                    stmt.executeUpdate("PUT /" + INDEX_NAME + " " + mapping_v7);
-                }
+                String mapping = "{\"mappings\": {\"properties\": {\"dummy\": {\"type\": \"keyword\"}}}}";
+                stmt.executeUpdate("PUT /" + INDEX_NAME + " " + mapping);
             }
         }
     }

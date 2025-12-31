@@ -1,4 +1,4 @@
-package net.hasor.dbvisitor.adapter.elastic.realdb;
+package net.hasor.dbvisitor.adapter.elastic.realdb.es6;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -8,7 +8,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ElasticRefreshAndReindexTest {
+public class Elastic6RefreshAndReindexTest {
     private static final String ES_URL = "jdbc:dbvisitor:elastic://localhost:19200";
     private static final String INDEX_SOURCE = "dbv_reindex_source";
     private static final String INDEX_DEST = "dbv_reindex_dest";

@@ -1,4 +1,4 @@
-package net.hasor.dbvisitor.adapter.elastic.realdb;
+package net.hasor.dbvisitor.adapter.elastic.realdb.es7;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -7,8 +7,8 @@ import java.sql.Statement;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ElasticInsertTest {
-    private static final String ES_URL = "jdbc:dbvisitor:elastic://127.0.0.1:19200";
+public class Elastic7InsertTest {
+    private static final String ES_URL = "jdbc:dbvisitor:elastic://127.0.0.1:19201";
 
     @Before
     public void before() throws Exception {
@@ -107,28 +107,11 @@ public class ElasticInsertTest {
         }
     }
 
-    private boolean isEs7OrLater() throws Exception {
-        try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
-            try (ResultSet rs = s.executeQuery("GET /_cat/nodes?h=version")) {
-                if (rs.next()) {
-                    String version = rs.getString("VERSION");
-                    return version != null && (version.startsWith("7.") || version.startsWith("8."));
-                }
-            }
-        }
-        return false;
-    }
-
     @Test
     public void testPutInsertCreateWithId() throws Exception {
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
             long randomValue = new java.util.Random().nextLong();
-            String sql;
-            if (isEs7OrLater()) {
-                sql = "PUT /test_insert_doc/_create/4 { \"name\": \"doc3\", \"value\": " + randomValue + " }";
-            } else {
-                sql = "PUT /test_insert_doc/_doc/4/_create { \"name\": \"doc3\", \"value\": " + randomValue + " }";
-            }
+            String sql = "PUT /test_insert_doc/_create/4 { \"name\": \"doc3\", \"value\": " + randomValue + " }";
             int count = s.executeUpdate(sql);
             if (count != 1) {
                 throw new Exception("Insert failed");
@@ -152,12 +135,7 @@ public class ElasticInsertTest {
     @Test
     public void testPutInsertCreateWithIdAndReturnKeys() throws Exception {
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
-            String sql;
-            if (isEs7OrLater()) {
-                sql = "PUT /test_insert_doc/_create/5 { \"name\": \"doc3\", \"value\": 789 }";
-            } else {
-                sql = "PUT /test_insert_doc/_doc/5/_create { \"name\": \"doc3\", \"value\": 789 }";
-            }
+            String sql = "PUT /test_insert_doc/_create/5 { \"name\": \"doc3\", \"value\": 789 }";
             int count = s.executeUpdate(sql, Statement.RETURN_GENERATED_KEYS);
             if (count != 1) {
                 throw new Exception("Insert failed");
@@ -180,12 +158,7 @@ public class ElasticInsertTest {
     public void testPostInsertCreateWithId() throws Exception {
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
             long randomValue = new java.util.Random().nextLong();
-            String sql;
-            if (isEs7OrLater()) {
-                sql = "POST /test_insert_doc/_create/6 { \"name\": \"doc4\", \"value\": " + randomValue + " }";
-            } else {
-                sql = "POST /test_insert_doc/_doc/6/_create { \"name\": \"doc4\", \"value\": " + randomValue + " }";
-            }
+            String sql = "POST /test_insert_doc/_create/6 { \"name\": \"doc4\", \"value\": " + randomValue + " }";
             int count = s.executeUpdate(sql);
             if (count != 1) {
                 throw new Exception("Insert failed");
@@ -209,12 +182,7 @@ public class ElasticInsertTest {
     @Test
     public void testPostInsertCreateWithIdAndReturnKeys() throws Exception {
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
-            String sql;
-            if (isEs7OrLater()) {
-                sql = "POST /test_insert_doc/_create/7 { \"name\": \"doc4\", \"value\": 101112 }";
-            } else {
-                sql = "POST /test_insert_doc/_doc/7/_create { \"name\": \"doc4\", \"value\": 101112 }";
-            }
+            String sql = "POST /test_insert_doc/_create/7 { \"name\": \"doc4\", \"value\": 101112 }";
             int count = s.executeUpdate(sql, Statement.RETURN_GENERATED_KEYS);
             if (count != 1) {
                 throw new Exception("Insert failed");

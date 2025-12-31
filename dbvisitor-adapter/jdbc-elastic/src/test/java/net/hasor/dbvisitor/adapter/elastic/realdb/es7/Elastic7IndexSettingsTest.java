@@ -1,4 +1,4 @@
-package net.hasor.dbvisitor.adapter.elastic.realdb;
+package net.hasor.dbvisitor.adapter.elastic.realdb.es7;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -10,8 +10,8 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class ElasticIndexSettingsTest {
-    private static final String ES_URL     = "jdbc:dbvisitor:elastic://localhost:19200";
+public class Elastic7IndexSettingsTest {
+    private static final String ES_URL     = "jdbc:dbvisitor:elastic://localhost:19201";
     private static final String INDEX_NAME = "dbv_settings_test_idx";
 
     @Before
