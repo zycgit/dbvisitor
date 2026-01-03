@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.hasor.realdb.elastic7.dto5.UserInfo5Mapper">
+    <resultMap id="userInfo5ResultMap" type="net.hasor.realdb.elastic7.dto5.UserInfo5">
+        <result column="uid" property="userId"/>
+        <result column="name" property="userName"/>
+        <result column="loginName" property="account"/>
+        <result column="loginPassword" property="password"/>
+    </resultMap>
+
+    <insert id="saveUser">
+        POST /user_info/_doc
+        {
+            "uid": #{info.userId},
+            "name": #{info.userName},
+            "loginName": #{info.account},
+            "loginPassword": #{info.password}
+        }
+    </insert>
+
+    <select id="loadUser" resultMap="userInfo5ResultMap">
+        POST /user_info/_search
+        {
+            "query": {
+                "term": { "uid": #{userId} }
+            }
+        }
+    </select>
+
+    <delete id="deleteUser">
+        POST /user_info/_delete_by_query
+        {
+            "query": {
+                "term": { "uid": #{userId} }
+            }
+        }
+    </delete>
+
+    <select id="listByUserName" resultMap="userInfo5ResultMap">
+        POST /user_info/_search
+        {
+            "query": {
+                "term": { "name": #{userName} }
+            }
+        }
+    </select>
+</mapper>

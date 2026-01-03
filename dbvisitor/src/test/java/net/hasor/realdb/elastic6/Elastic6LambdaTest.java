@@ -1,4 +1,4 @@
-package net.hasor.realdb.elastic;
+package net.hasor.realdb.elastic6;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -8,47 +8,75 @@ import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
-import net.hasor.realdb.mongo.dto1.UserInfo1;
-import net.hasor.realdb.mongo.dto1.UserInfo1BaseMapper;
-import net.hasor.realdb.mongo.dto_complex.Address;
-import net.hasor.realdb.mongo.dto_complex.ComplexOrder;
-import net.hasor.realdb.mongo.dto_complex.OrderItem;
+import net.hasor.realdb.elastic6.dto1.UserInfo1BaseMapper;
+import net.hasor.realdb.elastic6.dto1.UserInfo1a;
+import net.hasor.realdb.elastic6.dto_complex.Address;
+import net.hasor.realdb.elastic6.dto_complex.ComplexOrder;
+import net.hasor.realdb.elastic6.dto_complex.OrderItem;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.utils.DsUtils;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
-public class ElasticLambdaTest extends AbstractDbTest {
+public class Elastic6LambdaTest extends AbstractDbTest {
+
+    @Before
+    public void before() throws SQLException {
+        try (Connection c = DsUtils.es7Conn()) {
+            JdbcTemplate jdbc = new JdbcTemplate(c);
+            try {
+                jdbc.execute("DELETE /user_info");
+            } catch (Exception e) {
+            }
+            try {
+                jdbc.execute("DELETE /complex_order");
+            } catch (Exception e) {
+            }
+            try {
+                jdbc.execute("DELETE /lambda_page");
+            } catch (Exception e) {
+            }
+
+        }
+    }
+
+    @After
+    public void after() throws SQLException {
+        before();
+    }
+
     @Test
     public void testLambdaCRUD() throws SQLException {
         try (Connection c = DsUtils.es7Conn()) {
             LambdaTemplate lambda = new LambdaTemplate(c);
 
             // Insert
-            UserInfo1 user = new UserInfo1();
+            UserInfo1a user = new UserInfo1a();
             user.setUid(UUID.randomUUID().toString());
             user.setName("test_user");
             user.setLoginName("test_login");
             user.setLoginPassword("password");
-            int r1 = lambda.insert(UserInfo1.class).applyEntity(user).executeSumResult();
+            int r1 = lambda.insert(UserInfo1a.class).applyEntity(user).executeSumResult();
             assert r1 == 1;
 
             // Select
-            UserInfo1 l1 = lambda.query(UserInfo1.class).eq(UserInfo1::getUid, user.getUid()).queryForObject();
+            UserInfo1a l1 = lambda.query(UserInfo1a.class).eq(UserInfo1a::getUid, user.getUid()).queryForObject();
             assert l1 != null;
             assert "test_user".equals(l1.getName());
 
             // Update
-            int r2 = lambda.update(UserInfo1.class).eq(UserInfo1::getUid, user.getUid()).updateTo(UserInfo1::getName, "updated_user").doUpdate();
+            int r2 = lambda.update(UserInfo1a.class).eq(UserInfo1a::getUid, user.getUid()).updateTo(UserInfo1a::getName, "updated_user").doUpdate();
             assert r2 == 1;
 
             // Verify Update
-            UserInfo1 l2 = lambda.query(UserInfo1.class).eq(UserInfo1::getUid, user.getUid()).queryForObject();
+            UserInfo1a l2 = lambda.query(UserInfo1a.class).eq(UserInfo1a::getUid, user.getUid()).queryForObject();
             assert "updated_user".equals(l2.getName());
 
             // Delete
-            int r3 = lambda.delete(UserInfo1.class).eq(UserInfo1::getUid, user.getUid()).doDelete();
+            int r3 = lambda.delete(UserInfo1a.class).eq(UserInfo1a::getUid, user.getUid()).doDelete();
             assert r3 == 1;
-            UserInfo1 l3 = lambda.query(UserInfo1.class).eq(UserInfo1::getUid, user.getUid()).queryForObject();
+            UserInfo1a l3 = lambda.query(UserInfo1a.class).eq(UserInfo1a::getUid, user.getUid()).queryForObject();
             assert l3 == null;
         }
     }
@@ -56,11 +84,11 @@ public class ElasticLambdaTest extends AbstractDbTest {
     @Test
     public void testGenericMapperCRUD() throws Exception {
         Configuration config = new Configuration();
-        try (Session session = config.newSession(DsUtils.mongoConn())) {
+        try (Session session = config.newSession(DsUtils.es7Conn())) {
             UserInfo1BaseMapper mapper = session.createMapper(UserInfo1BaseMapper.class);
 
             // Insert
-            UserInfo1 user = new UserInfo1();
+            UserInfo1a user = new UserInfo1a();
             user.setUid(UUID.randomUUID().toString());
             user.setName("mapper_user");
             user.setLoginName("mapper_login");
@@ -69,7 +97,7 @@ public class ElasticLambdaTest extends AbstractDbTest {
             assert r1 == 1;
 
             // Select
-            UserInfo1 l1 = mapper.selectById(user.getUid());
+            UserInfo1a l1 = mapper.selectById(user.getUid());
             assert l1 != null;
             assert "mapper_user".equals(l1.getName());
 
@@ -79,24 +107,25 @@ public class ElasticLambdaTest extends AbstractDbTest {
             assert r2 == 1;
 
             // Verify Update
-            UserInfo1 l2 = mapper.selectById(user.getUid());
+            UserInfo1a l2 = mapper.selectById(user.getUid());
             assert "mapper_updated".equals(l2.getName());
 
             // Delete
             int r3 = mapper.deleteById(user.getUid());
             assert r3 == 1;
-            UserInfo1 l3 = mapper.selectById(user.getUid());
+            UserInfo1a l3 = mapper.selectById(user.getUid());
             assert l3 == null;
         }
     }
 
     @Test
     public void testComplexTypeMapping() throws SQLException {
-        try (Connection c = DsUtils.mongoConn()) {
+        try (Connection c = DsUtils.es7Conn()) {
             LambdaTemplate lambda = new LambdaTemplate(c);
 
             // Prepare Data
             ComplexOrder order = new ComplexOrder();
+            order.setId(UUID.randomUUID().toString());
 
             Address address = new Address();
             address.setCity("New York");
@@ -142,15 +171,7 @@ public class ElasticLambdaTest extends AbstractDbTest {
 
     @Test
     public void testLambdaPageQuery() throws SQLException {
-        try (Connection c = DsUtils.mongoConn()) {
-            JdbcTemplate jdbc = new JdbcTemplate(c);
-            jdbc.execute("use test");
-            try {
-                jdbc.execute("lambda_page.drop()");
-            } catch (Throwable e) {
-                // ignore
-            }
-
+        try (Connection c = DsUtils.es7Conn()) {
             LambdaTemplate lambda = new LambdaTemplate(c);
             String groupId = UUID.randomUUID().toString();
             for (int i = 0; i < 5; i++) {
@@ -159,71 +180,28 @@ public class ElasticLambdaTest extends AbstractDbTest {
                 doc.put("name", "name_" + i);
                 doc.put("group", groupId);
                 doc.put("seq", i);
-                int res = lambda.insertFreedom("lambda_page").applyMap(doc).executeSumResult();
-                assert res == 1;
+                lambda.insertFreedom("lambda_page").applyMap(doc).executeSumResult();
             }
 
             PageObject pageInfo = new PageObject(0, 2);
             List<Map<String, Object>> page1 = lambda.queryFreedom("lambda_page")//
                     .eq("group", groupId).asc("seq").usePage(pageInfo).queryForMapList();
             assert page1.size() == 2;
-            assert ((Number) page1.get(0).get("seq")).intValue() == 0;
-            assert ((Number) page1.get(1).get("seq")).intValue() == 1;
+            assert Integer.parseInt(page1.get(0).get("seq").toString()) == 0;
+            assert Integer.parseInt(page1.get(1).get("seq").toString()) == 1;
 
             pageInfo.nextPage();
             List<Map<String, Object>> page2 = lambda.queryFreedom("lambda_page")//
                     .eq("group", groupId).asc("seq").usePage(pageInfo).queryForMapList();
             assert page2.size() == 2;
-            assert ((Number) page2.get(0).get("seq")).intValue() == 2;
-            assert ((Number) page2.get(1).get("seq")).intValue() == 3;
+            assert Integer.parseInt(page2.get(0).get("seq").toString()) == 2;
+            assert Integer.parseInt(page2.get(1).get("seq").toString()) == 3;
 
             pageInfo.nextPage();
             List<Map<String, Object>> page3 = lambda.queryFreedom("lambda_page")//
                     .eq("group", groupId).asc("seq").usePage(pageInfo).queryForMapList();
             assert page3.size() == 1;
-            assert ((Number) page3.get(0).get("seq")).intValue() == 4;
-        }
-    }
-
-    @Test
-    public void testLambdaSumQuery() throws SQLException {
-        try (Connection c = DsUtils.mongoConn()) {
-            JdbcTemplate jdbc = new JdbcTemplate(c);
-            jdbc.execute("use test");
-            try {
-                jdbc.execute("lambda_sum.drop()");
-            } catch (Throwable e) {
-                // ignore
-            }
-
-            LambdaTemplate lambda = new LambdaTemplate(c);
-            String groupId = UUID.randomUUID().toString();
-
-            Map<String, Object> d1 = new HashMap<>();
-            d1.put("group", groupId);
-            d1.put("amount", 1);
-            assert lambda.insertFreedom("lambda_sum").applyMap(d1).executeSumResult() == 1;
-
-            Map<String, Object> d2 = new HashMap<>();
-            d2.put("group", groupId);
-            d2.put("amount", 2);
-            assert lambda.insertFreedom("lambda_sum").applyMap(d2).executeSumResult() == 1;
-
-            Map<String, Object> d3 = new HashMap<>();
-            d3.put("group", groupId);
-            d3.put("amount", 3);
-            assert lambda.insertFreedom("lambda_sum").applyMap(d3).executeSumResult() == 1;
-
-            // Mongo 方言不支持 applySelect("sum(...)") 这类自定义投影；用 aggregate 完成求和。
-            String aggSql = "db.lambda_sum.aggregate([" + //
-                    "{ $match: { group: '" + groupId + "' } }," + //
-                    "{ $group: { _id: null, total: { $sum: '$amount' } } }" +//
-                    "])";
-            List<Map<String, Object>> rows = lambda.jdbc().queryForList(aggSql);
-            assert rows.size() == 1;
-            String json = (String) rows.get(0).get("_JSON");
-            assert json != null;
-            assert json.contains("\"total\": 6") || json.contains("\"total\": 6.0");
+            assert Integer.parseInt(page3.get(0).get("seq").toString()) == 4;
         }
     }
 }

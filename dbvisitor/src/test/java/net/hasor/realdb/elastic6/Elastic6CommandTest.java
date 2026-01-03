@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.realdb.elastic;
+package net.hasor.realdb.elastic6;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -21,7 +21,7 @@ import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-public class ElasticCommandTest {
+public class Elastic6CommandTest {
     @Test
     public void testGetSet() throws Exception {
         try (Connection conn = DsUtils.es7Conn()) {

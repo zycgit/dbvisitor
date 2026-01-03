@@ -53,6 +53,8 @@ public class Es6CommandBuilder extends EsCommandBuilder {
         sb.append(StringUtils.isBlank(this.index) ? "*" : this.index);
         if (StringUtils.isNotBlank(this.type)) {
             sb.append("/").append(this.type);
+        } else {
+            sb.append("/_doc");
         }
         if (StringUtils.isNotBlank(action)) {
             sb.append("/").append(action);

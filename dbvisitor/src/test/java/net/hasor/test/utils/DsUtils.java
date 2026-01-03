@@ -38,6 +38,7 @@ public class DsUtils {
     public static String ORACLE_JDBC_URL   = "jdbc:oracle:thin:@" + TEST_SERVER + ":11521:ORCLCDB";
     public static String REDIS_JDBC_URL    = "jdbc:dbvisitor:jedis://" + TEST_SERVER + ":16379?database=0&uncheckNumKeys=true&separatorChar=;";
     public static String MONGO_JDBC_URL    = "jdbc:dbvisitor:mongo://" + TEST_SERVER + ":17017/admin";
+    public static String ES6_JDBC_URL      = "jdbc:dbvisitor:elastic://" + TEST_SERVER + ":19200?indexRefresh=true";
     public static String ES7_JDBC_URL      = "jdbc:dbvisitor:elastic://" + TEST_SERVER + ":19201?indexRefresh=true";
 
     private static void initH2(JdbcTemplate jdbcTemplate) {
@@ -132,6 +133,10 @@ public class DsUtils {
         prop.setProperty("username", "root");
         prop.setProperty("password", "123456");
         return DriverManager.getConnection(MONGO_JDBC_URL, prop);
+    }
+
+    public static Connection es6Conn() throws SQLException {
+        return DriverManager.getConnection(ES6_JDBC_URL);
     }
 
     public static Connection es7Conn() throws SQLException {

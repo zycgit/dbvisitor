@@ -2,13 +2,7 @@ package net.hasor.realdb.mongo;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.realdb.mongo.dto_bson.BsonTypesDto;
 import net.hasor.test.AbstractDbTest;
@@ -39,7 +33,7 @@ public class MongoBsonTest extends AbstractDbTest {
             dto.setBooleanValue(true);
             dto.setDateValue(new Date());
             dto.setBytesValue("Binary Data".getBytes());
-            
+
             List<String> list = new ArrayList<>();
             list.add("Item 1");
             list.add("Item 2");
@@ -55,9 +49,7 @@ public class MongoBsonTest extends AbstractDbTest {
             assert insertCount == 1;
 
             // 3. Select & Verify
-            BsonTypesDto selected = lambda.query(BsonTypesDto.class)
-                .eq(BsonTypesDto::getId, dto.getId())
-                .queryForObject();
+            BsonTypesDto selected = lambda.query(BsonTypesDto.class).eq(BsonTypesDto::getId, dto.getId()).queryForObject();
 
             assert selected != null;
             assert dto.getId().equals(selected.getId());
@@ -67,9 +59,9 @@ public class MongoBsonTest extends AbstractDbTest {
             assert Math.abs(dto.getDoubleValue() - selected.getDoubleValue()) < 0.0001;
             assert dto.getBooleanValue().equals(selected.getBooleanValue());
             // Date might lose some precision depending on storage, but usually millisecond precision is kept
-            assert Math.abs(dto.getDateValue().getTime() - selected.getDateValue().getTime()) < 1000; 
+            assert Math.abs(dto.getDateValue().getTime() - selected.getDateValue().getTime()) < 1000;
             assert Arrays.equals(dto.getBytesValue(), selected.getBytesValue());
-            
+
             assert selected.getListValue() != null;
             assert selected.getListValue().size() == 2;
             assert selected.getListValue().contains("Item 1");
@@ -84,36 +76,24 @@ public class MongoBsonTest extends AbstractDbTest {
             dto.getListValue().add("Item 3");
             dto.getMapValue().put("key3", true);
 
-            int updateCount = lambda.update(BsonTypesDto.class)
-                .eq(BsonTypesDto::getId, dto.getId())
-                .updateTo(BsonTypesDto::getStringValue, dto.getStringValue())
-                .updateTo(BsonTypesDto::getIntValue, dto.getIntValue())
-                .updateTo(BsonTypesDto::getListValue, dto.getListValue())
-                .updateTo(BsonTypesDto::getMapValue, dto.getMapValue())
-                .doUpdate();
-            
+            int updateCount = lambda.update(BsonTypesDto.class).eq(BsonTypesDto::getId, dto.getId()).updateTo(BsonTypesDto::getStringValue, dto.getStringValue()).updateTo(BsonTypesDto::getIntValue, dto.getIntValue()).updateTo(BsonTypesDto::getListValue, dto.getListValue()).updateTo(BsonTypesDto::getMapValue, dto.getMapValue()).doUpdate();
+
             assert updateCount == 1;
 
             // 5. Verify Update
-            BsonTypesDto updated = lambda.query(BsonTypesDto.class)
-                .eq(BsonTypesDto::getId, dto.getId())
-                .queryForObject();
-            
+            BsonTypesDto updated = lambda.query(BsonTypesDto.class).eq(BsonTypesDto::getId, dto.getId()).queryForObject();
+
             assert "Updated String".equals(updated.getStringValue());
             assert Integer.valueOf(54321).equals(updated.getIntValue());
             assert updated.getListValue().size() == 3;
             assert Boolean.TRUE.equals(updated.getMapValue().get("key3"));
 
             // 6. Delete
-            int deleteCount = lambda.delete(BsonTypesDto.class)
-                .eq(BsonTypesDto::getId, dto.getId())
-                .doDelete();
+            int deleteCount = lambda.delete(BsonTypesDto.class).eq(BsonTypesDto::getId, dto.getId()).doDelete();
             assert deleteCount == 1;
 
             // 7. Verify Delete
-            BsonTypesDto deleted = lambda.query(BsonTypesDto.class)
-                .eq(BsonTypesDto::getId, dto.getId())
-                .queryForObject();
+            BsonTypesDto deleted = lambda.query(BsonTypesDto.class).eq(BsonTypesDto::getId, dto.getId()).queryForObject();
             assert deleted == null;
         }
     }

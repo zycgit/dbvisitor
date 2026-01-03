@@ -19,6 +19,7 @@ import net.hasor.cobble.BeanUtils;
 import net.hasor.cobble.ObjectUtils;
 import net.hasor.cobble.reflect.SFunction;
 import net.hasor.dbvisitor.dialect.ConditionSqlDialect.SqlLike;
+import net.hasor.dbvisitor.dialect.builder.ConditionType;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.EntityDelete;
@@ -27,7 +28,6 @@ import net.hasor.dbvisitor.lambda.core.AbstractDelete;
 import net.hasor.dbvisitor.lambda.support.map.MapDeleteImpl;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.dialect.builder.ConditionType;
 
 /**
  * 提供 lambda delete 能力，是 EntityDelete 接口的实现类。

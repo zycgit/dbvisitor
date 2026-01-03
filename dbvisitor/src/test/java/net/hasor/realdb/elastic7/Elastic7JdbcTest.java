@@ -1,4 +1,4 @@
-package net.hasor.realdb.elastic;
+package net.hasor.realdb.elastic7;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
@@ -8,7 +8,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class ElasticJdbcTest {
+public class Elastic7JdbcTest {
     @Test
     public void using_jdbc_1() throws Exception {
         try (Connection c = DsUtils.es7Conn()) {

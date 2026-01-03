@@ -97,7 +97,7 @@ public abstract class EsCommandBuilder implements CommandBuilder {
             }
 
             if (type == ConditionType.EQ) {
-                return "{ \"term\": { \"" + field + "\": " + val + " } }";
+                return "{ \"match\": { \"" + field + "\": " + val + " } }";
             }
             if (type == ConditionType.NE) {
                 return "{ \"bool\": { \"must_not\": { \"term\": { \"" + field + "\": " + val + " } } } }";
