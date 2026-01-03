@@ -207,13 +207,22 @@ class ElasticCommandsForQuery extends ElasticCommands {
 
     public static Future<?> execSearch(Future<Object> sync, ElasticCmd cmd, ElasticOperation o, Object jsonBody, AdapterReceive receive, ElasticConn conn) throws Exception {
         Map<String, Object> hints = o.getHints();
-        if (hints != null && !hints.isEmpty() && jsonBody instanceof Map) {
-            Map<String, Object> mapBody = (Map<String, Object>) jsonBody;
-            if (hints.containsKey("overwrite_find_limit")) {
-                mapBody.put("size", Long.parseLong(hints.get("overwrite_find_limit").toString()));
+        if (hints != null && !hints.isEmpty()) {
+            if (hints.containsKey("overwrite_find_as_count")) {
+                String endpoint = o.getEndpoint();
+                String newEndpoint = endpoint.replace("/_search", "/_count");
+                ElasticOperation newOp = new ElasticOperation(o.getMethod(), newEndpoint, o.getQueryPath(), o.getQueryParams(), hints, o.getRequest());
+                return execCount(sync, cmd, newOp, jsonBody, receive);
             }
-            if (hints.containsKey("overwrite_find_skip")) {
-                mapBody.put("from", Long.parseLong(hints.get("overwrite_find_skip").toString()));
+
+            if (jsonBody instanceof Map) {
+                Map<String, Object> mapBody = (Map<String, Object>) jsonBody;
+                if (hints.containsKey("overwrite_find_limit")) {
+                    mapBody.put("size", Long.parseLong(hints.get("overwrite_find_limit").toString()));
+                }
+                if (hints.containsKey("overwrite_find_skip")) {
+                    mapBody.put("from", Long.parseLong(hints.get("overwrite_find_skip").toString()));
+                }
             }
         }
 
@@ -554,22 +563,6 @@ class ElasticCommandsForQuery extends ElasticCommands {
             esRequest.setJsonEntity(jsonMapper.writeValueAsString(jsonBody));
         }
         Response response = cmd.getClient().performRequest(esRequest);
-
-        Map<String, Object> hints = o.getHints();
-        if (hints.containsKey("overwrite_find_limit") || hints.containsKey("overwrite_find_skip")) {
-            if (jsonBody == null) {
-                jsonBody = new LinkedHashMap<>();
-            }
-            if (jsonBody instanceof Map) {
-                Map<String, Object> mapBody = (Map<String, Object>) jsonBody;
-                if (hints.containsKey("overwrite_find_limit")) {
-                    mapBody.put("size", Long.parseLong(hints.get("overwrite_find_limit").toString()));
-                }
-                if (hints.containsKey("overwrite_find_skip")) {
-                    mapBody.put("from", Long.parseLong(hints.get("overwrite_find_skip").toString()));
-                }
-            }
-        }
 
         try (InputStream inputStream = response.getEntity().getContent()) {
             JsonNode root = jsonMapper.readTree(inputStream);
