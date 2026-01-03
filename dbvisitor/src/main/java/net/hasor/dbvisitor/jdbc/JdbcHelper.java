@@ -66,7 +66,8 @@ public class JdbcHelper {
     // nosql
     public static final String REDIS            = "redis";
     public static final String MONGO            = "mongo";
-    public static final String ELASTIC          = "elastic";
+    public static final String ELASTIC6         = "elastic6";
+    public static final String ELASTIC7         = "elastic7";
     public static final String ELASTIC_SEARCH   = "elastic_search";
 
     /**
@@ -75,7 +76,7 @@ public class JdbcHelper {
      * @param driverClassName 驱动类名
      * @return 数据库类型标识字符串，无法识别时返回 null
      */
-    public static String getDbType(String rawUrl, String driverClassName) {
+    public static String getDbType(String rawUrl, String driverClassName, String dbVersion) {
         if (rawUrl == null) {
             return null;
         }
@@ -178,7 +179,11 @@ public class JdbcHelper {
         } else if (rawUrl.startsWith("jdbc:dbvisitor:mongo")) {
             return MONGO;
         } else if (rawUrl.startsWith("jdbc:dbvisitor:elastic")) {
-            return ELASTIC;
+            if (StringUtils.startsWithAny(dbVersion, new String[] { "7.", "8.", "9." })) {
+                return ELASTIC7;
+            } else {
+                return ELASTIC6;
+            }
         } else if (rawUrl.startsWith("jdbc:elastic:")) {
             return ELASTIC_SEARCH;
         } else {
@@ -193,7 +198,8 @@ public class JdbcHelper {
      */
     public static String getDbType(Statement c) throws SQLException {
         DatabaseMetaData metaData = c.getConnection().getMetaData();
-        return JdbcHelper.getDbType(metaData.getURL(), metaData.getDriverName());
+        String dbVersion = metaData.getDatabaseProductVersion();
+        return JdbcHelper.getDbType(metaData.getURL(), metaData.getDriverName(), dbVersion);
     }
 
     /**

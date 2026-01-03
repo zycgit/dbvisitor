@@ -58,7 +58,7 @@ public class AutoIdKeyHolderTestCase {
     @Test
     public void autoSeqTestCase() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
-            Options o = Options.of().dialect(SqlDialectRegister.findDialect(c));
+            Options o = Options.of().dialect(SqlDialectRegister.findDialect(Options.of(), c));
             LambdaTemplate wrapper = new LambdaTemplate(c, o);
             wrapper.delete(UserDTO_SEQ.class).allowEmptyWhere().doDelete();
 

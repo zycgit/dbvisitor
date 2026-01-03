@@ -56,6 +56,8 @@ public class SqlDialectRegister {
         registerDialectAlias(JdbcHelper.XUGU, XuGuDialect.class);
         //registerDialectAlias(JdbcHelper.REDIS, RedisDialect.class);
         registerDialectAlias(JdbcHelper.MONGO, MongoDialect.class);
+        registerDialectAlias(JdbcHelper.ELASTIC6, Es6Dialect.class);
+        registerDialectAlias(JdbcHelper.ELASTIC7, Es7Dialect.class);
     }
 
     /** 清空方言缓存 */
@@ -153,10 +155,6 @@ public class SqlDialectRegister {
      * @return 分页方言实例
      * @throws SQLException 如果获取元数据失败
      */
-    public static SqlDialect findDialect(Connection conn) throws SQLException {
-        return findDialect(null, conn);
-    }
-
     public static SqlDialect findDialect(Options option, Connection conn) throws SQLException {
         SqlDialect dialect = getDialectFromOptions(option);
         if (dialect != null) {
@@ -165,7 +163,8 @@ public class SqlDialectRegister {
 
         if (conn != null) {
             DatabaseMetaData metaData = conn.getMetaData();
-            String tmpDbType = JdbcHelper.getDbType(metaData.getURL(), metaData.getDriverName());
+            String dbVersion = metaData.getDatabaseProductVersion();
+            String tmpDbType = JdbcHelper.getDbType(metaData.getURL(), metaData.getDriverName(), dbVersion);
             SqlDialect tempDialect = SqlDialectRegister.findOrCreate(tmpDbType);
             if (tempDialect != null) {
                 return tempDialect;

@@ -78,12 +78,12 @@ public class CaseSensitiveTest {
     @Test
     public void qualifierTest() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
-            Options o1 = Options.of().dialect(SqlDialectRegister.findDialect(c)).useDelimited(true);
+            Options o1 = Options.of().dialect(SqlDialectRegister.findDialect(Options.of(), c)).useDelimited(true);
             LambdaTemplate wrapper1 = new LambdaTemplate(c, o1);
             String sqlString1 = wrapper1.queryFreedom("USER_TABLE").eq("ID", 1).getBoundSql().getSqlString();
             assert sqlString1.equals("SELECT * FROM \"USER_TABLE\" WHERE \"ID\" = ?");
 
-            Options o2 = Options.of().dialect(SqlDialectRegister.findDialect(c)).useDelimited(false);
+            Options o2 = Options.of().dialect(SqlDialectRegister.findDialect(Options.of(), c)).useDelimited(false);
             LambdaTemplate wrapper2 = new LambdaTemplate(c, o2);
             String sqlString2 = wrapper2.queryFreedom("USER_TABLE").eq("ID", 1).getBoundSql().getSqlString();
             assert sqlString2.equals("SELECT * FROM USER_TABLE WHERE ID = ?");

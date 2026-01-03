@@ -52,7 +52,7 @@ public class OraclePerformanceTest {
     public void oracleInsertQuery_1() throws SQLException {
         long t = System.currentTimeMillis();
         try (Connection c = DsUtils.oracleConn()) {
-            Options o = Options.of().dialect(SqlDialectRegister.findDialect(c));
+            Options o = Options.of().dialect(SqlDialectRegister.findDialect(Options.of(), c));
             LambdaTemplate wrapper = new LambdaTemplate(c, o);
             wrapper.jdbc().setPrintStmtError(true);
 
@@ -71,7 +71,7 @@ public class OraclePerformanceTest {
     public void oracleInsertQuery_2() throws SQLException {
         long t = System.currentTimeMillis();
         try (Connection c = DsUtils.oracleConn()) {
-            Options o = Options.of().dialect(SqlDialectRegister.findDialect(c));
+            Options o = Options.of().dialect(SqlDialectRegister.findDialect(Options.of(), c));
             LambdaTemplate wrapper = new LambdaTemplate(c, o);
 
             reinit(c);
