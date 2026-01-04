@@ -13,8 +13,9 @@ const FeatureList = [
                          values={{
                              redis: <Link to="/docs/guides/core/redis/about">Redis</Link>,
                              mongo: <Link to="/docs/guides/core/mongo/about">MongoDB</Link>,
+                             elastic: <Link to="/docs/guides/core/elastic/about">ElasticSearch</Link>,
                          }}>
-                {"支持关系型数据库如 MySQL、Oracle、PostgreSQL 等，支持非关系型数据库如 {redis}、{mongo} 等"}
+                {"支持关系型数据库如 MySQL、Oracle、PostgreSQL 等，支持非关系型数据库如 {redis}、{mongo}、{elastic} 等"}
             </Translate>
             </>
         ),

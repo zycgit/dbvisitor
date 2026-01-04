@@ -2,7 +2,7 @@
 id: limited
 sidebar_position: 21
 hide_table_of_contents: true
-title: 11.3 使用限制
+title: 11.5 使用限制
 description: jdbc-redis 受限于基础项目 dbvisitor-driver 对于 JDBC 接口的支持，有如下使用限制
 ---
 

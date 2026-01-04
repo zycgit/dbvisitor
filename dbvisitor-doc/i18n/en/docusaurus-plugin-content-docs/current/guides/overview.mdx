@@ -23,7 +23,7 @@ It consists of three parts:
   [Spring/SpringBoot](./yourproject/with_spring)、[Solon](./yourproject/with_solon)、
   [Hasor](./yourproject/with_hasor)、[Guice](./yourproject/with_guice), etc.
 - dbvisitor-adapter: The module for JDBC driver adapters, Used for connect to NoSQL databases such as
-  [Redis](./core/redis/about) and [MongoDB](./core/mongo/about).
+  [Redis](./core/redis/about), [MongoDB](./core/mongo/about) and [ElasticSearch](./core/elastic/about).
 
 It is Not a ORM Framework.
 - dbVisitor is a library that facilitates Java access to databases. Although it is somewhat similar to ORM, there are many differences.
@@ -64,7 +64,7 @@ dbVisitor can run on all Java 8 or higher versions, and all versions are compile
 - dbVisitor provides a more flexible and efficient [Rule](./rules/about) mechanism, which makes maintaining application SQL more concise.
 - dbVisitor has built-in multiple [Type Handlers](./types/about), which can conveniently handle most database types.
 - dbVisitor supports using [Transactions](./transaction/about) between multiple different method calls.
-- dbVisitor uses a unified API to operate non-relational databases [Redis](./core/redis/about) and [MongoDB](./core/mongo/about).
+- dbVisitor uses a unified API to operate non-relational databases [Redis](./core/redis/about), [MongoDB](./core/mongo/about) and [ElasticSearch](./core/elastic/about).
 
 ## Integration
 
@@ -74,6 +74,7 @@ dbVisitor can run on all Java 8 or higher versions, and all versions are compile
 - [dbvisitor-guice](./yourproject/with_guice): Supports automatic configuration and injection of dbVisitor configured Mappers and instances in applications using [Google Guice](https://github.com/google/guice) dependency injection.
 - [jdbc-redis](./drivers/redis/about): A JDBC driver adapter for Redis, allowing developers to operate the database using standard JDBC interfaces and Redis commands.
 - [jdbc-mongo](./drivers/mongo/about): A JDBC driver adapter for MongoDB, allowing developers to operate the database using standard JDBC interfaces and MongoDB commands.
+- [jdbc-elastic](./drivers/elastic/about): A JDBC driver adapter for ElasticSearch, allowing developers to operate the database using standard JDBC interfaces and ElasticSearch QueryDSL.
 
 ## Version Events
 

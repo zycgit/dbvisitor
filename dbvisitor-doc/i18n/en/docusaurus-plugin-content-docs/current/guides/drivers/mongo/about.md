@@ -17,6 +17,7 @@ jdbc-mongo is a MongoDB JDBC adapter that lets developers operate MongoDB via st
 - Supports command placeholders `?` with `PreparedStatement` for bind arguments.
 - Supports multiple commands executed together and retrieving multiple results via standard JDBC methods.
 - Supports `Statement` properties: `maxRows`, `fetchSize`, `timeoutSec`.
+- Supports `Statement.RETURN_GENERATED_KEYS`, automatically returning the generated `_id` on insert.
 - Supports interceptors for logging, performance monitoring, etc.
 - Supports type conversion; e.g., a `LONG` result can be read via `ResultSet.getInt` or `getString`.
 - Supports `BLOB`, `CLOB`, `NCLOB` reads.

@@ -2,7 +2,7 @@
 id: about
 sidebar_position: 0
 hide_table_of_contents: true
-title: 11.2 自定义适配器
+title: 11.4 自定义适配器
 description: jdbc-redis 是一个 Redis 的 JDBC 驱动适配器，它允许开发者使用标准的 JDBC 接口和命令的方式来操作 Redis 数据。
 ---
 

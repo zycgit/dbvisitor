@@ -1,6 +1,6 @@
 {
-  "label": "11.4 自定义适配器",
-  "position": 20,
+  "label": "11.3 JDBC Elastic",
+  "position": 3,
   "className": "red",
   "link": {
     "type": "doc",

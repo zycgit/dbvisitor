@@ -15,6 +15,7 @@ jdbc-mongo 是一个 MongoDB 的 JDBC 驱动适配器，它允许开发者使用
 - 支持 命令参数占位符 “?”，并使用 `PreparedStatement` 设置参数。
 - 支持 多命令执行并通过 JDBC 标准方法获取多命令执行结果。
 - 支持 `Statement` 的 `maxRows`、`fetchSize`、`timeoutSec` 属性设置。
+- 支持 `Statement.RETURN_GENERATED_KEYS`，在执行插入操作时自动返回生成的 `_id`。
 - 支持 指令拦截器，可用于日志记录、性能监控等场景。
 - 支持 类型转换，例如 结果集返回为 `LONG` 类型时，可通过 `ResultSet.getInt` 或 `ResultSet.getString` 获取数据。
 - 支持 `BLOB`、`CLOB`、`NCLOB` 方式读取。

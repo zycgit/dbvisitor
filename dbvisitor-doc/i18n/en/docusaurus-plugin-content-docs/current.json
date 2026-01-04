@@ -51,6 +51,10 @@
     "message": "5.9 MongoDB Specifics",
     "description": "The label for category '5.9 MongoDB 特异性' in sidebar 'guides'"
   },
+  "sidebar.guides.category.5.10 Elastic 特异性": {
+    "message": "5.10 Elastic Specifics",
+    "description": "The label for category '5.10 Elastic 特异性' in sidebar 'guides'"
+  },
   "sidebar.guides.category.6. 参数传递": {
     "message": "6. Arguments",
     "description": "The label for category '6. 参数传递' in sidebar 'guides'"
@@ -90,6 +94,14 @@
   "sidebar.guides.category.11.2 JDBC Mongo": {
     "message": "11.2 JDBC Mongo",
     "description": "The label for category '11.2 JDBC Mongo' in sidebar 'guides'"
+  },
+  "sidebar.guides.category.11.3 JDBC Elastic": {
+    "message": "11.3 JDBC Elastic",
+    "description": "The label for category '11.3 JDBC Elastic' in sidebar 'guides'"
+  },
+  "sidebar.guides.category.11.4 Custom Adapter": {
+    "message": "11.4 Custom Adapter",
+    "description": "The label for category '11.4 Custom Adapter' in sidebar 'guides'"
   },
   "sidebar.releases.category.v6.x": {
     "message": "v6.x",

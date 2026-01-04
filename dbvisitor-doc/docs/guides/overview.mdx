@@ -15,11 +15,11 @@ dbVisitor 是建立在 JDBC 基础之上，它改进了 JDBC 低级接口提供�
 
 主要包含如下三个部分：
 - dbvisitor，是核心模块，为多种不同类型数据库提供统一的访问 API。
-- dbvisitor-integration，是 dbVisitor 与主流框架的集成模块。支持
-  [Spring/SpringBoot](./yourproject/with_spring)、[Solon](./yourproject/with_solon)、
-  [Hasor](./yourproject/with_hasor)、[Guice](./yourproject/with_guice) 等。
-- dbvisitor-adapter，用于 JDBC 驱动程序适配器的模块，用于连接诸如 NoSQL 数据库之类的数据库。例如：
-  [Redis](./core/redis/about)、[MongoDB](./core/mongo/about) 等。
+- dbvisitor-integration，是 dbVisitor 与主流框架的集成模块。
+  - 支持 [Spring/SpringBoot](./yourproject/with_spring)、[Solon](./yourproject/with_solon)、
+    [Hasor](./yourproject/with_hasor)、[Guice](./yourproject/with_guice)。
+- dbvisitor-adapter，用于 JDBC 驱动程序适配器的模块，用于连接诸如 NoSQL 数据库之类的数据库。
+  - 例如：[Redis](./core/redis/about)、[MongoDB](./core/mongo/about)、[ElasticSearch](./core/elastic/about)。
 
 这不是一个对象关系映射框架。
 - dbVisitor 是方便 Java 访问数据库的库，虽然有些类似 ORM 但和真正意义上的 ORM 理念比起来还是有很多不同点。
@@ -59,7 +59,7 @@ dbVisitor 可在所有 Java 8 或更高版本上运行，所有版本均使用 J
 - dbVisitor 提供了一种更加灵活和高效的 [规则](./rules/about) 机制，通过规则可以更加简洁的维护应用程序 SQL。
 - dbVisitor 内置多种 [类型处理器](./types/about)，可以方便的处理绝大多数数据库类型。
 - dbVisitor 支持在多个不同方法调用之间使用 [数据库事务](./transaction/about)。
-- dbVisitor 使用统一的 API 操作非关系型数据库 [Redis](./core/redis/about)、[MongoDB](./core/mongo/about)。
+- dbVisitor 使用统一的 API 操作非关系型数据库 [Redis](./core/redis/about)、[MongoDB](./core/mongo/about)、[ElasticSearch](./core/elastic/about)。
 
 ## 框架整合
 
@@ -69,6 +69,7 @@ dbVisitor 可在所有 Java 8 或更高版本上运行，所有版本均使用 J
 - [dbvisitor-guice](./yourproject/with_guice)，支持在使用了 [Google Guice](https://github.com/google/guice) 依赖注入的应用程序中自动配置和注入 dbVisitor 配置的 Mapper 和实例。
 - [jdbc-redis](./drivers/redis/about) 是 Redis 的 JDBC 驱动适配器，它允许开发者使用标准的 JDBC 接口和 Redis 命令的方式来操作数据库。
 - [jdbc-mongo](./drivers/mongo/about) 是 MongoDB 的 JDBC 驱动适配器，它允许开发者使用标准的 JDBC 接口和 MongoDB 命令的方式来操作数据库。
+- [jdbc-elastic](./drivers/elastic/about) 是 ElasticSearch 的 JDBC 驱动适配器，它允许开发者使用标准的 JDBC 接口和 ElasticSearch QueryDSL 方式来操作数据。
 
 ## 版本事件
 

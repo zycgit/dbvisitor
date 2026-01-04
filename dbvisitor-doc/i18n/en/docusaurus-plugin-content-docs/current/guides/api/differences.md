@@ -29,6 +29,12 @@ For **relational databases** that rely on SQL, all dbVisitor APIs are available.
 For **non-relational databases**, see the guides below for specific differences:
 - [Redis Specifics](../core/redis/about)
 - [MongoDB Specifics](../core/mongo/about)
+- [ElasticSearch Specifics](../core/elastic/about)
+
+:::info[JDBC Feature Support]
+For non-relational database drivers (Mongo, Elastic), dbVisitor implements the `Statement.RETURN_GENERATED_KEYS` feature.
+This means that when using `JdbcTemplate` or `Statement` to execute an insert operation, you can automatically retrieve the generated `_id`.
+:::
 
 ## Database Dialect {#dialect}
 

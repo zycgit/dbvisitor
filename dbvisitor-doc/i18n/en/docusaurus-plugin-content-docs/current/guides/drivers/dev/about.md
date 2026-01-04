@@ -2,7 +2,7 @@
 id: about
 sidebar_position: 0
 hide_table_of_contents: true
-title: 11.2 Custom Adapter
+title: 11.4 Custom Adapter
 description: Build your own JDBC driver adapter so your data source exposes a JDBC-compatible layer.
 ---
 :::tip[Hint]

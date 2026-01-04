@@ -77,3 +77,13 @@ description: jdbc-mongo 支持常用的 MongoDB 命令，涵盖数据库管理�
 - `show dbs`: 显示所有数据库。
 - `show collections`: 显示当前数据库的所有集合。
 - `show tables`: 同 `show collections`。
+
+## Hint 支持
+
+jdbc-mongo 支持通过 SQL Hint 方式来覆盖或增强查询行为。Hint 格式为 `/*+ hint_name=value */`，必须位于 SQL 语句的开头。
+
+| Hint 名称 | 说明 | 示例 |
+| --- | --- | --- |
+| `overwrite_find_limit` | 覆盖查询的 `limit` 参数，用于分页或限制返回条数。 | `/*+ overwrite_find_limit=10 */ db.collection.find({})` |
+| `overwrite_find_skip` | 覆盖查询的 `skip` 参数，用于分页跳过指定条数。 | `/*+ overwrite_find_skip=20 */ db.collection.find({})` |
+| `overwrite_find_as_count` | 将查询转换为 Count 操作，忽略返回的文档内容，仅返回匹配数量。 | `/*+ overwrite_find_as_count */ db.collection.find({})` |

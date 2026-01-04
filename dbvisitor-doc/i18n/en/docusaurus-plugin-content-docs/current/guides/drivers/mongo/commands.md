@@ -80,3 +80,14 @@ For MongoDB commands that normally use the `db.` prefix:
 - `show dbs`: list all databases.
 - `show collections`: list all collections in the current DB.
 - `show tables`: same as `show collections`.
+
+## Hint Support
+
+jdbc-mongo supports overriding or enhancing query behavior via SQL Hint. The Hint format is `/*+ hint_name=value */` and must be placed at the beginning of the SQL statement.
+
+| Hint Name | Description | Example |
+| --- | --- | --- |
+| `overwrite_find_limit` | Overrides the `limit` parameter of the query, used for pagination or limiting the number of returned records. | `/*+ overwrite_find_limit=10 */ db.collection.find({})` |
+| `overwrite_find_skip` | Overrides the `skip` parameter of the query, used for pagination to skip a specified number of records. | `/*+ overwrite_find_skip=20 */ db.collection.find({})` |
+| `overwrite_find_as_count` | Converts the query to a Count operation, ignoring the returned document content and returning only the match count. | `/*+ overwrite_find_as_count */ db.collection.find({})` |
+

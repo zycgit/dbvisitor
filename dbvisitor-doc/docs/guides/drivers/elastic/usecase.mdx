@@ -1,0 +1,110 @@
+---
+id: usecase
+sidebar_position: 2
+title: 安装与配置
+description: 介绍如何引入 jdbc-elastic 依赖以及配置 JDBC 连接。
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import Vars from '@site/plugins/projectVars';
+
+export const Highlight = ({children, color}) => (
+    <span style={{ backgroundColor: color, borderRadius: '2px', color: '#fff', padding: '0.2rem', }}>{children}</span>
+);
+
+## 引入依赖
+
+在使用 `jdbc-elastic` 之前，需要在项目中引入相应的 Maven 依赖。当前版本：<Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>
+
+<Tabs>
+  <TabItem value="maven" label="Maven" default>
+    ```xml
+    <dependency>
+        <groupId>net.hasor</groupId>
+        <artifactId>jdbc-elastic</artifactId>
+        <version>6.4.0</version>
+    </dependency>
+    ```
+  </TabItem>
+  <TabItem value="gradle" label="Gradle">
+    ```groovy
+    implementation 'net.hasor:jdbc-elastic:6.4.0'
+    ```
+  </TabItem>
+</Tabs>
+
+## JDBC 连接
+
+使用标准的 JDBC URL 格式连接 ElasticSearch：
+
+```text
+jdbc:dbvisitor:elastic://<host>:<port>?<parameters>
+```
+
+- `host`: ElasticSearch 服务器地址。
+- `port`: ElasticSearch 服务器端口（默认 9200）。
+- `parameters`: 连接参数，详见 [连接参数](./params)。
+
+### 示例代码
+
+#### 1. 执行查询 (Search)
+
+```java
+String url = "jdbc:dbvisitor:elastic://127.0.0.1:9200";
+Properties props = new Properties();
+props.setProperty("username", "elastic");
+props.setProperty("password", "changeme");
+
+try (Connection conn = DriverManager.getConnection(url, props)) {
+    try (Statement stmt = conn.createStatement()) {
+        // 执行 DSL 查询
+        String dsl = "POST /my_index/_search { \"query\": { \"match_all\": {} } }";
+        try (ResultSet rs = stmt.executeQuery(dsl)) {
+            while (rs.next()) {
+                System.out.println("ID: " + rs.getString("_ID"));
+                System.out.println("Source: " + rs.getString("_DOC")); // _DOC 返回原始 JSON
+            }
+        }
+    }
+}
+```
+
+#### 2. 使用 PreparedStatement (带参数)
+
+`jdbc-elastic` 支持在 URL 路径、JSON Body 以及 Hint 中使用 `?` 作为占位符。
+
+```java
+String dsl = "POST /my_index/_search { \"query\": { \"term\": { \"user\": ? } } }";
+try (PreparedStatement pstmt = conn.prepareStatement(dsl)) {
+    pstmt.setString(1, "kimchy");
+    try (ResultSet rs = pstmt.executeQuery()) {
+        while (rs.next()) {
+            // ...
+        }
+    }
+}
+```
+
+#### 3. 插入/更新文档
+
+```java
+String insertSql = "POST /my_index/_doc/1 { \"user\": \"kimchy\", \"post_date\": \"2009-11-15T14:12:12\", \"message\": \"trying out Elasticsearch\" }";
+try (Statement stmt = conn.createStatement()) {
+    stmt.executeUpdate(insertSql);
+}
+```
+
+#### 4. 索引管理
+
+```java
+try (Statement stmt = conn.createStatement()) {
+    // 创建索引
+    stmt.execute("PUT /new_index");
+    
+    // 设置 Mapping
+    stmt.execute("PUT /new_index/_mapping { \"properties\": { \"field1\": { \"type\": \"text\" } } }");
+    
+    // 删除索引
+    stmt.execute("DELETE /new_index");
+}
+```

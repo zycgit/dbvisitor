@@ -24,7 +24,7 @@ This page skips the API overview and organizes links by usage scenarios for quic
 - In a Mapper file, use [&lt;update&gt; / &lt;delete&gt;](./core/file/sql_element#update_delete) to update or delete data.
 
 ### Basic Query
-- 使用 SQL 语句 [查询结果集](./core/jdbc/query#list)、[查询对象](./core/jdbc/query#one)、[查询键值对](./core/jdbc/query#pairs)、[查询值/值列表](./core/jdbc/query#value)、[流式查询](./core/jdbc/query#stream)
+- Use SQL statements to [Query Result Set](./core/jdbc/query#list), [Query Object](./core/jdbc/query#one), [Query Key-Value Pairs](./core/jdbc/query#pairs), [Query Value/List](./core/jdbc/query#value), [Stream Query](./core/jdbc/query#stream)
 - Execute statements and [Multiple ResultSet](./core/jdbc/multi).
 - Define queries on interfaces with [@Query](./core/annotation/query).
 - Use the Fluent API to [Fetch one object](./core/lambda/query#object), [List](./core/lambda/query#list), [Count](./core/lambda/query#count).
@@ -115,6 +115,14 @@ This page skips the API overview and organizes links by usage scenarios for quic
 - Use [Common Mapper](./core/mongo/exec_mapper).
 - On Mapper interfaces, use @Insert, @Update, @Delete for [Annotation-driven](./core/mongo/exec_annotation) operations.
 - In Mapper files, configure commands via tags: [Mapper File](./core/mongo/exec_file).
+
+### ElasticSearch support
+- See ElasticSearch commands supported by dbVisitor: [Commands](./drivers/elastic/commands).
+- Use JdbcTemplate to [Execute commands](./core/elastic/exec_command).
+- Use [Fluent API](./core/elastic/exec_lambda).
+- Use [Common Mapper](./core/elastic/exec_mapper).
+- On Mapper interfaces, use @Insert, @Update, @Delete for [Annotation-driven](./core/elastic/exec_annotation) operations.
+- In Mapper files, configure commands via tags: [Mapper File](./core/elastic/exec_file).
 
 ### Database transactions
 - Spring projects: use [Spring Annotations](./yourproject/with_spring#tran).

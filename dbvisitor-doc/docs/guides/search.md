@@ -115,6 +115,14 @@ description: 本文会略过 API 概述部分并以更加直观的形式按照�
 - 在 Mapper 接口上使用 @Insert、@Update、@Delete 注解，以 [注解方式](./core/mongo/exec_annotation) 操作 MongoDB 数据。
 - 在 [Mapper 文件](./core/mongo/exec_file) 中通过标签配置执行命令。
 
+### ElasticSearch 支持
+- 了解 dbVisitor 对 ElasticSearch [支持的命令](./drivers/elastic/commands)。
+- 使用 JdbcTemplate [执行命令方式](./core/elastic/exec_command) 读写 ElasticSearch 数据。
+- 使用 [构造器方式](./core/elastic/exec_lambda) 读写 ElasticSearch 数据。
+- 使用 [通用 Mapper 方式](./core/elastic/exec_mapper) 读写 ElasticSearch 数据。
+- 在 Mapper 接口上使用 @Insert、@Update、@Delete 注解，以 [注解方式](./core/elastic/exec_annotation) 操作 ElasticSearch 数据。
+- 在 [Mapper 文件](./core/elastic/exec_file) 中通过标签配置执行命令。
+
 
 ### 数据库事务
 - 当项目是基于 Spring 技术构建时，通过 Spring 的 [事务注解](./yourproject/with_spring#tran) 完成事务控制。

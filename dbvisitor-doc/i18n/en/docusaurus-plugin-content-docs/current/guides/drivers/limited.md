@@ -2,7 +2,7 @@
 id: limited
 sidebar_position: 21
 hide_table_of_contents: true
-title: 11.3 Usage Limits
+title: 11.5 Usage Limits
 description: jdbc-redis is constrained by dbvisitor-driver's JDBC support; here are the limits.
 ---
 :::tip[Hint]
