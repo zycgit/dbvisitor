@@ -661,11 +661,16 @@ public final class TypeHandlerRegistry {
             });
         }
         // maybe classType is abstract
+        Class<?> bestMatch = null;
         for (Class<?> abstractType : this.abstractCachedByJavaType.keySet()) {
             if (abstractType.isAssignableFrom(typeClass) || abstractType == typeClass) {
-                typeHandler = this.abstractCachedByJavaType.get(abstractType);
-                break;
+                if (bestMatch == null || bestMatch.isAssignableFrom(abstractType)) {
+                    bestMatch = abstractType;
+                }
             }
+        }
+        if (bestMatch != null) {
+            typeHandler = this.abstractCachedByJavaType.get(bestMatch);
         }
 
         // register default
@@ -750,12 +755,19 @@ public final class TypeHandlerRegistry {
             }
         }
         // maybe classType is abstract
+        Class<?> bestMatch = null;
         for (Class<?> abstractType : this.abstractCachedByCrossType.keySet()) {
             if (abstractType.isAssignableFrom(typeClass) || abstractType == typeClass) {
-                Map<Integer, TypeHandler<?>> typeHandlerMap = this.abstractCachedByCrossType.get(typeClass);
-                typeHandler = typeHandlerMap.get(jdbcType);
-                break;
+                Map<Integer, TypeHandler<?>> typeHandlerMap = this.abstractCachedByCrossType.get(abstractType);
+                if (typeHandlerMap != null && typeHandlerMap.containsKey(jdbcType)) {
+                    if (bestMatch == null || bestMatch.isAssignableFrom(abstractType)) {
+                        bestMatch = abstractType;
+                    }
+                }
             }
+        }
+        if (bestMatch != null) {
+            typeHandler = this.abstractCachedByCrossType.get(bestMatch).get(jdbcType);
         }
 
         // register default
