@@ -123,6 +123,16 @@ try (Statement stmt = conn.createStatement()) {
 }
 ```
 
+## Hint Support
+
+jdbc-elastic supports overriding or enhancing query behavior via SQL Hints. The Hint format is `/*+ hint_name=value */` and must be placed at the beginning of the SQL statement.
+
+| Hint Name | Description | Example |
+| --- | --- | --- |
+| `overwrite_find_limit` | Overrides the `size` parameter of the query, used for pagination or limiting the number of results. | `/*+ overwrite_find_limit=10 */ POST /idx/_search` |
+| `overwrite_find_skip` | Overrides the `from` parameter of the query, used for pagination to skip a specified number of results. | `/*+ overwrite_find_skip=20 */ POST /idx/_search` |
+| `overwrite_find_as_count` | Converts the query into a Count operation, ignoring the returned document content and returning only the match count. | `/*+ overwrite_find_as_count */ POST /idx/_search` |
+
 ## Supported Commands Overview
 
 jdbc-elastic converts SQL-style commands into underlying REST requests by parsing them. The supported command patterns are as follows:

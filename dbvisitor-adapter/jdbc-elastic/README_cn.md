@@ -123,6 +123,16 @@ try (Statement stmt = conn.createStatement()) {
 }
 ```
 
+## Hint 支持
+
+jdbc-elastic 支持通过 SQL Hint 方式来覆盖或增强查询行为。Hint 格式为 `/*+ hint_name=value */`，必须位于 SQL 语句的开头。
+
+| Hint 名称 | 说明 | 示例 |
+| --- | --- | --- |
+| `overwrite_find_limit` | 覆盖查询的 `size` 参数，用于分页或限制返回条数。 | `/*+ overwrite_find_limit=10 */ POST /idx/_search` |
+| `overwrite_find_skip` | 覆盖查询的 `from` 参数，用于分页跳过指定条数。 | `/*+ overwrite_find_skip=20 */ POST /idx/_search` |
+| `overwrite_find_as_count` | 将查询转换为 Count 操作，忽略返回的文档内容，仅返回匹配数量。 | `/*+ overwrite_find_as_count */ POST /idx/_search` |
+
 ## 支持的命令概览
 
 jdbc-elastic 通过解析 SQL 风格的命令，将其转换为底层的 REST 请求。支持的命令模式如下：

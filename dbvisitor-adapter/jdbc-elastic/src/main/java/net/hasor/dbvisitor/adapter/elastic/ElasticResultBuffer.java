@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import net.hasor.cobble.io.IOUtils;
 import net.hasor.dbvisitor.driver.JdbcErrorCode;
 
 class ElasticResultBuffer implements Closeable, Iterable<Map<String, Object>> {
@@ -12,6 +13,7 @@ class ElasticResultBuffer implements Closeable, Iterable<Map<String, Object>> {
     private final long                      maxFileSizeBytes;
     private final File                      cacheDir;
     private final List<Map<String, Object>> memoryBuffer;
+    private final List<InputStream>         openStreams;
     private       File                      tempFile;
     private       ObjectOutputStream        fileOutput;
     private       long                      currentSize;
@@ -23,6 +25,7 @@ class ElasticResultBuffer implements Closeable, Iterable<Map<String, Object>> {
         this.cacheDir = cacheDir;
 
         this.memoryBuffer = new ArrayList<>();
+        this.openStreams = new ArrayList<>();
         this.currentSize = 0;
         this.switchedToDisk = false;
     }
@@ -87,6 +90,7 @@ class ElasticResultBuffer implements Closeable, Iterable<Map<String, Object>> {
             {
                 try {
                     input = new ObjectInputStream(new BufferedInputStream(new FileInputStream(tempFile)));
+                    openStreams.add(input);
                     advance();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -133,11 +137,12 @@ class ElasticResultBuffer implements Closeable, Iterable<Map<String, Object>> {
     @Override
     public void close() throws IOException {
         if (fileOutput != null) {
-            try {
-                fileOutput.close();
-            } catch (IOException ignored) {
-            }
+            IOUtils.closeQuietly(fileOutput);
         }
+        for (InputStream is : openStreams) {
+            IOUtils.closeQuietly(is);
+        }
+        openStreams.clear();
         if (tempFile != null && tempFile.exists()) {
             tempFile.delete();
         }

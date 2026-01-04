@@ -68,7 +68,7 @@ public class EsCommandBuilderTest {
         String sql = boundSql.getSqlString();
         
         assertTrue(sql.contains("\"_source\": [\"name\", \"age\"]"));
-        assertTrue(sql.contains("\"term\": { \"active\": ? }"));
+        assertTrue(sql.contains("\"match\": { \"active\": ? }"));
     }
 
     @Test
@@ -128,7 +128,7 @@ public class EsCommandBuilderTest {
         assertTrue(sql.startsWith("POST /my_index/my_type/_update_by_query"));
         assertTrue(sql.contains("\"script\": { \"source\": \"ctx._source.putAll(params.data)\", \"lang\": \"painless\", \"params\": { \"data\": {"));
         assertTrue(sql.contains("\"name\": ?"));
-        assertTrue(sql.contains("\"term\": { \"id\": ? }"));
+        assertTrue(sql.contains("\"match\": { \"id\": ? }"));
     }
 
     @Test
@@ -156,7 +156,7 @@ public class EsCommandBuilderTest {
         String sql = boundSql.getSqlString();
         
         assertTrue(sql.startsWith("POST /my_index/my_type/_delete_by_query"));
-        assertTrue(sql.contains("\"term\": { \"status\": ? }"));
+        assertTrue(sql.contains("\"match\": { \"status\": ? }"));
     }
 
     @Test
@@ -169,6 +169,6 @@ public class EsCommandBuilderTest {
         String sql = boundSql.getSqlString();
         
         assertTrue(sql.startsWith("POST /my_index/_delete_by_query"));
-        assertTrue(sql.contains("\"term\": { \"status\": ? }"));
+        assertTrue(sql.contains("\"match\": { \"status\": ? }"));
     }
 }

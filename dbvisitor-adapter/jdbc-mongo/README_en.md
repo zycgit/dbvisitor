@@ -97,6 +97,16 @@ public class MongoJdbcExample {
 }
 ```
 
+## Hint Support
+
+jdbc-mongo supports overriding or enhancing query behavior via SQL Hints. The Hint format is `/*+ hint_name=value */` and must be placed at the beginning of the SQL statement.
+
+| Hint Name | Description | Example |
+| --- | --- | --- |
+| `overwrite_find_limit` | Overrides the `limit` parameter of the query, used for pagination or limiting the number of returned documents. | `/*+ overwrite_find_limit=10 */ db.collection.find({})` |
+| `overwrite_find_skip` | Overrides the `skip` parameter of the query, used for pagination to skip a specified number of documents. | `/*+ overwrite_find_skip=20 */ db.collection.find({})` |
+| `overwrite_find_as_count` | Converts the query into a Count operation, ignoring the returned document content and returning only the match count. | `/*+ overwrite_find_as_count */ db.collection.find({})` |
+
 ## Limit
 
 - Properties obtained via DatabaseMetaData are not reliable.

@@ -18,6 +18,7 @@ import java.io.Closeable;
 import java.sql.*;
 import java.util.*;
 import java.util.concurrent.Executor;
+import net.hasor.cobble.io.IOUtils;
 import net.hasor.dbvisitor.driver.lob.JdbcBob;
 import net.hasor.dbvisitor.driver.lob.JdbcCob;
 
@@ -55,8 +56,12 @@ class JdbcConnection implements Connection, Closeable {
     @Override
     public void close() {
         if (!this.isClosed()) {
-            this.closed = true;
-            AdapterConnManager.removeConnection(this.connection);
+            try {
+                this.closed = true;
+                AdapterConnManager.removeConnection(this.connection);
+            } finally {
+                IOUtils.closeQuietly(this.connection);
+            }
         }
     }
 

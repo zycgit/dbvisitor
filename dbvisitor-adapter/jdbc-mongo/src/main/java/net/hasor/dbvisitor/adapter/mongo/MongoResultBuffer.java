@@ -14,6 +14,7 @@ class MongoResultBuffer implements Closeable, Iterable<Document> {
     private final long               maxFileSizeBytes;
     private final File               cacheDir;
     private final List<Document>     memoryBuffer;
+    private final List<InputStream>  openStreams;
     private       File               tempFile;
     private       ObjectOutputStream fileOutput;
     private       long               currentSize;
@@ -25,6 +26,7 @@ class MongoResultBuffer implements Closeable, Iterable<Document> {
         this.cacheDir = cacheDir;
 
         this.memoryBuffer = new ArrayList<>();
+        this.openStreams = new ArrayList<>();
         this.currentSize = 0;
         this.switchedToDisk = false;
     }
@@ -86,6 +88,7 @@ class MongoResultBuffer implements Closeable, Iterable<Document> {
             {
                 try {
                     input = new ObjectInputStream(new BufferedInputStream(new FileInputStream(tempFile)));
+                    openStreams.add(input);
                     advance();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -135,9 +138,11 @@ class MongoResultBuffer implements Closeable, Iterable<Document> {
 
     @Override
     public void close() throws IOException {
-        if (fileOutput != null) {
-            IOUtils.closeQuietly(fileOutput);
+        IOUtils.closeQuietly(fileOutput);
+        for (InputStream is : openStreams) {
+            IOUtils.closeQuietly(is);
         }
+        openStreams.clear();
         if (tempFile != null && tempFile.exists()) {
             tempFile.delete();
         }

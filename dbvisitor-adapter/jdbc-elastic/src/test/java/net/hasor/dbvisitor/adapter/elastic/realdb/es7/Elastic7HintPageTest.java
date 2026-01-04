@@ -6,7 +6,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class Elastic7HintPageTest {
     private static final String ES_URL = "jdbc:dbvisitor:elastic://127.0.0.1:19201?indexRefresh=true";
@@ -48,8 +48,12 @@ public class Elastic7HintPageTest {
                 int count = 0;
                 while (rs.next()) {
                     count++;
-                    if (count == 1) assertEquals(1, rs.getInt("seq"));
-                    if (count == 2) assertEquals(2, rs.getInt("seq"));
+                    if (count == 1) {
+                        assertEquals(1, rs.getInt("seq"));
+                    }
+                    if (count == 2) {
+                        assertEquals(2, rs.getInt("seq"));
+                    }
                 }
                 assertEquals(2, count);
             }
@@ -60,19 +64,25 @@ public class Elastic7HintPageTest {
                 int count = 0;
                 while (rs.next()) {
                     count++;
-                    if (count == 1) assertEquals(3, rs.getInt("seq"));
-                    if (count == 2) assertEquals(4, rs.getInt("seq"));
+                    if (count == 1) {
+                        assertEquals(3, rs.getInt("seq"));
+                    }
+                    if (count == 2) {
+                        assertEquals(4, rs.getInt("seq"));
+                    }
                 }
                 assertEquals(2, count);
             }
-            
+
             // Test limit=2, skip=4 (should return 1 result)
             String sql3 = "/*+ overwrite_find_limit=2, overwrite_find_skip=4 */ POST /test_hint_search/_search { \"query\": { \"match_all\": {} }, \"sort\": [{\"seq\": \"asc\"}] }";
             try (ResultSet rs = s.executeQuery(sql3)) {
                 int count = 0;
                 while (rs.next()) {
                     count++;
-                    if (count == 1) assertEquals(5, rs.getInt("seq"));
+                    if (count == 1) {
+                        assertEquals(5, rs.getInt("seq"));
+                    }
                 }
                 assertEquals(1, count);
             }
