@@ -1,6 +1,6 @@
 ---
 slug: elasticsearch-mybatis-style
-title: Operating ElasticSearch in MyBatis Style with dbVisitor
+title: Operate ElasticSearch in MyBatis Style with dbVisitor
 authors: [ZhaoYongChun]
 tags: [elasticsearch, mybatis, orm, jdbc, dbvisitor]
 language: en
@@ -21,8 +21,8 @@ This article will introduce how to use **dbVisitor** to operate ElasticSearch in
 
 In traditional hybrid architectures, we might encounter the following problems:
 
-*   **Inconsistent API Styles**: RDBMS uses SQL and JDBC, while ElasticSearch uses REST API and JSON DSL.
-*   **Differences in Pagination Implementation**: MyBatis is usually paired with PageHelper or RowBounds, while ElasticSearch requires manually setting `from` and `size`, or using Spring Data's `Pageable`.
+*   **Inconsistent API Styles**: RDBMS uses SQL, while ElasticSearch uses REST API and JSON DSL.
+*   **Differences in Pagination Implementation**: MyBatis is usually paired with PageHelper, while ElasticSearch requires manually setting `from` and `size`.
 *   **High Maintenance Costs**: Maintaining two completely different underlying logics increases code complexity and the probability of errors.
 
 ## 2. dbVisitor's Solution

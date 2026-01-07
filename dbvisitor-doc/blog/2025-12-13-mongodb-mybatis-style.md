@@ -18,8 +18,8 @@ language: zh-cn
 
 在传统的混合架构中，我们可能会遇到以下问题：
 
-*   **API 风格不统一**：RDBMS 使用 SQL 和 JDBC，MongoDB 使用 BSON 和专有协议。
-*   **分页实现差异**：MyBatis 通常配合 PageHelper 或 RowBounds，而 MongoDB 需要手动计算 `skip` 和 `limit`，或者使用 Spring Data 的 `Pageable`。
+*   **API 风格不统一**：使用 SQL，MongoDB 使用 BSON 和专有协议。
+*   **分页实现差异**：MyBatis 通常配合 PageHelper，而 MongoDB 需要手动计算 `skip` 和 `limit`。
 *   **维护成本高**：需要维护两套完全不同的底层逻辑，增加了代码的复杂度和出错的概率。
 
 ## 2. dbVisitor 的解决方案

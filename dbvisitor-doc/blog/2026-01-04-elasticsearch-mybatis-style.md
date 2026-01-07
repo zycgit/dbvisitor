@@ -18,8 +18,8 @@ language: zh-cn
 
 在传统的混合架构中，我们可能会遇到以下问题：
 
-*   **API 风格不统一**：RDBMS 使用 SQL 和 JDBC，ElasticSearch 使用 REST API 和 JSON DSL。
-*   **分页实现差异**：MyBatis 通常配合 PageHelper 或 RowBounds，而 ElasticSearch 需要手动设置 `from` 和 `size`，或者使用 Spring Data 的 `Pageable`。
+*   **API 风格不统一**：使用 SQL，ElasticSearch 使用 REST API 和 JSON DSL。
+*   **分页实现差异**：MyBatis 通常配合 PageHelper，而 ElasticSearch 需要手动设置 `from` 和 `size`。
 *   **维护成本高**：需要维护两套完全不同的底层逻辑，增加了代码的复杂度和出错的概率。
 
 ## 2. dbVisitor 的解决方案
