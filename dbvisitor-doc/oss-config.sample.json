@@ -2,5 +2,7 @@
   "accessKeyId": "LTAI4F..................",
   "accessKeySecret": "................................",
   "endpoint": "oss-cn-hangzhou.aliyuncs.com",
-  "bucketName": "your-bucket-name"
+  "bucketName": "your-bucket-name",
+  "cdnRegionId": "cn-hangzhou",
+  "cdnUrl": "https://www.dbvisitor.net/"
 }

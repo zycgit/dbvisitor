@@ -80,6 +80,26 @@ services:
     depends_on:
       - es_7_17_27
 
+  opensearch_2_11_1:
+    image: opensearchproject/opensearch:2.11.1
+    privileged: true
+    ports:
+      - 19302:9300
+      - 19202:9200
+    environment:
+      - discovery.type=single-node
+      - plugins.security.disabled=true
+  opensearch_dashboards_2_11_1:
+    image: opensearchproject/opensearch-dashboards:2.11.1
+    privileged: true
+    ports:
+      - 15603:5601
+    environment:
+      OPENSEARCH_HOSTS: '["http://opensearch_2_11_1:9200"]'
+      DISABLE_SECURITY_DASHBOARDS_PLUGIN: "true"
+    depends_on:
+      - opensearch_2_11_1
+
   #  oracle_12c:
   #    image: truevoly/oracle-12c
   #    ports:

@@ -7,6 +7,30 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import styles from './index.module.css';
 import DbVisitorFeatures from '../components/dbVisitorFeatures';
 
+const LabelList = [
+    {
+        alt: 'License',
+        Svg: require('../../static/img/labels/license.svg').default,
+        href: 'https://www.apache.org/licenses/LICENSE-2.0.html'
+    },
+    {
+        alt: 'Email',
+        Svg: require('../../static/img/labels/email-zyc@byshell.svg').default,
+        href: 'mailto:zyc@byshell.org'
+    },
+    {
+        alt: 'QQ Group',
+        Svg: require('../../static/img/labels/qqgroup-948706820.svg').default,
+        href: 'https://qm.qq.com/cgi-bin/qm/qr?k=Qy3574A4VgI0ph4fqFbZW-w49gnyqu6p&jump_from=webapi'
+    },
+];
+
+function Label({Svg, href, alt}) {
+    return (
+        <a className="button-padding" target="_blank" href={href}><Svg alt={alt}/></a>
+    );
+}
+
 function HomepageHeader() {
     const {siteConfig} = useDocusaurusContext();
     return (
@@ -16,6 +40,9 @@ function HomepageHeader() {
                 <p className="hero__subtitle">
                     <Translate id="dbv.tagline">dbVisitor 提供了一种统一且简便的方式，可访问多种不同类型的数据库。</Translate>
                     <br/><br/>
+                    {LabelList.map((props, idx) => (
+                        <Label key={idx} {...props} />
+                    ))}
                 </p>
                 <div className={styles.buttons}>
                     <Link className="button button--secondary button--lg" to="/docs/guides/overview"><Translate id="commons.document">使用手册</Translate></Link>
