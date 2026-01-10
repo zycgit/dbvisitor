@@ -1,12 +1,7 @@
 #!/bin/bash
 
-# Ensure we are in the script's directory (workspace root)
+# Ensure we are in the script's directory
 cd "$(dirname "$0")"
-
-# Navigate to dbvisitor-doc directory where the python scripts and build artifacts are located
-cd dbvisitor-doc || { echo "Error: dbvisitor-doc directory not found"; exit 1; }
-
-echo "Checking Python environment..."
 
 # Check if pip3 is installed
 if ! command -v pip3 &> /dev/null; then

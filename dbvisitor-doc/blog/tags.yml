@@ -12,3 +12,63 @@ Streaming:
   label: Streaming
   permalink: /streaming
   description: Hola tag description
+
+elasticsearch:
+  label: Elasticsearch
+  permalink: /tags/elasticsearch
+  description: 分布式搜索和分析引擎
+
+mybatis:
+  label: MyBatis
+  permalink: /tags/mybatis
+  description: Java 持久层框架
+
+orm:
+  label: ORM
+  permalink: /tags/orm
+  description: 对象关系映射
+
+ORM:
+  label: ORM
+  permalink: /tags/orm-upper
+  description: 对象关系映射
+
+jdbc:
+  label: JDBC
+  permalink: /tags/jdbc
+  description: Java 数据库连接
+
+JDBC:
+  label: JDBC
+  permalink: /tags/jdbc-upper
+  description: Java 数据库连接
+
+dbvisitor:
+  label: dbVisitor
+  permalink: /tags/dbvisitor
+  description: 下一代 Java 数据访问工具
+
+dbVisitor:
+  label: dbVisitor
+  permalink: /tags/dbvisitor-upper
+  description: 下一代 Java 数据访问工具
+
+NoSQL:
+  label: NoSQL
+  permalink: /tags/nosql
+  description: 非关系型数据库
+
+mongodb:
+  label: MongoDB
+  permalink: /tags/mongodb
+  description: 面向文档的 NoSQL 数据库
+
+Architecture:
+  label: 架构
+  permalink: /tags/architecture
+  description: 软件架构设计
+
+odm:
+  label: ODM
+  permalink: /tags/odm
+  description: 对象文档映射

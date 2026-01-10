@@ -21,7 +21,7 @@ const LabelList = [
     {
         alt: 'QQ Group',
         Svg: require('../../static/img/labels/qqgroup-948706820.svg').default,
-        href: 'https://qm.qq.com/cgi-bin/qm/qr?k=Qy3574A4VgI0ph4fqFbZW-w49gnyqu6p&jump_from=webapi'
+        href: 'https://qm.qq.com/cgi-bin/qm/qr?k=-ha3lrkHrAddrZMINYbmxj4W7ZrrWW2b&jump_from=webapi&authKey=BtyfWIjWF7uhOf/ZPur+pr5p1efOZyjGESLynkPzbJ9IMd/j/T/pR1SDLcJKC972'
     },
 ];
 

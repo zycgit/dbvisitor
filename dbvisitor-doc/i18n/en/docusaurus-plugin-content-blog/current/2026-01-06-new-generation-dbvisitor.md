@@ -109,6 +109,8 @@ It should no longer distinguish "Is this an ORM" or "Is this a Client", it is th
 
 ### 1. API Access Library: Providing Unified API
 
+<img src="/img/blog/one-api2.jpg" alt="Double-Layer Adapter Architecture Diagram" width="80%" />
+
 dbVisitor's data access layer does not rely on specific SQL syntax, but provides highly abstract APIs. For example: Query Builder
 ```java
 // Whether MySQL or MongoDB, the code looks the same
@@ -146,6 +148,9 @@ Although dbVisitor's double-layer adapter architecture solves most general probl
     Not all NoSQLs have a perfect query language. For those databases without DSLs, dbVisitor has to adopt a compromise solution: **use DSL syntax to imitate SDK's API call structure**.
     The benefit of this is retaining usage habits close to the official ones, lowering the cognitive threshold. But the downside is also obvious: SDK API differences between different versions or even incompatible API structures.
     This weakens the standardization degree and stability of DSL itself and increases cognitive burden. This problem can only hope that database vendors can have a standard query syntax belonging to themselves, such as Elasticsearch's QueryDSL. 
+
+3.  **Sync vs Async Trade-off**:
+    The JDBC protocol is designed based on blocking I/O, which means dbVisitor currently mainly serves classic synchronous processing models (such as Spring WebMVC). For pure asynchronous reactive architectures (Reactive) that pursue extreme throughput, we chose to prioritize ecosystem compatibility (such as seamless integration with Druid/HikariCP), and made compromises on the I/O model.
 
 **Best Practice Summary**:
 

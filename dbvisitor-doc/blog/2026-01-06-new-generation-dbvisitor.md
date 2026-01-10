@@ -40,7 +40,7 @@ language: zh-cn
     像 Easy-ES 这样的工具虽然方便，但在处理 ES 特有的聚合或复杂 DSL 时，往往还是需要回退到原生 QueryDSL。
 
 2.  **中间件对 JDBC 的态度**：
-    JDBC 本是 Java 届最成功的抽象之一，但它被打上了深深的关系型数据库烙印。
+    JDBC 本是 Java 界最成功的抽象之一，但它被打上了深深的关系型数据库烙印。
     *   **Elasticsearch**：曾经尝试提供 JDBC 支持，但限制诸多（不支持嵌套对象复杂查询），甚至一度计划废弃 SQL 插件。
     *   **MongoDB**：虽然有商业版的 JDBC 驱动，但社区生态中大家更习惯用 MongoTemplate 或原声 BSON API。
 
@@ -105,6 +105,8 @@ language: zh-cn
 
 ### 1. API访问库：提供统一 API
 
+![双层适配架构图](../static/img/blog/one-api2.jpg)
+
 dbVisitor 的数据访问层不依赖于具体的 SQL 语法，而是提供高度抽象的 API。例如：查询构造器
 ```java
 // 无论是 MySQL 还是 MongoDB，代码看起来都是一样的
@@ -142,6 +144,10 @@ dbVisitor 的解法是引入一个轻量级的驱动适配器框架。它将 JDB
     并非所有 NoSQL 都有完善的查询语言，对于那些没有标准 DSL 的数据库，dbVisitor 不得不采用一种折中方案：**用 DSL 语法来模仿 SDK 的 API 调用结构**。
     这样做的好处是保留了近似官方的习惯用法，降低了认知门槛。但坏处也很明显：不同版本的 SDK API 差异甚至是不兼容的 API 结构。
     这会削弱了 DSL 本身的标准化程度和稳定性，加重认知负担。这个问题只能寄希望于数据库厂商可以有一个属于它自己的标准的查询语法出现，例如 Elasticsearch 的 QueryDSL。 
+
+3.  **同步与异步的取舍**：
+    JDBC 协议是基于阻塞式 I/O 设计的，这意味着 dbVisitor 目前主要服务于经典的同步处理模型（如 Spring WebMVC）。对于追求极致吞吐量的纯异步响应式架构（Reactive），
+    我们选择优先保证生态兼容性（如无缝对接 Druid/HikariCP），而在 I/O 模型上做出了妥协。
 
 **最佳实践总结**：
 

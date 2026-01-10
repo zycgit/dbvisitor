@@ -12,3 +12,63 @@ Streaming:
   label: Streaming
   permalink: /streaming
   description: Hola tag description
+
+elasticsearch:
+  label: Elasticsearch
+  permalink: /tags/elasticsearch
+  description: Distributed search and analytics engine
+
+mybatis:
+  label: MyBatis
+  permalink: /tags/mybatis
+  description: Java persistence framework
+
+orm:
+  label: ORM
+  permalink: /tags/orm
+  description: Object-Relational Mapping
+
+ORM:
+  label: ORM
+  permalink: /tags/orm-upper
+  description: Object-Relational Mapping
+
+jdbc:
+  label: JDBC
+  permalink: /tags/jdbc
+  description: Java Database Connectivity
+
+JDBC:
+  label: JDBC
+  permalink: /tags/jdbc-upper
+  description: Java Database Connectivity
+
+dbvisitor:
+  label: dbVisitor
+  permalink: /tags/dbvisitor
+  description: Next-generation Java data access tool
+
+dbVisitor:
+  label: dbVisitor
+  permalink: /tags/dbvisitor-upper
+  description: Next-generation Java data access tool
+
+NoSQL:
+  label: NoSQL
+  permalink: /tags/nosql
+  description: Non-relational database
+
+mongodb:
+  label: MongoDB
+  permalink: /tags/mongodb
+  description: Document-oriented NoSQL database
+
+Architecture:
+  label: Architecture
+  permalink: /tags/architecture
+  description: Software Architecture
+
+odm:
+  label: ODM
+  permalink: /tags/odm
+  description: Object-Document Mapping
