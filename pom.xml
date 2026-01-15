@@ -16,7 +16,7 @@
     <properties>
         <downloadSources>true</downloadSources>
         <downloadJavadocs>true</downloadJavadocs>
-        <jacoco.version>0.8.5</jacoco.version>
+        <jacoco.version>0.8.11</jacoco.version>
         <!--<maven.test.skip>true</maven.test.skip>-->
         <!--<skipTests>true</skipTests>-->
     </properties>
@@ -55,6 +55,7 @@
         <module>dbvisitor-adapter/jdbc-redis</module>
         <module>dbvisitor-adapter/jdbc-mongo</module>
         <module>dbvisitor-adapter/jdbc-elastic</module>
+        <module>dbvisitor-report</module>
     </modules>
 
     <dependencyManagement>
@@ -216,6 +217,7 @@
                 <version>3.2.5</version>
                 <configuration>
                     <testFailureIgnore>true</testFailureIgnore>
+                    <argLine>@{argLine}</argLine>
                 </configuration>
             </plugin>
             <!-- 覆盖率 -->
@@ -235,11 +237,11 @@
                         <goals>
                             <goal>report</goal>
                         </goals>
+                        <configuration>
+                            <outputDirectory>${project.basedir}/target/jacoco-ut</outputDirectory>
+                        </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <outputDirectory>${project.basedir}/target/jacoco-ut</outputDirectory>
-                </configuration>
             </plugin>
         </plugins>
     </build>
@@ -325,11 +327,7 @@
                         <version>3.2.5</version>
                         <configuration>
                             <testFailureIgnore>true</testFailureIgnore>
-                            <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED</argLine>
-                            <argLine>--add-opens=java.base/java.lang.reflect=ALL-UNNAMED</argLine>
-                            <argLine>--add-opens=java.base/java.io=ALL-UNNAMED</argLine>
-                            <argLine>--add-opens=java.base/java.net=ALL-UNNAMED</argLine>
-                            <!-- <argLine>&#45;&#45;add-opens=jdk.unsupported=ALL-UNNAMED</argLine>-->
+                            <argLine>@{argLine} --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED</argLine>
                         </configuration>
                     </plugin>
                 </plugins>
