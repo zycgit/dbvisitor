@@ -1,7 +1,7 @@
 Rule:
   label: Rule
   permalink: /docs/rules/about
-  description: 在 SQL 语句中通过规则简化 SQL 拼写。
+  description: Simplify SQL spelling through rules in SQL statements.
 
 DynamicSQL:
   label: DynamicSQL
@@ -13,62 +13,47 @@ Streaming:
   permalink: /streaming
   description: Hola tag description
 
-elasticsearch:
-  label: Elasticsearch
-  permalink: /tags/elasticsearch
-  description: Distributed search and analytics engine
-
-mybatis:
-  label: MyBatis
-  permalink: /tags/mybatis
-  description: Java persistence framework
-
-orm:
-  label: ORM
-  permalink: /tags/orm
-  description: Object-Relational Mapping
+ODM:
+  label: ODM
+  permalink: /tags/odm
+  description: Object-Document Mapping
 
 ORM:
   label: ORM
   permalink: /tags/orm-upper
   description: Object-Relational Mapping
 
-jdbc:
-  label: JDBC
-  permalink: /tags/jdbc
-  description: Java Database Connectivity
-
 JDBC:
   label: JDBC
   permalink: /tags/jdbc-upper
   description: Java Database Connectivity
 
-dbvisitor:
-  label: dbVisitor
-  permalink: /tags/dbvisitor
-  description: Next-generation Java data access tool
+NoSQL:
+  label: NoSQL
+  permalink: /tags/nosql
+  description: Non-Relational Database
+
+Architecture:
+  label: Architecture
+  permalink: /tags/architecture
+  description: Software Architecture Design
 
 dbVisitor:
   label: dbVisitor
   permalink: /tags/dbvisitor-upper
   description: Next-generation Java data access tool
 
-NoSQL:
-  label: NoSQL
-  permalink: /tags/nosql
-  description: Non-relational database
+MyBatis:
+  label: MyBatis
+  permalink: /tags/mybatis
+  description: Java persistence framework
 
-mongodb:
+MongoDB:
   label: MongoDB
   permalink: /tags/mongodb
   description: Document-oriented NoSQL database
 
-Architecture:
-  label: Architecture
-  permalink: /tags/architecture
-  description: Software Architecture
-
-odm:
-  label: ODM
-  permalink: /tags/odm
-  description: Object-Document Mapping
+ElasticSearch:
+  label: ElasticSearch
+  permalink: /tags/elasticsearch
+  description: Distributed search and analytics engine

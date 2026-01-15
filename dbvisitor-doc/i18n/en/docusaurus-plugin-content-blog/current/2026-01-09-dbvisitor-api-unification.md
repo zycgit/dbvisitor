@@ -1,6 +1,6 @@
 ---
 slug: dbvisitor-api-unification
-title: One API Vision: dbVisitor's Thoughts on Unified Data Access
+title: One API Vision: Thoughts on Unified Data Access
 authors: [ZhaoYongChun]
 tags: [dbVisitor, ORM, JDBC, NoSQL, Architecture]
 language: en

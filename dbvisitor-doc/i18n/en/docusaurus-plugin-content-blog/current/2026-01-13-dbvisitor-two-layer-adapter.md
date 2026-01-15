@@ -3,6 +3,7 @@ slug: dbvisitor-two-layer-adapter
 title: The Two-Layer Adapter of dbVisitor
 authors: [ZhaoYongChun]
 tags: [dbVisitor, Architecture, JDBC, NoSQL]
+language: en
 ---
 
 :::tip[Hint]

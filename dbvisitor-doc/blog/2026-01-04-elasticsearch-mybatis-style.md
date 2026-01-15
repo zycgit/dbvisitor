@@ -2,7 +2,7 @@
 slug: elasticsearch-mybatis-style
 title: dbVisitor 使用 MyBatis 方式操作 ElasticSearch
 authors: [ZhaoYongChun]
-tags: [elasticsearch, mybatis, orm, jdbc, dbvisitor]
+tags: [ElasticSearch, MyBatis, ORM, JDBC, dbVisitor]
 language: zh-cn
 ---
 

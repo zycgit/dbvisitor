@@ -1,6 +1,6 @@
 ---
 slug: dbvisitor-api-unification
-title: One API 愿景：dbVisitor 对统一数据访问的思考
+title: One API 愿景：对统一数据访问的思考
 authors: [ZhaoYongChun]
 tags: [dbVisitor, ORM, JDBC, NoSQL, Architecture]
 language: zh-cn

@@ -2,7 +2,7 @@
 slug: mongodb-mybatis-style
 title: Operate MongoDB in MyBatis Style with dbVisitor
 authors: [ZhaoYongChun]
-tags: [mongodb, mybatis, orm, jdbc, dbvisitor]
+tags: [MongoDB, MyBatis, ORM, JDBC, dbVisitor]
 language: en
 ---
 
