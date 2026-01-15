@@ -20,6 +20,7 @@ import java.util.List;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
+import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
 
 /**
@@ -28,14 +29,11 @@ import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
  * @since 2016-11-10
  */
 public class SqlServerDialect extends AbstractSqlDialect implements PageSqlDialect {
-    private static String getOrderByPart(String sql) {
-        String loweredString = sql.toLowerCase();
-        int orderByIndex = loweredString.indexOf("order by");
-        if (orderByIndex != -1) {
-            return sql.substring(orderByIndex);
-        } else {
-            return "";
-        }
+    public static final SqlDialect DEFAULT = new SqlServerDialect();
+
+    @Override
+    public SqlCommandBuilder newBuilder() {
+        return new SqlServerDialect();
     }
 
     @Override
@@ -79,12 +77,17 @@ public class SqlServerDialect extends AbstractSqlDialect implements PageSqlDiale
         return strBuilder.toString();
     }
 
-    @Override
-    public SqlCommandBuilder newBuilder() {
-        return new SqlServerDialect();
-    }
-
     // --- PageSqlDialect impl ---
+
+    private static String getOrderByPart(String sql) {
+        String loweredString = sql.toLowerCase();
+        int orderByIndex = loweredString.indexOf("order by");
+        if (orderByIndex != -1) {
+            return sql.substring(orderByIndex);
+        } else {
+            return "";
+        }
+    }
 
     @Override
     public BoundSql pageSql(BoundSql boundSql, long start, long limit) {

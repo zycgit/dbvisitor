@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
+import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
 
 /**
@@ -27,6 +28,13 @@ import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
  * @version 2020-10-31
  */
 public class HSQLDialect extends AbstractSqlDialect implements PageSqlDialect {
+    public static final SqlDialect DEFAULT = new HSQLDialect();
+
+    @Override
+    public SqlCommandBuilder newBuilder() {
+        return new HSQLDialect();
+    }
+
     @Override
     protected String keyWordsResource() {
         return "/META-INF/db-keywords/hsql.keywords";
@@ -35,11 +43,6 @@ public class HSQLDialect extends AbstractSqlDialect implements PageSqlDialect {
     @Override
     protected String defaultQualifier() {
         return "\"";
-    }
-
-    @Override
-    public SqlCommandBuilder newBuilder() {
-        return new HSQLDialect();
     }
 
     // --- PageSqlDialect impl ---

@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.dialect.provider;
 import net.hasor.cobble.StringUtils;
+import net.hasor.dbvisitor.dialect.SqlDialect;
 
 /**
  * ES7 方言
@@ -22,6 +23,13 @@ import net.hasor.cobble.StringUtils;
  * @version 2025-12-31
  */
 public class Elastic7Dialect extends AbstractElasticDialect {
+    public static final SqlDialect DEFAULT = new Elastic7Dialect();
+
+    @Override
+    public AbstractElasticDialect newBuilder() {
+        return new Elastic7Dialect();
+    }
+
     @Override
     protected String getSearchEndpoint() {
         return buildPath("_search");
@@ -50,10 +58,5 @@ public class Elastic7Dialect extends AbstractElasticDialect {
             sb.append("/").append(action);
         }
         return sb.toString();
-    }
-
-    @Override
-    public AbstractElasticDialect newBuilder() {
-        return new Elastic7Dialect();
     }
 }

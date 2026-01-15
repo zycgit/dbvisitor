@@ -20,6 +20,7 @@ import java.util.List;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
+import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
 import net.hasor.dbvisitor.dialect.features.SeqSqlDialect;
 
@@ -29,6 +30,13 @@ import net.hasor.dbvisitor.dialect.features.SeqSqlDialect;
  * @version 2020-10-31
  */
 public class H2Dialect extends AbstractSqlDialect implements PageSqlDialect, SeqSqlDialect {
+    public static final SqlDialect DEFAULT = new H2Dialect();
+
+    @Override
+    public SqlCommandBuilder newBuilder() {
+        return new H2Dialect();
+    }
+
     @Override
     protected String keyWordsResource() {
         return "/META-INF/db-keywords/h2.keywords";
@@ -37,11 +45,6 @@ public class H2Dialect extends AbstractSqlDialect implements PageSqlDialect, Seq
     @Override
     protected String defaultQualifier() {
         return "\"";
-    }
-
-    @Override
-    public SqlCommandBuilder newBuilder() {
-        return new H2Dialect();
     }
 
     // --- PageSqlDialect impl ---

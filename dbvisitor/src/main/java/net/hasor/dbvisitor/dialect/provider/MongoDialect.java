@@ -22,6 +22,7 @@ import java.util.function.Consumer;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
+import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
 import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
 import net.hasor.dbvisitor.lambda.core.OrderNullsStrategy;
@@ -34,6 +35,8 @@ import net.hasor.dbvisitor.lambda.segment.MergeSqlSegment;
  * @version 2025-12-07
  */
 public class MongoDialect extends AbstractBuilderDialect implements PageSqlDialect {
+    public static final SqlDialect DEFAULT = new MongoDialect();
+
     private       String          catalog;
     private       String          collection;
     private final List<Object>    args        = new ArrayList<>();
@@ -43,6 +46,11 @@ public class MongoDialect extends AbstractBuilderDialect implements PageSqlDiale
     private final MergeSqlSegment updates     = new MergeSqlSegment(", ");
     private final MergeSqlSegment inserts     = new MergeSqlSegment(", ");
     private       boolean         selectAll   = false;
+
+    @Override
+    public SqlCommandBuilder newBuilder() {
+        return new MongoDialect();
+    }
 
     // --- MongoDialect specific ---
 
@@ -398,13 +406,6 @@ public class MongoDialect extends AbstractBuilderDialect implements PageSqlDiale
         String sqlString = s.getSqlSegment(delimited, this);
         Object[] sqlArgs = this.args.toArray();
         return new BoundSql.BoundSqlObj(sqlString, sqlArgs);
-    }
-
-    //
-
-    @Override
-    public SqlCommandBuilder newBuilder() {
-        return new MongoDialect();
     }
 
     // --- PageSqlDialect impl ---

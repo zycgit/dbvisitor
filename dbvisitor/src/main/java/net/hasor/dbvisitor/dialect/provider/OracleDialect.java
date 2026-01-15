@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
+import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.features.InsertSqlDialect;
 import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
 
@@ -31,6 +32,13 @@ import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
  * @version 2020-10-31
  */
 public class OracleDialect extends AbstractSqlDialect implements PageSqlDialect, InsertSqlDialect {
+    public static final SqlDialect DEFAULT = new OracleDialect();
+
+    @Override
+    public SqlCommandBuilder newBuilder() {
+        return new OracleDialect();
+    }
+
     @Override
     protected String keyWordsResource() {
         return "/META-INF/db-keywords/oracle.keywords";
@@ -86,11 +94,6 @@ public class OracleDialect extends AbstractSqlDialect implements PageSqlDialect,
     @Override
     public boolean supportOrderByAlias() {
         return true; // oracle 12 开始支持
-    }
-
-    @Override
-    public SqlCommandBuilder newBuilder() {
-        return new OracleDialect();
     }
 
     // --- PageSqlDialect impl ---

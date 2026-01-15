@@ -21,6 +21,7 @@ import java.util.Map;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
+import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.features.InsertSqlDialect;
 import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
 import net.hasor.dbvisitor.lambda.core.OrderType;
@@ -31,7 +32,12 @@ import net.hasor.dbvisitor.lambda.core.OrderType;
  * @version 2020-10-31
  */
 public class MySqlDialect extends AbstractSqlDialect implements PageSqlDialect, InsertSqlDialect {
-    public static final MySqlDialect DEFAULT = new MySqlDialect();
+    public static final SqlDialect DEFAULT = new MySqlDialect();
+
+    @Override
+    public SqlCommandBuilder newBuilder() {
+        return new MySqlDialect();
+    }
 
     @Override
     protected String keyWordsResource() {
@@ -82,11 +88,6 @@ public class MySqlDialect extends AbstractSqlDialect implements PageSqlDialect, 
     @Override
     public boolean supportOrderByAlias() {
         return true;
-    }
-
-    @Override
-    public SqlCommandBuilder newBuilder() {
-        return new MySqlDialect();
     }
 
     // --- PageSqlDialect impl ---

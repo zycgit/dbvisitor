@@ -21,6 +21,7 @@ import java.util.Map;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
+import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.features.InsertSqlDialect;
 import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
 
@@ -30,6 +31,13 @@ import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
  * @version 2020-10-31
  */
 public class DmDialect extends AbstractSqlDialect implements PageSqlDialect, InsertSqlDialect {
+    public static final SqlDialect DEFAULT = new DmDialect();
+
+    @Override
+    public SqlCommandBuilder newBuilder() {
+        return new DmDialect();
+    }
+
     @Override
     protected String keyWordsResource() {
         return "/META-INF/db-keywords/dm.keywords";
@@ -55,11 +63,6 @@ public class DmDialect extends AbstractSqlDialect implements PageSqlDialect, Ins
             return fmtName(useQualifier, schema) + "." + fmtName(useQualifier, table);
         }
         return fmtName(useQualifier, table);
-    }
-
-    @Override
-    public SqlCommandBuilder newBuilder() {
-        return new DmDialect();
     }
 
     // --- PageSqlDialect impl ---

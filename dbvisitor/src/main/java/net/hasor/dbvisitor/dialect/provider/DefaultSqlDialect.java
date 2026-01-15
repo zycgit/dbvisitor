@@ -19,6 +19,7 @@ import java.util.Map;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
+import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.features.InsertSqlDialect;
 import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
 
@@ -28,7 +29,7 @@ import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
  * @version 2020-10-31
  */
 public class DefaultSqlDialect extends AbstractSqlDialect implements PageSqlDialect, InsertSqlDialect {
-    public static final DefaultSqlDialect DEFAULT = new DefaultSqlDialect();
+    public static final SqlDialect DEFAULT = new DefaultSqlDialect();
 
     @Override
     public SqlCommandBuilder newBuilder() {

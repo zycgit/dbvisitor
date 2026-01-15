@@ -37,27 +37,27 @@ public class SqlDialectRegister {
     private static final Map<String, SqlDialect> dialectCache    = new LinkedCaseInsensitiveMap<>();
 
     static {
-        registerDialectAlias(JdbcHelper.DB2, Db2Dialect.class);
-        registerDialectAlias(JdbcHelper.DERBY, DerbyDialect.class);// Apache Derby
-        registerDialectAlias(JdbcHelper.DM, DmDialect.class);
-        registerDialectAlias(JdbcHelper.H2, H2Dialect.class);
-        registerDialectAlias(JdbcHelper.HIVE, HiveDialect.class);
-        registerDialectAlias(JdbcHelper.HSQL, HSQLDialect.class);
-        registerDialectAlias(JdbcHelper.IMPALA, ImpalaDialect.class);
-        registerDialectAlias(JdbcHelper.INFORMIX, InformixDialect.class);
-        registerDialectAlias(JdbcHelper.KINGBASE, PostgreSqlDialect.class);
-        registerDialectAlias(JdbcHelper.POSTGRESQL, PostgreSqlDialect.class);
-        registerDialectAlias(JdbcHelper.MARIADB, MySqlDialect.class);
-        registerDialectAlias(JdbcHelper.MYSQL, MySqlDialect.class);
-        registerDialectAlias(JdbcHelper.ORACLE, OracleDialect.class);
-        registerDialectAlias(JdbcHelper.SQLITE, SqlLiteDialect.class);
-        registerDialectAlias(JdbcHelper.SQL_SERVER, SqlServerDialect.class);
-        registerDialectAlias(JdbcHelper.JTDS, SqlServerDialect.class);
-        registerDialectAlias(JdbcHelper.XUGU, XuGuDialect.class);
-        //registerDialectAlias(JdbcHelper.REDIS, RedisDialect.class);
-        registerDialectAlias(JdbcHelper.MONGO, MongoDialect.class);
-        registerDialectAlias(JdbcHelper.ELASTIC6, Elastic6Dialect.class);
-        registerDialectAlias(JdbcHelper.ELASTIC7, Elastic7Dialect.class);
+        registerDialect(JdbcHelper.DB2, Db2Dialect.DEFAULT);
+        registerDialect(JdbcHelper.DERBY, DerbyDialect.DEFAULT);// Apache Derby
+        registerDialect(JdbcHelper.DM, DmDialect.DEFAULT);
+        registerDialect(JdbcHelper.H2, H2Dialect.DEFAULT);
+        registerDialect(JdbcHelper.HIVE, HiveDialect.DEFAULT);
+        registerDialect(JdbcHelper.HSQL, HSQLDialect.DEFAULT);
+        registerDialect(JdbcHelper.IMPALA, ImpalaDialect.DEFAULT);
+        registerDialect(JdbcHelper.INFORMIX, InformixDialect.DEFAULT);
+        registerDialect(JdbcHelper.KINGBASE, PostgreSqlDialect.DEFAULT);
+        registerDialect(JdbcHelper.POSTGRESQL, PostgreSqlDialect.DEFAULT);
+        registerDialect(JdbcHelper.MARIADB, MySqlDialect.DEFAULT);
+        registerDialect(JdbcHelper.MYSQL, MySqlDialect.DEFAULT);
+        registerDialect(JdbcHelper.ORACLE, OracleDialect.DEFAULT);
+        registerDialect(JdbcHelper.SQLITE, SqlLiteDialect.DEFAULT);
+        registerDialect(JdbcHelper.SQL_SERVER, SqlServerDialect.DEFAULT);
+        registerDialect(JdbcHelper.JTDS, SqlServerDialect.DEFAULT);
+        registerDialect(JdbcHelper.XUGU, XuGuDialect.DEFAULT);
+        //registerDialect(JdbcHelper.REDIS, RedisDialect.DEFAULT);
+        registerDialect(JdbcHelper.MONGO, MongoDialect.DEFAULT);
+        registerDialect(JdbcHelper.ELASTIC6, Elastic6Dialect.DEFAULT);
+        registerDialect(JdbcHelper.ELASTIC7, Elastic7Dialect.DEFAULT);
     }
 
     /** 清空方言缓存 */
@@ -71,6 +71,17 @@ public class SqlDialectRegister {
      * @param dialectClass 方言类
      */
     public static void registerDialectAlias(String dialectName, Class<? extends SqlDialect> dialectClass) {
+        dialectAliasMap.put(dialectName, dialectClass);
+        dialectAliasMap.put(dialectClass.getName(), dialectClass);
+    }
+
+    /**
+     * 注册方言
+     * @param dialectName 方言名称
+     * @param instance 方言
+     */
+    public static void registerDialect(String dialectName, SqlDialect instance) {
+        Class<? extends SqlDialect> dialectClass = instance.getClass();
         dialectAliasMap.put(dialectName, dialectClass);
         dialectAliasMap.put(dialectClass.getName(), dialectClass);
     }

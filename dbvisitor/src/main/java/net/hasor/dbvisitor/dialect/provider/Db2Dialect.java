@@ -16,6 +16,7 @@
 package net.hasor.dbvisitor.dialect.provider;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
+import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
 
 /**
@@ -24,6 +25,13 @@ import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
  * @version 2020-10-31
  */
 public class Db2Dialect extends AbstractSqlDialect implements PageSqlDialect {
+    public static final SqlDialect DEFAULT = new Db2Dialect();
+
+    @Override
+    public SqlCommandBuilder newBuilder() {
+        return new Db2Dialect();
+    }
+
     @Override
     protected String keyWordsResource() {
         return "/META-INF/db-keywords/db2.keywords";
@@ -32,11 +40,6 @@ public class Db2Dialect extends AbstractSqlDialect implements PageSqlDialect {
     @Override
     protected String defaultQualifier() {
         return "\"";
-    }
-
-    @Override
-    public SqlCommandBuilder newBuilder() {
-        return new Db2Dialect();
     }
 
     // --- PageSqlDialect impl ---

@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
+import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
 
 /**
@@ -27,6 +28,12 @@ import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
  * @version 2020-10-31
  */
 public class InformixDialect extends AbstractSqlDialect implements PageSqlDialect {
+    public static final SqlDialect DEFAULT = new InformixDialect();
+
+    @Override
+    public SqlCommandBuilder newBuilder() {
+        return new InformixDialect();
+    }
 
     @Override
     protected String keyWordsResource() {
@@ -36,11 +43,6 @@ public class InformixDialect extends AbstractSqlDialect implements PageSqlDialec
     @Override
     protected String defaultQualifier() {
         return "\"";
-    }
-
-    @Override
-    public SqlCommandBuilder newBuilder() {
-        return new InformixDialect();
     }
 
     // --- PageSqlDialect impl ---
