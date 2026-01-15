@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.dialect;
+package net.hasor.dbvisitor.dialect.provider;
+import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
+
 /**
- * 生成查询序列的 SQL 语句方言接口
+ * 扩展 AbstractDialect 以支持 CommandBuilder 接口
  * @author 赵永春 (zyc@hasor.net)
- * @version 2020-10-31
+ * @version 2025-12-06
  */
-public interface SeqSqlDialect extends SqlDialect {
-    /** 生成查询序列的 SQL 语句 */
-    String selectSeq(boolean useQualifier, String catalog, String schema, String seqName);
+public abstract class AbstractBuilderDialect extends AbstractDialect implements SqlCommandBuilder {
+    @Override
+    public abstract SqlCommandBuilder newBuilder();
 }

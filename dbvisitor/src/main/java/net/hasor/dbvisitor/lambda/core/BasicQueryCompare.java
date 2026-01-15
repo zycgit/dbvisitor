@@ -24,10 +24,10 @@ import java.util.function.Consumer;
 import net.hasor.cobble.ObjectUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.ref.Tuple;
-import net.hasor.dbvisitor.dialect.ConditionSqlDialect.SqlLike;
-import net.hasor.dbvisitor.dialect.builder.CommandBuilder;
-import net.hasor.dbvisitor.dialect.builder.ConditionLogic;
-import net.hasor.dbvisitor.dialect.builder.ConditionType;
+import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
+import net.hasor.dbvisitor.dialect.SqlCommandBuilder.ConditionLogic;
+import net.hasor.dbvisitor.dialect.SqlCommandBuilder.ConditionType;
+import net.hasor.dbvisitor.dialect.SqlDialect.SqlLike;
 import net.hasor.dbvisitor.dynamic.DynamicParsed;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
@@ -73,7 +73,7 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, P> imple
         ConditionLogic tempLogic = this.nextLogic;
         this.nextLogic = ConditionLogic.AND;
         this.cmdBuilder.addConditionGroup(tempLogic, cb -> {
-            CommandBuilder oldBuilder = this.cmdBuilder;
+            SqlCommandBuilder oldBuilder = this.cmdBuilder;
             this.cmdBuilder = cb;
             try {
                 lambda.accept(this.getSelf());

@@ -56,8 +56,8 @@ public class SqlDialectRegister {
         registerDialectAlias(JdbcHelper.XUGU, XuGuDialect.class);
         //registerDialectAlias(JdbcHelper.REDIS, RedisDialect.class);
         registerDialectAlias(JdbcHelper.MONGO, MongoDialect.class);
-        registerDialectAlias(JdbcHelper.ELASTIC6, Es6Dialect.class);
-        registerDialectAlias(JdbcHelper.ELASTIC7, Es7Dialect.class);
+        registerDialectAlias(JdbcHelper.ELASTIC6, Elastic6Dialect.class);
+        registerDialectAlias(JdbcHelper.ELASTIC7, Elastic7Dialect.class);
     }
 
     /** 清空方言缓存 */

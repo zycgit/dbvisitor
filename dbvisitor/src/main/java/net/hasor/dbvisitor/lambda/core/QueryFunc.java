@@ -19,10 +19,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import net.hasor.dbvisitor.dialect.Page;
 import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.RowCallbackHandler;
 import net.hasor.dbvisitor.jdbc.RowMapper;
+import net.hasor.dbvisitor.page.Page;
 
 /**
  * Query 复杂操作构造器。

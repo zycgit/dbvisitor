@@ -23,7 +23,6 @@ import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.dbvisitor.dialect.BatchBoundSql.BatchBoundSqlObj;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.BoundSql.BoundSqlObj;
-import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
@@ -64,13 +63,13 @@ public class MapInsertImpl extends AbstractInsert<Insert<Map<String, Object>>, M
     }
 
     @Override
-    protected BoundSql buildBoundSql(SqlDialect dialect) throws SQLException {
+    public BoundSql getBoundSql() throws SQLException {
         if (this.insertValuesCount.get() == 0) {
             return null;
         }
 
         InsertEntity entity = this.insertValues.get(0);
-        BoundSqlObj boundSqlObj = this.buildBoundSql(dialect, (Map) entity.objList.get(0));
+        BoundSqlObj boundSqlObj = this.buildBoundSql((Map) entity.objList.get(0));
 
         return new BatchBoundSqlObj(boundSqlObj.getSqlString(), new SqlArg[][] { (SqlArg[]) boundSqlObj.getArgs() });
     }
@@ -102,7 +101,7 @@ public class MapInsertImpl extends AbstractInsert<Insert<Map<String, Object>>, M
     }
 
     private int executeOne(Connection con, Map ent, TypeHandlerRegistry typeRegistry) throws SQLException {
-        BoundSqlObj boundSqlObj = this.buildBoundSql(dialect(), ent);
+        BoundSqlObj boundSqlObj = this.buildBoundSql(ent);
         String sqlString = boundSqlObj.getSqlString();
 
         try (PreparedStatement ps = createPrepareStatement(con, sqlString)) {
@@ -111,7 +110,7 @@ public class MapInsertImpl extends AbstractInsert<Insert<Map<String, Object>>, M
         }
     }
 
-    protected BoundSqlObj buildBoundSql(SqlDialect dialect, Map entity) throws SQLException {
+    protected BoundSqlObj buildBoundSql(Map entity) throws SQLException {
         Map<String, String> entityKeyMap = this.extractKeysMap(entity);
         List<String> insertProperties = new ArrayList<>();
         List<String> insertColumns = new ArrayList<>();
@@ -120,7 +119,7 @@ public class MapInsertImpl extends AbstractInsert<Insert<Map<String, Object>>, M
             insertColumns.add(c);
         });
 
-        String insertSql = buildInsert(dialect, this.forBuildPrimaryKeys, insertColumns, this.forBuildInsertColumnTerms);
+        String insertSql = buildInsert(this.forBuildPrimaryKeys, insertColumns, this.forBuildInsertColumnTerms);
         SqlArg[] args = new SqlArg[entityKeyMap.size()];
 
         for (int i = 0; i < insertProperties.size(); i++) {

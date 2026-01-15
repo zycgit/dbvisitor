@@ -19,6 +19,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import net.hasor.cobble.ResourcesUtils;
 import net.hasor.cobble.StringUtils;
@@ -26,17 +27,15 @@ import net.hasor.cobble.io.IOUtils;
 import net.hasor.cobble.io.input.AutoCloseInputStream;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
-import net.hasor.dbvisitor.dialect.ConditionSqlDialect;
+import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
 import net.hasor.dbvisitor.dialect.SqlDialect;
-import net.hasor.dbvisitor.dialect.builder.CommandBuilder;
-import net.hasor.dbvisitor.dialect.builder.SqlCommandBuilder;
 
 /**
  * 公共 SqlDialect 实现
  * @author 赵永春 (zyc@hasor.net)
  * @version 2020-10-31
  */
-public abstract class AbstractDialect implements SqlDialect, ConditionSqlDialect {
+public abstract class AbstractDialect implements SqlDialect {
     private static final Logger logger = LoggerFactory.getLogger(AbstractDialect.class);
     private static final char[] FIRST_CHAR;
     private static final char[] CONTAINS_CHAR;
@@ -53,13 +52,12 @@ public abstract class AbstractDialect implements SqlDialect, ConditionSqlDialect
         };
     }
 
-    private Set<String> keyWords;
+    private static final Map<Class<?>, Set<String>> KEYWORDS_CACHE = new java.util.concurrent.ConcurrentHashMap<>();
 
     @Override
     public Set<String> keywords() {
-        if (this.keyWords == null) {
-            this.keyWords = new HashSet<>();
-
+        return KEYWORDS_CACHE.computeIfAbsent(this.getClass(), key -> {
+            Set<String> keyWords = new HashSet<>();
             try {
                 List<URL> ins = ResourcesUtils.getResources("/META-INF/custom.keywords");
                 if (ins != null) {
@@ -67,7 +65,7 @@ public abstract class AbstractDialect implements SqlDialect, ConditionSqlDialect
                         try {
                             InputStream input = new AutoCloseInputStream(in.openStream());
                             List<String> strings = IOUtils.readLines(input, StandardCharsets.UTF_8);
-                            this.loadKeyWords(strings);
+                            loadKeyWords(keyWords, strings);
                         } catch (Exception e) {
                             logger.error("load '" + in + "' failed." + e.getMessage());
                         }
@@ -79,24 +77,24 @@ public abstract class AbstractDialect implements SqlDialect, ConditionSqlDialect
 
             String keyWordsResource = keyWordsResource();
             if (StringUtils.isBlank(keyWordsResource)) {
-                return this.keyWords;
+                return keyWords;
             }
 
             try {
                 List<String> strings = IOUtils.readLines(ResourcesUtils.getResourceAsStream(keyWordsResource), StandardCharsets.UTF_8);
-                this.loadKeyWords(strings);
+                loadKeyWords(keyWords, strings);
             } catch (Exception e) {
                 logger.error("load keywords '" + keyWordsResource + "' failed." + e.getMessage());
             }
-        }
-        return this.keyWords;
+            return keyWords;
+        });
     }
 
-    private void loadKeyWords(List<String> strings) {
+    private void loadKeyWords(Set<String> keyWords, List<String> strings) {
         for (String term : strings) {
             term = term.trim().toUpperCase();
             if (!StringUtils.isBlank(term) && term.charAt(0) != '#') {
-                this.keyWords.add(term);
+                keyWords.add(term);
             }
         }
     }
@@ -107,17 +105,17 @@ public abstract class AbstractDialect implements SqlDialect, ConditionSqlDialect
 
     @Override
     public String tableName(boolean useQualifier, String catalog, String schema, String table) {
-        StringBuilder sqlBuilder = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         if (StringUtils.isNotBlank(catalog)) {
-            sqlBuilder.append(fmtName(useQualifier, catalog));
-            sqlBuilder.append(".");
+            sb.append(fmtName(useQualifier, catalog));
+            sb.append(".");
         }
         if (StringUtils.isNotBlank(schema)) {
-            sqlBuilder.append(fmtName(useQualifier, schema));
-            sqlBuilder.append(".");
+            sb.append(fmtName(useQualifier, schema));
+            sb.append(".");
         }
-        sqlBuilder.append(fmtName(useQualifier, table));
-        return sqlBuilder.toString();
+        sb.append(fmtName(useQualifier, table));
+        return sb.toString();
     }
 
     @Override
@@ -157,7 +155,7 @@ public abstract class AbstractDialect implements SqlDialect, ConditionSqlDialect
     }
 
     @Override
-    public CommandBuilder newBuilder() {
-        return new SqlCommandBuilder();
+    public SqlCommandBuilder newBuilder() {
+        throw new UnsupportedOperationException("Just a Dialect.");
     }
 }

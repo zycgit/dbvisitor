@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.Map;
 import net.hasor.cobble.ArrayUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
-import net.hasor.dbvisitor.dialect.Page;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.jdbc.extractor.CallableMultipleResultSetExtractor;
 import net.hasor.dbvisitor.mapper.ResultSetType;
@@ -27,6 +26,7 @@ import net.hasor.dbvisitor.mapper.StatementDef;
 import net.hasor.dbvisitor.mapper.def.DqlConfig;
 import net.hasor.dbvisitor.mapper.def.ExecuteConfig;
 import net.hasor.dbvisitor.mapper.def.SqlConfig;
+import net.hasor.dbvisitor.page.Page;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 /**

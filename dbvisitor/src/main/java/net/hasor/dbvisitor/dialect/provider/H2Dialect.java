@@ -19,15 +19,16 @@ import java.util.Arrays;
 import java.util.List;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
-import net.hasor.dbvisitor.dialect.PageSqlDialect;
-import net.hasor.dbvisitor.dialect.SeqSqlDialect;
+import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
+import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
+import net.hasor.dbvisitor.dialect.features.SeqSqlDialect;
 
 /**
  * H2 的 SqlDialect 实现
  * @author 赵永春 (zyc@hasor.net)
  * @version 2020-10-31
  */
-public class H2Dialect extends AbstractDialect implements PageSqlDialect, SeqSqlDialect {
+public class H2Dialect extends AbstractSqlDialect implements PageSqlDialect, SeqSqlDialect {
     @Override
     protected String keyWordsResource() {
         return "/META-INF/db-keywords/h2.keywords";
@@ -39,29 +40,38 @@ public class H2Dialect extends AbstractDialect implements PageSqlDialect, SeqSql
     }
 
     @Override
+    public SqlCommandBuilder newBuilder() {
+        return new H2Dialect();
+    }
+
+    // --- PageSqlDialect impl ---
+
+    @Override
     public BoundSql pageSql(BoundSql boundSql, long start, long limit) {
-        StringBuilder sqlBuilder = new StringBuilder(boundSql.getSqlString());
+        StringBuilder sb = new StringBuilder(boundSql.getSqlString());
         List<Object> paramArrays = new ArrayList<>(Arrays.asList(boundSql.getArgs()));
 
         if (limit > 0) {
-            sqlBuilder.append(" LIMIT ?");
+            sb.append(" LIMIT ?");
             paramArrays.add(limit);
         }
         if (start > 0) {
-            sqlBuilder.append(" OFFSET ?");
+            sb.append(" OFFSET ?");
             paramArrays.add(start);
         }
 
-        return new BoundSql.BoundSqlObj(sqlBuilder.toString(), paramArrays.toArray());
+        return new BoundSql.BoundSqlObj(sb.toString(), paramArrays.toArray());
     }
+
+    // --- SeqSqlDialect impl ---
 
     @Override
     public String selectSeq(boolean useQualifier, String catalog, String schema, String seqName) {
-        StringBuilder sqlBuilder = new StringBuilder("values next value for ");
+        StringBuilder sb = new StringBuilder("values next value for ");
         if (StringUtils.isNotBlank(schema)) {
-            sqlBuilder.append(fmtName(useQualifier, schema)).append(".");
+            sb.append(fmtName(useQualifier, schema)).append(".");
         }
-        sqlBuilder.append(fmtName(useQualifier, seqName));
-        return sqlBuilder.toString();
+        sb.append(fmtName(useQualifier, seqName));
+        return sb.toString();
     }
 }

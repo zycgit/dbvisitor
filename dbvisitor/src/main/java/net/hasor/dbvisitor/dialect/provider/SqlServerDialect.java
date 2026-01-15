@@ -19,14 +19,15 @@ import java.util.Arrays;
 import java.util.List;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
-import net.hasor.dbvisitor.dialect.PageSqlDialect;
+import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
+import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
 
 /**
  * SqlServer2005 的 SqlDialect 实现
  * @author 赵永春 (zyc@hasor.net)
  * @since 2016-11-10
  */
-public class SqlServerDialect extends AbstractDialect implements PageSqlDialect {
+public class SqlServerDialect extends AbstractSqlDialect implements PageSqlDialect {
     private static String getOrderByPart(String sql) {
         String loweredString = sql.toLowerCase();
         int orderByIndex = loweredString.indexOf("order by");
@@ -79,6 +80,13 @@ public class SqlServerDialect extends AbstractDialect implements PageSqlDialect 
     }
 
     @Override
+    public SqlCommandBuilder newBuilder() {
+        return new SqlServerDialect();
+    }
+
+    // --- PageSqlDialect impl ---
+
+    @Override
     public BoundSql pageSql(BoundSql boundSql, long start, long limit) {
         String sqlString = boundSql.getSqlString();
         List<Object> paramArrays = new ArrayList<>(Arrays.asList(boundSql.getArgs()));
@@ -112,6 +120,8 @@ public class SqlServerDialect extends AbstractDialect implements PageSqlDialect 
         paramArrays.add(secondParam);
         return new BoundSql.BoundSqlObj(sqlString, paramArrays.toArray());
     }
+
+    //
 
     public String randomQuery(boolean useQualifier, String catalog, String schema, String table, List<String> selectColumns, int recordSize) {
         String tableName = this.tableName(useQualifier, catalog, schema, table);

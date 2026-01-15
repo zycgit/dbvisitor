@@ -21,9 +21,7 @@ import java.util.function.Function;
 import net.hasor.cobble.ExceptionUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
-import net.hasor.dbvisitor.dialect.Page;
-import net.hasor.dbvisitor.dialect.PageSqlDialect;
-import net.hasor.dbvisitor.dialect.SqlDialect;
+import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.RowCallbackHandler;
@@ -37,6 +35,7 @@ import net.hasor.dbvisitor.jdbc.mapper.MapMappingRowMapper;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
+import net.hasor.dbvisitor.page.Page;
 
 /**
  * 提供 lambda query 基础能力。
@@ -327,7 +326,7 @@ public abstract class AbstractSelect<R, T, P> extends BasicQueryCompare<R, T, P>
     public int queryForCount() throws SQLException {
         Objects.requireNonNull(this.jdbc, "Connection unavailable, JdbcTemplate is required.");
 
-        BoundSql oriBoundSql = this.buildBoundSqlWithoutPage(dialect());
+        BoundSql oriBoundSql = this.buildBoundSqlWithoutPage();
         BoundSql countSql = ((PageSqlDialect) this.dialect()).countSql(oriBoundSql);
         return this.jdbc.queryForInt(countSql.getSqlString(), countSql.getArgs());
     }
@@ -336,24 +335,24 @@ public abstract class AbstractSelect<R, T, P> extends BasicQueryCompare<R, T, P>
     public long queryForLargeCount() throws SQLException {
         Objects.requireNonNull(this.jdbc, "Connection unavailable, JdbcTemplate is required.");
 
-        BoundSql oriBoundSql = this.buildBoundSqlWithoutPage(dialect());
+        BoundSql oriBoundSql = this.buildBoundSqlWithoutPage();
         BoundSql countSql = ((PageSqlDialect) this.dialect()).countSql(oriBoundSql);
         return this.jdbc.queryForLong(countSql.getSqlString(), countSql.getArgs());
     }
 
     @Override
-    protected BoundSql buildBoundSql(final SqlDialect dialect) throws SQLException {
+    public BoundSql getBoundSql() throws SQLException {
         long pageSize = pageInfo().getPageSize();
         if (pageSize > 0) {
-            BoundSql sqlWithoutPage = buildBoundSqlWithoutPage(dialect);
+            BoundSql sqlWithoutPage = buildBoundSqlWithoutPage();
             long position = pageInfo().getFirstRecordPosition();
-            return ((PageSqlDialect) dialect).pageSql(sqlWithoutPage, position, pageSize);
+            return ((PageSqlDialect) dialect()).pageSql(sqlWithoutPage, position, pageSize);
         } else {
-            return buildBoundSqlWithoutPage(dialect);
+            return buildBoundSqlWithoutPage();
         }
     }
 
-    private BoundSql buildBoundSqlWithoutPage(SqlDialect dialect) throws SQLException {
+    private BoundSql buildBoundSqlWithoutPage() throws SQLException {
         if (!this.cmdBuilder.hasSelect() && this.getTableMapping().hashSelectTemplate() && !this.isFreedom()) {
             this.getTableMapping().getProperties().forEach(cm -> {
                 String colName = cm.getColumn();
@@ -361,7 +360,7 @@ public abstract class AbstractSelect<R, T, P> extends BasicQueryCompare<R, T, P>
                 this.cmdBuilder.addSelect(colName, colTerm);
             });
         }
-        return this.cmdBuilder.buildSelect(dialect, isQualifier());
+        return this.cmdBuilder.buildSelect(isQualifier());
     }
 
     @Override

@@ -1,6 +1,6 @@
 package net.hasor.realdb.mongo.dto5;
 import java.util.List;
-import net.hasor.dbvisitor.dialect.Page;
+import net.hasor.dbvisitor.page.Page;
 import net.hasor.dbvisitor.mapper.Param;
 import net.hasor.dbvisitor.mapper.RefMapper;
 

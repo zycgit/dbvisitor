@@ -29,14 +29,14 @@ import net.hasor.cobble.convert.ConverterBean;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.cobble.ref.BeanMap;
-import net.hasor.dbvisitor.dialect.Page;
-import net.hasor.dbvisitor.dialect.PageResult;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.mapper.BaseMapper;
 import net.hasor.dbvisitor.mapper.Param;
 import net.hasor.dbvisitor.mapper.Segment;
 import net.hasor.dbvisitor.mapper.StatementDef;
 import net.hasor.dbvisitor.mapping.MappingHelper;
+import net.hasor.dbvisitor.page.Page;
+import net.hasor.dbvisitor.page.PageResult;
 
 /**
  * Mapper 代理接口类

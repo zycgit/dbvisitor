@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.dialect;
 import net.hasor.dbvisitor.dialect.dto.TestDialect;
+import net.hasor.dbvisitor.dialect.provider.DefaultSqlDialect;
 import net.hasor.test.AbstractDbTest;
 import org.junit.Test;
 

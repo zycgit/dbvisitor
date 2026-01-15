@@ -13,16 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.dialect.builder;
+package net.hasor.dbvisitor.dialect.features;
+import net.hasor.dbvisitor.dialect.BoundSql;
+import net.hasor.dbvisitor.dialect.SqlDialect;
 
 /**
- * 条件逻辑
+ * SQL 分页方言
  * @author 赵永春 (zyc@hasor.net)
- * @version 2025-12-06
+ * @version 2020-10-31
  */
-public enum ConditionLogic {
-    AND,
-    OR,
-    AND_NOT,
-    OR_NOT
+public interface PageSqlDialect extends SqlDialect {
+    /** 生成 count 查询 SQL */
+    default BoundSql countSql(BoundSql boundSql) {
+        return new BoundSql.BoundSqlObj("SELECT COUNT(*) FROM (" + boundSql.getSqlString() + ") as TEMP_T", boundSql.getArgs());
+    }
+
+    /** 生成分页查询 SQL（基于 count 的） */
+    BoundSql pageSql(BoundSql boundSql, long start, long limit);
 }

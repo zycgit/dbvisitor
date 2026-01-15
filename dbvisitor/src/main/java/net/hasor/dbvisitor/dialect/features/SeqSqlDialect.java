@@ -13,18 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.dialect;
+package net.hasor.dbvisitor.dialect.features;
+import net.hasor.dbvisitor.dialect.SqlDialect;
+
 /**
- * SQL 分页方言
+ * 生成查询序列的 SQL 语句方言接口
  * @author 赵永春 (zyc@hasor.net)
  * @version 2020-10-31
  */
-public interface PageSqlDialect extends SqlDialect {
-    /** 生成 count 查询 SQL */
-    default BoundSql countSql(BoundSql boundSql) {
-        return new BoundSql.BoundSqlObj("SELECT COUNT(*) FROM (" + boundSql.getSqlString() + ") as TEMP_T", boundSql.getArgs());
-    }
-
-    /** 生成分页查询 SQL（基于 count 的） */
-    BoundSql pageSql(BoundSql boundSql, long start, long limit);
+public interface SeqSqlDialect extends SqlDialect {
+    /** 生成查询序列的 SQL 语句 */
+    String selectSeq(boolean useQualifier, String catalog, String schema, String seqName);
 }

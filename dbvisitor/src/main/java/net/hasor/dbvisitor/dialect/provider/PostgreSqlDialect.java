@@ -20,15 +20,16 @@ import java.util.List;
 import java.util.Map;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
-import net.hasor.dbvisitor.dialect.InsertSqlDialect;
-import net.hasor.dbvisitor.dialect.PageSqlDialect;
+import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
+import net.hasor.dbvisitor.dialect.features.InsertSqlDialect;
+import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
 
 /**
  * PostgreSQL 对象名有大小写敏感不敏感的问题
  * @author 赵永春 (zyc@hasor.net)
  * @version 2020-10-31
  */
-public class PostgreSqlDialect extends AbstractDialect implements PageSqlDialect, InsertSqlDialect {
+public class PostgreSqlDialect extends AbstractSqlDialect implements PageSqlDialect, InsertSqlDialect {
     @Override
     protected String keyWordsResource() {
         return "/META-INF/db-keywords/postgresql.keywords";
@@ -40,21 +41,40 @@ public class PostgreSqlDialect extends AbstractDialect implements PageSqlDialect
     }
 
     @Override
+    public boolean supportGroupByAlias() {
+        return true;
+    }
+
+    @Override
+    public boolean supportOrderByAlias() {
+        return true;
+    }
+
+    @Override
+    public SqlCommandBuilder newBuilder() {
+        return new PostgreSqlDialect();
+    }
+
+    // --- PageSqlDialect impl ---
+
+    @Override
     public BoundSql pageSql(BoundSql boundSql, long start, long limit) {
-        StringBuilder sqlBuilder = new StringBuilder(boundSql.getSqlString());
+        StringBuilder sb = new StringBuilder(boundSql.getSqlString());
         List<Object> paramArrays = new ArrayList<>(Arrays.asList(boundSql.getArgs()));
 
         if (limit > 0) {
-            sqlBuilder.append(" LIMIT ?");
+            sb.append(" LIMIT ?");
             paramArrays.add(limit);
         }
         if (start > 0) {
-            sqlBuilder.append(" OFFSET ?");
+            sb.append(" OFFSET ?");
             paramArrays.add(start);
         }
 
-        return new BoundSql.BoundSqlObj(sqlBuilder.toString(), paramArrays.toArray());
+        return new BoundSql.BoundSqlObj(sb.toString(), paramArrays.toArray());
     }
+
+    // --- InsertSqlDialect impl ---
 
     @Override
     public boolean supportInto(List<String> primaryKey, List<String> columns) {
@@ -86,17 +106,17 @@ public class PostgreSqlDialect extends AbstractDialect implements PageSqlDialect
     public String insertReplace(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
         // ... ON CONFLICT (a) DO UPDATE SET (b, c, d) = (excluded.b, excluded.c, excluded.d);
 
-        StringBuilder strBuffer = new StringBuilder(" ON CONFLICT (");
+        StringBuilder sb = new StringBuilder(" ON CONFLICT (");
         boolean first = true;
         for (String pk : primaryKey) {
             if (!first) {
-                strBuffer.append(", ");
+                sb.append(", ");
             }
 
-            strBuffer.append(fmtName(useQualifier, pk));
+            sb.append(fmtName(useQualifier, pk));
             first = false;
         }
-        strBuffer.append(") DO UPDATE SET ");
+        sb.append(") DO UPDATE SET ");
 
         //ON CONFLICT (a) DO UPDATE SET (b, c, d) = (excluded.b, excluded.c, excluded.d);
         StringBuilder namesBuffer = new StringBuilder();
@@ -104,34 +124,34 @@ public class PostgreSqlDialect extends AbstractDialect implements PageSqlDialect
         first = true;
         for (String col : columns) {
             if (!first) {
-                strBuffer.append(", ");
+                sb.append(", ");
             }
             String wrapName = fmtName(useQualifier, col);
             namesBuffer.append(wrapName);
             updateBuffer.append("EXCLUDED.").append(wrapName);
             first = false;
         }
-        strBuffer.append("(" + namesBuffer + ") = (" + updateBuffer + ")");
+        sb.append("(" + namesBuffer + ") = (" + updateBuffer + ")");
 
-        return buildSql("INSERT INTO ", useQualifier, catalog, schema, table, columns, columnValueTerms, strBuffer.toString());
+        return buildSql("INSERT INTO ", useQualifier, catalog, schema, table, columns, columnValueTerms, sb.toString());
     }
 
     protected String buildSql(String markString, boolean useQualifier, String catalog, String schema, String table, List<String> columns, Map<String, String> columnValueTerms, String appendSql) {
-        StringBuilder strBuilder = new StringBuilder();
-        strBuilder.append(markString);
-        strBuilder.append(tableName(useQualifier, catalog, schema, table));
-        strBuilder.append(" ");
-        strBuilder.append("(");
+        StringBuilder sb = new StringBuilder();
+        sb.append(markString);
+        sb.append(tableName(useQualifier, catalog, schema, table));
+        sb.append(" ");
+        sb.append("(");
 
         StringBuilder argBuilder = new StringBuilder();
         for (int i = 0; i < columns.size(); i++) {
             String colName = columns.get(i);
             if (i > 0) {
-                strBuilder.append(", ");
+                sb.append(", ");
                 argBuilder.append(", ");
             }
 
-            strBuilder.append(fmtName(useQualifier, colName));
+            sb.append(fmtName(useQualifier, colName));
             String valueTerm = columnValueTerms != null ? columnValueTerms.get(colName) : null;
             if (StringUtils.isNotBlank(valueTerm)) {
                 argBuilder.append(valueTerm);
@@ -140,20 +160,10 @@ public class PostgreSqlDialect extends AbstractDialect implements PageSqlDialect
             }
         }
 
-        strBuilder.append(") VALUES (");
-        strBuilder.append(argBuilder);
-        strBuilder.append(")");
-        strBuilder.append(appendSql);
-        return strBuilder.toString();
-    }
-
-    @Override
-    public boolean supportGroupByAlias() {
-        return true;
-    }
-
-    @Override
-    public boolean supportOrderByAlias() {
-        return true;
+        sb.append(") VALUES (");
+        sb.append(argBuilder);
+        sb.append(")");
+        sb.append(appendSql);
+        return sb.toString();
     }
 }

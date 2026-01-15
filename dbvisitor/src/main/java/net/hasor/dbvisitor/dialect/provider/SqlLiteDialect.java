@@ -18,14 +18,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import net.hasor.dbvisitor.dialect.BoundSql;
-import net.hasor.dbvisitor.dialect.PageSqlDialect;
+import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
+import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
 
 /**
  * SqlLite 的 SqlDialect 实现
  * @author 赵永春 (zyc@hasor.net)
  * @version 2020-10-31
  */
-public class SqlLiteDialect extends AbstractDialect implements PageSqlDialect {
+public class SqlLiteDialect extends AbstractSqlDialect implements PageSqlDialect {
     @Override
     protected String keyWordsResource() {
         return "/META-INF/db-keywords/sqllite.keywords";
@@ -35,6 +36,13 @@ public class SqlLiteDialect extends AbstractDialect implements PageSqlDialect {
     protected String defaultQualifier() {
         return "`";
     }
+
+    @Override
+    public SqlCommandBuilder newBuilder() {
+        return new SqlLiteDialect();
+    }
+
+    // --- PageSqlDialect impl ---
 
     @Override
     public BoundSql pageSql(BoundSql boundSql, long start, long limit) {

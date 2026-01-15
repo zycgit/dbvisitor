@@ -13,27 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.dialect.builder;
+package net.hasor.dbvisitor.dialect.provider;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
-import net.hasor.dbvisitor.dialect.ConditionSqlDialect;
-import net.hasor.dbvisitor.dialect.ConditionSqlDialect.SqlLike;
-import net.hasor.dbvisitor.dialect.SqlDialect;
+import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
+import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
 import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
 import net.hasor.dbvisitor.lambda.core.OrderNullsStrategy;
 import net.hasor.dbvisitor.lambda.core.OrderType;
 import net.hasor.dbvisitor.lambda.segment.MergeSqlSegment;
 
 /**
- * ES 命令构建器
+ * ES 命令构建器方言
  * @author 赵永春 (zyc@hasor.net)
- * @version 2025-12-31
+ * @version 2025-12-06
  */
-public abstract class EsCommandBuilder implements CommandBuilder {
+public abstract class AbstractElasticDialect extends AbstractBuilderDialect implements PageSqlDialect {
     protected       String          index;
     protected       String          type;
     protected final List<Object>    args        = new ArrayList<>();
@@ -43,6 +44,48 @@ public abstract class EsCommandBuilder implements CommandBuilder {
     protected final MergeSqlSegment updates     = new MergeSqlSegment(", ");
     protected final MergeSqlSegment inserts     = new MergeSqlSegment(", ");
     protected       boolean         selectAll   = false;
+
+    @Override
+    public abstract AbstractElasticDialect newBuilder();
+
+    @Override
+    public Set<String> keywords() {
+        return Collections.emptySet();
+    }
+
+    @Override
+    public String tableName(boolean useQualifier, String catalog, String schema, String table) {
+        return table;
+    }
+
+    @Override
+    public String fmtName(boolean useQualifier, String name) {
+        return name;
+    }
+
+    @Override
+    public String aliasSeparator() {
+        return ":";
+    }
+
+    @Override
+    public String like(SqlLike likeType, Object value, String valueTerm) {
+        if (StringUtils.isNotBlank(valueTerm)) {
+            return valueTerm;
+        }
+
+        String strVal = value == null ? "" : value.toString();
+        switch (likeType) {
+            case LEFT:
+                return "*" + strVal;
+            case RIGHT:
+                return strVal + "*";
+            default:
+                return "*" + strVal + "*";
+        }
+    }
+
+    //
 
     @Override
     public void setTable(String catalog, String schema, String table) {
@@ -84,15 +127,11 @@ public abstract class EsCommandBuilder implements CommandBuilder {
             String val = formatValue(value, valueTerm);
 
             if (type == ConditionType.LIKE) {
-                if (dialect instanceof ConditionSqlDialect) {
-                    val = ((ConditionSqlDialect) dialect).like(forLikeType != null ? forLikeType : SqlLike.DEFAULT, value, valueTerm);
-                }
+                val = dialect.like(forLikeType != null ? forLikeType : SqlLike.DEFAULT, value, valueTerm);
                 return "{ \"wildcard\": { \"" + field + "\": \"" + val + "\" } }";
             }
             if (type == ConditionType.NOT_LIKE) {
-                if (dialect instanceof ConditionSqlDialect) {
-                    val = ((ConditionSqlDialect) dialect).like(forLikeType != null ? forLikeType : SqlLike.DEFAULT, value, valueTerm);
-                }
+                val = dialect.like(forLikeType != null ? forLikeType : SqlLike.DEFAULT, value, valueTerm);
                 return "{ \"bool\": { \"must_not\": { \"wildcard\": { \"" + field + "\": \"" + val + "\" } } } }";
             }
 
@@ -171,14 +210,12 @@ public abstract class EsCommandBuilder implements CommandBuilder {
         this.conditions.addSegment((delimited, dialect) -> {
             return boundSql.getSqlString();
         });
-        for (Object arg : boundSql.getArgs()) {
-            this.args.add(arg);
-        }
+        Collections.addAll(this.args, boundSql.getArgs());
     }
 
     @Override
-    public void addConditionGroup(ConditionLogic logic, Consumer<CommandBuilder> group) {
-        EsCommandBuilder subBuilder = this.createSubBuilder();
+    public void addConditionGroup(ConditionLogic logic, Consumer<SqlCommandBuilder> group) {
+        AbstractElasticDialect subBuilder = this.newBuilder();
         group.accept(subBuilder);
         this.conditions.addSegment((delimited, dialect) -> {
             String subSql = subBuilder.conditions.getSqlSegment(delimited, dialect);
@@ -193,8 +230,6 @@ public abstract class EsCommandBuilder implements CommandBuilder {
         });
         this.args.addAll(subBuilder.args);
     }
-
-    protected abstract EsCommandBuilder createSubBuilder();
 
     @Override
     public void addSelect(String col, String colTerm) {
@@ -275,14 +310,14 @@ public abstract class EsCommandBuilder implements CommandBuilder {
     }
 
     @Override
-    public BoundSql buildSelect(SqlDialect dialect, boolean useQualifier) throws SQLException {
+    public BoundSql buildSelect(boolean useQualifier) throws SQLException {
         StringBuilder json = new StringBuilder();
         json.append("{");
 
         // Query
         if (!this.conditions.isEmpty()) {
             json.append("\"query\": { \"bool\": { \"must\": [");
-            json.append(this.conditions.getSqlSegment(useQualifier, dialect));
+            json.append(this.conditions.getSqlSegment(useQualifier, this));
             json.append("] } }, ");
         } else {
             json.append("\"query\": { \"match_all\": {} }, ");
@@ -291,14 +326,14 @@ public abstract class EsCommandBuilder implements CommandBuilder {
         // Source (Projections)
         if (this.hasSelect() && !this.selectAll) {
             json.append("\"_source\": [");
-            json.append(this.projections.getSqlSegment(useQualifier, dialect));
+            json.append(this.projections.getSqlSegment(useQualifier, this));
             json.append("], ");
         }
 
         // Sort
         if (!this.sorts.isEmpty()) {
             json.append("\"sort\": [");
-            json.append(this.sorts.getSqlSegment(useQualifier, dialect));
+            json.append(this.sorts.getSqlSegment(useQualifier, this));
             json.append("]");
         } else {
             // Remove trailing comma if exists
@@ -311,7 +346,7 @@ public abstract class EsCommandBuilder implements CommandBuilder {
 
         String method = "POST";
         String endpoint = getSearchEndpoint();
-        String command = method + " " + endpoint + " " + json.toString();
+        String command = method + " " + endpoint + " " + json;
 
         return new BoundSql.BoundSqlObj(command, this.args.toArray());
     }
@@ -325,10 +360,10 @@ public abstract class EsCommandBuilder implements CommandBuilder {
     protected abstract String getDeleteEndpoint();
 
     @Override
-    public BoundSql buildInsert(SqlDialect dialect, boolean useQualifier, List<String> primaryKey, DuplicateKeyStrategy duplicateKeyStrategy) throws SQLException {
+    public BoundSql buildInsert(boolean useQualifier, List<String> primaryKey, DuplicateKeyStrategy duplicateKeyStrategy) throws SQLException {
         StringBuilder json = new StringBuilder();
         json.append("{");
-        json.append(this.inserts.getSqlSegment(useQualifier, dialect));
+        json.append(this.inserts.getSqlSegment(useQualifier, this));
         json.append("}");
 
         String method = "POST";
@@ -339,20 +374,20 @@ public abstract class EsCommandBuilder implements CommandBuilder {
     }
 
     @Override
-    public BoundSql buildUpdate(SqlDialect dialect, boolean useQualifier, boolean useReplace) throws SQLException {
+    public BoundSql buildUpdate(boolean useQualifier, boolean useReplace) throws SQLException {
         StringBuilder json = new StringBuilder();
         json.append("{");
 
         // Query
         if (!this.conditions.isEmpty()) {
             json.append("\"query\": { \"bool\": { \"must\": [");
-            json.append(this.conditions.getSqlSegment(useQualifier, dialect));
+            json.append(this.conditions.getSqlSegment(useQualifier, this));
             json.append("] } }, ");
         }
 
         // Script
         json.append("\"script\": { \"source\": \"ctx._source.putAll(params.data)\", \"lang\": \"painless\", \"params\": { \"data\": {");
-        json.append(this.updates.getSqlSegment(useQualifier, dialect));
+        json.append(this.updates.getSqlSegment(useQualifier, this));
         json.append("} } }");
 
         json.append("}"); // End of body
@@ -365,13 +400,13 @@ public abstract class EsCommandBuilder implements CommandBuilder {
     }
 
     @Override
-    public BoundSql buildDelete(SqlDialect dialect, boolean useQualifier, boolean useReplace) throws SQLException {
+    public BoundSql buildDelete(boolean useQualifier, boolean useReplace) throws SQLException {
         StringBuilder json = new StringBuilder();
         json.append("{");
 
         if (!this.conditions.isEmpty()) {
             json.append("\"query\": { \"bool\": { \"must\": [");
-            json.append(this.conditions.getSqlSegment(useQualifier, dialect));
+            json.append(this.conditions.getSqlSegment(useQualifier, this));
             json.append("] } }");
         } else {
             json.append("\"query\": { \"match_all\": {} }");
@@ -384,5 +419,26 @@ public abstract class EsCommandBuilder implements CommandBuilder {
         String command = method + " " + endpoint + " " + json.toString();
 
         return new BoundSql.BoundSqlObj(command, this.args.toArray());
+    }
+
+    // --- PageSqlDialect impl ---
+
+    @Override
+    public BoundSql countSql(BoundSql boundSql) {
+        return new BoundSql.BoundSqlObj("/*+overwrite_find_as_count*/" + boundSql.getSqlString(), boundSql.getArgs());
+    }
+
+    @Override
+    public BoundSql pageSql(BoundSql boundSql, long start, long limit) {
+        StringBuilder sqlBuilder = new StringBuilder("/*+");
+
+        if (start <= 0) {
+            sqlBuilder.append("overwrite_find_limit=" + limit);
+        } else {
+            sqlBuilder.append("overwrite_find_skip=" + start + ",overwrite_find_limit=" + limit);
+        }
+
+        sqlBuilder.append("*/");
+        return new BoundSql.BoundSqlObj(sqlBuilder + boundSql.getSqlString(), boundSql.getArgs());
     }
 }

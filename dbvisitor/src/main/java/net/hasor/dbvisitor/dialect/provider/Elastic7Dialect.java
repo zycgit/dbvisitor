@@ -13,20 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.dialect.builder;
+package net.hasor.dbvisitor.dialect.provider;
 import net.hasor.cobble.StringUtils;
 
 /**
- * ES7 命令构建器
+ * ES7 方言
  * @author 赵永春 (zyc@hasor.net)
  * @version 2025-12-31
  */
-public class Es7CommandBuilder extends EsCommandBuilder {
-    @Override
-    protected EsCommandBuilder createSubBuilder() {
-        return new Es7CommandBuilder();
-    }
-
+public class Elastic7Dialect extends AbstractElasticDialect {
     @Override
     protected String getSearchEndpoint() {
         return buildPath("_search");
@@ -55,5 +50,10 @@ public class Es7CommandBuilder extends EsCommandBuilder {
             sb.append("/").append(action);
         }
         return sb.toString();
+    }
+
+    @Override
+    public AbstractElasticDialect newBuilder() {
+        return new Elastic7Dialect();
     }
 }

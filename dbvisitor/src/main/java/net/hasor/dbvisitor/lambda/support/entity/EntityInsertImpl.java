@@ -22,8 +22,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import net.hasor.cobble.BeanUtils;
 import net.hasor.cobble.reflect.SFunction;
-import net.hasor.dbvisitor.dialect.BatchBoundSql;
 import net.hasor.dbvisitor.dialect.BatchBoundSql.BatchBoundSqlObj;
+import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
@@ -86,7 +86,7 @@ public class EntityInsertImpl<T> extends AbstractInsert<Insert<T>, T, SFunction<
 
             SqlDialect dialect = this.dialect();
             List<String> useColumns = this.findInsertColumns();
-            String insertSql = super.buildInsert(dialect, this.forBuildPrimaryKeys, useColumns, this.forBuildInsertColumnTerms);
+            String insertSql = super.buildInsert(this.forBuildPrimaryKeys, useColumns, this.forBuildInsertColumnTerms);
             if (logger.isDebugEnabled()) {
                 logger.trace("Executing SQL statement [" + insertSql + "].");
             }
@@ -144,9 +144,9 @@ public class EntityInsertImpl<T> extends AbstractInsert<Insert<T>, T, SFunction<
     }
 
     @Override
-    protected BatchBoundSql buildBoundSql(SqlDialect dialect) throws SQLException {
+    public BoundSql getBoundSql() throws SQLException {
         List<String> useColumns = this.findInsertColumns();
-        String insertSql = super.buildInsert(dialect, this.forBuildPrimaryKeys, useColumns, this.forBuildInsertColumnTerms);
+        String insertSql = super.buildInsert(this.forBuildPrimaryKeys, useColumns, this.forBuildInsertColumnTerms);
         SqlArg[][] batchBoundSql;
 
         if (this.jdbc != null) {

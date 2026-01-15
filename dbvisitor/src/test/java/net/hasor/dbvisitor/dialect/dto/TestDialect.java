@@ -2,8 +2,8 @@ package net.hasor.dbvisitor.dialect.dto;
 
 import java.util.Collections;
 import java.util.Set;
+import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
 import net.hasor.dbvisitor.dialect.SqlDialect;
-import net.hasor.dbvisitor.dialect.builder.CommandBuilder;
 
 public class TestDialect implements SqlDialect {
     @Override
@@ -37,7 +37,7 @@ public class TestDialect implements SqlDialect {
     }
 
     @Override
-    public CommandBuilder newBuilder() {
+    public SqlCommandBuilder newBuilder() {
         return null;
     }
 }

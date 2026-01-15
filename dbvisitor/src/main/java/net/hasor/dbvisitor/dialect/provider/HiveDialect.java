@@ -15,14 +15,15 @@
  */
 package net.hasor.dbvisitor.dialect.provider;
 import net.hasor.dbvisitor.dialect.BoundSql;
-import net.hasor.dbvisitor.dialect.PageSqlDialect;
+import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
+import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
 
 /**
  * Hive 的 SqlDialect 实现
  * @author 赵永春 (zyc@hasor.net)
  * @version 2020-10-31
  */
-public class HiveDialect extends AbstractDialect implements PageSqlDialect {
+public class HiveDialect extends AbstractSqlDialect implements PageSqlDialect {
     @Override
     protected String keyWordsResource() {
         return "/META-INF/db-keywords/hive.keywords";
@@ -33,6 +34,14 @@ public class HiveDialect extends AbstractDialect implements PageSqlDialect {
         return "\"";
     }
 
+    @Override
+    public SqlCommandBuilder newBuilder() {
+        return new HiveDialect();
+    }
+
+    // --- PageSqlDialect impl ---
+
+    @Override
     public BoundSql countSql(BoundSql boundSql) {
         throw new UnsupportedOperationException();
     }

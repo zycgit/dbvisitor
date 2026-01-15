@@ -21,7 +21,6 @@ import java.util.function.Predicate;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
-import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
@@ -328,11 +327,11 @@ public abstract class AbstractUpdate<R, T, P> extends BasicQueryCompare<R, T, P>
     }
 
     @Override
-    protected BoundSql buildBoundSql(SqlDialect dialect) throws SQLException {
+    public BoundSql getBoundSql() throws SQLException {
         if (!this.cmdBuilder.hasUpdateSet()) {
             throw new IllegalStateException("there nothing to update.");
         } else {
-            return this.cmdBuilder.buildUpdate(dialect, isQualifier(), this.allowEmptyWhere);
+            return this.cmdBuilder.buildUpdate(isQualifier(), this.allowEmptyWhere);
         }
     }
 }

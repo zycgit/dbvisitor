@@ -16,7 +16,6 @@
 package net.hasor.dbvisitor.dialect;
 import java.util.Set;
 import net.hasor.cobble.StringUtils;
-import net.hasor.dbvisitor.dialect.builder.CommandBuilder;
 import net.hasor.dbvisitor.lambda.core.OrderType;
 
 /**
@@ -92,5 +91,33 @@ public interface SqlDialect {
         return false;
     }
 
-    CommandBuilder newBuilder();
+    /**
+     * 生成 LIKE 条件 SQL 片段
+     * @param likeType LIKE 模式枚举值
+     * @param value 匹配值
+     * @return 生成的 LIKE 条件 SQL 片段
+     */
+    default String like(SqlLike likeType, Object value, String valueTerm) {
+        valueTerm = StringUtils.isBlank(valueTerm) ? "?" : valueTerm.trim();
+        switch (likeType) {
+            case LEFT:
+                return "CONCAT('%', " + valueTerm + " )";
+            case RIGHT:
+                return "CONCAT( " + valueTerm + " ,'%')";
+            default:
+                return "CONCAT('%', " + valueTerm + " ,'%')";
+        }
+    }
+
+    /** like 查询相关的选项 */
+    enum SqlLike {
+        /** %值 */
+        LEFT,
+        /** 值% */
+        RIGHT,
+        /** %值% */
+        DEFAULT
+    }
+
+    SqlCommandBuilder newBuilder();
 }

@@ -21,9 +21,10 @@ import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.dbvisitor.dialect.BoundSql;
+import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
-import net.hasor.dbvisitor.dialect.builder.CommandBuilder;
+import net.hasor.dbvisitor.dialect.provider.DefaultSqlDialect;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
@@ -37,16 +38,16 @@ import net.hasor.dbvisitor.mapping.def.TableMapping;
  * @version 2020-10-27
  */
 public abstract class BasicLambda<R, P> {
-    protected static final Logger          logger = LoggerFactory.getLogger(BasicLambda.class);
-    private final          Class<?>        exampleType;
-    private final          boolean         exampleIsMap;
-    private final          TableMapping<?> tableMapping;
+    protected static final Logger            logger = LoggerFactory.getLogger(BasicLambda.class);
+    private final          Class<?>          exampleType;
+    private final          boolean           exampleIsMap;
+    private final          TableMapping<?>   tableMapping;
     //
-    protected final        MappingRegistry registry;
-    protected final        QueryContext    queryContext;
-    protected final        JdbcTemplate    jdbc;
-    protected              CommandBuilder  cmdBuilder;
-    protected final        SqlDialect      dialect;
+    protected final        MappingRegistry   registry;
+    protected final        QueryContext      queryContext;
+    protected final        JdbcTemplate      jdbc;
+    protected              SqlCommandBuilder cmdBuilder;
+    private final          SqlDialect        dialect;
 
     public BasicLambda(Class<?> exampleType, TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc, QueryContext ctx) {
         this.exampleType = Objects.requireNonNull(exampleType, "exampleType is null.");
@@ -72,7 +73,7 @@ public abstract class BasicLambda<R, P> {
                 dialect = SqlDialectRegister.findDialect(registry.getGlobalOptions(), null);
             } catch (SQLException e) {
                 logger.error("find dialect error.", e);
-                dialect = net.hasor.dbvisitor.dialect.DefaultSqlDialect.DEFAULT;
+                dialect = DefaultSqlDialect.DEFAULT;
             }
         }
 
@@ -157,11 +158,7 @@ public abstract class BasicLambda<R, P> {
         return this.dialect;
     }
 
-    public final BoundSql getBoundSql() throws SQLException {
-        return buildBoundSql(dialect());
-    }
-
-    protected abstract BoundSql buildBoundSql(SqlDialect dialect) throws SQLException;
+    public abstract BoundSql getBoundSql() throws SQLException;
 
     protected abstract R getSelf();
 

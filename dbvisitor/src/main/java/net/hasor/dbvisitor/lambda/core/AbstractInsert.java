@@ -23,7 +23,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
-import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.error.RuntimeSQLException;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
@@ -149,7 +148,7 @@ public abstract class AbstractInsert<R, T, P> extends BasicLambda<R, P> implemen
         return this.getSelf();
     }
 
-    protected String buildInsert(SqlDialect dialect, List<String> primaryKeys, List<String> insertColumns, Map<String, String> insertColumnTerms) throws SQLException {
+    protected String buildInsert(List<String> primaryKeys, List<String> insertColumns, Map<String, String> insertColumnTerms) throws SQLException {
         this.cmdBuilder.clearAll();
         this.cmdBuilder.setTable(this.getTableMapping().getCatalog(), this.getTableMapping().getSchema(), this.getTableMapping().getTable());
 
@@ -161,7 +160,7 @@ public abstract class AbstractInsert<R, T, P> extends BasicLambda<R, P> implemen
             this.cmdBuilder.addInsert(col, null, term);
         }
 
-        BoundSql boundSql = this.cmdBuilder.buildInsert(dialect, isQualifier(), primaryKeys, this.insertStrategy);
+        BoundSql boundSql = this.cmdBuilder.buildInsert(isQualifier(), primaryKeys, this.insertStrategy);
         return boundSql.getSqlString();
     }
 

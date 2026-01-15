@@ -25,8 +25,6 @@ import java.util.Objects;
 import javax.sql.DataSource;
 import net.hasor.cobble.io.IOUtils;
 import net.hasor.cobble.reflect.resolvable.ResolvableType;
-import net.hasor.dbvisitor.dialect.Page;
-import net.hasor.dbvisitor.dialect.PageResult;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.jdbc.DynamicConnection;
 import net.hasor.dbvisitor.jdbc.core.JdbcAccessor;
@@ -34,6 +32,8 @@ import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.mapper.BaseMapper;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
+import net.hasor.dbvisitor.page.Page;
+import net.hasor.dbvisitor.page.PageResult;
 
 /**
  * 基础数据库操作接口

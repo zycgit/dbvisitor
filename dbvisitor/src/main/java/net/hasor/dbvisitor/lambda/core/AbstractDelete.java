@@ -17,7 +17,6 @@ package net.hasor.dbvisitor.lambda.core;
 import java.sql.SQLException;
 import java.util.Objects;
 import net.hasor.dbvisitor.dialect.BoundSql;
-import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
@@ -63,7 +62,7 @@ public abstract class AbstractDelete<R, T, P> extends BasicQueryCompare<R, T, P>
     }
 
     @Override
-    protected BoundSql buildBoundSql(SqlDialect dialect) throws SQLException {
-        return this.cmdBuilder.buildDelete(dialect, isQualifier(), this.allowEmptyWhere);
+    public BoundSql getBoundSql() throws SQLException {
+        return this.cmdBuilder.buildDelete(isQualifier(), this.allowEmptyWhere);
     }
 }

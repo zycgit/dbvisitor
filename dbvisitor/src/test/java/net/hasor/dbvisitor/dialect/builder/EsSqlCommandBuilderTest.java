@@ -17,24 +17,27 @@ package net.hasor.dbvisitor.dialect.builder;
 import java.sql.SQLException;
 import java.util.Collections;
 import net.hasor.dbvisitor.dialect.BoundSql;
-import net.hasor.dbvisitor.dialect.provider.Es6Dialect;
-import net.hasor.dbvisitor.dialect.provider.Es7Dialect;
+import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
+import net.hasor.dbvisitor.dialect.SqlCommandBuilder.ConditionLogic;
+import net.hasor.dbvisitor.dialect.SqlCommandBuilder.ConditionType;
+import net.hasor.dbvisitor.dialect.provider.Elastic6Dialect;
+import net.hasor.dbvisitor.dialect.provider.Elastic7Dialect;
 import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
 import net.hasor.dbvisitor.lambda.core.OrderType;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class EsCommandBuilderTest {
+public class EsSqlCommandBuilderTest {
     @Test
     public void testSelectEs6() throws SQLException {
-        Es6CommandBuilder builder = new Es6CommandBuilder();
+        SqlCommandBuilder builder = new Elastic6Dialect().newBuilder();
         builder.setTable("my_index", "my_type", null);
         builder.addCondition(ConditionLogic.AND, "age", null, ConditionType.GT, 18, null, null);
 
-        BoundSql boundSql = builder.buildSelect(new Es6Dialect(), false);
+        BoundSql boundSql = builder.buildSelect(false);
         String sql = boundSql.getSqlString();
-        
+
         assertTrue(sql.startsWith("POST /my_index/my_type/_search"));
         assertTrue(sql.contains("\"query\": { \"bool\": { \"must\": [{ \"range\": { \"age\": { \"gt\": ? } } }] } }"));
         assertEquals(1, boundSql.getArgs().length);
@@ -43,13 +46,13 @@ public class EsCommandBuilderTest {
 
     @Test
     public void testSelectEs7() throws SQLException {
-        Es7CommandBuilder builder = new Es7CommandBuilder();
+        SqlCommandBuilder builder = new Elastic7Dialect().newBuilder();
         builder.setTable("my_index", "my_type", null); // type should be ignored or handled differently
         builder.addCondition(ConditionLogic.AND, "age", null, ConditionType.GT, 18, null, null);
 
-        BoundSql boundSql = builder.buildSelect(new Es7Dialect(), false);
+        BoundSql boundSql = builder.buildSelect(false);
         String sql = boundSql.getSqlString();
-        
+
         assertTrue(sql.startsWith("POST /my_index/_search"));
         assertTrue(sql.contains("\"query\": { \"bool\": { \"must\": [{ \"range\": { \"age\": { \"gt\": ? } } }] } }"));
         assertEquals(1, boundSql.getArgs().length);
@@ -58,42 +61,42 @@ public class EsCommandBuilderTest {
 
     @Test
     public void testSelectProjection() throws SQLException {
-        Es6CommandBuilder builder = new Es6CommandBuilder();
+        SqlCommandBuilder builder = new Elastic6Dialect().newBuilder();
         builder.setTable("my_index", "my_type", null);
         builder.addSelect("name", null);
         builder.addSelect("age", null);
         builder.addCondition(ConditionLogic.AND, "active", null, ConditionType.EQ, true, null, null);
 
-        BoundSql boundSql = builder.buildSelect(new Es6Dialect(), false);
+        BoundSql boundSql = builder.buildSelect(false);
         String sql = boundSql.getSqlString();
-        
+
         assertTrue(sql.contains("\"_source\": [\"name\", \"age\"]"));
         assertTrue(sql.contains("\"match\": { \"active\": ? }"));
     }
 
     @Test
     public void testSelectSort() throws SQLException {
-        Es6CommandBuilder builder = new Es6CommandBuilder();
+        SqlCommandBuilder builder = new Elastic6Dialect().newBuilder();
         builder.setTable("my_index", "my_type", null);
         builder.addOrderBy("create_time", null, OrderType.DESC, null);
         builder.addOrderBy("name", null, OrderType.ASC, null);
 
-        BoundSql boundSql = builder.buildSelect(new Es6Dialect(), false);
+        BoundSql boundSql = builder.buildSelect(false);
         String sql = boundSql.getSqlString();
-        
+
         assertTrue(sql.contains("\"sort\": [{ \"create_time\": { \"order\": \"desc\" } }, { \"name\": { \"order\": \"asc\" } }]"));
     }
 
     @Test
     public void testInsertEs6() throws SQLException {
-        Es6CommandBuilder builder = new Es6CommandBuilder();
+        SqlCommandBuilder builder = new Elastic6Dialect().newBuilder();
         builder.setTable("my_index", "my_type", null);
         builder.addInsert("name", "John", null);
         builder.addInsert("age", 25, null);
 
-        BoundSql boundSql = builder.buildInsert(new Es6Dialect(), false, Collections.emptyList(), DuplicateKeyStrategy.Into);
+        BoundSql boundSql = builder.buildInsert(false, Collections.emptyList(), DuplicateKeyStrategy.Into);
         String sql = boundSql.getSqlString();
-        
+
         assertTrue(sql.startsWith("POST /my_index/my_type"));
         assertTrue(sql.contains("\"name\": ?"));
         assertTrue(sql.contains("\"age\": ?"));
@@ -102,14 +105,14 @@ public class EsCommandBuilderTest {
 
     @Test
     public void testInsertEs7() throws SQLException {
-        Es7CommandBuilder builder = new Es7CommandBuilder();
+        SqlCommandBuilder builder = new Elastic7Dialect().newBuilder();
         builder.setTable("my_index", "my_type", null);
         builder.addInsert("name", "John", null);
         builder.addInsert("age", 25, null);
 
-        BoundSql boundSql = builder.buildInsert(new Es7Dialect(), false, Collections.emptyList(), DuplicateKeyStrategy.Into);
+        BoundSql boundSql = builder.buildInsert(false, Collections.emptyList(), DuplicateKeyStrategy.Into);
         String sql = boundSql.getSqlString();
-        
+
         assertTrue(sql.startsWith("POST /my_index/_doc"));
         assertTrue(sql.contains("\"name\": ?"));
         assertTrue(sql.contains("\"age\": ?"));
@@ -117,14 +120,14 @@ public class EsCommandBuilderTest {
 
     @Test
     public void testUpdateEs6() throws SQLException {
-        Es6CommandBuilder builder = new Es6CommandBuilder();
+        SqlCommandBuilder builder = new Elastic6Dialect().newBuilder();
         builder.setTable("my_index", "my_type", null);
         builder.addUpdateSet("name", "Doe", null);
         builder.addCondition(ConditionLogic.AND, "id", null, ConditionType.EQ, 1, null, null);
 
-        BoundSql boundSql = builder.buildUpdate(new Es6Dialect(), false, false);
+        BoundSql boundSql = builder.buildUpdate(false, false);
         String sql = boundSql.getSqlString();
-        
+
         assertTrue(sql.startsWith("POST /my_index/my_type/_update_by_query"));
         assertTrue(sql.contains("\"script\": { \"source\": \"ctx._source.putAll(params.data)\", \"lang\": \"painless\", \"params\": { \"data\": {"));
         assertTrue(sql.contains("\"name\": ?"));
@@ -133,14 +136,14 @@ public class EsCommandBuilderTest {
 
     @Test
     public void testUpdateEs7() throws SQLException {
-        Es7CommandBuilder builder = new Es7CommandBuilder();
+        SqlCommandBuilder builder = new Elastic7Dialect().newBuilder();
         builder.setTable("my_index", "my_type", null);
         builder.addUpdateSet("name", "Doe", null);
         builder.addCondition(ConditionLogic.AND, "id", null, ConditionType.EQ, 1, null, null);
 
-        BoundSql boundSql = builder.buildUpdate(new Es7Dialect(), false, false);
+        BoundSql boundSql = builder.buildUpdate(false, false);
         String sql = boundSql.getSqlString();
-        
+
         assertTrue(sql.startsWith("POST /my_index/_update_by_query"));
         assertTrue(sql.contains("\"script\": { \"source\": \"ctx._source.putAll(params.data)\", \"lang\": \"painless\", \"params\": { \"data\": {"));
         assertTrue(sql.contains("\"name\": ?"));
@@ -148,26 +151,26 @@ public class EsCommandBuilderTest {
 
     @Test
     public void testDeleteEs6() throws SQLException {
-        Es6CommandBuilder builder = new Es6CommandBuilder();
+        SqlCommandBuilder builder = new Elastic6Dialect().newBuilder();
         builder.setTable("my_index", "my_type", null);
         builder.addCondition(ConditionLogic.AND, "status", null, ConditionType.EQ, "inactive", null, null);
 
-        BoundSql boundSql = builder.buildDelete(new Es6Dialect(), false, false);
+        BoundSql boundSql = builder.buildDelete(false, false);
         String sql = boundSql.getSqlString();
-        
+
         assertTrue(sql.startsWith("POST /my_index/my_type/_delete_by_query"));
         assertTrue(sql.contains("\"match\": { \"status\": ? }"));
     }
 
     @Test
     public void testDeleteEs7() throws SQLException {
-        Es7CommandBuilder builder = new Es7CommandBuilder();
+        SqlCommandBuilder builder = new Elastic7Dialect().newBuilder();
         builder.setTable("my_index", "my_type", null);
         builder.addCondition(ConditionLogic.AND, "status", null, ConditionType.EQ, "inactive", null, null);
 
-        BoundSql boundSql = builder.buildDelete(new Es7Dialect(), false, false);
+        BoundSql boundSql = builder.buildDelete(false, false);
         String sql = boundSql.getSqlString();
-        
+
         assertTrue(sql.startsWith("POST /my_index/_delete_by_query"));
         assertTrue(sql.contains("\"match\": { \"status\": ? }"));
     }

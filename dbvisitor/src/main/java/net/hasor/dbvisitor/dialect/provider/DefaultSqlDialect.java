@@ -13,24 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.dialect;
+package net.hasor.dbvisitor.dialect.provider;
 import java.util.List;
 import java.util.Map;
 import net.hasor.cobble.StringUtils;
-import net.hasor.dbvisitor.dialect.provider.AbstractDialect;
+import net.hasor.dbvisitor.dialect.BoundSql;
+import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
+import net.hasor.dbvisitor.dialect.features.InsertSqlDialect;
+import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
 
 /**
  * 默认 SqlDialect 实现
  * @author 赵永春 (zyc@hasor.net)
  * @version 2020-10-31
  */
-public class DefaultSqlDialect extends AbstractDialect implements ConditionSqlDialect, PageSqlDialect, InsertSqlDialect {
+public class DefaultSqlDialect extends AbstractSqlDialect implements PageSqlDialect, InsertSqlDialect {
     public static final DefaultSqlDialect DEFAULT = new DefaultSqlDialect();
+
+    @Override
+    public SqlCommandBuilder newBuilder() {
+        return new DefaultSqlDialect();
+    }
+
+    // --- PageSqlDialect impl ---
 
     @Override
     public BoundSql pageSql(BoundSql boundSql, long start, long limit) {
         throw new UnsupportedOperationException();
     }
+
+    // --- InsertSqlDialect impl ---
 
     @Override
     public boolean supportInto(List<String> primaryKey, List<String> columns) {
@@ -39,21 +51,21 @@ public class DefaultSqlDialect extends AbstractDialect implements ConditionSqlDi
 
     @Override
     public String insertInto(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
-        StringBuilder strBuilder = new StringBuilder();
-        strBuilder.append("INSERT INTO ");
-        strBuilder.append(tableName(useQualifier, catalog, schema, table));
-        strBuilder.append(" ");
-        strBuilder.append("(");
+        StringBuilder sb = new StringBuilder();
+        sb.append("INSERT INTO ");
+        sb.append(tableName(useQualifier, catalog, schema, table));
+        sb.append(" ");
+        sb.append("(");
 
         StringBuilder argBuilder = new StringBuilder();
         for (int i = 0; i < columns.size(); i++) {
             String colName = columns.get(i);
             if (i > 0) {
-                strBuilder.append(", ");
+                sb.append(", ");
                 argBuilder.append(", ");
             }
 
-            strBuilder.append(fmtName(useQualifier, colName));
+            sb.append(fmtName(useQualifier, colName));
             String valueTerm = columnValueTerms != null ? columnValueTerms.get(colName) : null;
             if (StringUtils.isNotBlank(valueTerm)) {
                 argBuilder.append(valueTerm);
@@ -62,10 +74,10 @@ public class DefaultSqlDialect extends AbstractDialect implements ConditionSqlDi
             }
         }
 
-        strBuilder.append(") VALUES (");
-        strBuilder.append(argBuilder);
-        strBuilder.append(")");
-        return strBuilder.toString();
+        sb.append(") VALUES (");
+        sb.append(argBuilder);
+        sb.append(")");
+        return sb.toString();
     }
 
     @Override

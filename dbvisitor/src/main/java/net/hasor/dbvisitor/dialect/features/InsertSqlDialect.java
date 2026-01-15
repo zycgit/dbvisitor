@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.dialect;
+package net.hasor.dbvisitor.dialect.features;
 import java.util.List;
 import java.util.Map;
+import net.hasor.dbvisitor.dialect.SqlDialect;
 
 /**
  * 插入 SQL 方言接口，扩展 {@link SqlDialect} 以支持多种插入操作

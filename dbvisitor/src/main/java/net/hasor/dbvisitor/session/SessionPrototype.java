@@ -25,9 +25,9 @@ import javax.sql.DataSource;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.convert.ConverterBean;
 import net.hasor.cobble.ref.BeanMap;
-import net.hasor.dbvisitor.dialect.Page;
-import net.hasor.dbvisitor.dialect.PageResult;
 import net.hasor.dbvisitor.jdbc.DynamicConnection;
+import net.hasor.dbvisitor.page.Page;
+import net.hasor.dbvisitor.page.PageResult;
 
 /**
  * prototype is a no database status session.

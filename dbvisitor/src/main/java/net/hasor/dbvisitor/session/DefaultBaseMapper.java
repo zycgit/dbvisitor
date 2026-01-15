@@ -21,9 +21,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import net.hasor.cobble.BeanUtils;
 import net.hasor.cobble.function.Property;
-import net.hasor.dbvisitor.dialect.Page;
-import net.hasor.dbvisitor.dialect.PageObject;
-import net.hasor.dbvisitor.dialect.PageResult;
 import net.hasor.dbvisitor.error.RuntimeSQLException;
 import net.hasor.dbvisitor.jdbc.JdbcOperations;
 import net.hasor.dbvisitor.lambda.EntityDelete;
@@ -35,6 +32,9 @@ import net.hasor.dbvisitor.lambda.core.OrderType;
 import net.hasor.dbvisitor.mapper.BaseMapper;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
+import net.hasor.dbvisitor.page.Page;
+import net.hasor.dbvisitor.page.PageObject;
+import net.hasor.dbvisitor.page.PageResult;
 
 /**
  * BaseMapper 接口的实现类。

@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.dialect.builder;
+package net.hasor.dbvisitor.dialect.provider;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.function.Consumer;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
-import net.hasor.dbvisitor.dialect.ConditionSqlDialect;
-import net.hasor.dbvisitor.dialect.ConditionSqlDialect.SqlLike;
-import net.hasor.dbvisitor.dialect.InsertSqlDialect;
+import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
 import net.hasor.dbvisitor.dialect.SqlDialect;
+import net.hasor.dbvisitor.dialect.features.InsertSqlDialect;
 import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
 import net.hasor.dbvisitor.lambda.core.OrderNullsStrategy;
 import net.hasor.dbvisitor.lambda.core.OrderType;
@@ -30,11 +29,11 @@ import net.hasor.dbvisitor.lambda.segment.MergeSqlSegment;
 import net.hasor.dbvisitor.lambda.segment.Segment;
 
 /**
- * SQL 命令构建器
+ * 标准 SQL 构建器方言
  * @author 赵永春 (zyc@hasor.net)
  * @version 2025-12-06
  */
-public class SqlCommandBuilder implements CommandBuilder {
+public abstract class AbstractSqlDialect extends AbstractBuilderDialect {
     public static final Segment              LEFT_PAREN  = (delimited, d) -> "(";
     public static final Segment              RIGHT_PAREN = (delimited, d) -> ")";
     //
@@ -51,17 +50,18 @@ public class SqlCommandBuilder implements CommandBuilder {
     private             String               schema;
     private             String               table;
     //
-    private             MergeSqlSegment      insertColumns;
-    private             List<String>         insertColNames;
-    private             Map<String, String>  insertColTerms;
+    private final       MergeSqlSegment      insertColumns;
+    private final       List<String>         insertColNames;
+    private final       List<Object>         insertColValues;
+    private final       Map<String, String>  insertColTerms;
     //
-    private             MergeSqlSegment      insertValues;
-    private             MergeSqlSegment      updateColumns;
+    private final       MergeSqlSegment      insertValues;
+    private final       MergeSqlSegment      updateColumns;
     //
     protected           boolean              lockWhere;
     protected           boolean              lockGroupBy;
 
-    public SqlCommandBuilder() {
+    public AbstractSqlDialect() {
         this.args = new ArrayList<>();
 
         this.selectColumns = new MergeSqlSegment(", ");
@@ -73,6 +73,7 @@ public class SqlCommandBuilder implements CommandBuilder {
         this.orderByColumns = new MergeSqlSegment(", ");
         this.insertColumns = new MergeSqlSegment(", ");
         this.insertColNames = new ArrayList<>();
+        this.insertColValues = new ArrayList<>();
         this.insertColTerms = new HashMap<>();
         this.insertValues = new MergeSqlSegment(", ");
         this.updateColumns = new MergeSqlSegment(", ");
@@ -113,6 +114,7 @@ public class SqlCommandBuilder implements CommandBuilder {
         this.table = null;
         this.insertColumns.clear();
         this.insertColNames.clear();
+        this.insertColValues.clear();
         this.insertColTerms.clear();
         this.insertValues.clear();
         this.updateColumns.clear();
@@ -213,7 +215,7 @@ public class SqlCommandBuilder implements CommandBuilder {
     }
 
     @Override
-    public void addConditionGroup(ConditionLogic logic, Consumer<CommandBuilder> group) {
+    public void addConditionGroup(ConditionLogic logic, Consumer<SqlCommandBuilder> group) {
         if (this.lockWhere) {
             throw new IllegalStateException("must before (group by/order by) invoke it.");
         }
@@ -281,11 +283,7 @@ public class SqlCommandBuilder implements CommandBuilder {
 
     private String formatLikeValue(SqlDialect dia, Object value, String valueTerm, SqlLike likeType) {
         this.args.add(value);
-        if (dia instanceof ConditionSqlDialect) {
-            return ((ConditionSqlDialect) dia).like(likeType, value, valueTerm);
-        } else {
-            return StringUtils.isNotBlank(valueTerm) ? valueTerm : "?";
-        }
+        return dia.like(likeType, value, valueTerm);
     }
 
     private void appendValue(Object value) {
@@ -444,77 +442,78 @@ public class SqlCommandBuilder implements CommandBuilder {
         });
 
         this.insertColNames.add(col);
+        this.insertColValues.add(value);
         this.insertColTerms.put(col, valueTerm);
     }
 
     //
 
     @Override
-    public BoundSql buildSelect(SqlDialect dialect, boolean delimited) throws SQLException {
-        MergeSqlSegment segment = new MergeSqlSegment();
-        segment.addSegment((d, dia) -> "SELECT");
+    public BoundSql buildSelect(boolean delimited) throws SQLException {
+        MergeSqlSegment s = new MergeSqlSegment();
+        s.addSegment((d, dia) -> "SELECT");
         if (this.selectColumns.isEmpty()) {
-            segment.addSegment((d, dia) -> "*");
+            s.addSegment((d, dia) -> "*");
         } else {
-            segment.addSegment(this.selectColumns);
+            s.addSegment(this.selectColumns);
         }
 
-        segment.addSegment((d, dia) -> "FROM");
-        segment.addSegment((d, dia) -> dia.tableName(d, this.catalog, this.schema, this.table));
+        s.addSegment((d, dia) -> "FROM");
+        s.addSegment((d, dia) -> dia.tableName(d, this.catalog, this.schema, this.table));
 
-        buildWhere(segment, true, "SELECT");
+        buildWhere(s, true, "SELECT");
 
-        String sqlString = segment.getSqlSegment(delimited, dialect);
+        String sqlString = s.getSqlSegment(delimited, this);
         Object[] sqlArgs = this.args.toArray();
         return new BoundSql.BoundSqlObj(sqlString, sqlArgs);
     }
 
     @Override
-    public BoundSql buildUpdate(SqlDialect dialect, boolean delimited, boolean allowEmptyWhere) throws SQLException {
-        MergeSqlSegment segment = new MergeSqlSegment();
-        segment.addSegment((d, dia) -> "UPDATE");
-        segment.addSegment((d, dia) -> dia.tableName(d, this.catalog, this.schema, this.table));
+    public BoundSql buildUpdate(boolean delimited, boolean allowEmptyWhere) throws SQLException {
+        MergeSqlSegment s = new MergeSqlSegment();
+        s.addSegment((d, dia) -> "UPDATE");
+        s.addSegment((d, dia) -> dia.tableName(d, this.catalog, this.schema, this.table));
 
-        segment.addSegment((d, dia) -> "SET");
-        segment.addSegment(this.updateColumns);
+        s.addSegment((d, dia) -> "SET");
+        s.addSegment(this.updateColumns);
 
-        buildWhere(segment, allowEmptyWhere, "UPDATE");
+        buildWhere(s, allowEmptyWhere, "UPDATE");
 
-        String sqlString = segment.getSqlSegment(delimited, dialect);
+        String sqlString = s.getSqlSegment(delimited, this);
         Object[] sqlArgs = this.args.toArray();
         return new BoundSql.BoundSqlObj(sqlString, sqlArgs);
     }
 
     @Override
-    public BoundSql buildDelete(SqlDialect dialect, boolean delimited, boolean allowEmptyWhere) throws SQLException {
-        MergeSqlSegment segment = new MergeSqlSegment();
-        segment.addSegment((d, dia) -> "DELETE FROM");
-        segment.addSegment((d, dia) -> dia.tableName(d, this.catalog, this.schema, this.table));
+    public BoundSql buildDelete(boolean delimited, boolean allowEmptyWhere) throws SQLException {
+        MergeSqlSegment s = new MergeSqlSegment();
+        s.addSegment((d, dia) -> "DELETE FROM");
+        s.addSegment((d, dia) -> dia.tableName(d, this.catalog, this.schema, this.table));
 
-        buildWhere(segment, allowEmptyWhere, "DELETE");
+        buildWhere(s, allowEmptyWhere, "DELETE");
 
-        String sqlString = segment.getSqlSegment(delimited, dialect);
+        String sqlString = s.getSqlSegment(delimited, this);
         Object[] sqlArgs = this.args.toArray();
         return new BoundSql.BoundSqlObj(sqlString, sqlArgs);
     }
 
-    private void buildWhere(MergeSqlSegment segment, boolean allowEmptyWhere, String tips) {
+    private void buildWhere(MergeSqlSegment s, boolean allowEmptyWhere, String tips) {
         if (!this.whereConditions.isEmpty()) {
             if (this.hasWhereConditions) {
-                segment.addSegment((d, dia) -> "WHERE");
+                s.addSegment((d, dia) -> "WHERE");
             }
-            segment.addSegment(this.whereConditions);
+            s.addSegment(this.whereConditions);
         } else if (!allowEmptyWhere) {
             throw new IllegalStateException("The dangerous " + tips + " operation, You must call `allowEmptyWhere()` to enable " + tips + " ALL.");
         }
     }
 
     @Override
-    public BoundSql buildInsert(SqlDialect dialect, boolean delimited, List<String> primaryKey, DuplicateKeyStrategy strategy) throws SQLException {
-        MergeSqlSegment segment = new MergeSqlSegment();
+    public BoundSql buildInsert(boolean delimited, List<String> primaryKey, DuplicateKeyStrategy strategy) throws SQLException {
+        MergeSqlSegment s = new MergeSqlSegment();
 
-        if (dialect instanceof InsertSqlDialect) {
-            InsertSqlDialect idia = ((InsertSqlDialect) dialect);
+        if (this instanceof InsertSqlDialect) {
+            InsertSqlDialect idia = ((InsertSqlDialect) this);
             String sql;
             switch (strategy == null ? DuplicateKeyStrategy.Into : strategy) {
                 case Ignore:
@@ -536,20 +535,21 @@ public class SqlCommandBuilder implements CommandBuilder {
                     sql = idia.insertInto(delimited, this.catalog, this.schema, this.table, primaryKey, this.insertColNames, this.insertColTerms);
                     break;
             }
-            segment.addSegment((d, dia) -> sql);
+            s.addSegment((d, dia) -> sql);
+            this.args.addAll(this.insertColValues);
         } else {
-            segment.addSegment((d, dia) -> "INSERT INTO");
-            segment.addSegment((d, dia) -> dia.tableName(d, this.catalog, this.schema, this.table));
-            segment.addSegment(LEFT_PAREN);
-            segment.addSegment(this.insertColumns);
-            segment.addSegment(RIGHT_PAREN);
-            segment.addSegment((d, dia) -> "VALUES");
-            segment.addSegment(LEFT_PAREN);
-            segment.addSegment(this.insertValues);
-            segment.addSegment(RIGHT_PAREN);
+            s.addSegment((d, dia) -> "INSERT INTO");
+            s.addSegment((d, dia) -> dia.tableName(d, this.catalog, this.schema, this.table));
+            s.addSegment(LEFT_PAREN);
+            s.addSegment(this.insertColumns);
+            s.addSegment(RIGHT_PAREN);
+            s.addSegment((d, dia) -> "VALUES");
+            s.addSegment(LEFT_PAREN);
+            s.addSegment(this.insertValues);
+            s.addSegment(RIGHT_PAREN);
         }
 
-        String sqlString = segment.getSqlSegment(delimited, dialect);
+        String sqlString = s.getSqlSegment(delimited, this);
         Object[] sqlArgs = this.args.toArray();
         return new BoundSql.BoundSqlObj(sqlString, sqlArgs);
     }

@@ -19,14 +19,14 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import net.hasor.dbvisitor.dialect.Page;
-import net.hasor.dbvisitor.dialect.PageResult;
 import net.hasor.dbvisitor.error.RuntimeSQLException;
 import net.hasor.dbvisitor.jdbc.JdbcOperations;
 import net.hasor.dbvisitor.lambda.*;
 import net.hasor.dbvisitor.lambda.Insert;
 import net.hasor.dbvisitor.lambda.core.OrderNullsStrategy;
 import net.hasor.dbvisitor.lambda.core.OrderType;
+import net.hasor.dbvisitor.page.Page;
+import net.hasor.dbvisitor.page.PageResult;
 import net.hasor.dbvisitor.session.Session;
 
 /**

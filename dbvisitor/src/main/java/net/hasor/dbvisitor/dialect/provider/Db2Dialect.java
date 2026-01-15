@@ -15,14 +15,15 @@
  */
 package net.hasor.dbvisitor.dialect.provider;
 import net.hasor.dbvisitor.dialect.BoundSql;
-import net.hasor.dbvisitor.dialect.PageSqlDialect;
+import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
+import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
 
 /**
  * DB2 的 SqlDialect 实现
  * @author 赵永春 (zyc@hasor.net)
  * @version 2020-10-31
  */
-public class Db2Dialect extends AbstractDialect implements PageSqlDialect {
+public class Db2Dialect extends AbstractSqlDialect implements PageSqlDialect {
     @Override
     protected String keyWordsResource() {
         return "/META-INF/db-keywords/db2.keywords";
@@ -34,17 +35,24 @@ public class Db2Dialect extends AbstractDialect implements PageSqlDialect {
     }
 
     @Override
+    public SqlCommandBuilder newBuilder() {
+        return new Db2Dialect();
+    }
+
+    // --- PageSqlDialect impl ---
+
+    @Override
     public BoundSql pageSql(BoundSql boundSql, long start, long limit) {
-        StringBuilder sqlBuilder = new StringBuilder();
-        sqlBuilder.append("SELECT * FROM (SELECT TMP_PAGE.*,ROWNUMBER() OVER() AS ROW_ID FROM ( ");
-        sqlBuilder.append(boundSql.getSqlString());
-        sqlBuilder.append(" ) AS TMP_PAGE) TMP_PAGE WHERE ROW_ID BETWEEN ? AND ?");
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT * FROM (SELECT TMP_PAGE.*,ROWNUMBER() OVER() AS ROW_ID FROM ( ");
+        sb.append(boundSql.getSqlString());
+        sb.append(" ) AS TMP_PAGE) TMP_PAGE WHERE ROW_ID BETWEEN ? AND ?");
 
         Object[] paramArray = boundSql.getArgs();
         Object[] destArgs = new Object[paramArray.length + 2];
         System.arraycopy(paramArray, 0, destArgs, 0, paramArray.length);
         destArgs[paramArray.length] = start;
         destArgs[paramArray.length + 1] = limit;
-        return new BoundSql.BoundSqlObj(sqlBuilder.toString(), destArgs);
+        return new BoundSql.BoundSqlObj(sb.toString(), destArgs);
     }
 }

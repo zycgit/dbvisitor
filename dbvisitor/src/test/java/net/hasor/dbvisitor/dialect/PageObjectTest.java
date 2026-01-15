@@ -15,6 +15,8 @@
  */
 package net.hasor.dbvisitor.dialect;
 import java.util.Map;
+import net.hasor.dbvisitor.page.Page;
+import net.hasor.dbvisitor.page.PageObject;
 import org.junit.Test;
 
 /**

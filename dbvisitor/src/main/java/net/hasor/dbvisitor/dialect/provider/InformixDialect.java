@@ -18,14 +18,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import net.hasor.dbvisitor.dialect.BoundSql;
-import net.hasor.dbvisitor.dialect.PageSqlDialect;
+import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
+import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
 
 /**
  * Informix 的 SqlDialect 实现
  * @author 赵永春 (zyc@hasor.net)
  * @version 2020-10-31
  */
-public class InformixDialect extends AbstractDialect implements PageSqlDialect {
+public class InformixDialect extends AbstractSqlDialect implements PageSqlDialect {
 
     @Override
     protected String keyWordsResource() {
@@ -38,26 +39,33 @@ public class InformixDialect extends AbstractDialect implements PageSqlDialect {
     }
 
     @Override
+    public SqlCommandBuilder newBuilder() {
+        return new InformixDialect();
+    }
+
+    // --- PageSqlDialect impl ---
+
+    @Override
     public BoundSql pageSql(BoundSql boundSql, long start, long limit) {
         String sqlString = boundSql.getSqlString();
         List<Object> paramArrays = new ArrayList<>(Arrays.asList(boundSql.getArgs()));
 
-        StringBuilder sqlBuilder = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         List<Object> newParam = new ArrayList<>();
-        sqlBuilder.append("SELECT ");
+        sb.append("SELECT ");
         if (start > 0) {
-            sqlBuilder.append(" SKIP ? ");
+            sb.append(" SKIP ? ");
             newParam.add(start);
         }
         if (limit > 0) {
-            sqlBuilder.append(" FIRST ? ");
+            sb.append(" FIRST ? ");
             newParam.add(limit);
         }
-        sqlBuilder.append(" * FROM ( ");
-        sqlBuilder.append(sqlString);
-        sqlBuilder.append(" ) TEMP_T");
+        sb.append(" * FROM ( ");
+        sb.append(sqlString);
+        sb.append(" ) TEMP_T");
 
         paramArrays.addAll(0, newParam);
-        return new BoundSql.BoundSqlObj(sqlBuilder.toString(), paramArrays.toArray());
+        return new BoundSql.BoundSqlObj(sb.toString(), paramArrays.toArray());
     }
 }

@@ -13,13 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.dialect.builder;
+package net.hasor.dbvisitor.dialect;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.function.Consumer;
-import net.hasor.dbvisitor.dialect.BoundSql;
-import net.hasor.dbvisitor.dialect.ConditionSqlDialect.SqlLike;
-import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
 import net.hasor.dbvisitor.lambda.core.OrderNullsStrategy;
 import net.hasor.dbvisitor.lambda.core.OrderType;
@@ -29,7 +26,7 @@ import net.hasor.dbvisitor.lambda.core.OrderType;
  * @author 赵永春 (zyc@hasor.net)
  * @version 2025-12-06
  */
-public interface CommandBuilder {
+public interface SqlCommandBuilder extends SqlDialect {
 
     /** 设置操作的表 */
     void setTable(String catalog, String schema, String table);
@@ -47,7 +44,7 @@ public interface CommandBuilder {
     void addRawCondition(ConditionLogic logic, BoundSql boundSql);
 
     /** 添加嵌套条件组 */
-    void addConditionGroup(ConditionLogic logic, Consumer<CommandBuilder> group);
+    void addConditionGroup(ConditionLogic logic, Consumer<SqlCommandBuilder> group);
 
     /** 添加查询列 */
     void addSelect(String col, String colTerm);
@@ -98,14 +95,48 @@ public interface CommandBuilder {
     boolean hasInsert();
 
     /** 构建 Select */
-    BoundSql buildSelect(SqlDialect dialect, boolean delimited) throws SQLException;
+    BoundSql buildSelect(boolean delimited) throws SQLException;
 
     /** 构建 Update */
-    BoundSql buildUpdate(SqlDialect dialect, boolean delimited, boolean allowEmptyWhere) throws SQLException;
+    BoundSql buildUpdate(boolean delimited, boolean allowEmptyWhere) throws SQLException;
 
     /** 构建 Delete */
-    BoundSql buildDelete(SqlDialect dialect, boolean delimited, boolean allowEmptyWhere) throws SQLException;
+    BoundSql buildDelete(boolean delimited, boolean allowEmptyWhere) throws SQLException;
 
     /** 构建 Insert */
-    BoundSql buildInsert(SqlDialect dialect, boolean delimited, List<String> primaryKey, DuplicateKeyStrategy strategy) throws SQLException;
+    BoundSql buildInsert(boolean delimited, List<String> primaryKey, DuplicateKeyStrategy strategy) throws SQLException;
+
+    /**
+     * 条件逻辑
+     * @author 赵永春 (zyc@hasor.net)
+     * @version 2025-12-06
+     */
+    enum ConditionLogic {
+        AND,
+        OR,
+        AND_NOT,
+        OR_NOT
+    }
+
+    /**
+     * 条件类型
+     * @author 赵永春 (zyc@hasor.net)
+     * @version 2025-12-06
+     */
+    enum ConditionType {
+        EQ,             // =
+        NE,             // <>
+        GT,             // >
+        GE,             // >=
+        LT,             // <
+        LE,             // <=
+        LIKE,           // LIKE
+        NOT_LIKE,       // NOT LIKE
+        IS_NULL,        // IS NULL
+        IS_NOT_NULL,    // IS NOT NULL
+        IN,             // IN
+        NOT_IN,         // NOT IN
+        BETWEEN,        // BETWEEN
+        NOT_BETWEEN,    // NOT BETWEEN
+    }
 }
