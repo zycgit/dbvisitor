@@ -21,7 +21,7 @@ dbVisitor 提出的"双层适配"架构旨在解决这一痛点。
 
 这种设计不仅实现了"One API Access Any DataBase"的愿景，还带来了极高的灵活性：开发者既可以享受 dbVisitor 全栈的便捷，也可以仅使用其 JDBC 驱动，让现有的 MyBatis/Hibernate 项目瞬间具备操作 NoSQL 的能力。
 
-*** ** * ** ***
+<!-- truncate -->
 
 双层适配
 ----

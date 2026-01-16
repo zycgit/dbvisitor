@@ -26,7 +26,7 @@ The "Two-Layer Adapter" architecture proposed by dbVisitor aims to solve this pa
 
 This design not only realizes the vision of "One API Access Any DataBase", but also brings extremely high flexibility: developers can either enjoy the convenience of the full stack of dbVisitor, or use only its JDBC driver, allowing existing MyBatis/Hibernate projects to instantly possess the ability to operate NoSQL.
 
-*** ** * ** ***
+<!-- truncate -->
 
 Two-Layer Adapter
 ----
