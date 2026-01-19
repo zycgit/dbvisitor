@@ -6,7 +6,7 @@ title: 支持的命令
 description: jdbc-mongo 支持常用的 MongoDB 命令，涵盖数据库管理、集合操作、索引管理、用户管理等。
 ---
 
-`jdbc-mongo` 支持通过 SQL 风格的语法执行 MongoDB 命令。以下是支持的命令列表。
+`jdbc-mongo` 通过解析原始 Command 命令将其转换为底层的 API 调用。以下是支持的命令列表。
 
 :::tip[命令增强]
 对于原始的 MongoDB 命令中，`db.` 前缀的增强

@@ -6,7 +6,7 @@ title: 支持的命令
 description: jdbc-elastic 支持常用的 ElasticSearch REST API 命令，涵盖查询、文档操作、索引管理、集群信息等。
 ---
 
-`jdbc-elastic` 通过解析 SQL 风格的命令，将其转换为底层的 REST 请求。支持的命令模式如下：
+`jdbc-elastic` 通过解析原始 QueryDSL 命令，将其转换为底层的 REST 请求。支持的命令模式如下：
 
 ## 查询操作 (Search Operations)
 
