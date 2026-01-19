@@ -1,5 +1,4 @@
 package net.hasor.dbvisitor.adapter.redis;
-
 import java.lang.reflect.InvocationHandler;
 import java.sql.Connection;
 import java.sql.SQLException;
