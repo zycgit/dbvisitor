@@ -16,31 +16,30 @@
 package net.hasor.dbvisitor.adapter.redis;
 import net.hasor.dbvisitor.driver.JdbcDriver;
 
-public class JedisKeys {
-    public static final String ADAPTER_NAME        = JdbcDriver.P_ADAPTER_NAME;
-    public static final String ADAPTER_NAME_VALUE  = "jedis";
-    public static final String START_URL           = JdbcDriver.START_URL + ADAPTER_NAME_VALUE + ":";
-    public static final String DEFAULT_CLIENT_NAME = "Jedis-JDBC-Client";
+public interface JedisKeys {
+    String ADAPTER_NAME        = JdbcDriver.P_ADAPTER_NAME;
+    String ADAPTER_NAME_VALUE  = "jedis";
+    String START_URL           = JdbcDriver.START_URL + ADAPTER_NAME_VALUE + ":";
+    String DEFAULT_CLIENT_NAME = "Jedis-JDBC-Client";
 
     // for call
-    public static final String INTERCEPTOR      = "interceptor";
-    public static final String CUSTOM_JEDIS     = "customJedis";
-    public static final String UNCHECK_NUM_KEYS = "uncheckNumKeys";
-    public static final String SEPARATOR_CHAR   = "separatorChar";
-
+    String INTERCEPTOR      = "interceptor";
+    String CUSTOM_JEDIS     = "customJedis";
+    String UNCHECK_NUM_KEYS = "uncheckNumKeys";
+    String SEPARATOR_CHAR   = "separatorChar";
     // for client
-    public static final String SERVER          = JdbcDriver.P_SERVER;
-    public static final String TIME_ZONE       = JdbcDriver.P_TIME_ZONE;
-    public static final String CONN_TIMEOUT    = "connectTimeout";
-    public static final String SO_TIMEOUT      = "socketTimeout";
-    public static final String USERNAME        = JdbcDriver.P_USER;
-    public static final String PASSWORD        = JdbcDriver.P_PASSWORD;
-    public static final String DATABASE        = "database";
-    public static final String CLIENT_NAME     = "clientName";
+    String SERVER           = JdbcDriver.P_SERVER;
+    String TIME_ZONE        = JdbcDriver.P_TIME_ZONE;
+    String CONN_TIMEOUT     = "connectTimeout";
+    String SO_TIMEOUT       = "socketTimeout";
+    String USERNAME         = JdbcDriver.P_USER;
+    String PASSWORD         = JdbcDriver.P_PASSWORD;
+    String DATABASE         = "database";
+    String CLIENT_NAME      = "clientName";
     // for pool
-    public static final String MAX_TOTAL       = "maxTotal";
-    public static final String MAX_IDLE        = "maxIdle";
-    public static final String MIN_IDLE        = "minIdle";
-    public static final String TEST_WHILE_IDLE = "testWhileIdle";
-    public static final String MAX_ATTEMPTS    = "maxAttempts";
+    String MAX_TOTAL        = "maxTotal";
+    String MAX_IDLE         = "maxIdle";
+    String MIN_IDLE         = "minIdle";
+    String TEST_WHILE_IDLE  = "testWhileIdle";
+    String MAX_ATTEMPTS     = "maxAttempts";
 }

@@ -18,6 +18,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.io.IOUtils;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.dbvisitor.driver.AdapterConnection;
 import net.hasor.dbvisitor.driver.AdapterFactory;
@@ -95,9 +96,10 @@ public class ElasticConnFactory implements AdapterFactory {
 
     @Override
     public String[] getPropertyNames() {
-        return new String[] { ElasticKeys.SERVER, ElasticKeys.ADAPTER_NAME, ElasticKeys.TIME_ZONE,//
-                ElasticKeys.CONN_TIMEOUT, ElasticKeys.SO_TIMEOUT, ElasticKeys.USERNAME, ElasticKeys.PASSWORD,//
-                ElasticKeys.CLIENT_NAME, ElasticKeys.INDEX_REFRESH };
+        return new String[] { ElasticKeys.ADAPTER_NAME, ElasticKeys.CUSTOM_ELASTIC, ElasticKeys.SERVER, ElasticKeys.TIME_ZONE,//
+                ElasticKeys.USERNAME, ElasticKeys.PASSWORD, ElasticKeys.CLIENT_NAME, ElasticKeys.CONN_TIMEOUT, ElasticKeys.SO_TIMEOUT,//
+                ElasticKeys.PREREAD_ENABLED, ElasticKeys.PREREAD_THRESHOLD, ElasticKeys.PREREAD_MAX_FILE_SIZE, ElasticKeys.PREREAD_CACHE_DIR,//
+                ElasticKeys.INDEX_REFRESH };
     }
 
     @Override
@@ -107,6 +109,10 @@ public class ElasticConnFactory implements AdapterFactory {
 
     @Override
     public AdapterConnection createConnection(Connection owner, String jdbcUrl, Properties properties) throws SQLException {
+        if (!StringUtils.startsWithIgnoreCase(jdbcUrl, ElasticKeys.START_URL)) {
+            throw new SQLException("jdbcUrl is not a valid elastic url.");
+        }
+
         Map<String, String> caseProps = new LinkedCaseInsensitiveMap<>();
         if (properties != null) {
             properties.forEach((k, v) -> caseProps.put(k.toString(), v.toString()));
@@ -118,33 +124,38 @@ public class ElasticConnFactory implements AdapterFactory {
         }
         String customElastic = caseProps.get(ElasticKeys.CUSTOM_ELASTIC);
 
-        RestClient elasticClient;
-        if (StringUtils.isNotBlank(customElastic)) {
-            try {
-                Class<?> customMongoClass = ElasticConnFactory.class.getClassLoader().loadClass(customElastic);
-                CustomElastic customCmd = (CustomElastic) customMongoClass.newInstance();
-                elasticClient = customCmd.createElasticClient(jdbcUrl, caseProps);
-                if (elasticClient == null) {
-                    throw new SQLException("create Elastic connection failed, custom Elastic return null.");
+        RestClient elasticClient = null;
+        try {
+            if (StringUtils.isNotBlank(customElastic)) {
+                try {
+                    Class<?> customMongoClass = ElasticConnFactory.class.getClassLoader().loadClass(customElastic);
+                    CustomElastic customCmd = (CustomElastic) customMongoClass.newInstance();
+                    elasticClient = customCmd.createElasticClient(jdbcUrl, caseProps);
+                    if (elasticClient == null) {
+                        throw new SQLException("create Elastic connection failed, custom Elastic return null.");
+                    }
+                } catch (Exception e) {
+                    throw new SQLException(e);
                 }
-            } catch (Exception e) {
-                throw new SQLException(e);
-            }
-        } else if (host.contains(";")) {
-            List<HttpHost> clusterHosts = new ArrayList<>();
-            for (String h : StringUtils.split(host, ';')) {
-                clusterHosts.add(passerIpPort(h, 9200));
+            } else if (host.contains(";")) {
+                List<HttpHost> clusterHosts = new ArrayList<>();
+                for (String h : StringUtils.split(host, ';')) {
+                    clusterHosts.add(passerIpPort(h, 9200));
+                }
+
+                elasticClient = passerRestClient(caseProps, clusterHosts);
+            } else {
+                HttpHost hostAndPort = passerIpPort(host, 9200);
+                elasticClient = passerRestClient(caseProps, Collections.singletonList(hostAndPort));
             }
 
-            elasticClient = passerRestClient(caseProps, clusterHosts);
-        } else {
-            HttpHost hostAndPort = passerIpPort(host, 9200);
-            elasticClient = passerRestClient(caseProps, Collections.singletonList(hostAndPort));
+            ElasticCmd cmd = new ElasticCmd(elasticClient);
+            ElasticConn conn = new ElasticConn(owner, cmd, jdbcUrl, caseProps);
+            conn.initConnection();
+            return conn;
+        } catch (Exception e) {
+            IOUtils.closeQuietly(elasticClient);
+            throw e;
         }
-
-        ElasticCmd cmd = new ElasticCmd(elasticClient);
-        ElasticConn conn = new ElasticConn(owner, cmd, jdbcUrl, caseProps);
-        conn.initConnection();
-        return conn;
     }
 }

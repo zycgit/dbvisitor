@@ -24,6 +24,7 @@ import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.io.IOUtils;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.dbvisitor.driver.AdapterFactory;
 import net.hasor.dbvisitor.driver.AdapterTypeSupport;
@@ -133,7 +134,10 @@ public class MongoConnFactory implements AdapterFactory {
 
     @Override
     public String[] getPropertyNames() {
-        return new String[] { MongoKeys.SERVER, MongoKeys.ADAPTER_NAME, MongoKeys.TIME_ZONE, MongoKeys.CONN_TIMEOUT, MongoKeys.SO_TIMEOUT, MongoKeys.USERNAME, MongoKeys.PASSWORD, MongoKeys.CLIENT_NAME };
+        return new String[] { MongoKeys.ADAPTER_NAME, MongoKeys.CUSTOM_MONGO, MongoKeys.SERVER, MongoKeys.DATABASE, MongoKeys.TIME_ZONE,//
+                MongoKeys.USERNAME, MongoKeys.PASSWORD, MongoKeys.MECHANISM, MongoKeys.CLIENT_NAME, MongoKeys.CONN_TIMEOUT,//
+                MongoKeys.SO_TIMEOUT, MongoKeys.SO_SND_BUFF, MongoKeys.SO_RCV_BUFF, MongoKeys.RETRY_WRITES, MongoKeys.RETRY_READS,//
+                MongoKeys.PREREAD_ENABLED, MongoKeys.PREREAD_THRESHOLD, MongoKeys.PREREAD_MAX_FILE_SIZE, MongoKeys.PREREAD_CACHE_DIR };
     }
 
     @Override
@@ -158,39 +162,44 @@ public class MongoConnFactory implements AdapterFactory {
         String customMongo = caseProps.get(MongoKeys.CUSTOM_MONGO);
         String defaultDB = extractPathFromJdbcUrl(jdbcUrl, host);
         if (StringUtils.isBlank(defaultDB)) {
-            defaultDB = caseProps.get("database");
+            defaultDB = caseProps.get(MongoKeys.DATABASE);
         }
-        MongoClient mongoObject;
 
-        if (StringUtils.isNotBlank(customMongo)) {
-            try {
-                Class<?> customMongoClass = MongoConnFactory.class.getClassLoader().loadClass(customMongo);
-                CustomMongo customCmd = (CustomMongo) customMongoClass.newInstance();
-                mongoObject = customCmd.createMongoClient(jdbcUrl, caseProps);
-                if (mongoObject == null) {
-                    throw new SQLException("create Mongo connection failed, custom Mongo return null.");
+        MongoClient mongoObject = null;
+        try {
+            if (StringUtils.isNotBlank(customMongo)) {
+                try {
+                    Class<?> customMongoClass = MongoConnFactory.class.getClassLoader().loadClass(customMongo);
+                    CustomMongo customCmd = (CustomMongo) customMongoClass.newInstance();
+                    mongoObject = customCmd.createMongoClient(jdbcUrl, caseProps);
+                    if (mongoObject == null) {
+                        throw new SQLException("create Mongo connection failed, custom Mongo return null.");
+                    }
+                } catch (Exception e) {
+                    throw new SQLException(e);
                 }
-            } catch (Exception e) {
-                throw new SQLException(e);
-            }
-        } else if (host.contains(";")) {
-            List<ServerAddress> clusterHosts = new ArrayList<>();
-            for (String h : StringUtils.split(host, ';')) {
-                clusterHosts.add(passerIpPort(h, 27017));
+            } else if (host.contains(";")) {
+                List<ServerAddress> clusterHosts = new ArrayList<>();
+                for (String h : StringUtils.split(host, ';')) {
+                    clusterHosts.add(passerIpPort(h, 27017));
+                }
+
+                MongoClientSettings settings = passerMongoSettings(defaultDB, caseProps, clusterHosts);
+                mongoObject = MongoClients.create(settings);
+            } else {
+                ServerAddress hostAndPort = passerIpPort(host, 27017);
+                MongoClientSettings settings = passerMongoSettings(defaultDB, caseProps, Collections.singletonList(hostAndPort));
+                mongoObject = MongoClients.create(settings);
             }
 
-            MongoClientSettings settings = passerMongoSettings(defaultDB, caseProps, clusterHosts);
-            mongoObject = MongoClients.create(settings);
-        } else {
-            ServerAddress hostAndPort = passerIpPort(host, 27017);
-            MongoClientSettings settings = passerMongoSettings(defaultDB, caseProps, Collections.singletonList(hostAndPort));
-            mongoObject = MongoClients.create(settings);
+            MongoCmd cmd = new MongoCmd(mongoObject, defaultDB);
+            MongoConn conn = new MongoConn(owner, cmd, jdbcUrl, caseProps);
+            conn.initConnection();
+            return conn;
+        } catch (Exception e) {
+            IOUtils.closeQuietly(mongoObject);
+            throw e;
         }
-
-        MongoCmd cmd = new MongoCmd(mongoObject, defaultDB);
-        MongoConn conn = new MongoConn(owner, cmd, jdbcUrl, caseProps);
-        conn.initConnection();
-        return conn;
     }
 
     private static String extractPathFromJdbcUrl(String jdbcUrl, String host) throws SQLException {

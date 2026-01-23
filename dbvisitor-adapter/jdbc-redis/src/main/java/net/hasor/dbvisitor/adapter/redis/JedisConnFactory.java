@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.adapter.redis;
+import java.io.Closeable;
 import java.lang.reflect.InvocationHandler;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -24,6 +25,7 @@ import java.util.Properties;
 import java.util.Set;
 import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.io.IOUtils;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.dbvisitor.driver.AdapterFactory;
 import net.hasor.dbvisitor.driver.AdapterTypeSupport;
@@ -114,7 +116,11 @@ public class JedisConnFactory implements AdapterFactory {
 
     @Override
     public String[] getPropertyNames() {
-        return new String[] { JedisKeys.SERVER, JedisKeys.ADAPTER_NAME, JedisKeys.INTERCEPTOR, JedisKeys.TIME_ZONE, JedisKeys.CONN_TIMEOUT, JedisKeys.SO_TIMEOUT, JedisKeys.USERNAME, JedisKeys.PASSWORD, JedisKeys.DATABASE, JedisKeys.CLIENT_NAME, JedisKeys.MAX_TOTAL, JedisKeys.MAX_IDLE, JedisKeys.MIN_IDLE, JedisKeys.TEST_WHILE_IDLE };
+        return new String[] { JedisKeys.ADAPTER_NAME, JedisKeys.INTERCEPTOR, JedisKeys.CUSTOM_JEDIS, //
+                JedisKeys.UNCHECK_NUM_KEYS, JedisKeys.SEPARATOR_CHAR, JedisKeys.SERVER, JedisKeys.TIME_ZONE, //
+                JedisKeys.CONN_TIMEOUT, JedisKeys.SO_TIMEOUT, JedisKeys.USERNAME, JedisKeys.PASSWORD,//
+                JedisKeys.DATABASE, JedisKeys.CLIENT_NAME, JedisKeys.MAX_TOTAL, JedisKeys.MAX_IDLE, //
+                JedisKeys.MIN_IDLE, JedisKeys.TEST_WHILE_IDLE, JedisKeys.MAX_ATTEMPTS };
     }
 
     @Override
@@ -202,19 +208,27 @@ public class JedisConnFactory implements AdapterFactory {
             database = clientConfig.getDatabase();
         }
 
-        JedisConn jedisConn;
-        if (jedisObject instanceof JedisCluster) {
-            JedisCmd cmd = new JedisCmd((JedisCluster) jedisObject, this.createInvocation(caseProps));
-            jedisConn = new JedisConn(owner, cmd, jdbcUrl, caseProps, database);
-        } else if (jedisObject instanceof Jedis) {
-            JedisCmd cmd = new JedisCmd((Jedis) jedisObject, this.createInvocation(caseProps));
-            jedisConn = new JedisConn(owner, cmd, jdbcUrl, caseProps, database);
-        } else {
-            throw new SQLException("create jedis connection failed, unknown jedis object type " + jedisObject.getClass().getName());
-        }
+        Closeable closeable = null;
+        try {
+            JedisConn jedisConn;
+            if (jedisObject instanceof JedisCluster) {
+                closeable = () -> ((JedisCluster) jedisObject).close();
+                JedisCmd cmd = new JedisCmd((JedisCluster) jedisObject, this.createInvocation(caseProps));
+                jedisConn = new JedisConn(owner, cmd, jdbcUrl, caseProps, database);
+            } else if (jedisObject instanceof Jedis) {
+                closeable = () -> ((Jedis) jedisObject).close();
+                JedisCmd cmd = new JedisCmd((Jedis) jedisObject, this.createInvocation(caseProps));
+                jedisConn = new JedisConn(owner, cmd, jdbcUrl, caseProps, database);
+            } else {
+                throw new SQLException("create jedis connection failed, unknown jedis object type " + jedisObject.getClass().getName());
+            }
 
-        jedisConn.initConnection();
-        return jedisConn;
+            jedisConn.initConnection();
+            return jedisConn;
+        } catch (Exception e) {
+            IOUtils.closeQuietly(closeable);
+            throw e;
+        }
     }
 
     private InvocationHandler createInvocation(Map<String, String> props) throws SQLException {
