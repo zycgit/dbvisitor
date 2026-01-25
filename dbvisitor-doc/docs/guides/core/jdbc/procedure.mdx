@@ -27,7 +27,7 @@ end;
 ```
 
 - ➊ 调用 proc_select_table 存储过程，并且通过位置参数形式传递入参。
-- ➋ 通过 [RESULT 规则](../../rules/assist_rule#result-set) 声明在调用存储过程后，将产生的结果集映射为 UserDTO 对象。
+- ➋ 通过 [RESULT 规则](../../rules/result_rule#result-set) 声明在调用存储过程后，将产生的结果集映射为 UserDTO 对象。
 
 ```java title='3. 执行存储过程'
 JdbcTemplate jdbc = ...
@@ -38,10 +38,10 @@ List<UserDTO> result = (List<UserDTO>)res.get("res"); ➌
 
 - ➊ 配置了规则后调用存储过程的最终 SQL 语句。
 - ➋ 传递入参
-- ➌ 获取 [RESULT 规则](../../rules/assist_rule#result-set) 处理后的结果集，名称为 res。
+- ➌ 获取 [RESULT 规则](../../rules/result_rule#result-set) 处理后的结果集，名称为 res。
 
 :::info
-如果存储过程有意或者无意产生多个结果集，可以通过使用多个 **[RESULT 规则](../../rules/assist_rule#result-set)** 来分别处理它们。
+如果存储过程有意或者无意产生多个结果集，可以通过使用多个 **[RESULT 规则](../../rules/result_rule#result-set)** 来分别处理它们。
 :::
 
 ## 使用名称参数

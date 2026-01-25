@@ -68,7 +68,7 @@ List<User> result2 = result.get("res2"); // 对应 ➎ 语句的结果
 ```
 
 :::info
-更多关于 `@{resultSet,xxx}` 规则的用法请参考 **<span class="badge badge--warning">[RESULT 规则](../../rules/assist_rule#result-set)</span>**。
+更多关于 `@{resultSet,xxx}` 规则的用法请参考 **<span class="badge badge--warning">[RESULT 规则](../../rules/result_rule#result-set)</span>**。
 :::
 
 :::info

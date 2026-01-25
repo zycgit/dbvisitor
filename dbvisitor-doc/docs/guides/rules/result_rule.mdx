@@ -1,0 +1,58 @@
+---
+id: result_rule
+sidebar_position: 3
+hide_table_of_contents: true
+title: 7.2 结果处理规则
+description: 包含结果集转换处理规则，以及存储过程、多结果集相关的辅助规则。
+---
+import TagRed from '@site/src/components/tags/TagRed';
+import TagGray from '@site/src/components/tags/TagGray';
+import TagYellow from '@site/src/components/tags/TagYellow';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# 结果处理规则
+
+本章介绍如何通过规则对查询结果进行后置处理，以及在存储过程等复杂场景下使用的辅助规则。
+
+| 规则 | 描述 |
+|:---|:---|
+| [`@{resultSet}`](#result-set) | 配置结果集映射策略（用于存储过程/多结果集）。 |
+| [`@{defaultResult}`](#default) | 配置默认的结果集映射策略。 |
+
+---
+
+## 辅助规则
+
+### RESULT 规则 {#result-set}
+
+`@{resultSet}` 规则本身不影响 SQL 生成，但在 **存储过程** 或 **多结果集查询** 场景下，用于指导 dbVisitor 如何映射返回的数据。
+
+**语法**：
+`@{resultSet, key1 = value1, key2 = value2}`
+
+**支持场景**：
+- [存储过程调用](../core/jdbc/procedure)
+- [多结果集查询](../core/jdbc/multi)
+
+**属性说明**：
+
+| 名称 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| `name` | String | OUT 参数在结果集中的名称。用于 `INOUT` 参数区分。 |
+| `javaType` | Class | 将结果集映射到的 Java 类型。详见 [对象映射](../core/mapping/about)。 |
+| `rowMapper` | RowMapper | 使用自定义 [RowMapper](../result/for_mapper) 处理映射。 |
+| `rowHandler` | RowCallbackHandler | 使用自定义 [RowCallbackHandler](../result/row_callback) 处理每一行。 |
+| `extractor` | ResultSetExtractor | 使用自定义 [ResultSetExtractor](../result/for_extractor) 处理整个结果集。 |
+
+---
+
+### DEFAULTRESULT 规则 {#default}
+
+`@{defaultResult}` 相当于 `@{resultSet}` 的全局默认配置。当一个查询返回多个结果集时，可以使用此规则避免为每个结果集重复配置。
+
+**语法**：
+`@{defaultResult, key1 = value1, key2 = value2}`
+
+**属性说明**：
+支持 `javaType`, `rowMapper`, `rowHandler`, `extractor`，含义同上。

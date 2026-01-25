@@ -31,7 +31,7 @@ end;
 ```
 
 - ➊ Calls `proc_select_table` with positional argument binding.
-- ➋ Uses the [RESULT rule](../../rules/assist_rule#result-set) to map the result set to `UserDTO`.
+- ➋ Uses the [RESULT rule](../../rules/result_rule#result-set) to map the result set to `UserDTO`.
 
 ```java title='3. Execute'
 JdbcTemplate jdbc = ...
@@ -45,7 +45,7 @@ List<UserDTO> result = (List<UserDTO>)res.get("res"); ➌
 - ➌ Retrieve the result set named `res`.
 
 :::info
-If the procedure emits multiple result sets, add more **[RESULT rules](../../rules/assist_rule#result-set)** to handle each one.
+If the procedure emits multiple result sets, add more **[RESULT rules](../../rules/result_rule#result-set)** to handle each one.
 :::
 
 ## Named Arguments

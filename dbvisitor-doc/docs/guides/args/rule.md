@@ -8,57 +8,32 @@ description: 语句中通过 @{...} 写法，可以借助规则机制，优雅�
 
 # 规则传参
 
-语句中通过 `@{...}` 写法，可以借助 [规则](../rules/about) 机制，优雅的处理一些常见动态 SQL 场景。
+在 SQL 中通过 `@{...}` 的方式传递参数并调用内置规则引擎处理。这种方式允许 SQL 语句根据参数值动态变化，而无需编写复杂的 `if/else` 或 XML 标签。
 
-```sql title='例如当 name 不为空时，才作为参数添加到 SQL 语句中'
+## 为什么使用规则
+
+*   **简洁直观**：摆脱繁杂的 XML 标签（如 MyBatis 的 `<if>`, `<foreach>`），让 SQL 回归 SQL。
+*   **智能处理**：自动处理空值判断、前缀/后缀处理（如自动去除多余的 AND/OR 或逗号）。
+*   **功能强大**：内置了 `and`、`or`、`in`、`set`、`case` 等丰富规则，满足绝大多数动态 SQL 需求。
+
+## 基本示例
+
+以最常见的 `AND` 规则为例，它可以智能地根据参数 (`:name`) 是否为空来决定是否拼接查询条件：
+
+```sql
+-- 使用 @{and, ...} 规则
 select * from users where id > :id @{and, name = :name}
 ```
 
-## AND 规则
+*   如果 `name` 不为空：生成 `... where id > ? and name = ?`
+*   如果 `name` 为空：规则自动忽略，生成 `... where id > ?`
 
-```sql title='AND 规则'
-select * from users where id > :id @{and, name = :name}
-```
+## 更多规则
 
-- 当名称参数 `name` 不为空时，会在 where 语句的条件中追加 `and name = ?` 作为查询条件。
-- 最终生成的语句：
-  - `name` 属性为空：`select * from users where id > ?`
-  - `name` 属性不为空：`select * from users where id > ? and name = ?`
+dbVisitor 提供了丰富的内置规则（如 `in` 集合查询、`set` 动态更新、`case` 分支判断等），甚至支持自定义规则。
 
-## OR 规则
+- [语句生成规则](../rules/dynamic_rule) - 包含 `@{and}` `@{or}` `@{in}` `@{set}` `@{case}` 等。
+- [结果处理规则](../rules/result_rule) - 对结果集进行后续处理的规则。
+- [嵌套规则用法](../rules/nested_rule) - 介绍如何通过嵌套规则实现复杂逻辑。
 
-```sql title='OR 规则'
-select * from users where id > :id @{or, name = :name}
-```
-
-- 当名称参数 `name` 不为空时，会在 where 语句的条件中追加 `or name = ?` 作为查询条件。
-- 最终生成的语句：
-  - `name` 属性为空：`select * from users where id > ?`
-  - `name` 属性不为空：`select * from users where id > ? or name = ?`
-
-## SET 规则
-
-```sql title='SET 规则'
-update users set modify_time = ? @{set, status = :status} where id > :id
-```
-
-- 当名称参数 `status` 不为空时，会在 set 语句中追加 `status = ?` 作为更新项。
-- 最终生成的语句：
-  - `status` 属性为空：`update users set modify_time = ? where id > ?`
-  - `status` 属性不为空：`update users set modify_time = ?, status = ? where id > ?`
-
-## IN 规则
-
-```sql title='IN 规则'
-select * from users where status = true @{in,and id in :ids}
-```
-
-- 例如：参数 `ids` 有 3 个元素时候。IN 规则会在 where 语句后面追加类似 `and id in (?, ?, ?)` 条件项。条件项中的参数数量由元素数量决定。
-- 最终生成的语句：
-  - `ids` 属性为空：`select * from users where status = true`
-  - `ids` 属性不为空：`select * from users where status = true and id in (?, ?, ?)`
-
-:::info[关于规则]
-- dbVisitor 内置了丰富的规则可以完成不同需要。
-- 更多详细资料请 [点击这里](../rules/about) 查看。
-:::
+👉 **[点击查阅 规则系统 详细文档](../rules/about)**

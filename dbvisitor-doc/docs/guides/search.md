@@ -43,12 +43,14 @@ description: 本文会略过 API 概述部分并以更加直观的形式按照�
 - Mapper 接口在和 Mapper XML 文件建立关系后通过 [分页对象](./core/file/page) 进行分页查询。
 
 ### 动态 SQL
-- 在 SQL 语句中通过 [MACRO 规则](./rules/macro_rule#macro) 注入预先定义的 SQL 片段（需要自行评估 SQL 注入安全风险）
-- 在 SQL 语句中通过 [IFTEXT 规则](./rules/macro_rule#macro) 或 [`${...}`](./args/inject) 语法实现 SQL 注入（需要自行评估 SQL 注入安全风险）
-- 通过 [AND](./rules/dynamic_rule#and)、[OR](./rules/dynamic_rule#or)、[SET](./rules/dynamic_rule#set) 规则增强 SQL 语句。
+- 规则手册：[动态 SQL 规则](./rules/dynamic_rule) 、[嵌套规则](./rules/nested_rule) 、[结果处理](./rules/result_rule) 等。
+- 在 SQL 语句中通过 [MACRO 规则](./rules/dynamic_rule#macro) 注入预先定义的 SQL 片段（需要自行评估 SQL 注入安全风险）
+- 在 SQL 语句中通过 [IFTEXT 规则](./rules/dynamic_rule#macro) 或 [`${...}`](./args/inject) 语法实现 SQL 注入（需要自行评估 SQL 注入安全风险）
+- 通过 [AND](./rules/dynamic_rule#and)、[OR](./rules/dynamic_rule#or)、[SET](./rules/dynamic_rule#set)、[CASE](./rules/dynamic_rule#case) 规则增强 SQL 语句。
 - 利用 [IN](./rules/dynamic_rule#in) 规则，可以自动根据集合参数的数量为 SQL 语句中生成对应的 `(?,?,?,?)`。
 - 利用 [IFAND](./rules/dynamic_rule#and)、[IFOR](./rules/dynamic_rule#or)、[IFSET](./rules/dynamic_rule#set)、[IFIN](./rules/dynamic_rule#in) 规则，允许通过一个条件参数来控制规则是否有效。
 - 规则还可以处理 [一段 SQL](/blog/rule_multiple_conditions) 而不仅仅是一个参数。
+- 嵌套规则: `@{case, ... @{and, ...}}` 通过嵌套，让 SQL 具备逻辑处理能力。
 - 在 Mapper File 中使用 [&lt;if&gt;](./core/file/dynamic#if)、[&lt;choose&gt;、&lt;when&gt;、&lt;otherwise&gt;](./core/file/dynamic#choose) 标签进行条件判断。
 - 在 Mapper File 中使用 [&lt;trim&gt;、&lt;where&gt;、&lt;set&gt;](./core/file/dynamic#trim) 标签增强特定 SQL 语句的生成。
 - 在 Mapper File 中使用 [&lt;foreach&gt;](./core/file/dynamic#foreach) 标签处理循环需求。

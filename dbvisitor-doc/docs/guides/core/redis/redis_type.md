@@ -70,7 +70,7 @@ hashData.put("field1", "value1");
 hashData.put("field2", "value2");
 jdbc.executeUpdate("HSET myKey1 @{pairs, :arg0, :k :v}", SqlArg.valueOf(hashData));
 ```
-- 参考：[HSET 命令](https://redis.io/docs/latest/commands/hset/)、[PAIRS 规则](../../rules/args_rule#pairs)
+- 参考：[HSET 命令](https://redis.io/docs/latest/commands/hset/)、[PAIRS 规则](../../rules/dynamic_rule#pairs)
 
 ## 列表 {#list}
 
@@ -98,7 +98,7 @@ listData.add("value1");
 listData.add("value2");
 jdbc.executeUpdate("LPUSH myListKey @{pairs, :arg0, :v}", SqlArg.valueOf(listData));
 ```
-- 参考：[LPUSH 命令](https://redis.io/docs/latest/commands/lpush/)、[PAIRS 规则](../../rules/args_rule#pairs)
+- 参考：[LPUSH 命令](https://redis.io/docs/latest/commands/lpush/)、[PAIRS 规则](../../rules/dynamic_rule#pairs)
 
 ## 集合 {#set}
 
@@ -122,7 +122,7 @@ hashData.put("field2", "value2");
 jdbc.executeUpdate("SADD myKey1 @{pairs, :arg0, :k}", SqlArg.valueOf(hashData));
 jdbc.queryForList("SMEMBERS myKey1", String.class); // 结果为 [field1, field2]
 ```
-- 参考：[SADD 命令](https://redis.io/docs/latest/commands/sadd/)、[PAIRS 规则](../../rules/args_rule#pairs)
+- 参考：[SADD 命令](https://redis.io/docs/latest/commands/sadd/)、[PAIRS 规则](../../rules/dynamic_rule#pairs)
 
 ## 有序集合 {#sorted_set}
 
@@ -142,7 +142,7 @@ hashData.put("field3", 1.0);
 jdbc.executeUpdate("ZADD myKey1 @{pairs, :arg0, :v :k}", SqlArg.valueOf(hashData));
 jdbc.queryForList("ZRANGEBYSCORE myKey1 -inf +inf ", String.class); // 结果为 [field3, field2, field1]
 ```
-- 参考：[SADD 命令](https://redis.io/docs/latest/commands/sadd/)、[PAIRS 规则](../../rules/args_rule#pairs)
+- 参考：[SADD 命令](https://redis.io/docs/latest/commands/sadd/)、[PAIRS 规则](../../rules/dynamic_rule#pairs)
 
 ```java title="借助元组类型和 @{pairs} 规则将带有分数的数据存入 ZSet 中"
 List<Tuple> data = new ArrayList<>();
@@ -152,6 +152,6 @@ data.add(Tuple.of("field3", 1.0));
 jdbc.queryForString("ZADD myKey1 @{pairs, :arg0, :v.arg1 :v.arg0 }", SqlArg.valueOf(data));
 jdbc.queryForList("ZRANGEBYSCORE myKey1 -inf +inf ", String.class); // 结果为 [field3, field2, field1]
 ```
-- 参考：[SADD 命令](https://redis.io/docs/latest/commands/sadd/)、[PAIRS 规则](../../rules/args_rule#pairs)
+- 参考：[SADD 命令](https://redis.io/docs/latest/commands/sadd/)、[PAIRS 规则](../../rules/dynamic_rule#pairs)
 - 除了元组类型，还可以使用 Map 类型、用户自定义类型来存储元素和分数
   - `:v.arg1` 是使用了 [名称参数](../../args/named) 方式来传递参数

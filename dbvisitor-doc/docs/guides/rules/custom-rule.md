@@ -1,8 +1,8 @@
 ---
 id: custom-rule
-sidebar_position: 6
+sidebar_position: 5
 hide_table_of_contents: true
-title: 7.6 自定义规则
+title: 7.4 自定义规则
 description: 当 dbVisitor 内置规则无法满足需要时。可以通过自定义方式拓展所需规则。
 ---
 

@@ -45,16 +45,18 @@ This page skips the API overview and organizes links by usage scenarios for quic
 - Use Session [queryStatement / pageStatement](./core/mapper/file#page) overloads for pagination.
 - After binding Mapper interfaces to XML, use a [Page object](./core/file/page) for pagination.
 
-### Dynamic Command
-- Inject predefined fragments with [MACRO rules](./rules/macro_rule#macro) (assess injection risks).
-- Use [IFTEXT rules](./rules/macro_rule#macro) or [`${...}`](./args/inject) for injection (assess injection risks).
-- Enhance SQL with [AND](./rules/dynamic_rule#and), [OR](./rules/dynamic_rule#or), [SET](./rules/dynamic_rule#set).
-- [IN](./rules/dynamic_rule#in) auto-generates `(?,?,?,?)` based on collection size.
-- Conditional rules: [IFAND](./rules/dynamic_rule#and), [IFOR](./rules/dynamic_rule#or), [IFSET](./rules/dynamic_rule#set), [IFIN](./rules/dynamic_rule#in).
-- Rules can process [SQL fragment](/blog/rule_multiple_conditions), not just a single parameter.
-- In Mapper files, use [&lt;if&gt;](./core/file/dynamic#if), [&lt;choose&gt; / &lt;when&gt; / &lt;otherwise&gt;](./core/file/dynamic#choose).
-- In Mapper files, use [&lt;trim&gt; / &lt;where&gt; / &lt;set&gt;](./core/file/dynamic#trim) to refine SQL generation.
-- In Mapper files, use [&lt;foreach&gt;](./core/file/dynamic#foreach) for loops.
+### Dynamic SQL
+- Rules Manual: [Dynamic SQL Rules](./rules/dynamic_rule), [Nested Rules](./rules/nested_rule), [Result Processing](./rules/result_rule), etc.
+- Inject predefined SQL fragments via [MACRO rules](./rules/dynamic_rule#macro) in SQL statements (assess SQL injection security risks yourself).
+- Achieve SQL injection via [IFTEXT rules](./rules/dynamic_rule#macro) or [`${...}`](./args/inject) syntax in SQL statements (assess SQL injection security risks yourself).
+- Enhance SQL statements via [AND](./rules/dynamic_rule#and), [OR](./rules/dynamic_rule#or), [SET](./rules/dynamic_rule#set), [CASE](./rules/dynamic_rule#case) rules.
+- Use [IN](./rules/dynamic_rule#in) rule to automatically generate corresponding `(?,?,?,?)` in SQL statements based on collection parameter size.
+- Use [IFAND](./rules/dynamic_rule#and), [IFOR](./rules/dynamic_rule#or), [IFSET](./rules/dynamic_rule#set), [IFIN](./rules/dynamic_rule#in) rules to control rule validity via a condition parameter.
+- Rules can also process [a segment of SQL](/blog/rule_multiple_conditions) not just a parameter.
+- Nested rules: `@{case, ... @{and, ...}}` enable logical processing capabilities in SQL via nesting.
+- Use [&lt;if&gt;](./core/file/dynamic#if), [&lt;choose&gt;, &lt;when&gt;, &lt;otherwise&gt;](./core/file/dynamic#choose) tags in Mapper File for conditional judgment.
+- Use [&lt;trim&gt;, &lt;where&gt;, &lt;set&gt;](./core/file/dynamic#trim) tags in Mapper File to enhance specific SQL statement generation.
+- Use [&lt;foreach&gt;](./core/file/dynamic#foreach) tag in Mapper File to handle loop requirements.
 
 ### Object mapping
 - Use [@Table and @Column](./core/mapping/basic) annotations for mapping.

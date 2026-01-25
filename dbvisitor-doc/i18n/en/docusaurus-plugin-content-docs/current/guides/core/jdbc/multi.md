@@ -69,7 +69,7 @@ List<User> result2 = (List<User>) result.get("res2"); // statement ➎
 ```
 
 :::info
-See **<span class="badge badge--warning">[RESULT rule](../../rules/assist_rule#result-set)</span>** for more on `@{resultSet,...}`.
+See **<span class="badge badge--warning">[RESULT rule](../../rules/result_rule#result-set)</span>** for more on `@{resultSet,...}`.
 :::
 
 :::info

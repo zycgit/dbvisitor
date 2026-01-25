@@ -73,7 +73,7 @@ hashData.put("field1", "value1");
 hashData.put("field2", "value2");
 jdbc.executeUpdate("HSET myKey1 @{pairs, :arg0, :k :v}", SqlArg.valueOf(hashData));
 ```
-- Reference: [HSET command](https://redis.io/docs/latest/commands/hset/), [PAIRS rule](../../rules/args_rule#pairs)
+- Reference: [HSET command](https://redis.io/docs/latest/commands/hset/), [PAIRS rule](../../rules/dynamic_rule#pairs)
 
 ## List {#list}
 
@@ -101,7 +101,7 @@ listData.add("value1");
 listData.add("value2");
 jdbc.executeUpdate("LPUSH myListKey @{pairs, :arg0, :v}", SqlArg.valueOf(listData));
 ```
-- Reference: [LPUSH command](https://redis.io/docs/latest/commands/lpush/), [PAIRS rule](../../rules/args_rule#pairs)
+- Reference: [LPUSH command](https://redis.io/docs/latest/commands/lpush/), [PAIRS rule](../../rules/dynamic_rule#pairs)
 
 ## Set {#set}
 
@@ -125,7 +125,7 @@ hashData.put("field2", "value2");
 jdbc.executeUpdate("SADD myKey1 @{pairs, :arg0, :k}", SqlArg.valueOf(hashData));
 jdbc.queryForList("SMEMBERS myKey1", String.class); // result: [field1, field2]
 ```
-- Reference: [SADD command](https://redis.io/docs/latest/commands/sadd/), [PAIRS rule](../../rules/args_rule#pairs)
+- Reference: [SADD command](https://redis.io/docs/latest/commands/sadd/), [PAIRS rule](../../rules/dynamic_rule#pairs)
 
 ## Sorted Set {#sorted_set}
 
@@ -145,7 +145,7 @@ hashData.put("field3", 1.0);
 jdbc.executeUpdate("ZADD myKey1 @{pairs, :arg0, :v :k}", SqlArg.valueOf(hashData));
 jdbc.queryForList("ZRANGEBYSCORE myKey1 -inf +inf ", String.class); // result: [field3, field2, field1]
 ```
-- Reference: [SADD command](https://redis.io/docs/latest/commands/sadd/), [PAIRS rule](../../rules/args_rule#pairs)
+- Reference: [SADD command](https://redis.io/docs/latest/commands/sadd/), [PAIRS rule](../../rules/dynamic_rule#pairs)
 
 ```java title="Store scored data using tuples and the @{pairs} rule"
 List<Tuple> data = new ArrayList<>();
@@ -155,6 +155,6 @@ data.add(Tuple.of("field3", 1.0));
 jdbc.queryForString("ZADD myKey1 @{pairs, :arg0, :v.arg1 :v.arg0 }", SqlArg.valueOf(data));
 jdbc.queryForList("ZRANGEBYSCORE myKey1 -inf +inf ", String.class); // result: [field3, field2, field1]
 ```
-- Reference: [SADD command](https://redis.io/docs/latest/commands/sadd/), [PAIRS rule](../../rules/args_rule#pairs)
+- Reference: [SADD command](https://redis.io/docs/latest/commands/sadd/), [PAIRS rule](../../rules/dynamic_rule#pairs)
 - Besides tuples, you can also use Map or custom types to store elements and scores.
   - `:v.arg1` uses [named arguments](../../args/named) to pass values.

@@ -1,0 +1,508 @@
+---
+id: dynamic_rule
+sidebar_position: 2
+hide_table_of_contents: true
+title: 7.1 语句生成规则
+description: SQL 动态规则手册，包含 AND、OR、IN、SET、CASE 等语法说明。
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# 语句生成规则
+
+本章介绍如何使用 SQL 增强规则来简化动态 SQL 开发。相比 XML 标签，它们能更智能地处理空参数、连接符（AND/OR）和逗号分隔符。
+
+| 规则 | 描述 |
+|:---|:---|
+| [`@{and}`](#and) / [`@{ifand}`](#and) | 智能追加 `AND` 条件。 |
+| [`@{or}`](#or) / [`@{ifor}`](#or) | 智能追加 `OR` 条件。 |
+| [`@{in}`](#in) / [`@{ifin}`](#in) | 展开集合参数为 `IN (v1, v2)`。 |
+| [`@{set}`](#set) / [`@{ifset}`](#set) | 智能处理 `UPDATE` 语句的 `SET` 逗号。 |
+| [`@{case}`](#case) / [`@{when}`](#case) / [`@{else}`](#case)| 多路分支 (Switch / If-Else)。 |
+| [`@{macro}`](#macro) / [`@{ifmacro}`](#macro) | 引用预定义的 SQL 宏片段。 |
+| [`@{iftext}`](#iftext) | 条件性地注入原生 SQL 文本。 |
+| [`@{md5}`](#md5) | 计算参数 MD5 值。 |
+| [`@{uuid32}`](#uuid) / [`@{uuid36}`](#uuid) | 生成 UUID。 |
+| [`@{pairs}`](#pairs) | 遍历 Map/List 生成参数模版。 |
+
+---
+
+## AND、IFAND 规则 {#and}
+
+解决 `WHERE` 子句中动态拼接 `AND` 条件的问题。
+- **`@{and, ...}`**：当包含的 SQL 片段生成了非空参数（或包含 `${...}` 注入）时，自动追加该片段。
+- **`@{ifand, test, ...}`**：当 `test` 表达式为真时，应用后续逻辑。
+
+### 特性说明
+
+1. **自动前缀去除**：规则会自动处理 `WHERE` 关键字和最前面多余的 `AND`，例如 `WHERE @{and, AND x=1}` 会优化为 `WHERE x=1`。
+2. **智能空值丢弃**：
+   - 默认情况下，如果 `@{and, col=:val}` 中的 `:val` 为空 (null)，则整个片段会被丢弃。
+   - **例外**：如果片段中包含 `${...}` 动态注入，即使参数为空，该片段也会被强制保留（防止误删筛选逻辑）。
+
+### 示例
+
+<Tabs>
+  <TabItem value="rule-style" label="使用规则" default>
+
+**示例**：`status` 必填，`userId` 选填。无需手动处理 WHERE/AND 连接符。
+
+```sql
+select * from users 
+where status = :status      -- 固定条件
+      @{and, uid = :userId} -- 自动处理 AND 前缀
+      -- 仅当 userId 不为空且长度>0 时生效
+      @{ifand, userId != null && userId.length() > 0, uid = :userId}
+```
+
+```sql title="生成的 SQL (status=1, userId='abc')"
+select * from users
+where status = ? and uid = ? 
+```
+
+  </TabItem>
+  <TabItem value="xml-style" label="XML 对照">
+
+```xml
+<select id="queryUser">
+    select * from users
+    where status = #{status}
+    <if test="userId != null">
+        and uid = #{userId}
+    </if>
+</select>
+```
+
+  </TabItem>
+</Tabs>
+
+:::info 智能特性
+- **自动补全 WHERE**：若规则位于条件首位，会自动补全 `WHERE` 关键字。
+- **自动处理前缀**：智能识别上下文，自动去除或添加必要的 `AND`。
+- **自动降级**：若前文是 `OR`，会自动适配。
+:::
+
+---
+
+## OR、IFOR 规则 {#or}
+
+解决 `WHERE` 子句中动态拼接 `OR` 条件的问题。
+- **`@{or, ...}`**：当包含的 SQL 片段生成了非空参数时，自动追加该片段。
+- **`@{ifor, test, ...}`**：当 `test` 表达式为真时，应用后续逻辑。
+
+<Tabs>
+  <TabItem value="rule-style" label="使用规则" default>
+
+**示例**：匹配用户名或邮箱。自动处理 OR 连接符。
+
+```sql
+select * from users 
+where username = :username 
+      @{or, email = :email} -- 自动以 OR 连接
+      -- 仅当 email 包含 '@' 时生效
+      @{ifor, email != null && email.contains("@"), email = :email}
+```
+
+```sql title="生成的 SQL (username='admin', email='a@b.c')"
+select * from users
+where username = ? or email = ?
+```
+
+  </TabItem>
+  <TabItem value="xml-style" label="XML 对照">
+
+```xml
+<select id="queryUser">
+    select * from users
+    where username = #{username}
+    <if test="email != null">
+        or email = #{email}
+    </if>
+</select>
+```
+
+  </TabItem>
+</Tabs>
+
+:::info 智能特性
+与 AND 规则一致，具备自动补全 `WHERE` 和自动修正连接符（OR）的能力。
+:::
+
+---
+
+## IN、IFIN 规则 {#in}
+
+用于简化 `IN` 子句的拼接，自动展平集合参数。
+- **`@{in, ...}`**：自动将集合/数组参数展平为 `(?, ?, ...)`。
+- **`@{ifin, test, ...}`**：当 `test` 表达式为真时生效。
+
+<Tabs>
+  <TabItem value="rule-style" label="使用规则" default>
+
+**示例**：查询 ID 在列表中的用户。
+
+```sql
+select * from users
+where status = :status
+      @{in, and id in :ids} -- 自动展开为 id in (?,?,?)
+      -- 仅当 ids 集合非空时生效
+      @{ifin, ids != null && ids.size() > 0, and id in :ids}
+```
+
+```sql title="生成的 SQL (ids=[1,2,3])"
+select * from users
+where status = ? and id in (?, ?, ?)
+```
+
+  </TabItem>
+  <TabItem value="xml-style" label="XML 对照">
+
+```xml
+<select id="queryUser">
+    select * from users
+    where status = #{status}
+    <if test="ids != null and ids.size() > 0">
+        and id in 
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </if>
+</select>
+```
+
+  </TabItem>
+</Tabs>
+
+:::caution 注意事项
+本规则**不会**自动补全 `AND`/`OR` 前缀，需在规则内手动写明（如示例中的 `and id in ...`）。
+:::
+
+---
+
+## SET、IFSET 规则 {#set}
+
+专用于 `UPDATE` 语句，解决动态列更新时的逗号拼接问题。
+- **`@{set, ...}`**：参数非空时追加赋值，并自动管理逗号。
+- **`@{ifset, test, ...}`**：当 `test` 表达式为真时生效。
+
+<Tabs>
+  <TabItem value="rule-style" label="使用规则" default>
+
+**示例**：更新用户，`status` 为选填。
+
+```sql
+update users 
+set update_time = now()      -- 固定列
+    @{set, status = :status} -- 自动处理逗号
+    -- 仅当 status != 'disabled' 时更新
+    @{ifset, status != null && status != 'disabled', status = :status}
+where uid = :uid
+```
+
+```sql title="生成的 SQL (status='Active')"
+update users 
+set update_time = now(), status = ?
+where uid = ?
+```
+
+  </TabItem>
+  <TabItem value="xml-style" label="XML 对照">
+
+```xml
+<update id="updateUser">
+    update users 
+    set update_time = now()
+    <if test="status != null">
+        , status = #{status}
+    </if>
+    where uid = #{uid}
+</update>
+```
+
+  </TabItem>
+</Tabs>
+
+:::info 智能特性
+会自动识别并去除生成的 SQL 片段中多余的前缀逗号。
+:::
+
+---
+
+## CASE、WHEN、ELSE 规则 {#case}
+
+提供 SQL 生成阶段的分支逻辑，支持 **Switch** (值匹配) 和 **If-Else** (条件匹配) 两种模式。
+
+<Tabs>
+  <TabItem value="switch-style" label="Switch 模式" default>
+
+**值匹配**：`@{case}` 第一个参数为变量。
+
+```sql
+select * from users where @{case, userType, 
+    @{when, 'admin',   role = 'administrator'}, 
+    @{when, 'manager', role = 'manager'}, 
+    @{else,            role = 'visitor'} 
+}
+```
+
+```sql title="生成的 SQL (userType='admin')"
+select * from users
+where role = 'administrator'
+```
+
+  </TabItem>
+  <TabItem value="ifelse-style" label="If-Else 模式">
+
+**表达式匹配**：`@{case}` 第一个参数为空。
+
+```sql
+select * from users where @{case, , 
+    @{when, userType == 'admin',   role = 'administrator'}, 
+    @{when, userType == 'manager', role = 'manager'}, 
+    @{else,                        role = 'visitor'} 
+}
+```
+
+```sql title="生成的 SQL (userType='admin')"
+select * from users
+where role = 'administrator'
+```
+
+  </TabItem>
+  <TabItem value="xml-style" label="XML 对照">
+
+```xml
+<select id="queryUser">
+    select * from users where
+    <choose>
+        <when test="userType == 'admin'">role = 'administrator'</when>
+        <when test="userType == 'manager'">role = 'manager'</when>
+        <otherwise>role = 'visitor'</otherwise>
+    </choose>
+</select>
+```
+
+  </TabItem>
+</Tabs>
+
+:::info 使用须知
+- **模式切换**：通过第一个参数是否存在来切换 Switch / If-Else 模式。
+- **Else**：`@{else}` 必须写在最后。
+- **默认值**：若无匹配且无 `else`，输出空字符串。
+:::
+
+---
+
+## MACRO、IFMACRO 规则 {#macro}
+
+用于将预先定义的 SQL 片段（宏）包含进最终 SQL 中，类似于 XML 映射文件中的 `<include>` 标签。
+
+- **`@{macro, name}`**：引用名称为 `name` 的 SQL 宏。
+- **`@{ifmacro, test_expr, name}`**：当 `test_expr` 为真时，引用名称为 `name` 的 SQL 宏。
+
+<Tabs>
+  <TabItem value="rule-style" label="使用规则" default>
+
+**1. 注册宏 (Java)**
+```java
+// 在 API Binder 或 Registry 中注册
+registry.addMacro("includeSeq", "and seq = :seq");
+```
+
+**2. 引用宏 (SQL)**
+```sql
+select * from users where
+    status = :status
+    @{macro, includeSeq} -- 引用宏
+    @{ifmacro, status > 2, includeSeq} -- 条件引用
+```
+
+```sql title="生成的 SQL (status=3)"
+select * from users
+where status = ? and seq = ?
+```
+
+  </TabItem>
+  <TabItem value="xml-style" label="XML 对照">
+
+```xml
+<!-- 定义 -->
+<sql id="includeSeq">
+    and seq = #{seq}
+</sql>
+
+<!-- 引用 -->
+<select id="queryUser">
+    select * from users where status = #{status}
+    <include refid="includeSeq"/>
+    <if test="status > 2">
+         <include refid="includeSeq"/>
+    </if>
+</select>
+```
+
+  </TabItem>
+</Tabs>
+
+:::caution 注意事项
+引用一个**不存在**的 SQL 宏会导致执行报错。
+:::
+
+---
+
+## IFTEXT 规则 {#iftext}
+
+允许在满足条件时，将一段 **原生文本** 直接拼接到 SQL 中。
+
+- **`@{iftext, test_expr, content}`**：当 `test_expr` 为真时，将 `content` 原样拼接到 SQL 中。
+
+<Tabs>
+  <TabItem value="rule-style" label="使用规则" default>
+
+```sql
+select * from users where
+    status = :status
+    -- 当 status > 2 时，拼接 'and age = 36'
+    @{iftext, status > 2, and age = 36 }
+```
+
+```sql title="生成的 SQL (status=3)"
+select * from users
+where status = ? and age = 36
+```
+
+  </TabItem>
+  <TabItem value="xml-style" label="XML 对照">
+
+```xml
+<select id="queryUser">
+    select * from users where status = #{status}
+    <if test="status > 2">
+        and age = 36
+    </if>
+</select>
+```
+
+  </TabItem>
+</Tabs>
+
+:::warning 安全提示
+`content` 中的内容会以 **纯文本** 形式拼接到 SQL 中，**不会** 进行参数化处理。如果内容包含用户输入，请务必注意 **SQL 注入风险**。
+
+如需参数化，请使用 [`@{and}`](#and)、[`@{or}`](#or) 或其它规则。
+:::
+
+---
+
+## MD5 规则 {#md5}
+
+对参数进行 MD5 计算。
+- **`@{md5, expr}`**：对 `expr` 表达式结果进行 MD5 计算，并将结果作为 SQL 参数。
+
+<Tabs>
+  <TabItem value="rule-style" label="使用规则" default>
+
+**示例**：对密码进行 MD5 加密匹配。
+
+```sql
+select * from users 
+where account = :loginName 
+  and password = @{md5, loginPassword}
+```
+
+```sql title="生成的 SQL"
+select * from users
+where account = ? and password = ? -- 参数值为 MD5(loginPassword)
+```
+
+  </TabItem>
+  <TabItem value="java-style" label="传统方式">
+
+通常需要在 Java 层先计算好 MD5 再传入 SQL。
+
+```java
+String md5Pwd = DigestUtils.md5Hex(password);
+// 然后将 md5Pwd 传入 SQL 参数
+```
+
+  </TabItem>
+</Tabs>
+
+---
+
+## UUID 规则 {#uuid}
+
+自动生成 UUID 并作为 SQL 参数。
+- **`@{uuid32}`**：生成 32 长度 UUID (无`-`分隔符)。
+- **`@{uuid36}`**：生成 36 长度 UUID (带`-`分隔符)。
+
+<Tabs>
+  <TabItem value="rule-style" label="使用规则" default>
+
+**示例**：插入时自动生成 ID。
+
+```sql
+insert into users (id, uid, name, time) 
+values (:id, @{uuid32}, :name, now());
+```
+
+```sql title="生成的 SQL"
+insert into users (id, uid, name, time) 
+values (?, ?, ?, now()); -- 第二个参数为生成的 UUID
+```
+
+  </TabItem>
+  <TabItem value="java-style" label="传统方式">
+
+通常需要在 Java 层先生成 UUID。
+
+```java
+String uid = UUID.randomUUID().toString().replace("-", "");
+// 然后将 uid 传入 SQL 参数
+```
+
+  </TabItem>
+</Tabs>
+
+---
+
+## PAIRS 规则 {#pairs}
+
+用于遍历集合（Map/List/Array）并按模版生成 SQL 片段。
+- **`@{pairs, collection, template}`**：遍历 `collection`，对以每个元素应用 `template`。
+
+**模版变量**：
+- `:k`：Map 的 Key 或 List/Array 的索引。
+- `:v`：Map 的 Value 或 List/Array 的元素值。
+- `:i`：当前索引（从 0 开始）。
+
+<Tabs>
+  <TabItem value="rule-style" label="使用规则" default>
+
+**示例**：将 Map 数据写入 Redis HASH 结构。
+
+```redis
+-- 假设参数 arg0 是一个 Map: {"field1": "val1", "field2": "val2"}
+HSET myKey1 @{pairs, :arg0, :k :v}
+```
+
+```redis title="生成的命令"
+HSET myKey1 field1 val1 field2 val2
+```
+
+  </TabItem>
+  <TabItem value="xml-style" label="XML 对照">
+
+MyBatis 的 `<foreach>` 标签类似：
+
+```xml
+HSET myKey1
+<foreach collection="arg0" index="k" item="v" separator=" ">
+    #{k} #{v}
+</foreach>
+```
+
+  </TabItem>
+</Tabs>
+

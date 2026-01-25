@@ -1,5 +1,8 @@
 # dbVisitor Copilot 指南（中文）
 
+## 语言要求
+**请在所有交流中使用中文 (Chinese)，在生成的内容中使用英文 (English)。**
+
 ## 项目概览
 - 多模块 Maven 工程（父 `pom.xml`）：核心 `dbvisitor`、驱动 `dbvisitor-driver`、适配器 `dbvisitor-adapter/jdbc-{redis,mongo}`、框架集成、示例、文档站点。
 - 目标：在同一套 API/风格下统一基于 JDBC 实现关系型数据库和非关系型数据库等统一，Redis/Mongo（通过 JDBC 适配器）。
