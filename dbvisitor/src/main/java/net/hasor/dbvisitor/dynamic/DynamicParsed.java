@@ -144,12 +144,26 @@ public class DynamicParsed {
                         segment.appendString(statement, pos, i - pos);
                     }
 
-                    int j = i + 1;
-                    while (j < statement.length && statement[j] != '}') {
-                        j++;
+                    int j = i + 2;
+                    int deep = 1;
+                    while (j < statement.length && deep > 0) {
+                        int ruleSkipToPosition = skipCommentsAndQuotes(statement, j, false);
+                        if (j != ruleSkipToPosition) {
+                            j = ruleSkipToPosition;
+                            continue;
+                        }
+
+                        if (statement[j] == '}') {
+                            deep--;
+                        } else if (statement[j] == '{') {
+                            deep++;
+                        }
+                        if (deep > 0) {
+                            j++;
+                        }
                     }
 
-                    if (j - i > 1) {
+                    if (deep == 0) {
                         String ruleContent = originalSql.substring(i + 2, j);
                         parserRule(segment, ruleContent);
                         i = j + 1;
@@ -218,6 +232,10 @@ public class DynamicParsed {
 
     /** Skip over comments and quoted names present in an SQL statement */
     private static int skipCommentsAndQuotes(final char[] statement, final int position) {
+        return skipCommentsAndQuotes(statement, position, true);
+    }
+
+    private static int skipCommentsAndQuotes(final char[] statement, final int position, boolean skipLineComment) {
         for (int i = 0; i < START_SKIP.length; i++) {
             if (statement[position] == START_SKIP[i].charAt(0)) {
                 boolean match = true;
@@ -244,6 +262,9 @@ public class DynamicParsed {
                     }
                     // -- this is --
                     else if (statement[position] == '-' && statement[position + 1] == '-') {
+                        if (!skipLineComment) {
+                            continue;
+                        }
                         for (int m = position + START_SKIP[i].length(); m < statement.length; m++) {
                             if (statement[m] == '\n') {
                                 return m + 1;
@@ -350,6 +371,8 @@ public class DynamicParsed {
         boolean inSingleQuotes = false;
         boolean inDoubleQuotes = false;
         boolean inEscape = false;
+        int deep = 0;
+
         for (; index < content.length(); index++) {
             char c = content.charAt(index);
 
@@ -380,8 +403,16 @@ public class DynamicParsed {
                     inEscape = true;
                 }
 
-            } else if (',' == c) {
+            } else if ('{' == c) {
                 if (!inDoubleQuotes && !inSingleQuotes) {
+                    deep++;
+                }
+            } else if ('}' == c) {
+                if (!inDoubleQuotes && !inSingleQuotes) {
+                    deep--;
+                }
+            } else if (',' == c) {
+                if (!inDoubleQuotes && !inSingleQuotes && deep == 0) {
                     return index;
                 }
             }

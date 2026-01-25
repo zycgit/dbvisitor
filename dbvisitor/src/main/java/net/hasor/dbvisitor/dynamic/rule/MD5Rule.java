@@ -69,7 +69,15 @@ public class MD5Rule implements SqlRule {
         }
 
         try {
-            String argValue = args[0] == null ? "" : args[0].toString();
+            Object argObj = args[0];
+            String argValue;
+            if (argObj instanceof SqlArg) {
+                Object val = ((SqlArg) argObj).getValue();
+                argValue = val == null ? "" : val.toString();
+            } else {
+                argValue = argObj == null ? "" : argObj.toString();
+            }
+
             sqlBuilder.appendSql("?", new SqlArg(MD5.getMD5(argValue), Types.VARCHAR, typeHandler));
         } catch (NoSuchAlgorithmException e) {
             throw new SQLException(e);

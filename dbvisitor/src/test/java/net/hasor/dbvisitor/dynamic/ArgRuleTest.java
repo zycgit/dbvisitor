@@ -16,7 +16,6 @@ import net.hasor.dbvisitor.types.handler.string.SqlXmlTypeHandler;
 import org.junit.Test;
 
 public class ArgRuleTest {
-
     @Test
     public void ruleTest_3() throws SQLException {
         Map<String, Object> ctx1 = CollectionUtils.asMap("name", "abc");

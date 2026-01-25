@@ -37,6 +37,10 @@ public class RuleRegistry {
         DEFAULT.register("ifor", new OrRule(true));
         DEFAULT.register("ifset", new SetRule(true));
         DEFAULT.register("in", InRule.INSTANCE);
+        DEFAULT.register("case", CaseRule.INSTANCE);
+        DEFAULT.register("when", WhenRule.INSTANCE_WHEN);
+        DEFAULT.register("else", WhenRule.INSTANCE_ELSE);
+        //
         DEFAULT.register("text", TextRule.INSTANCE);
         DEFAULT.register("md5", MD5Rule.INSTANCE);
         DEFAULT.register("uuid32", UUID32Rule.INSTANCE);

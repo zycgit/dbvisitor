@@ -175,6 +175,11 @@ public class PlanDynamicSql implements Cloneable, DynamicSql {
         return result;
     }
 
+    /** 获取 SQL 片段列表 */
+    public List<SqlSegment> getSqlSegments() {
+        return Collections.unmodifiableList(this.queryStringPlan);
+    }
+
     /** 获取位置参数列表 */
     public List<Integer> getPositionList() {
         List<Integer> result = new ArrayList<>();
