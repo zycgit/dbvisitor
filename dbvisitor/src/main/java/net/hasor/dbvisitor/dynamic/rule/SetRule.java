@@ -45,10 +45,4 @@ public class SetRule extends ConditionRule {
     protected boolean allowNullValue() {
         return true;
     }
-
-    /** 是否允许多值，总是返回false，SET规则不允许多值 */
-    @Override
-    protected boolean allowMultipleValue() {
-        return false;
-    }
 }

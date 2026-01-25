@@ -21,10 +21,7 @@ import net.hasor.cobble.NumberUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.cobble.reflect.resolvable.ResolvableType;
-import net.hasor.dbvisitor.dynamic.QueryContext;
-import net.hasor.dbvisitor.dynamic.SqlArgSource;
-import net.hasor.dbvisitor.dynamic.SqlBuilder;
-import net.hasor.dbvisitor.dynamic.SqlMode;
+import net.hasor.dbvisitor.dynamic.*;
 import net.hasor.dbvisitor.internal.OgnlUtils;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.TypeHandler;
@@ -99,7 +96,7 @@ public class ArgRule implements SqlRule {
     /** 执行参数规则 */
     @Override
     public void executeRule(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException {
-        String[] testSplit = ruleValue.split(",");
+        String[] testSplit = DynamicParsed.splitByComma(ruleValue);
         if (testSplit.length > 6 || testSplit.length == 0) {
             throw new IllegalArgumentException("analysisSQL failed, format error -> '#{valueExpr [,mode= IN|OUT|INOUT] [,jdbcType=INT] [,javaType=java.lang.String] [,typeHandler=YouTypeHandlerClassName]}'");
         }

@@ -16,14 +16,14 @@ public class MD5RuleTest {
         SqlBuilder sqlBuilder1 = DynamicParsed.getParsedSql("@{md5,:data}").buildQuery(ctx1, new TestQueryContext());
         assert sqlBuilder1.getSqlString().equals("?");
         assert sqlBuilder1.getArgs().length == 1;
-        assert ((SqlArg) sqlBuilder1.getArgs()[0]).getValue().equals("6cd3f2864a1e06fa55cf1d7657196a89");
+        assert ((SqlArg) sqlBuilder1.getArgs()[0]).getValue().equals("900150983cd24fb0d6963f7d28e17f72");
 
         // // "id =" will be ignored.
         Map<String, Object> ctx2 = CollectionUtils.asMap("data", "abc");
         SqlBuilder sqlBuilder2 = DynamicParsed.getParsedSql("@{md5, id = :data}").buildQuery(ctx2, new TestQueryContext());
         assert sqlBuilder2.getSqlString().equals("?");
         assert sqlBuilder2.getArgs().length == 1;
-        assert ((SqlArg) sqlBuilder2.getArgs()[0]).getValue().equals("6cd3f2864a1e06fa55cf1d7657196a89");
+        assert ((SqlArg) sqlBuilder2.getArgs()[0]).getValue().equals("900150983cd24fb0d6963f7d28e17f72");
     }
 
     @Test

@@ -12,6 +12,65 @@ import org.junit.Test;
 
 public class InRuleTest {
     @Test
+    public void testInRuleWithAnd_Values() throws SQLException {
+        // SQL from the blog post example
+        String sql = "SELECT * FROM tb_user @{and, id IN @{in, :idList}}";
+
+        Map<String, Object> params = new java.util.HashMap<>();
+
+        // Case 1: idList has values
+        params.put("idList", Arrays.asList(1, 2, 3));
+        PlanDynamicSql plan = DynamicParsed.getParsedSql(sql);
+        SqlBuilder builder = plan.buildQuery(params, new TestQueryContext());
+
+        String generatedSql = builder.getSqlString();
+
+        // Exact match check
+        // "SELECT * FROM tb_user " -> Original SQL prefix
+        // "where "                 -> @{and} prefix
+        // " id IN  (?, ?, ?)"      -> @{and} body text with spaces preserved
+        String expected = "SELECT * FROM tb_user where  id IN  (?, ?, ?)";
+
+        if (!expected.equals(generatedSql)) {
+            throw new RuntimeException("Mismatch! Expected: [" + expected + "], Actual: [" + generatedSql + "]");
+        }
+    }
+
+    @Test
+    public void testInRuleWithAnd_Empty() throws SQLException {
+        // SQL from the blog post example
+        String sql = "SELECT * FROM tb_user @{and, id IN @{in, :idList}}";
+
+        Map<String, Object> params = new java.util.HashMap<>();
+
+        // Case 2: idList is empty
+        params.put("idList", Collections.emptyList());
+        PlanDynamicSql plan = DynamicParsed.getParsedSql(sql);
+        SqlBuilder builder = plan.buildQuery(params, new TestQueryContext());
+        String generatedSql = builder.getSqlString();
+
+        // Should disappear completely, leaving original prefix with trailing space
+        assert "SELECT * FROM tb_user ".equals(generatedSql);
+    }
+
+    @Test
+    public void testInRuleWithAnd_Null() throws SQLException {
+        // SQL from the blog post example
+        String sql = "SELECT * FROM tb_user @{and, id IN @{in, :idList}}";
+
+        Map<String, Object> params = new java.util.HashMap<>();
+
+        // Case 3: idList is null
+        params.put("idList", null);
+        PlanDynamicSql plan = DynamicParsed.getParsedSql(sql);
+        SqlBuilder builder = plan.buildQuery(params, new TestQueryContext());
+        String generatedSql = builder.getSqlString();
+
+        // Should disappear completely
+        assert "SELECT * FROM tb_user ".equals(generatedSql);
+    }
+
+    @Test
     public void ruleTest_char_1() throws SQLException {
         PlanDynamicSql segment = DynamicParsed.getParsedSql("@{in,:array}");
 

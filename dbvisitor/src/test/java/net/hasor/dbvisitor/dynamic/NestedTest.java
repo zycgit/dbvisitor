@@ -12,7 +12,7 @@ import org.junit.Test;
 public class NestedTest {
 
     @Test
-    public void nestedRoleTest() throws SQLException {
+    public void nestedRuleTest() throws SQLException {
         String sql = "@{and, password = @{md5, :pwd}}";
         Map<String, Object> params = new HashMap<>();
         params.put("pwd", "123456");
@@ -33,6 +33,24 @@ public class NestedTest {
 
         Object outputArg = ((SqlArg) sqlBuilder.getArgs()[0]).getValue();
         Assert.assertEquals("MD5 mismatch", "e10adc3949ba59abbe56e057f20f883e", outputArg);
+    }
+
+    @Test
+    public void nestedInjectTest() throws SQLException {
+        // Case from ReproductionTest: Injection ${...} inside @{and} (Should KEEP even if args are empty)
+        String sql3 = "SELECT * FROM tb_user WHERE 1=1 @{and, ${inj}}";
+        Map<String, Object> params = new HashMap<>();
+        params.put("inj", "deleted=0"); // injection value
+
+        PlanDynamicSql plan = DynamicParsed.getParsedSql(sql3);
+        SqlBuilder builder = plan.buildQuery(params, new TestQueryContext());
+
+        // AndRule sees "deleted=0". Args empty. allowNull=false. testNullValue=true.
+        // But haveInjection list is NOT empty. So it should KEEP.
+        String expected = "SELECT * FROM tb_user WHERE 1=1 and  deleted=0";
+        String actual = builder.getSqlString();
+
+        Assert.assertEquals(expected, actual.trim());
     }
 
     @Test

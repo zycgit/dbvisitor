@@ -78,9 +78,6 @@ public abstract class ConditionRule implements SqlRule {
     /** 是否允许空值 */
     protected abstract boolean allowNullValue();
 
-    /** 是否允许多值 */
-    protected abstract boolean allowMultipleValue();
-
     /** 执行规则 */
     @Override
     public void executeRule(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException {
@@ -90,7 +87,7 @@ public abstract class ConditionRule implements SqlRule {
         } else {
             if (activeExpr != null) {
                 expr += activeExpr;
-                if (ruleValue != null) {
+                if (StringUtils.isNotBlank(ruleValue)) {
                     expr += ",";
                 }
             }
@@ -112,14 +109,12 @@ public abstract class ConditionRule implements SqlRule {
             return;
         }
 
-        if (!this.allowNullValue() && testNullValue(sqlArgs)) {
-            if (!parsedSql.isHaveInjection()) {
+        // Fix: Ensure we properly check nulls
+        boolean allNulls = testNullValue(sqlArgs);
+        if (!this.allowNullValue() && allNulls) {
+            if (parsedSql.getInjectionList().isEmpty()) {
                 return;
             }
-        }
-
-        if (!this.allowMultipleValue() && sqlArgs.length > 1) {
-            throw new SQLException("rule " + this.name() + " multiple values not allowed.");
         }
 
         String sql = sqlBuilder.getSqlString().toLowerCase();

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dynamic;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dynamic.rule.ArgRule;
@@ -180,12 +182,26 @@ public class DynamicParsed {
                         segment.appendString(statement, pos, i - pos);
                     }
 
-                    int j = i + 1;
-                    while (j < statement.length && statement[j] != '}') {
-                        j++;
+                    int j = i + 2;
+                    int deep = 1;
+                    while (j < statement.length && deep > 0) {
+                        int ruleSkipToPosition = skipCommentsAndQuotes(statement, j, false);
+                        if (j != ruleSkipToPosition) {
+                            j = ruleSkipToPosition;
+                            continue;
+                        }
+
+                        if (statement[j] == '}') {
+                            deep--;
+                        } else if (statement[j] == '{') {
+                            deep++;
+                        }
+                        if (deep > 0) {
+                            j++;
+                        }
                     }
 
-                    if (j - i > 1) {
+                    if (deep == 0) {
                         String ruleContent = originalSql.substring(i + 2, j);
                         positionArgs++;
                         parserValue(segment, ruleContent);
@@ -203,12 +219,26 @@ public class DynamicParsed {
                         segment.appendString(statement, pos, i - pos);
                     }
 
-                    int j = i + 1;
-                    while (j < statement.length && statement[j] != '}') {
-                        j++;
+                    int j = i + 2;
+                    int deep = 1;
+                    while (j < statement.length && deep > 0) {
+                        int ruleSkipToPosition = skipCommentsAndQuotes(statement, j, false);
+                        if (j != ruleSkipToPosition) {
+                            j = ruleSkipToPosition;
+                            continue;
+                        }
+
+                        if (statement[j] == '}') {
+                            deep--;
+                        } else if (statement[j] == '{') {
+                            deep++;
+                        }
+                        if (deep > 0) {
+                            j++;
+                        }
                     }
 
-                    if (j - i > 1) {
+                    if (deep == 0) {
                         String ruleContent = originalSql.substring(i + 2, j);
                         parserInjection(segment, ruleContent);
                         i = j + 1;
@@ -422,7 +452,7 @@ public class DynamicParsed {
     }
 
     private static void parserValue(PlanDynamicSql fxQuery, String content) {
-        String[] testSplit = content.split(",");
+        String[] testSplit = splitByComma(content);
         if (testSplit.length > 10 || testSplit.length == 0) {
             throw new IllegalArgumentException("analysisSQL failed, format error -> '#{valueExpr [,mode= IN|OUT|INOUT] [,jdbcType=INT] [,javaType=java.lang.String] [,typeHandler=YouTypeHandlerClassName]}'");
         }
@@ -431,6 +461,54 @@ public class DynamicParsed {
         String expr = noExpr ? "" : testSplit[0];
         Map<String, String> config = ArgRule.INSTANCE.parserConfig(testSplit, noExpr ? 0 : 1, testSplit.length);
         fxQuery.appendNamedParameter(content, expr, config);
+    }
+
+    public static String[] splitByComma(String content) {
+        List<String> parts = new ArrayList<>();
+        int start = 0;
+        boolean inSingleQuotes = false;
+        boolean inDoubleQuotes = false;
+        boolean inEscape = false;
+        int deep = 0;
+
+        for (int i = 0; i < content.length(); i++) {
+            char c = content.charAt(i);
+
+            if (inEscape) {
+                inEscape = false;
+                continue;
+            }
+
+            if (c == '\\') {
+                if (inSingleQuotes || inDoubleQuotes) {
+                    inEscape = true;
+                }
+                continue;
+            }
+
+            if (!inSingleQuotes && !inDoubleQuotes) {
+                if (c == '\'') {
+                    inSingleQuotes = true;
+                } else if (c == '\"') {
+                    inDoubleQuotes = true;
+                } else if (c == '(' || c == '[' || c == '{') {
+                    deep++;
+                } else if (c == ')' || c == ']' || c == '}') {
+                    deep--;
+                } else if (c == ',' && deep == 0) {
+                    parts.add(content.substring(start, i).trim());
+                    start = i + 1;
+                }
+            } else {
+                if (inSingleQuotes && c == '\'') {
+                    inSingleQuotes = false;
+                } else if (inDoubleQuotes && c == '\"') {
+                    inDoubleQuotes = false;
+                }
+            }
+        }
+        parts.add(content.substring(start).trim());
+        return parts.toArray(new String[0]);
     }
 
     private static void parserInjection(PlanDynamicSql fxQuery, String content) {

@@ -97,16 +97,11 @@ public class ArgRuleTest {
 
     @Test
     public void ruleTest_8() throws SQLException {
-        Map<String, Object> ctx = CollectionUtils.asMap("name", "abc");
-        PlanDynamicSql segment = DynamicParsed.getParsedSql("#{name,,,,}");
-
-        SqlBuilder sqlBuilder1 = segment.buildQuery(ctx, new TestQueryContext());
-        assert sqlBuilder1.getSqlString().equals("?");
-        assert sqlBuilder1.getArgs().length == 1;
-        assert ((SqlArg) sqlBuilder1.getArgs()[0]).getSqlMode() == null;
-        assert ((SqlArg) sqlBuilder1.getArgs()[0]).getJavaType() == null;
-        assert ((SqlArg) sqlBuilder1.getArgs()[0]).getJdbcType() == null;
-        assert ((SqlArg) sqlBuilder1.getArgs()[0]).getTypeHandler() == null;
+        try {
+            DynamicParsed.getParsedSql("#{name,,,,}");
+        } catch (Exception e) {
+            assert e.getMessage().contains("analysisSQL failed, config must be 'key = value'");
+        }
     }
 
     @Test

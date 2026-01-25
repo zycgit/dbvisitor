@@ -43,12 +43,4 @@ public class OrRule extends ConditionRule {
     protected boolean allowNullValue() {
         return this.usingIf;
     }
-
-    /**
-     * 是否允许多值，IF 模式允许多值，普通模式不允许
-     */
-    @Override
-    protected boolean allowMultipleValue() {
-        return this.usingIf;
-    }
 }
