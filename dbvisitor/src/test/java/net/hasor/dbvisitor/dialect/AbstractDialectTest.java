@@ -23,7 +23,7 @@ import org.junit.Test;
  * @author 赵永春 (zyc@hasor.net)
  */
 public abstract class AbstractDialectTest extends AbstractDbTest {
-    protected final BoundSql queryBoundSql = new BoundSql() {
+    protected final BoundSql queryBoundSql  = new BoundSql() {
         @Override
         public String getSqlString() {
             return "select * from tb_user where age > 12 and sex = ?";

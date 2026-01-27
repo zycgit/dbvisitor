@@ -1,5 +1,6 @@
 package net.hasor.dbvisitor.dynamic;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Map;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.dynamic.rule.SetRule;
@@ -370,5 +371,63 @@ public class SetRuleTest {
         SqlBuilder sqlBuilder1 = DynamicParsed.getParsedSql("@{set,name = :name} and @{set,name = :name}").buildQuery(ctx, new TestQueryContext());
         assert sqlBuilder1.getSqlString().equals("set name = ? and , name = ?");
         assert sqlBuilder1.getArgs().length == 2;
+    }
+
+    @Test
+    public void testSetRule_BadCase() throws SQLException {
+        String sqlTemplate = "UPDATE tb_user SET @{set, name = :name} fixed_col = 123 @{set, email = :email} WHERE id = :id";
+        PlanDynamicSql segment = DynamicParsed.getParsedSql(sqlTemplate);
+
+        Map<String, Object> ctx = new HashMap<>();
+        ctx.put("id", 100);
+
+        // Case 1: All values present
+        ctx.put("name", "tom");
+        ctx.put("email", "tom@test.com");
+        SqlBuilder sbFull = segment.buildQuery(ctx, new TestQueryContext());
+        String sql = sbFull.getSqlString();
+        System.out.println("Full Set SQL: " + sql);
+
+        // this is bad sql, but we just verify the comma handling
+        assert "UPDATE tb_user SET  name = ? fixed_col = 123 ,  email = ? WHERE id = ?".equals(sql);
+    }
+
+    @Test
+    public void testSetRule_AutoComma_01() throws SQLException {
+        String sqlTemplate = "update user set " +//
+                "  fixed_col = 1" + //
+                "  @{ifset, name != null, name = :name}" +//
+                "  @{ifset, age != null, age = :age}";
+
+        PlanDynamicSql segment = DynamicParsed.getParsedSql(sqlTemplate);
+
+        // Case 1: Name Missing (Middle Skipped)
+        Map<String, Object> ctx1 = new HashMap<>();
+        ctx1.put("name", null);
+        ctx1.put("age", 18);
+        String sql1 = segment.buildQuery(ctx1, new TestQueryContext()).getSqlString();
+        System.out.println("Auto Comma Case 1 (No Name): ||" + sql1 + "||");
+
+        assert "update user set   fixed_col = 1    ,  age = ?".equals(sql1);
+    }
+
+    @Test
+    public void testSetRule_AutoComma_02() throws SQLException {
+        // 验证：不加手动逗号，跳过中间项时，规则引擎能自动处理逗号
+        String sqlTemplate = "update user set " +//
+                "  fixed_col = 1" + // 无手动逗号
+                "  @{ifset, name != null, name = :name}" + //
+                "  @{ifset, age != null, age = :age}";
+
+        PlanDynamicSql segment = DynamicParsed.getParsedSql(sqlTemplate);
+
+        // Case 2: Age Missing (Last Skipped)
+        Map<String, Object> ctx2 = new HashMap<>();
+        ctx2.put("name", "User1");
+        ctx2.put("age", null);
+        String sql2 = segment.buildQuery(ctx2, new TestQueryContext()).getSqlString();
+        System.out.println("Auto Comma Case 2 (No Age): ||" + sql2 + "||");
+
+        assert "update user set   fixed_col = 1  ,  name = ?  ".equals(sql2);
     }
 }

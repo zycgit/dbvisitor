@@ -32,7 +32,7 @@ public class SafeTest {
         // Case 2: Comma inside function call arguments
         // Expected: should be parsed as one expression "testFunc(1, 2)"
         // Current Split(",") behavior: splits into "testFunc(1" and " 2)" -> Error
-        String sql = "select * from user where val = #{ @net.hasor.dbvisitor.dynamic.CommaSensitivityTest@testFunc(1, 2) }";
+        String sql = "select * from user where val = #{ @net.hasor.dbvisitor.dynamic.SafeTest@testFunc(1, 2) }";
 
         PlanDynamicSql segment = DynamicParsed.getParsedSql(sql);
         try {
@@ -63,5 +63,9 @@ public class SafeTest {
         Assert.assertEquals(1, args.length);
         Object arg = ((SqlArg) args[0]).getValue();
         Assert.assertEquals("}", arg.toString());
+    }
+
+    public static int testFunc(int a, int b) {
+        return a + b;
     }
 }

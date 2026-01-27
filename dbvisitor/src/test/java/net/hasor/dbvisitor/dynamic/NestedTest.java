@@ -1,7 +1,10 @@
 package net.hasor.dbvisitor.dynamic;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
 import net.hasor.dbvisitor.types.SqlArg;
@@ -153,5 +156,42 @@ public class NestedTest {
         String generatedSql = sqlBuilder.getSqlString();
         assert StringUtils.equals(generatedSql, expectedSql);
         Assert.assertEquals("Arg count mismatch", 0, sqlBuilder.getArgs().length);
+    }
+
+    @Test
+    public void nestedIfandAndInTest() throws Exception {
+        // template from user
+        String template = "SELECT * FROM tb_user @{ifand, !idList.isEmpty, id IN @{in, :idList}}";
+
+        // Case 1: idList has elements
+        {
+            Map<String, Object> ctx = CollectionUtils.asMap("idList", Arrays.asList(1, 2, 3));
+            SqlBuilder sb = DynamicParsed.getParsedSql(template).buildQuery(ctx, new TestQueryContext());
+            String sql = sb.getSqlString();
+            Object[] args = sb.getArgs();
+
+            System.out.println("Case 1 SQL: " + sql);
+            System.out.println("Case 1 Args: " + Arrays.toString(args));
+
+            assert sql.equals("SELECT * FROM tb_user where  id IN  (?, ?, ?)");
+            assert args.length == 3;
+            assert ((SqlArg) args[0]).getValue().toString().equals("1");
+            assert ((SqlArg) args[1]).getValue().toString().equals("2");
+            assert ((SqlArg) args[2]).getValue().toString().equals("3");
+        }
+
+        // Case 2: idList is empty
+        {
+            Map<String, Object> ctx = CollectionUtils.asMap("idList", Collections.emptyList());
+            SqlBuilder sb = DynamicParsed.getParsedSql(template).buildQuery(ctx, new TestQueryContext());
+            String sql = sb.getSqlString();
+            Object[] args = sb.getArgs();
+
+            System.out.println("Case 2 SQL: " + sql);
+            System.out.println("Case 2 Args: " + Arrays.toString(args));
+
+            assert sql.trim().equals("SELECT * FROM tb_user");
+            assert args.length == 0;
+        }
     }
 }
