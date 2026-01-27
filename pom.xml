@@ -55,7 +55,6 @@
         <module>dbvisitor-adapter/jdbc-redis</module>
         <module>dbvisitor-adapter/jdbc-mongo</module>
         <module>dbvisitor-adapter/jdbc-elastic</module>
-        <module>dbvisitor-report</module>
     </modules>
 
     <dependencyManagement>
@@ -248,6 +247,15 @@
 
     <!-- 使用“-P release”启用下面配置 -->
     <profiles>
+        <profile>
+            <id>include-report</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>dbvisitor-report</module>
+            </modules>
+        </profile>
         <profile>
             <id>release</id>
             <properties>
