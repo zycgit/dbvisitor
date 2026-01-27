@@ -87,6 +87,16 @@ public interface UserMapper extends BaseMapper<UserDTO> {
 - Session 类
 - 自定义 Mapper
 
+相关的类
+- net.hasor.dbvisitor.jdbc.JdbcOperations
+- net.hasor.dbvisitor.jdbc.core.JdbcTemplate
+- net.hasor.dbvisitor.lambda.LambdaOperations
+- net.hasor.dbvisitor.lambda.LambdaTemplate
+- net.hasor.dbvisitor.transaction.TransactionTemplate
+- net.hasor.dbvisitor.session.Configuration
+- net.hasor.dbvisitor.session.Session
+- net.hasor.dbvisitor.mapper.BaseMapper
+
 :::info[注入提示]
 - 以上注入的类型支持 @Db、@Inject 注解
 - @Db 可以通过 @Db("name") 在多数据源下指定数据源名称
@@ -107,16 +117,16 @@ public class TxExample {
 
 ## 配置项说明
 
-| 属性名                     | 描述                                                                                                                                   |
-|-------------------------|--------------------------------------------------------------------------------------------------------------------------------------|
-| mapperLocations         | <TagGray/> 要扫描加载的 Mapper 映射文件所在路径，默认值为 `dbvisitor/mapper/*.xml`                                                                      |
-| mapperPackages          | <TagGray/> 要扫描加载的 Mapper 接口定义所在的包名，如果有多个包使用 `,` 号分割                                                                                  |
+| 属性名                     | 描述                                |
+|-------------------------|--------------------------------------|
+| mapperLocations         | <TagGray/> 要扫描加载的 Mapper 映射文件所在路径，默认值为 `dbvisitor/mapper/*.xml` |
+| mapperPackages          | <TagGray/> 要扫描加载的 Mapper 接口定义所在的包名，如果有多个包使用 `,` 号分割。 |
 | mapperDisabled          | <TagGray/> 使用 `true/false` 表示是否禁用 `dbvisitor.mapper-packages` 扫描到的 Mapper 接口。<br/>默认值为 false 当与某些框架合用同一个 mapper 文件时如果遇到冲突可考虑设置为 true |
-| markerAnnotation        | <TagGray/> 设置一个扫描路径当扫描到的 Mapper 接口身上标有某个特定类型的注解时才会被认作 Mapper 接口类。默认为：`net.hasor.dbvisitor.mapper.MapperDef`                          |
-| markerInterface         | <TagGray/> 设置一个扫描路径当扫描到的 Mapper 接口实现了某个特定接口时才会被认作 Mapper 接口类。默认为：`net.hasor.dbvisitor.mapper.Mapper`                                 |
-| autoMapping             | <TagGray/> 是否将类型下的所有字段都自动和数据库中的列进行映射匹配，true 表示自动。false 表示必须通过 @Column 注解声明                                                           |                                                                                                                         
-| camelCase               | <TagGray/> 表名和属性名，根据驼峰规则转换为带有下划线的表名和列名                                                                                               |                                                                                                                        
-| useDelimited            | <TagGray/> 强制在生成 表名/列名/索引名 时候增加标识符限定，例如：通过设置该属性来解决列名为关键字的问题。默认是 false 不设置。                                                           |                                                                                                                               
-| caseInsensitive         | <TagGray/> 是否对表名列名敏感，默认 true 不敏感                                                                                                     |                                                                                                                               
-| ignoreNonExistStatement | <TagGray/> 在 Mapper 接口方法映射到 XML 过程中是否忽略缺失的映射。默认是 false，遇到缺失会报错。                                                                      |
-| dialect                 | <TagGray/> 默认使用的数据库方言                                                                                                                |
+| markerAnnotation        | <TagGray/> 设置一个扫描路径当扫描到的 Mapper 接口身上标有某个特定类型的注解时才会被认作 Mapper 接口类。默认为：`net.hasor.dbvisitor.mapper.MapperDef` |
+| markerInterface         | <TagGray/> 设置一个扫描路径当扫描到的 Mapper 接口实现了某个特定接口时才会被认作 Mapper 接口类。默认为：`net.hasor.dbvisitor.mapper.Mapper` |
+| autoMapping             | <TagGray/> 是否将类型下的所有字段都自动和数据库中的列进行映射匹配，true 表示自动。false 表示必须通过 @Column 注解声明。|
+| camelCase               | <TagGray/> 表名和属性名，根据驼峰规则转换为带有下划线的表名和列名。|
+| useDelimited            | <TagGray/> 强制在生成 表名/列名/索引名 时候增加标识符限定，例如：通过设置该属性来解决列名为关键字的问题。默认是 false 不设置。 |
+| caseInsensitive         | <TagGray/> 是否对表名列名敏感，默认 true 不敏感。 |
+| ignoreNonExistStatement | <TagGray/> 在 Mapper 接口方法映射到 XML 过程中是否忽略缺失的映射。默认是 false，遇到缺失会报错。 |
+| dialect                 | <TagGray/> 默认使用的 **[数据库方言](../api/differences#dialect)** |

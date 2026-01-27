@@ -35,26 +35,30 @@ dbVisitor 在统一内核架构下面向使用而设计的 API 主要分为 4 �
 
 ## 数据库方言 {#dialect}
 
-得益于 SQL 规范标准的统一性，通常绝大部分数据源只要支持 SQL 标准并在提供 JDBC 驱动的情况下都可以正常执行。
+dbVisitor 具备智能的方言推断能力，在创建数据操作接口时，会自动根据 JDBC URL 识别目标数据库类型并配置最佳方言。因此，对于上表中列出的数据库，您通常 **无需进行任何手动配置**。
+
+如果您的应用场景特殊（如：使用了不支持的数据库、中间件代理了 JDBC URL），可以通过配置显式指定方言。指定方言时支持 **方言别名**（如 `mysql`）或 **方言全限定类名**。
+
 下面表表格中罗列了 dbVisitor 内置数据库方言对于 [构造器 API](./lambda_api) 的功能支持性差异。
 
-| 数据库           |  分页查询  | 冲突策略                      | 空值排序策略 | 序列  |
-|---------------|:------:|:--------------------------|--------|-----|
-| DB2           |   支持   | Into                      |        |     |
-| Apache Derby  |   支持   | Into                      |        |     |
-| 达梦            |   支持   | Into、Ignore（表要有主键）        |        |     |
-| H2            |   支持   | Into                      |        | 支持  |
-| Hive          |   支持   | Into                      |        |     |
-| HSQL          |   支持   | Into                      |        |     |
-| Apache Impala |   支持   | Into                      |        |     |
-| IBM Informix  |   支持   | Into                      |        |     |
-| 人大金仓          |   支持   | Into                      |        |     |
-| MariaDB       |   支持   | Into                      |        |     |
-| MySQL         |   支持   | Into、Update、Ignore        | 支持     |     |
-| Oracle        |   支持   | Into、Update、Ignore（表要有主键） |        |     |
-| Phoenix       |   支持   | Into                      |        |     |
-| PostgreSQL    |   支持   | Into、Update、Ignore        |        |     |
-| SQLite        |   支持   | Into                      |        |     |
-| SQL SERVER    |   支持   | Into                      |        |     |
-| 虚谷数据库         |   支持   | Into                      |        |     |
-
+| 配置 Key     | 数据库              |  分页查询  | 冲突策略                      | 空值排序策略 | 序列  |
+|------------|------------------|:------:|:--------------------------|--------|-----|
+| db2        | DB2              |   支持   | Into                      |        |     |
+| derby      | Apache Derby     |   支持   | Into                      |        |     |
+| dm         | 达梦               |   支持   | Into、Ignore（表要有主键）        |        |     |
+| h2         | H2               |   支持   | Into                      |        | 支持  |
+| hive       | Hive             |   支持   | Into                      |        |     |
+| hsql       | HSQL             |   支持   | Into                      |        |     |
+| impala     | Apache Impala    |   支持   | Into                      |        |     |
+| informix   | IBM Informix     |   支持   | Into                      |        |     |
+| kingbase   | 人大金仓             |   支持   | Into                      |        |     |
+| mariadb    | MariaDB          |   支持   | Into                      |        |     |
+| mysql      | MySQL            |   支持   | Into、Update、Ignore        | 支持     |     |
+| oracle     | Oracle           |   支持   | Into、Update、Ignore（表要有主键） |        |     |
+| postgresql | PostgreSQL       |   支持   | Into、Update、Ignore        |        |     |
+| sqlite     | SQLite           |   支持   | Into                      |        |     |
+| sqlserver  | SQL SERVER       |   支持   | Into                      |        |     |
+| xugu       | 虚谷数据库            |   支持   | Into                      |        |     |
+| mongo      | MongoDB          |   支持   | Into                      |        |     |
+| elastic6   | ElasticSearch 6  |   支持   | Into                      |        |     |
+| elastic7   | ElasticSearch 7+ |   支持   | Into                      |        |     |

@@ -9,6 +9,8 @@ description: 通用 BaseMapper 接口提供了一组常见的数据库操作方�
 # 常见操作
 通用 BaseMapper 接口提供了一组常见的数据库操作方法利用对象映射信息完成对数据库的基础 CRUD 操作。
 
+你可以根据您的项目架构选择合适的方式获取 Session，详细信息请参考：**[框架整合](../../yourproject/buildtools#integration)**
+
 ## 增、删、改
 
 ```java title='新增'

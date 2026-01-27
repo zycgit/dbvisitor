@@ -35,6 +35,13 @@ DataSource dbPool =  new HikariDataSource(config);
 JdbcTemplate jdbc = new JdbcTemplate(dbPool);
 ```
 
+在实际使用过程中 JdbcTemplate 根据您的项目架构获取方式可能不同，上述代码演示了一种原始的创建 JdbcTemplate 的方式。
+你可以根据您的项目架构选择合适的方式获取 JdbcTemplate，详细信息请参考：**[框架整合](../../yourproject/buildtools#integration)**
+
+相关的类
+- net.hasor.dbvisitor.jdbc.core.JdbcTemplate
+- net.hasor.dbvisitor.jdbc.JdbcOperations
+
 ## 原理
 
 JdbcTemplate 的核心实现原理是基于 Template 模式，下面是一个名为 execute 的核心模版方法：

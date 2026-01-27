@@ -41,6 +41,17 @@ LambdaTemplate lambda = new LambdaTemplate(conn);
 - 通过 lambda 对象提供的各类方法即可实现数据库读写。
 - 默认情况下 LambdaTemplate 会使用 RegistryManager.DEFAULT 注册器为其管理类型映射信息。
 
+在实际使用过程中 LambdaTemplate 根据您的项目架构获取方式可能不同，上述代码演示了一种原始的创建 LambdaTemplate 的方式。
+你可以根据您的项目架构选择合适的方式获取 LambdaTemplate，详细信息请参考：**[框架整合](../../yourproject/buildtools#integration)**
+
+相关的类
+- net.hasor.dbvisitor.jdbc.core.JdbcTemplate
+- net.hasor.dbvisitor.jdbc.JdbcOperations
+- net.hasor.dbvisitor.lambda.LambdaTemplate
+- net.hasor.dbvisitor.lambda.LambdaOperations
+- net.hasor.dbvisitor.mapping.Table
+- net.hasor.dbvisitor.mapping.Column
+
 ## 原理 {#principle}
 
 核心实现原理是通过 LambdaTemplate 类提供的 insert、update、delete、query、freedom 系列方法提供对表的操作。

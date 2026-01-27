@@ -43,3 +43,10 @@ implementation 'net.hasor:dbvisitor:最新版本的版本号'
 
 dbVisitor 无法保证不同版本之间能够相互协同工作（例如：dbVisitor 5.3.1 和 dbVisitor 6.0.0）
 在项目或服务中使用的所有 dbVisitor 组件都应使用相同的版本。
+
+## 框架整合 {#integration}
+- 在 Java 程序中通过 [原始的方式](./with_java) 使用 dbVisitor。
+- 利用 [dbvisitor-guice](./with_guice) 在 Google Guice 中使用 dbVisitor。
+- 利用 [dbvisitor-spring](./with_spring) 在 Spring、SpringBoot 中使用 dbVisitor。
+- 利用 [dbvisitor-solon](./with_solon) 在 Solon 中使用 dbVisitor。
+- 利用 [dbvisitor-hasor](./with_hasor) 在 Hasor 中使用 dbVisitor。

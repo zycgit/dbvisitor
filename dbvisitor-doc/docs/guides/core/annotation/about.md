@@ -30,6 +30,14 @@ UserMapper mapper = session.createMapper(UserMapper.class);
 List<User> result = mapper.listUsers(2);
 ```
 
+在实际使用过程中 Session 根据您的项目架构获取方式可能不同，上述代码演示了一种原始的创建 Session 的方式。
+你可以根据您的项目架构选择合适的方式获取 Session，详细信息请参考：**[框架整合](../../yourproject/buildtools#integration)**
+
+相关的类
+- net.hasor.dbvisitor.mapper.SimpleMapper
+- net.hasor.dbvisitor.session.Configuration
+- net.hasor.dbvisitor.session.Session
+
 ## 使用指引
 
 Mapper 接口可以定义若干方法，通过标记查询注解便可操作数据库。

@@ -19,9 +19,9 @@ import TabItem from '@theme/TabItem';
 | [`@{or}`](#or) / [`@{ifor}`](#or) | 智能追加 `OR` 条件。 |
 | [`@{in}`](#in) / [`@{ifin}`](#in) | 展开集合参数为 `IN (v1, v2)`。 |
 | [`@{set}`](#set) / [`@{ifset}`](#set) | 智能处理 `UPDATE` 语句的 `SET` 逗号。 |
+| [`@{if}`](#if) / [`@{iftext}`](#if) | 通用条件判断（解析 / 直出）。 |
 | [`@{case}`](#case) / [`@{when}`](#case) / [`@{else}`](#case)| 多路分支 (Switch / If-Else)。 |
 | [`@{macro}`](#macro) / [`@{ifmacro}`](#macro) | 引用预定义的 SQL 宏片段。 |
-| [`@{iftext}`](#iftext) | 条件性地注入原生 SQL 文本。 |
 | [`@{md5}`](#md5) | 计算参数 MD5 值。 |
 | [`@{uuid32}`](#uuid) / [`@{uuid36}`](#uuid) | 生成 UUID。 |
 | [`@{pairs}`](#pairs) | 遍历 Map/List 生成参数模版。 |
@@ -223,9 +223,80 @@ where uid = ?
   </TabItem>
 </Tabs>
 
-:::info 智能特性
-会自动识别并去除生成的 SQL 片段中多余的前缀逗号。
-:::
+使用技巧
+
+当在 `@{set}` 规则之间混合使用**手动 SQL**（例如 `fixed_col = 1`）时，**无需手动添加逗号**。
+规则引擎会自动检测前文内容并智能补充逗号。手动添加逗号反而可能在某些动态场景下导致语法错误。
+
+```sql title='推荐写法（规则放到最后）'
+update user
+  fixed_col = 1        -- 结尾不要加逗号
+  @{set, name = :name} -- 规则会自动处理前置逗号（生成 ", name = ?"）
+  @{set, age = :age}
+```
+
+```sql title='问题写法（当规则没有匹配时）'
+UPDATE tb_user SET
+    @{set, name = :name},  -- ❌ 规则无法删除身后的逗号
+    fixed_col = 123,
+    @{set, email = :email} -- ❌ 规则虽然不会添加新的逗号但也不会删除上一个条件中的逗号
+WHERE id = :id
+```
+
+---
+
+## IF、IFTEXT 规则 {#if}
+
+通用条件判断规则。当 `test` 表达式为真时，将 `content` 包含在最终 SQL 中。
+
+虽然功能类似，但两者对 `content` 内容的**处理方式**截然不同：
+
+- **`@{if, test, content}`**：**智能解析**。会对 `content` 进行完整解析，支持嵌套其他动态规则（如 `@{in}`）、参数占位符等。这是最常用的方式。
+- **`@{iftext, test, content}`**：**原生直出**。不对 `content` 做任何解析，直接原样拼接到 SQL 中。用于注入特殊关键字或不支持参数化的语法片段。
+
+<Tabs>
+  <TabItem value="rule-style" label="使用规则" default>
+
+```sql
+select * from users where 1=1
+    -- 1. 普通 @{if}：支持解析内部的 @{in} 和参数 :name
+    @{if, hasName, and name = :name}
+    @{if, idList != null, and id in @{in, :idList}}
+
+    -- 2. 原生 @{iftext}：原样注入 SQL 片段（不解析参数）
+    @{iftext, status > 2, and age = 36 }
+```
+
+```sql title="生成的 SQL (hasName=true, idList=[1,2], status=3)"
+select * from users where 1=1
+    and name = ?          -- @{if} 正常解析参数
+    and id in (?, ?)      -- @{if} 允许嵌套 @{in}
+    and age = 36          -- @{iftext} 原样拼接
+```
+
+  </TabItem>
+  <TabItem value="xml-style" label="XML 对照">
+
+```xml
+<select>
+    select * from users where 1=1
+    <!-- @{if} 对应标准 <if> -->
+    <if test="hasName">
+        and name = #{name}
+    </if>
+    <if test="idList != null">
+        and id in ...
+    </if>
+
+    <!-- @{iftext} 对应纯文本拼接 -->
+    <if test="status > 2">
+        and age = 36
+    </if>
+</select>
+```
+
+  </TabItem>
+</Tabs>
 
 ---
 
@@ -347,50 +418,6 @@ where status = ? and seq = ?
 
 :::caution 注意事项
 引用一个**不存在**的 SQL 宏会导致执行报错。
-:::
-
----
-
-## IFTEXT 规则 {#iftext}
-
-允许在满足条件时，将一段 **原生文本** 直接拼接到 SQL 中。
-
-- **`@{iftext, test_expr, content}`**：当 `test_expr` 为真时，将 `content` 原样拼接到 SQL 中。
-
-<Tabs>
-  <TabItem value="rule-style" label="使用规则" default>
-
-```sql
-select * from users where
-    status = :status
-    -- 当 status > 2 时，拼接 'and age = 36'
-    @{iftext, status > 2, and age = 36 }
-```
-
-```sql title="生成的 SQL (status=3)"
-select * from users
-where status = ? and age = 36
-```
-
-  </TabItem>
-  <TabItem value="xml-style" label="XML 对照">
-
-```xml
-<select id="queryUser">
-    select * from users where status = #{status}
-    <if test="status > 2">
-        and age = 36
-    </if>
-</select>
-```
-
-  </TabItem>
-</Tabs>
-
-:::warning 安全提示
-`content` 中的内容会以 **纯文本** 形式拼接到 SQL 中，**不会** 进行参数化处理。如果内容包含用户输入，请务必注意 **SQL 注入风险**。
-
-如需参数化，请使用 [`@{and}`](#and)、[`@{or}`](#or) 或其它规则。
 :::
 
 ---

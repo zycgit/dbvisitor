@@ -10,6 +10,8 @@ description: 通过 BaseMapper 接口的 executeStatement、queryStatement 方�
 
 通过 BaseMapper 接口的 executeStatement、queryStatement 方法可以执行位于 Mapper 文件中的 SQL。
 
+你可以根据您的项目架构选择合适的方式获取 Session，详细信息请参考：**[框架整合](../../yourproject/buildtools#integration)**
+
 ```xml title='例如：Mapper 文件如下'
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"

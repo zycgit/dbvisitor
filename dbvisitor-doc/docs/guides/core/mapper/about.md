@@ -32,6 +32,16 @@ Session session = config.newSession(connection);
 BaseMapper<User> mapper = session.createBaseMapper(User.class);
 ```
 
+在实际使用过程中 Session 根据您的项目架构获取方式可能不同，上述代码演示了一种原始的创建 Session 的方式。
+你可以根据您的项目架构选择合适的方式获取 Session，详细信息请参考：**[框架整合](../../yourproject/buildtools#integration)**
+
+相关的类
+- net.hasor.dbvisitor.mapping.Table
+- net.hasor.dbvisitor.mapping.Column
+- net.hasor.dbvisitor.session.Configuration
+- net.hasor.dbvisitor.session.Session
+- net.hasor.dbvisitor.mapper.BaseMapper
+
 ## 使用指引
 
 BaseMapper 接口提供了若干方法，下面以主要场景作为介绍

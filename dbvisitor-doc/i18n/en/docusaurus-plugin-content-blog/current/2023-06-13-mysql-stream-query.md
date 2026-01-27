@@ -3,7 +3,7 @@ slug: mysql_stream_read
 title: MySQL Streaming Read for Huge Tables
 description: Detailed instruction on how to use dbVisitor to implement streaming query for MySQL billion-level data to avoid OOM.
 authors: [ZhaoYongChun]
-tags: [dbVisitor, MySQL, JDBC, Streaming, Performance]
+tags: [dbVisitor, JDBC, Streaming]
 language: en
 ---
 

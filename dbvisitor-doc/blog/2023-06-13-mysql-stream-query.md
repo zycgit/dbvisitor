@@ -3,7 +3,7 @@ slug: mysql_stream_read
 title: MySQL 流式读取超大表
 description: 详解如何使用 dbVisitor 实现 MySQL 亿级数据流式查询，避免 OOM。
 authors: [ZhaoYongChun]
-tags: [dbVisitor, MySQL, JDBC, Streaming, Performance]
+tags: [dbVisitor, JDBC, Streaming]
 language: zh-cn
 ---
 
