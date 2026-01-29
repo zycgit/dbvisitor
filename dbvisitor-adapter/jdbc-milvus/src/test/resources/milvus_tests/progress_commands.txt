@@ -1,0 +1,7 @@
+-- Test Progress Commands
+SHOW PROGRESS OF INDEX ON TABLE my_table;
+SHOW PROGRESS OF INDEX idx_vec ON TABLE my_table;
+
+-- Test Loading Progress
+SHOW PROGRESS OF LOADING ON TABLE my_table;
+SHOW PROGRESS OF LOADING ON TABLE my_table PARTITION p_2024;

@@ -1,0 +1,31 @@
+-- Create Table
+CREATE TABLE my_table (
+    id INT64 PRIMARY KEY,
+    vector FLOAT_VECTOR(128),
+    age INT32 DEFAULT 0
+);
+
+-- Create Table with Options
+CREATE TABLE IF NOT EXISTS my_table_opt (
+    id INT64 PRIMARY KEY,
+    vector FLOAT_VECTOR(128)
+) WITH (
+    consistency_level = "Strong"
+);
+
+-- Show Tables
+SHOW TABLES;
+
+-- Show specific table
+SHOW CREATE TABLE my_table;
+
+-- Rename Table
+ALTER TABLE my_table RENAME TO my_table_new;
+
+-- Create Alias for Table
+CREATE ALIAS my_alias FOR TABLE my_table_new;
+ALTER ALIAS my_alias FOR TABLE my_table_new;
+
+-- Drop Table
+DROP TABLE my_table_new;
+DROP TABLE IF EXISTS my_table_opt;

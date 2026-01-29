@@ -1,0 +1,19 @@
+-- Test Create Index
+CREATE INDEX idx_vector ON TABLE my_table(vector_col) USING IVF_FLAT WITH (nlist = 1024);
+CREATE INDEX idx_age ON my_table(age_col);
+
+-- Test Drop Index
+DROP INDEX idx_vector ON TABLE my_table;
+DROP INDEX idx_age ON my_table;
+
+-- Test Show Indexes
+SHOW INDEXES FROM my_table;
+SHOW INDEXES FROM TABLE my_table;
+
+-- Test Show Index Details
+SHOW INDEX idx_vector ON TABLE my_table;
+SHOW INDEX idx_age ON my_table;
+
+-- Test Show Index Progress
+SHOW PROGRESS OF INDEX ON TABLE my_table;
+SHOW PROGRESS OF INDEX idx_vector ON my_table;

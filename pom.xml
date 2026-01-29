@@ -54,6 +54,7 @@
         <module>dbvisitor-integration/dbvisitor-solon-plugin</module>
         <module>dbvisitor-adapter/jdbc-redis</module>
         <module>dbvisitor-adapter/jdbc-mongo</module>
+        <module>dbvisitor-adapter/jdbc-milvus</module>
         <module>dbvisitor-adapter/jdbc-elastic</module>
     </modules>
 
@@ -131,7 +132,7 @@
                                         </goals>
                                     </pluginExecutionFilter>
                                     <action>
-                                        <ignore />
+                                        <ignore/>
                                     </action>
                                 </pluginExecution>
                             </pluginExecutions>

@@ -1,0 +1,13 @@
+
+-- Test Parameterized Queries
+SELECT * FROM ?;
+SELECT ? FROM my_table;
+SELECT * FROM my_table WHERE age > ?;
+INSERT INTO ? (id, vector) VALUES (?, ?);
+CREATE INDEX ? ON TABLE ? (?);
+DROP TABLE ?;
+SELECT * FROM my_table WHERE id IN ?;
+SELECT * FROM my_table WHERE name LIKE ?;
+SELECT * FROM my_table LIMIT ? OFFSET ?;
+SELECT * FROM my_table WHERE ? > 10;
+INSERT INTO my_table (?, age) VALUES ('User', 18);

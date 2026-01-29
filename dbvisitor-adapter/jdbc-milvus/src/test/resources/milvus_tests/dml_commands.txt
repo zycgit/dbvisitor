@@ -1,0 +1,26 @@
+-- Test Insert with Partition
+INSERT INTO my_table PARTITION p_2024 (id, vector) VALUES (1, [0.1, 0.2]);
+
+-- Test Insert (Basic)
+INSERT INTO my_table (id, vector, age) VALUES (1, [0.1, 0.1], 20);
+INSERT INTO my_table (id, vector, age) VALUES (2, [0.2, 0.2], 30);
+INSERT INTO my_table (id, vector, age) VALUES (3, [0.3, 0.3], 40);
+
+-- Test Delete with Partition
+DELETE FROM my_table PARTITION p_2024 WHERE id == 1;
+
+-- Test Delete (Basic)
+DELETE FROM my_table WHERE id == 1;
+DELETE FROM my_table WHERE id in [1, 2] AND age < 50;
+
+-- Test Import (was Insert File)
+IMPORT FROM 'vectors.csv' INTO TABLE my_table;
+IMPORT FROM FILE 'vectors.csv' INTO TABLE my_table PARTITION p_2024;
+
+-- Test Load (Mem)
+LOAD TABLE my_table;
+LOAD TABLE my_table PARTITION p_2024;
+
+-- Test Release (Mem)
+RELEASE TABLE my_table;
+RELEASE TABLE my_table PARTITION p_2024;

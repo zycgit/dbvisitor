@@ -1,0 +1,12 @@
+-- Test Create Partition
+CREATE PARTITION p_2024 ON TABLE my_table;
+CREATE PARTITION IF NOT EXISTS p_2025 ON my_table;
+
+-- Test Drop Partition
+DROP PARTITION p_2024 ON TABLE my_table;
+DROP PARTITION IF EXISTS p_2025 ON my_table;
+
+-- Test Show Partition Details (Note: In pure SQL, usually specific partition info is queried from meta tables, but here we can support a SHOW command)
+SHOW PARTITIONS FROM my_table;
+SHOW PARTITION p_2024 ON TABLE my_table;
+SHOW PARTITION my_part ON TABLE my_col;

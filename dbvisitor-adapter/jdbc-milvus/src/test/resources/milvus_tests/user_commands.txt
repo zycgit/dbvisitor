@@ -1,0 +1,26 @@
+-- Test Create User
+CREATE USER my_user PASSWORD 'my_pass';
+CREATE USER IF NOT EXISTS my_user_2 PASSWORD 'my_pass_2';
+
+-- Test Create Role
+CREATE ROLE my_role;
+CREATE ROLE IF NOT EXISTS my_role_2;
+
+-- Test Grant/Revoke Role
+GRANT ROLE my_role TO my_user;
+REVOKE ROLE my_role FROM my_user;
+
+-- Test Show Commands
+SHOW USERS;
+SHOW ROLES;
+
+-- Test Show Grants
+SHOW GRANTS FOR ROLE my_role ON GLOBAL;
+SHOW GRANTS FOR ROLE my_role ON TABLE my_table;
+SHOW GRANTS FOR ROLE my_role ON USER my_user;
+
+-- Test Drop User/Role
+DROP USER my_user;
+DROP USER IF EXISTS my_user_2;
+DROP ROLE my_role;
+DROP ROLE IF EXISTS my_role_2;

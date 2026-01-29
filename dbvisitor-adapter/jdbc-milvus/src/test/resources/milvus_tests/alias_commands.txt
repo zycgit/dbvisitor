@@ -1,0 +1,11 @@
+-- Test Create Alias
+CREATE ALIAS my_alias FOR TABLE my_table;
+CREATE ALIAS my_tag FOR my_table;
+
+-- Test Alter Alias (Reassign)
+ALTER ALIAS my_alias FOR TABLE my_table_v2;
+ALTER ALIAS my_tag FOR my_table_v2;
+
+-- Test Drop Alias
+DROP ALIAS my_alias;
+DROP ALIAS IF EXISTS my_tag;

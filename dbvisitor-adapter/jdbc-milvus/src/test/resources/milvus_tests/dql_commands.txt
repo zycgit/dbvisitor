@@ -1,0 +1,12 @@
+-- Query (Scalar Filtering)
+SELECT * FROM my_table;
+SELECT * FROM my_table WHERE age > 20;
+SELECT id, age FROM my_table LIMIT 10 OFFSET 0;
+SELECT * FROM my_table PARTITION my_partition WHERE id in [1, 2];
+
+-- Search (Vector Similarity)
+SELECT * FROM my_table ORDER BY vector <-> [0.1, 0.1];
+SELECT * FROM my_table ORDER BY vector <-> [0.1, 0.1] LIMIT 10;
+SELECT * FROM my_table WHERE age > 20 ORDER BY vector <-> [0.1, 0.1];
+SELECT * FROM my_table ORDER BY vector_field <-> [0.1, 0.1] LIMIT 5 WITH (metric_type = "L2", params = "{\"nprobe\": 10}");
+SELECT * FROM my_table ORDER BY vector <-> [0.1, 0.1] WITH (round_decimal = 4, consistency_level = "Strong");
