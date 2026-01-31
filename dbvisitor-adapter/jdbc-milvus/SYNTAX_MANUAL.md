@@ -14,11 +14,6 @@ CREATE DATABASE [IF NOT EXISTS] db_name;
 DROP DATABASE [IF EXISTS] db_name;
 ```
 
-### 切换数据库
-```sql
-USE db_name;
-```
-
 ### 修改数据库属性
 ```sql
 ALTER DATABASE db_name SET PROPERTIES ("key" = "value", ...);

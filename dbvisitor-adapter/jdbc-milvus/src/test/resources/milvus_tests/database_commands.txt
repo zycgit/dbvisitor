@@ -5,9 +5,6 @@ CREATE DATABASE IF NOT EXISTS my_db_2;
 -- Show Databases
 SHOW DATABASES;
 
--- Use Database
-USE my_db_1;
-
 -- Alter Database (Standard Milvus syntax or anticipated syntax)
 ALTER DATABASE my_db_1 SET PROPERTIES ("replica.number" = 1);
 

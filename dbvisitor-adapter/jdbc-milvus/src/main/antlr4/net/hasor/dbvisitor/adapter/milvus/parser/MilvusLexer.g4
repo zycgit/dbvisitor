@@ -19,7 +19,6 @@ INDEX: I N D E X;
 ON: O N;
 USING: U S I N G;
 WITH: W I T H;
-USE: U S E;
 LIST: L I S T;
 DATABASES: D A T A B A S E S;
 USERS: U S E R S;
@@ -119,7 +118,10 @@ EQUALS: '=';
 ARG: '?';
 
 SEMI: ';';
-STRING_LITERAL: '\'' (~['\r\n\\] | '\\' .)* '\'' | '"' (~["\r\n\\] | '\\' .)* '"';
+STRING_LITERAL
+    : '\'' ( ~['\\\r\n] | '\\' . | '\'\'' )* '\''
+    | '"'  ( ~["\\\r\n] | '\\' . | '""'   )* '"'
+    ;
 
 FLOAT_LITERAL: [0-9]+ '.' [0-9]* ([eE] [+-]? [0-9]+)?
              | '.' [0-9]+ ([eE] [+-]? [0-9]+)?

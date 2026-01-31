@@ -18,13 +18,21 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import net.hasor.cobble.CollectionUtils;
+import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser;
 import net.hasor.dbvisitor.driver.*;
 
 abstract class MilvusCommands {
-    protected static final JdbcColumn COL_ID_STRING = new JdbcColumn("_ID", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_ID_LONG          = new JdbcColumn("ID", AdapterType.Long, "", "", "");
+    protected static final JdbcColumn COL_DATABASE_STRING  = new JdbcColumn("DATABASE", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_PARTITION_STRING = new JdbcColumn("PARTITION", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_TABLE_STRING     = new JdbcColumn("TABLE", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_CREATE_STRING    = new JdbcColumn("CREATE SCRIPT", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_INDEX_STRING     = new JdbcColumn("INDEX", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_FIELD_STRING     = new JdbcColumn("FIELD", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_TYPE_STRING      = new JdbcColumn("TYPE", AdapterType.String, "", "", "");
 
     protected static Object getArg(AtomicInteger argIndex, AdapterRequest request) throws SQLException {
         int argIdx = argIndex.getAndIncrement();
@@ -66,6 +74,101 @@ abstract class MilvusCommands {
         return hintMap;
     }
 
+    protected static Map<String, String> readProperties(AtomicInteger argIndex, AdapterRequest request, MilvusParser.PropertiesListContext propertiesList) throws SQLException {
+        Map<String, String> properties = new LinkedHashMap<>();
+        if (propertiesList == null) {
+            return properties;
+        }
+
+        for (MilvusParser.PropertyContext property : propertiesList.property()) {
+            List<MilvusParser.IdentifierContext> identifiers = property.identifier();
+            List<?> stringLiterals = property.STRING_LITERAL();
+
+            boolean keyIsString = identifiers == null || identifiers.isEmpty();
+            String key;
+            if (keyIsString) {
+                if (stringLiterals == null || stringLiterals.isEmpty()) {
+                    throw new SQLException("Property key is missing.");
+                }
+                key = getIdentifier(property.STRING_LITERAL(0).getText());
+            } else {
+                key = argAsName(argIndex, request, identifiers.get(0));
+            }
+
+            String value = null;
+            int valueStringIndex = keyIsString ? 1 : 0;
+            if (stringLiterals != null && stringLiterals.size() > valueStringIndex) {
+                value = getIdentifier(property.STRING_LITERAL(valueStringIndex).getText());
+            } else if (identifiers != null && identifiers.size() > (keyIsString ? 0 : 1)) {
+                int index = keyIsString ? 0 : 1;
+                value = argAsName(argIndex, request, identifiers.get(index));
+            } else if (property.INTEGER() != null) {
+                value = property.INTEGER().getText();
+            } else if (property.FLOAT_LITERAL() != null) {
+                value = property.FLOAT_LITERAL().getText();
+            } else if (property.TRUE() != null) {
+                value = "true";
+            } else if (property.FALSE() != null) {
+                value = "false";
+            }
+
+            if (StringUtils.isBlank(key)) {
+                throw new SQLException("Property key is blank.");
+            }
+            properties.put(key, value);
+        }
+
+        return properties;
+    }
+
+    //
+
+    protected static String argAsDbName(AtomicInteger argIndex, AdapterRequest request, MilvusParser.IdentifierContext ctx, MilvusCmd milvusCmd) throws SQLException {
+        if (ctx == null) {
+            return milvusCmd.getCatalog();
+        }
+        if (ctx.ARG() != null) {
+            Object arg = getArg(argIndex, request);
+            return arg == null ? null : arg.toString();
+        }
+        return getIdentifier(ctx.getText());
+    }
+
+    protected static String argAsName(AtomicInteger argIndex, AdapterRequest request, MilvusParser.IdentifierContext ctx) throws SQLException {
+        if (ctx == null) {
+            return null;
+        }
+        if (ctx.ARG() != null) {
+            Object arg = getArg(argIndex, request);
+            return arg == null ? null : arg.toString();
+        }
+        return getIdentifier(ctx.getText());
+    }
+
+    protected static String getIdentifier(String nodeText) {
+        if (nodeText == null || nodeText.length() < 2) {
+            return nodeText;
+        }
+        char firstChar = nodeText.charAt(0);
+        char endChar = nodeText.charAt(nodeText.length() - 1);
+
+        if (firstChar == '"' && endChar == '"') {
+            String unwrap = nodeText.substring(1, nodeText.length() - 1);
+            if (unwrap.indexOf('"') >= 0 || unwrap.indexOf('\\') >= 0) {
+                return unwrap.replace("\"\"", "\"").replace("\\\"", "\"");
+            }
+            return unwrap;
+        } else if (firstChar == '\'' && endChar == '\'') {
+            String unwrap = nodeText.substring(1, nodeText.length() - 1);
+            if (unwrap.indexOf('\'') >= 0 || unwrap.indexOf('\\') >= 0) {
+                return unwrap.replace("''", "'").replace("\\'", "'");
+            }
+            return unwrap;
+        } else {
+            return nodeText;
+        }
+    }
+
     private static Object parseLiteral(MilvusParser.LiteralContext ctx, AtomicInteger argIndex, AdapterRequest request) throws SQLException {
         if (ctx == null) {
             return null;
@@ -99,22 +202,6 @@ abstract class MilvusCommands {
             return getIdentifier(ctx.identifier().getText());
         }
         return ctx.getText();
-    }
-
-    protected static String getIdentifier(String nodeText) {
-        if (nodeText == null || nodeText.length() < 2) {
-            return nodeText;
-        }
-        char firstChar = nodeText.charAt(0);
-        char endChar = nodeText.charAt(nodeText.length() - 1);
-
-        if (firstChar == '"' && endChar == '"') {
-            return nodeText.substring(1, nodeText.length() - 1);
-        } else if (firstChar == '\'' && endChar == '\'') {
-            return nodeText.substring(1, nodeText.length() - 1);
-        } else {
-            return nodeText;
-        }
     }
 
     //
@@ -166,5 +253,18 @@ abstract class MilvusCommands {
         }
         receiveCur.pushFinish();
         return receiveCur;
+    }
+
+    protected static AdapterResultCursor listResult(AdapterRequest request, JdbcColumn[] cols, List<Map<String, Object>> result) throws SQLException {
+        return listResult(request, Arrays.asList(cols), result);
+    }
+
+    protected static AdapterResultCursor listResult(AdapterRequest request, List<JdbcColumn> cols, List<Map<String, Object>> result) throws SQLException {
+        AdapterResultCursor cursor = new AdapterResultCursor(request, cols);
+        for (Map<String, Object> row : result) {
+            cursor.pushData(row);
+        }
+        cursor.pushFinish();
+        return cursor;
     }
 }

@@ -34,7 +34,6 @@ command
     | showCmd
     | insertCmd
     | deleteCmd
-    | useCmd
     | grantCmd
     | revokeCmd
     | importCmd
@@ -100,10 +99,6 @@ deleteCmd
 
 selectCmd
     : SELECT selectElements FROM collectionName=identifier (PARTITION partitionName=identifier)? (WHERE expression)? (ORDER BY sortClause)? (LIMIT (limit=INTEGER | limit=ARG))? (OFFSET (offset=INTEGER | offset=ARG))? (WITH propertiesList)?
-    ;
-
-useCmd
-    : USE dbName=IDENTIFIER
     ;
 
 grantCmd
