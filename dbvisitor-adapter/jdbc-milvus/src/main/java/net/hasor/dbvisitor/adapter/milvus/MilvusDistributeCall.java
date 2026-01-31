@@ -21,7 +21,8 @@ import net.hasor.dbvisitor.driver.AdapterReceive;
 import net.hasor.dbvisitor.driver.AdapterRequest;
 
 public class MilvusDistributeCall {
-    public static Future<?> execMilvusCmd(Future<Object> sync, MilvusCmd milvusCmd, MilvusParser.HintCommandContext h, AdapterRequest request, AdapterReceive receive, int startArgIdx, MilvusConn conn) throws SQLException {
+    public static Future<?> execMilvusCmd(Future<Object> sync, MilvusCmd milvusCmd, MilvusParser.HintCommandContext h,//
+            AdapterRequest request, AdapterReceive receive, int startArgIdx, MilvusConn conn) {
         try {
             MilvusParser.CommandContext command = h.command();
             if (command.createCmd() != null) {
@@ -61,7 +62,10 @@ public class MilvusDistributeCall {
                 return MilvusCommandsForTable.execRenameCmd(sync, milvusCmd, h, command.renameCmd(), request, receive, startArgIdx);
             }
             if (command.selectCmd() != null) {
-                return MilvusCommandsForData.execSelectCmd(sync, milvusCmd, h, command.selectCmd(), request, receive, startArgIdx);
+                return MilvusCommandsForDQL.execSelectCmd(sync, milvusCmd, h, command.selectCmd(), request, receive, startArgIdx);
+            }
+            if (command.countCmd() != null) {
+                return MilvusCommandsForDQL.execCountCmd(sync, milvusCmd, h, command.countCmd(), request, receive, startArgIdx);
             }
 
             sync.failed(new SQLException("unknown command."));

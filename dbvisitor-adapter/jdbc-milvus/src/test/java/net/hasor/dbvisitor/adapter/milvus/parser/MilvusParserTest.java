@@ -1,15 +1,13 @@
 package net.hasor.dbvisitor.adapter.milvus.parser;
 
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.ConsoleErrorListener;
-import org.junit.Test;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
-
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.ConsoleErrorListener;
+import org.junit.Test;
 import static org.junit.Assert.fail;
 
 public class MilvusParserTest {
@@ -85,7 +83,7 @@ public class MilvusParserTest {
                     }
                 }
             }
-            
+
             // Execute line by line or as a block? 
             // The grammar supports `commands : command (SEMI? command)*`.
             // Let's feed the whole content.

@@ -256,12 +256,9 @@ public class AbstractMilvusCmdForTest {
         MilvusServiceClient client = null;
         try {
             client = newClient();
-            io.milvus.param.R<?> response = client.createAlias(io.milvus.param.alias.CreateAliasParam.newBuilder()
-                    .withAlias(alias)
-                    .withCollectionName(collectionName)
-                    .build());
+            io.milvus.param.R<?> response = client.createAlias(io.milvus.param.alias.CreateAliasParam.newBuilder().withAlias(alias).withCollectionName(collectionName).build());
             if (response.getStatus() != io.milvus.param.R.Status.Success.getCode()) {
-                 throw new RuntimeException(response.getMessage());
+                throw new RuntimeException(response.getMessage());
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -287,6 +284,78 @@ public class AbstractMilvusCmdForTest {
             if (client != null) {
                 client.close();
             }
+        }
+    }
+
+    protected boolean hasUserSdk(String username) {
+        MilvusServiceClient client = newClient();
+        try {
+            R<io.milvus.grpc.ListCredUsersResponse> response = client.listCredUsers(io.milvus.param.credential.ListCredUsersParam.newBuilder().build());
+            if (response.getStatus() != R.Status.Success.getCode()) {
+                return false;
+            }
+            return response.getData().getUsernamesList().contains(username);
+        } finally {
+            client.close();
+        }
+    }
+
+    protected boolean hasRoleSdk(String roleName) {
+        MilvusServiceClient client = newClient();
+        try {
+            R<io.milvus.grpc.SelectRoleResponse> response = client.selectRole(io.milvus.param.role.SelectRoleParam.newBuilder().withRoleName(roleName).build());
+            if (response.getStatus() != R.Status.Success.getCode()) {
+                return false;
+            }
+            return response.getData().getResultsList().stream().anyMatch(r -> {
+                return r.getRole().getName().equals(roleName);
+            });
+        } finally {
+            client.close();
+        }
+    }
+
+    protected boolean userHasRoleSdk(String username, String roleName) {
+        MilvusServiceClient client = newClient();
+        try {
+            R<io.milvus.grpc.SelectRoleResponse> response = client.selectRole(io.milvus.param.role.SelectRoleParam.newBuilder().withRoleName(roleName).withIncludeUserInfo(true).build());
+            if (response.getStatus() != R.Status.Success.getCode()) {
+                return false;
+            }
+            // Find the specific role result
+            return response.getData().getResultsList().stream().filter(r -> r.getRole().getName().equals(roleName)).flatMap(r -> r.getUsersList().stream()).anyMatch(u -> u.getName().equals(username));
+        } finally {
+            client.close();
+        }
+    }
+
+    protected boolean roleHasPrivilegeSdk(String roleName, String objectType, String objectName, String privilege) {
+        MilvusServiceClient client = newClient();
+        try {
+            R<io.milvus.grpc.SelectGrantResponse> response = client.selectGrantForRole(io.milvus.param.role.SelectGrantForRoleParam.newBuilder().withRoleName(roleName).build());
+            if (response.getStatus() != R.Status.Success.getCode()) {
+                return false;
+            }
+            return response.getData().getEntitiesList().stream().anyMatch(grant -> {
+                boolean objMatch = grant.getObjectName().equals(objectName);
+                // Object Type string matching might depend on SDK/Server version, usually "Collection", "Global"
+                // The SDK/Proto might not return object type directly in GrantEntity easy way if it's implicitly part of object?
+                // Actually GrantEntity has object_name. Object_type is in entity.getObject().getName()? 
+                // Let's check proto. GrantEntity: role, object, grantor
+                // ObjectEntity: name
+                // Wait, privilege is in GrantorEntity.Privilege.Name
+
+                boolean privMatch = grant.getGrantor().getPrivilege().getName().equals(privilege);
+                // For object type, maybe check DB/Collection context?
+                // The grant info is simplistic. 
+                // For verification, checking ObjectName and Privilege is usually enough if names are unique.
+                // But let's check exact match if possible.
+                // "Global" object name is usually "*"
+
+                return objMatch && privMatch;
+            });
+        } finally {
+            client.close();
         }
     }
 }

@@ -9,6 +9,7 @@ MultiLineComment  : '/*' -> pushMode(COMMENT_EXIT);
 // Keywords
 CLEAR: C L E A R;
 CONNECT: C O N N E C T;
+COUNT: C O U N T;
 CREATE: C R E A T E;
 DATABASE: D A T A B A S E;
 USER: U S E R;

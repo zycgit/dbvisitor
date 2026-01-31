@@ -32,6 +32,7 @@ import net.hasor.dbvisitor.driver.AdapterType;
 import net.hasor.dbvisitor.driver.JdbcColumn;
 
 class MilvusCommandsForTable extends MilvusCommands {
+    protected static final JdbcColumn COL_CREATE_STRING      = new JdbcColumn("CREATE SCRIPT", AdapterType.String, "", "", "");
     protected static final JdbcColumn COL_DIMENSION_INTEGER  = new JdbcColumn("DIMENSION", AdapterType.Int, "", "", "");
     protected static final JdbcColumn COL_PRIMARY_BOOL       = new JdbcColumn("PRIMARY", AdapterType.Boolean, "", "", "");
     protected static final JdbcColumn COL_AUTO_ID_BOOL       = new JdbcColumn("AUTO_ID", AdapterType.Boolean, "", "", "");
@@ -242,14 +243,13 @@ class MilvusCommandsForTable extends MilvusCommands {
             result.add(row);
         }
 
-        List<JdbcColumn> columns = Arrays.asList(//
+        receive.responseResult(request, listResult(request, Arrays.asList(//
                 COL_FIELD_STRING,     //
                 COL_TYPE_STRING,      //
                 COL_DIMENSION_INTEGER,//
                 COL_PRIMARY_BOOL,     //
                 COL_AUTO_ID_BOOL,     //
-                COL_DESCRIPTION_STRING);
-        receive.responseResult(request, listResult(request, columns, result));
+                COL_DESCRIPTION_STRING), result));
         return completed(future);
     }
 

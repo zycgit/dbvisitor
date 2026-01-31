@@ -1,5 +1,7 @@
 # Milvus JDBC Adapter Syntax Manual
 
+> **注意**：本驱动的部分高级特性（如 `count` 统计、BulkInsert 等）依赖 Milvus 2.2+ 以上版本。建议使用 Milvus 2.3.x 或更高版本以获得最佳体验。
+
 本文档详细介绍了 Milvus JDBC Adapter 所支持的 SQL 语法。相比官方 CLI，本 Adapter 采用了更符合标准 SQL 习惯的语法结构，支持数据库管理、表管理、数据操作及查询功能。
 
 ## 1. 数据库管理 (Database Management)
@@ -39,6 +41,16 @@ CREATE TABLE [IF NOT EXISTS] table_name (
     consistency_level = "Strong"
 );
 ```
+
+### 向量数据格式支持
+在 `INSERT`, `SEARCH` (SELECT ... ORDER BY vector), `DELETE` 等包含向量操作的语句中，支持多种向量表达形式：
+1. **JSON 数组字面量**:
+   - `[0.1, 0.2, 0.3, ...]`
+2. **JDBC 参数绑定**:
+   - `?` (PreparedStatement)
+   - 支持绑定的 Java 类型: `List<Float>`, `List<Double>` (自动转换), `float[]`, `double[]`。
+3. **批量向量**:
+   - 在 `SEARCH` 中支持一次传入多个向量进行批量搜索: `[[0.1, 0.2], [0.3, 0.4]]`。
 
 ### 删除表
 ```sql
@@ -142,14 +154,47 @@ INSERT INTO table_name (id, vector, age) VALUES (1, [0.1, 0.2], 10);
 INSERT INTO table_name PARTITION partition_name (id, vector) VALUES (2, [0.3, 0.4]);
 ```
 
-### 删除数据
+### 删除数据 (DELETE)
+
+> **注意**： Milvus 的删除操作是逻辑删除，底层通过写入 Delete log 实现。由于 Milvus 原生删除操作主要依赖主键（或基于标量表达式的过滤），本驱动实现向量相关删除时采用了 "Search-to-Delete"（先搜索主键再删除）的策略。
+
+#### 1. 基础删除 (标量过滤)
+支持标准的 SQL `WHERE` 子句进行过滤删除。
+
 ```sql
--- 基本删除
+-- 按主键删除
 DELETE FROM table_name WHERE id = 1;
 DELETE FROM table_name WHERE id IN [1, 2, 3];
 
+-- 按标量条件删除 (需开启 partition 支持或全表 scan)
+DELETE FROM table_name WHERE age > 18 AND status = 'inactive';
+
 -- 指定分区删除
 DELETE FROM table_name PARTITION partition_name WHERE age > 10;
+```
+
+#### 2. 最近邻删除 (KNN Delete)
+删除距离目标向量最近的 K 条记录。需配合 `ORDER BY` 和 `LIMIT` 使用。
+底层机制：执行 TopK 搜索获取主键 -> 执行删除。
+
+```sql
+-- 删除距离 [0.1, 0.2] 最近的 100 条记录
+DELETE FROM table_name ORDER BY vector_col <-> [0.1, 0.2] LIMIT 100;
+
+-- 结合标量过滤：删除 category='book' 且最相似的 10 条
+DELETE FROM table_name WHERE category = 'book' ORDER BY vector_col <-> [0.1, 0.2] LIMIT 10;
+```
+
+#### 3. 范围删除 (Range Delete)
+删除所有落在目标向量指定距离（半径）内的记录。使用 `WHERE` 子句中的 `<->` 运算符配合比较操作符。
+底层机制：执行 Range Search 获取主键 -> 执行删除。
+
+```sql
+-- 删除所有距离 [0.1, 0.2] 小于 0.5 的记录
+DELETE FROM table_name WHERE vector_col <-> [0.1, 0.2] < 0.5;
+
+-- 结合 LIMIT 进行保护 (最多删除符合条件的 1000 条)
+DELETE FROM table_name WHERE vector_col <-> [0.1, 0.2] < 0.5 LIMIT 1000;
 ```
 
 ### 数据导入 (Import)
@@ -197,6 +242,10 @@ SELECT * FROM table_name ORDER BY vector_col <-> [0.1, 0.2, ...] LIMIT 10;
 
 -- 带前置过滤的搜索
 SELECT * FROM table_name WHERE category = 'book' ORDER BY vector_col <-> [0.1, ...] LIMIT 5;
+
+-- 范围搜索/距离过滤 (Range Search)
+-- 语法：WHERE vector_col <-> [vector] < distance_threshold
+SELECT * FROM table_name WHERE vector_col <-> [0.1, 0.2] < 0.8 LIMIT 5;
 ```
 
 ### 高级搜索参数 (WITH 子句)
@@ -219,6 +268,21 @@ WITH (
     params = "{\"nprobe\": 10}", 
     consistency_level = "Strong"
 );
+```
+
+### 统计总数 (Count)
+本适配器支持使用 `count` 语法查询集合或分区的记录总数。
+> **要求**：Milvus 服务端版本需 >= 2.2.0。
+
+```sql
+-- 查询全表总数
+count from table_name;
+
+-- 查询指定分区的总数
+count from table_name partition(partition_name);
+
+-- 带条件过滤的总数 (支持标量过滤)
+count from table_name where age > 18;
 ```
 
 ---

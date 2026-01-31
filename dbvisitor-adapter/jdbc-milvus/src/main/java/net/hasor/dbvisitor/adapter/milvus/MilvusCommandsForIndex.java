@@ -42,11 +42,9 @@ import net.hasor.dbvisitor.driver.AdapterType;
 import net.hasor.dbvisitor.driver.JdbcColumn;
 
 class MilvusCommandsForIndex extends MilvusCommands {
-    protected static final JdbcColumn COL_PARAMS_STRING = new JdbcColumn("PARAMS", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_TOTAL_LONG    = new JdbcColumn("TOTAL", AdapterType.Long, "", "", "");
-    protected static final JdbcColumn COL_INDEXED_LONG  = new JdbcColumn("INDEXED", AdapterType.Long, "", "", "");
-
-    //
+    private static final JdbcColumn COL_PARAMS_STRING = new JdbcColumn("PARAMS", AdapterType.String, "", "", "");
+    private static final JdbcColumn COL_TOTAL_LONG    = new JdbcColumn("TOTAL", AdapterType.Long, "", "", "");
+    private static final JdbcColumn COL_INDEXED_LONG  = new JdbcColumn("INDEXED", AdapterType.Long, "", "", "");
 
     public static Future<?> execCreateIndex(Future<Object> future, MilvusCmd cmd, HintCommandContext h, CreateCmdContext c,//
             AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
@@ -91,10 +89,18 @@ class MilvusCommandsForIndex extends MilvusCommands {
 
         IndexType indexType = null;
         if (c.algo != null) {
+            String algoStr = c.algo.getText();
+            if (algoStr.length() >= 2 && algoStr.startsWith("\"") && algoStr.endsWith("\"")) {
+                algoStr = algoStr.substring(1, algoStr.length() - 1);
+            } else if (algoStr.length() >= 2 && algoStr.startsWith("'") && algoStr.endsWith("'")) {
+                algoStr = algoStr.substring(1, algoStr.length() - 1);
+            }
+
             try {
-                indexType = IndexType.valueOf(c.algo.getText().toUpperCase());
+                indexType = IndexType.valueOf(algoStr.toUpperCase());
             } catch (IllegalArgumentException e) {
-                throw new SQLException("Unsupported index type: " + c.algo.getText());
+                // Try parse from string literal if parser passed quoted string
+                throw new SQLException("Unsupported index type: " + algoStr);
             }
         }
 

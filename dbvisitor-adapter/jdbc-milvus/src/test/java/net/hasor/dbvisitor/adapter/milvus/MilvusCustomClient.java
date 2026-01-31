@@ -1,7 +1,6 @@
 package net.hasor.dbvisitor.adapter.milvus;
-
-import io.milvus.client.MilvusServiceClient;
 import java.util.Map;
+import io.milvus.client.MilvusServiceClient;
 import org.powermock.api.mockito.PowerMockito;
 
 public class MilvusCustomClient implements CustomMilvus {

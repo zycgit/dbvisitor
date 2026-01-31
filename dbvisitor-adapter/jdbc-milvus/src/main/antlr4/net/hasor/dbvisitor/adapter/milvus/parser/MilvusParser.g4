@@ -39,6 +39,7 @@ command
     | importCmd
     | loadCmd
     | selectCmd
+    | countCmd
     | releaseCmd
     | renameCmd
     ;
@@ -78,6 +79,9 @@ showCmd
     | SHOW TABLE collectionName=identifier
     | SHOW CREATE TABLE collectionName=identifier
     | SHOW PARTITION partitionName=identifier ON (TABLE)? collectionName=identifier
+    | SHOW USERS
+    | SHOW ROLES
+    | SHOW GRANTS FOR ROLE roleName=identifier
     | SHOW PARTITIONS FROM (TABLE)? collectionName=identifier
     | SHOW INDEX indexName=identifier ON (TABLE)? collectionName=identifier
     | SHOW INDEXES FROM (TABLE)? collectionName=identifier
@@ -94,19 +98,25 @@ insertCmd
     ;
 
 deleteCmd
-    : DELETE FROM (TABLE)? collectionName=identifier (PARTITION partitionName=identifier)? (WHERE expression)?
+    : DELETE FROM (TABLE)? collectionName=identifier (PARTITION partitionName=identifier)? (WHERE expression)? (ORDER BY sortClause)? (LIMIT (limit=INTEGER | limit=ARG))?
     ;
 
 selectCmd
     : SELECT selectElements FROM collectionName=identifier (PARTITION partitionName=identifier)? (WHERE expression)? (ORDER BY sortClause)? (LIMIT (limit=INTEGER | limit=ARG))? (OFFSET (offset=INTEGER | offset=ARG))? (WITH propertiesList)?
     ;
 
+countCmd
+    : COUNT FROM collectionName=identifier (PARTITION partitionName=identifier)? (WHERE expression)?
+    ;
+
 grantCmd
-    : GRANT ROLE roleName=IDENTIFIER TO userName=IDENTIFIER
+    : GRANT ROLE roleName=identifier TO userName=identifier                                                             # GrantRoleToUser
+    | GRANT privilege=identifier ON objectType=identifier (objectName=identifier | star=STAR) TO ROLE roleName=identifier    # GrantPrivilegeToRole
     ;
 
 revokeCmd
-    : REVOKE ROLE roleName=IDENTIFIER FROM userName=IDENTIFIER
+    : REVOKE ROLE roleName=identifier FROM userName=identifier                                                              # RevokeRoleFromUser
+    | REVOKE privilege=identifier ON objectType=identifier (objectName=identifier | star=STAR) FROM ROLE roleName=identifier     # RevokePrivilegeFromRole
     ;
 
 importCmd
@@ -165,6 +175,7 @@ expression
 term
     : identifier
     | literal
+    | fieldName=identifier distanceOperator vectorValue  // vectorDistance
     ;
 
 // Options
@@ -244,6 +255,22 @@ identifier
     | ROUND_DECIMAL
     | ANNS_FIELD
     | OUT_FIELDS
+    | SELECT
+    | INSERT
+    | DELETE
+    | UPDATE
+    | CREATE
+    | DROP
+    | GRANT
+    | REVOKE
+    | PRIVILEGE
+    | LOAD
+    | IMPORT
+    | RELEASE
+    | SEARCH
+    | QUERY
+    | FLUSH
+    | COMPACT
     ;
 
 literals: literal (COMMA literal)*;
