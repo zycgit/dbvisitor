@@ -38,8 +38,6 @@ import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnSingleCandidate;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -56,9 +54,11 @@ import static net.hasor.dbvisitor.spring.boot.DbVisitorProperties.PREFIX;
  */
 @org.springframework.context.annotation.Configuration
 @ConditionalOnClass({ Session.class, Configuration.class })
-@ConditionalOnSingleCandidate(DataSource.class)
 @EnableConfigurationProperties(DbVisitorProperties.class)
-@AutoConfigureAfter(DataSourceAutoConfiguration.class)
+@AutoConfigureAfter(name = {//
+        "org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration", // 兼容 Spring Boot 2 & 3
+        "org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration"  // 兼容 Spring Boot 4
+})
 public class DbVisitorAutoConfiguration implements BeanClassLoaderAware, ApplicationContextAware, InitializingBean {
     private static final Logger              logger = LoggerFactory.getLogger(DbVisitorAutoConfiguration.class);
     private              ApplicationContext  applicationContext;

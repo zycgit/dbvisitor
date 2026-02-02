@@ -16,10 +16,11 @@
         <module>spring-xml2</module>
         <module>springboot2</module>
         <module>springboot3</module>
+        <module>springboot4</module>
     </modules>
 
     <properties>
-        <dbvisitor.version>6.2.0</dbvisitor.version>
+        <dbvisitor.version>6.6.1-SNAPSHOT</dbvisitor.version>
     </properties>
 
     <dependencyManagement>

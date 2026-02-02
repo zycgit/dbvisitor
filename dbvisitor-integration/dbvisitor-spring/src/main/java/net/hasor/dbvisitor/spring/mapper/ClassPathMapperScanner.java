@@ -143,7 +143,18 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
         // Attribute for MockitoPostProcessor
         // https://github.com/mybatis/spring-boot-starter/issues/475
         // Copy of FactoryBean#OBJECT_TYPE_ATTRIBUTE which was added in Spring 5.2
-        definition.setAttribute("factoryBeanObjectType", beanClassName);
+        try {
+            ClassLoader classLoader = getResourceLoader() != null ? getResourceLoader().getClassLoader() : null;
+            if (classLoader == null) {
+                classLoader = Thread.currentThread().getContextClassLoader();
+            }
+            if (classLoader == null) {
+                classLoader = getClass().getClassLoader();
+            }
+            definition.setAttribute("factoryBeanObjectType", Class.forName(beanClassName, false, classLoader));
+        } catch (ClassNotFoundException e) {
+            // ignore
+        }
 
         // configuration
         boolean explicitFactoryUsed = false;

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="com.example.demo.dao.UserMapper" mapUnderscoreToCamelCase="true">
+
+    <resultMap id="userDTO" type="com.example.demo.dto.UserDTO"/>
+
+    <select id="queryAll" resultMap="userDTO">
+        select * from `stb_user` order by id asc
+    </select>
+</mapper>
