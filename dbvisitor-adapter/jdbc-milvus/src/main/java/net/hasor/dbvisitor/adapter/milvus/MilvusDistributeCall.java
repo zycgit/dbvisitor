@@ -40,6 +40,9 @@ public class MilvusDistributeCall {
             if (command.insertCmd() != null) {
                 return MilvusCommandsForData.execInsertCmd(sync, milvusCmd, h, command.insertCmd(), request, receive, startArgIdx);
             }
+            if (command.updateCmd() != null) {
+                return MilvusCommandsForData.execUpdateCmd(sync, milvusCmd, h, command.updateCmd(), request, receive, startArgIdx);
+            }
             if (command.deleteCmd() != null) {
                 return MilvusCommandsForData.execDeleteCmd(sync, milvusCmd, h, command.deleteCmd(), request, receive, startArgIdx);
             }

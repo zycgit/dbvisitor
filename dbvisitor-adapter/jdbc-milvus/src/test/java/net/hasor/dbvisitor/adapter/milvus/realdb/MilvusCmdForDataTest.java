@@ -18,10 +18,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import io.milvus.client.MilvusServiceClient;
@@ -101,6 +99,268 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
             client.close();
         } finally {
             dropCollection(TEST_COLLECTION);
+        }
+    }
+
+    @Test
+    public void testUpdateSimple() throws Exception {
+        if (!milvusReady) {
+            return;
+        }
+
+        String tableName = "test_update_tb_" + System.currentTimeMillis();
+
+        try {
+            // 1. Create Collection (Fields: book_id, word_count, book_intro)
+            createCollection(tableName);
+
+            // 2. Insert Data
+            try (Connection conn = DriverManager.getConnection(MILVUS_URL);//
+                 Statement stmt = conn.createStatement()) {
+                String insertSql = "INSERT INTO " + tableName + " (book_id, word_count, book_intro) VALUES (1, 100, [0.1, 0.2])";
+                stmt.executeUpdate(insertSql);
+            }
+
+            // 3. Create Index and Load (Required for Query/Update)
+            MilvusServiceClient client = newClient();
+            try {
+                client.createIndex(CreateIndexParam.newBuilder()//
+                        .withCollectionName(tableName)//
+                        .withFieldName("book_intro")//
+                        .withIndexName("idx_book_intro")//
+                        .withIndexType(IndexType.IVF_FLAT)//
+                        .withMetricType(MetricType.L2)//
+                        .withExtraParam("{\"nlist\":1024}")//
+                        .build());
+                client.loadCollection(LoadCollectionParam.newBuilder().withCollectionName(tableName).build());
+            } finally {
+                client.close();
+            }
+
+            // 4. Update Data
+            try (Connection conn = DriverManager.getConnection(MILVUS_URL); //
+                 Statement stmt = conn.createStatement()) {
+
+                // Standard SQL Update
+                String updateSql = "UPDATE " + tableName + " SET word_count = 999 WHERE book_id = 1";
+                int affected = stmt.executeUpdate(updateSql);
+                assertEquals(1, affected);
+            }
+            Thread.sleep(1000);
+
+            // 5. Verify Update
+            try (Connection conn = DriverManager.getConnection(MILVUS_URL);//
+                 Statement stmt = conn.createStatement()) {
+                // Query via JDBC to verify
+                try (ResultSet rs = stmt.executeQuery("SELECT word_count FROM " + tableName + " WHERE book_id = 1")) {
+                    if (rs.next()) {
+                        long count = rs.getLong("word_count");
+                        assertEquals(999L, count);
+                    } else {
+                        throw new RuntimeException("Record not found");
+                    }
+                }
+            }
+
+        } finally {
+            dropCollection(tableName);
+        }
+    }
+
+    @Test
+    public void testUpdateByVectorSearch() throws Exception {
+        if (!milvusReady) {
+            return;
+        }
+        String tableName = "test_upd_vec_" + System.currentTimeMillis();
+        try {
+            createCollection(tableName);
+            MilvusServiceClient client = newClient();
+            try {
+                // Insert data: id=1 vec=[0.1, 0.1], id=2 vec=[0.9, 0.9]
+                // Target: Update nearest to [0.1, 0.1]
+                client.insert(InsertParam.newBuilder().withCollectionName(tableName).withFields(Arrays.asList(//
+                        new InsertParam.Field("book_id", Arrays.asList(1L, 2L)),//
+                        new InsertParam.Field("word_count", Arrays.asList(100L, 200L)),//
+                        new InsertParam.Field("book_intro", Arrays.asList(Arrays.asList(0.1f, 0.1f), Arrays.asList(0.9f, 0.9f)))//
+                )).build());
+                client.createIndex(CreateIndexParam.newBuilder()//
+                        .withCollectionName(tableName)//
+                        .withFieldName("book_intro")//
+                        .withIndexName("idx_intro")//
+                        .withIndexType(IndexType.IVF_FLAT)//
+                        .withMetricType(MetricType.L2)//
+                        .withExtraParam("{\"nlist\":1024}")//
+                        .build());
+                client.loadCollection(LoadCollectionParam.newBuilder()//
+                        .withCollectionName(tableName)//
+                        .build());
+            } finally {
+                client.close();
+            }
+
+            try (Connection conn = DriverManager.getConnection(MILVUS_URL);//
+                 Statement stmt = conn.createStatement()) {
+                // UPDATE nearest to [0.1, 0.1] -> should be id=1
+                int affected = stmt.executeUpdate("UPDATE " + tableName + " SET word_count = 999 ORDER BY book_intro <-> [0.1, 0.1] LIMIT 1");
+                assertEquals(1, affected);
+            }
+            Thread.sleep(1000);
+
+            try (Connection conn = DriverManager.getConnection(MILVUS_URL);//
+                 Statement stmt = conn.createStatement()) {
+                try (ResultSet rs = stmt.executeQuery("SELECT word_count FROM " + tableName + " WHERE book_id = 1")) {
+                    assertTrue(rs.next());
+                    assertEquals(999L, rs.getLong("word_count"));
+                }
+                try (ResultSet rs = stmt.executeQuery("SELECT word_count FROM " + tableName + " WHERE book_id = 2")) {
+                    assertTrue(rs.next());
+                    assertEquals(200L, rs.getLong("word_count")); // Unchanged
+                }
+            }
+        } finally {
+            dropCollection(tableName);
+        }
+    }
+
+    @Test
+    public void testUpdateByVectorRange() throws Exception {
+        if (!milvusReady) {
+            return;
+        }
+        String tableName = "test_upd_rng_" + System.currentTimeMillis();
+        try {
+            createCollection(tableName);
+            MilvusServiceClient client = newClient();
+            try {
+                client.insert(InsertParam.newBuilder()//
+                        .withCollectionName(tableName)//
+                        .withFields(Arrays.asList(//
+                                new InsertParam.Field("book_id", Arrays.asList(1L, 2L, 3L)),//
+                                new InsertParam.Field("word_count", Arrays.asList(100L, 200L, 300L)),//
+                                new InsertParam.Field("book_intro", Arrays.asList(//
+                                        Arrays.asList(0.1f, 0.1f), // dist=0 to [0.1,0.1]
+                                        Arrays.asList(0.11f, 0.11f), // dist very small
+                                        Arrays.asList(0.9f, 0.9f) // far
+                                ))//
+                        )).build());
+                client.createIndex(CreateIndexParam.newBuilder()//
+                        .withCollectionName(tableName)//
+                        .withFieldName("book_intro")//
+                        .withIndexName("idx_intro")//
+                        .withIndexType(IndexType.IVF_FLAT)//
+                        .withMetricType(MetricType.L2)//
+                        .withExtraParam("{\"nlist\":1024}")//
+                        .build());
+                client.loadCollection(LoadCollectionParam.newBuilder()//
+                        .withCollectionName(tableName)//
+                        .build());
+            } finally {
+                client.close();
+            }
+
+            try (Connection conn = DriverManager.getConnection(MILVUS_URL);//
+                 Statement stmt = conn.createStatement()) {
+                // UPDATE range [0.1,0.1], radius=0.1
+                // Should match 1 and 2
+                int affected = stmt.executeUpdate("UPDATE " + tableName + " SET word_count = 888 WHERE vector_range(book_intro, [0.1, 0.1], 0.1)");
+                assertEquals(2, affected);
+            }
+            Thread.sleep(1000);
+
+            try (Connection conn = DriverManager.getConnection(MILVUS_URL);//
+                 Statement stmt = conn.createStatement()) {
+                try (ResultSet rs = stmt.executeQuery("SELECT word_count FROM " + tableName + " WHERE book_id IN (1, 2) AND word_count = 888")) {
+                    int count = 0;
+                    while (rs.next())
+                        count++;
+                    assertEquals(2, count);
+                }
+                try (ResultSet rs = stmt.executeQuery("SELECT word_count FROM " + tableName + " WHERE book_id = 3")) {
+                    assertTrue(rs.next());
+                    assertEquals(300L, rs.getLong("word_count")); // Unchanged
+                }
+            }
+        } finally {
+            dropCollection(tableName);
+        }
+    }
+
+    @Test
+    public void testUpdateComplex() throws Exception {
+        if (!milvusReady) {
+            return;
+        }
+
+        String tableName = "test_update_complex_tb_" + System.currentTimeMillis();
+
+        try {
+            createCollection(tableName);
+
+            // 1. Insert Multiple Data
+            MilvusServiceClient client = newClient();
+            client.insert(InsertParam.newBuilder()//
+                    .withCollectionName(tableName)//
+                    .withFields(Arrays.asList(//
+                            new InsertParam.Field("book_id", Arrays.asList(1L, 2L, 3L, 4L)),//
+                            new InsertParam.Field("word_count", Arrays.asList(1000L, 2000L, 3000L, 4000L)),//
+                            new InsertParam.Field("book_intro", Arrays.asList(//
+                                    Arrays.asList(0.1f, 0.1f),//
+                                    Arrays.asList(0.2f, 0.2f),//
+                                    Arrays.asList(0.3f, 0.3f),//
+                                    Arrays.asList(0.4f, 0.4f)//
+                            ))//
+                    )).build());
+
+            client.createIndex(CreateIndexParam.newBuilder()//
+                    .withCollectionName(tableName)//
+                    .withFieldName("book_intro")//
+                    .withIndexName("idx_book_intro")//
+                    .withIndexType(IndexType.IVF_FLAT)//
+                    .withMetricType(MetricType.L2)//
+                    .withExtraParam("{\"nlist\":1024}")//
+                    .build());
+            client.loadCollection(LoadCollectionParam.newBuilder().withCollectionName(tableName).build());
+            client.close();
+
+            // 2. JDBC Update with Complex WHERE
+            // Condition: book_id IN [1, 2] OR (word_count > 2500 AND book_id = 3)
+            // Matches: 1, 2, 3. (4 is excluded)
+            // Update: word_count = 9999
+
+            String updateSql = "UPDATE " + tableName + " SET word_count = 9999 WHERE book_id IN [1, 2] OR (word_count > 2500 AND book_id = 3)";
+
+            try (Connection conn = DriverManager.getConnection(MILVUS_URL);//
+                 Statement stmt = conn.createStatement()) {
+                int affected = stmt.executeUpdate(updateSql);
+                assertEquals(3, affected); // 1, 2, 3
+            }
+
+            Thread.sleep(1000); // Consistency
+
+            // 3. Verify
+            try (Connection conn = DriverManager.getConnection(MILVUS_URL); //
+                 Statement stmt = conn.createStatement()) {
+
+                // Check ID 1 (Updated)
+                try (ResultSet rs = stmt.executeQuery("SELECT word_count FROM " + tableName + " WHERE book_id = 1")) {
+                    if (rs.next())
+                        assertEquals(9999L, rs.getLong("word_count"));
+                }
+                // Check ID 3 (Updated)
+                try (ResultSet rs = stmt.executeQuery("SELECT word_count FROM " + tableName + " WHERE book_id = 3")) {
+                    if (rs.next())
+                        assertEquals(9999L, rs.getLong("word_count"));
+                }
+                // Check ID 4 (Not Updated)
+                try (ResultSet rs = stmt.executeQuery("SELECT word_count FROM " + tableName + " WHERE book_id = 4")) {
+                    if (rs.next())
+                        assertEquals(4000L, rs.getLong("word_count"));
+                }
+            }
+
+        } finally {
+            dropCollection(tableName);
         }
     }
 
@@ -637,6 +897,5 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
         } finally {
             dropCollection(TEST_COLLECTION);
         }
-
     }
 }

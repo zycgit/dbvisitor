@@ -316,8 +316,17 @@ abstract class MilvusCommands {
                 val = getArg(argIndex, request);
             } else {
                 List<Object> list = new ArrayList<>();
-                for (LiteralContext item : inCtx.listLiteral().literal()) {
-                    list.add(parseLiteral(item, argIndex, request));
+                List<LiteralContext> literals = null;
+                if (inCtx.listLiteral() != null) {
+                    literals = inCtx.listLiteral().literal();
+                } else if (inCtx.parenListLiteral() != null) {
+                    literals = inCtx.parenListLiteral().literal();
+                }
+
+                if (literals != null) {
+                    for (LiteralContext item : literals) {
+                        list.add(parseLiteral(item, argIndex, request));
+                    }
                 }
                 val = list;
             }
@@ -333,6 +342,20 @@ abstract class MilvusCommands {
                 val = getIdentifier(likeCtx.pattern.getText());
             }
             return field + " like " + resultValueToString(val);
+        }
+        if (ctx instanceof FuncExpressionContext) {
+            FuncExpressionContext funcCtx = (FuncExpressionContext) ctx;
+            String funcName = funcCtx.funcName.getText();
+            StringBuilder args = new StringBuilder();
+            if (funcCtx.funcArgs() != null) {
+                for (ExpressionContext e : funcCtx.funcArgs().expression()) {
+                    if (args.length() > 0) {
+                        args.append(", ");
+                    }
+                    args.append(rebuildExpression(argIndex, request, e));
+                }
+            }
+            return funcName + "(" + args + ")";
         }
         if (ctx instanceof TermExpressionContext) {
             TermExpressionContext termCtx = (TermExpressionContext) ctx;
@@ -416,6 +439,43 @@ abstract class MilvusCommands {
                     right.scalarFilter = StringUtils.isBlank(right.scalarFilter) ? leftExpr : "(" + right.scalarFilter + ") && (" + leftExpr + ")";
                     return right;
                 }
+            }
+        }
+
+        // Check if Function (vector_range(field, vector, radius))
+        if (ctx instanceof FuncExpressionContext) {
+            FuncExpressionContext funcCtx = (FuncExpressionContext) ctx;
+            if ("vector_range".equalsIgnoreCase(funcCtx.funcName.getText())) {
+                if (funcCtx.funcArgs() == null || funcCtx.funcArgs().expression().size() < 3) {
+                    return null;
+                }
+                List<ExpressionContext> args = funcCtx.funcArgs().expression();
+
+                VectorRangeExpr res = new VectorRangeExpr();
+                // Arg 0: Field Name
+                res.fieldName = rebuildExpression(argIndex, request, args.get(0));
+
+                // Arg 1: Vector
+                ExpressionContext vecExpr = args.get(1);
+                if (vecExpr instanceof TermExpressionContext) {
+                    TermContext t = ((TermExpressionContext) vecExpr).term();
+                    if (t.literal() != null && t.literal().listLiteral() != null) {
+                        res.vectorValue = (List<?>) parseListLiteral(t.literal().listLiteral(), argIndex, request);
+                    } else if (t.literal() != null && t.literal().ARG() != null) {
+                        res.vectorValue = (List<?>) getArg(argIndex, request);
+                    }
+                }
+                if (res.vectorValue == null) {
+                    // fall back or strict?
+                }
+
+                // Arg 2: Radius
+                String radiusStr = rebuildExpression(argIndex, request, args.get(2));
+                try {
+                    res.radius = Double.parseDouble(radiusStr);
+                } catch (NumberFormatException e) {
+                }
+                return res;
             }
         }
 

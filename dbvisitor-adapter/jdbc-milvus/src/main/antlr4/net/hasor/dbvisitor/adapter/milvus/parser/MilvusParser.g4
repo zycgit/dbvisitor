@@ -33,6 +33,7 @@ command
     | dropCmd
     | showCmd
     | insertCmd
+    | updateCmd
     | deleteCmd
     | grantCmd
     | revokeCmd
@@ -95,6 +96,18 @@ showCmd
 
 insertCmd
     : INSERT INTO collectionName=identifier (PARTITION partitionName=identifier)? (OPEN_PAREN columnList=identifiers CLOSE_PAREN)? VALUES OPEN_PAREN valueList=literals CLOSE_PAREN
+    ;
+
+updateCmd
+    : UPDATE collectionName=identifier (PARTITION partitionName=identifier)? SET setClauseList (WHERE expression)? (ORDER BY sortClause)? (LIMIT (limit=INTEGER | limit=ARG))?
+    ;
+
+setClauseList
+    : setClause (COMMA setClause)*
+    ;
+
+setClause
+    : columnName=identifier EQUALS value=term
     ;
 
 deleteCmd
@@ -167,10 +180,17 @@ expression
     | expression (GT | LT | GTE | LTE) expression                # comparatorExpression
     | expression (EQ | EQUALS | NE) expression                   # comparatorExpression
     | expression (AND | OR) expression                           # logicalExpression
-    | fieldName=identifier IN (listLiteral | ARG)                # inExpression
+    | fieldName=identifier IN (listLiteral | parenListLiteral | ARG)                # inExpression
     | fieldName=identifier LIKE (pattern=STRING_LITERAL | ARG)   # likeExpression
+    | funcName=identifier OPEN_PAREN funcArgs? CLOSE_PAREN       # funcExpression
     | term                                                       # termExpression
     ;
+
+funcArgs
+    : expression (COMMA expression)*
+    ;
+
+parenListLiteral: OPEN_PAREN literal (COMMA literal)* CLOSE_PAREN;
 
 term
     : identifier

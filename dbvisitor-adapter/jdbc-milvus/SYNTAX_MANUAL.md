@@ -154,6 +154,43 @@ INSERT INTO table_name (id, vector, age) VALUES (1, [0.1, 0.2], 10);
 INSERT INTO table_name PARTITION partition_name (id, vector) VALUES (2, [0.3, 0.4]);
 ```
 
+### 更新数据 (UPDATE)
+
+> **注意**： Milvus 的 Update 操作本质上是 Upsert（即 Insert or Replace）。本驱动实现的 Update 实际上是 "Search-to-Upsert"：先查询出符合条件的记录，在内存中修改对应字段，然后回写（Upsert）到数据库。因此，**不建议对海量数据进行全表 Update 操作**。
+
+#### 1. 基础更新 (标量过滤)
+支持标准的 SQL `WHERE` 子句进行过滤更新。
+
+```sql
+-- 按主键更新
+UPDATE table_name SET age = 20 WHERE id = 1;
+
+-- 按标量条件更新 (查询后回写)
+UPDATE table_name SET status = 'active' WHERE age > 18;
+```
+
+#### 2. 最近邻更新 (KNN Update)
+更新距离目标向量最近的 K 条记录。
+底层机制：执行 TopK 搜索 -> 内存修改 -> Upsert。
+
+```sql
+-- 将距离 [0.1, 0.2] 最近的 1 条记录的 status 更新为 1
+UPDATE table_name SET status = 1 ORDER BY vector_col <-> [0.1, 0.2] LIMIT 1;
+```
+
+#### 3. 范围更新 (Range Update)
+更新所有落在目标向量指定距离（半径）内的记录。
+可以使用 `vector_range` 函数或 `<->` 比较表达式。
+
+```sql
+-- 使用 vector_range 函数 (推荐)
+-- 语法: vector_range(vector_field, target_vector, radius)
+UPDATE table_name SET tag = 'A' WHERE vector_range(vector_col, [0.1, 0.2], 0.5);
+
+-- 使用比较表达式
+UPDATE table_name SET tag = 'A' WHERE vector_col <-> [0.1, 0.2] < 0.5;
+```
+
 ### 删除数据 (DELETE)
 
 > **注意**： Milvus 的删除操作是逻辑删除，底层通过写入 Delete log 实现。由于 Milvus 原生删除操作主要依赖主键（或基于标量表达式的过滤），本驱动实现向量相关删除时采用了 "Search-to-Delete"（先搜索主键再删除）的策略。
@@ -186,15 +223,18 @@ DELETE FROM table_name WHERE category = 'book' ORDER BY vector_col <-> [0.1, 0.2
 ```
 
 #### 3. 范围删除 (Range Delete)
-删除所有落在目标向量指定距离（半径）内的记录。使用 `WHERE` 子句中的 `<->` 运算符配合比较操作符。
+删除所有落在目标向量指定距离（半径）内的记录。可以使用 `vector_range` 函数或 `<->` 比较表达式。
 底层机制：执行 Range Search 获取主键 -> 执行删除。
 
 ```sql
--- 删除所有距离 [0.1, 0.2] 小于 0.5 的记录
+-- 使用 vector_range 函数 (推荐)
+DELETE FROM table_name WHERE vector_range(vector_col, [0.1, 0.2], 0.5);
+
+-- 使用比较表达式：删除所有距离 [0.1, 0.2] 小于 0.5 的记录
 DELETE FROM table_name WHERE vector_col <-> [0.1, 0.2] < 0.5;
 
 -- 结合 LIMIT 进行保护 (最多删除符合条件的 1000 条)
-DELETE FROM table_name WHERE vector_col <-> [0.1, 0.2] < 0.5 LIMIT 1000;
+DELETE FROM table_name WHERE vector_range(vector_col, [0.1, 0.2], 0.5) LIMIT 1000;
 ```
 
 ### 数据导入 (Import)
@@ -234,17 +274,20 @@ SELECT * FROM table_name PARTITION partition_name WHERE tag = 'A';
 ```
 
 ### 向量搜索 (Search)
-使用特有的 `<->` 运算符表示向量距离计算。
+使用特有的 `<->` 运算符或 `vector_range` 函数表示向量距离计算。
 
 ```sql
--- 基本搜索 (默认参数)
+-- 基本搜索 (KNN, 默认参数)
 SELECT * FROM table_name ORDER BY vector_col <-> [0.1, 0.2, ...] LIMIT 10;
 
 -- 带前置过滤的搜索
 SELECT * FROM table_name WHERE category = 'book' ORDER BY vector_col <-> [0.1, ...] LIMIT 5;
 
 -- 范围搜索/距离过滤 (Range Search)
--- 语法：WHERE vector_col <-> [vector] < distance_threshold
+-- 方式1：使用 vector_range 函数 (推荐)
+SELECT * FROM table_name WHERE vector_range(vector_col, [0.1, 0.2], 0.8) LIMIT 5;
+
+-- 方式2：使用比较表达式 (WHERE vector_col <-> [vector] < distance_threshold)
 SELECT * FROM table_name WHERE vector_col <-> [0.1, 0.2] < 0.8 LIMIT 5;
 ```
 
