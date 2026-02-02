@@ -1,150 +1,174 @@
-# jdbc-elastic
-
 ## Introduction
+jdbc-elastic is a JDBC driver adapter for Elasticsearch. It allows developers to operate Elasticsearch using standard JDBC interfaces and native REST-style commands.
 
-jdbc-elastic is a JDBC driver adapter for ElasticSearch that allows developers to operate ElasticSearch using standard JDBC interfaces and ElasticSearch's native REST API style commands.
-The goal is to enable developers to seamlessly integrate and use ElasticSearch by leveraging the familiar JDBC programming model.
+Core value:
+- Use standard JDBC APIs (Connection, Statement, PreparedStatement, ResultSet).
+- Use native REST-style command text that maps to Elasticsearch operations.
+- Provide a unified programming style for heterogeneous data sources via dbVisitor.
 
 ## Features
+- Implements the JDBC core interfaces and supports `PreparedStatement` placeholders.
+- Supports REST-style commands and multiple commands separated by semicolons.
+- Supports search/count/multi-search/multi-get, document CRUD, index management, and `_cat` queries.
+- Supports `HEAD` requests and returns a `STATUS` column.
+- Result mapping: search-like responses map to `_ID` and `_DOC` columns; pre-read expands fields as columns.
+- Pre-read mode for large result sets with configurable threshold, max file size, and cache directory.
+- Optional `indexRefresh` to append `refresh=true` for write operations.
+- Elasticsearch 6/7 scenarios are covered by dbVisitor dialects and realdb tests (see `Elastic6Dialect`, `Elastic7Dialect`, and `realdb/elastic6|elastic7`).
 
-- **Native Command Support**: Supports common ElasticSearch REST API commands, including `GET`, `POST`, `PUT`, `DELETE`, `HEAD`.
-- **JDBC Standard Interface**: Supports standard interfaces such as `Connection`, `Statement`, `PreparedStatement`, `ResultSet`, etc.
-- **Parameter Placeholders**: Supports using `?` placeholders in URL paths and JSON bodies, and setting parameters using `PreparedStatement`.
-- **Result Set Mapping**: Automatically maps ElasticSearch JSON responses to JDBC `ResultSet`.
-- **Multi-Command Support**: Supports batch operations like `_mget`, `_msearch`.
-- **Index Management**: Supports index creation, deletion, Mapping settings, Settings configuration, alias management, etc.
-- **Pre-read Optimization**: Supports pre-read configuration for large result sets to optimize reading performance.
-- **Multi-Version Compatibility**: Compatible with ES6/ES7/ES8 simultaneously without dependency adjustments.
+## Usage
 
-## Quick Start
-
-### Dependency
-
+### 4.1 Dependency
 ```xml
 <dependency>
     <groupId>net.hasor</groupId>
     <artifactId>jdbc-elastic</artifactId>
-    <version>6.3.2</version> <!-- Please use the latest version -->
+    <version>Latest Version</version>
 </dependency>
 ```
 
-### Connection Configuration
-
-Connect to ElasticSearch using the standard JDBC URL format:
-
+### 4.2 Connection
 ```java
 String url = "jdbc:dbvisitor:elastic://127.0.0.1:9200";
 Properties props = new Properties();
-props.setProperty("username", "elastic");
+props.setProperty("user", "elastic");
 props.setProperty("password", "changeme");
+props.setProperty("connectTimeout", "5000");
+props.setProperty("socketTimeout", "10000");
 Connection conn = DriverManager.getConnection(url, props);
 ```
 
-**Supported Connection Parameters:**
+JDBC URL format:
+```
+jdbc:dbvisitor:elastic://{host}:{port}
+```
 
-| Parameter Name | Description | Default Value |
+Cluster example (multiple hosts):
+```
+jdbc:dbvisitor:elastic://host1:9200;host2:9200
+```
+
+### 4.3 Connection Parameters
+
+| Parameter | Description | Default |
 | --- | --- | --- |
-| `username` | Authentication username | None |
-| `password` | Authentication password | None |
-| `connectTimeout` | Connection timeout (milliseconds) | - |
-| `socketTimeout` | Socket read timeout (milliseconds) | - |
-| `indexRefresh` | Whether to automatically refresh the index after write operations | `false` |
-| `preRead` | Whether to enable pre-reading | `true` |
-| `preReadThreshold` | Pre-read threshold (bytes), triggers file caching if exceeded | `5MB` |
-| `preReadMaxFileSize` | Maximum pre-read file size | `20MB` |
-| `preReadCacheDir` | Pre-read cache directory | System temporary directory |
+| `server` | Host segment from the JDBC URL. Supports `host:port` or `host1:port;host2:port`. | From URL |
+| `user` / `username` | Username for authentication. | None |
+| `password` | Password for authentication. | Empty |
+| `connectTimeout` | Connection timeout (ms). | Driver default |
+| `socketTimeout` | Socket read timeout (ms). | Driver default |
+| `timeZone` | Driver time zone used for type conversion (for example `+08:00`). | Empty |
+| `indexRefresh` | Append `refresh=true` for write operations. | `false` |
+| `preRead` | Enable pre-read mode. | `true` |
+| `preReadThreshold` | Pre-read threshold size. Accepts `B/KB/MB/GB`. | `5MB` |
+| `preReadMaxFileSize` | Maximum pre-read file size. Accepts `B/KB/MB/GB`. | `20MB` |
+| `preReadCacheDir` | Cache directory for pre-read mode. | `java.io.tmpdir` |
+| `customElastic` | Fully qualified class name implementing `CustomElastic`. | None |
+| `clientName` | Declared parameter but not applied by this adapter. | Not applied |
 
-### Example Code
+## Supported Commands
+The command syntax follows Elasticsearch REST endpoints.
 
-#### 1. Execute Search
+- Query
+  - `GET/POST /{index}/_search` ([Search API](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html))
+  - `GET/POST /{index}/_count` ([Count API](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-count.html))
+  - `GET/POST /{index}/_msearch` ([Multi search API](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-multi-search.html))
+  - `GET/POST /{index}/_mget` ([Multi get API](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-multi-get.html))
+  - `GET/POST /{index}/_explain/{id}` ([Explain API](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-explain.html))
+  - `GET/POST /{index}/_source/{id}` ([Get source API](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-get-source.html))
 
+- Document operations
+  - `PUT/POST /{index}/_doc/{id}` ([Index API](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-index_.html))
+  - `PUT/POST /{index}/_create/{id}` ([Create op](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-index_.html#docs-index-api-op_type))
+  - `POST /{index}/_update/{id}` ([Update API](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-update.html))
+  - `POST /{index}/_update_by_query` ([Update by query API](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-update-by-query.html))
+  - `DELETE /{index}/_doc/{id}` ([Delete API](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete.html))
+  - `POST /{index}/_delete_by_query` ([Delete by query API](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete-by-query.html))
+
+- Index operations
+  - `GET /{index}/_mapping` ([Get mapping API](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-get-mapping.html))
+  - `PUT/POST /{index}/_mapping` ([Put mapping API](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-put-mapping.html))
+  - `GET /{index}/_settings` ([Get settings API](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-get-settings.html))
+  - `PUT /{index}/_settings` ([Update settings API](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-update-settings.html))
+  - `GET/POST /_aliases` ([Aliases API](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-aliases.html))
+  - `POST /{index}/_open` / `POST /{index}/_close` ([Open/Close index API](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-open-close.html))
+  - `GET/POST /{index}/_refresh` ([Refresh API](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-refresh.html))
+  - `POST /_reindex` ([Reindex API](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-reindex.html))
+
+- `_cat` APIs
+  - `GET /_cat/indices` ([cat indices](https://www.elastic.co/guide/en/elasticsearch/reference/current/cat-indices.html))
+  - `GET /_cat/nodes` ([cat nodes](https://www.elastic.co/guide/en/elasticsearch/reference/current/cat-nodes.html))
+  - `GET /_cat/health` ([cat health](https://www.elastic.co/guide/en/elasticsearch/reference/current/cat-health.html))
+
+- Other
+  - `HEAD /{path}` (returns `STATUS` column; see [REST APIs](https://www.elastic.co/guide/en/elasticsearch/reference/current/rest-apis.html))
+  - Generic REST: `GET/POST/PUT/DELETE /{path}` ([REST APIs](https://www.elastic.co/guide/en/elasticsearch/reference/current/rest-apis.html))
+
+## Code Examples
+
+### 1) Create index and mapping (DDL)
 ```java
-try (Connection conn = DriverManager.getConnection(url, props)) {
-    try (Statement stmt = conn.createStatement()) {
-        // Execute DSL query
-        String dsl = "POST /my_index/_search { \"query\": { \"match_all\": {} } }";
-        try (ResultSet rs = stmt.executeQuery(dsl)) {
-            while (rs.next()) {
-                System.out.println("ID: " + rs.getString("_ID"));
-                System.out.println("Source: " + rs.getString("_DOC")); // _DOC returns the original JSON
-            }
-        }
-    }
+try (Statement stmt = conn.createStatement()) {
+    stmt.execute("PUT /my_index");
+    stmt.execute("PUT /my_index/_mapping { \"properties\": { \"title\": { \"type\": \"text\" } } }");
 }
 ```
 
-#### 2. Use PreparedStatement (With Parameters)
+### 2) Insert document (DML)
+```java
+try (Statement stmt = conn.createStatement()) {
+    stmt.executeUpdate("POST /my_index/_doc/1 { \"user\": \"kimchy\", \"message\": \"hello\" }");
+}
+```
 
+### 3) Search with `PreparedStatement` (DQL)
 ```java
 String dsl = "POST /my_index/_search { \"query\": { \"term\": { \"user\": ? } } }";
 try (PreparedStatement pstmt = conn.prepareStatement(dsl)) {
     pstmt.setString(1, "kimchy");
     try (ResultSet rs = pstmt.executeQuery()) {
         while (rs.next()) {
-            // ...
+            rs.getString("_ID");
+            rs.getString("_DOC");
         }
     }
 }
 ```
 
-#### 3. Insert/Update Document
-
+### 4) Path placeholder `{?}`
 ```java
-String insertSql = "POST /my_index/_doc/1 { \"user\": \"kimchy\", \"post_date\": \"2009-11-15T14:12:12\", \"message\": \"trying out Elasticsearch\" }";
-try (Statement stmt = conn.createStatement()) {
-    stmt.executeUpdate(insertSql);
+try (PreparedStatement pstmt = conn.prepareStatement("GET /my_index/_doc/{?}")) {
+    pstmt.setString(1, "1");
+    pstmt.executeQuery();
 }
 ```
 
-#### 4. Index Management
-
+### 5) `_cat` nodes
 ```java
 try (Statement stmt = conn.createStatement()) {
-    // Create Index
-    stmt.execute("PUT /new_index");
-    
-    // Set Mapping
-    stmt.execute("PUT /new_index/_mapping { \"properties\": { \"field1\": { \"type\": \"text\" } } }");
-    
-    // Delete Index
-    stmt.execute("DELETE /new_index");
-}
-```
-
-#### 5. View Cluster Information (_cat)
-
-```java
-try (Statement stmt = conn.createStatement()) {
-    try (ResultSet rs = stmt.executeQuery("GET /_cat/nodes?h=ip,port,heapPercent,name")) {
-        while (rs.next()) {
-            System.out.println(rs.getString("name") + " - " + rs.getString("ip"));
-        }
-    }
+    stmt.executeQuery("GET /_cat/nodes");
 }
 ```
 
 ## Hint Support
+Hints must appear at the beginning of the command text. Format: `/*+ name=value */`.
 
-jdbc-elastic supports overriding or enhancing query behavior via SQL Hints. The Hint format is `/*+ hint_name=value */` and must be placed at the beginning of the SQL statement.
-
-| Hint Name | Description | Example |
+| Hint | Description | Example |
 | --- | --- | --- |
-| `overwrite_find_limit` | Overrides the `size` parameter of the query, used for pagination or limiting the number of results. | `/*+ overwrite_find_limit=10 */ POST /idx/_search` |
-| `overwrite_find_skip` | Overrides the `from` parameter of the query, used for pagination to skip a specified number of results. | `/*+ overwrite_find_skip=20 */ POST /idx/_search` |
-| `overwrite_find_as_count` | Converts the query into a Count operation, ignoring the returned document content and returning only the match count. | `/*+ overwrite_find_as_count */ POST /idx/_search` |
-
-## Supported Commands Overview
-
-jdbc-elastic converts SQL-style commands into underlying REST requests by parsing them. The supported command patterns are as follows:
-
-- **Query**: `GET/POST .../_search`, `_count`, `_msearch`, `_mget`, `_explain`, `_source`
-- **Document Operations**: `PUT/POST .../_doc/...`, `_create`, `_update`, `DELETE ...`
-- **Index Operations**: `PUT/DELETE /index`, `_open`, `_close`, `_mapping`, `_settings`, `_aliases`, `_reindex`, `_refresh`
-- **Cluster Information**: `GET /_cat/...`
-- **Generic Requests**: Supports arbitrary `GET`, `POST`, `PUT`, `DELETE`, `HEAD` requests.
+| `overwrite_find_limit` | Overrides the `size` in search requests. | `/*+ overwrite_find_limit=10 */ POST /idx/_search` |
+| `overwrite_find_skip` | Overrides the `from` in search requests. | `/*+ overwrite_find_skip=20 */ POST /idx/_search` |
+| `overwrite_find_as_count` | Converts `/_search` to `/_count`. | `/*+ overwrite_find_as_count */ POST /idx/_search` |
 
 ## Limitations
+- `_cat` queries automatically append `format=json` (if specified, it must be json).
+- Only REST-style command grammar is supported; Elasticsearch SQL is not supported.
 
-- **Transaction Support**: ElasticSearch itself does not support ACID transactions, so `commit` and `rollback` operations are ineffective (default is auto-commit).
-- **SQL Support**: Currently mainly supports REST API style commands, standard SQL syntax (such as `SELECT * FROM ...`) is not supported yet.
+## Compatibility
+- JDK 8+
+- Elasticsearch REST client: `elasticsearch-rest-client` 7.17.10
+- Jackson: `jackson-databind` 2.18.0
+- dbVisitor includes Elastic6/Elastic7 dialects and realdb test suites for ES6/ES7 scenarios.
+
+## More Resources
+- dbVisitor Documentation: https://www.dbvisitor.net/docs/guides/overview
 

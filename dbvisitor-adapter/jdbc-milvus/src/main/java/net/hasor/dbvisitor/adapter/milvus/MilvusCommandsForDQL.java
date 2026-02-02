@@ -40,12 +40,18 @@ class MilvusCommandsForDQL extends MilvusCommands {
     public static Future<?> execSelectCmd(Future<Object> future, MilvusCmd cmd, HintCommandContext h, SelectCmdContext c, //
             AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        readHints(argIndex, request, h.hint());
+        Map<String, Object> hints = readHints(argIndex, request, h.hint());
 
         String collectionName = getIdentifier(c.collectionName.getText());
         String partitionName = c.partitionName != null ? getIdentifier(c.partitionName.getText()) : null;
         List<String> outFields = new ArrayList<>();
         Map<String, String> properties = readProperties(argIndex, request, c.propertiesList());
+
+        // Check for overwrite_find_as_count
+        if (hints.containsKey("overwrite_find_as_count")) {
+            String expr = (c.expression() != null) ? rebuildExpression(argIndex, request, c.expression()) : "";
+            return execCountQuery(future, cmd, collectionName, partitionName, expr, request, receive);
+        }
 
         // Select Elements
         boolean isStar = c.selectElements().STAR() != null;
@@ -65,7 +71,7 @@ class MilvusCommandsForDQL extends MilvusCommands {
 
         if (isSearch) {
             String expr = (c.expression() != null) ? rebuildExpression(argIndex, request, c.expression()) : "";
-            resultData = execSearch(cmd, collectionName, partitionName, expr, outFields, sortCtx, c, argIndex, request, properties);
+            resultData = execSearch(cmd, collectionName, partitionName, expr, outFields, sortCtx, c, argIndex, request, properties, hints);
         } else {
             // Check if expression contains Vector Range (making it a search)
             AtomicInteger tempIndex = new AtomicInteger(argIndex.get());
@@ -73,11 +79,11 @@ class MilvusCommandsForDQL extends MilvusCommands {
             if (rangeExpr != null) {
                 // It is a range search. Update main argIndex
                 argIndex.set(tempIndex.get());
-                resultData = execRangeSearch(cmd, collectionName, partitionName, rangeExpr, outFields, c, argIndex, request, properties);
+                resultData = execRangeSearch(cmd, collectionName, partitionName, rangeExpr, outFields, c, argIndex, request, properties, hints);
             } else {
                 // Scalar Query
                 String expr = (c.expression() != null) ? rebuildExpression(argIndex, request, c.expression()) : "";
-                resultData = execQuery(cmd, collectionName, partitionName, expr, outFields, c, argIndex, request);
+                resultData = execQuery(cmd, collectionName, partitionName, expr, outFields, c, argIndex, request, hints);
             }
         }
 
@@ -100,8 +106,40 @@ class MilvusCommandsForDQL extends MilvusCommands {
         return completed(future);
     }
 
+    private static Future<?> execCountQuery(Future<Object> future, MilvusCmd cmd, String collectionName, String partitionName, String expr, AdapterRequest request, AdapterReceive receive) throws SQLException {
+        QueryParam.Builder queryBuilder = QueryParam.newBuilder()//
+                .withCollectionName(collectionName)//
+                .withExpr(expr)//
+                .withOutFields(Collections.singletonList("count(*)"));
+
+        if (StringUtils.isNotBlank(partitionName)) {
+            queryBuilder.withPartitionNames(Collections.singletonList(partitionName));
+        }
+
+        R<QueryResults> callback = cmd.getClient().query(queryBuilder.build());
+        if (callback.getStatus() != R.Status.Success.getCode()) {
+            throw new SQLException(callback.getMessage());
+        }
+
+        QueryResultsWrapper wrapper = new QueryResultsWrapper(callback.getData());
+        long count = 0;
+        if (wrapper != null && !wrapper.getRowRecords().isEmpty()) {
+            Map<String, Object> row = wrapper.getRowRecords().get(0).getFieldValues();
+            Object val = row.get("count(*)");
+            if (val instanceof Number) {
+                count = ((Number) val).longValue();
+            }
+        }
+
+        List<JdbcColumn> columns = Collections.singletonList(new JdbcColumn("count", AdapterType.Long, "", "", ""));
+        List<Map<String, Object>> resultData = Collections.singletonList(Collections.singletonMap("count", count));
+
+        receive.responseResult(request, listResult(request, columns, resultData));
+        return completed(future);
+    }
+
     private static List<Map<String, Object>> execSearch(MilvusCmd cmd, String collectionName, String partitionName, String expr, List<String> outFields, //
-            SortClauseContext sortCtx, SelectCmdContext c, AtomicInteger argIndex, AdapterRequest request, Map<String, String> properties) throws SQLException {
+            SortClauseContext sortCtx, SelectCmdContext c, AtomicInteger argIndex, AdapterRequest request, Map<String, String> properties, Map<String, Object> hints) throws SQLException {
         // Search
         String annsField = getIdentifier(sortCtx.fieldName.getText());
         Object vectorData = null;
@@ -130,13 +168,18 @@ class MilvusCommandsForDQL extends MilvusCommands {
         }
 
         Integer topK = null;
-        if (c.limit != null) {
-            if (c.limit.getText().startsWith("?")) {
-                topK = ((Number) getArg(argIndex, request)).intValue();
-            } else {
-                topK = Integer.parseInt(c.limit.getText());
+        if (hints.containsKey("overwrite_find_limit")) {
+            topK = Integer.parseInt(hints.get("overwrite_find_limit").toString());
+        } else {
+            if (c.limit != null) {
+                if (c.limit.getText().startsWith("?")) {
+                    topK = ((Number) getArg(argIndex, request)).intValue();
+                } else {
+                    topK = Integer.parseInt(c.limit.getText());
+                }
             }
         }
+
         if (topK == null) {
             topK = 10; // Default TopK
         }
@@ -187,19 +230,24 @@ class MilvusCommandsForDQL extends MilvusCommands {
     }
 
     private static List<Map<String, Object>> execRangeSearch(MilvusCmd cmd, String collectionName, String partitionName, VectorRangeExpr rangeExpr, List<String> outFields, //
-            SelectCmdContext c, AtomicInteger argIndex, AdapterRequest request, Map<String, String> properties) throws SQLException {
+            SelectCmdContext c, AtomicInteger argIndex, AdapterRequest request, Map<String, String> properties, Map<String, Object> hints) throws SQLException {
 
         // Similar to execSearch but with explicit radius
         List<Float> vector = toFloatList(rangeExpr.vectorValue);
 
         Integer topK = null;
-        if (c.limit != null) {
-            if (c.limit.getText().startsWith("?")) {
-                topK = ((Number) getArg(argIndex, request)).intValue();
-            } else {
-                topK = Integer.parseInt(c.limit.getText());
+        if (hints.containsKey("overwrite_find_limit")) {
+            topK = Integer.parseInt(hints.get("overwrite_find_limit").toString());
+        } else {
+            if (c.limit != null) {
+                if (c.limit.getText().startsWith("?")) {
+                    topK = ((Number) getArg(argIndex, request)).intValue();
+                } else {
+                    topK = Integer.parseInt(c.limit.getText());
+                }
             }
         }
+
         if (topK == null) {
             topK = 16384; // Default large TopK for range search if not specified, or limitation?
             // Actually, for range search, usually we want all matches within radius. But Milvus still requires TopK.
@@ -255,7 +303,7 @@ class MilvusCommandsForDQL extends MilvusCommands {
     }
 
     private static List<Map<String, Object>> execQuery(MilvusCmd cmd, String collectionName, String partitionName, String expr, List<String> outFields, //
-            SelectCmdContext c, AtomicInteger argIndex, AdapterRequest request) throws SQLException {
+            SelectCmdContext c, AtomicInteger argIndex, AdapterRequest request, Map<String, Object> hints) throws SQLException {
         // Query
         QueryParam.Builder queryBuilder = QueryParam.newBuilder()//
                 .withCollectionName(collectionName)//
@@ -266,7 +314,10 @@ class MilvusCommandsForDQL extends MilvusCommands {
             queryBuilder.withPartitionNames(Collections.singletonList(partitionName));
         }
 
-        if (c.limit != null) {
+        if (hints.containsKey("overwrite_find_limit")) {
+            long limitVal = Long.parseLong(hints.get("overwrite_find_limit").toString());
+            queryBuilder.withLimit(limitVal);
+        } else if (c.limit != null) {
             long limitVal;
             if (c.limit.getText().startsWith("?")) {
                 limitVal = ((Number) getArg(argIndex, request)).longValue();
@@ -276,7 +327,10 @@ class MilvusCommandsForDQL extends MilvusCommands {
             queryBuilder.withLimit(limitVal);
         }
 
-        if (c.offset != null) {
+        if (hints.containsKey("overwrite_find_skip")) {
+            long offsetVal = Long.parseLong(hints.get("overwrite_find_skip").toString());
+            queryBuilder.withOffset(offsetVal);
+        } else if (c.offset != null) {
             long offsetVal;
             if (c.offset.getText().startsWith("?")) {
                 offsetVal = ((Number) getArg(argIndex, request)).longValue();

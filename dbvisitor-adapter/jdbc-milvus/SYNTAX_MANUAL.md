@@ -285,6 +285,26 @@ count from table_name partition(partition_name);
 count from table_name where age > 18;
 ```
 
+### 查询提示 (Hints)
+本适配器支持使用 SQL Hint (`/*+ ... */`) 来覆盖默认的分页或查询行为，类似于 Elastic/Mongo 适配器中的用法。
+
+支持的 Hint：
+- `overwrite_find_limit`: 强制覆盖查询的 LIMIT (TopK)。
+- `overwrite_find_skip`: 强制覆盖查询的 OFFSET。
+- `overwrite_find_as_count`: 将当前的查询强制转换为 COUNT 查询 (忽略 SELECT 字段和排序)。
+
+示例：
+
+```sql
+-- 强制限制返回 5 条记录，跳过前 10 条
+/*+ overwrite_find_limit=5, overwrite_find_skip=10 */
+SELECT * FROM table_name WHERE status = 1;
+
+-- 使用 Hint 获取匹配条件的记录总数 (等同于 count from ... where ...)
+/*+ overwrite_find_as_count=true */
+SELECT * FROM table_name WHERE age > 20;
+```
+
 ---
 
 ## 7. 进度监控 (Progress)

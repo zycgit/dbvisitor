@@ -1,149 +1,173 @@
-# jdbc-elastic
-
 ## 介绍
+jdbc-elastic 是 Elasticsearch 的 JDBC 驱动适配器，允许开发者使用标准 JDBC 接口和原生 REST 风格命令操作 Elasticsearch。
 
-jdbc-elastic 是一个 ElasticSearch 的 JDBC 驱动适配器，它允许开发者使用标准的 JDBC 接口和 ElasticSearch 原生 REST API 风格的命令来操作 ElasticSearch。
-目的是通过熟悉 JDBC 编程模型，使开发者能够无缝地集成和使用 ElasticSearch。
+核心价值：
+- 使用标准 JDBC API（Connection、Statement、PreparedStatement、ResultSet）。
+- 使用原生 REST 风格命令映射到 Elasticsearch 操作。
+- 通过 dbVisitor 为异构数据源提供统一的编码风格。
 
 ## 特性
+- 实现 JDBC 核心接口并支持 `PreparedStatement` 占位符。
+- 支持 REST 风格命令，支持多条命令以分号顺序执行。
+- 支持搜索/统计/批量查询、文档 CRUD、索引管理与 `_cat` 查询。
+- 支持 `HEAD` 请求并返回 `STATUS` 列。
+- 结果映射：搜索类响应映射为 `_ID` 与 `_DOC` 列；预读模式下会展开字段列。
+- 预读模式支持阈值、最大文件大小、缓存目录配置。
+- 可选 `indexRefresh` 在写入时追加 `refresh=true`。
+- dbVisitor 提供 Elastic6/Elastic7 方言与 realdb 场景化测试（`Elastic6Dialect`、`Elastic7Dialect`、`realdb/elastic6|elastic7`）。
 
-- **原生命令支持**：支持 ElasticSearch 的常用 REST API 命令，包括 `GET`, `POST`, `PUT`, `DELETE`, `HEAD`。
-- **JDBC 标准接口**：支持 `Connection`, `Statement`, `PreparedStatement`, `ResultSet` 等标准接口。
-- **参数占位符**：支持在 URL 路径和 JSON Body 中使用 `?` 占位符，并使用 `PreparedStatement` 设置参数。
-- **结果集映射**：自动将 ElasticSearch 的 JSON 响应映射为 JDBC `ResultSet`。
-- **多命令支持**：支持 `_mget`, `_msearch` 等批量操作。
-- **索引管理**：支持索引的创建、删除、Mapping 设置、Settings 设置、别名管理等。
-- **预读优化**：支持大结果集的预读配置，优化读取性能。
-- **多版本兼容**：无需调整依赖，同时兼容 ES6/ES7/ES8。
+## 使用
 
-## 快速开始
-
-### 引入依赖
-
+### 4.1 引入依赖
 ```xml
 <dependency>
     <groupId>net.hasor</groupId>
     <artifactId>jdbc-elastic</artifactId>
-    <version>6.3.2</version> <!-- 请使用最新版本 -->
+    <version>最新版本</version>
 </dependency>
 ```
 
-### 连接配置
-
-使用标准的 JDBC URL 格式连接 ElasticSearch：
-
+### 4.2 建立连接
 ```java
 String url = "jdbc:dbvisitor:elastic://127.0.0.1:9200";
 Properties props = new Properties();
-props.setProperty("username", "elastic");
+props.setProperty("user", "elastic");
 props.setProperty("password", "changeme");
+props.setProperty("connectTimeout", "5000");
+props.setProperty("socketTimeout", "10000");
 Connection conn = DriverManager.getConnection(url, props);
 ```
 
-**支持的连接参数：**
+JDBC URL 格式：
+```
+jdbc:dbvisitor:elastic://{host}:{port}
+```
 
-| 参数名 | 说明 | 默认值 |
+集群示例（多主机）：
+```
+jdbc:dbvisitor:elastic://host1:9200;host2:9200
+```
+
+### 4.3 连接参数详解
+
+| 参数 | 说明 | 默认值 |
 | --- | --- | --- |
-| `username` | 认证用户名 | 无 |
-| `password` | 认证密码 | 无 |
-| `connectTimeout` | 连接超时时间（毫秒） | - |
-| `socketTimeout` | Socket 读取超时时间（毫秒） | - |
-| `indexRefresh` | 是否在写入操作后自动刷新索引 | `false` |
-| `preRead` | 是否开启预读 | `true` |
-| `preReadThreshold` | 预读阈值（字节），超过该大小触发文件缓存 | `5MB` |
-| `preReadMaxFileSize` | 预读最大文件大小 | `20MB` |
-| `preReadCacheDir` | 预读缓存目录 | 系统临时目录 |
+| `server` | JDBC URL 的 host 部分。支持 `host:port` 或 `host1:port;host2:port`。 | 来自 URL |
+| `user` / `username` | 认证用户名。 | 无 |
+| `password` | 认证密码。 | 空 |
+| `connectTimeout` | 连接超时（毫秒）。 | 驱动默认值 |
+| `socketTimeout` | Socket 读取超时（毫秒）。 | 驱动默认值 |
+| `timeZone` | 驱动用于类型转换的时区（例如 `+08:00`）。 | 空 |
+| `indexRefresh` | 写入操作追加 `refresh=true`。 | `false` |
+| `preRead` | 是否启用预读模式。 | `true` |
+| `preReadThreshold` | 预读阈值，支持 `B/KB/MB/GB`。 | `5MB` |
+| `preReadMaxFileSize` | 预读最大文件大小，支持 `B/KB/MB/GB`。 | `20MB` |
+| `preReadCacheDir` | 预读缓存目录。 | `java.io.tmpdir` |
+| `customElastic` | 实现 `CustomElastic` 的类全名。 | 无 |
+| `clientName` | 已声明但未应用的参数。 | 未应用 |
 
-### 示例代码
+## 支持的指令
+命令语法参考 Elasticsearch 官方文档。
 
-#### 1. 执行查询 (Search)
+- 查询
+  - `GET/POST /{index}/_search`（[Search API](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html)）
+  - `GET/POST /{index}/_count`（[Count API](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-count.html)）
+  - `GET/POST /{index}/_msearch`（[Multi search API](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-multi-search.html)）
+  - `GET/POST /{index}/_mget`（[Multi get API](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-multi-get.html)）
+  - `GET/POST /{index}/_explain/{id}`（[Explain API](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-explain.html)）
+  - `GET/POST /{index}/_source/{id}`（[Get source API](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-get-source.html)）
 
+- 文档操作
+  - `PUT/POST /{index}/_doc/{id}`（[Index API](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-index_.html)）
+  - `PUT/POST /{index}/_create/{id}`（[Create op](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-index_.html#docs-index-api-op_type)）
+  - `POST /{index}/_update/{id}`（[Update API](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-update.html)）
+  - `POST /{index}/_update_by_query`（[Update by query API](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-update-by-query.html)）
+  - `DELETE /{index}/_doc/{id}`（[Delete API](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete.html)）
+  - `POST /{index}/_delete_by_query`（[Delete by query API](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete-by-query.html)）
+
+- 索引操作
+  - `GET /{index}/_mapping`（[Get mapping API](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-get-mapping.html)）
+  - `PUT/POST /{index}/_mapping`（[Put mapping API](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-put-mapping.html)）
+  - `GET /{index}/_settings`（[Get settings API](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-get-settings.html)）
+  - `PUT /{index}/_settings`（[Update settings API](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-update-settings.html)）
+  - `GET/POST /_aliases`（[Aliases API](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-aliases.html)）
+  - `POST /{index}/_open` / `POST /{index}/_close`（[Open/Close index API](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-open-close.html)）
+  - `GET/POST /{index}/_refresh`（[Refresh API](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-refresh.html)）
+  - `POST /_reindex`（[Reindex API](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-reindex.html)）
+
+- `_cat` 查询
+  - `GET /_cat/indices`（[cat indices](https://www.elastic.co/guide/en/elasticsearch/reference/current/cat-indices.html)）
+  - `GET /_cat/nodes`（[cat nodes](https://www.elastic.co/guide/en/elasticsearch/reference/current/cat-nodes.html)）
+  - `GET /_cat/health`（[cat health](https://www.elastic.co/guide/en/elasticsearch/reference/current/cat-health.html)）
+
+- 其他
+  - `HEAD /{path}`（返回 `STATUS` 列，参考 [REST APIs](https://www.elastic.co/guide/en/elasticsearch/reference/current/rest-apis.html)）
+  - 通用 REST：`GET/POST/PUT/DELETE /{path}`（[REST APIs](https://www.elastic.co/guide/en/elasticsearch/reference/current/rest-apis.html)）
+
+## 常用操作示例
+
+### 1) 创建索引与 Mapping（DDL）
 ```java
-try (Connection conn = DriverManager.getConnection(url, props)) {
-    try (Statement stmt = conn.createStatement()) {
-        // 执行 DSL 查询
-        String dsl = "POST /my_index/_search { \"query\": { \"match_all\": {} } }";
-        try (ResultSet rs = stmt.executeQuery(dsl)) {
-            while (rs.next()) {
-                System.out.println("ID: " + rs.getString("_ID"));
-                System.out.println("Source: " + rs.getString("_DOC")); // _DOC 返回原始 JSON
-            }
-        }
-    }
+try (Statement stmt = conn.createStatement()) {
+    stmt.execute("PUT /my_index");
+    stmt.execute("PUT /my_index/_mapping { \"properties\": { \"title\": { \"type\": \"text\" } } }");
 }
 ```
 
-#### 2. 使用 PreparedStatement (带参数)
+### 2) 插入文档（DML）
+```java
+try (Statement stmt = conn.createStatement()) {
+    stmt.executeUpdate("POST /my_index/_doc/1 { \"user\": \"kimchy\", \"message\": \"hello\" }");
+}
+```
 
+### 3) 使用 `PreparedStatement` 查询（DQL）
 ```java
 String dsl = "POST /my_index/_search { \"query\": { \"term\": { \"user\": ? } } }";
 try (PreparedStatement pstmt = conn.prepareStatement(dsl)) {
     pstmt.setString(1, "kimchy");
     try (ResultSet rs = pstmt.executeQuery()) {
         while (rs.next()) {
-            // ...
+            rs.getString("_ID");
+            rs.getString("_DOC");
         }
     }
 }
 ```
 
-#### 3. 插入/更新文档
-
+### 4) 路径占位符 `{?}`
 ```java
-String insertSql = "POST /my_index/_doc/1 { \"user\": \"kimchy\", \"post_date\": \"2009-11-15T14:12:12\", \"message\": \"trying out Elasticsearch\" }";
-try (Statement stmt = conn.createStatement()) {
-    stmt.executeUpdate(insertSql);
+try (PreparedStatement pstmt = conn.prepareStatement("GET /my_index/_doc/{?}")) {
+    pstmt.setString(1, "1");
+    pstmt.executeQuery();
 }
 ```
 
-#### 4. 索引管理
-
+### 5) `_cat` 节点
 ```java
 try (Statement stmt = conn.createStatement()) {
-    // 创建索引
-    stmt.execute("PUT /new_index");
-    
-    // 设置 Mapping
-    stmt.execute("PUT /new_index/_mapping { \"properties\": { \"field1\": { \"type\": \"text\" } } }");
-    
-    // 删除索引
-    stmt.execute("DELETE /new_index");
-}
-```
-
-#### 5. 查看集群信息 (_cat)
-
-```java
-try (Statement stmt = conn.createStatement()) {
-    try (ResultSet rs = stmt.executeQuery("GET /_cat/nodes?h=ip,port,heapPercent,name")) {
-        while (rs.next()) {
-            System.out.println(rs.getString("name") + " - " + rs.getString("ip"));
-        }
-    }
+    stmt.executeQuery("GET /_cat/nodes");
 }
 ```
 
 ## Hint 支持
+Hint 必须位于命令开头，格式为 `/*+ name=value */`。
 
-jdbc-elastic 支持通过 SQL Hint 方式来覆盖或增强查询行为。Hint 格式为 `/*+ hint_name=value */`，必须位于 SQL 语句的开头。
-
-| Hint 名称 | 说明 | 示例 |
+| Hint | 说明 | 示例 |
 | --- | --- | --- |
-| `overwrite_find_limit` | 覆盖查询的 `size` 参数，用于分页或限制返回条数。 | `/*+ overwrite_find_limit=10 */ POST /idx/_search` |
-| `overwrite_find_skip` | 覆盖查询的 `from` 参数，用于分页跳过指定条数。 | `/*+ overwrite_find_skip=20 */ POST /idx/_search` |
-| `overwrite_find_as_count` | 将查询转换为 Count 操作，忽略返回的文档内容，仅返回匹配数量。 | `/*+ overwrite_find_as_count */ POST /idx/_search` |
+| `overwrite_find_limit` | 覆盖搜索请求的 `size`。 | `/*+ overwrite_find_limit=10 */ POST /idx/_search` |
+| `overwrite_find_skip` | 覆盖搜索请求的 `from`。 | `/*+ overwrite_find_skip=20 */ POST /idx/_search` |
+| `overwrite_find_as_count` | 将 `/_search` 转换为 `/_count`。 | `/*+ overwrite_find_as_count */ POST /idx/_search` |
 
-## 支持的命令概览
+## 限制与注意事项
+- `_cat` 查询会自动追加 `format=json` 参数（若手动指定则必须为 json）。
+- 仅支持 REST 风格命令语法，不支持 Elasticsearch SQL。
 
-jdbc-elastic 通过解析 SQL 风格的命令，将其转换为底层的 REST 请求。支持的命令模式如下：
+## 兼容性
+- JDK 8+
+- Elasticsearch REST Client：`elasticsearch-rest-client` 7.17.10
+- Jackson：`jackson-databind` 2.18.0
+- dbVisitor 含 Elastic6/Elastic7 方言与 ES6/ES7 realdb 场景化测试。
 
-- **查询**: `GET/POST .../_search`, `_count`, `_msearch`, `_mget`, `_explain`, `_source`
-- **文档操作**: `PUT/POST .../_doc/...`, `_create`, `_update`, `DELETE ...`
-- **索引操作**: `PUT/DELETE /index`, `_open`, `_close`, `_mapping`, `_settings`, `_aliases`, `_reindex`, `_refresh`
-- **集群信息**: `GET /_cat/...`
-- **通用请求**: 支持任意 `GET`, `POST`, `PUT`, `DELETE`, `HEAD` 请求。
-
-## 限制
-
-- 事务支持：ElasticSearch 本身不支持 ACID 事务，因此 `commit` 和 `rollback` 操作无效（默认为自动提交）。
-- SQL 支持：目前主要支持 REST API 风格的命令，暂不支持标准 SQL 语法（如 `SELECT * FROM ...`）。
+## 更多资源
+- dbVisitor 文档中心：https://www.dbvisitor.net/docs/guides/overview

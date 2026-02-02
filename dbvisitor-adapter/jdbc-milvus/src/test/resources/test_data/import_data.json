@@ -1,0 +1,14 @@
+{
+  "rows": [
+    {
+      "book_id": 1,
+      "word_count": 100,
+      "book_intro": [0.1, 0.1]
+    },
+    {
+      "book_id": 2,
+      "word_count": 200,
+      "book_intro": [0.2, 0.2]
+    }
+  ]
+}

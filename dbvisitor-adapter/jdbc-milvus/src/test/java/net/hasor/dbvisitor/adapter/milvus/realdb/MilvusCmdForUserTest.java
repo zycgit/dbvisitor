@@ -50,19 +50,25 @@ public class MilvusCmdForUserTest extends AbstractMilvusCmdForTest {
                     try (Statement revokeStmt = conn.createStatement()) {
                         revokeStmt.executeUpdate(sql);
                     } catch (Exception e) {
-                        System.err.println("Failed to revoke: " + sql);
-                        e.printStackTrace();
+                        System.err.println("Failed to revoke: " + sql + " -> " + e.getMessage());
                     }
                 }
                 System.out.println("Found " + count + " grants.");
             } catch (Exception e) {
-                System.err.println("SHOW GRANTS failed");
-                e.printStackTrace();
+                if (e.getMessage() != null && e.getMessage().contains("not found the role")) {
+                    // ignore
+                } else {
+                    System.err.println("SHOW GRANTS failed: " + e.getMessage());
+                }
             }
             try {
                 stmt.executeUpdate("DROP ROLE IF EXISTS " + TEST_ROLE);
             } catch (Exception e) {
-                e.printStackTrace();
+                if (e.getMessage() != null && e.getMessage().contains("not found the role")) {
+                    // ignore
+                } else {
+                    e.printStackTrace();
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

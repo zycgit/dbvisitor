@@ -1,202 +1,180 @@
 ## Introduction
+jdbc-mongo is a JDBC driver adapter for MongoDB. It allows developers to operate MongoDB using standard JDBC interfaces and native-command style Mongo commands.
 
-jdbc-mongo is a MongoDB JDBC driver adapter that allows developers to operate MongoDB using the standard JDBC interfaces and MongoDB commands.
-The goal is to enable seamless use of MongoDB by leveraging the familiar JDBC programming model.
+Core value:
+- Use standard JDBC APIs (Connection, Statement, PreparedStatement, ResultSet).
+- Use native-command style command text that maps to MongoDB operations.
+- Provide a unified programming style for heterogeneous data sources via dbVisitor.
 
 ## Features
-
-- Supports common MongoDB commands, including CRUD, aggregation, index management, etc.
-- Implements standard JDBC interfaces, including Connection, Statement, PreparedStatement, ResultSet, etc.
-- Supports command parameter placeholders "?" and setting parameters via PreparedStatement.
-- Supports multi-command execution and obtaining multi-command results via standard JDBC methods.
-- Supports Statement properties: maxRows, fetchSize, timeoutSec.
-- Supports command interceptors for logging, performance monitoring, etc.
-- Supports type conversion; e.g., when a result set returns LONG, you may retrieve it via ResultSet.getInt or ResultSet.getString.
-- Supports pre-read configuration to optimize reading performance for large files or large amounts of data.
-
-## Technical
-
-### Architecture
-
-The jdbc-mongo project uses the Adapter pattern to map standard JDBC interfaces to the MongoDB command model. Main components include:
-- MongoConn: implements the JDBC Connection interface; core of the adapter, responsible for connection management and command execution.
-- MongoCmd: wraps MongoDB client command interfaces.
-- MongoRequest: represents a MongoDB command request.
-- ANTLR4 parser: used to parse SQL-style MongoDB commands and generate execution plans.
-
-### Command Execution
-
-- Users create Connection and Statement via the JDBC API and execute MongoDB commands.
-- MongoConn receives the command and parses it using the ANTLR4 parser.
-- Parsed commands are forwarded by MongoCmd to the underlying MongoDB official driver for execution.
-- Results are returned to users via standard ResultSet or update counts.
-
-### Dependencies
-
-- MongoDB Driver: The official Java client for MongoDB.
-- ANTLR4: powerful parser generator used to parse MongoDB commands.
-- dbVisitor-driver: the base database driver framework.
+- Implements the JDBC core interfaces and supports `PreparedStatement` placeholders.
+- Supports native-command style Mongo commands and multiple commands separated by semicolons.
+- Supports collection, index, user, and database management commands.
+- `find` supports method chaining: `limit(...)`, `skip(...)`, `sort(...)`, `hint(...)`.
+- Result mapping: `find` returns `_ID` and `_JSON` columns; when pre-read is enabled, document fields are also expanded as columns.
+- Pre-read mode for large result sets with configurable threshold, max file size, and cache directory.
 
 ## Usage
 
-### Dependency
-
-```xml title='Maven Dependency'
+### 4.1 Dependency
+```xml
 <dependency>
     <groupId>net.hasor</groupId>
     <artifactId>jdbc-mongo</artifactId>
-    <version>6.3.0</version>
+    <version>Latest Version</version>
 </dependency>
 ```
 
-### Connection
-
-Connect to MongoDB using the JDBC URL format:
-
+### 4.2 Connection
 ```java
-String url = "jdbc:dbvisitor:mongo://127.0.0.1:27017/testdb?connectTimeout=5000";
+String url = "jdbc:dbvisitor:mongo://127.0.0.1:27017/testdb?socketTimeout=5000";
 Properties props = new Properties();
-props.setProperty("username", "user");
-props.setProperty("password", "pass");
+props.setProperty("user", "root");
+props.setProperty("password", "123456");
+props.setProperty("mechanism", "SCRAM-SHA-256");
 Connection conn = DriverManager.getConnection(url, props);
 ```
 
-Main connection parameters:
-- host/port: MongoDB server address.
-- database: Database name.
-- username/password: Authentication credentials.
-- mechanism: Authentication mechanism, supports PLAIN, SCRAM-SHA-1, SCRAM-SHA-256, GSSAPI, X-509.
-- connectTimeout: Connection timeout in milliseconds.
-- socketTimeout: Socket read timeout in milliseconds.
-- retryWrites/retryReads: Read/Write retry strategy.
+JDBC URL format:
+```
+jdbc:dbvisitor:mongo://{host}:{port}/{database}?{param1=value1&param2=value2}
+```
 
-### Examples
+Cluster example (multiple hosts):
+```
+jdbc:dbvisitor:mongo://host1:27017;host2:27017/mydb
+```
 
+### 4.3 Connection Parameters
+
+| Parameter | Description | Default |
+| --- | --- | --- |
+| `server` | Host segment from the JDBC URL. Supports `host:port` or `host1:port;host2:port`. | From URL |
+| `database` | Default database when URL path is empty. | None |
+| `user` / `username` | Username for authentication. | None |
+| `password` | Password for authentication. | Empty |
+| `mechanism` | Authentication mechanism: `PLAIN`, `SCRAM-SHA-1`, `SCRAM-SHA-256`, `GSSAPI`, `X-509`. Empty means `createCredential`. | Empty |
+| `clientName` | MongoDB application name. | `Mongo-JDBC-Client` |
+| `socketTimeout` | Socket read timeout (ms). | Driver default |
+| `socketSndBuffer` | Socket send buffer size (bytes). | Driver default |
+| `socketRcvBuffer` | Socket receive buffer size (bytes). | Driver default |
+| `retryWrites` | Enable retry writes. | Driver default |
+| `retryReads` | Enable retry reads. | Driver default |
+| `timeZone` | Driver time zone used for type conversion (for example `+08:00`). | Empty |
+| `customMongo` | Fully qualified class name implementing `CustomMongo`. | None |
+| `connectTimeout` | Declared parameter but not applied by this adapter. | Not applied |
+| `preRead` | Enable pre-read mode. | `true` |
+| `preReadThreshold` | Pre-read threshold size. Accepts `B/KB/MB/GB`. | `5MB` |
+| `preReadMaxFileSize` | Maximum pre-read file size. Accepts `B/KB/MB/GB`. | `20MB` |
+| `preReadCacheDir` | Cache directory for pre-read mode. | `java.io.tmpdir` |
+
+## Supported Commands
+The command syntax is described in the MongoDB manual: https://www.mongodb.com/docs/manual/reference/command/
+
+- Database scope
+  - `use <database>`
+  - `show dbs` / `show databases`
+  - `db.dropDatabase()`
+  - `db.getCollectionNames()`
+  - `db.getCollectionInfos()`
+  - `db.createCollection(...)`
+  - `db.createView(...)`
+  - `db.runCommand({...})`
+  - `db.serverStatus()`
+  - `db.version()`
+  - `db.stats()`
+
+- Collection scope
+  - `db.collection.find(...)` with optional chained calls `.limit(...)`, `.skip(...)`, `.sort(...)`, `.hint(...)`
+  - `db.collection.findOne(...)`
+  - `db.collection.insert(...)`, `insertOne(...)`, `insertMany(...)`
+  - `db.collection.update(...)`, `updateOne(...)`, `updateMany(...)`
+  - `db.collection.replaceOne(...)`
+  - `db.collection.remove(...)`, `deleteOne(...)`, `deleteMany(...)`
+  - `db.collection.count(...)`, `distinct(...)`, `aggregate(...)`
+  - `db.collection.bulkWrite(...)`
+  - `db.collection.renameCollection(...)`
+  - `db.collection.drop(...)`
+  - `db.collection.stats(...)`
+
+- Index scope
+  - `db.collection.createIndex(...)`
+  - `db.collection.dropIndex(...)`
+  - `db.collection.getIndexes()`
+
+- User & role management
+  - `db.createUser(...)`, `db.dropUser(...)`, `db.updateUser(...)`
+  - `db.changeUserPassword(...)`
+  - `db.grantRolesToUser(...)`, `db.revokeRolesFromUser(...)`
+  - `show users`, `show roles`
+
+- Other
+  - `show collections` / `show tables`
+  - `show profile`
+
+## Code Examples
+
+### 1) Create collection (DDL)
 ```java
-public class MongoJdbcExample {
-  public static void main(String[] args) throws Exception {
-    String url = "jdbc:dbvisitor:mongo://127.0.0.1:27017/testdb";
-    try (Connection conn = DriverManager.getConnection(url)) {
-      // Statement Example
-      try (Statement stmt = conn.createStatement()) {
-        try (ResultSet rs = stmt.executeQuery("find my_collection limit 10")) {
-          while (rs.next()) {
-            System.out.println(rs.getString("name"));
-          }
-        }
-      }
+try (Statement stmt = conn.createStatement()) {
+    stmt.execute("use mydb");
+    stmt.executeUpdate("db.createCollection('capped_col', { capped: true, size: 1024, max: 100 })");
+}
+```
 
-      // PreparedStatement Example
-      try (PreparedStatement pstmt = conn.prepareStatement("test.user_info.insert({name: ?, age: ?})")) {
-        pstmt.setString(1, "acc");
-        pstmt.setString(2, "123");
-        pstmt.executeUpdate();
-      }
+### 2) Insert and update (DML)
+```java
+try (Statement stmt = conn.createStatement()) {
+    stmt.executeUpdate("mydb1.mycol.insert({name:'zhangsan'})");
+    stmt.executeUpdate("db.mycol.update({name:'zhangsan'}, {$set:{age:20}})");
+}
+```
+
+### 3) Find with `ObjectId(?)` (DQL)
+```java
+try (PreparedStatement ps = conn.prepareStatement("db.complex_order.find({_id: ObjectId(?)})")) {
+    ps.setString(1, "69399ba1c488515851cecdfb");
+    try (ResultSet rs = ps.executeQuery()) {
+        while (rs.next()) {
+            rs.getString("_JSON");
+        }
     }
-  }
+}
+```
+
+### 4) Aggregate with options
+```java
+try (PreparedStatement ps = conn.prepareStatement(
+        "db.mycol.aggregate([{$match: {}}], { allowDiskUse: ?, batchSize: ? })")) {
+    ps.setBoolean(1, true);
+    ps.setInt(2, 100);
+    ps.executeQuery();
 }
 ```
 
 ## Hint Support
+Hints must appear at the beginning of the command text. Format: `/*+ name=value */`. Multiple hint blocks are allowed.
 
-jdbc-mongo supports overriding or enhancing query behavior via SQL Hints. The Hint format is `/*+ hint_name=value */` and must be placed at the beginning of the SQL statement.
+Supported hints:
 
-| Hint Name | Description | Example |
+| Hint | Description | Example |
 | --- | --- | --- |
-| `overwrite_find_limit` | Overrides the `limit` parameter of the query, used for pagination or limiting the number of returned documents. | `/*+ overwrite_find_limit=10 */ db.collection.find({})` |
-| `overwrite_find_skip` | Overrides the `skip` parameter of the query, used for pagination to skip a specified number of documents. | `/*+ overwrite_find_skip=20 */ db.collection.find({})` |
-| `overwrite_find_as_count` | Converts the query into a Count operation, ignoring the returned document content and returning only the match count. | `/*+ overwrite_find_as_count */ db.collection.find({})` |
+| `overwrite_find_limit` | Overrides the `limit` applied to `find` / `findOne`. | `/*+ overwrite_find_limit=10 */ db.mycol.find({})` |
+| `overwrite_find_skip` | Overrides the `skip` applied to `find` / `findOne`. | `/*+ overwrite_find_skip=20 */ db.mycol.find({})` |
+| `overwrite_find_as_count` | Converts `find` into a `countDocuments` result. | `/*+ overwrite_find_as_count */ db.mycol.find({})` |
 
-## Limit
+## Limitations
+- `db.createCollection(...)` does not support the `viewOn` option.
+- `createIndex(...)` requires the `name` option; missing it causes an error.
+- `runCommand(...)` requires the first argument to be a `Document` object.
+- `find` method chaining only supports `limit`, `skip`, `sort`, `hint`. Other method calls (for example `explain`) are rejected.
+- Using `db` without selecting a database (URL path or `use <db>`) causes “No database selected”.
+- `connectTimeout` is declared but not applied in MongoClient settings.
 
-- Properties obtained via DatabaseMetaData are not reliable.
-- When using resultSetType, resultSetConcurrency, resultSetHoldability, fetchDirection parameters only the following default values are supported:
-  - resultSetType = TYPE_FORWARD_ONLY
-  - resultSetConcurrency = CONCUR_READ_ONLY
-  - resultSetHoldability = HOLD_CURSORS_OVER_COMMIT
-  - fetchDirection = FETCH_FORWARD
-- ResultSet does not support update/insert/deleteXXX methods.
-- Statement and PreparedStatement do not support overloaded methods with these signatures:
-  - xxx(String sql, int[] columnIndexes)
-  - xxx(String sql, String[] columnNames)
-- Unsupported JDBC types:
-  - SQLXML, REF_CURSOR, RowId, Ref, Struct, DISTINCT
-- addBatch and clearBatch batch operations are not supported.
-- Savepoint operations are not supported.
+## Compatibility
+- JDK 8+
+- MongoDB Java driver: `mongodb-driver-sync` 5.6.1 (compatible with the server versions supported by this driver)
 
-## Driver Parameters
-
-``` title='JDBC URL Format'
-jdbc:dbvisitor:mongo://server:17017/database?param1=value1&param2=value2
-```
-
-| Parameter Name         | Description                                                        | Default Value       |
-|----------------------|--------------------------------------------------------------------|---------------------|
-| `username`           | Database username                                                  | None                |
-| `password`           | Database password                                                  | None                |
-| `database`           | Database name                                                      | None                |
-| `mechanism`          | Authentication mechanism, supports `PLAIN`, `SCRAM-SHA-1`, `SCRAM-SHA-256`, `GSSAPI`, `X-509` | Auto-negotiated     |
-| `clientName`         | Client name, displayed in MongoDB server logs                      | `Mongo-JDBC-Client` |
-| `connectTimeout`     | Connection timeout (ms)                                            | Driver default      |
-| `socketTimeout`      | Socket read timeout (ms)                                           | Driver default      |
-| `socketSndBuffer`    | Socket send buffer size (bytes)                                    | Driver default      |
-| `socketRcvBuffer`    | Socket receive buffer size (bytes)                                 | Driver default      |
-| `retryWrites`        | Whether to enable retry writes                                     | `true`              |
-| `retryReads`         | Whether to enable retry reads                                      | `true`              |
-| `preRead`            | Whether to enable pre-read                                         | `false`             |
-| `preReadThreshold`   | Pre-read threshold (MB), triggers pre-read if exceeded             | -                   |
-| `preReadMaxFileSize` | Pre-read max file size (MB)                                        | -                   |
-| `preReadCacheDir`    | Pre-read cache directory                                           | -                   |
-
-## Supported Commands List
-
-- Value: Use executeUpdate / getUpdateCount to get the number of affected rows.
-- Result Set: Use executeQuery / getResultSet to get the result set.
-
-| Command                 | Description                                        | Official Documentation                                                                            |
-|-----------------------|----------------------------------------------------|---------------------------------------------------------------------------------------------------|
-| **Collection Commands** |                                                    |                                                                                                   |
-| `find`                | Query documents, supports `limit`, `skip`, `sort`, `explain`, `hint` | [find](https://www.mongodb.com/docs/manual/reference/command/find/)                               |
-| `findOne`             | Query a single document                            | [findOne](https://www.mongodb.com/docs/manual/reference/method/db.collection.findOne/)            |
-| `insert`              | Insert documents                                   | [insert](https://www.mongodb.com/docs/manual/reference/command/insert/)                           |
-| `insertOne`           | Insert a single document                           | [insertOne](https://www.mongodb.com/docs/manual/reference/method/db.collection.insertOne/)        |
-| `insertMany`          | Insert multiple documents                          | [insertMany](https://www.mongodb.com/docs/manual/reference/method/db.collection.insertMany/)      |
-| `update`              | Update documents                                   | [update](https://www.mongodb.com/docs/manual/reference/command/update/)                           |
-| `updateOne`           | Update a single document                           | [updateOne](https://www.mongodb.com/docs/manual/reference/method/db.collection.updateOne/)        |
-| `updateMany`          | Update multiple documents                          | [updateMany](https://www.mongodb.com/docs/manual/reference/method/db.collection.updateMany/)      |
-| `replaceOne`          | Replace a single document                          | [replaceOne](https://www.mongodb.com/docs/manual/reference/method/db.collection.replaceOne/)      |
-| `remove`              | Remove documents                                   | [delete](https://www.mongodb.com/docs/manual/reference/command/delete/)                           |
-| `deleteOne`           | Delete a single document                           | [deleteOne](https://www.mongodb.com/docs/manual/reference/method/db.collection.deleteOne/)        |
-| `deleteMany`          | Delete multiple documents                          | [deleteMany](https://www.mongodb.com/docs/manual/reference/method/db.collection.deleteMany/)      |
-| `count`               | Count documents                                    | [count](https://www.mongodb.com/docs/manual/reference/command/count/)                             |
-| `distinct`            | Get distinct values                                | [distinct](https://www.mongodb.com/docs/manual/reference/command/distinct/)                       |
-| `aggregate`           | Aggregation operations                             | [aggregate](https://www.mongodb.com/docs/manual/reference/command/aggregate/)                     |
-| `bulkWrite`           | Bulk write operations                              | [bulkWrite](https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/)        |
-| `renameCollection`    | Rename collection                                  | [renameCollection](https://www.mongodb.com/docs/manual/reference/command/renameCollection/)       |
-| `drop`                | Drop collection                                    | [drop](https://www.mongodb.com/docs/manual/reference/command/drop/)                               |
-| **Database Management** |                                                    |                                                                                                   |
-| `createCollection`    | Create collection                                  | [create](https://www.mongodb.com/docs/manual/reference/command/create/)                           |
-| `createView`          | Create view                                        | [createView](https://www.mongodb.com/docs/manual/reference/command/create/)                       |
-| `dropDatabase`        | Drop current database                              | [dropDatabase](https://www.mongodb.com/docs/manual/reference/command/dropDatabase/)               |
-| `getCollectionNames`  | Get list of collection names                       | [listCollections](https://www.mongodb.com/docs/manual/reference/command/listCollections/)         |
-| `getCollectionInfos`  | Get collection information                         | [listCollections](https://www.mongodb.com/docs/manual/reference/command/listCollections/)         |
-| `runCommand`          | Run arbitrary database command                     | [runCommand](https://www.mongodb.com/docs/manual/reference/command/runCommand/)                   |
-| `serverStatus`        | Get server status                                  | [serverStatus](https://www.mongodb.com/docs/manual/reference/command/serverStatus/)               |
-| `stats`               | Get database statistics                            | [dbStats](https://www.mongodb.com/docs/manual/reference/command/dbStats/)                         |
+## More Resources
+- dbVisitor Documentation: https://www.dbvisitor.net/docs/guides/overview
 | `version`             | Get server version                                 | [buildInfo](https://www.mongodb.com/docs/manual/reference/command/buildInfo/)                     |
-| **Index Management**    |                                                    |                                                                                                   |
-| `createIndex`         | Create index                                       | [createIndexes](https://www.mongodb.com/docs/manual/reference/command/createIndexes/)             |
-| `dropIndex`           | Drop index                                         | [dropIndexes](https://www.mongodb.com/docs/manual/reference/command/dropIndexes/)                 |
-| `getIndexes`          | Get index list                                     | [listIndexes](https://www.mongodb.com/docs/manual/reference/command/listIndexes/)                 |
-| **User Management**     |                                                    |                                                                                                   |
-| `createUser`          | Create user                                        | [createUser](https://www.mongodb.com/docs/manual/reference/command/createUser/)                   |
-| `dropUser`            | Drop user                                          | [dropUser](https://www.mongodb.com/docs/manual/reference/command/dropUser/)                       |
-| `updateUser`          | Update user                                        | [updateUser](https://www.mongodb.com/docs/manual/reference/command/updateUser/)                   |
-| `changeUserPassword`  | Change user password                               | [updateUser](https://www.mongodb.com/docs/manual/reference/command/updateUser/)                   |
-| `grantRolesToUser`    | Grant roles to user                                | [grantRolesToUser](https://www.mongodb.com/docs/manual/reference/command/grantRolesToUser/)       |
-| `revokeRolesFromUser` | Revoke roles from user                             | [revokeRolesFromUser](https://www.mongodb.com/docs/manual/reference/command/revokeRolesFromUser/) |
-| **Other Commands**      |                                                    |                                                                                                   |
-| `use <database>`      | Switch current database.                           |                                                                                                   | 
-| `show dbs`            | Show all databases.                                |                                                                                                   |    
-| `show collections`    | Show all collections in current database.          |                                                                                                   |    
-| `show tables`         | Same as `show collections`.                        |                                                                                                   |    
