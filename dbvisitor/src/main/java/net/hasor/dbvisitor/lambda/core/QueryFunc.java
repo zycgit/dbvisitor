@@ -143,8 +143,38 @@ public interface QueryFunc<R, T, P> extends BasicFunc<R>, BoundSqlBuilder {
     /** 排序条件，类似：order by xxx */
     R orderBy(OrderType orderType, OrderNullsStrategy strategy, P first, P... other);
 
-    /** 向量排序，类似：order by xxx <-> [1,2,3...] */
-    R orderByVector(P property, Object vector);
+    /** 使用指定的度量方式进行向量排序 */
+    R orderByMetric(MetricType metricType, P property, Object vector);
+
+    /** 向量排序（L2），类似：order by xxx <-> [1,2,3...] */
+    default R orderByL2(P property, Object vector) {
+        return orderByMetric(MetricType.L2, property, vector);
+    }
+
+    /** 向量排序（Cosine），类似：order by xxx <=> [1,2,3...] */
+    default R orderByCosine(P property, Object vector) {
+        return orderByMetric(MetricType.COSINE, property, vector);
+    }
+
+    /** 向量排序（Jaccard），类似：order by xxx <-> [1,2,3...] */
+    default R orderByJaccard(P property, Object vector) {
+        return orderByMetric(MetricType.JACCARD, property, vector);
+    }
+
+    /** 向量排序（Hamming），类似：order by xxx <#> [1,2,3...] */
+    default R orderByHamming(P property, Object vector) {
+        return orderByMetric(MetricType.HAMMING, property, vector);
+    }
+
+    /** 向量排序（InnerProduct），类似：order by xxx <#> [1,2,3...] */
+    default R orderByIP(P property, Object vector) {
+        return orderByMetric(MetricType.IP, property, vector);
+    }
+
+    /** 向量排序（BM25），类似：order by xxx <#> [1,2,3...] */
+    default R orderByBM25(P property, Object vector) {
+        return orderByMetric(MetricType.BM25, property, vector);
+    }
 
     /** 排序(升序)，类似：order by xxx asc */
     default R asc(P property) {

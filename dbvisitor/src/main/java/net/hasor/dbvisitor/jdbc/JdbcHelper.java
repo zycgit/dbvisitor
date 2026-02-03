@@ -68,6 +68,7 @@ public class JdbcHelper {
     public static final String MONGO            = "mongo";
     public static final String ELASTIC6         = "elastic6";
     public static final String ELASTIC7         = "elastic7";
+    public static final String ELASTIC8         = "elastic8";
     public static final String ELASTIC_SEARCH   = "elastic_search";
     public static final String MILVUS           = "milvus";
 
@@ -180,7 +181,9 @@ public class JdbcHelper {
         } else if (rawUrl.startsWith("jdbc:dbvisitor:mongo")) {
             return MONGO;
         } else if (rawUrl.startsWith("jdbc:dbvisitor:elastic")) {
-            if (StringUtils.startsWithAny(dbVersion, new String[] { "7.", "8.", "9." })) {
+            if (StringUtils.startsWithAny(dbVersion, new String[] { "8.", "9." })) {
+                return ELASTIC8;
+            } else if (StringUtils.startsWithAny(dbVersion, new String[] { "7." })) {
                 return ELASTIC7;
             } else {
                 return ELASTIC6;

@@ -58,6 +58,7 @@ public class SqlDialectRegister {
         registerDialect(JdbcHelper.MONGO, MongoDialect.DEFAULT);
         registerDialect(JdbcHelper.ELASTIC6, Elastic6Dialect.DEFAULT);
         registerDialect(JdbcHelper.ELASTIC7, Elastic7Dialect.DEFAULT);
+        registerDialect(JdbcHelper.ELASTIC8, Elastic8Dialect.DEFAULT);
         registerDialect(JdbcHelper.MILVUS, MilvusDialect.DEFAULT);
     }
 

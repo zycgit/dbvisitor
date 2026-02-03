@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dialect.features;
-import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
+import net.hasor.dbvisitor.dialect.SqlCommandBuilder.ConditionLogic;
 import net.hasor.dbvisitor.dialect.SqlDialect;
+import net.hasor.dbvisitor.lambda.core.MetricType;
 
 /**
  * SQL 分页方言
@@ -24,8 +25,9 @@ import net.hasor.dbvisitor.dialect.SqlDialect;
  */
 public interface VectorSqlDialect extends SqlDialect {
     /** 添加向量范围查询条件 (col <-> vector) < threshold */
-    void addConditionForVectorRange(SqlCommandBuilder.ConditionLogic logic, String col, String colTerm, Object vector, String vectorTerm, Object threshold, String thresholdTerm);
+    void addConditionForVectorRange(ConditionLogic logic, String col, String colTerm, //
+            Object vector, String vectorTerm, Object threshold, String thresholdTerm, MetricType metricType);
 
     /** 添加向量排序 */
-    void addOrderByVector(String col, String colTerm, Object vector, String vectorTerm);
+    void addOrderByVector(String col, String colTerm, Object vector, String vectorTerm, MetricType metricType);
 }

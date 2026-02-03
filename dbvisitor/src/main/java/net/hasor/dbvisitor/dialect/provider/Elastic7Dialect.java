@@ -17,6 +17,7 @@ package net.hasor.dbvisitor.dialect.provider;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.features.VectorSqlDialect;
+import net.hasor.dbvisitor.lambda.core.MetricType;
 
 /**
  * ES7 方言
@@ -64,21 +65,64 @@ public class Elastic7Dialect extends AbstractElasticDialect implements VectorSql
     // --- VectorSqlDialect impl ---
 
     @Override
-    public void addOrderByVector(String col, String colTerm, Object vector, String vectorTerm) {
+    public void addOrderByVector(String col, String colTerm, Object vector, String vectorTerm, MetricType metricType) {
         this.sorts.addSegment((delimited, dialect) -> {
             String field = StringUtils.isNotBlank(colTerm) ? colTerm : col;
-            String vecVal = formatValue(vector, vectorTerm);
-            return "{ \"_script\": { \"type\": \"number\", \"script\": { \"lang\": \"painless\", \"source\": \"l2norm(params.vector, '" + field + "')\", \"params\": { \"vector\": " + vecVal + " } }, \"order\": \"asc\" } }";
+            String vectorPlaceholder = formatValue(vector, vectorTerm);
+            String scriptSource;
+            String order;
+
+            switch (metricType) {
+                case L2:
+                    scriptSource = "doc['" + field + "'].size() == 0 ? 0 : l2norm(params.vector, doc['" + field + "'])";
+                    order = "asc";
+                    break;
+                case COSINE:
+                    scriptSource = "doc['" + field + "'].size() == 0 ? 0 : cosineSimilarity(params.vector, doc['" + field + "'])";
+                    order = "desc";
+                    break;
+                case IP:
+                    scriptSource = "doc['" + field + "'].size() == 0 ? 0 : dotProduct(params.vector, doc['" + field + "'])";
+                    order = "desc";
+                    break;
+                case HAMMING:
+                    scriptSource = "doc['" + field + "'].size() == 0 ? 0 : l1norm(params.vector, doc['" + field + "'])";
+                    order = "asc";
+                    break;
+                default:
+                    throw new UnsupportedOperationException("MetricType " + metricType + " is not supported by Elastic7Dialect.");
+            }
+
+            return "{ \"_script\": { \"type\": \"number\", \"script\": { \"source\": \"" + scriptSource + "\", \"params\": { \"vector\": " + vectorPlaceholder + " } }, \"order\": \"" + order + "\" } }";
         });
     }
 
     @Override
-    public void addConditionForVectorRange(ConditionLogic logic, String col, String colTerm, Object vector, String vectorTerm, Object threshold, String thresholdTerm) {
+    public void addConditionForVectorRange(ConditionLogic logic, String col, String colTerm, Object vector, String vectorTerm, Object threshold, String thresholdTerm, MetricType metricType) {
         this.conditions.addSegment((delimited, dialect) -> {
             String field = StringUtils.isNotBlank(colTerm) ? colTerm : col;
             String vecVal = formatValue(vector, vectorTerm);
             String thrVal = formatValue(threshold, thresholdTerm);
-            return "{ \"script\": { \"script\": { \"source\": \"l2norm(params.vector, '" + field + "') < " + thrVal + "\", \"params\": { \"vector\": " + vecVal + " } } } }";
+
+            String scriptCode;
+            switch (metricType) {
+                case L2:
+                    scriptCode = "l2norm(params.vector, doc['" + field + "']) < " + thrVal;
+                    break;
+                case COSINE:
+                    scriptCode = "(1 - cosineSimilarity(params.vector, doc['" + field + "'])) < " + thrVal;
+                    break;
+                case IP:
+                    scriptCode = "dotProduct(params.vector, doc['" + field + "']) < " + thrVal;
+                    break;
+                case HAMMING:
+                    scriptCode = "l1norm(params.vector, doc['" + field + "']) < " + thrVal;
+                    break;
+                default:
+                    throw new UnsupportedOperationException("MetricType " + metricType + " is not supported by Elastic7Dialect range query.");
+            }
+
+            return "{ \"script\": { \"script\": { \"source\": \"" + scriptCode + "\", \"params\": { \"vector\": " + vecVal + " } } } }";
         });
     }
 }

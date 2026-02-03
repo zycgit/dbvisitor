@@ -433,10 +433,55 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, P> imple
     }
 
     @Override
-    public R vectorRange(boolean test, P property, Object vector, Number threshold) {
+    public R vectorByL2(boolean test, P property, Object vector, Number threshold) {
         if (test) {
             String propertyName = getPropertyName(property);
-            this.addConditionForVectorRange(propertyName, vector, threshold);
+            this.addConditionForVectorRange(propertyName, vector, threshold, MetricType.L2);
+        }
+        return this.getSelf();
+    }
+
+    @Override
+    public R vectorByCosine(boolean test, P property, Object vector, Number threshold) {
+        if (test) {
+            String propertyName = getPropertyName(property);
+            this.addConditionForVectorRange(propertyName, vector, threshold, MetricType.COSINE);
+        }
+        return this.getSelf();
+    }
+
+    @Override
+    public R vectorByJaccard(boolean test, P property, Object vector, Number threshold) {
+        if (test) {
+            String propertyName = getPropertyName(property);
+            this.addConditionForVectorRange(propertyName, vector, threshold, MetricType.JACCARD);
+        }
+        return this.getSelf();
+    }
+
+    @Override
+    public R vectorByHamming(boolean test, P property, Object vector, Number threshold) {
+        if (test) {
+            String propertyName = getPropertyName(property);
+            this.addConditionForVectorRange(propertyName, vector, threshold, MetricType.HAMMING);
+        }
+        return this.getSelf();
+    }
+
+    @Override
+    public R vectorByIP(boolean test, P property, Object vector, Number threshold) {
+        if (test) {
+            String propertyName = getPropertyName(property);
+            this.addConditionForVectorRange(propertyName, vector, threshold, MetricType.IP);
+        }
+        return this.getSelf();
+    }
+
+    @Override
+    public R vectorByBM25(boolean test, P property, Object vector, Number threshold) {
+        if (test) {
+            String propertyName = getPropertyName(property);
+            this.addConditionForVectorRange(propertyName, vector, threshold, MetricType.BM25);
         }
         return this.getSelf();
     }
@@ -517,7 +562,7 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, P> imple
         this.nextLogic = ConditionLogic.AND;
     }
 
-    protected void addConditionForVectorRange(String propertyName, Object vector, Number threshold) {
+    protected void addConditionForVectorRange(String propertyName, Object vector, Number threshold, MetricType metricType) {
         ColumnMapping mapping = this.findPropertyByName(propertyName);
         String colName = mapping != null ? mapping.getColumn() : propertyName;
         String colTerm = mapping != null ? mapping.getWhereColTemplate() : null;
@@ -526,7 +571,7 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, P> imple
         Object vecVal = wrapValue(propertyName, vector);
         Object thrVal = wrapValue(null, threshold);
 
-        this.cmdBuilder.addVectorByConditionRange(this.nextLogic, colName, colTerm, vecVal, valTerm, thrVal, null);
+        this.cmdBuilder.addVectorByConditionRange(this.nextLogic, colName, colTerm, vecVal, valTerm, thrVal, null, metricType);
         this.nextLogic = ConditionLogic.AND;
     }
 }

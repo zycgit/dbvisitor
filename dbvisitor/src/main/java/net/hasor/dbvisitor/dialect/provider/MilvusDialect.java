@@ -20,6 +20,7 @@ import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
 import net.hasor.dbvisitor.dialect.features.VectorSqlDialect;
+import net.hasor.dbvisitor.lambda.core.MetricType;
 
 /**
  * Milvus 的 SqlDialect 实现
@@ -70,7 +71,7 @@ public class MilvusDialect extends AbstractSqlDialect implements PageSqlDialect,
     // --- VectorSqlDialect impl ---
 
     @Override
-    public void addOrderByVector(String col, String colTerm, Object vector, String vectorTerm) {
+    public void addOrderByVector(String col, String colTerm, Object vector, String vectorTerm, MetricType metricType) {
         // first order by
         if (this.orderByColumns.isEmpty()) {
             this.whereConditions.addSegment((d, dia) -> "ORDER BY");
@@ -82,20 +83,51 @@ public class MilvusDialect extends AbstractSqlDialect implements PageSqlDialect,
         this.orderByColumns.addSegment((d, dia) -> {
             String orderByCol = formatColumn(d, dia, col, colTerm);
             String v = formatValue(dia, vector, vectorTerm);
-            return orderByCol + " <-> " + v;
+            String operator;
+            if (metricType == MetricType.COSINE) {
+                operator = "<=>";
+            } else if (metricType == MetricType.IP) {
+                operator = "<#>";
+            } else if (metricType == MetricType.HAMMING) {
+                operator = "~=";
+            } else if (metricType == MetricType.JACCARD) { // Jaccard
+                operator = "<%>";
+            } else if (metricType == MetricType.BM25) { // BM25
+                operator = "<?>";
+            } else {
+                operator = "<->";
+            }
+            return orderByCol + " " + operator + " " + v;
         });
     }
 
     @Override
-    public void addConditionForVectorRange(SqlCommandBuilder.ConditionLogic logic, String col, String colTerm, Object vector, String vectorTerm, Object threshold, String thresholdTerm) {
+    public void addConditionForVectorRange(SqlCommandBuilder.ConditionLogic logic, String col, String colTerm, Object vector, String vectorTerm,//
+            Object threshold, String thresholdTerm, MetricType metricType) {
         if (this.lockWhere) {
             throw new IllegalStateException("must before (group by/order by) invoke it.");
         }
 
         appendConditionLogic(logic);
 
+        String operator;
+        if (metricType == MetricType.COSINE) {
+            operator = "<=>";
+        } else if (metricType == MetricType.IP) {
+            operator = "<#>";
+        } else if (metricType == MetricType.HAMMING) {
+            operator = "~=";
+        } else if (metricType == MetricType.JACCARD) { // Jaccard
+            operator = "<%>";
+        } else if (metricType == MetricType.BM25) { // BM25
+            operator = "<?>";
+        } else {
+            operator = "<->";
+        }
+
+        final String finalOperator = operator;
         this.whereConditions.addSegment((d, dia) -> formatColumn(d, dia, col, colTerm));
-        this.whereConditions.addSegment((d, dia) -> "<->");
+        this.whereConditions.addSegment((d, dia) -> finalOperator);
         this.whereConditions.addSegment((d, dia) -> formatValue(dia, vector, vectorTerm));
         this.whereConditions.addSegment((d, dia) -> "<");
         this.whereConditions.addSegment((d, dia) -> formatValue(dia, threshold, thresholdTerm));

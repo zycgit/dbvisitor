@@ -448,15 +448,39 @@ public interface QueryCompare<R, T, P> {
     /** sample 对象中不为空的属性会以 and 方式拼起来，并作为一组条件。类似：('col1 = ?' and 'col2 = ?' and col3 = ?) */
     R eqBySampleMap(Map<String, Object> sample);
 
-    /**
-     * 向量范围查询 (col <-> vector < threshold)
-     */
-    default R vectorRange(P property, Object vector, Number threshold) {
-        return this.vectorRange(true, property, vector, threshold);
+    default R vectorByL2(P property, Object vector, Number threshold) {
+        return this.vectorByL2(true, property, vector, threshold);
     }
 
-    /**
-     * 向量范围查询 (col <-> vector < threshold)
-     */
-    R vectorRange(boolean test, P property, Object vector, Number threshold);
+    R vectorByL2(boolean test, P property, Object vector, Number threshold);
+
+    default R vectorByCosine(P property, Object vector, Number threshold) {
+        return this.vectorByCosine(true, property, vector, threshold);
+    }
+
+    R vectorByCosine(boolean test, P property, Object vector, Number threshold);
+
+    default R vectorByJaccard(P property, Object vector, Number threshold) {
+        return this.vectorByJaccard(true, property, vector, threshold);
+    }
+
+    R vectorByJaccard(boolean test, P property, Object vector, Number threshold);
+
+    default R vectorByHamming(P property, Object vector, Number threshold) {
+        return this.vectorByHamming(true, property, vector, threshold);
+    }
+
+    R vectorByHamming(boolean test, P property, Object vector, Number threshold);
+
+    default R vectorByIP(P property, Object vector, Number threshold) {
+        return this.vectorByIP(true, property, vector, threshold);
+    }
+
+    R vectorByIP(boolean test, P property, Object vector, Number threshold);
+
+    default R vectorByBM25(P property, Object vector, Number threshold) {
+        return this.vectorByBM25(true, property, vector, threshold);
+    }
+
+    R vectorByBM25(boolean test, P property, Object vector, Number threshold);
 }

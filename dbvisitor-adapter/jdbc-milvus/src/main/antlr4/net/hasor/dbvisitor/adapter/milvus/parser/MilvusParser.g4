@@ -174,6 +174,11 @@ vectorValue
 
 distanceOperator
     : LT_MINUS_GT
+    | LT_EQ_GT
+    | LT_HASH_GT
+    | TILDE_EQ
+    | LT_PCT_GT
+    | LT_Q_GT
     ;
 
 // Expressions

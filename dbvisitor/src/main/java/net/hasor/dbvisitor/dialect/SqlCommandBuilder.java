@@ -18,6 +18,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.function.Consumer;
 import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
+import net.hasor.dbvisitor.lambda.core.MetricType;
 import net.hasor.dbvisitor.lambda.core.OrderNullsStrategy;
 import net.hasor.dbvisitor.lambda.core.OrderType;
 
@@ -70,9 +71,10 @@ public interface SqlCommandBuilder extends SqlDialect {
 
     //
 
-    void addVectorByOrder(String col, String colTerm, Object vector, String vectorTerm);
+    void addVectorByOrder(String col, String colTerm, Object vector, String vectorTerm, MetricType metricType);
 
-    void addVectorByConditionRange(ConditionLogic logic, String col, String colTerm, Object vector, String vectorTerm, Object threshold, String thresholdTerm);
+    void addVectorByConditionRange(ConditionLogic logic, String col, String colTerm, Object vector, String vectorTerm,//
+            Object threshold, String thresholdTerm, MetricType metricType);
 
     //
 

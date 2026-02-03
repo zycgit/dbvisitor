@@ -16,6 +16,7 @@
 package net.hasor.dbvisitor.dialect.provider;
 import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
 import net.hasor.dbvisitor.dialect.features.VectorSqlDialect;
+import net.hasor.dbvisitor.lambda.core.MetricType;
 
 /**
  * 扩展 AbstractDialect 以支持 CommandBuilder 接口
@@ -27,20 +28,21 @@ public abstract class AbstractBuilderDialect extends AbstractDialect implements 
     public abstract SqlCommandBuilder newBuilder();
 
     @Override
-    public final void addVectorByOrder(String col, String colTerm, Object vector, String vectorTerm) {
+    public final void addVectorByOrder(String col, String colTerm, Object vector, String vectorTerm, MetricType metricType) {
         if (!(this instanceof VectorSqlDialect)) {
             throw new UnsupportedOperationException("Vector not supported by this dialect.");
         } else {
-            ((VectorSqlDialect) this).addOrderByVector(col, colTerm, vector, vectorTerm);
+            ((VectorSqlDialect) this).addOrderByVector(col, colTerm, vector, vectorTerm, metricType);
         }
     }
 
     @Override
-    public final void addVectorByConditionRange(ConditionLogic logic, String col, String colTerm, Object vector, String vectorTerm, Object threshold, String thresholdTerm) {
+    public final void addVectorByConditionRange(ConditionLogic logic, String col, String colTerm,//
+            Object vector, String vectorTerm, Object threshold, String thresholdTerm, MetricType metricType) {
         if (!(this instanceof VectorSqlDialect)) {
             throw new UnsupportedOperationException("Vector not supported by this dialect.");
         } else {
-            ((VectorSqlDialect) this).addConditionForVectorRange(logic, col, colTerm, vector, vectorTerm, threshold, thresholdTerm);
+            ((VectorSqlDialect) this).addConditionForVectorRange(logic, col, colTerm, vector, vectorTerm, threshold, thresholdTerm, metricType);
         }
     }
 }

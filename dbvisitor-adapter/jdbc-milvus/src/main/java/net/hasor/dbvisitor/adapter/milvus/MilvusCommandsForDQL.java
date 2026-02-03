@@ -207,6 +207,27 @@ class MilvusCommandsForDQL extends MilvusCommands {
             searchBuilder.withPartitionNames(Collections.singletonList(partitionName));
         }
 
+        if (sortCtx != null && sortCtx.distanceOperator() != null) {
+            String metricType = null;
+            if (sortCtx.distanceOperator().LT_MINUS_GT() != null) {
+                metricType = "L2";
+            } else if (sortCtx.distanceOperator().LT_EQ_GT() != null) {
+                metricType = "COSINE";
+            } else if (sortCtx.distanceOperator().LT_HASH_GT() != null) {
+                metricType = "IP";
+            } else if (sortCtx.distanceOperator().TILDE_EQ() != null) {
+                metricType = "HAMMING";
+            } else if (sortCtx.distanceOperator().LT_PCT_GT() != null) {
+                metricType = "JACCARD";
+            } else if (sortCtx.distanceOperator().LT_Q_GT() != null) {
+                metricType = "BM25";
+            }
+
+            if (metricType != null && !properties.containsKey("metric_type")) {
+                properties.put("metric_type", metricType);
+            }
+        }
+
         // Params
         try {
             if (!properties.isEmpty()) {
