@@ -719,26 +719,34 @@ class JdbcResultSet implements ResultSet, Closeable {
     @Override
     public Array getArray(int columnIndex) throws SQLException {
         this.checkOpen();
-        Object value = this.columnValue(columnIndex);
-        if (value == null) {
-            return null;
-        }
-        if (value instanceof Array) {
-            return (Array) value;
-        } else {
-            throw new SQLFeatureNotSupportedException("column value is not java.sql.Array");
-        }
+        return this.toJdbcArray(this.columnValue(columnIndex));
     }
 
     @Override
     public Array getArray(String columnLabel) throws SQLException {
         this.checkOpen();
-        Object value = this.columnValue(columnLabel);
+        return this.toJdbcArray(this.columnValue(columnLabel));
+    }
+
+    private Array toJdbcArray(Object value) throws SQLException {
         if (value == null) {
             return null;
         }
         if (value instanceof Array) {
             return (Array) value;
+        } else if (value instanceof Collection) {
+            if (value instanceof List) {
+                return new JdbcArray(this.statement.jdbcConn, AdapterType.Array, (List<?>) value);
+            } else {
+                return new JdbcArray(this.statement.jdbcConn, AdapterType.Array, new ArrayList<>((Collection<?>) value));
+            }
+        } else if (value.getClass().isArray()) {
+            List<Object> list = new ArrayList<>();
+            int length = java.lang.reflect.Array.getLength(value);
+            for (int i = 0; i < length; i++) {
+                list.add(java.lang.reflect.Array.get(value, i));
+            }
+            return new JdbcArray(this.statement.jdbcConn, AdapterType.Array, list);
         } else {
             throw new SQLFeatureNotSupportedException("column value is not java.sql.Array");
         }
