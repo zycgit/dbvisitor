@@ -182,6 +182,23 @@ public abstract class AbstractSelect<R, T, P> extends BasicQueryCompare<R, T, P>
         return this.getSelf();
     }
 
+    @Override
+    public R orderByVector(P property, Object vector) {
+        String propName = getPropertyName(property);
+        String colName;
+        String colTerm;
+        if (isFreedom()) {
+            colName = this.getTableMapping().isToCamelCase() ? StringUtils.humpToLine(propName) : propName;
+            colTerm = null;
+        } else {
+            ColumnMapping mapping = this.findPropertyByName(propName);
+            colName = mapping != null ? mapping.getColumn() : propName;
+            colTerm = mapping != null ? mapping.getOrderByColTemplate() : null;
+        }
+        this.cmdBuilder.addVectorByOrder(colName, colTerm, vector, null);
+        return this.getSelf();
+    }
+
     protected R addOrderBy(OrderType orderType, List<String> orderBy, OrderNullsStrategy strategy) {
         if (orderBy != null && !orderBy.isEmpty()) {
             for (String property : orderBy) {

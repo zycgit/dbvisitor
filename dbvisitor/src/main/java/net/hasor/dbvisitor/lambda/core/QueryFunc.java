@@ -143,6 +143,9 @@ public interface QueryFunc<R, T, P> extends BasicFunc<R>, BoundSqlBuilder {
     /** 排序条件，类似：order by xxx */
     R orderBy(OrderType orderType, OrderNullsStrategy strategy, P first, P... other);
 
+    /** 向量排序，类似：order by xxx <-> [1,2,3...] */
+    R orderByVector(P property, Object vector);
+
     /** 排序(升序)，类似：order by xxx asc */
     default R asc(P property) {
         return this.orderBy(OrderType.ASC, null, property, (P[]) null);

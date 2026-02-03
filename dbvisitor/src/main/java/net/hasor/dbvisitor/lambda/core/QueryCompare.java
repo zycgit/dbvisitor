@@ -447,4 +447,16 @@ public interface QueryCompare<R, T, P> {
 
     /** sample 对象中不为空的属性会以 and 方式拼起来，并作为一组条件。类似：('col1 = ?' and 'col2 = ?' and col3 = ?) */
     R eqBySampleMap(Map<String, Object> sample);
+
+    /**
+     * 向量范围查询 (col <-> vector < threshold)
+     */
+    default R vectorRange(P property, Object vector, Number threshold) {
+        return this.vectorRange(true, property, vector, threshold);
+    }
+
+    /**
+     * 向量范围查询 (col <-> vector < threshold)
+     */
+    R vectorRange(boolean test, P property, Object vector, Number threshold);
 }

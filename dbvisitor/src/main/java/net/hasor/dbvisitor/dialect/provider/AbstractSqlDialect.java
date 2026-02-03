@@ -37,15 +37,15 @@ public abstract class AbstractSqlDialect extends AbstractBuilderDialect {
     public static final Segment              LEFT_PAREN  = (delimited, d) -> "(";
     public static final Segment              RIGHT_PAREN = (delimited, d) -> ")";
     //
-    private final       List<Object>         args;
-    private final       MergeSqlSegment      selectColumns;
-    private final       Map<String, Segment> selectColumnsCache;
-    private             boolean              selectAll;
+    protected final     List<Object>         args;
+    protected final     MergeSqlSegment      selectColumns;
+    protected final     Map<String, Segment> selectColumnsCache;
+    protected           boolean              selectAll;
     //
-    private final       MergeSqlSegment      whereConditions;
-    private             boolean              hasWhereConditions;
-    private final       MergeSqlSegment      groupByColumns;
-    private final       MergeSqlSegment      orderByColumns;
+    protected final     MergeSqlSegment      whereConditions;
+    protected           boolean              hasWhereConditions;
+    protected final     MergeSqlSegment      groupByColumns;
+    protected final     MergeSqlSegment      orderByColumns;
     private             String               catalog;
     private             String               schema;
     private             String               table;
@@ -240,7 +240,7 @@ public abstract class AbstractSqlDialect extends AbstractBuilderDialect {
         });
     }
 
-    private void appendConditionLogic(ConditionLogic logic) {
+    protected void appendConditionLogic(ConditionLogic logic) {
         this.hasWhereConditions = true;
 
         final ConditionLogic colLogic = logic == null ? ConditionLogic.AND : logic;
@@ -264,7 +264,7 @@ public abstract class AbstractSqlDialect extends AbstractBuilderDialect {
         }
     }
 
-    private boolean isLastElementOpenParen() {
+    protected boolean isLastElementOpenParen() {
         if (this.whereConditions.isEmpty()) {
             return false;
         } else {
@@ -272,21 +272,21 @@ public abstract class AbstractSqlDialect extends AbstractBuilderDialect {
         }
     }
 
-    private String formatColumn(boolean d, SqlDialect dia, String col, String colTerm) {
+    protected String formatColumn(boolean d, SqlDialect dia, String col, String colTerm) {
         return StringUtils.isNotBlank(colTerm) ? colTerm : dia.fmtName(d, col);
     }
 
-    private String formatValue(SqlDialect dia, Object value, String valueTerm) {
+    protected String formatValue(SqlDialect dia, Object value, String valueTerm) {
         this.args.add(value);
         return StringUtils.isNotBlank(valueTerm) ? valueTerm : "?";
     }
 
-    private String formatLikeValue(SqlDialect dia, Object value, String valueTerm, SqlLike likeType) {
+    protected String formatLikeValue(SqlDialect dia, Object value, String valueTerm, SqlLike likeType) {
         this.args.add(value);
         return dia.like(likeType, value, valueTerm);
     }
 
-    private void appendValue(Object value) {
+    protected void appendValue(Object value) {
         this.args.add(value);
     }
 

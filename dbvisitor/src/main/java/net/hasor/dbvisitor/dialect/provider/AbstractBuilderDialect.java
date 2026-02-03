@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.dialect.provider;
 import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
+import net.hasor.dbvisitor.dialect.features.VectorSqlDialect;
 
 /**
  * 扩展 AbstractDialect 以支持 CommandBuilder 接口
@@ -24,4 +25,22 @@ import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
 public abstract class AbstractBuilderDialect extends AbstractDialect implements SqlCommandBuilder {
     @Override
     public abstract SqlCommandBuilder newBuilder();
+
+    @Override
+    public final void addVectorByOrder(String col, String colTerm, Object vector, String vectorTerm) {
+        if (!(this instanceof VectorSqlDialect)) {
+            throw new UnsupportedOperationException("Vector not supported by this dialect.");
+        } else {
+            ((VectorSqlDialect) this).addOrderByVector(col, colTerm, vector, vectorTerm);
+        }
+    }
+
+    @Override
+    public final void addVectorByConditionRange(ConditionLogic logic, String col, String colTerm, Object vector, String vectorTerm, Object threshold, String thresholdTerm) {
+        if (!(this instanceof VectorSqlDialect)) {
+            throw new UnsupportedOperationException("Vector not supported by this dialect.");
+        } else {
+            ((VectorSqlDialect) this).addConditionForVectorRange(logic, col, colTerm, vector, vectorTerm, threshold, thresholdTerm);
+        }
+    }
 }

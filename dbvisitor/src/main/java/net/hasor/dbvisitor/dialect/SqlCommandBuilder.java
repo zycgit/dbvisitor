@@ -70,6 +70,12 @@ public interface SqlCommandBuilder extends SqlDialect {
 
     //
 
+    void addVectorByOrder(String col, String colTerm, Object vector, String vectorTerm);
+
+    void addVectorByConditionRange(ConditionLogic logic, String col, String colTerm, Object vector, String vectorTerm, Object threshold, String thresholdTerm);
+
+    //
+
     /** 添加更新列和值 */
     void addUpdateSet(String col, Object value, String valueTerm);
 

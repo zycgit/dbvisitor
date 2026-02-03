@@ -19,13 +19,14 @@ import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
+import net.hasor.dbvisitor.dialect.features.VectorSqlDialect;
 
 /**
  * Milvus 的 SqlDialect 实现
  * @author 赵永春 (zyc@hasor.net)
  * @version 2024-02-02
  */
-public class MilvusDialect extends AbstractSqlDialect implements PageSqlDialect {
+public class MilvusDialect extends AbstractSqlDialect implements PageSqlDialect, VectorSqlDialect {
     public static final SqlDialect DEFAULT = new MilvusDialect();
 
     @Override
@@ -64,5 +65,39 @@ public class MilvusDialect extends AbstractSqlDialect implements PageSqlDialect 
             sb.append(" OFFSET ").append(start);
         }
         return new BoundSql.BoundSqlObj(sb.toString(), boundSql.getArgs());
+    }
+
+    // --- VectorSqlDialect impl ---
+
+    @Override
+    public void addOrderByVector(String col, String colTerm, Object vector, String vectorTerm) {
+        // first order by
+        if (this.orderByColumns.isEmpty()) {
+            this.whereConditions.addSegment((d, dia) -> "ORDER BY");
+            this.whereConditions.addSegment(this.orderByColumns);
+            this.lockWhere = true;
+            this.lockGroupBy = true;
+        }
+
+        this.orderByColumns.addSegment((d, dia) -> {
+            String orderByCol = formatColumn(d, dia, col, colTerm);
+            String v = formatValue(dia, vector, vectorTerm);
+            return orderByCol + " <-> " + v;
+        });
+    }
+
+    @Override
+    public void addConditionForVectorRange(SqlCommandBuilder.ConditionLogic logic, String col, String colTerm, Object vector, String vectorTerm, Object threshold, String thresholdTerm) {
+        if (this.lockWhere) {
+            throw new IllegalStateException("must before (group by/order by) invoke it.");
+        }
+
+        appendConditionLogic(logic);
+
+        this.whereConditions.addSegment((d, dia) -> formatColumn(d, dia, col, colTerm));
+        this.whereConditions.addSegment((d, dia) -> "<->");
+        this.whereConditions.addSegment((d, dia) -> formatValue(dia, vector, vectorTerm));
+        this.whereConditions.addSegment((d, dia) -> "<");
+        this.whereConditions.addSegment((d, dia) -> formatValue(dia, threshold, thresholdTerm));
     }
 }

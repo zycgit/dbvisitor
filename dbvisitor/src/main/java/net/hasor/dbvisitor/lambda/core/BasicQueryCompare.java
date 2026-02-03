@@ -432,6 +432,15 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, P> imple
         return this.getSelf();
     }
 
+    @Override
+    public R vectorRange(boolean test, P property, Object vector, Number threshold) {
+        if (test) {
+            String propertyName = getPropertyName(property);
+            this.addConditionForVectorRange(propertyName, vector, threshold);
+        }
+        return this.getSelf();
+    }
+
     protected SqlArg wrapValue(String propertyName, Object value) {
         if (value instanceof SqlArg) {
             return (SqlArg) value;
@@ -505,6 +514,19 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, P> imple
         Object val2 = wrapValue(propertyName, value2);
 
         this.cmdBuilder.addConditionForBetween(this.nextLogic, colName, colTerm, type, val1, valTerm, val2, valTerm);
+        this.nextLogic = ConditionLogic.AND;
+    }
+
+    protected void addConditionForVectorRange(String propertyName, Object vector, Number threshold) {
+        ColumnMapping mapping = this.findPropertyByName(propertyName);
+        String colName = mapping != null ? mapping.getColumn() : propertyName;
+        String colTerm = mapping != null ? mapping.getWhereColTemplate() : null;
+        String valTerm = mapping != null ? mapping.getWhereValueTemplate() : null;
+
+        Object vecVal = wrapValue(propertyName, vector);
+        Object thrVal = wrapValue(null, threshold);
+
+        this.cmdBuilder.addVectorByConditionRange(this.nextLogic, colName, colTerm, vecVal, valTerm, thrVal, null);
         this.nextLogic = ConditionLogic.AND;
     }
 }

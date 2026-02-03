@@ -24,13 +24,14 @@ import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.features.InsertSqlDialect;
 import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
+import net.hasor.dbvisitor.dialect.features.VectorSqlDialect;
 
 /**
  * PostgreSQL 对象名有大小写敏感不敏感的问题
  * @author 赵永春 (zyc@hasor.net)
  * @version 2020-10-31
  */
-public class PostgreSqlDialect extends AbstractSqlDialect implements PageSqlDialect, InsertSqlDialect {
+public class PostgreSqlDialect extends AbstractSqlDialect implements PageSqlDialect, InsertSqlDialect, VectorSqlDialect {
     public static final SqlDialect DEFAULT = new PostgreSqlDialect();
 
     @Override
@@ -168,5 +169,45 @@ public class PostgreSqlDialect extends AbstractSqlDialect implements PageSqlDial
         sb.append(")");
         sb.append(appendSql);
         return sb.toString();
+    }
+
+    // --- VectorSqlDialect impl ---
+
+    @Override
+    public void addOrderByVector(String col, String colTerm, Object vector, String vectorTerm) {
+        if (this.lockWhere) {
+            throw new IllegalStateException("must before (group by/order by) invoke it.");
+        }
+
+        // first order by
+        if (this.orderByColumns.isEmpty()) {
+            this.whereConditions.addSegment((d, dia) -> "ORDER BY");
+            this.whereConditions.addSegment(this.orderByColumns);
+            this.lockWhere = true;
+            this.lockGroupBy = true;
+        }
+
+        this.orderByColumns.addSegment((d, dia) -> {
+            String orderByCol = formatColumn(d, dia, col, colTerm);
+            String v = formatValue(dia, vector, vectorTerm);
+            return orderByCol + " <-> " + v;
+        });
+    }
+
+    @Override
+    public void addConditionForVectorRange(SqlCommandBuilder.ConditionLogic logic, String col, String colTerm, Object vector, String vectorTerm, Object threshold, String thresholdTerm) {
+        if (this.lockWhere) {
+            throw new IllegalStateException("must before (group by/order by) invoke it.");
+        }
+
+        appendConditionLogic(logic);
+
+        this.whereConditions.addSegment((d, dia) -> {
+            String c = formatColumn(d, dia, col, colTerm);
+            String v = formatValue(dia, vector, vectorTerm);
+            String t = formatValue(dia, threshold, thresholdTerm);
+            // pgVector <->
+            return c + " <-> " + v + " < " + t;
+        });
     }
 }
