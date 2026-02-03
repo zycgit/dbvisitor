@@ -398,7 +398,7 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
             // 2. JDBC Delete
             try (Connection conn = DriverManager.getConnection(MILVUS_URL); java.sql.Statement stmt = conn.createStatement()) {
                 int affected = stmt.executeUpdate("DELETE FROM " + TEST_COLLECTION + " WHERE book_id = 1");
-                assertEquals(Statement.SUCCESS_NO_INFO, affected);
+                assertEquals(1, affected);
             }
 
             // Wait a bit for delete consistency if needed
@@ -463,7 +463,7 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
             try (Connection conn = DriverManager.getConnection(MILVUS_URL); //
                  Statement stmt = conn.createStatement()) {
                 int affected = stmt.executeUpdate(deleteSQL);
-                assertEquals(Statement.SUCCESS_NO_INFO, affected);
+                assertEquals(3, affected);
             }
 
             Thread.sleep(1000); // Consistency wait

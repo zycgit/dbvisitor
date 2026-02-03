@@ -17,6 +17,7 @@ package net.hasor.dbvisitor.adapter.milvus;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import io.milvus.common.clientenum.ConsistencyLevelEnum;
 import io.milvus.grpc.DataType;
 import io.milvus.grpc.DescribeCollectionResponse;
 import io.milvus.grpc.FieldSchema;
@@ -65,6 +66,25 @@ class MilvusCommandsForTable extends MilvusCommands {
         CreateCollectionParam.Builder builder = CreateCollectionParam.newBuilder()//
                 .withCollectionName(collectionName)//
                 .withDescription("");
+
+        if (c.withOptionList() != null) {
+            for (WithOptionContext opt : c.withOptionList().withOption()) {
+                String key = getIdentifier(opt.identifier(0).getText());
+                String value = null;
+
+                if (opt.STRING_LITERAL() != null) {
+                    value = getIdentifier(opt.STRING_LITERAL().getText());
+                } else if (opt.INTEGER() != null) {
+                    value = opt.INTEGER().getText();
+                } else if (opt.identifier().size() > 1) {
+                    value = getIdentifier(opt.identifier(1).getText());
+                }
+
+                if ("consistency_level".equalsIgnoreCase(key) && StringUtils.isNotBlank(value)) {
+                    builder.withConsistencyLevel(ConsistencyLevelEnum.valueOf(value.toUpperCase()));
+                }
+            }
+        }
 
         for (FieldDefinitionContext fieldCtx : c.fieldDefinition()) {
             String fieldName = argAsName(argIndex, request, fieldCtx.fieldName);

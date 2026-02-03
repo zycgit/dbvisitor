@@ -130,20 +130,12 @@ abstract class MilvusCommands {
         if (ctx == null) {
             return milvusCmd.getCatalog();
         }
-        if (ctx.ARG() != null) {
-            Object arg = getArg(argIndex, request);
-            return arg == null ? null : arg.toString();
-        }
         return getIdentifier(ctx.getText());
     }
 
     protected static String argAsName(AtomicInteger argIndex, AdapterRequest request, IdentifierContext ctx) throws SQLException {
         if (ctx == null) {
             return null;
-        }
-        if (ctx.ARG() != null) {
-            Object arg = getArg(argIndex, request);
-            return arg == null ? null : arg.toString();
         }
         return getIdentifier(ctx.getText());
     }
@@ -283,6 +275,10 @@ abstract class MilvusCommands {
         return list;
     }
 
+    protected static String parseWhere(ExpressionContext ctx, AtomicInteger argIndex, AdapterRequest request) throws SQLException {
+        return (ctx == null) ? "" : rebuildExpression(argIndex, request, ctx);
+    }
+
     protected static String rebuildExpression(AtomicInteger argIndex, AdapterRequest request, ExpressionContext ctx) throws SQLException {
         if (ctx instanceof ParenExpressionContext) {
             return "(" + rebuildExpression(argIndex, request, ((ParenExpressionContext) ctx).expression()) + ")";
@@ -364,6 +360,24 @@ abstract class MilvusCommands {
         return ctx.getText();
     }
 
+    protected static Object parseTerm(TermContext ctx, AtomicInteger argIndex, AdapterRequest request) throws SQLException {
+        if (ctx.identifier() != null) {
+            return getIdentifier(ctx.identifier().getText());
+        }
+        if (ctx.literal() != null) {
+            return parseLiteral(ctx.literal(), argIndex, request);
+        }
+        if (ctx.ARG() != null || "?".equals(ctx.getText().trim())) {
+            Object val = getArg(argIndex, request);
+            if ("?".equals(val)) {
+                new Exception("Stack Trace for Question Mark Arg").printStackTrace();
+                throw new SQLException("Argument unresolved: value is '?'");
+            }
+            return val;
+        }
+        return ctx.getText();
+    }
+
     private static String rebuildTerm(AtomicInteger argIndex, AdapterRequest request, TermContext ctx) throws SQLException {
         if (ctx.identifier() != null) {
             return ctx.identifier().getText();
@@ -372,7 +386,13 @@ abstract class MilvusCommands {
             Object val = parseLiteral(ctx.literal(), argIndex, request);
             return resultValueToString(val);
         }
-        return ctx.getText();
+        String text = ctx.getText();
+        if (ctx.ARG() != null || "?".equals(text.trim())) {
+            Object val = getArg(argIndex, request);
+            return resultValueToString(val);
+        }
+        System.err.println("WARNING: term matched nothing known, returning text: " + text);
+        return text;
     }
 
     private static String resultValueToString(Object val) {
@@ -419,26 +439,71 @@ abstract class MilvusCommands {
         public String  scalarFilter = "";
     }
 
-    protected static VectorRangeExpr parseVectorRange(ExpressionContext ctx, AtomicInteger argIndex, AdapterRequest request) throws SQLException {
-        if (ctx == null)
-            return null;
+    protected static boolean isVectorRange(ExpressionContext ctx) {
+        if (ctx == null) {
+            return false;
+        }
 
         // check if (VectorExpr) AND (ScalarExpr)
         if (ctx instanceof LogicalExpressionContext) {
             LogicalExpressionContext logCtx = (LogicalExpressionContext) ctx;
             if ("AND".equalsIgnoreCase(logCtx.getChild(1).getText()) || "&&".equalsIgnoreCase(logCtx.getChild(1).getText())) {
-                VectorRangeExpr left = parseVectorRange(logCtx.expression(0), argIndex, request);
-                if (left != null) {
-                    String rightExpr = rebuildExpression(argIndex, request, logCtx.expression(1));
-                    left.scalarFilter = StringUtils.isBlank(left.scalarFilter) ? rightExpr : "(" + left.scalarFilter + ") && (" + rightExpr + ")";
-                    return left;
+                return isVectorRange(logCtx.expression(0)) || isVectorRange(logCtx.expression(1));
+            }
+        }
+
+        // Check if Function (vector_range(field, vector, radius))
+        if (ctx instanceof FuncExpressionContext) {
+            FuncExpressionContext funcCtx = (FuncExpressionContext) ctx;
+            return "vector_range".equalsIgnoreCase(funcCtx.funcName.getText());
+        }
+
+        // Check if Comparator (Vec Term < Radius)
+        if (ctx instanceof ComparatorExpressionContext) {
+            ComparatorExpressionContext compCtx = (ComparatorExpressionContext) ctx;
+            if (compCtx.getChildCount() == 3 && "<".equals(compCtx.getChild(1).getText())) {
+                ExpressionContext leftExpr = compCtx.expression(0); // expect TermExpression -> VectorTerm
+                if (leftExpr instanceof TermExpressionContext) {
+                    TermContext termCtx = ((TermExpressionContext) leftExpr).term();
+                    return termCtx.distanceOperator() != null;
                 }
-                VectorRangeExpr right = parseVectorRange(logCtx.expression(1), argIndex, request);
-                if (right != null) {
+            }
+        }
+        // Handle ParenExpressionContext for recursive search
+        if (ctx instanceof ParenExpressionContext) {
+            return isVectorRange(((ParenExpressionContext) ctx).expression());
+        }
+        return false;
+    }
+
+    protected static VectorRangeExpr parseVectorRange(ExpressionContext ctx, AtomicInteger argIndex, AdapterRequest request) throws SQLException {
+        if (ctx == null) {
+            return null;
+        }
+
+        // check if (VectorExpr) AND (ScalarExpr)
+        if (ctx instanceof LogicalExpressionContext) {
+            LogicalExpressionContext logCtx = (LogicalExpressionContext) ctx;
+            if ("AND".equalsIgnoreCase(logCtx.getChild(1).getText()) || "&&".equalsIgnoreCase(logCtx.getChild(1).getText())) {
+                if (isVectorRange(logCtx.expression(0))) {
+                    // Left is Range
+                    VectorRangeExpr left = parseVectorRange(logCtx.expression(0), argIndex, request);
+                    if (left != null) {
+                        String rightExpr = rebuildExpression(argIndex, request, logCtx.expression(1));
+                        left.scalarFilter = StringUtils.isBlank(left.scalarFilter) ? rightExpr : "(" + left.scalarFilter + ") && (" + rightExpr + ")";
+                        return left;
+                    }
+                } else {
+                    // Right is Range
+                    // Must consume Left as Scalar first to preserve Argument Order (Left -> Right)
                     String leftExpr = rebuildExpression(argIndex, request, logCtx.expression(0));
-                    right.scalarFilter = StringUtils.isBlank(right.scalarFilter) ? leftExpr : "(" + right.scalarFilter + ") && (" + leftExpr + ")";
-                    return right;
+                    VectorRangeExpr right = parseVectorRange(logCtx.expression(1), argIndex, request);
+                    if (right != null) {
+                        right.scalarFilter = StringUtils.isBlank(right.scalarFilter) ? leftExpr : "(" + right.scalarFilter + ") && (" + leftExpr + ")";
+                        return right;
+                    }
                 }
+                return null;
             }
         }
 
@@ -462,6 +527,8 @@ abstract class MilvusCommands {
                     if (t.literal() != null && t.literal().listLiteral() != null) {
                         res.vectorValue = (List<?>) parseListLiteral(t.literal().listLiteral(), argIndex, request);
                     } else if (t.literal() != null && t.literal().ARG() != null) {
+                        res.vectorValue = (List<?>) getArg(argIndex, request);
+                    } else if (t.ARG() != null) {
                         res.vectorValue = (List<?>) getArg(argIndex, request);
                     }
                 }

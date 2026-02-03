@@ -33,6 +33,7 @@ command
     | dropCmd
     | showCmd
     | insertCmd
+    | upsertCmd
     | updateCmd
     | deleteCmd
     | grantCmd
@@ -95,7 +96,11 @@ showCmd
     ;
 
 insertCmd
-    : INSERT INTO collectionName=identifier (PARTITION partitionName=identifier)? (OPEN_PAREN columnList=identifiers CLOSE_PAREN)? VALUES OPEN_PAREN valueList=literals CLOSE_PAREN
+    : INSERT INTO collectionName=identifier (PARTITION partitionName=identifier)? (OPEN_PAREN columnList=identifiers CLOSE_PAREN)? VALUES OPEN_PAREN valueList=terms CLOSE_PAREN
+    ;
+
+upsertCmd
+    : UPSERT INTO collectionName=identifier (PARTITION partitionName=identifier)? (OPEN_PAREN columnList=identifiers CLOSE_PAREN)? VALUES OPEN_PAREN valueList=terms CLOSE_PAREN
     ;
 
 updateCmd
@@ -158,7 +163,8 @@ selectElement
     ;
 
 sortClause
-    : fieldName=identifier distanceOperator vectorValue
+    : fieldName=identifier (ASC | DESC)?
+    | fieldName=identifier distanceOperator vectorValue
     ;
 
 vectorValue
@@ -193,7 +199,8 @@ funcArgs
 parenListLiteral: OPEN_PAREN literal (COMMA literal)* CLOSE_PAREN;
 
 term
-    : identifier
+    : ARG
+    | identifier
     | literal
     | fieldName=identifier distanceOperator vectorValue  // vectorDistance
     ;
@@ -256,7 +263,6 @@ identifiers: identifier (COMMA identifier)*;
 
 identifier
     : IDENTIFIER
-    | ARG
     | VECTOR
     | METRIC
     | TOPK
@@ -266,6 +272,7 @@ identifier
     | USER
     | ROLE
     | DATABASE
+    | ARG
     | ALIAS
     | CONSISTENCY_LEVEL
     | GLOBAL
@@ -294,6 +301,7 @@ identifier
     ;
 
 literals: literal (COMMA literal)*;
+terms: term (COMMA term)*;
 
 literal
     : STRING_LITERAL

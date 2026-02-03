@@ -15,22 +15,22 @@
  */
 package net.hasor.dbvisitor.adapter.milvus;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import io.milvus.grpc.DescribeCollectionResponse;
-import io.milvus.grpc.FieldSchema;
-import io.milvus.grpc.ImportResponse;
-import io.milvus.grpc.QueryResults;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import io.milvus.grpc.*;
 import io.milvus.param.R;
 import io.milvus.param.bulkinsert.BulkInsertParam;
 import io.milvus.param.collection.DescribeCollectionParam;
+import io.milvus.param.collection.FieldType;
 import io.milvus.param.collection.LoadCollectionParam;
 import io.milvus.param.collection.ReleaseCollectionParam;
 import io.milvus.param.dml.*;
 import io.milvus.param.partition.LoadPartitionsParam;
 import io.milvus.param.partition.ReleasePartitionsParam;
+import io.milvus.response.DescCollResponseWrapper;
 import io.milvus.response.QueryResultsWrapper;
 import io.milvus.response.SearchResultsWrapper;
 import net.hasor.cobble.StringUtils;
@@ -46,68 +46,146 @@ class MilvusCommandsForData extends MilvusCommands {
             AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         Map<String, Object> hints = readHints(argIndex, request, h.hint());
-        boolean useUpsert = Boolean.TRUE.equals(hints.get("upsert"));
 
-        String collectionName = getIdentifier(c.collectionName.getText());
-        String partitionName = c.partitionName != null ? getIdentifier(c.partitionName.getText()) : null;
+        return execInsertCmd0(future, cmd, hints, c.collectionName, c.partitionName, c.columnList, c.valueList,//
+                request, receive, argIndex, false);
+    }
+
+    public static Future<?> execUpsertCmd(Future<Object> future, MilvusCmd cmd, HintCommandContext h, UpsertCmdContext c, //
+            AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
+        AtomicInteger argIndex = new AtomicInteger(startArgIdx);
+        Map<String, Object> hints = readHints(argIndex, request, h.hint());
+
+        return execInsertCmd0(future, cmd, hints, c.collectionName, c.partitionName, c.columnList, c.valueList, //
+                request, receive, argIndex, true);
+    }
+
+    private static Future<?> execInsertCmd0(Future<Object> future, MilvusCmd cmd, Map<String, Object> hints, IdentifierContext collCtx, IdentifierContext partCtx, IdentifiersContext colListCtx, TermsContext valListCtx, AdapterRequest request, AdapterReceive receive, AtomicInteger argIndex, boolean useUpsert) throws SQLException {
+        String collectionName = getIdentifier(collCtx.getText());
+        if (collectionName == null) {
+            throw new NullPointerException("collectionName is null");
+        }
+
+        Gson gson = new Gson();
+
+        // Fetch Schema to identify JSON columns
+        R<DescribeCollectionResponse> descResp = cmd.getClient()//
+                .describeCollection(DescribeCollectionParam.newBuilder()//
+                        .withCollectionName(collectionName)//
+                        .build());
+        if (descResp.getStatus() != R.Status.Success.getCode()) {
+            throw new SQLException("DescribeCollection failed: " + descResp.getMessage());
+        }
+        DescCollResponseWrapper schema = new DescCollResponseWrapper(descResp.getData());
+        Map<String, DataType> colTypes = new HashMap<>();
+        for (FieldType fs : schema.getFields()) {
+            colTypes.put(fs.getName(), fs.getDataType());
+        }
+
+        String partitionNameVal = partCtx != null ? partCtx.getText() : null;
+        String partitionName = partitionNameVal != null ? getIdentifier(partitionNameVal) : null;
 
         List<InsertParam.Field> fields = new ArrayList<>();
-        List<IdentifierContext> colNames = c.columnList.identifier();
-        List<LiteralContext> colValues = c.valueList.literal();
+        List<IdentifierContext> colNames = colListCtx.identifier();
+        List<TermContext> colValues = valListCtx.term();
 
         if (colNames.size() != colValues.size()) {
             throw new SQLException("Column count doesn't match value count.");
         }
 
         for (int i = 0; i < colNames.size(); i++) {
-            String colName = getIdentifier(colNames.get(i).getText());
-            Object value = parseLiteral(colValues.get(i), argIndex, request);
+            String colNameTxt = colNames.get(i).getText();
+            String colName = getIdentifier(colNameTxt);
 
-            // Auto convert vector list if needed (Milvus requires List<Float>)
-            if (value instanceof List) {
-                List<?> listVal = (List<?>) value;
-                if (!listVal.isEmpty() && !(listVal.get(0) instanceof List)) {
-                    // Simple list, try convert to List<Float> just in case it's Double/BigDecimal
-                    value = toFloatList(value);
+            Object value = parseTerm(colValues.get(i), argIndex, request);
+            DataType dataType = colTypes.get(colName);
+
+            // Type conversion for Numbers
+            if (value instanceof Number && dataType != null) {
+                if (dataType == DataType.Int64) {
+                    value = ((Number) value).longValue();
+                } else if (dataType == DataType.Int32 || dataType == DataType.Int16 || dataType == DataType.Int8) {
+                    value = ((Number) value).intValue();
+                } else if (dataType == DataType.Float) {
+                    value = ((Number) value).floatValue();
+                } else if (dataType == DataType.Double) {
+                    value = ((Number) value).doubleValue();
                 }
             }
 
+            // If it's a JSON column and we have a String, try to parse it as JSON
+            if (dataType == DataType.JSON && value instanceof String) {
+                try {
+                    value = gson.fromJson((String) value, JsonElement.class);
+                } catch (Exception e) {
+                    // ignore parse error, let Milvus SDK handle validation failure
+                }
+            }
+
+            // Auto convert vector list if needed (Milvus requires List<Float>)
+            // Auto convert Map/List to JsonElement (Gson) for JSON columns
+            if (value instanceof List) {
+                List<?> listVal = (List<?>) value;
+                if (!listVal.isEmpty() && !(listVal.get(0) instanceof List)) {
+                    // Check if elements are Numbers (Float Vector)
+                    boolean isVector = true;
+                    for (Object o : listVal) {
+                        if (!(o instanceof Number)) {
+                            isVector = false;
+                            break;
+                        }
+                    }
+
+                    if (isVector) {
+                        value = toFloatList(value);
+                    } else {
+                        value = gson.toJsonTree(value);
+                    }
+                } else if (listVal.isEmpty()) {
+                    value = gson.toJsonTree(value);
+                }
+            } else if (value instanceof Map) {
+                // JSON Object
+                value = gson.toJsonTree(value);
+            }
+
+            // Milvus InsertParam.Field expects List<?> values. Since we are single-row here, we wrap in singletonList.
             fields.add(new InsertParam.Field(colName, Collections.singletonList(value)));
         }
 
+        R<?> result;
         if (useUpsert) {
             UpsertParam.Builder upsertBuilder = UpsertParam.newBuilder()//
                     .withCollectionName(collectionName)//
                     .withFields(fields);
 
-            if (StringUtils.isNotBlank(partitionName)) {
+            if (partitionName != null && !partitionName.isEmpty()) {
                 upsertBuilder.withPartitionName(partitionName);
             }
 
-            R<?> result = cmd.getClient().upsert(upsertBuilder.build());
-            if (result.getStatus() != R.Status.Success.getCode()) {
-                throw new SQLException(result.getMessage());
-            }
+            result = cmd.getClient().upsert(upsertBuilder.build());
         } else {
             InsertParam.Builder insertBuilder = InsertParam.newBuilder()//
                     .withCollectionName(collectionName)//
                     .withFields(fields);
 
-            if (StringUtils.isNotBlank(partitionName)) {
+            if (partitionName != null && !partitionName.isEmpty()) {
                 insertBuilder.withPartitionName(partitionName);
             }
 
-            R<?> result = cmd.getClient().insert(insertBuilder.build());
-            if (result.getStatus() != R.Status.Success.getCode()) {
-                throw new SQLException(result.getMessage());
-            }
+            result = cmd.getClient().insert(insertBuilder.build());
+        }
+
+        if (result.getStatus() != R.Status.Success.getCode()) {
+            throw new SQLException(result.getMessage() == null ? "status=" + result.getStatus() : result.getMessage());
         }
 
         receive.responseUpdateCount(request, 1);
         return completed(future);
     }
 
-    public static Future<?> execUpdateCmd(Future<Object> future, MilvusCmd cmd, HintCommandContext h, UpdateCmdContext c, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
+    public static Future<?> execUpdateCmd(Future<Object> future, MilvusCmd cmd, HintCommandContext h, UpdateCmdContext c, //
+            AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         readHints(argIndex, request, h.hint());
 
@@ -123,18 +201,18 @@ class MilvusCommandsForData extends MilvusCommands {
         }
 
         // 2. Try SortClause (KNN Search Update)
-        if (c.sortClause() != null) {
+        if (c.sortClause() != null && c.sortClause().vectorValue() != null) {
             return execUpdateBySearch(future, cmd, collectionName, partitionName, c, argIndex, request, receive, newValues);
         }
 
         // 3. Try Vector Range Expression (Range Search Update)
         VectorRangeExpr vectorRange = parseVectorRange(c.expression(), argIndex, request);
         if (vectorRange != null) {
-            return execUpdateByRange(future, cmd, collectionName, partitionName, vectorRange, c, argIndex, request, receive, newValues);
+            return execUpdateByRange(future, cmd, collectionName, partitionName, vectorRange, request, receive, newValues);
         }
 
         // 4. Normal Scalar Update
-        String expr = (c.expression() != null) ? rebuildExpression(argIndex, request, c.expression()) : "";
+        String expr = parseWhere(c.expression(), argIndex, request);
 
         long limit = 16384; // Default to a large number for UPDATE if not specified
         if (c.limit != null) {
@@ -147,7 +225,11 @@ class MilvusCommandsForData extends MilvusCommands {
             limit = ((Number) limitVal).longValue();
         }
 
-        QueryParam.Builder queryBuilder = QueryParam.newBuilder().withCollectionName(collectionName).withExpr(expr).withOutFields(Collections.singletonList("*")).withLimit(limit);
+        QueryParam.Builder queryBuilder = QueryParam.newBuilder()//
+                .withCollectionName(collectionName)//
+                .withExpr(expr)//
+                .withOutFields(Collections.singletonList("*"))//
+                .withLimit(limit);
 
         if (StringUtils.isNotBlank(partitionName)) {
             queryBuilder.withPartitionNames(Collections.singletonList(partitionName));
@@ -155,7 +237,7 @@ class MilvusCommandsForData extends MilvusCommands {
 
         R<QueryResults> queryResult = cmd.getClient().query(queryBuilder.build());
         if (queryResult.getStatus() != R.Status.Success.getCode()) {
-            throw new SQLException(queryResult.getMessage());
+            throw new SQLException(queryResult.getMessage() == null ? "status=" + queryResult.getStatus() : queryResult.getMessage());
         }
 
         QueryResultsWrapper wrapper = new QueryResultsWrapper(queryResult.getData());
@@ -164,15 +246,11 @@ class MilvusCommandsForData extends MilvusCommands {
         return executeUpdateProcess(future, cmd, collectionName, partitionName, records, request, receive, newValues);
     }
 
-    private static Future<?> execUpdateBySearch(Future<Object> future, MilvusCmd cmd, String collectionName, String partitionName, //
-            UpdateCmdContext c, AtomicInteger argIndex, AdapterRequest request, AdapterReceive receive, Map<String, Object> newValues) throws SQLException {
+    private static Future<?> execUpdateBySearch(Future<Object> future, MilvusCmd cmd, String collectionName, String partitionName, UpdateCmdContext c,//
+            AtomicInteger argIndex, AdapterRequest request, AdapterReceive receive, Map<String, Object> newValues) throws SQLException {
 
         // WHERE (parse first)
-        String filter = "";
-        ExpressionContext filterExpr = c.expression();
-        if (filterExpr != null) {
-            filter = rebuildExpression(argIndex, request, filterExpr);
-        }
+        String filter = parseWhere(c.expression(), argIndex, request);
 
         // ORDER BY (parse second)
         SortClauseContext sortClause = c.sortClause();
@@ -201,8 +279,14 @@ class MilvusCommandsForData extends MilvusCommands {
             topK = ((Number) limitVal).intValue();
         }
 
-        SearchParam.Builder searchBuilder = SearchParam.newBuilder().withCollectionName(collectionName).withMetricType(io.milvus.param.MetricType.L2) // Default to L2 for <->
-                .withTopK(topK).withVectors(Collections.singletonList(vectorValue)).withVectorFieldName(annsField).withExpr(filter).withOutFields(Collections.singletonList("*"));
+        SearchParam.Builder searchBuilder = SearchParam.newBuilder()//
+                .withCollectionName(collectionName)//
+                .withMetricType(io.milvus.param.MetricType.L2) // Default to L2 for <->
+                .withTopK(topK)//
+                .withVectors(Collections.singletonList(vectorValue))//
+                .withVectorFieldName(annsField)//
+                .withExpr(filter)//
+                .withOutFields(Collections.singletonList("*"));
 
         if (partitionName != null) {
             searchBuilder.withPartitionNames(Collections.singletonList(partitionName));
@@ -212,7 +296,7 @@ class MilvusCommandsForData extends MilvusCommands {
     }
 
     private static Future<?> execUpdateByRange(Future<Object> future, MilvusCmd cmd, String collectionName, String partitionName, //
-            VectorRangeExpr rangeExpr, UpdateCmdContext c, AtomicInteger argIndex, AdapterRequest request, AdapterReceive receive, Map<String, Object> newValues) throws SQLException {
+            VectorRangeExpr rangeExpr, AdapterRequest request, AdapterReceive receive, Map<String, Object> newValues) throws SQLException {
 
         SearchParam.Builder searchBuilder = SearchParam.newBuilder()//
                 .withCollectionName(collectionName)//
@@ -239,16 +323,17 @@ class MilvusCommandsForData extends MilvusCommands {
             SearchParam searchParam, AdapterRequest request, AdapterReceive receive, Map<String, Object> newValues) throws SQLException {
         R<io.milvus.grpc.SearchResults> searchRes = cmd.getClient().search(searchParam);
         if (searchRes.getStatus() != R.Status.Success.getCode()) {
-            throw new SQLException(searchRes.getMessage());
+            throw new SQLException(searchRes.getMessage() == null ? "status=" + searchRes.getStatus() : searchRes.getMessage());
         }
 
         SearchResultsWrapper wrapper = new SearchResultsWrapper(searchRes.getData().getResults());
-        List<Map<String, Object>> records = wrapper.getRowRecords().stream().map(r -> r.getFieldValues()).collect(Collectors.toList());
+        List<Map<String, Object>> records = wrapper.getRowRecords().stream().map(QueryResultsWrapper.RowRecord::getFieldValues).collect(Collectors.toList());
 
         return executeUpdateProcess(future, cmd, collectionName, partitionName, records, request, receive, newValues);
     }
 
-    private static Future<?> executeUpdateProcess(Future<Object> future, MilvusCmd cmd, String collectionName, String partitionName, List<Map<String, Object>> records, AdapterRequest request, AdapterReceive receive, Map<String, Object> newValues) throws SQLException {
+    private static Future<?> executeUpdateProcess(Future<Object> future, MilvusCmd cmd, String collectionName, String partitionName, List<Map<String, Object>> records,//
+            AdapterRequest request, AdapterReceive receive, Map<String, Object> newValues) throws SQLException {
         if (records.isEmpty()) {
             receive.responseUpdateCount(request, 0);
             return completed(future);
@@ -289,7 +374,7 @@ class MilvusCommandsForData extends MilvusCommands {
 
         R<?> upsertResult = cmd.getClient().upsert(upsertBuilder.build());
         if (upsertResult.getStatus() != R.Status.Success.getCode()) {
-            throw new SQLException(upsertResult.getMessage());
+            throw new SQLException(upsertResult.getMessage() == null ? "status=" + upsertResult.getStatus() : upsertResult.getMessage());
         }
 
         receive.responseUpdateCount(request, records.size());
@@ -297,10 +382,7 @@ class MilvusCommandsForData extends MilvusCommands {
     }
 
     private static Object parseValue(MilvusParser.TermContext term, AtomicInteger argIndex, AdapterRequest request) throws SQLException {
-        if (term.literal() != null) {
-            return parseLiteral(term.literal(), argIndex, request);
-        }
-        throw new SQLException("Unsupported value type in SET clause: " + term.getText());
+        return parseTerm(term, argIndex, request);
     }
 
     public static Future<?> execDeleteCmd(Future<Object> future, MilvusCmd cmd, HintCommandContext h, DeleteCmdContext c, //
@@ -312,7 +394,7 @@ class MilvusCommandsForData extends MilvusCommands {
         String partitionName = c.partitionName != null ? getIdentifier(c.partitionName.getText()) : null;
 
         // 1. Try SortClause (KNN Search Delete)
-        if (c.sortClause() != null) {
+        if (c.sortClause() != null && c.sortClause().vectorValue() != null) {
             return execDeleteBySearch(future, cmd, collectionName, partitionName, c.sortClause(), c.limit, c.expression(), argIndex, request, receive);
         }
 
@@ -323,7 +405,7 @@ class MilvusCommandsForData extends MilvusCommands {
         }
 
         // 3. Normal Scalar Delete
-        String expr = (c.expression() != null) ? rebuildExpression(argIndex, request, c.expression()) : "";
+        String expr = parseWhere(c.expression(), argIndex, request);
         if (StringUtils.isBlank(expr)) {
             throw new SQLException("DELETE must have a WHERE clause.");
         }
@@ -336,12 +418,12 @@ class MilvusCommandsForData extends MilvusCommands {
             deleteBuilder.withPartitionName(partitionName);
         }
 
-        R<?> result = cmd.getClient().delete(deleteBuilder.build());
+        R<MutationResult> result = cmd.getClient().delete(deleteBuilder.build());
         if (result.getStatus() != R.Status.Success.getCode()) {
-            throw new SQLException(result.getMessage());
+            throw new SQLException(result.getMessage() == null ? "status=" + result.getStatus() : result.getMessage());
         }
 
-        receive.responseUpdateCount(request, Statement.SUCCESS_NO_INFO);
+        receive.responseUpdateCount(request, (int) result.getData().getDeleteCnt());
         return completed(future);
     }
 
@@ -373,13 +455,13 @@ class MilvusCommandsForData extends MilvusCommands {
             topK = ((Number) limitVal).intValue();
         }
 
-        String filter = "";
-        if (filterExpr != null) {
-            filter = rebuildExpression(argIndex, request, filterExpr);
-        }
-
-        SearchParam.Builder searchBuilder = SearchParam.newBuilder().withCollectionName(collectionName).withMetricType(io.milvus.param.MetricType.L2) // Default to L2 for <->
-                .withTopK(topK).withVectors(Collections.singletonList(vectorValue)).withVectorFieldName(annsField).withExpr(filter);
+        SearchParam.Builder searchBuilder = SearchParam.newBuilder()//
+                .withCollectionName(collectionName)//
+                .withMetricType(io.milvus.param.MetricType.L2) // Default to L2 for <->
+                .withTopK(topK)//
+                .withVectors(Collections.singletonList(vectorValue))//
+                .withVectorFieldName(annsField)//
+                .withExpr(parseWhere(filterExpr, argIndex, request));
 
         if (partitionName != null) {
             searchBuilder.withPartitionNames(Collections.singletonList(partitionName));
@@ -415,7 +497,7 @@ class MilvusCommandsForData extends MilvusCommands {
             SearchParam searchParam, AdapterReceive receive, AdapterRequest request) throws SQLException {
         R<io.milvus.grpc.SearchResults> searchRes = cmd.getClient().search(searchParam);
         if (searchRes.getStatus() != R.Status.Success.getCode()) {
-            throw new SQLException(searchRes.getMessage());
+            throw new SQLException(searchRes.getMessage() == null ? "status=" + searchRes.getStatus() : searchRes.getMessage());
         }
 
         SearchResultsWrapper wrapper = new SearchResultsWrapper(searchRes.getData().getResults());
@@ -466,7 +548,7 @@ class MilvusCommandsForData extends MilvusCommands {
 
         R<?> delRes = cmd.getClient().delete(deleteBuilder.build());
         if (delRes.getStatus() != R.Status.Success.getCode()) {
-            throw new SQLException(delRes.getMessage());
+            throw new SQLException(delRes.getMessage() == null ? "status=" + delRes.getStatus() : delRes.getMessage());
         }
 
         receive.responseUpdateCount(request, idsToDelete.size());
@@ -493,7 +575,7 @@ class MilvusCommandsForData extends MilvusCommands {
 
         R<ImportResponse> result = cmd.getClient().bulkInsert(builder.build());
         if (result.getStatus() != R.Status.Success.getCode()) {
-            throw new SQLException(result.getMessage());
+            throw new SQLException(result.getMessage() == null ? "status=" + result.getStatus() : result.getMessage());
         }
 
         receive.responseUpdateCount(request, 0); // Bulk insert is async, return 0
@@ -515,7 +597,7 @@ class MilvusCommandsForData extends MilvusCommands {
 
             R<?> result = cmd.getClient().loadPartitions(param);
             if (result.getStatus() != R.Status.Success.getCode()) {
-                throw new SQLException(result.getMessage());
+                throw new SQLException(result.getMessage() == null ? "status=" + result.getStatus() : result.getMessage());
             }
         } else {
             LoadCollectionParam param = LoadCollectionParam.newBuilder()//
@@ -524,7 +606,7 @@ class MilvusCommandsForData extends MilvusCommands {
 
             R<?> result = cmd.getClient().loadCollection(param);
             if (result.getStatus() != R.Status.Success.getCode()) {
-                throw new SQLException(result.getMessage());
+                throw new SQLException(result.getMessage() == null ? "status=" + result.getStatus() : result.getMessage());
             }
         }
 
@@ -547,7 +629,7 @@ class MilvusCommandsForData extends MilvusCommands {
 
             R<?> result = cmd.getClient().releasePartitions(param);
             if (result.getStatus() != R.Status.Success.getCode()) {
-                throw new SQLException(result.getMessage());
+                throw new SQLException(result.getMessage() == null ? "status=" + result.getStatus() : result.getMessage());
             }
         } else {
             ReleaseCollectionParam param = ReleaseCollectionParam.newBuilder()//
@@ -556,7 +638,7 @@ class MilvusCommandsForData extends MilvusCommands {
 
             R<?> result = cmd.getClient().releaseCollection(param);
             if (result.getStatus() != R.Status.Success.getCode()) {
-                throw new SQLException(result.getMessage());
+                throw new SQLException(result.getMessage() == null ? "status=" + result.getStatus() : result.getMessage());
             }
         }
 

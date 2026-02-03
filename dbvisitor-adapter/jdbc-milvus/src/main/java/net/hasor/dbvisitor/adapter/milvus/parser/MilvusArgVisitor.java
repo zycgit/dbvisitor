@@ -42,10 +42,10 @@ public class MilvusArgVisitor extends MilvusParserBaseVisitor<Object> {
     }
 
     @Override
-    public Object visitLiteral(MilvusParser.LiteralContext ctx) {
-        if (ctx.ARG() != null) {
+    public Object visitTerminal(org.antlr.v4.runtime.tree.TerminalNode node) {
+        if (node.getSymbol().getType() == MilvusParser.ARG) {
             this.argCount++;
         }
-        return super.visitLiteral(ctx);
+        return super.visitTerminal(node);
     }
 }

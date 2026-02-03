@@ -1,3 +1,9 @@
+<p align="center">
+Switch Language:
+    [<a target="_blank" href='./SYNTAX_MANUAL_en.md'>English</a>]
+    [<a target="_blank" href='./SYNTAX_MANUAL_cn.md'>中文</a>]
+</p>
+
 # Milvus JDBC Adapter Syntax Manual
 
 > **注意**：本驱动的部分高级特性（如 `count` 统计、BulkInsert 等）依赖 Milvus 2.2+ 以上版本。建议使用 Milvus 2.3.x 或更高版本以获得最佳体验。
@@ -152,6 +158,15 @@ INSERT INTO table_name (id, vector, age) VALUES (1, [0.1, 0.2], 10);
 
 -- 插入到指定分区
 INSERT INTO table_name PARTITION partition_name (id, vector) VALUES (2, [0.3, 0.4]);
+```
+
+### Upsert (插入或覆盖)
+```sql
+-- 插入或覆盖到默认分区
+UPSERT INTO table_name (id, vector, age) VALUES (1, [0.1, 0.2], 10);
+
+-- 插入或覆盖到指定分区
+UPSERT INTO table_name PARTITION partition_name (id, vector) VALUES (2, [0.3, 0.4]);
 ```
 
 ### 更新数据 (UPDATE)

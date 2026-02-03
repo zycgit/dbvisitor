@@ -15,14 +15,13 @@ jdbc-milvus 是面向 Milvus 向量数据库的 JDBC 驱动适配器。
 
 - JDBC 核心兼容，支持 `PreparedStatement` 与 `?` 占位符。
 - 集合 DDL：创建、删除、重命名、查看、查看建表语句。
-- 数据 DML：插入与删除（标量过滤、向量检索、向量范围删除）。
+- 数据 DML：插入、Upsert 与 删除（标量过滤、向量检索、向量范围删除）。
 - 查询 DQL：标量过滤、`ORDER BY field <-> vector` 向量检索、`WHERE` 向量范围检索。
 - 索引管理：创建、删除、查看索引与构建进度。
 - 分区管理：创建、删除、查看分区。
 - 数据库管理：创建、修改属性、删除、查看数据库列表。
 - 用户与角色管理：创建/删除用户或角色、授权/撤权、查看用户/角色/授权。
 - 别名管理与加载进度查询。
-- SQL Hints：`overwrite_find_limit`、`overwrite_find_skip`、`overwrite_find_as_count`。
 
 ## 快速开始
 
@@ -75,7 +74,7 @@ JDBC URL 支持以下参数（来源于 `MilvusKeys` 与 `getPropertyNames`）�
 
 ## 支持的指令
 
-完整语法请参考 [SYNTAX_MANUAL.md](SYNTAX_MANUAL.md)。已实现的指令分类如下：
+完整语法请参考 [SYNTAX_MANUAL_cn.md](SYNTAX_MANUAL_cn.md)。已实现的指令分类如下：
 
 - Database
   - `CREATE DATABASE [IF NOT EXISTS] db`
@@ -200,17 +199,18 @@ try (Statement stmt = conn.createStatement()) {
 
 jdbc-milvus 支持通过 SQL Hint 覆盖或增强查询行为。Hint 格式为 `/*+ hint_name=value */`，必须位于 SQL 语句开头。
 
-| Hint 名称 | 说明 | 示例 |
-| --- | --- | --- |
-| `overwrite_find_limit` | 覆盖查询的 `LIMIT`/TopK 参数。 | `/*+ overwrite_find_limit=1 */ SELECT * FROM book_vectors` |
-| `overwrite_find_skip` | 覆盖查询的 `OFFSET` 参数。 | `/*+ overwrite_find_skip=1 */ SELECT * FROM book_vectors LIMIT 10` |
-| `overwrite_find_as_count` | 将查询转换为 Count 操作，仅返回匹配数量。 | `/*+ overwrite_find_as_count=true */ SELECT * FROM book_vectors WHERE book_id > 0` |
+| Hint 名称 | 说明 | 允许值 | 示例 |
+| --- | --- | --- | --- |
+| `consistency_level` | 设置查询的一致性级别。 | `Strong`, `Bounded`, `Session`, `Eventually` | `/*+ consistency_level=Strong */ SELECT ...` |
+| `overwrite_find_limit` | 覆盖查询的 `LIMIT`/TopK 参数。 | 数字 | `/*+ overwrite_find_limit=100 */ SELECT ...` |
+| `overwrite_find_skip` | 覆盖查询的 `OFFSET` 参数。 | 数字 | `/*+ overwrite_find_skip=10 */ SELECT ...` |
+| `overwrite_find_as_count` | 将查询转换为 Count 操作，仅返回匹配数量。 | 任意值 | `/*+ overwrite_find_as_count=true */ SELECT ...` |
 
 ## 限制与注意事项
 
 - 不支持切换到不同的 catalog/schema（`setCatalog`/`setSchema` 会拒绝变更）。
 - `DELETE` 必须带 `WHERE` 子句，否则会报错。
-- 仅支持 [SYNTAX_MANUAL.md](SYNTAX_MANUAL.md) 中定义的 SQL 语法。
+- 仅支持 [SYNTAX_MANUAL_cn.md](SYNTAX_MANUAL_cn.md) 中定义的 SQL 语法。
 
 ## 兼容性
 
@@ -219,6 +219,6 @@ jdbc-milvus 支持通过 SQL Hint 覆盖或增强查询行为。Hint 格式为 `
 
 ## 更多资源
 
-- 语法手册：[SYNTAX_MANUAL.md](SYNTAX_MANUAL.md)
+- 语法手册：[SYNTAX_MANUAL_cn.md](SYNTAX_MANUAL_cn.md)
 - dbVisitor 文档：[dbvisitor-doc/README.md](../../dbvisitor-doc/README.md)
 - 示例工程：[dbvisitor-example](../../dbvisitor-example)

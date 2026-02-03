@@ -15,14 +15,13 @@ Problems it solves:
 
 - JDBC core compatibility with `PreparedStatement` and `?` placeholders.
 - DDL for collections: create, drop, rename, show, show create.
-- DML: insert and delete (scalar filter, vector search, vector range).
+- DML: insert, upsert, and delete (scalar filter, vector search, vector range).
 - DQL: select with scalar filters, vector search via `ORDER BY field <-> vector`, range search in `WHERE`.
 - Index management: create, drop, show indexes, show build progress.
 - Partition management: create, drop, show partition(s).
 - Database management: create, alter properties, drop, show databases.
 - User and role management: create/drop user or role, grant/revoke, show users/roles/grants.
 - Alias management and loading progress.
-- SQL hints: `overwrite_find_limit`, `overwrite_find_skip`, `overwrite_find_as_count`.
 
 ## Usage
 
@@ -75,7 +74,7 @@ The adapter exposes the following JDBC URL properties (from `MilvusKeys` and `ge
 
 ## Supported Commands
 
-The grammar is defined in [SYNTAX_MANUAL.md](SYNTAX_MANUAL.md). The adapter implements the following command families:
+The grammar is defined in [SYNTAX_MANUAL_en.md](SYNTAX_MANUAL_en.md). The adapter implements the following command families:
 
 - Database
   - `CREATE DATABASE [IF NOT EXISTS] db`
@@ -200,17 +199,18 @@ try (Statement stmt = conn.createStatement()) {
 
 jdbc-milvus supports SQL hints to override or enhance query behavior. Hint format is `/*+ hint_name=value */`, and it must be placed at the beginning of the SQL statement.
 
-| Hint name | Description | Example |
-| --- | --- | --- |
-| `overwrite_find_limit` | Overrides the query `LIMIT`/TopK. | `/*+ overwrite_find_limit=1 */ SELECT * FROM book_vectors` |
-| `overwrite_find_skip` | Overrides the query `OFFSET`. | `/*+ overwrite_find_skip=1 */ SELECT * FROM book_vectors LIMIT 10` |
-| `overwrite_find_as_count` | Transforms the query into a count operation and returns only the count. | `/*+ overwrite_find_as_count=true */ SELECT * FROM book_vectors WHERE book_id > 0` |
+| Hint Name | Description | Allowed Values | Example |
+| --- | --- | --- | --- |
+| `consistency_level` | Sets the consistency level for the query. | `Strong`, `Bounded`, `Session`, `Eventually` | `/*+ consistency_level=Strong */ SELECT ...` |
+| `overwrite_find_limit` | Overrides the query `LIMIT`/TopK. | Number | `/*+ overwrite_find_limit=100 */ SELECT ...` |
+| `overwrite_find_skip` | Overrides the query `OFFSET`. | Number | `/*+ overwrite_find_skip=10 */ SELECT ...` |
+| `overwrite_find_as_count` | Transforms the query into a count operation and returns only the count. | Any value | `/*+ overwrite_find_as_count=true */ SELECT ...` |
 
 ## Limitations
 
 - Changing catalog/schema to a different database is not supported (`setCatalog`/`setSchema` will reject changes).
 - `DELETE` requires a `WHERE` clause; otherwise it fails with a syntax error.
-- Only the SQL grammar defined in [SYNTAX_MANUAL.md](SYNTAX_MANUAL.md) is supported.
+- Only the SQL grammar defined in [SYNTAX_MANUAL_en.md](SYNTAX_MANUAL_en.md) is supported.
 
 ## Compatibility
 
@@ -219,6 +219,6 @@ jdbc-milvus supports SQL hints to override or enhance query behavior. Hint forma
 
 ## More Resources
 
-- Syntax Manual: [SYNTAX_MANUAL.md](SYNTAX_MANUAL.md)
+- Syntax Manual: [SYNTAX_MANUAL_en.md](SYNTAX_MANUAL_en.md)
 - dbVisitor Docs: [dbvisitor-doc/README.md](../../dbvisitor-doc/README.md)
 - Examples: [dbvisitor-example](../../dbvisitor-example)

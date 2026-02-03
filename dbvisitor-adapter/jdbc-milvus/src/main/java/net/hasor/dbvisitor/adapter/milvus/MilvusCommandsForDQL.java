@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import io.milvus.common.clientenum.ConsistencyLevelEnum;
 import io.milvus.grpc.QueryResults;
 import io.milvus.grpc.SearchResults;
 import io.milvus.param.R;
@@ -49,8 +50,8 @@ class MilvusCommandsForDQL extends MilvusCommands {
 
         // Check for overwrite_find_as_count
         if (hints.containsKey("overwrite_find_as_count")) {
-            String expr = (c.expression() != null) ? rebuildExpression(argIndex, request, c.expression()) : "";
-            return execCountQuery(future, cmd, collectionName, partitionName, expr, request, receive);
+            String expr = parseWhere(c.expression(), argIndex, request);
+            return execCountQuery(future, cmd, collectionName, partitionName, expr, request, receive, properties, hints);
         }
 
         // Select Elements
@@ -65,25 +66,22 @@ class MilvusCommandsForDQL extends MilvusCommands {
 
         // Check for Vector Search (ORDER BY vector <-> vector)
         SortClauseContext sortCtx = c.sortClause();
-        boolean isSearch = sortCtx != null;
+        boolean isSearch = sortCtx != null && sortCtx.vectorValue() != null;
 
         List<Map<String, Object>> resultData;
 
         if (isSearch) {
-            String expr = (c.expression() != null) ? rebuildExpression(argIndex, request, c.expression()) : "";
+            String expr = parseWhere(c.expression(), argIndex, request);
             resultData = execSearch(cmd, collectionName, partitionName, expr, outFields, sortCtx, c, argIndex, request, properties, hints);
         } else {
             // Check if expression contains Vector Range (making it a search)
-            AtomicInteger tempIndex = new AtomicInteger(argIndex.get());
-            VectorRangeExpr rangeExpr = (c.expression() != null) ? parseVectorRange(c.expression(), tempIndex, request) : null;
-            if (rangeExpr != null) {
-                // It is a range search. Update main argIndex
-                argIndex.set(tempIndex.get());
+            if (c.expression() != null && isVectorRange(c.expression())) {
+                VectorRangeExpr rangeExpr = parseVectorRange(c.expression(), argIndex, request);
                 resultData = execRangeSearch(cmd, collectionName, partitionName, rangeExpr, outFields, c, argIndex, request, properties, hints);
             } else {
                 // Scalar Query
-                String expr = (c.expression() != null) ? rebuildExpression(argIndex, request, c.expression()) : "";
-                resultData = execQuery(cmd, collectionName, partitionName, expr, outFields, c, argIndex, request, hints);
+                String expr = parseWhere(c.expression(), argIndex, request);
+                resultData = execQuery(cmd, collectionName, partitionName, expr, outFields, c, argIndex, request, properties, hints);
             }
         }
 
@@ -92,7 +90,12 @@ class MilvusCommandsForDQL extends MilvusCommands {
         if (resultData != null && !resultData.isEmpty()) {
             Map<String, Object> firstRow = resultData.get(0);
             for (String key : firstRow.keySet()) {
-                columns.add(new JdbcColumn(key, AdapterType.String, "", "", ""));
+                Object val = firstRow.get(key);
+                String type = AdapterType.String;
+                if (val instanceof List) {
+                    type = AdapterType.Array;
+                }
+                columns.add(new JdbcColumn(key, type, "", "", ""));
             }
         } else {
             if (!isStar) {
@@ -106,11 +109,17 @@ class MilvusCommandsForDQL extends MilvusCommands {
         return completed(future);
     }
 
-    private static Future<?> execCountQuery(Future<Object> future, MilvusCmd cmd, String collectionName, String partitionName, String expr, AdapterRequest request, AdapterReceive receive) throws SQLException {
+    private static Future<?> execCountQuery(Future<Object> future, MilvusCmd cmd, String collectionName, String partitionName, String expr, //
+            AdapterRequest request, AdapterReceive receive, Map<String, String> properties, Map<String, Object> hints) throws SQLException {
         QueryParam.Builder queryBuilder = QueryParam.newBuilder()//
                 .withCollectionName(collectionName)//
                 .withExpr(expr)//
                 .withOutFields(Collections.singletonList("count(*)"));
+
+        String consistency = hints.containsKey("consistency_level") ? hints.get("consistency_level").toString() : null;
+        if (StringUtils.isNotBlank(consistency)) {
+            queryBuilder.withConsistencyLevel(ConsistencyLevelEnum.valueOf(consistency.toUpperCase()));
+        }
 
         if (StringUtils.isNotBlank(partitionName)) {
             queryBuilder.withPartitionNames(Collections.singletonList(partitionName));
@@ -123,7 +132,7 @@ class MilvusCommandsForDQL extends MilvusCommands {
 
         QueryResultsWrapper wrapper = new QueryResultsWrapper(callback.getData());
         long count = 0;
-        if (wrapper != null && !wrapper.getRowRecords().isEmpty()) {
+        if (!wrapper.getRowRecords().isEmpty()) {
             Map<String, Object> row = wrapper.getRowRecords().get(0).getFieldValues();
             Object val = row.get("count(*)");
             if (val instanceof Number) {
@@ -131,10 +140,7 @@ class MilvusCommandsForDQL extends MilvusCommands {
             }
         }
 
-        List<JdbcColumn> columns = Collections.singletonList(new JdbcColumn("count", AdapterType.Long, "", "", ""));
-        List<Map<String, Object>> resultData = Collections.singletonList(Collections.singletonMap("count", count));
-
-        receive.responseResult(request, listResult(request, columns, resultData));
+        receive.responseResult(request, singleResult(request, COL_COUNT_LONG, count));
         return completed(future);
     }
 
@@ -191,6 +197,11 @@ class MilvusCommandsForDQL extends MilvusCommands {
                 .withVectors(vectors)//
                 .withTopK(topK)//
                 .withOutFields(outFields);
+
+        String consistency = hints.containsKey("consistency_level") ? hints.get("consistency_level").toString() : null;
+        if (StringUtils.isNotBlank(consistency)) {
+            searchBuilder.withConsistencyLevel(ConsistencyLevelEnum.valueOf(consistency.toUpperCase()));
+        }
 
         if (StringUtils.isNotBlank(partitionName)) {
             searchBuilder.withPartitionNames(Collections.singletonList(partitionName));
@@ -261,6 +272,11 @@ class MilvusCommandsForDQL extends MilvusCommands {
                 .withTopK(topK)//
                 .withOutFields(outFields);
 
+        String consistency = hints.containsKey("consistency_level") ? hints.get("consistency_level").toString() : null;
+        if (StringUtils.isNotBlank(consistency)) {
+            searchBuilder.withConsistencyLevel(ConsistencyLevelEnum.valueOf(consistency.toUpperCase()));
+        }
+
         if (StringUtils.isNotBlank(partitionName)) {
             searchBuilder.withPartitionNames(Collections.singletonList(partitionName));
         }
@@ -299,16 +315,22 @@ class MilvusCommandsForDQL extends MilvusCommands {
         }
 
         SearchResultsWrapper wrapper = new SearchResultsWrapper(callback.getData().getResults());
-        return wrapper.getRowRecords().stream().map(row -> (Map<String, Object>) row.getFieldValues()).collect(Collectors.toList());
+        return wrapper.getRowRecords().stream().map(QueryResultsWrapper.RowRecord::getFieldValues).collect(Collectors.toList());
     }
 
     private static List<Map<String, Object>> execQuery(MilvusCmd cmd, String collectionName, String partitionName, String expr, List<String> outFields, //
-            SelectCmdContext c, AtomicInteger argIndex, AdapterRequest request, Map<String, Object> hints) throws SQLException {
+            SelectCmdContext c, AtomicInteger argIndex, AdapterRequest request, Map<String, String> properties, Map<String, Object> hints) throws SQLException {
         // Query
         QueryParam.Builder queryBuilder = QueryParam.newBuilder()//
                 .withCollectionName(collectionName)//
                 .withExpr(expr)//
                 .withOutFields(outFields);
+
+        String consistency = hints.containsKey("consistency_level") ? hints.get("consistency_level").toString() : null;
+
+        if (StringUtils.isNotBlank(consistency)) {
+            queryBuilder.withConsistencyLevel(ConsistencyLevelEnum.valueOf(consistency.toUpperCase()));
+        }
 
         if (StringUtils.isNotBlank(partitionName)) {
             queryBuilder.withPartitionNames(Collections.singletonList(partitionName));
@@ -346,23 +368,27 @@ class MilvusCommandsForDQL extends MilvusCommands {
         }
 
         QueryResultsWrapper wrapper = new QueryResultsWrapper(callback.getData());
-        return wrapper.getRowRecords().stream().map(row -> row.getFieldValues()).collect(Collectors.toList());
+        return wrapper.getRowRecords().stream().map(QueryResultsWrapper.RowRecord::getFieldValues).collect(Collectors.toList());
     }
 
     public static Future<?> execCountCmd(Future<Object> future, MilvusCmd cmd, HintCommandContext h, CountCmdContext c, //
             AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        readHints(argIndex, request, h.hint());
+        Map<String, Object> hints = readHints(argIndex, request, h.hint());
 
         String collectionName = getIdentifier(c.collectionName.getText());
         String partitionName = c.partitionName != null ? getIdentifier(c.partitionName.getText()) : null;
-        String expr = (c.expression() != null) ? rebuildExpression(argIndex, request, c.expression()) : "";
+        String expr = parseWhere(c.expression(), argIndex, request);
 
         // Query with count(*)
         QueryParam.Builder queryBuilder = QueryParam.newBuilder()//
                 .withCollectionName(collectionName)//
                 .withExpr(expr)//
                 .withOutFields(Collections.singletonList("count(*)"));
+
+        if (hints.containsKey("consistency_level")) {
+            queryBuilder.withConsistencyLevel(ConsistencyLevelEnum.valueOf(hints.get("consistency_level").toString().toUpperCase()));
+        }
 
         if (StringUtils.isNotBlank(partitionName)) {
             queryBuilder.withPartitionNames(Collections.singletonList(partitionName));

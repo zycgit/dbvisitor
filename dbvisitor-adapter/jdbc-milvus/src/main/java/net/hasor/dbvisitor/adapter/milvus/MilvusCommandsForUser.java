@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.adapter.milvus;
-
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
