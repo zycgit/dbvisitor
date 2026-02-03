@@ -129,6 +129,12 @@
 
         <!-- test drivers -->
         <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>3.24.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.33</version>
@@ -177,6 +183,11 @@
         <dependency>
             <groupId>net.hasor</groupId>
             <artifactId>jdbc-elastic</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.hasor</groupId>
+            <artifactId>jdbc-milvus</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

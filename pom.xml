@@ -95,6 +95,11 @@
                 <artifactId>jdbc-elastic</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>net.hasor</groupId>
+                <artifactId>jdbc-milvus</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <!-- other dependencies -->
             <dependency>

@@ -69,6 +69,7 @@ public class JdbcHelper {
     public static final String ELASTIC6         = "elastic6";
     public static final String ELASTIC7         = "elastic7";
     public static final String ELASTIC_SEARCH   = "elastic_search";
+    public static final String MILVUS           = "milvus";
 
     /**
      * 根据 JDBC URL和驱动类名获取数据库类型
@@ -186,6 +187,8 @@ public class JdbcHelper {
             }
         } else if (rawUrl.startsWith("jdbc:elastic:")) {
             return ELASTIC_SEARCH;
+        } else if (rawUrl.startsWith("jdbc:dbvisitor:milvus")) {
+            return MILVUS;
         } else {
             return null;
         }

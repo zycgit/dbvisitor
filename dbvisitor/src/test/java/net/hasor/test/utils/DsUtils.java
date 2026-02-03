@@ -38,6 +38,7 @@ public class DsUtils {
     public static String ORACLE_JDBC_URL   = "jdbc:oracle:thin:@" + TEST_SERVER + ":11521:ORCLCDB";
     public static String REDIS_JDBC_URL    = "jdbc:dbvisitor:jedis://" + TEST_SERVER + ":16379?database=0&uncheckNumKeys=true&separatorChar=;";
     public static String MONGO_JDBC_URL    = "jdbc:dbvisitor:mongo://" + TEST_SERVER + ":17017/admin";
+    public static String MILVUS_JDBC_URL   = "jdbc:dbvisitor:milvus://" + TEST_SERVER + ":19530/default";
     public static String ES6_JDBC_URL      = "jdbc:dbvisitor:elastic://" + TEST_SERVER + ":19200?indexRefresh=true";
     public static String ES7_JDBC_URL      = "jdbc:dbvisitor:elastic://" + TEST_SERVER + ":19201?indexRefresh=true";
 
@@ -141,6 +142,10 @@ public class DsUtils {
 
     public static Connection es7Conn() throws SQLException {
         return DriverManager.getConnection(ES7_JDBC_URL);
+    }
+
+    public static Connection milvusConn() throws SQLException {
+        return DriverManager.getConnection(MILVUS_JDBC_URL);
     }
 
     public static Connection mysqlConn() throws SQLException {
