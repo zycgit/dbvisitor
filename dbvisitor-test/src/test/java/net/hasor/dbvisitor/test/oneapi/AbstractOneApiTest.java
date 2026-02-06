@@ -1,5 +1,11 @@
 package net.hasor.dbvisitor.test.oneapi;
 
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
+import javax.sql.DataSource;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.session.Configuration;
@@ -10,18 +16,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
 
-import javax.sql.DataSource;
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 public abstract class AbstractOneApiTest {
-    protected static DataSource dataSource;
-    protected JdbcTemplate jdbcTemplate;
-    protected LambdaTemplate lambdaTemplate;
+    protected static DataSource     dataSource;
+    protected        JdbcTemplate   jdbcTemplate;
+    protected        LambdaTemplate lambdaTemplate;
 
     @Rule
     public TestName testName = new TestName();
@@ -35,24 +33,22 @@ public abstract class AbstractOneApiTest {
         }
         jdbcTemplate = new JdbcTemplate(dataSource);
         lambdaTemplate = new LambdaTemplate(jdbcTemplate);
-        
+
         // Ensure schema exists (workaround for H2 memory DB connection pooling issues)
         ensureSchemaExists();
-        
+
         // Clean test data before each test
         cleanTestData();
-        
+
         // Database initialization (schema + baseline data) is handled by OneApiDataSourceManager
         // Tests can override initData() to load additional test-specific data
         initData();
     }
-    
+
     private void checkTestSkip() {
         String skipList = OneApiDataSourceManager.getProperty("test.skip.cases");
         if (skipList != null && !skipList.isEmpty()) {
-            Set<String> skippedTests = Arrays.stream(skipList.split(","))
-                    .map(String::trim)
-                    .collect(Collectors.toSet());
+            Set<String> skippedTests = Arrays.stream(skipList.split(",")).map(String::trim).collect(Collectors.toSet());
             String currentTest = testName.getMethodName();
             if (skippedTests.contains(currentTest)) {
                 System.out.println("Skipping test " + currentTest + " as configured in test.skip.cases");
@@ -71,19 +67,17 @@ public abstract class AbstractOneApiTest {
             // No, Explicit is better. If config missing, maybe assume standard SQL?
             // Let's assume feature check fails if config is missing to be safe, or we can define defaults.
             // For now, let's say if 'test.features' is present, we check against it.
-            return; 
+            return;
         } else {
-             supportedFeatures = Arrays.stream(features.split(","))
-                    .map(String::trim)
-                    .collect(Collectors.toSet());
+            supportedFeatures = Arrays.stream(features.split(",")).map(String::trim).collect(Collectors.toSet());
         }
-        
+
         if (!supportedFeatures.contains(feature)) {
             System.out.println("Skipping test " + testName.getMethodName() + " because feature '" + feature + "' is not supported.");
             Assume.assumeTrue("Feature '" + feature + "' not supported", false);
         }
     }
-    
+
     /**
      * Ensure schema exists (workaround for H2 memory DB connection pooling)
      * Check if user_info table exists, if not, re-initialize
@@ -101,7 +95,7 @@ public abstract class AbstractOneApiTest {
                 String initScript = "/oneapi/sql/" + dialect + "/init.sql";
                 System.out.println("[OneAPI] Loading script: " + initScript);
                 jdbcTemplate.loadSplitSQL(";", initScript);
-                
+
                 // Verify tables were created
                 Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM user_info WHERE 1=0", Integer.class);
                 System.out.println("[OneAPI] Schema re-initialized successfully, user_info table exists");
@@ -112,7 +106,7 @@ public abstract class AbstractOneApiTest {
             }
         }
     }
-    
+
     /**
      * Clean test data before each test
      */
@@ -125,6 +119,8 @@ public abstract class AbstractOneApiTest {
             jdbcTemplate.executeUpdate("DELETE FROM product_vector");
             jdbcTemplate.executeUpdate("DELETE FROM array_types_test");
             jdbcTemplate.executeUpdate("DELETE FROM array_types_explicit_test");
+            jdbcTemplate.executeUpdate("DELETE FROM basic_types_test");
+            jdbcTemplate.executeUpdate("DELETE FROM basic_types_explicit_test");
         } catch (Exception e) {
             // Ignore - tables might not exist yet
             System.out.println("[OneAPI] Data cleanup skipped: " + e.getMessage());
@@ -138,7 +134,7 @@ public abstract class AbstractOneApiTest {
         Configuration configuration = new Configuration();
         return configuration.newSession(dataSource);
     }
-    
+
     /**
      * Optional: Override in subclasses to load test-specific data
      * Schema initialization is handled automatically by OneApiDataSourceManager

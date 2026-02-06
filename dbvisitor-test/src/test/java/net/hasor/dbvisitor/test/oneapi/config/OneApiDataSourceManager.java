@@ -15,7 +15,7 @@ import java.util.Properties;
  * Provides database initialization with SQL script loading
  */
 public class OneApiDataSourceManager {
-    private static final String DEFAULT_ENV = "h2";
+    private static final String DEFAULT_ENV = "pg";
     private static final String PROP_FILE_TEMPLATE = "/oneapi/jdbc-%s.properties";
     private static Properties cachedProperties;
     private static DataSource cachedDataSource;
