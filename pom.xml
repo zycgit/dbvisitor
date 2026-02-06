@@ -56,6 +56,7 @@
         <module>dbvisitor-adapter/jdbc-mongo</module>
         <module>dbvisitor-adapter/jdbc-milvus</module>
         <module>dbvisitor-adapter/jdbc-elastic</module>
+        <module>dbvisitor-test</module>
     </modules>
 
     <dependencyManagement>
