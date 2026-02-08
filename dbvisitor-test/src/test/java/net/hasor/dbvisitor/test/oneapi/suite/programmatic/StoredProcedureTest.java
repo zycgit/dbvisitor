@@ -15,10 +15,15 @@
  */
 package net.hasor.dbvisitor.test.oneapi.suite.programmatic;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import net.hasor.cobble.CollectionUtils;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.test.oneapi.AbstractOneApiTest;
+import net.hasor.dbvisitor.test.oneapi.model.UserInfo;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.handler.number.IntegerTypeHandler;
 import org.junit.Before;
@@ -67,6 +72,7 @@ public class StoredProcedureTest extends AbstractOneApiTest {
 
     /**
      * 创建测试用的存储过程（PostgreSQL PROCEDURE，只支持 INOUT 参数）
+     * <p>使用 CREATE OR REPLACE 避免 DROP/CREATE 导致 PostgreSQL OID 缓存失效</p>
      */
     private void createStoredProcedures() throws SQLException {
         // 插入测试数据（表已经由 AbstractOneApiTest 创建）
@@ -75,15 +81,14 @@ public class StoredProcedureTest extends AbstractOneApiTest {
         jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, email) VALUES (3, 'Charlie', 35, 'charlie@test.com')");
 
         // PostgreSQL PROCEDURE 只支持 INOUT 参数，不支持 OUT 参数
+        // 使用 CREATE OR REPLACE 保持 OID 不变，防止连接池缓存失效
 
         // 1. 简单的加法存储过程
-        jdbcTemplate.execute("DROP PROCEDURE IF EXISTS sp_add_numbers CASCADE");
-        jdbcTemplate.execute("CREATE PROCEDURE sp_add_numbers(IN a INT, IN b INT, INOUT result INT) " +//
+        jdbcTemplate.execute("CREATE OR REPLACE PROCEDURE sp_add_numbers(IN a INT, IN b INT, INOUT result INT) " +//
                 "LANGUAGE plpgsql AS $$ BEGIN result := a + b; END $$");
 
         // 2. 多个 INOUT 参数：计算和、差、积、商
-        jdbcTemplate.execute("DROP PROCEDURE IF EXISTS sp_calc_numbers CASCADE");
-        jdbcTemplate.execute("CREATE PROCEDURE sp_calc_numbers(" +//
+        jdbcTemplate.execute("CREATE OR REPLACE PROCEDURE sp_calc_numbers(" +//
                 "IN a INT, IN b INT, " +//
                 "INOUT sum_result INT, INOUT diff_result INT, " +//
                 "INOUT mult_result INT, INOUT div_result DECIMAL) " +//
@@ -92,21 +97,25 @@ public class StoredProcedureTest extends AbstractOneApiTest {
                 "mult_result := a * b; div_result := ROUND(a::DECIMAL / b, 2); END $$");
 
         // 3. 字符串转换：INOUT + IN 参数
-        jdbcTemplate.execute("DROP PROCEDURE IF EXISTS sp_transform_string CASCADE");
-        jdbcTemplate.execute("CREATE PROCEDURE sp_transform_string(INOUT text_value VARCHAR, IN suffix VARCHAR) " +//
+        jdbcTemplate.execute("CREATE OR REPLACE PROCEDURE sp_transform_string(INOUT text_value VARCHAR, IN suffix VARCHAR) " +//
                 "LANGUAGE plpgsql AS $$ BEGIN text_value := UPPER(text_value) || suffix; END $$");
 
         // 4. 查询用户信息：IN + INOUT 参数
-        jdbcTemplate.execute("DROP PROCEDURE IF EXISTS sp_get_user_info CASCADE");
-        jdbcTemplate.execute("CREATE PROCEDURE sp_get_user_info(" +//
+        jdbcTemplate.execute("CREATE OR REPLACE PROCEDURE sp_get_user_info(" +//
                 "IN user_id INT, INOUT user_name VARCHAR, INOUT user_age INT) " +//
                 "LANGUAGE plpgsql AS $$ BEGIN " +//
                 "SELECT name, age INTO user_name, user_age FROM user_info WHERE id = user_id; END $$");
 
         // 5. 计数器更新：INOUT 参数用于输入输出
-        jdbcTemplate.execute("DROP PROCEDURE IF EXISTS sp_update_counter CASCADE");
-        jdbcTemplate.execute("CREATE PROCEDURE sp_update_counter(INOUT counter INT, IN increment INT) " +//
+        jdbcTemplate.execute("CREATE OR REPLACE PROCEDURE sp_update_counter(INOUT counter INT, IN increment INT) " +//
                 "LANGUAGE plpgsql AS $$ BEGIN counter := counter + increment; END $$");
+
+        // 6. 游标查询：通过 INOUT refcursor 返回结果集
+        jdbcTemplate.execute("CREATE OR REPLACE PROCEDURE sp_cursor_users(" +//
+                "IN p_name VARCHAR, INOUT p_cursor refcursor) " +//
+                "LANGUAGE plpgsql AS $$ BEGIN " +//
+                "OPEN p_cursor FOR SELECT id, name, age, email FROM user_info WHERE name = p_name; " +//
+                "END $$");
     }
 
     // ========== 高级接口测试：使用 call() 方法 ==========
@@ -227,5 +236,207 @@ public class StoredProcedureTest extends AbstractOneApiTest {
         assertNotNull(result);
         assertEquals("Alice", result.get("user_name"));
         assertEquals(25, result.get("user_age"));
+    }
+
+    // ========== #{...} 参数传递测试 ==========
+
+    /**
+     * 测试 #{...} 参数 - 基础 INOUT 参数，指定 jdbcType
+     * <p>参考 ProcedureTest.call_1：使用 #{name,mode=inout,jdbcType=xxx} 方式声明 INOUT 参数</p>
+     */
+    @Test
+    public void testCall_HashParam_BasicInOut() throws SQLException {
+        Map<String, Object> result = jdbcTemplate.call("CALL sp_add_numbers(" +//
+                        "#{a,jdbcType=integer}, " + //
+                        "#{b,jdbcType=integer}, " + //
+                        "#{result,mode=inout,jdbcType=integer})",//
+                CollectionUtils.asMap("a", 7, "b", 8, "result", 0));
+
+        assertNotNull(result);
+        assertEquals(15, result.get("result")); // 7 + 8 = 15
+    }
+
+    /**
+     * 测试 #{...} 参数 - INOUT 参数使用 javaType 代替 jdbcType
+     * <p>参考 ProcedureTest.procedure_out_3：使用 javaType=java.lang.Integer 方式</p>
+     */
+    @Test
+    public void testCall_HashParam_InOut_WithJavaType() throws SQLException {
+        Map<String, Object> result = jdbcTemplate.call("CALL sp_add_numbers(" + //
+                        "#{a,jdbcType=integer}, " + //
+                        "#{b,jdbcType=integer}, " + //
+                        "#{result,mode=inout,javaType=java.lang.Integer})", //
+                CollectionUtils.asMap("a", 9, "b", 6, "result", 0));
+
+        assertNotNull(result);
+        assertEquals(15, result.get("result")); // 9 + 6 = 15
+    }
+
+    /**
+     * 测试 #{...} 参数 - INOUT 参数使用 typeHandler
+     * <p>参考 ProcedureTest.procedure_out_1：使用 typeHandler=xxx 精确控制类型处理</p>
+     */
+    @Test
+    public void testCall_HashParam_InOut_WithTypeHandler() throws SQLException {
+        Map<String, Object> result = jdbcTemplate.call("CALL sp_add_numbers(" + //
+                        "#{a,jdbcType=integer}, " + //
+                        "#{b,jdbcType=integer}, " + //
+                        "#{result,mode=inout,jdbcType=integer,typeHandler=net.hasor.dbvisitor.types.handler.number.IntegerTypeHandler})",//
+                CollectionUtils.asMap("a", 11, "b", 4, "result", 0));
+
+        assertNotNull(result);
+        assertEquals(15, result.get("result")); // 11 + 4 = 15
+    }
+
+    /**
+     * 测试 #{...} 参数 - 多个 INOUT 参数
+     * <p>展示多个 #{...} INOUT 参数在一个存储过程调用中的使用</p>
+     */
+    @Test
+    public void testCall_HashParam_MultipleInOut() throws SQLException {
+        Map<String, Object> args = new HashMap<>();
+        args.put("a", 12);
+        args.put("b", 4);
+        args.put("sum_result", 0);
+        args.put("diff_result", 0);
+        args.put("mult_result", 0);
+        args.put("div_result", java.math.BigDecimal.ZERO);
+
+        Map<String, Object> result = jdbcTemplate.call("CALL sp_calc_numbers(" + //
+                "#{a,jdbcType=integer}, " + //
+                "#{b,jdbcType=integer}, " + //
+                "#{sum_result,mode=inout,jdbcType=integer}, " +  //
+                "#{diff_result,mode=inout,jdbcType=integer}, " + //
+                "#{mult_result,mode=inout,jdbcType=integer}, " + //
+                "#{div_result,mode=inout,jdbcType=decimal})", args);
+
+        assertNotNull(result);
+        assertEquals(16, result.get("sum_result"));  // 12 + 4
+        assertEquals(8, result.get("diff_result"));  // 12 - 4
+        assertEquals(48, result.get("mult_result")); // 12 * 4
+        assertEquals(new java.math.BigDecimal("3.00"), result.get("div_result")); // 12 / 4
+    }
+
+    /**
+     * 测试 #{...} 参数 - 字符串类型 INOUT 参数同时作为输入输出
+     * <p>展示 varchar 类型 INOUT 参数的 #{...} 用法</p>
+     */
+    @Test
+    public void testCall_HashParam_StringInOut() throws SQLException {
+        Map<String, Object> result = jdbcTemplate.call(//
+                "CALL sp_transform_string(#{text_value,mode=inout,jdbcType=varchar}, #{suffix,jdbcType=varchar})",//
+                CollectionUtils.asMap("text_value", "abc", "suffix", "123"));
+
+        assertNotNull(result);
+        assertEquals("ABC123", result.get("text_value"));
+    }
+
+    /**
+     * 测试 #{...} 参数 - 使用 name 属性为输出参数指定别名
+     * <p>参考 ProcedureTest.inout_1：使用 name=xxx 属性将返回值映射到不同的 key</p>
+     */
+    @Test
+    public void testCall_HashParam_NameAlias() throws SQLException {
+        Map<String, Object> result = jdbcTemplate.call("CALL sp_update_counter(" + //
+                        "#{counter,name=cnt,mode=inout,jdbcType=integer}, " +//
+                        "#{increment,jdbcType=integer})",//
+                CollectionUtils.asMap("counter", 100, "increment", 25));
+
+        assertNotNull(result);
+        assertEquals(125, result.get("cnt")); // 100 + 25 = 125, output mapped to "cnt"
+    }
+
+    /**
+     * 测试 #{...} 参数 - IN + INOUT 复杂参数组合查询用户
+     * <p>参考文档 procedure.mdx：使用 #{...} 混合 IN 和 INOUT 参数</p>
+     */
+    @Test
+    public void testCall_HashParam_QueryUserInfo() throws SQLException {
+        Map<String, Object> result = jdbcTemplate.call("CALL sp_get_user_info(" +//
+                        "#{user_id,jdbcType=integer}, " +              //
+                        "#{user_name,mode=inout,jdbcType=varchar}, " + //
+                        "#{user_age,mode=inout,jdbcType=integer})",    //
+                CollectionUtils.asMap("user_id", 2, "user_name", "", "user_age", 0));
+
+        assertNotNull(result);
+        assertEquals("Bob", result.get("user_name"));
+        assertEquals(30, result.get("user_age"));
+    }
+
+    /**
+     * 测试 #{...} 参数 - INOUT 参数真正作为输入输出双向使用
+     * <p>展示 INOUT 参数的输入值被存储过程修改后返回</p>
+     */
+    @Test
+    public void testCall_HashParam_CounterUpdate() throws SQLException {
+        Map<String, Object> result = jdbcTemplate.call(//
+                "CALL sp_update_counter(#{counter,mode=inout,jdbcType=integer}, #{increment,jdbcType=integer})",//
+                CollectionUtils.asMap("counter", 50, "increment", 30));
+
+        assertNotNull(result);
+        assertEquals(80, result.get("counter")); // 50 + 30 = 80
+    }
+
+    /**
+     * 测试 #{...} 参数 - IN 参数省略 jdbcType（默认 mode=in，框架自动推断类型）
+     * <p>参考 ProcedureTest.inout_1：#{inName} 不指定 jdbcType 也可正常工作</p>
+     */
+    @Test
+    public void testCall_HashParam_InParamNoJdbcType() throws SQLException {
+        Map<String, Object> result = jdbcTemplate.call(//
+                "CALL sp_add_numbers(#{a}, #{b}, #{result,mode=inout,jdbcType=integer})",//
+                CollectionUtils.asMap("a", 3, "b", 7, "result", 0));
+
+        assertNotNull(result);
+        assertEquals(10, result.get("result")); // 3 + 7 = 10
+    }
+
+    // ========== #{...} 游标参数测试 ==========
+
+    /**
+     * 测试 #{...} 参数 - 游标方式查询结果集，映射为 javaType
+     * <p>参考 ProcedureTest.cursor_result_as_javaType_1：</p>
+     * <ul>
+     *   <li>使用 {@code #{res,mode=cursor,javaType=...}} 声明游标出参</li>
+     *   <li>游标结果集自动映射为指定 javaType 的 List</li>
+     *   <li>PostgreSQL 游标需要在事务中使用（autoCommit=false）</li>
+     * </ul>
+     */
+    @Test
+    public void testCall_HashParam_CursorResult() throws SQLException {
+        try (Connection conn = dataSource.getConnection()) {
+            conn.setAutoCommit(false);
+            JdbcTemplate txJdbc = new JdbcTemplate(conn);
+
+            // 方式1：#{res,mode=cursor,javaType=...}
+            Map<String, Object> result1 = txJdbc.call("call sp_cursor_users(" +//
+                            "#{p_name,jdbcType=varchar}, " + //
+                            "#{res,mode=cursor,javaType=net.hasor.dbvisitor.test.oneapi.model.UserInfo})",//
+                    CollectionUtils.asMap("p_name", "Alice"));
+
+            assertNotNull(result1);
+            assertTrue(result1.get("res") instanceof List);
+            List<?> list1 = (List<?>) result1.get("res");
+            assertEquals(1, list1.size());
+            UserInfo user1 = (UserInfo) list1.get(0);
+            assertEquals("Alice", user1.getName());
+            assertEquals(Integer.valueOf(25), user1.getAge());
+            conn.commit();
+
+            // 方式2：#{name=res,mode=cursor,javaType=...}（使用 name= 属性指定输出名称）
+            Map<String, Object> result2 = txJdbc.call("call sp_cursor_users(" +//
+                            "#{p_name,jdbcType=varchar}, " + //
+                            "#{name=res,mode=cursor,javaType=net.hasor.dbvisitor.test.oneapi.model.UserInfo})",//
+                    CollectionUtils.asMap("p_name", "Bob"));
+
+            assertNotNull(result2);
+            assertTrue(result2.get("res") instanceof List);
+            List<?> list2 = (List<?>) result2.get("res");
+            assertEquals(1, list2.size());
+            UserInfo user2 = (UserInfo) list2.get(0);
+            assertEquals("Bob", user2.getName());
+            assertEquals(Integer.valueOf(30), user2.getAge());
+            conn.commit();
+        }
     }
 }
