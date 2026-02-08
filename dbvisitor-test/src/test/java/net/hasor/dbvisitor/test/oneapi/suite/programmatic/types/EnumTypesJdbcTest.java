@@ -1,7 +1,7 @@
 package net.hasor.dbvisitor.test.oneapi.suite.programmatic.types;
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.oneapi.AbstractOneApiTest;
-import net.hasor.dbvisitor.test.oneapi.model.types.SimpleEnum;
+import net.hasor.dbvisitor.test.oneapi.model.types.StatusEnum;
 import net.hasor.dbvisitor.test.oneapi.model.types.StatusEnumOfCode;
 import net.hasor.dbvisitor.test.oneapi.model.types.StatusEnumOfValue;
 import org.junit.Test;
@@ -39,24 +39,24 @@ public class EnumTypesJdbcTest extends AbstractOneApiTest {
     public void testSimpleEnum_ByName() throws SQLException {
         // 插入枚举的 name() 值
         String insertSql = "INSERT INTO enum_types_explicit_test (id, status_string) VALUES (?, ?)";
-        jdbcTemplate.executeUpdate(insertSql, new Object[] { 1, SimpleEnum.ACTIVE.name() });
+        jdbcTemplate.executeUpdate(insertSql, new Object[] { 1, StatusEnum.ACTIVE.name() });
 
         // 直接使用枚举类型查询 - EnumTypeHandler 自动处理
         String selectSql = "SELECT status_string FROM enum_types_explicit_test WHERE id = ?";
-        SimpleEnum loaded = jdbcTemplate.queryForObject(selectSql, new Object[] { 1 }, SimpleEnum.class);
+        StatusEnum loaded = jdbcTemplate.queryForObject(selectSql, new Object[] { 1 }, StatusEnum.class);
 
         assertNotNull(loaded);
-        assertEquals(SimpleEnum.ACTIVE, loaded);
+        assertEquals(StatusEnum.ACTIVE, loaded);
 
         // 测试所有枚举值
-        jdbcTemplate.executeUpdate(insertSql, new Object[] { 2, SimpleEnum.INACTIVE.name() });
-        jdbcTemplate.executeUpdate(insertSql, new Object[] { 3, SimpleEnum.DELETED.name() });
+        jdbcTemplate.executeUpdate(insertSql, new Object[] { 2, StatusEnum.INACTIVE.name() });
+        jdbcTemplate.executeUpdate(insertSql, new Object[] { 3, StatusEnum.DELETED.name() });
 
-        SimpleEnum loaded2 = jdbcTemplate.queryForObject(selectSql, new Object[] { 2 }, SimpleEnum.class);
-        assertEquals(SimpleEnum.INACTIVE, loaded2);
+        StatusEnum loaded2 = jdbcTemplate.queryForObject(selectSql, new Object[] { 2 }, StatusEnum.class);
+        assertEquals(StatusEnum.INACTIVE, loaded2);
 
-        SimpleEnum loaded3 = jdbcTemplate.queryForObject(selectSql, new Object[] { 3 }, SimpleEnum.class);
-        assertEquals(SimpleEnum.DELETED, loaded3);
+        StatusEnum loaded3 = jdbcTemplate.queryForObject(selectSql, new Object[] { 3 }, StatusEnum.class);
+        assertEquals(StatusEnum.DELETED, loaded3);
     }
 
     /**
@@ -150,7 +150,7 @@ public class EnumTypesJdbcTest extends AbstractOneApiTest {
         jdbcTemplate.executeUpdate(insertSql, new Object[] { 13, null, null, null });
 
         // 测试普通枚举 null (字符串列)
-        SimpleEnum simpleEnum = jdbcTemplate.queryForObject("SELECT status_string FROM enum_types_explicit_test WHERE id = ?", new Object[] { 13 }, SimpleEnum.class);
+        StatusEnum simpleEnum = jdbcTemplate.queryForObject("SELECT status_string FROM enum_types_explicit_test WHERE id = ?", new Object[] { 13 }, StatusEnum.class);
         assertNull(simpleEnum);
 
         // 测试 EnumOfCode null (字符串列)
@@ -176,7 +176,7 @@ public class EnumTypesJdbcTest extends AbstractOneApiTest {
 
         try {
             // 尝试查询无效的枚举值 - 应该抛出异常
-            jdbcTemplate.queryForObject("SELECT status_string FROM enum_types_explicit_test WHERE id = ?", new Object[] { 14 }, SimpleEnum.class);
+            jdbcTemplate.queryForObject("SELECT status_string FROM enum_types_explicit_test WHERE id = ?", new Object[] { 14 }, StatusEnum.class);
             fail("Should throw exception for invalid enum value");
         } catch (Exception e) {
             // Expected - 无效的枚举值会导致异常
