@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda.support.entity;
+import java.sql.SQLException;
+import java.util.Map;
 import net.hasor.dbvisitor.lambda.core.OrderNullsStrategy;
 import net.hasor.dbvisitor.lambda.core.OrderType;
 
@@ -164,4 +166,10 @@ public interface EntityQueryFunc<R> {
     default R desc(OrderNullsStrategy strategy, String first, String... other) {
         return this.orderBy(OrderType.DESC, strategy, first, other);
     }
+
+    /**
+     * 执行查询，并将结果集的前两列（由 keyProperty 和 valueProperty 指定）映射为 Map&lt;K, V&gt; 返回。
+     * <p>例: queryForPairs("id", "name", Integer.class, String.class)</p>
+     */
+    <K, V> Map<K, V> queryForPairs(String keyProperty, String valueProperty, Class<K> keyType, Class<V> valueType) throws SQLException;
 }

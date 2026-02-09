@@ -29,6 +29,7 @@ import net.hasor.dbvisitor.jdbc.RowMapper;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.jdbc.extractor.BeanMappingResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.extractor.MapMappingResultSetExtractor;
+import net.hasor.dbvisitor.jdbc.extractor.PairsResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.mapper.BeanMappingRowMapper;
 import net.hasor.dbvisitor.jdbc.mapper.ColumnMapRowMapper;
 import net.hasor.dbvisitor.jdbc.mapper.MapMappingRowMapper;
@@ -308,6 +309,31 @@ public abstract class AbstractSelect<R, T, P> extends BasicQueryCompare<R, T, P>
         BoundSql boundSql = getBoundSql();
         RowMapper<Map<String, Object>> rowMapper = new MapMappingRowMapper(getTableMapping());
         return this.jdbc.queryForObject(boundSql.getSqlString(), boundSql.getArgs(), rowMapper);
+    }
+
+    @Override
+    public <K, V> Map<K, V> queryForPairs(P keyProperty, P valueProperty, Class<K> keyType, Class<V> valueType) throws SQLException {
+        Objects.requireNonNull(this.jdbc, "Connection unavailable, JdbcTemplate is required.");
+        Objects.requireNonNull(keyProperty, "keyProperty is required.");
+        Objects.requireNonNull(valueProperty, "valueProperty is required.");
+        Objects.requireNonNull(keyType, "keyType is required.");
+        Objects.requireNonNull(valueType, "valueType is required.");
+
+        String keyPropName = getPropertyName(keyProperty);
+        String valuePropName = getPropertyName(valueProperty);
+        return queryForPairsByName(keyPropName, valuePropName, keyType, valueType);
+    }
+
+    @Override
+    public <K, V> Map<K, V> queryForPairsByName(String keyPropName, String valuePropName, Class<K> keyType, Class<V> valueType) throws SQLException {
+        List<String> selectProps = new ArrayList<>(2);
+        selectProps.add(keyPropName);
+        selectProps.add(valuePropName);
+        this.selectApply(selectProps, true);
+
+        BoundSql boundSql = getBoundSql();
+        PairsResultSetExtractor<K, V> extractor = new PairsResultSetExtractor<>(this.registry.getTypeRegistry(), keyType, valueType);
+        return this.jdbc.query(boundSql.getSqlString(), boundSql.getArgs(), extractor);
     }
 
     @Override

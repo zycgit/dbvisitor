@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda.support.entity;
+import java.sql.SQLException;
 import java.util.*;
 import net.hasor.cobble.BeanUtils;
 import net.hasor.cobble.ObjectUtils;
@@ -337,5 +338,14 @@ public class EntityQueryImpl<T> extends AbstractSelect<EntityQuery<T>, T, SFunct
         } else {
             return this.selectApply(Collections.singletonList(first), true);
         }
+    }
+
+    @Override
+    public <K, V> Map<K, V> queryForPairs(String keyProperty, String valueProperty, Class<K> keyType, Class<V> valueType) throws SQLException {
+        Objects.requireNonNull(keyProperty, "keyProperty is required.");
+        Objects.requireNonNull(valueProperty, "valueProperty is required.");
+        Objects.requireNonNull(keyType, "keyType is required.");
+        Objects.requireNonNull(valueType, "valueType is required.");
+        return queryForPairsByName(keyProperty, valueProperty, keyType, valueType);
     }
 }
