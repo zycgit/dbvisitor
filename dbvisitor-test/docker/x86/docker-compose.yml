@@ -1,0 +1,158 @@
+services:
+  mysql_8_0_22:
+    image: mysql:8.0.22
+    environment:
+      - MYSQL_DATABASE=devtester
+      - MYSQL_ROOT_PASSWORD=123456
+      - TZ=Asia/Shanghai
+    ports:
+      - 13306:3306
+    restart: always
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-time_zone='+8:00'
+    # User/Password：root/123456
+
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=123456
+    ports:
+      - 15432:5432
+    volumes:
+      - ./postgres-init:/docker-entrypoint-initdb.d
+    restart: always
+    # User/Password：postgres/123456
+
+  redis_7_2_3:
+    image: redis:7.2.3
+    privileged: true
+    ports:
+      - 16379:6379
+    # - /apps/redis/datadir:/data
+    # - /apps/redis/conf/redis.conf:/usr/local/etc/redis/redis.conf
+    # - /apps/redis/logs:/logs
+    restart: always
+    command: redis-server --requirepass 123456
+
+  mongo_6_0:
+    image: mongo:6.0
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=123456
+    ports:
+      - 17017:27017
+    restart: always
+    # User/Password：root/123456
+
+  es_6_8_3:
+    image: elasticsearch:6.8.3
+    privileged: true
+    ports:
+      - 19300:9300
+      - 19200:9200
+    environment:
+      - discovery.type=single-node
+  kibana_6_8_3:
+    image: kibana:6.8.3
+    privileged: true
+    ports:
+      - 15601:5601
+    environment:
+      - ELASTICSEARCH_URL=http://es_6_8_3:9200
+    depends_on:
+      - es_6_8_3
+
+  es_7_17_27:
+    image: elasticsearch:7.17.27
+    privileged: true
+    ports:
+      - 19301:9300
+      - 19201:9200
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+  kibana_7_17_27:
+    image: kibana:7.17.27
+    privileged: true
+    ports:
+      - 15602:5601
+    environment:
+      ELASTICSEARCH_HOSTS: '["http://es_7_17_27:9200"]'
+    depends_on:
+      - es_7_17_27
+
+  opensearch_2_11_1:
+    image: opensearchproject/opensearch:2.11.1
+    privileged: true
+    ports:
+      - 19302:9300
+      - 19202:9200
+    environment:
+      - discovery.type=single-node
+      - plugins.security.disabled=true
+  opensearch_dashboards_2_11_1:
+    image: opensearchproject/opensearch-dashboards:2.11.1
+    privileged: true
+    ports:
+      - 15603:5601
+    environment:
+      OPENSEARCH_HOSTS: '["http://opensearch_2_11_1:9200"]'
+      DISABLE_SECURITY_DASHBOARDS_PLUGIN: "true"
+    depends_on:
+      - opensearch_2_11_1
+
+  # ==================== Milvus 向量数据库 ====================
+
+  milvus-etcd:
+    image: quay.io/coreos/etcd:v3.5.18
+    environment:
+      - ETCD_AUTO_COMPACTION_MODE=revision
+      - ETCD_AUTO_COMPACTION_RETENTION=1000
+      - ETCD_QUOTA_BACKEND_BYTES=4294967296
+      - ETCD_SNAPSHOT_COUNT=50000
+    command: etcd -advertise-client-urls=http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
+    healthcheck:
+      test: ["CMD", "etcdctl", "endpoint", "health"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  milvus-minio:
+    image: minio/minio:RELEASE.2023-03-20T20-16-18Z
+    environment:
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+    ports:
+      - "19002:9001"
+      - "19001:9000"
+    command: minio server /minio_data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  milvus:
+    image: milvusdb/milvus:v2.5.5
+    command: ["milvus", "run", "standalone"]
+    security_opt:
+      - seccomp:unconfined
+    environment:
+      ETCD_ENDPOINTS: milvus-etcd:2379
+      MINIO_ADDRESS: milvus-minio:9000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
+      interval: 30s
+      start_period: 90s
+      timeout: 20s
+      retries: 3
+    ports:
+      - "19530:19530"
+      - "19091:9091"
+    depends_on:
+      - milvus-etcd
+      - milvus-minio
