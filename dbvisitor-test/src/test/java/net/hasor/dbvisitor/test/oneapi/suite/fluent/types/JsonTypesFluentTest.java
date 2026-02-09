@@ -22,8 +22,8 @@ import static org.junit.Assert.*;
  * 3. JSON 中的 null、空对象、特殊字符处理
  * 4. JSON 读取为 Map/List/Set/Bean 等不同结构
  */
+@SuppressWarnings("unchecked")
 public class JsonTypesFluentTest extends AbstractOneApiTest {
-
     @Override
     protected void cleanTestData() {
         try {
@@ -54,8 +54,8 @@ public class JsonTypesFluentTest extends AbstractOneApiTest {
 
         // 使用 JdbcTemplate + JsonType.jsonMap() 读取（模型的 VarcharTypeHandler 无法反序列化 Map）
         String selectSql = "SELECT json_varchar FROM json_types_explicit_test WHERE id = ?";
-        @SuppressWarnings("unchecked")
-        Map<String, Object> loadedMap = (Map<String, Object>) jdbcTemplate.queryForObject(selectSql, new Object[] { 1 }, JsonType.jsonMap());
+        Map<String, Object> loadedMap = (Map<String, Object>) jdbcTemplate//
+                .queryForObject(selectSql, new Object[] { 1 }, JsonType.jsonMap());
 
         assertNotNull(loadedMap);
         assertEquals("Alice", loadedMap.get("name"));
@@ -86,8 +86,8 @@ public class JsonTypesFluentTest extends AbstractOneApiTest {
 
         // 使用 JdbcTemplate + JsonType.jsonMap() 读取
         String selectSql = "SELECT json_varchar FROM json_types_explicit_test WHERE id = ?";
-        @SuppressWarnings("unchecked")
-        Map<String, Object> loadedMap = (Map<String, Object>) jdbcTemplate.queryForObject(selectSql, new Object[] { 2 }, JsonType.jsonMap());
+        Map<String, Object> loadedMap = (Map<String, Object>) jdbcTemplate//
+                .queryForObject(selectSql, new Object[] { 2 }, JsonType.jsonMap());
 
         assertNotNull(loadedMap);
         assertEquals("Bob", loadedMap.get("name"));
@@ -95,7 +95,6 @@ public class JsonTypesFluentTest extends AbstractOneApiTest {
         Object addressObj = loadedMap.get("address");
         assertNotNull(addressObj);
         assertTrue(addressObj instanceof Map);
-        @SuppressWarnings("unchecked")
         Map<String, Object> loadedAddress = (Map<String, Object>) addressObj;
         assertEquals("Shanghai", loadedAddress.get("city"));
         assertEquals("Nanjing Road", loadedAddress.get("street"));
@@ -131,8 +130,8 @@ public class JsonTypesFluentTest extends AbstractOneApiTest {
 
         // 使用 JdbcTemplate + JsonType.jsonMap() 读取
         String selectSql = "SELECT json_varchar FROM json_types_explicit_test WHERE id = ?";
-        @SuppressWarnings("unchecked")
-        Map<String, Object> loadedMap = (Map<String, Object>) jdbcTemplate.queryForObject(selectSql, new Object[] { 4 }, JsonType.jsonMap());
+        Map<String, Object> loadedMap = (Map<String, Object>) jdbcTemplate//
+                .queryForObject(selectSql, new Object[] { 4 }, JsonType.jsonMap());
 
         assertNotNull(loadedMap);
         assertTrue(loadedMap.isEmpty());
@@ -156,8 +155,8 @@ public class JsonTypesFluentTest extends AbstractOneApiTest {
 
         // 使用 JdbcTemplate + JsonType.jsonMap() 读取
         String selectSql = "SELECT json_varchar FROM json_types_explicit_test WHERE id = ?";
-        @SuppressWarnings("unchecked")
-        Map<String, Object> loadedMap = (Map<String, Object>) jdbcTemplate.queryForObject(selectSql, new Object[] { 5 }, JsonType.jsonMap());
+        Map<String, Object> loadedMap = (Map<String, Object>) jdbcTemplate//
+                .queryForObject(selectSql, new Object[] { 5 }, JsonType.jsonMap());
 
         assertNotNull(loadedMap);
         assertEquals("中文名字", loadedMap.get("name"));
@@ -192,7 +191,6 @@ public class JsonTypesFluentTest extends AbstractOneApiTest {
         Object addressObj = loadedMap.get("address");
         assertNotNull(addressObj);
         assertTrue(addressObj instanceof Map);
-        @SuppressWarnings("unchecked")
         Map<String, Object> addressMap = (Map<String, Object>) addressObj;
         assertEquals("Shenzhen", addressMap.get("city"));
     }
@@ -219,7 +217,6 @@ public class JsonTypesFluentTest extends AbstractOneApiTest {
         assertNotNull(loadedList);
         assertEquals(3, loadedList.size());
 
-        @SuppressWarnings("unchecked")
         Map<String, Object> firstMap = (Map<String, Object>) loadedList.get(0);
         assertEquals("Alice", firstMap.get("name"));
     }
@@ -348,7 +345,6 @@ public class JsonTypesFluentTest extends AbstractOneApiTest {
 
         // 使用 JdbcTemplate + JsonType.jsonMap() 验证
         String selectSql = "SELECT json_varchar FROM json_types_explicit_test WHERE id = ?";
-        @SuppressWarnings("unchecked")
         Map<String, Object> loadedMap = (Map<String, Object>) jdbcTemplate.queryForObject(selectSql, new Object[] { 13 }, JsonType.jsonMap());
 
         assertNotNull(loadedMap);

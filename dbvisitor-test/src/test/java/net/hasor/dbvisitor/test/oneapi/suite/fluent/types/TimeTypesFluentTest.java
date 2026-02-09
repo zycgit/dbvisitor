@@ -25,7 +25,7 @@ import static org.junit.Assert.*;
  * 7. 精度测试（毫秒）
  * 8. null 值处理
  * 注意：TimeTypesExplicitModel 使用 java.sql.Date/Time/Timestamp 和 Java 8 时间类型，
- *       部分场景需结合 JdbcTemplate 手动读取验证（如 Year/Month/MonthDay/BCE 等特殊类型）
+ * 部分场景需结合 JdbcTemplate 手动读取验证（如 Year/Month/MonthDay/BCE 等特殊类型）
  */
 public class TimeTypesFluentTest extends AbstractOneApiTest {
 
@@ -151,14 +151,12 @@ public class TimeTypesFluentTest extends AbstractOneApiTest {
         LocalTime time = LocalTime.of(14, 30, 45);
 
         // 使用 JdbcTemplate 通过 TIMESTAMP 写入
-        jdbcTemplate.executeUpdate(
-                "INSERT INTO time_types_explicit_test (id, local_time_ts) VALUES (?, ?::TIMESTAMP)",
+        jdbcTemplate.executeUpdate("INSERT INTO time_types_explicit_test (id, local_time_ts) VALUES (?, ?::TIMESTAMP)",//
                 new Object[] { 5, "1970-01-01 " + time.toString() });
 
         // 使用 JdbcTemplate 读取为 Timestamp，再提取 LocalTime
-        java.sql.Timestamp ts = jdbcTemplate.queryForObject(
-                "SELECT local_time_ts FROM time_types_explicit_test WHERE id = ?",
-                new Object[] { 5 }, java.sql.Timestamp.class);
+        Timestamp ts = jdbcTemplate.queryForObject("SELECT local_time_ts FROM time_types_explicit_test WHERE id = ?",//
+                new Object[] { 5 }, Timestamp.class);
 
         assertNotNull(ts);
         LocalTime loadedTime = ts.toLocalDateTime().toLocalTime();

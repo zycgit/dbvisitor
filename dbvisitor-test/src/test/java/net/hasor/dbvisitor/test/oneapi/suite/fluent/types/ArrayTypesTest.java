@@ -1,9 +1,7 @@
 package net.hasor.dbvisitor.test.oneapi.suite.fluent.types;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.oneapi.AbstractOneApiTest;
-import net.hasor.dbvisitor.test.oneapi.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.oneapi.model.types.ArrayTypesModel;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -19,48 +17,6 @@ import static org.junit.Assert.*;
  * Note: MySQL 不支持原生数组，需要降级为 JSON 或 VARCHAR
  */
 public class ArrayTypesTest extends AbstractOneApiTest {
-
-    @Override
-    public void setup() throws IOException, SQLException {
-        super.setup();
-        // Ensure array_types_test table exists (in case init.sql wasn't executed)
-        ensureArrayTypesTableExists();
-    }
-
-    /**
-     * Ensure array_types_test table exists
-     * This handles the case where OneApiDataSourceManager.initialized flag
-     * prevented re-execution of init.sql after it was updated
-     */
-    private void ensureArrayTypesTableExists() {
-        try {
-            // Try to query the table
-            jdbcTemplate.queryForObject("SELECT COUNT(*) FROM array_types_test WHERE 1=0", Integer.class);
-        } catch (Exception e) {
-            // Table doesn't exist, create it
-            System.out.println("[ArrayTypesTest] array_types_test table not found, creating...");
-            try {
-                String dialect = OneApiDataSourceManager.getDbDialect();
-                if ("pg".equals(dialect)) {
-                    jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS array_types_test (" +
-                            "id SERIAL PRIMARY KEY, " +
-                            "int_array INTEGER[], " +
-                            "string_array VARCHAR[], " +
-                            "float_array REAL[])");
-                } else if ("h2".equals(dialect)) {
-                    jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS array_types_test (" +
-                            "id INT AUTO_INCREMENT PRIMARY KEY, " +
-                            "int_array INT ARRAY, " +
-                            "string_array VARCHAR ARRAY, " +
-                            "float_array REAL ARRAY)");
-                }
-                System.out.println("[ArrayTypesTest] array_types_test table created successfully");
-            } catch (Exception ex) {
-                System.err.println("[ArrayTypesTest] Failed to create array_types_test table: " + ex.getMessage());
-                throw new RuntimeException("Failed to create array_types_test table", ex);
-            }
-        }
-    }
 
     @Override
     protected void cleanTestData() {
@@ -80,10 +36,10 @@ public class ArrayTypesTest extends AbstractOneApiTest {
     @Test
     public void testIntegerArray_BasicOperations() throws SQLException {
         Integer[] intArray = { 1, 2, 3, 4, 5 };
-        
+
         // ========== 场景1：使用 LambdaTemplate 自动映射 ==========
         System.out.println("[TEST] 场景1：使用 LambdaTemplate 自动映射");
-        
+
         ArrayTypesModel model1 = new ArrayTypesModel();
         model1.setId(1);
         model1.setIntArray(intArray);
@@ -101,34 +57,29 @@ public class ArrayTypesTest extends AbstractOneApiTest {
         assertNotNull("Scenario 1: IntArray should not be null", loaded1.getIntArray());
         assertEquals("Scenario 1: Array length should match", 5, loaded1.getIntArray().length);
         assertArrayEquals("Scenario 1: Array contents should match", intArray, loaded1.getIntArray());
-        
+
         // 清理场景1的数据
         lambdaTemplate.delete(ArrayTypesModel.class).eq(ArrayTypesModel::getId, 1).doDelete();
-        
+
         // ========== 场景2：使用 JdbcTemplate 手动处理（不依赖 ArrayTypeHandler）==========
         System.out.println("[TEST] 场景2：使用 JdbcTemplate 手动处理");
-        
+
         ArrayTypesModel model2 = new ArrayTypesModel();
         model2.setId(2);
         model2.setIntArray(intArray);
 
         // 使用 JDBC 原始方式插入
         String insertSql = "INSERT INTO array_types_test (id, int_array, string_array, float_array) VALUES (?, ?, ?, ?)";
-        int inserted2 = jdbcTemplate.executeUpdate(insertSql, new Object[] { 
-            model2.getId(), 
-            model2.getIntArray(),
-            model2.getStringArray(),
-            model2.getFloatArray()
-        });
-        
+        int inserted2 = jdbcTemplate.executeUpdate(insertSql, new Object[] { model2.getId(), model2.getIntArray(), model2.getStringArray(), model2.getFloatArray() });
+
         System.out.println("[DEBUG] Scenario 2 - Inserted rows: " + inserted2);
-        
+
         // 使用 JdbcTemplate 手动处理 Array 类型
         String querySql = "SELECT id, int_array, string_array, float_array FROM array_types_test WHERE id = 2";
         ArrayTypesModel loaded2 = jdbcTemplate.queryForList(querySql, (rs, rowNum) -> {
             ArrayTypesModel m = new ArrayTypesModel();
             m.setId(rs.getInt("id"));
-            
+
             // 手动从 JDBC Array 中提取数据
             java.sql.Array sqlArray = rs.getArray("int_array");
             if (sqlArray != null) {
@@ -140,7 +91,7 @@ public class ArrayTypesTest extends AbstractOneApiTest {
                 m.setIntArray(intArr);
                 sqlArray.free();
             }
-            
+
             return m;
         }).get(0);
 
@@ -227,7 +178,7 @@ public class ArrayTypesTest extends AbstractOneApiTest {
         System.out.println("[DEBUG] intArray: " + (loaded1.getIntArray() == null ? "null" : ("length=" + loaded1.getIntArray().length)));
         System.out.println("[DEBUG] stringArray: " + (loaded1.getStringArray() == null ? "null" : ("length=" + loaded1.getStringArray().length)));
         System.out.println("[DEBUG] floatArray: " + (loaded1.getFloatArray() == null ? "null" : ("length=" + loaded1.getFloatArray().length)));
-        
+
         assertNotNull("intArray should not be null", loaded1.getIntArray());
         assertNotNull("stringArray should not be null", loaded1.getStringArray());
         assertNotNull("floatArray should not be null", loaded1.getFloatArray());
@@ -237,7 +188,7 @@ public class ArrayTypesTest extends AbstractOneApiTest {
         assertArrayEquals(new Integer[0], loaded1.getIntArray());
         assertArrayEquals(new String[0], loaded1.getStringArray());
         assertArrayEquals(new Float[0], loaded1.getFloatArray());
-        
+
         // 清理
         jdbcTemplate.executeUpdate("DELETE FROM array_types_test WHERE id = ?", 4);
         // Single element array
