@@ -20,6 +20,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import net.hasor.cobble.reflect.TypeReference;
 import net.hasor.dbvisitor.types.TypeHandler;
+import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 /**
  * The base {@link TypeHandler} for references a generic type.
@@ -37,8 +38,14 @@ public abstract class AbstractTypeHandler<T> extends TypeReference<T> implements
     @Override
     public void setParameter(PreparedStatement ps, int i, T parameter, Integer jdbcType) throws SQLException {
         if (parameter == null) {
+            // 当 jdbcType 未指定时，根据泛型类型自动推断默认的 JDBC 类型
             if (jdbcType == null) {
-                throw new SQLException("JDBC requires that the JdbcType must be specified for all nullable parameters.");
+                Class<?> rawType = getRawType();
+                if (rawType != null) {
+                    jdbcType = TypeHandlerRegistry.toSqlType(rawType);
+                } else {
+                    throw new SQLException("JDBC requires that the JdbcType must be specified for all nullable parameters.");
+                }
             }
             try {
                 ps.setNull(i, jdbcType);

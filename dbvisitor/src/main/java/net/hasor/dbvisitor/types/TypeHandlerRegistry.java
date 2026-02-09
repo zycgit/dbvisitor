@@ -169,6 +169,20 @@ public final class TypeHandlerRegistry {
         this.register(InputStream.class, createTypeHandler(BytesAsInputStreamTypeHandler.class));
         this.register(Byte[].class, createTypeHandler(BytesAsBytesWrapTypeHandler.class));
         this.register(byte[].class, createTypeHandler(BytesTypeHandler.class));
+        // Array Types - 基本类型数组
+        this.register(Integer[].class, createTypeHandler(ArrayTypeHandler.class));
+        this.register(int[].class, createTypeHandler(ArrayTypeHandler.class));
+        this.register(Long[].class, createTypeHandler(ArrayTypeHandler.class));
+        this.register(long[].class, createTypeHandler(ArrayTypeHandler.class));
+        this.register(Short[].class, createTypeHandler(ArrayTypeHandler.class));
+        this.register(short[].class, createTypeHandler(ArrayTypeHandler.class));
+        this.register(Double[].class, createTypeHandler(ArrayTypeHandler.class));
+        this.register(double[].class, createTypeHandler(ArrayTypeHandler.class));
+        this.register(Float[].class, createTypeHandler(ArrayTypeHandler.class));
+        this.register(float[].class, createTypeHandler(ArrayTypeHandler.class));
+        this.register(Boolean[].class, createTypeHandler(ArrayTypeHandler.class));
+        this.register(boolean[].class, createTypeHandler(ArrayTypeHandler.class));
+        this.register(String[].class, createTypeHandler(ArrayTypeHandler.class));
         this.register(Object[].class, createTypeHandler(ArrayTypeHandler.class));
         this.register(Object.class, createTypeHandler(UnknownTypeHandler.class));
         this.register(Number.class, createTypeHandler(NumberTypeHandler.class));
@@ -257,7 +271,21 @@ public final class TypeHandlerRegistry {
         this.register(Types.LONGVARBINARY, InputStream.class, createTypeHandler(BytesAsInputStreamTypeHandler.class));
         this.register(Types.BLOB, InputStream.class, createTypeHandler(BlobAsInputStreamTypeHandler.class));
 
+        // 注册 ARRAY 类型的 TypeHandler - 包含所有基本数组类型
         this.register(Types.ARRAY, Object.class, createTypeHandler(ArrayTypeHandler.class));
+        this.register(Types.ARRAY, Integer[].class, createTypeHandler(ArrayTypeHandler.class));
+        this.register(Types.ARRAY, int[].class, createTypeHandler(ArrayTypeHandler.class));
+        this.register(Types.ARRAY, Long[].class, createTypeHandler(ArrayTypeHandler.class));
+        this.register(Types.ARRAY, long[].class, createTypeHandler(ArrayTypeHandler.class));
+        this.register(Types.ARRAY, Short[].class, createTypeHandler(ArrayTypeHandler.class));
+        this.register(Types.ARRAY, short[].class, createTypeHandler(ArrayTypeHandler.class));
+        this.register(Types.ARRAY, Double[].class, createTypeHandler(ArrayTypeHandler.class));
+        this.register(Types.ARRAY, double[].class, createTypeHandler(ArrayTypeHandler.class));
+        this.register(Types.ARRAY, Float[].class, createTypeHandler(ArrayTypeHandler.class));
+        this.register(Types.ARRAY, float[].class, createTypeHandler(ArrayTypeHandler.class));
+        this.register(Types.ARRAY, Boolean[].class, createTypeHandler(ArrayTypeHandler.class));
+        this.register(Types.ARRAY, boolean[].class, createTypeHandler(ArrayTypeHandler.class));
+        this.register(Types.ARRAY, String[].class, createTypeHandler(ArrayTypeHandler.class));
 
         this.register(Types.DATALINK, String.class, createTypeHandler(StringTypeHandler.class));
         this.register(Types.DATALINK, URL.class, createTypeHandler(StringAsUrlTypeHandler.class));
@@ -332,7 +360,7 @@ public final class TypeHandlerRegistry {
             } catch (NoSuchMethodException e1) {
                 try {
                     Constructor<?> constructor = typeHandler.getConstructor(Class.class);
-                    Class<?> rawClass = type == null ? null : type.getRawClass();
+                    Class<?> rawClass = type == null ? Object.class : type.getRawClass();
                     return this.createByConstructor(constructor, rawClass);
                 } catch (NoSuchMethodException e2) {
                     return this.createByClass(typeHandler, null);
@@ -804,6 +832,15 @@ public final class TypeHandlerRegistry {
             } catch (ClassNotFoundException e) {
                 /**/
             }
+        }
+
+        // 当 columnTypeClass 仍为 null 时（如列值为 null），直接使用 jdbcType 查找 TypeHandler
+        if (columnTypeClass == null) {
+            TypeHandler<?> typeHandler = this.getTypeHandler(jdbcType);
+            if (typeHandler == null) {
+                typeHandler = this.defaultTypeHandler;
+            }
+            return typeHandler;
         }
 
         if (this.hasTypeHandler(columnTypeClass, jdbcType)) {

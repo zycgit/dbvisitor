@@ -217,7 +217,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
         if (StringUtils.isBlank(splitChars)) {
             taskList = Collections.singletonList(outWriter.toString());
         } else {
-            taskList = Arrays.asList(outWriter.toString().split(splitChars));
+            taskList = Arrays.asList(StringUtils.split(outWriter.toString(), splitChars));
         }
         taskList = taskList.parallelStream().filter(StringUtils::isNotBlank).collect(Collectors.toList());
 
@@ -226,11 +226,31 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
         }
 
         for (String str : taskList) {
-            if (str.trim().startsWith("--")) {
-                continue;
+            // 移除注释行，但保留有效的 SQL 语句
+            String cleanedSql = removeLineComments(str).trim();
+            if (StringUtils.isNotBlank(cleanedSql)) {
+                this.execute(cleanedSql);
             }
-            this.execute(str);
         }
+    }
+
+    /**
+     * 移除 SQL 字符串中的单行注释（以 -- 开头的行）
+     * 保留有效的 SQL 语句
+     */
+    private String removeLineComments(String sql) {
+        StringBuilder result = new StringBuilder();
+        String[] lines = sql.split("\n");
+        
+        for (String line : lines) {
+            String trimmed = line.trim();
+            // 只跳过纯注释行，保留有效的 SQL
+            if (!trimmed.startsWith("--") && !trimmed.isEmpty()) {
+                result.append(line).append("\n");
+            }
+        }
+        
+        return result.toString();
     }
 
     @Override
@@ -669,12 +689,16 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     /** Create a new RowMapper for reading columns as Bean pairs. */
     protected <T> RowMapper<T> createBeanRowMapper(final Class<T> requiredType) {
         Objects.requireNonNull(requiredType, "requiredType is null.");
-        if (Map.class.isAssignableFrom(requiredType)) {
-            return (RowMapper<T>) this.createMapRowMapper();
-        }
-
+        
+        // 优先检查 TypeHandler (包括 @BindTypeHandler 注解)
+        // 这样可以支持带有注解的 Map 子类，例如 JsonHashMap
         if (this.buildContext.getTypeRegistry().hasTypeHandler(requiredType) || requiredType.isEnum()) {
             return this.createSingleColumnRowMapper(requiredType);
+        }
+
+        // 对于普通的 Map 类型（没有 TypeHandler），使用默认的 MapRowMapper
+        if (Map.class.isAssignableFrom(requiredType)) {
+            return (RowMapper<T>) this.createMapRowMapper();
         }
 
         return new BeanMappingRowMapper<>(requiredType, this.registry);
@@ -689,13 +713,17 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     /** Create a new RowMapper for reading columns as Bean pairs. */
     protected <T> ResultSetExtractor<List<T>> createBeanResultSetExtractor(final Class<T> requiredType) {
         Objects.requireNonNull(requiredType, "requiredType is null.");
-        if (Map.class.isAssignableFrom(requiredType)) {
-            RowMapper<T> mapRowMapper = (RowMapper<T>) this.createMapRowMapper();
+        
+        // 优先检查 TypeHandler (包括 @BindTypeHandler 注解)
+        // 这样可以支持带有注解的 Map/List 子类，例如 JsonHashMap, JsonArrayList
+        if (this.buildContext.getTypeRegistry().hasTypeHandler(requiredType) || requiredType.isEnum()) {
+            RowMapper<T> mapRowMapper = this.createSingleColumnRowMapper(requiredType);
             return new RowMapperResultSetExtractor<>(mapRowMapper);
         }
 
-        if (this.buildContext.getTypeRegistry().hasTypeHandler(requiredType) || requiredType.isEnum()) {
-            RowMapper<T> mapRowMapper = this.createSingleColumnRowMapper(requiredType);
+        // 对于普通的 Map 类型（没有 TypeHandler），使用默认的 MapRowMapper
+        if (Map.class.isAssignableFrom(requiredType)) {
+            RowMapper<T> mapRowMapper = (RowMapper<T>) this.createMapRowMapper();
             return new RowMapperResultSetExtractor<>(mapRowMapper);
         }
 
