@@ -274,7 +274,7 @@ public class JsonTypesJdbcTest extends AbstractOneApiTest {
 
     /**
      * 测试读取为 JsonHashSet 结构
-     * 使用 JsonArrayList 包装类，支持直接通过 queryForObject 读取 JSON 数组为 List
+     * 使用 JsonHashSet 包装类，支持直接通过 queryForObject 读取 JSON 数组为 Set
      */
     @Test
     public void testJsonRead_AsSet() throws SQLException {

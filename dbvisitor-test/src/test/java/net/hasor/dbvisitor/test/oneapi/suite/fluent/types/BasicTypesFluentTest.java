@@ -140,7 +140,7 @@ public class BasicTypesFluentTest extends AbstractOneApiTest {
 
     /**
      * 测试 BIT vs BOOLEAN - PostgreSQL 中 BIT(1) 需要 CAST
-     * 通过 JdbcTemplate 插入（使用 CAST），LambdaTemplate 读取
+     * 通过 JdbcTemplate 插入（使用 CAST），JdbcTemplate 读取
      */
     @Test
     public void testBitVsBoolean_ExplicitModel() throws SQLException {
@@ -165,7 +165,7 @@ public class BasicTypesFluentTest extends AbstractOneApiTest {
     }
 
     /**
-     * 测试 VARCHAR 字符类型 - 使用 JdbcTemplate 插入，LambdaTemplate 读取
+     * 测试 VARCHAR 字符类型 - 使用 JdbcTemplate 插入，JdbcTemplate 读取
      * 注意：PostgreSQL JDBC 驱动不支持 setNString/getNString，因此 NVARCHAR 通过 JdbcTemplate 原生方式测试
      */
     @Test

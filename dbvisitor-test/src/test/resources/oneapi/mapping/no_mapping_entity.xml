@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="net.hasor.test.xml.nomapping">
+
+    <!-- entity 无 <id>/<result>/<mapping>/<index> 子元素，回退到类注解解析 -->
+    <entity id="NoMappingEntity" table="user_info" type="net.hasor.dbvisitor.test.oneapi.model.UserInfo">
+        <!-- 无子元素，将使用类上的注解来解析列映射 -->
+    </entity>
+
+</mapper>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="net.hasor.test.mapping">
+
+    <!-- 基本 entity 测试: 完整属性配置 -->
+    <entity id="FullEntity" table="user_info" type="net.hasor.dbvisitor.test.oneapi.model.UserInfo"
+            catalog="test_cat" schema="test_sch"
+            ddlAuto="create" character-set="utf8mb4" collation="utf8mb4_general_ci"
+            comment="user table" other="ENGINE=InnoDB">
+        <id column="id" property="id" keyType="auto"/>
+        <mapping column="name" property="name"/>
+        <mapping column="age" property="age" insert="false"/>
+        <mapping column="email" property="email" update="false"/>
+        <mapping column="create_time" property="createTime"/>
+        <index name="idx_name" columns="name"/>
+        <index name="idx_email_age" columns="email,age" unique="true" comment="composite index"/>
+    </entity>
+
+    <!-- 基本 resultMap 测试 -->
+    <resultMap id="SimpleResultMap" type="net.hasor.dbvisitor.test.oneapi.model.UserInfo">
+        <result column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+        <result column="email" property="email"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <!-- autoMapping=false, 只映射部分列 -->
+    <entity id="PartialEntity" table="user_info" type="net.hasor.dbvisitor.test.oneapi.model.UserInfo"
+            autoMapping="false">
+        <id column="id" property="id"/>
+        <mapping column="name" property="name"/>
+    </entity>
+
+    <!-- 使用 column description 属性 -->
+    <entity id="DescEntity" table="user_info" type="net.hasor.dbvisitor.test.oneapi.model.UserInfo">
+        <id column="id" property="id" sqlType="BIGINT"/>
+        <mapping column="name" property="name" sqlType="VARCHAR" length="128" default="'unknown'" comment="user name"/>
+        <mapping column="age" property="age" precision="10" scale="0"/>
+    </entity>
+
+</mapper>

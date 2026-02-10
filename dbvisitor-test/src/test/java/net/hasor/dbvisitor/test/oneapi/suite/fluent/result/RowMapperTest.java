@@ -253,8 +253,8 @@ public class RowMapperTest extends AbstractOneApiTest {
     }
 
     /**
-     * 测试嵌套对象映射
-     * 场景: 映射为包含其他对象的复合对象
+     * 测试自定义 DTO 映射
+     * 场景: 通过 RowMapper 将查询结果映射为自定义 DTO 对象
      */
     @Test
     public void testNestedObjectMapping() throws SQLException {

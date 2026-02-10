@@ -162,13 +162,14 @@ public class NullHandlingTest extends AbstractOneApiTest {
         assertEquals("Should find 3 users with NULL age", 3, count);
 
         // 查询: age IS NOT NULL OR email IS NULL
+        // 注意: or() 内仅包含自己的条件，like() 是外层 AND 条件
         long count2 = lambda.query(UserInfo.class)//
                 .like(UserInfo::getName, "Complex%")//
                 .or(q -> q.isNotNull(UserInfo::getAge)//
                         .isNull(UserInfo::getEmail))//
                 .queryForCount();
 
-        assertTrue("Should find users matching OR condition", count2 >= 2);
+        assertTrue("Should find users matching (age IS NOT NULL OR email IS NULL)", count2 >= 2);
     }
 
     /**

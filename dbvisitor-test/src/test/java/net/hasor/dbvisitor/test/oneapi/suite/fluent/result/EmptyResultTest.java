@@ -135,7 +135,7 @@ public class EmptyResultTest extends AbstractOneApiTest {
 
     /**
      * 测试 WHERE 条件匹配空字符串
-     * LIKE '' 应匹配所有记录
+     * LIKE '' 匹配所有非 NULL 的 name 记录（因为任何字符串都包含空字符串）
      */
     @Test
     public void testLikeEmptyString() throws SQLException {

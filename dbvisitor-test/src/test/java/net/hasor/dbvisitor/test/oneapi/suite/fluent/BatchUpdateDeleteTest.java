@@ -19,7 +19,7 @@ public class BatchUpdateDeleteTest extends AbstractOneApiTest {
 
     /**
      * 测试批量更新（基于条件）
-     * SQL: UPDATE user_info SET age = age + 1 WHERE age >= 20 AND age <= 30
+     * SQL: UPDATE user_info SET age = 25 WHERE age >= 20 AND age <= 30
      */
     @Test
     public void testBatchUpdateByCondition() throws SQLException {

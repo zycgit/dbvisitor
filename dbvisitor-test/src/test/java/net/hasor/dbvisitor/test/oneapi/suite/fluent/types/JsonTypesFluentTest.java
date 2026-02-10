@@ -12,7 +12,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * JSON 类型测试 - Fluent API (LambdaTemplate)
+ * JSON 类型测试 - Fluent API (JdbcTemplate + JsonTypeHandler)
  * 对应 programmatic/types/JsonTypesJdbcTest，使用与 programmatic 相同的 Bean 类型：
  * - JsonTestBean：普通 JSON Bean（name/age/active/tags/address）
  * - JsonAnnotatedBean：带 @BindTypeHandler(JsonTypeHandler.class) 注解的 Bean
@@ -35,7 +35,7 @@ public class JsonTypesFluentTest extends AbstractOneApiTest {
     }
 
     /**
-     * 测试使用 JdbcTemplate 写入 Map 类型的 JSON，LambdaTemplate 读取
+     * 测试使用 JdbcTemplate + JsonTypeHandler 写入 Map 类型的 JSON，JdbcTemplate 读取
      * 注意：JsonTypesExplicitModel 的 Map 字段 jdbcType=VARCHAR，VarcharTypeHandler 无法处理 Map
      * 因此写入时使用 JdbcTemplate + JsonTypeHandler
      */
@@ -66,7 +66,7 @@ public class JsonTypesFluentTest extends AbstractOneApiTest {
 
     /**
      * 测试嵌套 JSON 对象
-     * 使用 JdbcTemplate + JsonTypeHandler 写入，LambdaTemplate 读取
+     * 使用 JdbcTemplate + JsonTypeHandler 写入，JdbcTemplate + JsonTypeHandler 读取
      */
     @Test
     public void testJsonMap_NestedObject() throws SQLException {
@@ -117,7 +117,7 @@ public class JsonTypesFluentTest extends AbstractOneApiTest {
 
     /**
      * 测试空 Map 的 JSON 处理
-     * 使用 JdbcTemplate + JsonTypeHandler 写入，LambdaTemplate 读取
+     * 使用 JdbcTemplate + JsonTypeHandler 写入，JdbcTemplate + JsonTypeHandler 读取
      */
     @Test
     public void testJsonMap_EmptyObject() throws SQLException {
@@ -139,7 +139,7 @@ public class JsonTypesFluentTest extends AbstractOneApiTest {
 
     /**
      * 测试 JSON 中的特殊字符和 Unicode
-     * 使用 JdbcTemplate + JsonTypeHandler 写入，LambdaTemplate 读取
+     * 使用 JdbcTemplate + JsonTypeHandler 写入，JdbcTemplate + JsonTypeHandler 读取
      */
     @Test
     public void testJsonMap_SpecialCharacters() throws SQLException {
@@ -319,7 +319,7 @@ public class JsonTypesFluentTest extends AbstractOneApiTest {
 
     /**
      * 测试 JSON 字段更新
-     * 使用 JdbcTemplate + JsonTypeHandler 写入和更新，LambdaTemplate 读取
+     * 使用 JdbcTemplate + JsonTypeHandler 写入和更新，JdbcTemplate + JsonTypeHandler 读取
      */
     @Test
     public void testJsonMap_UpdateOperation() throws SQLException {

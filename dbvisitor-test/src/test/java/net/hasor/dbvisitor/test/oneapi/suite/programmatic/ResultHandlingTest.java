@@ -133,7 +133,7 @@ public class ResultHandlingTest extends AbstractOneApiTest {
     }
 
     /**
-     * 测试内置 RowMapper - MapMappingRowMapper
+     * 测试内置 RowMapper - ColumnMapRowMapper
      */
     @Test
     public void testRowMapper_MapMapping() throws Exception {

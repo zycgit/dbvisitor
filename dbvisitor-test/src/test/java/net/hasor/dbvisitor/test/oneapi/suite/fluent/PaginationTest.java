@@ -302,7 +302,7 @@ public class PaginationTest extends AbstractOneApiTest {
 
     // ==================== Page 导航方法 ====================
 
-    /** nextPage / previousPage / firstPage / lastPage 导航 */
+    /** 手动 setCurrentPage 分页导航（非 nextPage/previousPage API） */
     @Test
     public void testPageNavigation() throws SQLException {
         LambdaTemplate lambda = new LambdaTemplate(dataSource);
@@ -320,7 +320,7 @@ public class PaginationTest extends AbstractOneApiTest {
         Page pageInfo = q0.pageInfo();
         assertEquals(0, pageInfo.getCurrentPage());
 
-        // nextPage → 第 2 页
+        // 切换到第 2 页 (page=1)
         pageObj.setCurrentPage(1);
         EntityQuery<UserInfo> q1 = lambda.query(UserInfo.class)//
                 .like(UserInfo::getName, "PN%")//
@@ -328,7 +328,7 @@ public class PaginationTest extends AbstractOneApiTest {
         List<UserInfo> list1 = q1.queryForList();
         assertEquals("PN5", list1.get(0).getName());
 
-        // lastPage → 第 4 页 (page=3)
+        // 切换到第 4 页 (page=3)
         pageObj.setCurrentPage(3);
         EntityQuery<UserInfo> q3 = lambda.query(UserInfo.class)//
                 .like(UserInfo::getName, "PN%")//
@@ -337,7 +337,7 @@ public class PaginationTest extends AbstractOneApiTest {
         assertEquals(5, list3.size());
         assertEquals("PN15", list3.get(0).getName());
 
-        // firstPage → 第 1 页 (page=0)
+        // 切换回第 1 页 (page=0)
         pageObj.setCurrentPage(0);
         EntityQuery<UserInfo> qFirst = lambda.query(UserInfo.class)//
                 .like(UserInfo::getName, "PN%")//

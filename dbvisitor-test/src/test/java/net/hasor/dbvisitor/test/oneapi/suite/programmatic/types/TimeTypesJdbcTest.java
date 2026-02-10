@@ -254,7 +254,7 @@ public class TimeTypesJdbcTest extends AbstractOneApiTest {
     public void testYear_SpecialType() throws SQLException {
         Year year = Year.of(2024);
 
-        // Year 可以存储为整数
+        // Year 存储为 Date
         jdbcTemplate.executeUpdate("INSERT INTO time_types_explicit_test (id, date_value) VALUES (?, ?)",//
                 new Object[] { 11, java.sql.Date.valueOf(year.atMonth(1).atDay(1)) });
 
@@ -291,7 +291,7 @@ public class TimeTypesJdbcTest extends AbstractOneApiTest {
     public void testMonth_SpecialType() throws SQLException {
         Month month = Month.MARCH;
 
-        // Month 存储为整数 3
+        // Month 存储为 Date
         jdbcTemplate.executeUpdate("INSERT INTO time_types_explicit_test (id, date_value) VALUES (?, ?)",//
                 new Object[] { 13, java.sql.Date.valueOf(Year.now().atMonth(month).atDay(1)) });
 

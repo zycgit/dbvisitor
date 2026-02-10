@@ -49,8 +49,8 @@ public class TypeConversionTest extends AbstractOneApiTest {
     }
 
     /**
-     * 测试 LocalDateTime 支持
-     * 注意: 需要数据库驱动和映射框架支持 Java 8 时间 API
+     * 测试 Date 与 LocalDateTime 手动互转
+     * 场景: 通过 java.util.Date 存储时间，查询后手动转换为 LocalDateTime 验证
      */
     @Test
     public void testLocalDateTimeConversion() throws SQLException {
@@ -86,8 +86,8 @@ public class TypeConversionTest extends AbstractOneApiTest {
     }
 
     /**
-     * 测试 BigDecimal 精度
-     * 场景: 存储和查询高精度小数
+     * 测试整数字段的多类型读取
+     * 场景: age 字段分别以 Integer 和 Long 类型读取
      */
     @Test
     public void testBigDecimalPrecision() throws SQLException {
@@ -122,9 +122,8 @@ public class TypeConversionTest extends AbstractOneApiTest {
     }
 
     /**
-     * 测试 Boolean 映射
-     * 场景: Boolean <-> Integer (0/1)
-     * 注意: 不同数据库的 Boolean 表示不同
+     * 测试 Integer 0/1 的存取
+     * 场景: 用 age 字段存储 0/1 并验证读取一致性
      */
     @Test
     public void testBooleanConversion() throws SQLException {
@@ -168,8 +167,8 @@ public class TypeConversionTest extends AbstractOneApiTest {
     }
 
     /**
-     * 测试 Enum 映射
-     * 场景: Enum <-> String/Integer
+     * 测试字符串字段存储枚举名称
+     * 场景: 用 name 字段存储枚举值字符串并读取验证
      */
     @Test
     public void testEnumConversion() throws SQLException {
@@ -305,7 +304,7 @@ public class TypeConversionTest extends AbstractOneApiTest {
 
     /**
      * 测试日期边界值
-     * 场景: 最小日期、最大日期
+     * 场景: 最小日期 (epoch 0, 1970-01-01)
      */
     @Test
     public void testDateBoundaryValues() throws SQLException {
@@ -467,7 +466,7 @@ public class TypeConversionTest extends AbstractOneApiTest {
 
     /**
      * 测试 Timestamp 精度
-     * 场景: 毫秒/微秒级精度
+     * 场景: 秒级精度（部分数据库不支持毫秒）
      */
     @Test
     public void testTimestampPrecision() throws SQLException {

@@ -59,19 +59,14 @@ public abstract class AbstractOneApiTest {
 
     protected void requiresFeature(String feature) {
         String features = OneApiDataSourceManager.getProperty("test.features");
-        Set<String> supportedFeatures;
         if (features == null || features.trim().isEmpty()) {
-            // If not specified, assume all standard features are supported, or maybe none?
-            // Let's assume none if explicit check is requested, or maybe "all" is default?
-            // Better strategy: config defines what is supported. But for back-compat, maybe empty implies all?
-            // No, Explicit is better. If config missing, maybe assume standard SQL?
-            // Let's assume feature check fails if config is missing to be safe, or we can define defaults.
-            // For now, let's say if 'test.features' is present, we check against it.
+            // 未配置 test.features 时，跳过所有需要特殊 feature 的测试
+            System.out.println("Skipping test " + testName.getMethodName() + " because 'test.features' is not configured.");
+            Assume.assumeTrue("Feature '" + feature + "' not supported (test.features not configured)", false);
             return;
-        } else {
-            supportedFeatures = Arrays.stream(features.split(",")).map(String::trim).collect(Collectors.toSet());
         }
 
+        Set<String> supportedFeatures = Arrays.stream(features.split(",")).map(String::trim).collect(Collectors.toSet());
         if (!supportedFeatures.contains(feature)) {
             System.out.println("Skipping test " + testName.getMethodName() + " because feature '" + feature + "' is not supported.");
             Assume.assumeTrue("Feature '" + feature + "' not supported", false);

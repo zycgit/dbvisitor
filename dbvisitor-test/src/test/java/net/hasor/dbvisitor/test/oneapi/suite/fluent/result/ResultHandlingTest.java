@@ -74,7 +74,7 @@ public class ResultHandlingTest extends AbstractOneApiTest {
     }
 
     /**
-     * 测试 queryForObject - 返回单个值 (Count)
+     * 测试 queryForCount - 返回记录数
      */
     @Test
     public void testListMap_QueryForCount() throws SQLException {

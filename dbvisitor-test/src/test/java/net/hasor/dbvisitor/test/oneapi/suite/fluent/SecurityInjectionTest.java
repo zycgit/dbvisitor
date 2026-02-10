@@ -250,7 +250,7 @@ public class SecurityInjectionTest extends AbstractOneApiTest {
             List<Map<String, Object>> result = lambda.queryFreedom("user_info")//
                     .eq(maliciousColumn, "FreedomSub1")//
                     .queryForList();
-            // 观察是否子查询被执行
+            fail("Subquery in column name was not blocked, returned " + result.size() + " rows");
         } catch (SQLException e) {
             assertNotNull("Subquery in column name blocked", e.getMessage());
         }
@@ -303,7 +303,7 @@ public class SecurityInjectionTest extends AbstractOneApiTest {
                     .queryForList();
 
             // 如果返回结果且不报错，说明 CASE WHEN 在 ORDER BY 中被执行
-            // 这是一种信息泄漏攻击向量
+            fail("Blind boolean ORDER BY injection was not blocked, returned " + result.size() + " rows");
         } catch (SQLException e) {
             assertNotNull("Blind boolean ORDER BY blocked", e.getMessage());
         }
@@ -379,7 +379,7 @@ public class SecurityInjectionTest extends AbstractOneApiTest {
                     .eqBySampleMap(maliciousSample)//
                     .queryForList();
 
-            // 如果返回大量行，注入成功
+            fail("Always-true injection was not blocked, returned " + result.size() + " rows");
         } catch (SQLException e) {
             assertNotNull("Always-true injection blocked", e.getMessage());
         }

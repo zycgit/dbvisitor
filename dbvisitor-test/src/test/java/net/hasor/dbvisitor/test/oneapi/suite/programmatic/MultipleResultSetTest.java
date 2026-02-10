@@ -35,7 +35,7 @@ public class MultipleResultSetTest extends AbstractOneApiTest {
      * 验证通过分号分隔的多条 SQL 能返回多个结果集
      */
     @Test
-    public void testMultipleExecute_SingleStatement() throws SQLException {
+    public void testMultipleExecute_MultipleStatements() throws SQLException {
         // 准备测试数据
         jdbcTemplate.executeUpdate("INSERT INTO user_info (name, age, email) VALUES (?, ?, ?)",//
                 new Object[] { "TestUser1", 25, "test1@example.com" });

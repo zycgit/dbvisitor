@@ -114,7 +114,7 @@ public class EnumTypesJdbcTest extends AbstractOneApiTest {
     }
 
     /**
-     * 测试枚举存储为 ordinal - 整数序号
+     * 测试枚举存储为自定义整数值 (StatusEnumOfValue)
      * 注意：需要使用 EnumOfValue 接口来正确处理整数映射
      */
     @Test

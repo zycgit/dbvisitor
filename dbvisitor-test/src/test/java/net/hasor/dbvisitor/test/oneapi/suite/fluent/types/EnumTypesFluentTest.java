@@ -217,6 +217,7 @@ public class EnumTypesFluentTest extends AbstractOneApiTest {
         assertNull(loaded.getStatusString());
         assertNull(loaded.getStatusOrdinal());
         assertNull(loaded.getStatusCode());
+        assertNull(loaded.getStatusEnumCode());
     }
 
     /**

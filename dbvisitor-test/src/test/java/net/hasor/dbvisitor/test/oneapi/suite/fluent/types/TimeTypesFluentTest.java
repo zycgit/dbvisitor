@@ -243,7 +243,7 @@ public class TimeTypesFluentTest extends AbstractOneApiTest {
     // ========== 场景 4: 使用 JdbcTemplate 读取 LocalDate/Time/DateTime ==========
 
     /**
-     * 测试 LocalDate - 使用 JdbcTemplate 的 TypeHandler 自动转换
+     * 测试 LocalDate - 使用 JdbcTemplate 的原生 JDBC 类型映射（java.sql.Date）
      */
     @Test
     public void testLocalDate_ViaJdbcTemplate() throws SQLException {

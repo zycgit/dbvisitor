@@ -67,7 +67,7 @@ public class AggregationTest extends AbstractOneApiTest {
     }
 
     @Test
-    public void testSumAvg() throws SQLException {
+    public void testSumMax() throws SQLException {
         LambdaTemplate lambda = new LambdaTemplate(dataSource);
 
         lambda.insert(UserInfo.class)//
@@ -85,6 +85,7 @@ public class AggregationTest extends AbstractOneApiTest {
         assertEquals(30L, sumAge.longValue());
 
         // Max
+        // Expected: 20
         Integer maxAge = lambda.query(UserInfo.class)//
                 .applySelect("max(age)")//
                 .queryForObject(Integer.class);

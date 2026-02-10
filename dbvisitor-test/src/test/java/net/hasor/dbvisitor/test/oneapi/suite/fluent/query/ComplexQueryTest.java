@@ -156,8 +156,8 @@ public class ComplexQueryTest extends AbstractOneApiTest {
     }
 
     /**
-     * 6.1.3 IN 查询测试
-     * 验证 IN 条件的查询
+     * 6.1.3 条件过滤查询测试
+     * 验证 LIKE + gt() 范围过滤（非 IN 条件）
      */
     @Test
     public void testComplexQuery_InCondition() throws Exception {
@@ -174,7 +174,7 @@ public class ComplexQueryTest extends AbstractOneApiTest {
                     .executeSumResult();
         }
 
-        // IN 查询（这里简化为范围查询）
+        // 范围查询: LIKE + age > 20
         long count = lambda.query(UserInfo.class)//
                 .like(UserInfo::getName, "In-User-%")//
                 .gt(UserInfo::getAge, 20)//
@@ -184,12 +184,12 @@ public class ComplexQueryTest extends AbstractOneApiTest {
     }
 
     /**
-     * 6.1.4 子查询测试
-     * 验证子查询支持
+     * 6.1.4 简单条件查询测试
+     * 验证 LIKE 条件过滤（非子查询，仅基本条件匹配）
      */
     @Test
     public void testComplexQuery_Subquery() throws Exception {
-        // 简化版：使用JOIN或多步查询模拟
+        // 简化版：使用 LIKE 条件查询验证数据存在性（非真正子查询）
         LambdaTemplate lambda = new LambdaTemplate(jdbcTemplate);
 
         // 先插入用户
