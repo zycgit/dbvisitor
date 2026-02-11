@@ -55,7 +55,7 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
                 }
 
                 TableDef<?> tableDef;
-                Annotations classAnno = Annotations.ofClass(entityType);
+                Annotations classAnno = Annotations.ofClassHierarchy(entityType);
                 if (classAnno.getAnnotation(Table.class) != null) {
                     tableDef = this.resolveTableInfo(classAnno, entityType, usingOpt, registry);
                 } else if (classAnno.getAnnotation(ResultMap.class) != null) {
@@ -98,13 +98,24 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
         def.setAnnotations(classAnno);
 
         Annotation tableDesc = classAnno.getAnnotation(TableDescribe.class);
-        if (tableDesc != null) {
+        String characterSet = tableDesc != null ? tableDesc.getString("characterSet", null) : null;
+        String collation = tableDesc != null ? tableDesc.getString("collation", null) : null;
+        String comment = tableDesc != null ? tableDesc.getString("comment", null) : null;
+        String other = tableDesc != null ? tableDesc.getString("other", null) : null;
+
+        boolean hasDescInfo = ddlAuto != DdlAuto.None //
+                || StringUtils.isNotBlank(characterSet) //
+                || StringUtils.isNotBlank(collation) //
+                || StringUtils.isNotBlank(comment) //
+                || StringUtils.isNotBlank(other);
+
+        if (hasDescInfo) {
             TableDescDef descDef = new TableDescDef();
             descDef.setDdlAuto(ddlAuto);
-            descDef.setCharacterSet(tableDesc.getString("characterSet", null));
-            descDef.setCollation(tableDesc.getString("collation", null));
-            descDef.setComment(tableDesc.getString("comment", null));
-            descDef.setOther(tableDesc.getString("other", null));
+            descDef.setCharacterSet(characterSet);
+            descDef.setCollation(collation);
+            descDef.setComment(comment);
+            descDef.setOther(other);
             def.setDescription(descDef);
 
             this.loadTableIndex(classAnno, def);
@@ -191,11 +202,12 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
     }
 
     protected void resolveProperty(boolean isEntity, Annotations classAnno, TableDef<?> def, String name, ResolvableType type, Property handler, MappingRegistry registry) throws ReflectiveOperationException {
+        String capName = StringUtils.firstCharToUpperCase(name);
         Annotations propertyAnno = Annotations.merge(                                          //
                 classAnno.getField(name),                                                      //
-                classAnno.getMethod("is" + StringUtils.firstCharToUpperCase(name)), //
-                classAnno.getMethod("get" + StringUtils.firstCharToUpperCase(name)),//
-                classAnno.getMethod("set" + StringUtils.firstCharToUpperCase(name)) //
+                classAnno.getMethod(Annotations.toMethodName("is" + capName)),                 //
+                classAnno.getMethod(Annotations.toMethodName("get" + capName)),                //
+                classAnno.getMethod(Annotations.toMethodName("set" + capName, type.getRawClass())) //
         );
 
         if (propertyAnno.getAnnotation(Ignore.class) != null) {
