@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.hasor</groupId>
     <artifactId>dbvisitor-parent</artifactId>
-    <version>6.6.1-SNAPSHOT</version>
+    <version>6.7.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <!-- Project Info -->

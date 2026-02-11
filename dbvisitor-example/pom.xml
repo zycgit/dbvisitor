@@ -20,7 +20,7 @@
     </modules>
 
     <properties>
-        <dbvisitor.version>6.6.1-SNAPSHOT</dbvisitor.version>
+        <dbvisitor.version>6.7.0-SNAPSHOT</dbvisitor.version>
     </properties>
 
     <dependencyManagement>
