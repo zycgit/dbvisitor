@@ -101,7 +101,7 @@ public class ColumnDef implements ColumnMapping {
     }
 
     @Override
-    public KeyType getKeyTpe() {
+    public KeyType getKeyType() {
         return this.keyTpe;
     }
 

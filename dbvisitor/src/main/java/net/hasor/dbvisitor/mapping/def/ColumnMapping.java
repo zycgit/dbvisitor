@@ -93,7 +93,7 @@ public interface ColumnMapping {
     String getOrderByColTemplate();
 
     /** 获取主键生成策略类型 */
-    KeyType getKeyTpe();
+    KeyType getKeyType();
 
     /** 获取主键生成处理器实例 */
     GeneratedKeyHandler getKeySeqHolder();
