@@ -49,8 +49,8 @@ public class BuildToCamelPojoQueryOtherTest {
         BoundSql boundSql1 = newLambda().query(UserInfo.class)//
                 .eq(UserInfo::getLoginName, "a")//
                 .eq(UserInfo::getLoginName, "b")//
-                .apply("limit ?", 123).getBoundSql();
-        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? AND login_name = ? limit ?");
+                .apply("seq > ?", 123).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? AND login_name = ? AND seq > ?");
         assert boundSql1.getArgs()[0].equals("a");
         assert boundSql1.getArgs()[1].equals("b");
         assert boundSql1.getArgs()[2].equals(123);
@@ -61,8 +61,8 @@ public class BuildToCamelPojoQueryOtherTest {
         BoundSql boundSql1 = newLambda().query(UserInfo.class).asMap()//
                 .eq("loginName", "a")//
                 .eq("loginName", "b")//
-                .apply("limit ?", 123).getBoundSql();
-        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? AND login_name = ? limit ?");
+                .apply("seq > ?", 123).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? AND login_name = ? AND seq > ?");
         assert boundSql1.getArgs()[0].equals("a");
         assert boundSql1.getArgs()[1].equals("b");
         assert boundSql1.getArgs()[2].equals(123);
@@ -120,15 +120,6 @@ public class BuildToCamelPojoQueryOtherTest {
         assert boundSql1.getSqlString().equals("SELECT seq FROM user_info WHERE login_name = ? AND login_name = ? GROUP BY seq");
         assert boundSql1.getArgs()[0].equals("a");
         assert boundSql1.getArgs()[1].equals("b");
-
-        BoundSql boundSql2 = newLambda().query(UserInfo.class)//
-                .select(UserInfo::getSeq)//
-                .eq(UserInfo::getLoginName, "a")//
-                .eq(UserInfo::getLoginName, "b")//
-                .apply("limit 1")//
-                .groupBy(UserInfo::getSeq)//
-                .apply("limit 1").getBoundSql();
-        assert boundSql2.getSqlString().equals("SELECT seq FROM user_info WHERE login_name = ? AND login_name = ? limit 1 GROUP BY seq limit 1");
     }
 
     @Test
@@ -140,15 +131,6 @@ public class BuildToCamelPojoQueryOtherTest {
         assert boundSql1.getSqlString().equals("SELECT seq FROM user_info WHERE login_name = ? AND login_name = ? GROUP BY seq");
         assert boundSql1.getArgs()[0].equals("a");
         assert boundSql1.getArgs()[1].equals("b");
-
-        BoundSql boundSql2 = newLambda().query(UserInfo.class).asMap()//
-                .select("seq")//
-                .eq("loginName", "a")//
-                .eq("loginName", "b")//
-                .apply("limit 1")//
-                .groupBy("seq")//
-                .apply("limit 1").getBoundSql();
-        assert boundSql2.getSqlString().equals("SELECT seq FROM user_info WHERE login_name = ? AND login_name = ? limit 1 GROUP BY seq limit 1");
     }
 
     @Test

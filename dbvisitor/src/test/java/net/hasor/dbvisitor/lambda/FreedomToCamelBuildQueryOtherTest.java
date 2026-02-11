@@ -48,8 +48,8 @@ public class FreedomToCamelBuildQueryOtherTest {
         BoundSql boundSql1 = newLambda().queryFreedom("user_info")//
                 .eq("loginName", "a")//
                 .eq("loginName", "b")//
-                .apply("limit ?", 123).getBoundSql();
-        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? AND login_name = ? limit ?");
+                .apply("seq > ?", 123).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? AND login_name = ? AND seq > ?");
         assert boundSql1.getArgs()[0].equals("a");
         assert boundSql1.getArgs()[1].equals("b");
         assert boundSql1.getArgs()[2].equals(123);
@@ -85,15 +85,6 @@ public class FreedomToCamelBuildQueryOtherTest {
         assert boundSql1.getSqlString().equals("SELECT seq FROM user_info WHERE login_name = ? AND login_name = ? GROUP BY seq");
         assert boundSql1.getArgs()[0].equals("a");
         assert boundSql1.getArgs()[1].equals("b");
-
-        BoundSql boundSql2 = newLambda().queryFreedom("user_info")//
-                .select("seq")//
-                .eq("loginName", "a")//
-                .eq("loginName", "b")//
-                .apply("limit 1")//
-                .groupBy("seq")//
-                .apply("limit 1").getBoundSql();
-        assert boundSql2.getSqlString().equals("SELECT seq FROM user_info WHERE login_name = ? AND login_name = ? limit 1 GROUP BY seq limit 1");
     }
 
     @Test

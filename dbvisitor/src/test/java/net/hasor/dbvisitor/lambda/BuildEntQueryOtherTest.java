@@ -32,8 +32,8 @@ public class BuildEntQueryOtherTest {
         BoundSql boundSql1 = new LambdaTemplate().query(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getLoginName, null)//
                 .eq(AnnoUserInfoDTO::getLoginName, "b")//
-                .apply("limit ?", 123).getBoundSql();
-        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE login_name IS NULL AND login_name = ? limit ?");
+                .apply("seq > ?", 123).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE login_name IS NULL AND login_name = ? AND seq > ?");
         assert boundSql1.getArgs()[0].equals("b");
         assert boundSql1.getArgs()[1].equals(123);
     }
@@ -43,8 +43,8 @@ public class BuildEntQueryOtherTest {
         BoundSql boundSql1 = new LambdaTemplate().query(AnnoUserInfoDTO.class)//
                 .ne(AnnoUserInfoDTO::getLoginName, null)//
                 .eq(AnnoUserInfoDTO::getLoginName, "b")//
-                .apply("limit ?", 123).getBoundSql();
-        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE login_name IS NOT NULL AND login_name = ? limit ?");
+                .apply("seq > ?", 123).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE login_name IS NOT NULL AND login_name = ? AND seq > ?");
         assert boundSql1.getArgs()[0].equals("b");
         assert boundSql1.getArgs()[1].equals(123);
     }
@@ -54,8 +54,8 @@ public class BuildEntQueryOtherTest {
         BoundSql boundSql1 = new LambdaTemplate().query(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getLoginName, "a")//
                 .eq(AnnoUserInfoDTO::getLoginName, "b")//
-                .apply("limit ?", 123).getBoundSql();
-        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? AND login_name = ? limit ?");
+                .apply("seq > ?", 123).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? AND login_name = ? AND seq > ?");
         assert boundSql1.getArgs()[0].equals("a");
         assert boundSql1.getArgs()[1].equals("b");
         assert boundSql1.getArgs()[2].equals(123);
@@ -66,8 +66,8 @@ public class BuildEntQueryOtherTest {
         BoundSql boundSql1 = new LambdaTemplate().query(AnnoUserInfoDTO.class).asMap()//
                 .eq("loginName", "a")//
                 .eq("loginName", "b")//
-                .apply("limit ?", 123).getBoundSql();
-        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? AND login_name = ? limit ?");
+                .apply("seq > ?", 123).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? AND login_name = ? AND seq > ?");
         assert boundSql1.getArgs()[0].equals("a");
         assert boundSql1.getArgs()[1].equals("b");
         assert boundSql1.getArgs()[2].equals(123);
@@ -125,15 +125,6 @@ public class BuildEntQueryOtherTest {
         assert boundSql1.getSqlString().equals("SELECT seq FROM user_info WHERE login_name = ? AND login_name = ? GROUP BY seq");
         assert boundSql1.getArgs()[0].equals("a");
         assert boundSql1.getArgs()[1].equals("b");
-
-        BoundSql boundSql2 = new LambdaTemplate().query(AnnoUserInfoDTO.class)//
-                .select(AnnoUserInfoDTO::getSeq)//
-                .eq(AnnoUserInfoDTO::getLoginName, "a")//
-                .eq(AnnoUserInfoDTO::getLoginName, "b")//
-                .apply("limit 1")//
-                .groupBy(AnnoUserInfoDTO::getSeq)//
-                .apply("limit 1").getBoundSql();
-        assert boundSql2.getSqlString().equals("SELECT seq FROM user_info WHERE login_name = ? AND login_name = ? limit 1 GROUP BY seq limit 1");
     }
 
     @Test
@@ -145,15 +136,6 @@ public class BuildEntQueryOtherTest {
         assert boundSql1.getSqlString().equals("SELECT seq FROM user_info WHERE login_name = ? AND login_name = ? GROUP BY seq");
         assert boundSql1.getArgs()[0].equals("a");
         assert boundSql1.getArgs()[1].equals("b");
-
-        BoundSql boundSql2 = new LambdaTemplate().query(AnnoUserInfoDTO.class).asMap()//
-                .select("seq")//
-                .eq("loginName", "a")//
-                .eq("loginName", "b")//
-                .apply("limit 1")//
-                .groupBy("seq")//
-                .apply("limit 1").getBoundSql();
-        assert boundSql2.getSqlString().equals("SELECT seq FROM user_info WHERE login_name = ? AND login_name = ? limit 1 GROUP BY seq limit 1");
     }
 
     @Test

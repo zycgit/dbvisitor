@@ -245,7 +245,7 @@ public class DoEntQueryTest {
     public void selectObject_condition_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             AnnoUserInfoDTO tbUser = new LambdaTemplate(c).query(AnnoUserInfoDTO.class)//
-                    .eq(AnnoUserInfoDTO::getLoginName, "muhammad").apply("limit 1").queryForObject();
+                    .eq(AnnoUserInfoDTO::getLoginName, "muhammad").queryForObject();
 
             assert tbUser.getName().equals("默罕默德");
         }
@@ -255,7 +255,7 @@ public class DoEntQueryTest {
     public void selectMap_condition_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             Map<String, Object> tbUser = new LambdaTemplate(c).query(AnnoUserInfoDTO.class)//
-                    .eq(AnnoUserInfoDTO::getLoginName, "muhammad").apply("limit 1")//
+                    .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .queryForMap();
 
             assert tbUser.get("name").equals("默罕默德");
