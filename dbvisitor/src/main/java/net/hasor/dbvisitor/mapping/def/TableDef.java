@@ -196,7 +196,9 @@ public class TableDef<T> implements TableMapping<T> {
         this.mapByProperty.put(propertyName, mapping);
         this.columnMappings.add(mapping);
 
-        if (mapping.getKeyTpe() == KeyType.Auto) {
+        if (mapping.getKeyType() == KeyType.Auto) {
+            this.useGeneratedKey = true;
+        } else if (mapping.getKeySeqHolder() != null && mapping.getKeySeqHolder().useGeneratedKeys()) {
             this.useGeneratedKey = true;
         }
 

@@ -53,6 +53,17 @@ public interface GeneratedKeyHandler {
     }
 
     /**
+     * 是否需要使用 {@link java.sql.Statement#RETURN_GENERATED_KEYS} 来获取数据库生成的主键。
+     * <p>当返回 true 时，框架在创建 PreparedStatement 时会使用
+     * {@code conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)}，
+     * 使得插入后可以通过 {@code PreparedStatement.getGeneratedKeys()} 获取数据库自动生成的键值。</p>
+     * @return 默认返回 false（不请求数据库返回生成的主键）
+     */
+    default boolean useGeneratedKeys() {
+        return false;
+    }
+
+    /**
      * 后置主键获取逻辑（在INSERT语句执行后调用）
      * @param generatedKeys 数据库返回的生成键结果集
      * @param entity 实体对象
