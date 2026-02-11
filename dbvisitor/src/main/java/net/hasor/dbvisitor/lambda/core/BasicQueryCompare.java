@@ -20,9 +20,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 import net.hasor.cobble.ObjectUtils;
 import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.function.EConsumer;
 import net.hasor.cobble.ref.Tuple;
 import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
 import net.hasor.dbvisitor.dialect.SqlCommandBuilder.ConditionLogic;
@@ -61,7 +61,7 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, P> imple
     }
 
     @Override
-    public R ifTrue(boolean test, Consumer<QueryCompare<R, T, P>> lambda) {
+    public R ifTrue(boolean test, EConsumer<QueryCompare<R, T, P>, SQLException> lambda) {
         if (test) {
             lambda.accept(this);
         }
@@ -69,7 +69,7 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, P> imple
     }
 
     @Override
-    public R nested(Consumer<R> lambda) {
+    public R nested(EConsumer<R, SQLException> lambda) {
         ConditionLogic tempLogic = this.nextLogic;
         this.nextLogic = ConditionLogic.AND;
         this.cmdBuilder.addConditionGroup(tempLogic, cb -> {
@@ -85,7 +85,7 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, P> imple
     }
 
     @Override
-    public R nested(boolean test, Consumer<R> lambda) {
+    public R nested(boolean test, EConsumer<R, SQLException> lambda) {
         return test ? nested(lambda) : getSelf();
     }
 
@@ -96,7 +96,7 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, P> imple
     }
 
     @Override
-    public R or(boolean test, Consumer<R> lambda) {
+    public R or(boolean test, EConsumer<R, SQLException> lambda) {
         return test ? or(lambda) : getSelf();
     }
 
@@ -107,7 +107,7 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, P> imple
     }
 
     @Override
-    public R and(boolean test, Consumer<R> lambda) {
+    public R and(boolean test, EConsumer<R, SQLException> lambda) {
         return test ? and(lambda) : getSelf();
     }
 
@@ -122,7 +122,7 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, P> imple
     }
 
     @Override
-    public R not(boolean test, Consumer<R> lambda) {
+    public R not(boolean test, EConsumer<R, SQLException> lambda) {
         if (test) {
             this.not();
             this.nested(lambda);
@@ -268,7 +268,7 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, P> imple
     @Override
     public R in(boolean test, P property, Collection<?> value) {
         if (test) {
-            ObjectUtils.assertTrue(!value.isEmpty(), "build notIn failed, value is empty.");
+            ObjectUtils.assertTrue(value != null && !value.isEmpty(), "values is empty.");
             this.addConditionForIn(getPropertyName(property), ConditionType.IN, value);
         }
         return this.getSelf();
@@ -277,7 +277,7 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, P> imple
     @Override
     public R notIn(boolean test, P property, Collection<?> value) {
         if (test) {
-            ObjectUtils.assertTrue(!value.isEmpty(), "build notIn failed, value is empty.");
+            ObjectUtils.assertTrue(value != null && !value.isEmpty(), "values is empty.");
             this.addConditionForIn(getPropertyName(property), ConditionType.NOT_IN, value);
         }
         return this.getSelf();
@@ -490,7 +490,7 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, P> imple
         if (value instanceof SqlArg) {
             return (SqlArg) value;
         }
-        ColumnMapping mapping = this.findPropertyByName(propertyName);
+        ColumnMapping mapping = (propertyName != null) ? this.findPropertyByName(propertyName) : null;
         int sqlType = Types.OTHER;
         TypeHandler<?> typeHandler = null;
 

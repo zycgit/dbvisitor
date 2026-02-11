@@ -229,8 +229,8 @@ public abstract class AbstractSelect<R, T, P> extends BasicQueryCompare<R, T, P>
         Page page = this.pageInfo();
         page.setPageSize(pageInfo.getPageSize());
         page.setTotalCount(pageInfo.getTotalCount());
-        page.setCurrentPage(pageInfo.getCurrentPage());
         page.setPageNumberOffset(pageInfo.getPageNumberOffset());
+        page.setCurrentPage(pageInfo.getCurrentPage());
         return this.getSelf();
     }
 

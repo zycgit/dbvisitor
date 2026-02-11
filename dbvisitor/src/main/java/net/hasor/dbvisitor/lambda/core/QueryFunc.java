@@ -279,7 +279,7 @@ public interface QueryFunc<R, T, P> extends BasicFunc<R>, BoundSqlBuilder {
      * 执行查询，并将结果集的前两列（由 keyProperty 和 valueProperty 指定）映射为 Map&lt;K, V&gt; 返回。
      * <p>例: queryForPairs(“id”, “name”, Integer.class, String.class)</p>
      */
-    <K, V> Map<K, V> queryForPairsByName(String keyPropName, String valuePropName, Class<K> keyType, Class<V> valueType) throws SQLException ；
+    <K, V> Map<K, V> queryForPairsByName(String keyPropName, String valuePropName, Class<K> keyType, Class<V> valueType) throws SQLException;
 
     /** 生成 select count() 查询语句并查询总数。 */
     int queryForCount() throws SQLException;

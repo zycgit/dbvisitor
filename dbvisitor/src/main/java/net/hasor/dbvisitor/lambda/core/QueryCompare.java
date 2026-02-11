@@ -17,7 +17,7 @@ package net.hasor.dbvisitor.lambda.core;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Map;
-import java.util.function.Consumer;
+import net.hasor.cobble.function.EConsumer;
 
 /**
  * 动态拼条件。
@@ -32,7 +32,8 @@ public interface QueryCompare<R, T, P> {
      * <p>!! 会有 sql 注入风险 !!</p>
      * <p>例1: apply("id = 1")</p>
      * <p>例2: apply("date_format(dateColumn,'%Y-%m-%d') = '2008-08-08'")</p>
-     * <p>例3: apply("date_format(dateColumn,'%Y-%m-%d') = {0}", LocalDate.now())</p>
+     * <p>例3: apply("date_format(dateColumn,'%Y-%m-%d') = ?", LocalDate.now())</p>
+     * <p>例4: apply("date_format(dateColumn,'%Y-%m-%d') = :arg0", LocalDate.now())</p>
      */
     R apply(String sqlString, Object... args) throws SQLException;
 
@@ -44,10 +45,10 @@ public interface QueryCompare<R, T, P> {
      * }
      * </pre>
      */
-    R ifTrue(boolean test, Consumer<QueryCompare<R, T, P>> lambda);
+    R ifTrue(boolean test, EConsumer<QueryCompare<R, T, P>, SQLException> lambda);
 
     /** 括号方式嵌套一组查询条件 */
-    R nested(Consumer<R> lambda);
+    R nested(EConsumer<R, SQLException> lambda);
 
     /**
      * 当 test 条件为 true 的时才执行 nested。相当于如下逻辑：
@@ -57,7 +58,7 @@ public interface QueryCompare<R, T, P> {
      * }
      * </pre>
      */
-    R nested(boolean test, Consumer<R> lambda);
+    R nested(boolean test, EConsumer<R, SQLException> lambda);
 
     /**
      * 下一个查询条件使用或关系，类似：'or ...'
@@ -67,7 +68,7 @@ public interface QueryCompare<R, T, P> {
     /**
      * 下一个查询条件组使用或关系。类似：'or (...)'
      */
-    default R or(Consumer<R> lambda) {
+    default R or(EConsumer<R, SQLException> lambda) {
         this.or();
         return this.nested(lambda);
     }
@@ -75,7 +76,7 @@ public interface QueryCompare<R, T, P> {
     /**
      * 当 test 条件为真时才使用下一个查询条件组，条件组使用或关系。类似：'or (...)'
      */
-    R or(boolean test, Consumer<R> lambda);
+    R or(boolean test, EConsumer<R, SQLException> lambda);
 
     /**
      * 下一个查询条件使用与关系，类似：'and ...'
@@ -85,7 +86,7 @@ public interface QueryCompare<R, T, P> {
     /**
      * 下一个查询条件组使用与关系。类似：'and (...)'
      */
-    default R and(Consumer<R> lambda) {
+    default R and(EConsumer<R, SQLException> lambda) {
         this.and();
         return this.nested(lambda);
     }
@@ -93,7 +94,7 @@ public interface QueryCompare<R, T, P> {
     /**
      * 当 test 条件为真时才使用下一个查询条件组，条件组使用与关系。类似：'and (...)'
      */
-    R and(boolean test, Consumer<R> lambda);
+    R and(boolean test, EConsumer<R, SQLException> lambda);
 
     /**
      * 下一个查询条件使用与关系，类似：'not ...'
@@ -103,7 +104,7 @@ public interface QueryCompare<R, T, P> {
     /**
      * 下一个查询条件组使用与关系。类似：'not (...)'
      */
-    default R not(Consumer<R> lambda) {
+    default R not(EConsumer<R, SQLException> lambda) {
         this.not();
         return this.nested(lambda);
     }
@@ -111,7 +112,7 @@ public interface QueryCompare<R, T, P> {
     /**
      * 当 test 条件为真时才使用下一个查询条件组，条件组使用与关系。类似：'not (...)'
      */
-    R not(boolean test, Consumer<R> lambda);
+    R not(boolean test, EConsumer<R, SQLException> lambda);
 
     //    /** in 子查询，类似：'col in (LambdaQuery)' */
     //     <V> R andInLambda(SFunction<T> property, CompareBuilder<V> subLambda);
