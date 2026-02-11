@@ -228,6 +228,11 @@ public abstract class AbstractSqlDialect extends AbstractBuilderDialect {
 
     @Override
     public void addRawCondition(ConditionLogic logic, BoundSql boundSql) {
+        if (this.lockWhere) {
+            throw new IllegalStateException("must before (group by/order by) invoke it.");
+        }
+
+        appendConditionLogic(logic);
         this.whereConditions.addSegment((d, dia) -> {
             String bsql = boundSql.getSqlString();
             Object[] barg = boundSql.getArgs();
@@ -450,6 +455,7 @@ public abstract class AbstractSqlDialect extends AbstractBuilderDialect {
 
     @Override
     public BoundSql buildSelect(boolean delimited) throws SQLException {
+        this.args.clear();
         MergeSqlSegment s = new MergeSqlSegment();
         s.addSegment((d, dia) -> "SELECT");
         if (this.selectColumns.isEmpty()) {
@@ -470,6 +476,7 @@ public abstract class AbstractSqlDialect extends AbstractBuilderDialect {
 
     @Override
     public BoundSql buildUpdate(boolean delimited, boolean allowEmptyWhere) throws SQLException {
+        this.args.clear();
         MergeSqlSegment s = new MergeSqlSegment();
         s.addSegment((d, dia) -> "UPDATE");
         s.addSegment((d, dia) -> dia.tableName(d, this.catalog, this.schema, this.table));
@@ -486,6 +493,7 @@ public abstract class AbstractSqlDialect extends AbstractBuilderDialect {
 
     @Override
     public BoundSql buildDelete(boolean delimited, boolean allowEmptyWhere) throws SQLException {
+        this.args.clear();
         MergeSqlSegment s = new MergeSqlSegment();
         s.addSegment((d, dia) -> "DELETE FROM");
         s.addSegment((d, dia) -> dia.tableName(d, this.catalog, this.schema, this.table));
@@ -510,6 +518,7 @@ public abstract class AbstractSqlDialect extends AbstractBuilderDialect {
 
     @Override
     public BoundSql buildInsert(boolean delimited, List<String> primaryKey, DuplicateKeyStrategy strategy) throws SQLException {
+        this.args.clear();
         MergeSqlSegment s = new MergeSqlSegment();
 
         if (this instanceof InsertSqlDialect) {

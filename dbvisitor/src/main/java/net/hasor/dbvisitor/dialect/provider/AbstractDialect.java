@@ -123,6 +123,13 @@ public abstract class AbstractDialect implements SqlDialect {
         if (StringUtils.isBlank(name)) {
             return name;
         }
+
+        // if name contains the right qualifier character, force qualifier and escape it
+        String rq = rightQualifier();
+        if (!rq.isEmpty() && name.contains(rq)) {
+            useQualifier = true;
+        }
+
         if (this.keywords().contains(name.toUpperCase())) {
             useQualifier = true;
         }
@@ -133,7 +140,13 @@ public abstract class AbstractDialect implements SqlDialect {
             useQualifier = StringUtils.containsAny(name, CONTAINS_CHAR);
         }
         String leftQualifier = useQualifier ? leftQualifier() : "";
-        String rightQualifier = useQualifier ? rightQualifier() : "";
+        String rightQualifier = useQualifier ? rq : "";
+
+        // escape right qualifier inside name to prevent identifier injection (SQL standard: double it)
+        if (useQualifier && !rq.isEmpty() && name.contains(rq)) {
+            name = name.replace(rq, rq + rq);
+        }
+
         return leftQualifier + name + rightQualifier;
     }
 

@@ -51,15 +51,6 @@ public class SqlServerDialect extends AbstractSqlDialect implements PageSqlDiale
         return "]";
     }
 
-    @Override
-    public String fmtName(boolean useQualifier, String name) {
-        if (name.contains("]")) {
-            return super.fmtName(true, name.replace("]", "]]"));
-        } else {
-            return super.fmtName(useQualifier, name);
-        }
-    }
-
     public String tableName(boolean useQualifier, String catalog, String schema, String table) {
         StringBuilder strBuilder = new StringBuilder();
         if (StringUtils.isNotBlank(catalog)) {

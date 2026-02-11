@@ -24,6 +24,7 @@ import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.features.InsertSqlDialect;
 import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
+import net.hasor.dbvisitor.dialect.features.SeqSqlDialect;
 import net.hasor.dbvisitor.dialect.features.VectorSqlDialect;
 import net.hasor.dbvisitor.lambda.core.MetricType;
 
@@ -32,7 +33,7 @@ import net.hasor.dbvisitor.lambda.core.MetricType;
  * @author 赵永春 (zyc@hasor.net)
  * @version 2020-10-31
  */
-public class PostgreSqlDialect extends AbstractSqlDialect implements PageSqlDialect, InsertSqlDialect, VectorSqlDialect {
+public class PostgreSqlDialect extends AbstractSqlDialect implements PageSqlDialect, InsertSqlDialect, SeqSqlDialect, VectorSqlDialect {
     public static final SqlDialect DEFAULT = new PostgreSqlDialect();
 
     @Override
@@ -79,6 +80,19 @@ public class PostgreSqlDialect extends AbstractSqlDialect implements PageSqlDial
         return new BoundSql.BoundSqlObj(sb.toString(), paramArrays.toArray());
     }
 
+    // --- SeqSqlDialect impl ---
+
+    @Override
+    public String selectSeq(boolean useQualifier, String catalog, String schema, String seqName) {
+        StringBuilder sb = new StringBuilder("SELECT nextval('");
+        if (StringUtils.isNotBlank(schema)) {
+            sb.append(fmtName(useQualifier, schema)).append(".");
+        }
+        sb.append(fmtName(useQualifier, seqName));
+        sb.append("')");
+        return sb.toString();
+    }
+
     // --- InsertSqlDialect impl ---
 
     @Override
@@ -98,7 +112,7 @@ public class PostgreSqlDialect extends AbstractSqlDialect implements PageSqlDial
 
     @Override
     public String insertIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
-        return buildSql("INSERT ", useQualifier, catalog, schema, table, columns, columnValueTerms, " ON CONFLICT DO NOTHING");
+        return buildSql("INSERT INTO ", useQualifier, catalog, schema, table, columns, columnValueTerms, " ON CONFLICT DO NOTHING");
     }
 
     @Override
@@ -129,7 +143,8 @@ public class PostgreSqlDialect extends AbstractSqlDialect implements PageSqlDial
         first = true;
         for (String col : columns) {
             if (!first) {
-                sb.append(", ");
+                namesBuffer.append(", ");
+                updateBuffer.append(", ");
             }
             String wrapName = fmtName(useQualifier, col);
             namesBuffer.append(wrapName);
