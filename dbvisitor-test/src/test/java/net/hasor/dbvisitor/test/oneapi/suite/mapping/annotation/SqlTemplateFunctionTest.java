@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.Map;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.test.oneapi.AbstractOneApiTest;
+import net.hasor.dbvisitor.test.oneapi.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.oneapi.model.annotation.Md5User;
 import net.hasor.dbvisitor.test.oneapi.model.annotation.TemplateUser;
 import org.junit.Test;
@@ -14,9 +15,13 @@ import static org.junit.Assert.assertNotNull;
  * 验证 SQL 模板支持数据库函数 (如 MD5) 以及 @Column 的各种模版能力.
  */
 public class SqlTemplateFunctionTest extends AbstractOneApiTest {
+    private String sqlTemplatePath() {
+        return "/oneapi/sql/" + OneApiDataSourceManager.getDbDialect() + "/sql_template.sql";
+    }
+
     @Test
     public void testMd5Template() throws SQLException, IOException {
-        jdbcTemplate.loadSplitSQL(";", "/net/hasor/dbvisitor/test/oneapi/suite/mapping/annotation/sql_template.sql");
+        jdbcTemplate.loadSplitSQL(";", sqlTemplatePath());
 
         Md5User user = new Md5User();
         user.setId("1");
@@ -37,7 +42,7 @@ public class SqlTemplateFunctionTest extends AbstractOneApiTest {
 
     @Test
     public void testTemplateFeatures() throws SQLException, IOException {
-        jdbcTemplate.loadSplitSQL(";", "/net/hasor/dbvisitor/test/oneapi/suite/mapping/annotation/sql_template.sql");
+        jdbcTemplate.loadSplitSQL(";", sqlTemplatePath());
         LambdaTemplate lambda = new LambdaTemplate(dataSource);
 
         // 1. 测试 insertTemplate

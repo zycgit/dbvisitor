@@ -19,7 +19,7 @@ import org.junit.rules.TestName;
 public abstract class AbstractOneApiTest {
     protected static DataSource     dataSource;
     @Rule
-    public TestName testName = new TestName();
+    public           TestName       testName = new TestName();
     protected        JdbcTemplate   jdbcTemplate;
     protected        LambdaTemplate lambdaTemplate;
 

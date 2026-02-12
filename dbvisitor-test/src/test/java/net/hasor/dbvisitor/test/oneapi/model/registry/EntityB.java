@@ -9,11 +9,19 @@ public class EntityB {
     private Integer id;
     private String  label;
 
-    public Integer getId() { return id; }
+    public Integer getId() {
+        return id;
+    }
 
-    public void setId(Integer id) { this.id = id; }
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-    public String getLabel() { return label; }
+    public String getLabel() {
+        return label;
+    }
 
-    public void setLabel(String label) { this.label = label; }
+    public void setLabel(String label) {
+        this.label = label;
+    }
 }

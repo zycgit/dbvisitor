@@ -13,19 +13,35 @@ public class CamelCaseEntity {
     private Integer age;
     private Date    createTime; // 应自动映射到 create_time
 
-    public Integer getId() { return id; }
+    public Integer getId() {
+        return id;
+    }
 
-    public void setId(Integer id) { this.id = id; }
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-    public String getName() { return name; }
+    public String getName() {
+        return name;
+    }
 
-    public void setName(String name) { this.name = name; }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    public Integer getAge() { return age; }
+    public Integer getAge() {
+        return age;
+    }
 
-    public void setAge(Integer age) { this.age = age; }
+    public void setAge(Integer age) {
+        this.age = age;
+    }
 
-    public Date getCreateTime() { return createTime; }
+    public Date getCreateTime() {
+        return createTime;
+    }
 
-    public void setCreateTime(Date createTime) { this.createTime = createTime; }
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
 }

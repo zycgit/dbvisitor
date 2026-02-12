@@ -2,6 +2,11 @@ package net.hasor.dbvisitor.test.oneapi.config;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import javax.sql.DataSource;
 import com.zaxxer.hikari.HikariConfig;
@@ -120,5 +125,99 @@ public class OneApiDataSourceManager {
         cachedDataSource = null;
         cachedProperties = null;
         initialized = false;
+    }
+
+    // ==================== NoSQL Adapter Connection Support ====================
+
+    private static final Map<String, Properties> adapterPropsCache = new HashMap<>();
+
+    /**
+     * 加载指定适配器的配置文件 /oneapi/jdbc-{adapter}.properties
+     * @param adapter 适配器名称（redis/mongo/es6/es7/milvus）
+     */
+    public static synchronized Properties loadAdapterProperties(String adapter) {
+        Properties cached = adapterPropsCache.get(adapter);
+        if (cached != null) {
+            return cached;
+        }
+
+        String propFileName = String.format(PROP_FILE_TEMPLATE, adapter);
+        Properties props = new Properties();
+        try (InputStream in = OneApiDataSourceManager.class.getResourceAsStream(propFileName)) {
+            if (in == null) {
+                throw new RuntimeException("Adapter config not found: " + propFileName);
+            }
+            props.load(in);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load adapter config: " + propFileName, e);
+        }
+
+        adapterPropsCache.put(adapter, props);
+        return props;
+    }
+
+    /**
+     * 获取指定适配器的数据库连接
+     * @param adapter 适配器名称（redis/mongo/es6/es7/milvus）
+     */
+    public static Connection getConnection(String adapter) throws SQLException {
+        Properties props = loadAdapterProperties(adapter);
+        String url = props.getProperty("jdbc.url");
+        String user = props.getProperty("jdbc.username");
+        String password = props.getProperty("jdbc.password");
+
+        Properties connProps = new Properties();
+        if (user != null && !user.trim().isEmpty()) {
+            connProps.setProperty("username", user);
+        }
+        if (password != null && !password.trim().isEmpty()) {
+            connProps.setProperty("password", password);
+        }
+
+        // 加载所有 conn.* 开头的额外连接属性
+        for (String key : props.stringPropertyNames()) {
+            if (key.startsWith("conn.")) {
+                connProps.setProperty(key.substring(5), props.getProperty(key));
+            }
+        }
+
+        return DriverManager.getConnection(url, connProps);
+    }
+
+    /**
+     * 获取指定适配器的数据库连接，并附加额外的连接属性
+     * @param adapter    适配器名称
+     * @param extraProps 额外连接属性
+     */
+    public static Connection getConnection(String adapter, Properties extraProps) throws SQLException {
+        Properties props = loadAdapterProperties(adapter);
+        String url = props.getProperty("jdbc.url");
+        String user = props.getProperty("jdbc.username");
+        String password = props.getProperty("jdbc.password");
+
+        Properties connProps = new Properties();
+        if (user != null && !user.trim().isEmpty()) {
+            connProps.setProperty("username", user);
+        }
+        if (password != null && !password.trim().isEmpty()) {
+            connProps.setProperty("password", password);
+        }
+
+        for (String key : props.stringPropertyNames()) {
+            if (key.startsWith("conn.")) {
+                connProps.setProperty(key.substring(5), props.getProperty(key));
+            }
+        }
+
+        if (extraProps != null) {
+            connProps.putAll(extraProps);
+        }
+
+        return DriverManager.getConnection(url, connProps);
+    }
+
+    /** 获取适配器配置属性 */
+    public static String getAdapterProperty(String adapter, String key) {
+        return loadAdapterProperties(adapter).getProperty(key);
     }
 }

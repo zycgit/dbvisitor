@@ -3,6 +3,7 @@ package net.hasor.dbvisitor.test.oneapi.model;
 import java.util.List;
 import net.hasor.dbvisitor.mapping.Column;
 import net.hasor.dbvisitor.mapping.Table;
+import net.hasor.dbvisitor.types.handler.array.PgVectorTypeHandler;
 
 /**
  * Level 4: Vector Storage Model

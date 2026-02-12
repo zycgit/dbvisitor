@@ -14,7 +14,7 @@ public class BlankIndexNameEntity {
     private Integer id;
 
     @Column("name")
-    private String  name;
+    private String name;
 
     public Integer getId() {
         return id;

@@ -9,7 +9,12 @@ import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.test.oneapi.AbstractOneApiTest;
 import net.hasor.dbvisitor.test.oneapi.model.UserInfo;
-import net.hasor.dbvisitor.test.oneapi.model.tabledef.*;
+import net.hasor.dbvisitor.test.oneapi.model.naming.DelimitedUser;
+import net.hasor.dbvisitor.test.oneapi.model.tabledef.CamelCaseEntity;
+import net.hasor.dbvisitor.test.oneapi.model.tabledef.CaseSensitiveUser;
+import net.hasor.dbvisitor.test.oneapi.model.tabledef.CatalogSchemaUser;
+import net.hasor.dbvisitor.test.oneapi.model.tabledef.ManualMappingUser;
+import net.hasor.dbvisitor.test.oneapi.model.tabledef.OrderByTemplateUser;
 import org.junit.Test;
 import static org.junit.Assert.*;
 

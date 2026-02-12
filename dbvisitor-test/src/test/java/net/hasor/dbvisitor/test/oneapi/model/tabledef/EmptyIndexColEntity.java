@@ -14,7 +14,7 @@ public class EmptyIndexColEntity {
     private Integer id;
 
     @Column("name")
-    private String  name;
+    private String name;
 
     public Integer getId() {
         return id;
