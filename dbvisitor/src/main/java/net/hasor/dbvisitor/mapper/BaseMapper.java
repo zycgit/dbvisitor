@@ -159,6 +159,9 @@ public interface BaseMapper<T> extends Mapper {
      * @param entity 实体对象列表
      */
     default int insert(List<T> entity) throws RuntimeSQLException {
+        if (entity == null || entity.isEmpty()) {
+            return 0;
+        }
         try {
             return insert().applyEntity(entity).executeSumResult();
         } catch (SQLException e) {
