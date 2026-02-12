@@ -87,14 +87,14 @@ public class TrimDynamicSql extends ArrayDynamicSql {
                     continue;
                 }
                 if (startsWith(childrenSql, override)) {
-                    childrenSql = childrenSql.substring(childrenSql.indexOf(override) + override.length());
+                    childrenSql = childrenSql.substring(override.length());
                     break;
                 }
             }
             // 去掉 suffixOverrides
             for (String override : this.suffixOverrides) {
                 if (endsWith(childrenSql, override)) {
-                    childrenSql = childrenSql.substring(0, childrenSql.lastIndexOf(override));
+                    childrenSql = childrenSql.substring(0, childrenSql.length() - override.length());
                     break;
                 }
             }

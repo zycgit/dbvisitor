@@ -230,6 +230,8 @@ class ExecuteInvocationHandler implements InvocationHandler {
                 int nrOfColumns = ((List<?>) result).size();
                 if (nrOfColumns > 1) {
                     throw new SQLException("Incorrect row count: expected 1, actual " + nrOfColumns);
+                } else if (nrOfColumns == 0) {
+                    return null;
                 } else {
                     return ((List<?>) result).get(0);
                 }

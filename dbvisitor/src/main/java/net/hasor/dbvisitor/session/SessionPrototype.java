@@ -16,10 +16,7 @@
 package net.hasor.dbvisitor.session;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.sql.DataSource;
 import net.hasor.cobble.CollectionUtils;
@@ -105,7 +102,9 @@ public class SessionPrototype {
     }
 
     protected static <E> List<E> asList(Object result) {
-        if (result instanceof List) {
+        if (result == null) {
+            return Collections.emptyList();
+        } else if (result instanceof List) {
             return (List<E>) result;
         } else {
             List<E> list = new ArrayList<>();

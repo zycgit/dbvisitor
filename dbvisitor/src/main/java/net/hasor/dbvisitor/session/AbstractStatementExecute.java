@@ -133,7 +133,22 @@ public abstract class AbstractStatementExecute {
             this.configStatement(stat, config);
 
             boolean retVal = this.executeQuery(stat, config, execSql);
-            return this.fetchResult(retVal, stat, def, oriSql, dataCtx, pageInfo, resultCount, pageResult);
+            Object result = this.fetchResult(retVal, stat, def, oriSql, dataCtx, pageInfo, resultCount, pageResult);
+
+            // useGeneratedKeys：将生成的键值从 MergedMap 回写到原始参数 Map（MergedMap 不污染源，需显式拷贝）
+            if (!(data instanceof MergedMap) && data != null && def.getConfig() instanceof InsertConfig) {
+                InsertConfig ic = (InsertConfig) def.getConfig();
+                if (ic.isUseGeneratedKeys() && ic.getKeyProperty() != null && !ic.getKeyProperty().isEmpty()) {
+                    for (String prop : ic.getKeyProperty().split(",")) {
+                        String key = prop.trim();
+                        if (dataCtx.containsKey(key)) {
+                            data.put(key, dataCtx.get(key));
+                        }
+                    }
+                }
+            }
+
+            return result;
         } catch (SQLException e) {
             logger.error("executeQuery failed, " + ExceptionUtils.getRootCauseMessage(e) + ", " + SessionHelper.fmtBoundSql(countSql), e);
             throw e;

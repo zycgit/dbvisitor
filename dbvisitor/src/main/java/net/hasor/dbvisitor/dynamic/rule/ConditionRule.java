@@ -17,6 +17,7 @@ package net.hasor.dbvisitor.dynamic.rule;
 import java.sql.SQLException;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dynamic.DynamicParsed;
+import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
@@ -141,11 +142,18 @@ public abstract class ConditionRule implements SqlRule {
         return this.name() + " [" + this.hashCode() + "]";
     }
 
-    /** 测试参数是否全为 null */
+    /** 测试参数是否全为 null（自动解包 SqlArg 检查内部 value） */
     private static boolean testNullValue(Object[] args) {
         if (args != null) {
             for (Object arg : args) {
-                if (arg != null) {
+                if (arg == null) {
+                    continue;
+                }
+                if (arg instanceof SqlArg) {
+                    if (((SqlArg) arg).getValue() != null) {
+                        return false;
+                    }
+                } else {
                     return false;
                 }
             }
