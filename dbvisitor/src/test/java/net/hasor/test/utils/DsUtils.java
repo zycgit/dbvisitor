@@ -33,7 +33,7 @@ public class DsUtils {
     public static String MYSQL_SCHEMA_NAME = "devtester";
     public static String MYSQL_JDBC_URL    = "jdbc:mysql://" + TEST_SERVER + ":13306/?allowMultiQueries=true&noAccessToProcedureBodies=true";
     public static String PG_JDBC_URL       = "jdbc:postgresql://" + TEST_SERVER + ":15432/postgres";
-    public static String ORACLE_JDBC_URL   = "jdbc:oracle:thin:@" + TEST_SERVER + ":11521:ORCLCDB";
+    public static String ORACLE_JDBC_URL   = "jdbc:oracle:thin:@" + TEST_SERVER + ":11521/DEVTESTDB";
 
     private static void initH2(JdbcTemplate jdbcTemplate) {
         try {
@@ -119,9 +119,7 @@ public class DsUtils {
     }
 
     public static Connection oracleConn() throws SQLException {
-        Connection connection = DriverManager.getConnection(ORACLE_JDBC_URL, "sys as SYSDBA", "123456");
-        connection.createStatement().execute("alter session SET container = ORCLPDB1");
-        return connection;
+        return DriverManager.getConnection(ORACLE_JDBC_URL, "devtester", "123456");
     }
 
     public static Connection pgConn() throws SQLException {
@@ -162,9 +160,8 @@ public class DsUtils {
     public static DefaultDs oracleDs() throws SQLException {
         DefaultDs pool = new DefaultDs();
         pool.setUrl(ORACLE_JDBC_URL);
-        pool.setUsername("sys as sysdba");
-        pool.setPassword("oracle");
-        pool.setConnectionInitSqls(Collections.singletonList("alter session set current_schema = SCOTT"));
+        pool.setUsername("devtester");
+        pool.setPassword("123456");
         return pool;
     }
 

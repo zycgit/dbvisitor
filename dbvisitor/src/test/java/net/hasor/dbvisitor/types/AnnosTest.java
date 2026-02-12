@@ -34,19 +34,20 @@ import org.junit.Test;
 public class AnnosTest {
     @Test
     public void testArrayTypeHandler_1() {
-        TypeHandlerRegistry.DEFAULT.registerHandler(MyTypeHandler.class, new MyTypeHandler());
-        TypeHandlerRegistry.DEFAULT.register(Types.VARCHAR, new MyTypeHandler());
-        TypeHandlerRegistry.DEFAULT.register(StringBuilder.class, new MyTypeHandler());
-        TypeHandlerRegistry.DEFAULT.register(Types.BIGINT, InputStream.class, new MyTypeHandler());
+        TypeHandlerRegistry registry = new TypeHandlerRegistry();
+        registry.registerHandler(MyTypeHandler.class, new MyTypeHandler());
+        registry.register(Types.VARCHAR, new MyTypeHandler());
+        registry.register(StringBuilder.class, new MyTypeHandler());
+        registry.register(Types.BIGINT, InputStream.class, new MyTypeHandler());
 
-        assert TypeHandlerRegistry.DEFAULT.hasTypeHandler(StringBuilder.class);
-        assert TypeHandlerRegistry.DEFAULT.getTypeHandler(StringBuilder.class) instanceof MyTypeHandler;
+        assert registry.hasTypeHandler(StringBuilder.class);
+        assert registry.getTypeHandler(StringBuilder.class) instanceof MyTypeHandler;
 
-        assert TypeHandlerRegistry.DEFAULT.getTypeHandler(Types.VARCHAR) instanceof MyTypeHandler;
+        assert registry.getTypeHandler(Types.VARCHAR) instanceof MyTypeHandler;
 
-        assert TypeHandlerRegistry.DEFAULT.getTypeHandler(String.class, Types.DATALINK) instanceof MyTypeHandler;
-        assert TypeHandlerRegistry.DEFAULT.getTypeHandler(StringBuffer.class, Types.VARCHAR) instanceof MyTypeHandler;
-        assert TypeHandlerRegistry.DEFAULT.getTypeHandler(InputStream.class, Types.BIGINT) instanceof MyTypeHandler;
+        assert registry.getTypeHandler(String.class, Types.DATALINK) instanceof MyTypeHandler;
+        assert registry.getTypeHandler(StringBuffer.class, Types.VARCHAR) instanceof MyTypeHandler;
+        assert registry.getTypeHandler(InputStream.class, Types.BIGINT) instanceof MyTypeHandler;
     }
 
     @Test

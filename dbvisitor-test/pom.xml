@@ -18,6 +18,13 @@
             <artifactId>dbvisitor</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.11</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- Test Dependencies -->
         <dependency>
             <groupId>junit</groupId>
@@ -43,45 +50,27 @@
             <version>42.6.0</version>
             <scope>test</scope>
         </dependency>
-        <!-- NoSQL Adapter Drivers -->
         <dependency>
             <groupId>net.hasor</groupId>
-            <artifactId>jdbc-milvus</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <!-- Override protobuf-java: milvus-sdk-java 2.5.4 needs >= 3.25.0 but mysql-connector brings 3.21.9 -->
-        <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java</artifactId>
-            <version>3.25.5</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.hasor</groupId>
-            <artifactId>jdbc-elastic</artifactId>
-            <version>${project.version}</version>
+            <artifactId>jdbc-redis</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>net.hasor</groupId>
             <artifactId>jdbc-mongo</artifactId>
-            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>net.hasor</groupId>
-            <artifactId>jdbc-redis</artifactId>
-            <version>${project.version}</version>
+            <artifactId>jdbc-elastic</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- Logging -->
         <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.2.11</version>
+            <groupId>net.hasor</groupId>
+            <artifactId>jdbc-milvus</artifactId>
             <scope>test</scope>
         </dependency>
+
         <!-- Connection Pool -->
         <dependency>
             <groupId>com.zaxxer</groupId>
@@ -89,11 +78,23 @@
             <version>4.0.3</version>
             <scope>test</scope>
         </dependency>
+
         <!-- OGNL for XML Mapper dynamic SQL -->
         <dependency>
             <groupId>ognl</groupId>
             <artifactId>ognl</artifactId>
             <version>3.4.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>3.25.5</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr4-runtime</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -136,19 +136,19 @@
         <dependency>
             <groupId>com.oracle.database.jdbc</groupId>
             <artifactId>ojdbc8</artifactId>
-            <version>21.5.0.0</version>
+            <version>19.8.0.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.oracle.database.xml</groupId>
             <artifactId>xdb</artifactId>
-            <version>21.5.0.0</version>
+            <version>19.8.0.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.oracle.database.xml</groupId>
             <artifactId>xmlparserv2</artifactId>
-            <version>21.5.0.0</version>
+            <version>19.8.0.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
