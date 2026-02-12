@@ -1,16 +1,15 @@
 package com.example.demo.quick.page1;
-import com.example.demo.DsUtils;
-import com.example.demo.PrintUtils;
-import net.hasor.dbvisitor.dialect.Page;
-import net.hasor.dbvisitor.dialect.PageObject;
-import net.hasor.dbvisitor.dialect.provider.MySqlDialect;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
-import net.hasor.dbvisitor.mapping.Options;
-
-import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
+import javax.sql.DataSource;
+import com.example.demo.DsUtils;
+import com.example.demo.PrintUtils;
+import net.hasor.dbvisitor.dialect.provider.MySqlDialect;
+import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.mapping.Options;
+import net.hasor.dbvisitor.page.Page;
+import net.hasor.dbvisitor.page.PageObject;
 
 public class PageMain {
     public static void main(String[] args) throws SQLException, IOException {
