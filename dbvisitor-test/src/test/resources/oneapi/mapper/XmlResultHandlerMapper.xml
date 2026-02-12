@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="xmltest.ResultHandlerMapper">
+
+    <resultMap id="userResultMap" type="net.hasor.dbvisitor.test.oneapi.model.UserInfo">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+        <result column="email" property="email"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <insert id="insertUser">
+        INSERT INTO user_info (id, name, age, email, create_time)
+        VALUES (#{id}, #{name}, #{age}, #{email}, CURRENT_TIMESTAMP)
+    </insert>
+
+    <!-- resultType：实体类 -->
+    <select id="selectByResultType" resultType="net.hasor.dbvisitor.test.oneapi.model.UserInfo">
+        SELECT * FROM user_info WHERE name LIKE 'ResHdl%' AND age &gt; #{minAge} ORDER BY id
+    </select>
+
+    <!-- resultType：map -->
+    <select id="selectByResultTypeMap" resultType="map">
+        SELECT * FROM user_info WHERE name LIKE 'ResHdl%' ORDER BY id
+    </select>
+
+    <!-- resultType：int -->
+    <select id="countByResultType" resultType="int">
+        SELECT COUNT(*) FROM user_info WHERE name LIKE 'ResHdl%'
+    </select>
+
+    <!-- resultType：string -->
+    <select id="selectNamesByResultType" resultType="string">
+        SELECT name FROM user_info WHERE name LIKE 'ResHdl%' ORDER BY id
+    </select>
+
+    <!-- resultMap -->
+    <select id="selectByResultMap" resultMap="userResultMap">
+        SELECT * FROM user_info WHERE name LIKE 'ResHdl%' ORDER BY id
+    </select>
+
+    <!-- resultRowMapper：ColumnMapRowMapper -->
+    <select id="selectByColumnMapRowMapper"
+            resultRowMapper="net.hasor.dbvisitor.jdbc.mapper.ColumnMapRowMapper">
+        SELECT * FROM user_info WHERE name LIKE 'ResHdl%' ORDER BY id
+    </select>
+
+    <!-- resultSetExtractor：ColumnMapResultSetExtractor -->
+    <select id="selectByColumnMapExtractor"
+            resultSetExtractor="net.hasor.dbvisitor.jdbc.extractor.ColumnMapResultSetExtractor">
+        SELECT * FROM user_info WHERE name LIKE 'ResHdl%' ORDER BY id
+    </select>
+
+    <!-- resultSetExtractor：PairsResultSetExtractor -->
+    <select id="selectIdNamePairs"
+            resultSetExtractor="net.hasor.dbvisitor.jdbc.extractor.PairsResultSetExtractor">
+        SELECT id, name FROM user_info WHERE name LIKE 'ResHdl%' ORDER BY id
+    </select>
+
+</mapper>

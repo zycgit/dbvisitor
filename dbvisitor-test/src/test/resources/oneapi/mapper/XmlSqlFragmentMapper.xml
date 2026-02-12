@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="xmltest.SqlFragmentMapper">
+
+    <resultMap id="userResultMap" type="net.hasor.dbvisitor.test.oneapi.model.UserInfo">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+        <result column="email" property="email"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <!-- 列名片段 -->
+    <sql id="baseColumns">
+        id, name, age, email, create_time
+    </sql>
+
+    <!-- 条件片段（包含动态 SQL） -->
+    <sql id="dynamicCondition">
+        <if test="name != null">
+            AND name LIKE #{name}
+        </if>
+        <if test="minAge != null">
+            AND age &gt;= #{minAge}
+        </if>
+        <if test="maxAge != null">
+            AND age &lt;= #{maxAge}
+        </if>
+    </sql>
+
+    <!-- 排序片段 -->
+    <sql id="defaultOrder">
+        ORDER BY id ASC
+    </sql>
+
+    <insert id="insertUser">
+        INSERT INTO user_info (id, name, age, email, create_time)
+        VALUES (#{id}, #{name}, #{age}, #{email}, CURRENT_TIMESTAMP)
+    </insert>
+
+    <!-- 在 SELECT 列中使用 include -->
+    <select id="selectWithColumnFragment" resultMap="userResultMap">
+        SELECT <include refid="baseColumns"/>
+        FROM user_info
+        WHERE id = #{id}
+    </select>
+
+    <!-- 在 WHERE 中使用包含动态 SQL 的 include -->
+    <select id="selectWithConditionFragment" resultMap="userResultMap">
+        SELECT <include refid="baseColumns"/>
+        FROM user_info
+        WHERE 1=1
+        <include refid="dynamicCondition"/>
+        <include refid="defaultOrder"/>
+    </select>
+
+    <!-- 多个 include 组合使用 -->
+    <select id="selectWithMultipleFragments" resultMap="userResultMap">
+        SELECT <include refid="baseColumns"/>
+        FROM user_info
+        WHERE name LIKE 'SqlFrag%'
+        <include refid="defaultOrder"/>
+    </select>
+
+    <!-- 仅使用排序片段 -->
+    <select id="selectAllOrdered" resultMap="userResultMap">
+        SELECT * FROM user_info
+        WHERE name LIKE 'SqlFrag%'
+        <include refid="defaultOrder"/>
+    </select>
+
+</mapper>

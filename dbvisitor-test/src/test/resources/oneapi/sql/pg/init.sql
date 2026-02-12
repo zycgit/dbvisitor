@@ -1,3 +1,6 @@
+DROP TABLE IF EXISTS user_role CASCADE;
+DROP TABLE IF EXISTS "Case_Test_Upper" CASCADE;
+DROP TABLE IF EXISTS case_test_lower CASCADE;
 DROP TABLE IF EXISTS binary_types_explicit_test CASCADE;
 DROP TABLE IF EXISTS enum_types_explicit_test CASCADE;
 DROP TABLE IF EXISTS time_types_explicit_test CASCADE;
@@ -32,7 +35,7 @@ CREATE INDEX idx_user_order_user_id ON user_order(user_id);
 CREATE TABLE product_vector (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100),
-    embedding REAL[]
+    embedding vector(128)
 );
 
 CREATE TABLE complex_order (
@@ -110,6 +113,7 @@ CREATE TABLE binary_types_explicit_test (
 CREATE TABLE enum_types_explicit_test (
     id              SERIAL PRIMARY KEY,
     status_string   VARCHAR(50),
+    status_enum_code VARCHAR(50),
     status_ordinal  INTEGER,
     status_code     INTEGER
 );
@@ -122,7 +126,8 @@ CREATE TABLE time_types_explicit_test (
     timestamp_value     TIMESTAMP,
     local_date_ts       TIMESTAMP,
     local_time_ts       TIMESTAMP,
-    local_datetime_ts   TIMESTAMP
+    local_datetime_ts   TIMESTAMP,
+    julian_day          BIGINT
 );
 
 -- JSON Types Test Tables  
@@ -131,5 +136,33 @@ CREATE TABLE json_types_explicit_test (
     json_varchar    VARCHAR(2000),
     json_mysql      VARCHAR(2000),
     nested_json     JSONB
+);
+
+-- Case Sensitivity Test Tables
+-- Two tables with identical columns but different case in table/column names.
+-- Used by CaseSensitiveTest to verify caseInsensitive behavior with real data.
+-- Table 1: all lowercase (standard PG behavior)
+-- Composite Primary Key Test Table
+-- Used by CompositeKeyTest to verify BaseMapper behavior with multi-column primary keys.
+CREATE TABLE user_role (
+    user_id     INT NOT NULL,
+    role_id     INT NOT NULL,
+    role_name   VARCHAR(100),
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, role_id)
+);
+
+CREATE TABLE case_test_lower (
+    id          SERIAL PRIMARY KEY,
+    name        VARCHAR(100),
+    age         INT,
+    memo        VARCHAR(200)
+);
+-- Table 2: Mixed case with quoted identifiers (PG preserves case when quoted)
+CREATE TABLE "Case_Test_Upper" (
+    "Id"        SERIAL PRIMARY KEY,
+    "Name"      VARCHAR(100),
+    "Age"       INT,
+    "Memo"      VARCHAR(200)
 );
 

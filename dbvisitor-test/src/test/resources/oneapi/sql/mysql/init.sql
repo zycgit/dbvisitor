@@ -1,12 +1,21 @@
 CREATE DATABASE IF NOT EXISTS devtester DEFAULT CHARSET=utf8mb4;
 USE devtester;
 
+DROP TABLE IF EXISTS user_role;
 DROP TABLE IF EXISTS basic_types_explicit_test;
 DROP TABLE IF EXISTS basic_types_test;
 DROP TABLE IF EXISTS complex_order;
 DROP TABLE IF EXISTS product_vector;
 DROP TABLE IF EXISTS user_order;
 DROP TABLE IF EXISTS user_info;
+
+CREATE TABLE user_role (
+    user_id     INT NOT NULL,
+    role_id     INT NOT NULL,
+    role_name   VARCHAR(100),
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, role_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE user_info (
     id INT AUTO_INCREMENT PRIMARY KEY,

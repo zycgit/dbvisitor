@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS user_role;
 DROP TABLE IF EXISTS binary_types_explicit_test;
 DROP TABLE IF EXISTS enum_types_explicit_test;
 DROP TABLE IF EXISTS json_types_explicit_test;
@@ -9,6 +10,14 @@ DROP TABLE IF EXISTS complex_order;
 DROP TABLE IF EXISTS product_vector;
 DROP TABLE IF EXISTS user_order;
 DROP TABLE IF EXISTS user_info;
+
+CREATE TABLE user_role (
+    user_id     INT NOT NULL,
+    role_id     INT NOT NULL,
+    role_name   VARCHAR(100),
+    create_time TIMESTAMP,
+    PRIMARY KEY (user_id, role_id)
+);
 
 CREATE TABLE user_info (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -92,7 +101,8 @@ CREATE TABLE time_types_explicit_test (
     timestamp_value     TIMESTAMP,
     local_date_ts       TIMESTAMP,
     local_time_ts       TIMESTAMP,
-    local_datetime_ts   TIMESTAMP
+    local_datetime_ts   TIMESTAMP,
+    julian_day          BIGINT
 );
 
 CREATE TABLE array_types_test (
@@ -130,6 +140,7 @@ CREATE TABLE binary_types_explicit_test (
 CREATE TABLE enum_types_explicit_test (
     id              INT PRIMARY KEY AUTO_INCREMENT,
     status_string   VARCHAR(50),
+    status_enum_code VARCHAR(50),
     status_ordinal  INT,
     status_code     INT
 );
