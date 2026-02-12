@@ -1,6 +1,6 @@
 services:
   mysql:
-    image: mysql:8.0.22
+    image: arm64v8/mysql:8.4
     environment:
       - MYSQL_DATABASE=devtester
       - MYSQL_ROOT_PASSWORD=123456
@@ -44,23 +44,24 @@ services:
     restart: always
     # User/Password：root/123456
 
-  es_6_8_3:
-    image: elasticsearch:6.8.3
-    privileged: true
-    ports:
-      - 19300:9300
-      - 19200:9200
-    environment:
-      - discovery.type=single-node
-  kibana_6_8_3:
-    image: kibana:6.8.3
-    privileged: true
-    ports:
-      - 15601:5601
-    environment:
-      - ELASTICSEARCH_URL=http://es_6_8_3:9200
-    depends_on:
-      - es_6_8_3
+  # 注：elasticsearch:6.8.3 / kibana:6.8.3 无官方 ARM64 镜像，ARM64 平台不可用
+  # es_6_8_3:
+  #   image: elasticsearch:6.8.3
+  #   privileged: true
+  #   ports:
+  #     - 19300:9300
+  #     - 19200:9200
+  #   environment:
+  #     - discovery.type=single-node
+  # kibana_6_8_3:
+  #   image: kibana:6.8.3
+  #   privileged: true
+  #   ports:
+  #     - 15601:5601
+  #   environment:
+  #     - ELASTICSEARCH_URL=http://es_6_8_3:9200
+  #   depends_on:
+  #     - es_6_8_3
 
   es_7_17_27:
     image: elasticsearch:7.17.27
