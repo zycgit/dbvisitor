@@ -255,15 +255,6 @@
     <!-- 使用“-P release”启用下面配置 -->
     <profiles>
         <profile>
-            <id>include-report</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>dbvisitor-report</module>
-            </modules>
-        </profile>
-        <profile>
             <id>release</id>
             <properties>
                 <gpg.passphrase>fubing220106</gpg.passphrase>

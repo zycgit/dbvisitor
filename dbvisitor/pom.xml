@@ -53,13 +53,6 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch.client</groupId>
-            <artifactId>elasticsearch-rest-client</artifactId>
-            <version>7.17.10</version>
-            <scope>compile</scope>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
             <groupId>org.locationtech.jts</groupId>
             <artifactId>jts-core</artifactId>
             <version>1.19.0</version>
@@ -129,12 +122,6 @@
 
         <!-- test drivers -->
         <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java</artifactId>
-            <version>3.24.0</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.33</version>
@@ -168,31 +155,6 @@
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
             <version>11.2.0.jre8</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.hasor</groupId>
-            <artifactId>jdbc-redis</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.hasor</groupId>
-            <artifactId>jdbc-mongo</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.hasor</groupId>
-            <artifactId>jdbc-elastic</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.hasor</groupId>
-            <artifactId>jdbc-milvus</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.antlr</groupId>
-            <artifactId>antlr4-runtime</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
