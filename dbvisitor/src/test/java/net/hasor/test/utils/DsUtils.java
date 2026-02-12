@@ -19,8 +19,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Properties;
-import net.hasor.dbvisitor.adapter.redis.JedisKeys;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import static net.hasor.test.utils.TestUtils.*;
 
@@ -36,11 +34,6 @@ public class DsUtils {
     public static String MYSQL_JDBC_URL    = "jdbc:mysql://" + TEST_SERVER + ":13306/?allowMultiQueries=true&noAccessToProcedureBodies=true";
     public static String PG_JDBC_URL       = "jdbc:postgresql://" + TEST_SERVER + ":15432/postgres";
     public static String ORACLE_JDBC_URL   = "jdbc:oracle:thin:@" + TEST_SERVER + ":11521:ORCLCDB";
-    public static String REDIS_JDBC_URL    = "jdbc:dbvisitor:jedis://" + TEST_SERVER + ":16379?database=0&uncheckNumKeys=true&separatorChar=;";
-    public static String MONGO_JDBC_URL    = "jdbc:dbvisitor:mongo://" + TEST_SERVER + ":17017/admin";
-    public static String MILVUS_JDBC_URL   = "jdbc:dbvisitor:milvus://" + TEST_SERVER + ":19530/default";
-    public static String ES6_JDBC_URL      = "jdbc:dbvisitor:elastic://" + TEST_SERVER + ":19200?indexRefresh=true";
-    public static String ES7_JDBC_URL      = "jdbc:dbvisitor:elastic://" + TEST_SERVER + ":19201?indexRefresh=true";
 
     private static void initH2(JdbcTemplate jdbcTemplate) {
         try {
@@ -118,36 +111,6 @@ public class DsUtils {
         return conn;
     }
 
-    public static Connection redisConn() throws SQLException {
-        return DriverManager.getConnection(REDIS_JDBC_URL, null, "123456");
-    }
-
-    public static Connection redisConnSeparatorChar() throws SQLException {
-        Properties prop = new Properties();
-        prop.setProperty(JedisKeys.PASSWORD, "123456");
-        prop.setProperty(JedisKeys.SEPARATOR_CHAR, ";");
-        return DriverManager.getConnection(REDIS_JDBC_URL, prop);
-    }
-
-    public static Connection mongoConn() throws SQLException {
-        Properties prop = new Properties();
-        prop.setProperty("username", "root");
-        prop.setProperty("password", "123456");
-        return DriverManager.getConnection(MONGO_JDBC_URL, prop);
-    }
-
-    public static Connection es6Conn() throws SQLException {
-        return DriverManager.getConnection(ES6_JDBC_URL);
-    }
-
-    public static Connection es7Conn() throws SQLException {
-        return DriverManager.getConnection(ES7_JDBC_URL);
-    }
-
-    public static Connection milvusConn() throws SQLException {
-        return DriverManager.getConnection(MILVUS_JDBC_URL);
-    }
-
     public static Connection mysqlConn() throws SQLException {
         Connection conn = DriverManager.getConnection(MYSQL_JDBC_URL, "root", "123456");
         JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
@@ -213,11 +176,4 @@ public class DsUtils {
         return pool;
     }
 
-    public static DefaultDs redisDs() {
-        DefaultDs druid = new DefaultDs();
-        druid.setUrl(REDIS_JDBC_URL);
-        druid.setDriverClassName("net.hasor.dbvisitor.driver.JdbcDriver");
-        druid.setPassword("123456");
-        return druid;
-    }
 }
