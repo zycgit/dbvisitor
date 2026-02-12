@@ -58,12 +58,14 @@ public class QueryOperationsTest extends AbstractOneApiTest {
             mapper.insert(user);
         }
 
-        // 批量查询
+        // 批量查询（IN 查询不保证返回顺序，按 id 排序后断言）
         List<UserInfo> loaded = mapper.selectByIds(Arrays.asList(43601, 43603, 43605));
 
         assertEquals(3, loaded.size());
+        loaded.sort((a, b) -> Integer.compare(a.getId(), b.getId()));
         assertEquals("SelectBatch1", loaded.get(0).getName());
         assertEquals("SelectBatch3", loaded.get(1).getName());
+        assertEquals("SelectBatch5", loaded.get(2).getName());
     }
 
     /**

@@ -50,6 +50,13 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- Override protobuf-java: milvus-sdk-java 2.5.4 needs >= 3.25.0 but mysql-connector brings 3.21.9 -->
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>3.25.5</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>net.hasor</groupId>
             <artifactId>jdbc-elastic</artifactId>

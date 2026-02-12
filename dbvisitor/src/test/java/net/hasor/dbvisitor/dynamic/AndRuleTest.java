@@ -104,10 +104,10 @@ public class AndRuleTest {
 
         PlanDynamicSql sqlSegment1 = DynamicParsed.getParsedSql("@{and,name = :name} and @{and,age = ?}");
         SqlBuilder sqlBuilder1 = sqlSegment1.buildQuery(ctx, new TestQueryContext());
-        assert sqlBuilder1.getSqlString().equals("where name = ? and age = ?");
-        assert sqlBuilder1.getArgs().length == 2;
+        // 第二个 @{and,age=?} 的位置参数 arg0 不存在（null），片段被自动丢弃，仅保留静态文本 " and "
+        assert sqlBuilder1.getSqlString().equals("where name = ? and ");
+        assert sqlBuilder1.getArgs().length == 1;
         assert ((SqlArg) sqlBuilder1.getArgs()[0]).getValue().equals("abc");
-        assert ((SqlArg) sqlBuilder1.getArgs()[1]).getValue() == null; // TODO The use of both rule and location parameters is not supported.
     }
 
     @Test
