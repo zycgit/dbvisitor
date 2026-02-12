@@ -3,7 +3,6 @@ package net.hasor.dbvisitor.test.oneapi.suite.declarative;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
-
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.oneapi.AbstractOneApiTest;
@@ -11,7 +10,6 @@ import net.hasor.dbvisitor.test.oneapi.dao.declarative.ResultHandlerMapper;
 import net.hasor.dbvisitor.test.oneapi.model.UserInfo;
 import org.junit.Before;
 import org.junit.Test;
-
 import static org.junit.Assert.*;
 
 /**
@@ -24,8 +22,8 @@ import static org.junit.Assert.*;
  */
 public class ResultHandlerTest extends AbstractOneApiTest {
 
-    private ResultHandlerMapper mapper;
-    private static final String PATTERN = "HandlerTest%";
+    private static final String              PATTERN = "HandlerTest%";
+    private              ResultHandlerMapper mapper;
 
     @Before
     public void setUp() throws Exception {

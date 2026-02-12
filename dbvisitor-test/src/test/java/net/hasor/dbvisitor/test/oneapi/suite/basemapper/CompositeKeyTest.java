@@ -199,10 +199,10 @@ public class CompositeKeyTest extends AbstractOneApiTest {
         mapper.insert(new UserRole(2, 100, "admin"));
 
         // 批量 replace：逐条更新
-        List<UserRole> updates = Arrays.asList(
-                new UserRole(1, 100, "superadmin"),
-                new UserRole(1, 200, "chief-editor"),
-                new UserRole(2, 100, "moderator")
+        List<UserRole> updates = Arrays.asList(//
+                new UserRole(1, 100, "superadmin"),//
+                new UserRole(1, 200, "chief-editor"),//
+                new UserRole(2, 100, "moderator")//
         );
         int total = 0;
         for (UserRole u : updates) {
@@ -238,8 +238,12 @@ public class CompositeKeyTest extends AbstractOneApiTest {
         mapper.insert(new UserRole(2, 100, "admin"));
 
         // 批量 update：逐条局部更新 roleName
-        String[] newNames = {"super-1", "super-2", "super-3"};
-        int[][] keys = {{1, 100}, {1, 200}, {2, 100}};
+        String[] newNames = { "super-1", "super-2", "super-3" };
+        int[][] keys = {   //
+                { 1, 100 },//
+                { 1, 200 },//
+                { 2, 100 } //
+        };
         int total = 0;
         for (int i = 0; i < keys.length; i++) {
             UserRole sample = new UserRole();
@@ -269,10 +273,10 @@ public class CompositeKeyTest extends AbstractOneApiTest {
         mapper.insert(new UserRole(1, 200, "editor"));
 
         // 批量 upsert：(1,100) 已存在→更新，(1,200) 已存在→更新，(2,100) 不存在→插入
-        List<UserRole> batch = Arrays.asList(
-                new UserRole(1, 100, "superadmin"),
-                new UserRole(1, 200, "chief-editor"),
-                new UserRole(2, 100, "new-admin")
+        List<UserRole> batch = Arrays.asList(        //
+                new UserRole(1, 100, "superadmin"),  //
+                new UserRole(1, 200, "chief-editor"),//
+                new UserRole(2, 100, "new-admin")    //
         );
         int total = 0;
         for (UserRole u : batch) {
@@ -298,11 +302,11 @@ public class CompositeKeyTest extends AbstractOneApiTest {
         Session session = newSession();
         BaseMapper<UserRole> mapper = session.createBaseMapper(UserRole.class);
 
-        List<UserRole> data = Arrays.asList(
-                new UserRole(1, 100, "a"),
-                new UserRole(1, 200, "b"),
-                new UserRole(2, 100, "c"),
-                new UserRole(2, 200, "d")
+        List<UserRole> data = Arrays.asList(//
+                new UserRole(1, 100, "a"),  //
+                new UserRole(1, 200, "b"),  //
+                new UserRole(2, 100, "c"),  //
+                new UserRole(2, 200, "d")   //
         );
         mapper.insert(data);
         assertEquals(4, mapper.countAll());

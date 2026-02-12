@@ -18,11 +18,10 @@ import org.junit.rules.TestName;
 
 public abstract class AbstractOneApiTest {
     protected static DataSource     dataSource;
-    protected        JdbcTemplate   jdbcTemplate;
-    protected        LambdaTemplate lambdaTemplate;
-
     @Rule
     public TestName testName = new TestName();
+    protected        JdbcTemplate   jdbcTemplate;
+    protected        LambdaTemplate lambdaTemplate;
 
     @Before
     public void setup() throws IOException, SQLException {
@@ -116,6 +115,20 @@ public abstract class AbstractOneApiTest {
             jdbcTemplate.executeUpdate("DELETE FROM array_types_explicit_test");
             jdbcTemplate.executeUpdate("DELETE FROM basic_types_test");
             jdbcTemplate.executeUpdate("DELETE FROM basic_types_explicit_test");
+            // Composite primary key test table
+            try {
+                jdbcTemplate.executeUpdate("DELETE FROM user_role");
+            } catch (Exception ignored) {
+            }
+            // Case sensitivity test tables (may not exist for all dialects)
+            try {
+                jdbcTemplate.executeUpdate("DELETE FROM case_test_lower");
+            } catch (Exception ignored) {
+            }
+            try {
+                jdbcTemplate.executeUpdate("DELETE FROM \"Case_Test_Upper\"");
+            } catch (Exception ignored) {
+            }
         } catch (Exception e) {
             // Ignore - tables might not exist yet
             System.out.println("[OneAPI] Data cleanup skipped: " + e.getMessage());
@@ -134,7 +147,7 @@ public abstract class AbstractOneApiTest {
      * Optional: Override in subclasses to load test-specific data
      * Schema initialization is handled automatically by OneApiDataSourceManager
      */
-    protected void initData() {
+    protected void initData() throws SQLException {
         // Default: no additional data
     }
 }

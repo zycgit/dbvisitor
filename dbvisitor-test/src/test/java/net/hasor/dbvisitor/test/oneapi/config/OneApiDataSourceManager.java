@@ -1,25 +1,23 @@
 package net.hasor.dbvisitor.test.oneapi.config;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+import javax.sql.DataSource;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-
-import javax.sql.DataSource;
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.SQLException;
-import java.util.Properties;
 
 /**
  * OneAPI DataSource Manager - Follows DsUtils pattern
  * Provides database initialization with SQL script loading
  */
 public class OneApiDataSourceManager {
-    private static final String DEFAULT_ENV = "pg";
-    private static final String PROP_FILE_TEMPLATE = "/oneapi/jdbc-%s.properties";
-    private static Properties cachedProperties;
-    private static DataSource cachedDataSource;
-    private static boolean initialized = false;
+    private static final String     DEFAULT_ENV        = "pg";
+    private static final String     PROP_FILE_TEMPLATE = "/oneapi/jdbc-%s.properties";
+    private static       Properties cachedProperties;
+    private static       DataSource cachedDataSource;
+    private static       boolean    initialized        = false;
 
     private static synchronized Properties loadProperties() throws IOException {
         if (cachedProperties != null) {
@@ -27,7 +25,7 @@ public class OneApiDataSourceManager {
         }
         String env = System.getProperty("test.env", DEFAULT_ENV);
         String propFileName = String.format(PROP_FILE_TEMPLATE, env);
-        
+
         Properties props = new Properties();
         try (InputStream in = OneApiDataSourceManager.class.getResourceAsStream(propFileName)) {
             if (in == null) {
@@ -47,7 +45,7 @@ public class OneApiDataSourceManager {
         try {
             String initScript = "/oneapi/sql/" + dialect + "/init.sql";
             System.out.println("[OneAPI] Initializing database: " + dialect + " using " + initScript);
-            
+
             // Check if init script exists
             try (InputStream in = OneApiDataSourceManager.class.getResourceAsStream(initScript)) {
                 if (in != null) {
@@ -69,7 +67,7 @@ public class OneApiDataSourceManager {
         if (cachedDataSource != null) {
             return cachedDataSource;
         }
-        
+
         Properties props = loadProperties();
         String dialect = getDbDialect();
 
@@ -81,9 +79,9 @@ public class OneApiDataSourceManager {
         config.setAutoCommit(true);
         config.setMaximumPoolSize(5);
         config.setMinimumIdle(1);
-        
+
         cachedDataSource = new HikariDataSource(config);
-        
+
         // Initialize database on first creation
         if (!initialized) {
             try {
@@ -95,10 +93,10 @@ public class OneApiDataSourceManager {
                 // Continue anyway - tests will handle missing schema
             }
         }
-        
+
         return cachedDataSource;
     }
-    
+
     public static String getDbDialect() {
         String env = System.getProperty("test.env", DEFAULT_ENV);
         return env;
@@ -111,7 +109,7 @@ public class OneApiDataSourceManager {
             throw new RuntimeException("Failed to load properties", e);
         }
     }
-    
+
     /**
      * Reset cached data source (for testing or reconfiguration)
      */

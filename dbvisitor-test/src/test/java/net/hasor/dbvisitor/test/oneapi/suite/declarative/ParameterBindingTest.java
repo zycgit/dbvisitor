@@ -1,12 +1,7 @@
 package net.hasor.dbvisitor.test.oneapi.suite.declarative;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.oneapi.AbstractOneApiTest;
@@ -222,7 +217,7 @@ public class ParameterBindingTest extends AbstractOneApiTest {
         mapper.insertWithParam(50703, "ArrayIn3", 63, "ain3@test.com");
         mapper.insertWithParam(50704, "ArrayIn4", 64, "ain4@test.com");
 
-        List<UserInfo> users = mapper.selectByAgesArray(new Integer[]{ 61, 63, 64 });
+        List<UserInfo> users = mapper.selectByAgesArray(new Integer[] { 61, 63, 64 });
         assertEquals(3, users.size());
 
         List<Integer> ages = new ArrayList<Integer>();

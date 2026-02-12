@@ -4,7 +4,6 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
 import net.hasor.dbvisitor.page.PageObject;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
@@ -13,7 +12,6 @@ import net.hasor.dbvisitor.test.oneapi.dao.declarative.ResultMappingMapper;
 import net.hasor.dbvisitor.test.oneapi.model.UserInfo;
 import org.junit.Before;
 import org.junit.Test;
-
 import static org.junit.Assert.*;
 
 /**
@@ -29,8 +27,8 @@ import static org.junit.Assert.*;
  */
 public class ResultMappingTest extends AbstractOneApiTest {
 
-    private ResultMappingMapper mapper;
-    private static final String PATTERN = "ResultMap%";
+    private static final String              PATTERN = "ResultMap%";
+    private              ResultMappingMapper mapper;
 
     @Before
     public void setUp() throws Exception {

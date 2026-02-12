@@ -5,7 +5,6 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.oneapi.AbstractOneApiTest;
@@ -14,7 +13,6 @@ import net.hasor.dbvisitor.test.oneapi.model.UserInfo;
 import net.hasor.dbvisitor.test.oneapi.model.UserOrderDTO;
 import org.junit.Before;
 import org.junit.Test;
-
 import static org.junit.Assert.*;
 
 /**
@@ -183,8 +181,7 @@ public class JoinMappingTest extends AbstractOneApiTest {
         // User 71001 has 2 orders
         assertEquals(2L, ((Number) result.get("order_count")).longValue());
         // Total = 100.50 + 200.75 = 301.25
-        assertTrue(new BigDecimal("301.25").compareTo(
-                new BigDecimal(result.get("total_amount").toString())) == 0);
+        assertTrue(new BigDecimal("301.25").compareTo(new BigDecimal(result.get("total_amount").toString())) == 0);
     }
 
     /** Aggregate JOIN for user with no orders — count=0, sum=0 */

@@ -4,7 +4,6 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.oneapi.AbstractOneApiTest;
@@ -12,7 +11,6 @@ import net.hasor.dbvisitor.test.oneapi.dao.declarative.AnnotationTestMapper;
 import net.hasor.dbvisitor.test.oneapi.model.UserInfo;
 import org.junit.Before;
 import org.junit.Test;
-
 import static org.junit.Assert.*;
 
 /**
@@ -269,7 +267,7 @@ public class AnnotationTypesTest extends AbstractOneApiTest {
         mapper.insertUserWithParams(48953, "InClause3", 43, "in3@test.com");
         mapper.insertUserWithParams(48954, "InClause4", 44, "in4@test.com");
 
-        List<UserInfo> users = mapper.selectByAgeIn(new Integer[]{ 41, 43, 44 });
+        List<UserInfo> users = mapper.selectByAgeIn(new Integer[] { 41, 43, 44 });
         assertEquals(3, users.size());
 
         List<Integer> ages = new java.util.ArrayList<Integer>();
