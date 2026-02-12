@@ -21,6 +21,7 @@ import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.jdbc.extractor.PreparedMultipleResultSetExtractor;
 import net.hasor.dbvisitor.mapper.ResultSetType;
 import net.hasor.dbvisitor.mapper.def.DqlConfig;
+import net.hasor.dbvisitor.mapper.def.InsertConfig;
 import net.hasor.dbvisitor.mapper.def.SqlConfig;
 import net.hasor.dbvisitor.page.Page;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
@@ -50,6 +51,8 @@ public class PreparedStatementExecute extends AbstractStatementExecute {
                 int resultSetTypeInt = resultSetType.getResultSetType();
                 return conn.prepareStatement(execSql.getSqlString(), resultSetTypeInt, ResultSet.CONCUR_READ_ONLY);
             }
+        } else if (config instanceof InsertConfig && ((InsertConfig) config).isUseGeneratedKeys()) {
+            return conn.prepareStatement(execSql.getSqlString(), Statement.RETURN_GENERATED_KEYS);
         } else {
             return conn.prepareStatement(execSql.getSqlString());
         }

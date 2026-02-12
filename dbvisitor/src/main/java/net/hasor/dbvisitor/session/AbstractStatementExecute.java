@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import net.hasor.cobble.ArrayUtils;
 import net.hasor.cobble.ExceptionUtils;
+import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.cobble.reflect.resolvable.ResolvableType;
@@ -37,6 +38,7 @@ import net.hasor.dbvisitor.mapper.StatementDef;
 import net.hasor.dbvisitor.mapper.def.DmlConfig;
 import net.hasor.dbvisitor.mapper.def.DqlConfig;
 import net.hasor.dbvisitor.mapper.def.ExecuteConfig;
+import net.hasor.dbvisitor.mapper.def.InsertConfig;
 import net.hasor.dbvisitor.mapper.def.SqlConfig;
 import net.hasor.dbvisitor.mapping.MappingHelper;
 import net.hasor.dbvisitor.page.Page;
@@ -195,7 +197,14 @@ public abstract class AbstractStatementExecute {
         } else {
 
             if (def.getConfig() instanceof DmlConfig) {
-                return stat.getUpdateCount();
+                int updateCount = stat.getUpdateCount();
+                if (def.getConfig() instanceof InsertConfig) {
+                    InsertConfig insertConfig = (InsertConfig) def.getConfig();
+                    if (insertConfig.isUseGeneratedKeys() && insertConfig.getKeyProperty() != null && !insertConfig.getKeyProperty().isEmpty()) {
+                        this.fillGeneratedKeys(stat, insertConfig, ctx);
+                    }
+                }
+                return updateCount;
             }
 
             if (retVal) {
@@ -251,6 +260,30 @@ public abstract class AbstractStatementExecute {
             return page;
         } else {
             return objects;
+        }
+    }
+
+    /** fetch generated keys from statement and backfill into parameter context (MergedMap → BeanMap → original bean) */
+    private void fillGeneratedKeys(Statement stat, InsertConfig insertConfig, Map<String, Object> ctx) throws SQLException {
+        String keyProperty = insertConfig.getKeyProperty();
+        String keyColumn = insertConfig.getKeyColumn();
+        String[] properties = keyProperty.split(",");
+
+        try (ResultSet rs = stat.getGeneratedKeys()) {
+            if (rs != null && rs.next()) {
+                if (StringUtils.isNotBlank(keyColumn)) {
+                    String[] columns = keyColumn.split(",");
+                    for (int i = 0; i < properties.length && i < columns.length; i++) {
+                        Object value = rs.getObject(columns[i].trim());
+                        ctx.put(properties[i].trim(), value);
+                    }
+                } else {
+                    for (int i = 0; i < properties.length; i++) {
+                        Object value = rs.getObject(i + 1);
+                        ctx.put(properties[i].trim(), value);
+                    }
+                }
+            }
         }
     }
 
