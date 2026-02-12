@@ -11,6 +11,42 @@ services:
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-time_zone='+8:00'
     # User/Password：root/123456
 
+  oracle:
+    image: gvenzl/oracle-free:23-slim
+    environment:
+      - ORACLE_PASSWORD=123456
+      - ORACLE_DATABASE=DEVTESTDB
+      - APP_USER=devtester
+      - APP_USER_PASSWORD=123456
+    ports:
+      - 11521:1521
+    restart: always
+    entrypoint:
+      - bash
+      - -c
+      - |
+        cat > /container-entrypoint-initdb.d/01-init.sql <<'SQL'
+        GRANT CREATE MATERIALIZED VIEW TO devtester;
+        GRANT CREATE SYNONYM TO devtester;
+        GRANT CREATE TYPE TO devtester;
+        GRANT CREATE DATABASE LINK TO devtester;
+        SQL
+        exec container-entrypoint.sh
+    healthcheck:
+      test: ["CMD", "healthcheck.sh"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+    # SYS/SYSTEM Password：123456
+    # App User/Password：devtester/123456
+    # PDB Service：DEVTESTDB
+    # JDBC URL：jdbc:oracle:thin:@localhost:11521/DEVTESTDB
+
   postgres:
     image: pgvector/pgvector:pg16
     environment:
@@ -18,9 +54,13 @@ services:
       - POSTGRES_PASSWORD=123456
     ports:
       - 15432:5432
-    volumes:
-      - ./postgres-init:/docker-entrypoint-initdb.d
     restart: always
+    entrypoint:
+      - bash
+      - -c
+      - |
+        echo 'CREATE EXTENSION IF NOT EXISTS vector;' > /docker-entrypoint-initdb.d/01-init-vector.sql
+        exec docker-entrypoint.sh postgres
     # User/Password：postgres/123456
 
   redis_7_2_3:
