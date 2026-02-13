@@ -3,7 +3,7 @@ id: document
 sidebar_position: 2
 hide_table_of_contents: true
 title: 文档结构
-description: 了解 Mapper 文件是以 XML 形式保存，它的基本结构和可用的 XML 元素额。
+description: 了解 Mapper 文件是以 XML 形式保存，它的基本结构和可用的 XML 元素。
 ---
 import TagRed from '@site/src/components/tags/TagRed';
 import TagGray from '@site/src/components/tags/TagGray';

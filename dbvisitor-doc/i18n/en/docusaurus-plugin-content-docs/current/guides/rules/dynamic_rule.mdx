@@ -24,6 +24,7 @@ This chapter introduces how to use SQL enhancement rules to simplify dynamic SQL
 | [`@{in}`](#in) / [`@{ifin}`](#in) | Expand collection parameters to `IN (v1, v2)`. |
 | [`@{set}`](#set) / [`@{ifset}`](#set) | Smartly handle commas in `SET` clause of `UPDATE` statements. |
 | [`@{if}`](#if) / [`@{iftext}`](#if) | General condition check (Parse / Direct). |
+| [`@{text}`](#text) | Output text fragment as-is (no argument parsing). |
 | [`@{case}`](#case) / [`@{when}`](#case) / [`@{else}`](#case)| Multi-branch logic (Switch / If-Else). |
 | [`@{macro}`](#macro) / [`@{ifmacro}`](#macro) | Include predefined SQL macro fragments. |
 | [`@{md5}`](#md5) | Calculate parameter MD5 value. |
@@ -35,8 +36,16 @@ This chapter introduces how to use SQL enhancement rules to simplify dynamic SQL
 ## AND, IFAND Rules {#and}
 
 Solves the problem of dynamically concatenating `AND` conditions in `WHERE` clauses.
-- **`@{and, ...}`**: Automatically appends the SQL fragment if it generates non-null parameters (or contains `${...}` injection).
-- **`@{ifand, test, ...}`**: Applies the subsequent logic only when the `test` expression is true.
+- **`@{and, sql fragment}`**: Automatically appends the SQL fragment when arguments in the fragment are non-null (or it contains `${...}` injection).
+- **`@{ifand, OGNL condition, sql fragment}`**: Appends the SQL fragment when the OGNL condition expression is true (arguments are retained even if null).
+
+### Difference between and and ifand
+
+| Feature | `@{and, sql fragment}` | `@{ifand, OGNL condition, sql fragment}` |
+|---------|------------------------|------------------------------------------|
+| Activation | Takes effect when **all arguments** in the SQL fragment are **non-null** | Takes effect when the **OGNL condition expression** is `true` |
+| Null arguments | When an argument is null, the entire fragment is **discarded** | When the condition is met, null arguments are **retained** |
+| Typical use | Concise syntax with automatic null checking | Custom judgment logic needed |
 
 ### Features
 
@@ -91,9 +100,9 @@ where status = ? and uid = ?
 
 ## OR, IFOR Rules {#or}
 
-Solves the problem of dynamically concatenating `OR` conditions in `WHERE` clauses.
-- **`@{or, ...}`**: Automatically appends the SQL fragment if it generates non-null parameters.
-- **`@{ifor, test, ...}`**: Applies the subsequent logic only when the `test` expression is true.
+Solves the problem of dynamically concatenating `OR` conditions in `WHERE` clauses. Symmetric with the AND rule.
+- **`@{or, sql fragment}`**: Automatically appends the SQL fragment when arguments are non-null.
+- **`@{ifor, OGNL condition, sql fragment}`**: Appends the SQL fragment when the OGNL condition is true (arguments are retained even if null).
 
 <Tabs>
   <TabItem value="rule-style" label="Using Rules" default>
@@ -137,9 +146,9 @@ Consistent with AND rules, capable of auto-completing `WHERE` and auto-correctin
 
 ## IN, IFIN Rules {#in}
 
-Used to simplify concatenating `IN` clauses by automatically flattening collection parameters.
-- **`@{in, ...}`**: Automatically flattens collection/array parameters into `(?, ?, ...)`.
-- **`@{ifin, test, ...}`**: Effective only when the `test` expression is true.
+Used to simplify concatenating `IN` clauses by automatically flattening collection parameters. Supports List, arrays (including primitive type arrays such as `int[]`).
+- **`@{in, :param}`**: Automatically flattens collection/array parameters into `(?, ?, ...)`.
+- **`@{ifin, OGNL condition, :param}`**: Effective only when the OGNL condition is true.
 
 <Tabs>
   <TabItem value="rule-style" label="Using Rules" default>
@@ -178,7 +187,7 @@ where status = ? and id in (?, ?, ?)
   </TabItem>
 </Tabs>
 
-:::caution Usage Note
+:::caution Note
 This rule **does not** automatically complete `AND`/`OR` prefixes; you need to write them manually within the rule (as `and id in ...` in the example).
 :::
 
@@ -187,8 +196,8 @@ This rule **does not** automatically complete `AND`/`OR` prefixes; you need to w
 ## SET, IFSET Rules {#set}
 
 Dedicated to `UPDATE` statements to solve the problem of comma concatenation during dynamic column updates.
-- **`@{set, ...}`**: Appends assignment when the parameter is not null, and automatically manages commas.
-- **`@{ifset, test, ...}`**: Effective only when the `test` expression is true.
+- **`@{set, sql fragment}`**: Appends assignment when the argument is not null, and automatically manages commas. Unlike `and`/`or`, `set` **allows argument values to be null**.
+- **`@{ifset, OGNL condition, sql fragment}`**: Effective only when the OGNL condition is true.
 
 <Tabs>
   <TabItem value="rule-style" label="Using Rules" default>
@@ -232,26 +241,20 @@ where uid = ?
 When mixing **manual SQL** (e.g., `fixed_col = 1`) between `@{set}` rules, **no manual comma is needed**.
 The rule engine automatically detects preceding content and intelligently supplements commas. Manually adding commas may lead to syntax errors in some dynamic scenarios.
 
-**Recommended Style** (Rules at the end, no manual commas):
-```sql
+```sql title='Recommended style (rules at the end)'
 update user
   fixed_col = 1        -- No comma at the end
   @{set, name = :name} -- Rule automatically handles preceding comma (generates ", name = ?")
   @{set, age = :age}
 ```
 
-**Problematic Style** (When rules do not match):
-```sql
+```sql title='Problematic style (when rules do not match)'
 UPDATE tb_user SET
     @{set, name = :name},  -- ❌ Rule cannot remove the trailing comma
     fixed_col = 123,
-    @{set, email = :email} -- ❌ Rule won't remove the comma from the previous condition
+    @{set, email = :email} -- ❌ Rule won't add a new comma but also won't remove the one from the previous condition
 WHERE id = :id
 ```
-
-:::info Note
-Identifies and adds commas automatically. Does not add a comma if the statement starts with `set`.
-:::
 
 ---
 
@@ -307,6 +310,29 @@ select * from users where 1=1
 
   </TabItem>
 </Tabs>
+
+---
+
+## TEXT Rule {#text}
+
+Outputs a text fragment as-is, **without parsing** argument placeholders or nested rules.
+
+- **`@{text, content}`**: Appends `content` directly to the SQL as-is.
+
+```sql title='Example'
+select * from users where 1=1
+    @{text, and status = 'active'}
+```
+
+```sql title='Generated SQL'
+select * from users where 1=1
+    and status = 'active'
+```
+
+:::info[Difference from iftext]
+- `@{text, content}` outputs unconditionally, equivalent to `@{iftext, , content}`.
+- `@{iftext, test, content}` only outputs when the `test` condition is true.
+:::
 
 ---
 
@@ -368,7 +394,8 @@ where role = 'administrator'
 </Tabs>
 
 :::info Usage Note
-- **Mode Switching**: Switch between Switch / If-Else modes based on the presence of the first parameter.
+- **Mode Switching**: Switch between Switch / If-Else modes based on whether the first parameter of `@{case}` is present.
+- **Switch Value Matching**: The `val` in `@{when, val}` is evaluated via OGNL, then compared with the evaluated result of `@{case, expr}` using `equals()`. Mismatched types (e.g., `Integer(1)` vs `"1"`) will fall back to `String.valueOf()` comparison.
 - **Else**: `@{else}` must be written at the end.
 - **Default**: If no match and no `else`, outputs an empty string.
 :::
@@ -387,8 +414,9 @@ Used to include predefined SQL fragments (macros) into the final SQL, similar to
 
 **1. Register Macro (Java)**
 ```java
-// Register in API Binder or Registry
-registry.addMacro("includeSeq", "and seq = :seq");
+// Register via Configuration
+Configuration config = new Configuration();
+config.addMacro("includeSeq", "and seq = :seq");
 ```
 
 **2. Reference Macro (SQL)**
@@ -430,12 +458,21 @@ where status = ? and seq = ?
 Referencing a **non-existent** SQL macro will cause an execution error.
 :::
 
+:::tip[Defining Macros in XML]
+SQL fragments defined with `<sql id="xxx">` in Mapper XML files are automatically registered as macros, named as `namespace.id`.
+Therefore, you can also reference XML-defined SQL fragments in rules via `@{macro, namespace.sqlId}`.
+:::
+
 ---
 
-## MD5 Rules {#md5}
+## MD5 Rule {#md5}
 
-Calculates MD5 for parameters.
-- **`@{md5, expr}`**: Calculates the MD5 of the `expr` expression result and uses the result as a SQL parameter.
+Calculates the MD5 hash of a parameter value and binds the result as a SQL argument.
+- **`@{md5, :param}`**: Takes the value of `:param`, computes its MD5, and binds it as a `?` placeholder.
+
+:::caution[Note]
+The parameter must be referenced with the `:` prefix (e.g., `:loginPassword`); otherwise, it will not be recognized as a parameter reference.
+:::
 
 <Tabs>
   <TabItem value="rule-style" label="Using Rules" default>
@@ -445,7 +482,7 @@ Calculates MD5 for parameters.
 ```sql
 select * from users 
 where account = :loginName 
-  and password = @{md5, loginPassword}
+  and password = @{md5, :loginPassword}
 ```
 
 ```sql title="Generated SQL"
@@ -504,15 +541,18 @@ String uid = UUID.randomUUID().toString().replace("-", "");
 
 ---
 
-## PAIRS Rules {#pairs}
+## PAIRS Rule {#pairs}
 
 Used to iterate collections (Map/List/Array) and generate SQL fragments based on a template.
-- **`@{pairs, collection, template}`**: Iterates `collection`, applying `template` to each element.
+- **`@{pairs, :collection, template}`**: Iterates `:collection`, applying `template` to each element.
 
-**Template Variables**:
-- `:k`: Key of Map or Index of List/Array.
-- `:v`: Value of Map or Element Value of List/Array.
-- `:i`: Current index (starts from 0).
+**Template Variables** (fixed names, not configurable):
+
+| Variable | Map scenario | List/Array scenario |
+|----------|-------------|---------------------|
+| `:k` | Map Key | Element index (as string, e.g., `"0"`, `"1"`) |
+| `:v` | Map Value | Element value |
+| `:i` | Iteration index (starts from 0) | Iteration index (starts from 0) |
 
 <Tabs>
   <TabItem value="rule-style" label="Using Rules" default>

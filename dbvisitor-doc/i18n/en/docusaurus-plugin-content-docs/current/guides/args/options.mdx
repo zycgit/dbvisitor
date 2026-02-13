@@ -47,8 +47,7 @@ select * from users where name = #{name,jdbcType=varchar}
 :::
 
 ```text title='Example 3: typeHandler option'
-select * from users where name =
-            #{name,typeHandler=net.hasor.dbvisitor.types.handler.string.StringTypeHandler}
+select * from users where name = #{name,typeHandler=net.hasor.dbvisitor.types.handler.string.StringTypeHandler}
 ```
 
 :::info

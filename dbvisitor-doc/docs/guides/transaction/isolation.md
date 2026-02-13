@@ -2,12 +2,12 @@
 id: isolation
 sidebar_position: 3
 title: 10.3 隔离级别
-description: dbVisitor ORM 事务隔离级别的使用。
+description: dbVisitor 事务隔离级别详解。
 ---
 
 # 隔离级别
 
-不同的隔离级别均已下面这张表为例子：
+不同的隔离级别均以下面这张表为例子：
 
 ```sql
 mysql> select * from students;
@@ -16,83 +16,79 @@ mysql> select * from students;
 +----+-------+
 |  1 | Alice |
 +----+-------+
-1 row in set (0.00 sec)
 ```
 
 ## DEFAULT
 
-默认事务隔离级别，具体使用的数据库事务隔离级别由底层决定。
-- 常量 Isolation.DEFAULT
-
-:::info
-相当于没有设置，但具体行为由驱动决定。
-:::
+默认事务隔离级别，具体使用的隔离级别由数据库驱动决定。
+- 常量 `Isolation.DEFAULT`
 
 ## 脏读 (Read Uncommitted)
 
-Read Uncommitted 是隔离级别最低的一种事务级别。在这种隔离级别下，一个事务会读到另一个事务更新后但未提交的数据，如果另一个事务回滚，那么当前事务读到的数据就是脏数据。
-- 常量 Isolation.READ_UNCOMMITTED
+最低的隔离级别。事务 A 可以读到事务 B 更新后但**未提交**的数据。如果事务 B 回滚，事务 A 读到的就是脏数据。
+- 常量 `Isolation.READ_UNCOMMITTED`
 
-```text
-| Time  | Transaction A                                     | Transaction B                        | Effect                  |
-|-------|---------------------------------------------------|--------------------------------------|-------------------------|
-| 00:01 | set transaction isolation level read uncommitted; |                                      |                         |
-| 00:02 | begin;                                            | begin;                               |                         |
-| 00:03 | update students set name = 'bob' where id = 1;    |                                      |                         |
-| 00:04 |                                                   | select * from students where id = 1; | see the change at 00:03 |
-| 00:05 | update students set name = 'bob' where id = 2;    |                                      |                         |
-| 00:06 | rollback;                                         |                                      |                         |
-| 00:07 |                                                   | select * from students where id = 1; | see the change at 00:01 |
-| 00:08 |                                                   | commit;                              |                         |
-```
+| 时序 | 事务 A | 事务 B | 效果 |
+|---|---|---|---|
+| T1 | set isolation level read uncommitted | | |
+| T2 | begin | begin | |
+| T3 | update students set name='bob' where id=1 | | |
+| T4 | | select * from students where id=1 | 读到 'bob'（脏读） |
+| T5 | rollback | | |
+| T6 | | select * from students where id=1 | 仍然读到 'Alice' |
 
 ## 不可重复读 (Read Committed)
 
-Read Committed 不可重复读，是指在数据库访问中，一个事务范围内两个相同的查询却返回了不同数据。
-- 常量 Isolation.READ_COMMITTED
+事务 A 只能读取到其他事务**已提交**的数据。但在同一事务中，两次相同查询可能返回不同结果（因为期间有其他事务提交了修改）。
+- 常量 `Isolation.READ_COMMITTED`
 
-```text
-| Time  | Transaction A                                   | Transaction B                                   | Effect                  |
-|-------|-------------------------------------------------|-------------------------------------------------|-------------------------|
-| 00:01 | set transaction isolation level read committed; | set transaction isolation level read committed; |                         |
-| 00:02 | begin;                                          | begin;                                          |                         |
-| 00:03 |                                                 | select * from students where id = 1;            | original data           |
-| 00:04 | update students set name = 'bob' where id = 1;  |                                                 |                         |
-| 00:05 |                                                 | select * from students where id = 1;            | original data           |
-| 00:06 | commit;                                         |                                                 |                         |
-| 00:07 |                                                 | select * from students where id = 1;            | see the change at 00:06 |
-| 00:08 |                                                 | commit;                                         |                         |
-```
+| 时序 | 事务 A | 事务 B | 效果 |
+|---|---|---|---|
+| T1 | set isolation level read committed | set isolation level read committed | |
+| T2 | begin | begin | |
+| T3 | | select * from students where id=1 | 读到 'Alice' |
+| T4 | update students set name='bob' where id=1 | | |
+| T5 | | select * from students where id=1 | 仍读到 'Alice'（未提交不可见） |
+| T6 | commit | | |
+| T7 | | select * from students where id=1 | 读到 'bob'（不可重复读） |
+| T8 | | commit | |
 
-## 可重复读取 (Repeatable Read)
+## 可重复读 (Repeatable Read)
 
-可重复读(Repeatable Read)，当使用可重复读隔离级别时，在事务执行期间会锁定该事务以任何方式引用的所有行。
-- 常量 Isolation.REPEATABLE_READ
+在事务执行期间，相同的查询总是返回相同的结果，即使其他事务已提交了修改。
+- 常量 `Isolation.REPEATABLE_READ`
 
-:::info
-在 Repeatable Read 隔离级别下，一个事务可能会遇到幻读（Phantom Read）的问题。
-
-幻读是指，在一个事务中，第一次查询某条记录，发现没有。但是，当试图更新这条不存在的记录时，竟然能成功。并且，再次读取同一条记录，它就神奇地出现了。
+:::info[幻读]
+在 Repeatable Read 下，一个事务可能遇到**幻读（Phantom Read）**：
+第一次查询某条记录发现不存在，但当更新这条记录时却能成功，再次查询它就出现了。
 :::
 
-| Time  | Transaction A                                       | Transaction B                                     | Effect                         |
-|-------|-----------------------------------------------------|---------------------------------------------------|--------------------------------|
-| 00:01 | set transaction isolation level repeatable read;    | set transaction isolation level repeatable read;  |                                |
-| 00:02 | begin;                                              | begin;                                            |                                |
-| 00:03 |                                                     | select * from students where id = 99;             | result is empty                |
-| 00:04 | insert into students (id, name) values (99, 'bob'); | select * from students where id = 99;             | see the change at 00:03        |
-| 00:05 | commit;                                             |                                                   |                                |
-| 00:06 |                                                     | update students set name = 'alice' where id = 99; | update is accepted             |
-| 00:07 |                                                     | select * from students where id = 99;             | result is empty (Phantom Read) |
-| 00:08 | rollback;                                           | commit;                                           |                                |
+| 时序 | 事务 A | 事务 B | 效果 |
+|---|---|---|---|
+| T1 | set isolation level repeatable read | set isolation level repeatable read | |
+| T2 | begin | begin | |
+| T3 | | select * from students where id=99 | 结果为空 |
+| T4 | insert into students (id, name) values (99, 'bob') | | |
+| T5 | commit | | |
+| T6 | | select * from students where id=99 | 仍为空（可重复读） |
+| T7 | | update students set name='alice' where id=99 | 更新成功 |
+| T8 | | select * from students where id=99 | 出现数据（幻读） |
 
 ## 同步事务 (Serializable)
 
-提供严格的事务隔离。它要求事务序列化执行，事务只能一个接着一个地执行，不能并发执行。因此，脏读、不可重复读、幻读都不会出现。
-- 常量 Isolation.SERIALIZABLE
+最高的隔离级别。事务序列化执行，不能并发。脏读、不可重复读、幻读都不会出现。
+- 常量 `Isolation.SERIALIZABLE`
 
-:::info
-Serializable 隔离级别相当于在开启事务的时候，对整个数据库加了 **排他锁**，直到第一个事务被 commit 否则其它事务无法开始。
-
-因此效率会大大下降，一般没有特别重要的情景，都不会使用 Serializable 隔离级别。
+:::caution[性能影响]
+Serializable 相当于在开启事务时对整个数据库加 **排他锁**，直到事务提交后其他事务才能开始，效率会大大下降。
+一般没有特别重要的场景不会使用此级别。
 :::
+
+## 各级别对比
+
+| 隔离级别 | 脏读 | 不可重复读 | 幻读 |
+|---|:---:|:---:|:---:|
+| READ_UNCOMMITTED | 可能 | 可能 | 可能 |
+| READ_COMMITTED | - | 可能 | 可能 |
+| REPEATABLE_READ | - | - | 可能 |
+| SERIALIZABLE | - | - | - |

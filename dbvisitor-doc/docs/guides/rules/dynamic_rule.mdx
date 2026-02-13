@@ -20,6 +20,7 @@ import TabItem from '@theme/TabItem';
 | [`@{in}`](#in) / [`@{ifin}`](#in) | 展开集合参数为 `IN (v1, v2)`。 |
 | [`@{set}`](#set) / [`@{ifset}`](#set) | 智能处理 `UPDATE` 语句的 `SET` 逗号。 |
 | [`@{if}`](#if) / [`@{iftext}`](#if) | 通用条件判断（解析 / 直出）。 |
+| [`@{text}`](#text) | 原样输出文本片段（不解析参数）。 |
 | [`@{case}`](#case) / [`@{when}`](#case) / [`@{else}`](#case)| 多路分支 (Switch / If-Else)。 |
 | [`@{macro}`](#macro) / [`@{ifmacro}`](#macro) | 引用预定义的 SQL 宏片段。 |
 | [`@{md5}`](#md5) | 计算参数 MD5 值。 |
@@ -31,8 +32,16 @@ import TabItem from '@theme/TabItem';
 ## AND、IFAND 规则 {#and}
 
 解决 `WHERE` 子句中动态拼接 `AND` 条件的问题。
-- **`@{and, ...}`**：当包含的 SQL 片段生成了非空参数（或包含 `${...}` 注入）时，自动追加该片段。
-- **`@{ifand, test, ...}`**：当 `test` 表达式为真时，应用后续逻辑。
+- **`@{and, sql片段}`**：当 SQL 片段中的参数非空（或包含 `${...}` 注入）时，自动追加该片段。
+- **`@{ifand, OGNL条件, sql片段}`**：当 OGNL 条件表达式为真时，追加 SQL 片段（即使参数值为 null 也会保留）。
+
+### and 与 ifand 的区别
+
+| 特性 | `@{and, sql片段}` | `@{ifand, OGNL条件, sql片段}` |
+|------|-------------------|-------------------------------|
+| 生效判断 | SQL 片段中的参数**全部非 null** 时生效 | **OGNL 条件表达式**为 `true` 时生效 |
+| 空值参数 | 参数为 null 时整个片段被**丢弃** | 条件满足时参数为 null 也会**保留** |
+| 典型用途 | 简洁写法，自动判空 | 需要自定义判断逻辑 |
 
 ### 特性说明
 
@@ -87,9 +96,9 @@ where status = ? and uid = ?
 
 ## OR、IFOR 规则 {#or}
 
-解决 `WHERE` 子句中动态拼接 `OR` 条件的问题。
-- **`@{or, ...}`**：当包含的 SQL 片段生成了非空参数时，自动追加该片段。
-- **`@{ifor, test, ...}`**：当 `test` 表达式为真时，应用后续逻辑。
+解决 `WHERE` 子句中动态拼接 `OR` 条件的问题。与 AND 规则对称。
+- **`@{or, sql片段}`**：当 SQL 片段中的参数非空时，自动追加该片段。
+- **`@{ifor, OGNL条件, sql片段}`**：当 OGNL 条件为真时，追加 SQL 片段（即使参数为 null）。
 
 <Tabs>
   <TabItem value="rule-style" label="使用规则" default>
@@ -133,9 +142,9 @@ where username = ? or email = ?
 
 ## IN、IFIN 规则 {#in}
 
-用于简化 `IN` 子句的拼接，自动展平集合参数。
-- **`@{in, ...}`**：自动将集合/数组参数展平为 `(?, ?, ...)`。
-- **`@{ifin, test, ...}`**：当 `test` 表达式为真时生效。
+用于简化 `IN` 子句的拼接，自动展平集合参数。支持 List、数组（包括原始类型数组如 `int[]`）。
+- **`@{in, :param}`**：自动将集合/数组参数展平为 `(?, ?, ...)`。
+- **`@{ifin, OGNL条件, :param}`**：当 OGNL 条件为真时生效。
 
 <Tabs>
   <TabItem value="rule-style" label="使用规则" default>
@@ -183,8 +192,8 @@ where status = ? and id in (?, ?, ?)
 ## SET、IFSET 规则 {#set}
 
 专用于 `UPDATE` 语句，解决动态列更新时的逗号拼接问题。
-- **`@{set, ...}`**：参数非空时追加赋值，并自动管理逗号。
-- **`@{ifset, test, ...}`**：当 `test` 表达式为真时生效。
+- **`@{set, sql片段}`**：参数非空时追加赋值，并自动管理逗号。与 `and`/`or` 不同，`set` **允许参数值为 null**。
+- **`@{ifset, OGNL条件, sql片段}`**：当 OGNL 条件为真时生效。
 
 <Tabs>
   <TabItem value="rule-style" label="使用规则" default>
@@ -300,6 +309,29 @@ select * from users where 1=1
 
 ---
 
+## TEXT 规则 {#text}
+
+原样输出文本片段，**不解析**其中的参数占位符或嵌套规则。
+
+- **`@{text, content}`**：将 `content` 原样拼接到 SQL 中。
+
+```sql title='示例'
+select * from users where 1=1
+    @{text, and status = 'active'}
+```
+
+```sql title='生成的 SQL'
+select * from users where 1=1
+    and status = 'active'
+```
+
+:::info[与 iftext 的区别]
+- `@{text, content}` 无条件输出，等价于 `@{iftext, , content}`。
+- `@{iftext, test, content}` 需要 `test` 条件为真才输出。
+:::
+
+---
+
 ## CASE、WHEN、ELSE 规则 {#case}
 
 提供 SQL 生成阶段的分支逻辑，支持 **Switch** (值匹配) 和 **If-Else** (条件匹配) 两种模式。
@@ -358,7 +390,8 @@ where role = 'administrator'
 </Tabs>
 
 :::info 使用须知
-- **模式切换**：通过第一个参数是否存在来切换 Switch / If-Else 模式。
+- **模式切换**：通过 `@{case}` 第一个参数是否存在来切换 Switch / If-Else 模式。
+- **Switch 值匹配**：`@{when, val}` 的 `val` 会通过 OGNL 求值后，与 `@{case, expr}` 的求值结果进行 `equals()` 比较。不同类型（如 `Integer(1)` vs `"1"`）会通过 `String.valueOf()` 回退匹配。
 - **Else**：`@{else}` 必须写在最后。
 - **默认值**：若无匹配且无 `else`，输出空字符串。
 :::
@@ -377,8 +410,9 @@ where role = 'administrator'
 
 **1. 注册宏 (Java)**
 ```java
-// 在 API Binder 或 Registry 中注册
-registry.addMacro("includeSeq", "and seq = :seq");
+// 通过 Configuration 注册
+Configuration config = new Configuration();
+config.addMacro("includeSeq", "and seq = :seq");
 ```
 
 **2. 引用宏 (SQL)**
@@ -420,12 +454,21 @@ where status = ? and seq = ?
 引用一个**不存在**的 SQL 宏会导致执行报错。
 :::
 
+:::tip[XML 中定义宏]
+在 Mapper XML 文件中使用 `<sql id="xxx">` 定义的片段会自动注册为宏，命名规则为 `namespace.id`。
+因此也可以通过 `@{macro, namespace.sqlId}` 在规则中引用 XML 定义的 SQL 片段。
+:::
+
 ---
 
 ## MD5 规则 {#md5}
 
-对参数进行 MD5 计算。
-- **`@{md5, expr}`**：对 `expr` 表达式结果进行 MD5 计算，并将结果作为 SQL 参数。
+对参数值进行 MD5 哈希计算，并将结果作为 SQL 参数绑定。
+- **`@{md5, :param}`**：取 `:param` 参数的值，计算其 MD5 后绑定为 `?` 占位符。
+
+:::caution[注意]
+参数必须使用 `:` 前缀引用（如 `:loginPassword`），否则不会被识别为参数引用。
+:::
 
 <Tabs>
   <TabItem value="rule-style" label="使用规则" default>
@@ -435,7 +478,7 @@ where status = ? and seq = ?
 ```sql
 select * from users 
 where account = :loginName 
-  and password = @{md5, loginPassword}
+  and password = @{md5, :loginPassword}
 ```
 
 ```sql title="生成的 SQL"
@@ -497,12 +540,15 @@ String uid = UUID.randomUUID().toString().replace("-", "");
 ## PAIRS 规则 {#pairs}
 
 用于遍历集合（Map/List/Array）并按模版生成 SQL 片段。
-- **`@{pairs, collection, template}`**：遍历 `collection`，对以每个元素应用 `template`。
+- **`@{pairs, :collection, template}`**：遍历 `:collection` 参数，对每个元素应用 `template`。
 
-**模版变量**：
-- `:k`：Map 的 Key 或 List/Array 的索引。
-- `:v`：Map 的 Value 或 List/Array 的元素值。
-- `:i`：当前索引（从 0 开始）。
+**模版变量**（固定名称，不可配置）：
+
+| 变量 | Map 场景 | List/Array 场景 |
+|------|---------|----------------|
+| `:k` | Map 的 Key | 元素索引（字符串形式，如 `"0"`、`"1"`） |
+| `:v` | Map 的 Value | 元素值 |
+| `:i` | 迭代序号（从 0 开始） | 迭代序号（从 0 开始） |
 
 <Tabs>
   <TabItem value="rule-style" label="使用规则" default>

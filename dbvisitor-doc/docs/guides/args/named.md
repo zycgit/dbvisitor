@@ -44,7 +44,9 @@ jdbcTemplate.queryForList("select * from users where id > :id and name = :name",
 
 ## OGNL 取值 {#ognl}
 
-通过 OGNL 表达式可以获取对象的属性和调用对象的方法，进而实现更加复杂的参数提取。
+三种命名参数写法（`:name`、`&name`、`#{...}`）均支持 OGNL 表达式，可以进行嵌套属性访问、数组/集合索引、方法调用。
+
+### 嵌套属性
 
 ```json title='例：提取嵌套结构中参数'
 {
@@ -62,12 +64,38 @@ jdbcTemplate.queryForList("select * from users where id > :id and name = :name",
 
 使用 OGNL 表达式 `p.cfg_id.array[1].age` 对上面结构的数据进行参数提取。
 
-```text title='写法 1'
+```text title='写法 1：冒号语法'
 select * from user_table where age > :p.cfg_id.array[1].age order by id
 ```
 
-```text title='写法 2'
+```text title='写法 2：花括号语法'
 select * from user_table where age > #{p.cfg_id.array[1].age} order by id
+```
+
+### 数组和集合索引
+
+OGNL 表达式可以通过方括号 `[index]` 直接访问 List、数组中的元素。
+
+```java title='例：集合索引取值'
+Map<String, Object> params = new HashMap<>();
+params.put("ages", Arrays.asList(30, 35, 40));
+params.put("names", new String[] { "Alice", "Bob" });
+
+// 使用冒号语法
+jdbcTemplate.queryForList(
+    "select * from users where age = :ages[0] and name = :names[0]", params);
+
+// 使用花括号语法
+jdbcTemplate.queryForList(
+    "select * from users where age = #{ages[0]} and name = #{names[0]}", params);
+```
+
+## 参数重用 {#reuse}
+
+同一个命名参数可以在 SQL 中出现多次，dbVisitor 会自动将其绑定到同一个值。
+
+```text title='例：同一参数 name 使用两次'
+insert into users (id, name, email) values (#{id}, #{name}, #{name})
 ```
 
 ## 参数选项
@@ -97,3 +125,9 @@ select * from users where
 -- 冒号后面有空格，不会被识别为参数
 select * from table where config = '{ "key": "value" }'
 ```
+
+此外需注意以下特殊处理：
+- **PostgreSQL 类型转换** `::` 不会被识别为参数，可以安全使用 `column::integer` 语法。
+- **引号内的内容** 单引号 `'...'` 和双引号 `"..."` 内的参数语法会被跳过。
+- **SQL 注释** `/* ... */` 和 `-- ...` 内的参数语法会被跳过。
+- **转义** 使用 `\#{...}`、`\${...}`、`\@{...}` 可以转义为普通文本。

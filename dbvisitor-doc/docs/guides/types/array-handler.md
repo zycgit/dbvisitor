@@ -2,17 +2,31 @@
 id: array-handler
 sidebar_position: 8
 title: 8.8 数组类型处理器
-description: dbVisitor 处理数组类型的类型处理器。
+description: dbVisitor 处理数组类型及 PostgreSQL pgvector 的类型处理器。
 ---
 
 # 数组类型处理器
 
 数组类型处理器位于 `net.hasor.dbvisitor.types.handler.array` 包中。
 
-| 类型处理器              | Java 类型        | 作用                           |
-|--------------------|----------------|------------------------------|
-| ArrayTypeHandler   | java.sql.Array | 使用 getArray/setArray 读写数组类型  |
-| PgArrayTypeHandler | java.sql.Array | 处理 PostgreSQL 的数组类读写         |
+| 类型处理器 | Java 类型 | 作用 |
+|---|---|---|
+| `ArrayTypeHandler` | `java.sql.Array` | 通用数组处理，使用 getArray/setArray 读写 |
+| `PgArrayTypeHandler` | `java.sql.Array` | PostgreSQL 数组类型专用处理 |
+| `PgVectorTypeHandler` | `List<Float>` | PostgreSQL [pgvector](https://github.com/pgvector/pgvector) 向量类型处理 |
+
+## PgVectorTypeHandler
+
+`PgVectorTypeHandler` 用于处理 PostgreSQL pgvector 扩展的 `vector` 类型，将 `List<Float>` 与 pgvector 的文本格式 `[1.0,2.0,3.0]` 互转。
+
+```java title='使用示例'
+public class EmbeddingEntity {
+    @Column(typeHandler = PgVectorTypeHandler.class)
+    private List<Float> embedding;
+}
+```
+
+## 数组元素类型映射
 
 
 在创建 java.sql.Array 类型时需要指定元素类型，例如：

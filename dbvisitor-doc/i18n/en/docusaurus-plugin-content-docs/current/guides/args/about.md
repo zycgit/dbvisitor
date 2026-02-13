@@ -16,7 +16,7 @@ dbVisitor provides multiple ways to pass arguments. This section explains how to
 - [Positional Arguments](./position): use `?` placeholders in SQL and bind values to the corresponding zero-based index.
 - [Named Arguments](./named): use `:name`, `&name`, or `#{...}` to name arguments in SQL.
 - [SQL Injection](./inject): use `${...}` to fetch named arguments and inject the result into SQL text.
-- [Rule-Based Arguments](./rule): use `@{...}` with the [Rule](../rules/about) mechanism to elegantly handle common dynamic command cases.
+- [Rule-Based Arguments](./rule): use `@{...}` with the [Rule](../rules/about) mechanism to elegantly handle common dynamic SQL scenarios.
 - [Interface-based Arguments](./interface): customize argument setting via interfaces for special scenarios.
 
 ## Additional Notes

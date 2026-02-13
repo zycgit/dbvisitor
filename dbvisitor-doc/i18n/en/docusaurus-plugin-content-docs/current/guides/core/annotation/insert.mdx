@@ -14,17 +14,22 @@ import TagGray from '@site/src/components/tags/TagGray';
 
 # @Insert Annotation
 
-Marks an interface method and accepts a string or string array that represents an INSERT statement.
+Marks an interface method to execute an INSERT statement.
+
+:::info
+If you pass a string array, the elements are concatenated with a single space between them.<br/>
+String arrays make it easy to manage multi-line SQL.
+:::
 
 ```java title='Example: insert a user record'
 @SimpleMapper
 public interface UserMapper {
     @Insert({ "insert into users (",                       // 1. SQL definition
               "    id, name, age, create_time",            //
-              ") values (",                                //
-              "    #{id}, #{name}, #{age}, #{createTime})",//
+              ") values (",                               //
+              "    #{id}, #{name}, #{age}, #{createTime}", //
               ")" })
-    int saveUser(UserDTO user);                             // 2. User object argument
+    int saveUser(UserDTO user);                           // 2. User object argument
 }
 ```
 
@@ -43,13 +48,13 @@ public interface UserMapper {
 If `keyColumn` is empty, the first column of the returned result set is used.
 :::
 
-# @SelectKeySql Annotation
+# @SelectKeySql Annotation {#selectkey}
 
-## Description {#selectkey}
+Sometimes you need the generated primary key immediately after inserting a row for subsequent business logic. `@SelectKeySql` allows executing an additional SQL before or after the INSERT to retrieve the key value and **write it back to the parameter object**.
 
-Sometimes you need the generated primary key immediately after inserting a row. `@SelectKeySql` lets you fetch the auto-increment value (or generate a custom key) without issuing a separate query. Use it together with `@Insert`.
+This annotation must be used together with `@Insert`.
 
-```java title='Example: insert a user record'
+```java title='Example: retrieve MySQL auto-increment ID after INSERT'
 //create table users (
 //  id          bigint auto_increment primary key,
 //  name        varchar(255),
@@ -59,22 +64,22 @@ Sometimes you need the generated primary key immediately after inserting a row. 
 
 @SimpleMapper
 public interface UserMapper {
-    @Insert({ "insert into users (",                // 1. SQL definition
+    @Insert({ "insert into users (",               // 1. SQL definition
               "    name, age, create_time",         //
               ") values (",                         //
-              "    #{name}, #{age}, #{createTime})",//
+              "    #{name}, #{age}, #{createTime}", //
               ")" })
-    // After the insert executes, use MySQL last_insert_id() to fetch the generated id
+    // After the INSERT executes, use MySQL last_insert_id() to retrieve the auto-increment ID and write it back to the id property
     @SelectKeySql(value = "select last_insert_id()", keyProperty = "id", order = Order.After)
     int saveUser(UserDTO user);
 }
 
 UserMapper mapper = ...;
-UserDTO user = ...
+UserDTO user = ...;
 
 mapper.saveUser(user);
 
-long afterId = user.getId();
+long afterId = user.getId(); // Auto-increment ID has been written back
 ```
 
 ## Properties

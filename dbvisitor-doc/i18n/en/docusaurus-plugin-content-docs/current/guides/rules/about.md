@@ -19,9 +19,13 @@ Its emergence is intended to replace cumbersome XML tags (such as `<if>`, `<wher
 
 Since rule parsing is the underlying core capability of the dbVisitor execution engine, you can use it wherever SQL is defined:
 
-*   **Java Annotations**: Written directly in annotations such as `@Select`, `@Insert`, `@Update`, `@Delete`.
+*   **Java Annotations**: Written directly in annotations such as `@Query`, `@Insert`, `@Update`, `@Delete`.
 *   **Code Construction**: Arbitrary SQL strings executed via `LambdaTemplate` or `JdbcTemplate`.
-*   **XML Mapper**: Defining complex queries in `.sql` files.
+*   **XML Mapper**: Defining complex queries in Mapper `.xml` files.
+
+:::tip[Hint]
+Rule names are case-insensitive. `@{AND}`, `@{And}`, and `@{and}` are equivalent.
+:::
 
 ## Usage Restrictions
 
@@ -97,3 +101,5 @@ dbVisitor provides a wealth of built-in rules to meet the needs of different sce
     - Used for post-processing of query result sets, as well as auxiliary configurations for stored procedures and multi-result set queries (`@{resultSet}`).
 - **[Rule Nesting](./nested_rule)**
     - Learn how to combine multiple rules to implement parameter pre-processing and complex logic (such as `@{and, col = @{md5, :val}}`).
+- **[Custom Rules](./custom-rule)**
+    - When built-in rules cannot meet your needs, extend with custom rules by implementing the `SqlRule` interface.

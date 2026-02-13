@@ -14,11 +14,11 @@ import TagGray from '@site/src/components/tags/TagGray';
 
 # @Delete Annotation
 
-Marks an interface method and accepts a string or string array that represents a DELETE statement.
+Marks an interface method to execute a DELETE statement.
 
 :::info
 If you pass a string array, the elements are concatenated with a single space between them.<br/>
-This makes it easy to manage SQL in a readable way.
+String arrays make it easy to manage multi-line SQL.
 :::
 
 ```java title='Example: delete a user by id'

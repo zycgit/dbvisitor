@@ -6,6 +6,8 @@ title: 新增操作
 description: 使用 dbVisitor 构造器新增数据时允许使用实体 Bean 或者使用 Map 作为新数据的容器。
 ---
 
+# 新增操作
+
 使用 dbVisitor 构造器新增数据时允许使用实体 Bean 或者使用 Map 作为新数据的容器。
 
 ```java title='使用 Bean 作为数据容器'
@@ -17,21 +19,21 @@ user.setCreateTime(new Date());
 
 LambdaTemplate lambda = ...
 int result = lambda.insert(User.class)
-                   .applyEntity(user);
+                   .applyEntity(user)
                    .executeSumResult();
 // 返回 result 为 1
 ```
 
 ```java title='使用 Map 作为数据容器'
 Map<String, Object> user = new HashMap<>();
-newValue.put("id", 20);
-newValue.put("name", "new name");
-newValue.put("age", 88);
-newValue.put("create_time", new Date());
+user.put("id", 20);
+user.put("name", "new name");
+user.put("age", 88);
+user.put("create_time", new Date());
 
 LambdaTemplate lambda = ...
 int result = lambda.insert(User.class)
-                   .applyMap(user);
+                   .applyMap(user)
                    .executeSumResult();
 // 返回 result 为 1
 ```
@@ -81,7 +83,7 @@ if (adapter.queryByEntity(User.class)
 - Oracle 数据库可以使用 `MERGE INTO ... WHEN MATCHED THEN ... WHEN NOT MATCHED THEN ...` 语句。
 
 使用这些数据库特性需要有 2 个先决条件。
-- 需要 dbVisitor 的数据库方言能够支持，[了解数据库支持性](../../api/differences#dialect)。
+- 需要 dbVisitor 的数据库方言能够支持，[了解数据库支持性](../../api/differences/about#dialect)。
 - 需要通过 onDuplicateStrategy 方法指定冲突处理策略。
 
 dbVisitor 中对于这种情况可以配置冲突策略，这样就可以避免在写入数据时多余的代码逻辑。可选的冲突策略有三个：
@@ -96,7 +98,7 @@ dbVisitor 中对于这种情况可以配置冲突策略，这样就可以避免�
 ```java title='默认策略可以不指定，也可以明确设置'
 LambdaTemplate lambda = ...
 int result = lambda.insert(User.class)
-                   .applyEntity(user);
+                   .applyEntity(user)
                    .onDuplicateStrategy(DuplicateKeyStrategy.Into) // 明确设置
                    .executeSumResult();
 ```
@@ -116,7 +118,7 @@ int result = lambda.insert(User.class)
 ```java title='使用方式'
 LambdaTemplate lambda = ...
 int result = lambda.insert(User.class)
-                   .applyEntity(user);
+                   .applyEntity(user)
                    .onDuplicateStrategy(DuplicateKeyStrategy.Update) // 冲突更新
                    .executeSumResult();
 ```
@@ -132,7 +134,7 @@ int result = lambda.insert(User.class)
 ```java title='使用方式'
 LambdaTemplate lambda = ...
 int result = lambda.insert(User.class)
-                   .applyEntity(user);
+                   .applyEntity(user)
                    .onDuplicateStrategy(DuplicateKeyStrategy.Ignore) // 冲突忽略
                    .executeSumResult();
 ```

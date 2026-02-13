@@ -13,33 +13,33 @@ import Vars from '@site/plugins/projectVars';
 
 # Introduction
 
-dbVisitor is a database access library that provides unified api to access databases for Java, making data reading and writing more natural.
+dbVisitor is a database access library that provides unified access to multiple different types of databases for Java. Its goal is to use a single set of APIs to access all databases.
 
-dbVisitor is built based on JDBC, It has improved the underlying JDBC interface, thereby providing a more concise and unified API.
+dbVisitor is built on top of JDBC. It improves the low-level JDBC interface to provide a more natural API.
 
 It consists of three parts:
 - dbvisitor: The core module, providing a unified access API for multiple different types of databases.
-- dbvisitor-integration: the module for dbVisitor with integration frameworks. It supports integration as
-  [Spring/SpringBoot](./yourproject/with_spring)、[Solon](./yourproject/with_solon)、
-  [Hasor](./yourproject/with_hasor)、[Guice](./yourproject/with_guice), etc.
-- dbvisitor-adapter: The module for JDBC driver adapters, Used for connect to NoSQL databases such as
-  [Redis](./core/redis/about), [MongoDB](./core/mongo/about) and [ElasticSearch](./core/elastic/about).
+- dbvisitor-integration: The integration module for dbVisitor with mainstream frameworks.
+  Supports [Spring/SpringBoot](./yourproject/with_spring), [Solon](./yourproject/with_solon),
+  [Hasor](./yourproject/with_hasor), [Guice](./yourproject/with_guice).
+- dbvisitor-adapter: The module for JDBC driver adapters, used to connect to databases such as NoSQL.
+  For example: [Redis](./core/redis/about), [MongoDB](./core/mongo/about), [ElasticSearch](./core/elastic/about).
 
-It is Not a ORM Framework.
-- dbVisitor is a library that facilitates Java access to databases. Although it is somewhat similar to ORM, there are many differences.
+It is not an ORM framework.
+- dbVisitor is a library that facilitates Java access to databases. Although it is somewhat similar to ORM, there are still many differences compared to a true ORM philosophy.
 
 dbVisitor is simple; it focuses on database access. Any specific functions with specific business meanings do not belong to dbVisitor.
-Nevertheless, you can still use the ingenious api design to meet specific business needs.
+Nevertheless, you can still leverage this ingenious API design to meet specific business needs.
 
 ## Why use it?
 
-In the past, when relational databases popularity, data access methods became diverse and a large number of mature tools based on JDBC emerged.
+In the past, when relational databases were dominant, data access methods had become diverse and a large number of mature JDBC-based tools emerged.
 However, with the rise of NoSQL databases, data storage forms became more diverse and access APIs became more complex.
 Developers need to switch between different APIs, increasing learning costs and usage difficulty.
 
-Existing library such as Hibernate, MyBatis, Spring JDBC, etc., mainly target relational databases and show limitations when facing increasingly diverse NoSQL databases.
+Existing data access technologies such as Hibernate, MyBatis, Spring JDBC, etc., mainly target relational databases and show limitations when facing increasingly diverse non-relational storage.
 
-The core breakthrough of dbVisitor lies in the seamless integration of access modes: developers can mix multiple access paradigms in the same project and obtain a unified experience between relational databases and NoSQL databases.
+The core breakthrough of dbVisitor lies in the seamless integration of access modes: developers can mix multiple access paradigms in the same project and obtain a unified experience between relational and non-relational storage.
 
 In terms of API design, dbVisitor provides APIs with a style similar to Spring JdbcTemplate, MyBatis. This design allows developers to avoid accepting a large number of new concepts and knowledge, thereby reducing learning costs and usage difficulty.
 
@@ -80,7 +80,7 @@ dbVisitor can run on all Java 8 or higher versions, and all versions are compile
 
 - Current latest version v{Vars.lastReleaseVer} ({Vars.lastReleaseTime})
 - `6.x` version is a brand new upgrade. While inheriting the functions of 5.x, it has made major improvements to the implementation of different style APIs to keep usage and behavior unified in all aspects.
-- `5.x` version dbVisitor was officially separated from the Hasor framework and provides three different styles of APIs: Programmatic API, Declarative API, and Constructor to access the database.
+- `5.x` version: dbVisitor was officially separated from the Hasor framework and provides three different styles of APIs — Programmatic API, Declarative API, and Fluent API — to access the database.
 - `4.x` and earlier versions did not have their own independent versions, and their release followed the [Hasor](https://www.hasor.net/) framework release.
 
 ## Contact Author

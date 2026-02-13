@@ -6,6 +6,8 @@ title: 多值
 description: 使用 JdbcTemplate 类的 multipleExecute 系列方法可以解决 SQL 语句在产生多个值后难以辨识和获取的问题。
 ---
 
+# 多值
+
 使用 **JdbcTemplate** 类的 **multipleExecute** 系列方法可以解决 SQL 语句在产生多个值后难以辨识和获取的问题。
 
 ## 产生条件

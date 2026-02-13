@@ -42,14 +42,36 @@ jdbcTemplate.queryForList("select * from users where id > :arg0 and name = :arg1
 
 ## 参数选项
 
-通过参数选项可以在在参数设置时提供更多控制，如：通过 TypeHandler 实现特殊类型的读写。
+通过 `SqlArg` 类可以在参数设置时提供更多控制，如：指定 TypeHandler、Java 类型或 JDBC 类型。
 
-```java title='例3：使用 SqlArg 对参数进行封装，并指定 TypeHandler'
+```java title='例1：使用 SqlArg 指定 TypeHandler'
 SqlArg[] args = new SqlArg[] {
       SqlArg.valueOf(2L, new LongTypeHandler()),     // LongTypeHandler，设置 Long 类型参数
       SqlArg.valueOf("Dave", new StringTypeHandler())// StringTypeHandler，设置 String 类型参数
 };
 jdbcTemplate.queryForList("select * from users where id > ? and name = ?", args);
+```
+
+`SqlArg` 提供了多个工厂方法用于创建不同类型的参数：
+
+| 方法 | 说明 |
+|------|------|
+| `SqlArg.valueOf(Object)` | 创建 IN 参数 |
+| `SqlArg.valueOf(Object, Class<?>)` | 创建带 javaType 的 IN 参数 |
+| `SqlArg.valueOf(Object, TypeHandler<?>)` | 创建带 TypeHandler 的 IN 参数 |
+| `SqlArg.valueOf(Object, int)` | 创建带 jdbcType 的 IN 参数 |
+| `SqlArg.asOut(String, int)` | 创建 OUT 参数（指定 jdbcType） |
+| `SqlArg.asOut(String, int, TypeHandler<?>)` | 创建 OUT 参数（指定 jdbcType + TypeHandler） |
+| `SqlArg.asInOut(String, Object, int)` | 创建 INOUT 参数（指定 jdbcType） |
+| `SqlArg.asInOut(String, Object, int, TypeHandler<?>)` | 创建 INOUT 参数（指定 jdbcType + TypeHandler） |
+
+`SqlArg` 对象也可以直接放入 Map 中作为命名参数的值，框架会自动识别并使用其中的类型信息。
+
+```java title='例2：Map 中混合使用 SqlArg 和普通值'
+Map<String, Object> args = new HashMap<>();
+args.put("id", SqlArg.valueOf(2L, new LongTypeHandler()));
+args.put("name", "Dave");
+jdbcTemplate.queryForList("select * from users where id > :id and name = :name", args);
 ```
 
 :::info[有关更多参数选项的信息请到：]

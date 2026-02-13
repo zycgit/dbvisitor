@@ -5,8 +5,10 @@ title: 条件构造器
 description: 条件构造器可以用于 query、update、delete 三类操作中，用于生成 WHERE 语句后面的条件部分。
 ---
 
+# 条件构造器
+
 条件构造器可以用于 `query`、`update`、`delete` 三类操作中，用于生成 WHERE 语句后面的条件部分。
-在本问将会介绍如下内容：
+在本文将会介绍如下内容：
 - 条件样本
 - 条件组
 - 关系式：[与关系](./where-builder#and)、[或关系](./where-builder#or)、[非关系](./where-builder#not)
@@ -106,7 +108,7 @@ result = lambda.query(User.class)
 - 在使用条件样本时需要注意以下几点：
 - eqBySample、eqBySampleMap 方法只会寻找样本中不为空的属性作为条件，因此：
   - 如果要想匹配 NULL 值，需要额外使用 isNull 来特别指定。
-  - 不建议在样本对象中使用 byte、sort、int、long、float、double、char 基本类型属性。
+  - 不建议在样本对象中使用 byte、short、int、long、float、double、char 基本类型属性。
 - 如果多次调用 eqBySample 设置样本条件，那么先后两次样本中重叠部分会被覆盖。
 :::
 

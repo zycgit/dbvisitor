@@ -6,6 +6,8 @@ title: 名称敏感性
 description: 使用 dbVisitor ORM 映射数据库表，处理大小写敏感性问题。
 ---
 
+# 名称敏感性
+
 某些数据库的设置对于表名的拼写具有很强的敏感性，例如：users 和 USERS 在敏感性数据库中可能表示了不同的表。
 在 dbVisitor 中通过 caseInsensitive 属性或者 useDelimited 属性可以解决这些问题。
 

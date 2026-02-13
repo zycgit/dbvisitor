@@ -18,7 +18,7 @@ Mapper 文件中 &lt;resultMap&gt; 或 &lt;entity&gt; 标签通过 `autoMapping`
 ```
 
 :::caution[注意两点]
-- &lt;resultMap&gt;、&lt;entity&gt; 标签中如果含有 id/result/mapping 其中任何一种标签配置列，那么自动映射功能将会失效。
+- 一旦 &lt;resultMap&gt; 或 &lt;entity&gt; 标签中包含了 `id`、`result`、`mapping` 中的任意子标签，自动映射将不再生效，仅使用手动声明的列映射。
 - 当属性标有 @Column 注解，无论 `autoMapping` 属性是任何值都会将其映射为列。
 :::
 

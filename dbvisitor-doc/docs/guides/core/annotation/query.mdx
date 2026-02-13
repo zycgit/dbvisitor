@@ -10,11 +10,11 @@ import TagGray from '@site/src/components/tags/TagGray';
 
 # @Query 注解
 
-用来标记在接口方法上，它接受一个字符串参数或字符串数组来表示执行一个可以返回结果集的查询语句。
+用来标记在接口方法上，执行一个可以返回结果集的查询语句。
 
 :::info
-如果传入的是一个字符串数组，它们会被连接起来，并且中间用一个空格隔开。<br/>
-通过字符串数组以合理阅读方式来管理SQL。
+如果传入的是一个字符串数组，它们会被连接起来，中间用一个空格隔开。<br/>
+通过字符串数组可以更清晰地管理多行 SQL。
 :::
 
 ```java title='示例：查询用户列表'
@@ -27,9 +27,9 @@ public interface UserMapper {
 
 ## 分页查询 {#page}
 
-当标有 @Query 注解的方法参数中通过增加 Page 分页参数对象就可支持分页查询（分页参数可以出现在方法参数的任意位置）。
+方法参数中增加 `Page` 分页参数即可支持分页查询（`Page` 可以出现在参数的任意位置）。
 
-```java title='使用 Page 参数实现分页查询'
+```java title='返回 List'
 @SimpleMapper
 public interface UserMapper {
     @Query("select * from users where id > #{id}")
@@ -37,7 +37,7 @@ public interface UserMapper {
 }
 ```
 
-```java title='在分页查询中使用 PageResult 接收分页结果'
+```java title='返回 PageResult（含总记录数和总页数）'
 @SimpleMapper
 public interface UserMapper {
     @Query("select * from users where id > #{id}")
@@ -45,19 +45,19 @@ public interface UserMapper {
 }
 ```
 
-- PageResult 分页结果中还会包含 **原始分页信息**、**总记录数**、**总页数**。
+- `PageResult` 除包含数据列表外，还提供 **原始分页信息**、**总记录数**、**总页数**。
 
 ## 属性清单
 
-| 属性名                | 描述                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-|--------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| value              | <TagRed/> 将要被执行的查询语句。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| statementType      | <TagGray/> 表示查询类型，表示 JDBC 查询使用何种方式。默认值为 `PREPARED`<br/> - `STATEMENT` 对应 `java.sql.Statement`<br/> - `PREPARED` 对应 `java.sql.PreparedStatement`<br/> - `CALLABLE` 对应 `java.sql.CallableStatement`                                                                                                                                                                                                                                                                                                                          |
-| timeout            | <TagGray/> 通过设置一个大于 `0` 时会被设置到 `java.sql.Statement.setQueryTimeout(int)` 可以让查询在执行时候设置一个超时时间，单位是秒，默认值为 `-1`                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| fetchSize          | <TagGray/> 通过设置一个大于 `0` 时会被设置到 `java.sql.Statement.setFetchSize(int)`，用于为 JDBC 驱动程序提供一个提示。它提示此查询生成的 ResultSet 对象需要更多行时应该从数据库获取的行数。默认值是 `256`                                                                                                                                                                                                                                                                                                                                                                               |
-| resultSetType      | <TagGray/> 当通过 `java.sql.Connection` 创建查询 statement 时候，该值决定了 `resultSetType` 参数的具体值。<br/> - 可选值列表： `FORWARD_ONLY`、`SCROLL_INSENSITIVE`、`SCROLL_SENSITIVE` 和 `DEFAULT`。默认值为 `DEFAULT` 相当于未设置。<br/> - statementType 为 `STATEMENT` 时对应 `java.sql.Connection.createStatement(int, int)` 方法第一个参数。<br/> - statementType 为 `PREPARED` 时对应 `java.sql.Connection.prepareStatement(java.lang.String, int, int)`方法第二个参数。<br/> - statementType 为 `CALLABLE` 时对应 `java.sql.Connection..prepareCall(java.lang.String, int, int)`方法第二个参数。 |
-| resultSetExtractor | <TagGray/> 可为该方法配置一个 [ResultSetExtractor](../../result/for_extractor) 对象用于结果集处理（如果配置了 bindOut 那么该配置将会失效）                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| resultRowCallback  | <TagGray/> 可为该方法配置一个 [RowCallbackHandler](../../result/row_callback) 对象用于结果集处理（如果配置了 bindOut 那么该配置将会失效）                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| resultRowMapper    | <TagGray/> 可为该方法配置一个 [RowMapper](../../result/row_callback) 对象用于结果集处理（如果配置了 bindOut 那么该配置将会失效）                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| resultTypeHandler  | <TagGray/> 可为该方法配置一个 [TypeHandler](../../types/about) 对象用于结果集处理（如果配置了 bindOut 那么该配置将会失效）                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| bindOut            | <TagGray/> 当 Query 中使用了 [多值](../jdbc/multi) 或者 [存储过程调用](../jdbc/procedure)，使用 bindOut 参数可以绑定其中的输出参数。<br/>请注意：一旦使用了该参数那么接口返回值类型必须为 **Map&lt;String,Object&gt;** 类型。                                                                                                                                                                                                                                                                                                                                                         |
+| 属性名 | 描述 |
+|---|---|
+| value | <TagRed/> 将要被执行的查询语句。 |
+| statementType | <TagGray/> JDBC 查询使用何种方式。默认值为 `Prepared`<br/> - `Statement` 对应 `java.sql.Statement`<br/> - `Prepared` 对应 `java.sql.PreparedStatement`<br/> - `Callable` 对应 `java.sql.CallableStatement` |
+| timeout | <TagGray/> 设置查询超时时间（秒），会调用 `Statement.setQueryTimeout(int)`。默认值 `-1` 表示不设置 |
+| fetchSize | <TagGray/> 设置每次从数据库获取的行数，会调用 `Statement.setFetchSize(int)`。默认值为 `256` |
+| resultSetType | <TagGray/> 结果集类型，用于创建 Statement 时设置 `resultSetType` 参数。<br/> - 可选值：`FORWARD_ONLY`、`SCROLL_INSENSITIVE`、`SCROLL_SENSITIVE` 和 `DEFAULT`（默认，相当于未设置） |
+| resultSetExtractor | <TagGray/> 配置一个 [ResultSetExtractor](../../result/for_extractor) 类用于结果集处理（配置了 `bindOut` 时失效） |
+| resultRowCallback | <TagGray/> 配置一个 [RowCallbackHandler](../../result/row_callback) 类用于结果集处理（配置了 `bindOut` 时失效） |
+| resultRowMapper | <TagGray/> 配置一个 [RowMapper](../../result/for_mapper) 类用于结果集处理（配置了 `bindOut` 时失效） |
+| resultTypeHandler | <TagGray/> 配置一个 [TypeHandler](../../types/about) 类用于结果集处理（配置了 `bindOut` 时失效） |
+| bindOut | <TagGray/> 当 Query 中使用了 [多值](../jdbc/multi) 或 [存储过程调用](../jdbc/procedure) 时，绑定其中的输出参数。<br/>使用该参数时返回值类型必须为 **Map&lt;String,Object&gt;** |

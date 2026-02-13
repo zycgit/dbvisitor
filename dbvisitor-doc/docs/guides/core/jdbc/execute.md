@@ -6,10 +6,12 @@ title: 脚本
 description: 利用 JdbcTemplate 的 execute 方法，可以执行任意 SQL 语句。
 ---
 
+# 脚本
+
 利用 JdbcTemplate 的 execute 方法，可以执行任意 SQL 语句。
 
 :::warning
-本文所涉略的方法均不支持任何形式的传参。
+本文所涉及的方法均不支持任何形式的传参。
 :::
 
 ## 用法

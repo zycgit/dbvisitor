@@ -6,17 +6,21 @@ title: 事务管理器
 description: dbVisitor 事务管理器的工作原理。
 ---
 
-事务管理器是在一个抽象的层面提供主要提供了如下几个重要的方法。
+`TransactionManager` 接口是 dbVisitor 事务管理的核心，它在抽象层面提供了如下方法：
 
-| 方法                                     | 作用         |
-|----------------------------------------|------------|
-| begin()                                | 开启事务       |
-| commit()、commit(TransactionStatus)     | 递交事务       |
-| rollBack()、rollBack(TransactionStatus) | 回滚事务       |
-| hasTransaction()                       | 是否存在处理中的事务 |
+| 方法 | 作用 |
+|---|---|
+| `begin()` | 开启事务（默认 `REQUIRED` + `DEFAULT`） |
+| `begin(Propagation)` | 指定传播行为开启事务 |
+| `begin(Propagation, Isolation)` | 指定传播行为和隔离级别开启事务 |
+| `commit()` / `commit(TransactionStatus)` | 递交事务 |
+| `rollBack()` / `rollBack(TransactionStatus)` | 回滚事务 |
+| `hasTransaction()` | 是否存在处理中的事务 |
+| `isTopTransaction(TransactionStatus)` | 指定事务是否位于栈顶 |
 
 :::info
-同一个事务管理器可以连续开启多个事务，不同事务之间的影响请参考 **[传播行为](../propagation)**、**[隔离级别](../isolation)**
+- 同一个事务管理器可以连续开启多个事务，不同事务之间的影响请参考 **[传播行为](../propagation)**、**[隔离级别](../isolation)**
+- `TransactionManager` 实现了 `Closeable` 接口，可用于 try-with-resources。
 :::
 
 ## 工作原理
@@ -69,6 +73,6 @@ manager.commit(tranA);
 ## 如何使用 {#useit}
 
 dbVisitor 提供了三种方式使用事务，分别为：
-- [编程式事务](./program)，通过调用 LocalTransactionManager 类方法来实现事务控制。
-- [模版事务](./template)，通过调用 TransactionTemplate 接口来实现事务控制。
-- [注解事务](./annotation)，基于 @Transaction 注解完成事务控制。
+- [编程式事务](./program)，通过调用 `LocalTransactionManager` 类方法来手动控制事务。
+- [模版事务](./template)，通过 `TransactionTemplate` 接口执行事务代码块，自动处理提交/回滚。
+- [注解事务](./annotation)，基于 `@Transactional` 注解声明式控制事务。

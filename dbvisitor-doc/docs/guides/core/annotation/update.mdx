@@ -10,11 +10,11 @@ import TagGray from '@site/src/components/tags/TagGray';
 
 # @Update 注解
 
-用来标记在接口方法上，它接受一个字符串参数或字符串数组表示执行一个 UPDATE 语句。
+用来标记在接口方法上，执行一个 UPDATE 语句。
 
 :::info
-如果传入的是一个字符串数组，它们会被连接起来，并且中间用一个空格隔开。<br/>
-通过字符串数组以合理阅读方式来管理SQL。
+如果传入的是一个字符串数组，它们会被连接起来，中间用一个空格隔开。<br/>
+通过字符串数组可以更清晰地管理多行 SQL。
 :::
 
 ```java title='示例：根据 id 字段更新 name 字段'
@@ -25,15 +25,15 @@ public interface UserMapper {
              "where id = #{userId}"}) //
     int updateUserName(               // 2. userId 和 newName 参数
             @Param("userId") int userId,
-            @Param("newName") int newName
+            @Param("newName") String newName
     );
 }
 ```
 
 ## 属性清单
 
-| 属性名              | 描述                                                                                                                                                                                                |
-|------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| value            | <TagRed/> 将要被执行的查询语句。                                                                                                                                                                             |
-| statementType    | <TagGray/> 表示查询类型，表示 JDBC 查询使用何种方式。默认值为 `PREPARED`<br/> - `STATEMENT` 对应 `java.sql.Statement`<br/> - `PREPARED` 对应 `java.sql.PreparedStatement`<br/> - `CALLABLE` 对应 `java.sql.CallableStatement` |
-| timeout          | <TagGray/> 通过设置一个大于 `0` 时会被设置到 `java.sql.Statement.setQueryTimeout(int)` 可以让查询在执行时候设置一个超时时间，单位是秒，默认值为 `-1`                                                                                        |
+| 属性名 | 描述 |
+|---|---|
+| value | <TagRed/> 将要被执行的 UPDATE 语句。 |
+| statementType | <TagGray/> JDBC 执行使用何种方式。默认值为 `Prepared`<br/> - `Statement` 对应 `java.sql.Statement`<br/> - `Prepared` 对应 `java.sql.PreparedStatement`<br/> - `Callable` 对应 `java.sql.CallableStatement` |
+| timeout | <TagGray/> 设置执行超时时间（秒），会调用 `Statement.setQueryTimeout(int)`。默认值 `-1` 表示不设置 |

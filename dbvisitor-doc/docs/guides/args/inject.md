@@ -27,3 +27,30 @@ Map<String, Object> args = CollectionUtils.asMap(
 );
 jdbcTemplate.queryForList("select * from users where id > #{id} order by ${order}", args);
 ```
+
+## 常见场景
+
+`${...}` 适用于 SQL 结构本身需要动态变化的场景，例如：
+
+```text title='动态表名'
+select * from ${tableName} where id = #{id}
+```
+
+```text title='动态列名'
+select ${columns} from users where id = #{id}
+```
+
+```text title='动态排序'
+select * from users order by ${orderBy}
+```
+
+## 与 `#{...}` 的区别
+
+| 写法 | 行为 | 安全性 |
+|------|------|--------|
+| `#{...}` | 生成 `?` 占位符，通过 PreparedStatement 绑定参数值 | **安全**，防止 SQL 注入 |
+| `${...}` | 通过 OGNL 求值后将结果直接拼入 SQL 字符串 | **不安全**，存在 SQL 注入风险 |
+
+:::tip[原则]
+优先使用 `#{...}`，只在 SQL 结构（表名、列名、排序等）需要动态变化时才使用 `${...}`。
+:::

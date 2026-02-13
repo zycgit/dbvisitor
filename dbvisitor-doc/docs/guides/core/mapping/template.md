@@ -6,6 +6,8 @@ title: 语句模版
 description: 在使用构造器 API进行数据库操作时，语句模版可以决定生成的 SQL 的语句元素内容。
 ---
 
+# 语句模版
+
 :::warning[请注意]
 - 由于语句模版会直接参与 SQL 语句生成，因此在使用语句模版时请评估注入风险，或更换其它方案。例如：使用 [JdbcTemplate](../jdbc/about)。
 :::
@@ -44,7 +46,7 @@ point.setPoint("point(1,2)");
 
 LambdaTemplate lambda = ...
 int result = lambda.insert(UserPoints.class)
-                   .applyEntity(point);
+                   .applyEntity(point)
                    .executeSumResult();
 
 // 语句为：INSERT INTO user_points (id, point) VALUES (?, GeomFromText(?))
@@ -62,7 +64,7 @@ int result = lambda.update(UserPoints.class)
 
 ```java title='例：DELETE 操作和对应语句'
 LambdaTemplate lambda = ...
-int result = lambda.delete(User.class)
+int result = lambda.delete(UserPoints.class)
                    .eq(UserPoints::getPoint, "point(1,2)") // 匹配条件
                    .doDelete();
 

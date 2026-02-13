@@ -8,10 +8,12 @@ description: Java 编写的类通常以驼峰命名法为命名规范，而数�
 import TagRed from '@site/src/components/tags/TagRed';
 import TagGray from '@site/src/components/tags/TagGray';
 
+# 驼峰命名法
+
 Java 编写的类通常以驼峰命名法为命名规范，而数据库中通常是用下划线来用作命名规范。
 在 dbVisitor 中只需要开启 mapUnderscoreToCamelCase 选项就可以自动对驼峰命名进行转换。
 
-```java title='列1：将驼峰的命名规范的名称转换为下划线命名规范'
+```java title='例1：将驼峰的命名规范的名称转换为下划线命名规范'
 @Table(mapUnderscoreToCamelCase = true)
 public class AdminUsers {       // 表名映射为 admin_users
     private Integer id;         // 映射为 id 列
@@ -23,7 +25,7 @@ public class AdminUsers {       // 表名映射为 admin_users
 }
 ```
 
-```xml title='列2：使用在自动映射模式下开启驼峰命名转换'
+```xml title='例2：使用在自动映射模式下开启驼峰命名转换'
 <!-- 以 entity 标签为例，resultMap 标签同理 -->
 <entity type="com.example.dto.AdminUsers" mapUnderscoreToCamelCase="true"/>
 ```

@@ -1,17 +1,17 @@
 ---
 id: about
 sidebar_position: 1
-title: 7.1 基础类型处理器
-description: dbVisitor 工具类型处理器介绍。
+title: 基础类型处理器
+description: dbVisitor 基础类型处理器概览与命名规则。
 ---
 
 ## 基础类型处理器
 
-dbVisitor 有着丰富的类型处理器，为了方便理解这些类型处理器它们有着统一的命名规则。这些规则分为三种：
+dbVisitor 有着丰富的类型处理器，为了方便理解它们有着统一的命名规则，分为三种：
 
-1. `<Java类型名>TypeHandler` 或 `<JDBC类型名>TypeHandler`
-2. `<JDBC类型名>As<Java类型名>TypeHandler` 或 `<一种类型>As<另一种类型>TypeHandler`
-3. `<xxx>TypeHandler`
+1. `<Java类型名>TypeHandler` 或 `<JDBC类型名>TypeHandler` — 直接对应 Java/JDBC 类型
+2. `<JDBC类型名>As<Java类型名>TypeHandler` 或 `<一种类型>As<另一种类型>TypeHandler` — 跨类型转换
+3. `<xxx>TypeHandler` — 特殊类型处理（前缀 `Pg` 表示 PostgreSQL 专用，前缀 `Oracle` 表示 Oracle 专用）
 
 ### 组合类型（第一优先级） {#mix_type}
 

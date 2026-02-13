@@ -10,6 +10,10 @@ description: dbVisitor 处理布尔类型的类型处理器。
 
 布尔类型处理器位于 `net.hasor.dbvisitor.types.handler.bool` 包中。
 
-| 类型处理器              | Java 类型                    | 作用          |
-|--------------------|----------------------------|-------------|
-| BooleanTypeHandler | java.lang.Boolean, boolean | 处理布尔类型数据的读写 |
+| 类型处理器 | Java 类型 | 作用 |
+|---|---|---|
+| `BooleanTypeHandler` | `java.lang.Boolean`, `boolean` | 处理布尔类型数据的读写 |
+
+:::tip
+如果数据库中以整数（0/1）存储布尔值，可以使用 `IntegerAsBooleanTypeHandler`（位于 number 包），任何非零整数都会被解析为 `true`。
+:::

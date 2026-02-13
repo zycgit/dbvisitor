@@ -6,6 +6,8 @@ title: 批量化
 description: 了解使用 JdbcTemplate 的批量操作。
 ---
 
+# 批量化
+
 **JdbcTemplate** 的 **executeBatch** 方法，将一批命令提交到数据库执行，如果所有命令都成功执行，则返回更新计数的数组。
 数组元素按照命令的顺序进行排序，命令的顺序根据它们执行时 SQL 顺序或者参数顺序排序。
 
@@ -36,7 +38,7 @@ Map<String, Object> args1 = CollectionUtils.asMap(
                                 "id", 1,
                                 "name", "David"
                             );
-Map<String, Object> args1 = CollectionUtils.asMap(
+Map<String, Object> args2 = CollectionUtils.asMap(
                                 "id", 2,
                                 "name", "Kevin"
                             );
@@ -54,7 +56,7 @@ Object[][] arg = new Object[][] {
 BatchPreparedStatementSetter setter = new BatchPreparedStatementSetter() {
     public void setValues(PreparedStatement ps, int i) throws SQLException {
         ps.setInt(1, (int)arg[i][0]);
-        ps.setString(1, (String)arg[i][1]);
+        ps.setString(2, (String)arg[i][1]);
     }
 
     public int getBatchSize() {

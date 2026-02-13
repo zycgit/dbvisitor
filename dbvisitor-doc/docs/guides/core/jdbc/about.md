@@ -3,69 +3,47 @@ id: about
 sidebar_position: 1
 hide_table_of_contents: true
 title: JdbcTemplate 类
-description: 了解使用 JdbcTemplate 访问数据库的准备工作和必要的概念。
+description: 基于 SQL 字符串的数据库操作封装，自动处理连接管理和异常处理。
 ---
 
-## 准备工作
+# JdbcTemplate
 
-JdbcTemplate 是 dbVisitor 专门提供给基于 SQL 字符串为使用场景而设计的。API 封装了众多实用方法可以覆盖绝大多数数据库操作的需求。
+`JdbcTemplate` 是 dbVisitor 专门为 **SQL 字符串** 场景设计的数据库操作封装。它是无状态的，可随时创建和销毁。
 
-- 在使用之前需要准备好数据源链接，可以是 `javax.sql.DataSource` 也可以是一个具体的 `java.sql.Connection`
-- JdbcTemplate 是 **无状态** 的，可以随时创建和销毁。
+```java title='创建和使用'
+JdbcTemplate jdbc = new JdbcTemplate(dataSource);
 
-下面以 `javax.sql.DataSource` 为例，使用 [HikariCP](https://github.com/brettwooldridge/HikariCP)  作为数据源。
+// 查询
+List<Map<String, Object>> rows = jdbc.queryForList("select * from users where age > ?", 18);
 
-```java title='1. 创建数据源'
-HikariConfig config = new HikariConfig();
-config.setAutoCommit(false);
-config.setJdbcUrl("jdbc:mysql://127.0.0.1:3306/test");
-config.setUsername("root");
-config.setPassword("123456");
-config.setDriverClassName("com.mysql.jdbc.Driver");
-config.setMaximumPoolSize(20);
-config.setMinimumIdle(1);
-config.setConnectionTimeout(30000);
-
-DataSource dbPool =  new HikariDataSource(config);
+// 更新
+int affected = jdbc.executeUpdate("update users set name = ? where id = ?", "alice", 1);
 ```
 
-下一步定义 JdbcTemplate，将创建好的 dbPool 数据源作为依赖参数传入 JdbcTemplate 构造方法。
-
-```java title='2. 创建 JdbcTemplate'
-JdbcTemplate jdbc = new JdbcTemplate(dbPool);
-```
-
-在实际使用过程中 JdbcTemplate 根据您的项目架构获取方式可能不同，上述代码演示了一种原始的创建 JdbcTemplate 的方式。
-你可以根据您的项目架构选择合适的方式获取 JdbcTemplate，详细信息请参考：**[框架整合](../../yourproject/buildtools#integration)**
-
-相关的类
-- net.hasor.dbvisitor.jdbc.core.JdbcTemplate
-- net.hasor.dbvisitor.jdbc.JdbcOperations
+:::tip[提示]
+JdbcTemplate 的获取方式取决于项目架构，详见 **[框架整合](../../yourproject/buildtools#integration)**。
+:::
 
 ## 原理
 
-JdbcTemplate 的核心实现原理是基于 Template 模式，下面是一个名为 execute 的核心模版方法：
+JdbcTemplate 基于 Template 模式，在模板方法内部自动处理获取连接、释放连接、捕获异常。上层代码只需专注于使用 Connection。
 
-```java title='核心模版方法'
-// T 为模板方法的返回值类型
+```java title='核心模板方法'
 T result = jdbc.execute((ConnectionCallback<T>) con -> {
-   ...
+   // 直接使用 Connection
 });
 ```
 
-在所有模版方法中以 `execute(ConnectionCallback)` 最为基础，在这个基础模版方法中 JdbcTemplate 会处理获取连接、释放连接、捕获异常。
-上层代码只需要专注于使用 Connection。
-
 ## 使用指引 {#guide}
 
-- [查询](./query)，执行有返回结果的 SQL 语句。例如：一个SELECT 语句或任何带有返回结果的语句。
-- [更新](./update)，执行无返回值的 SQL 语句。例如：INSERT、UPDATE、DELETE 或 DDL操作。
-- [批量化](./batch)，用于执行可以作为批处理的一组操作。
-- [存储过程](./procedure)，用于执行存储过程、存储函数。
-- [规则](../../rules/about)，通过利用规则机制赋予 SQL 更加强大的特性。
-- [多值](./multi)，可以用来执行含有多条语句的 SQL 字符串并且获取所有结果。
-- [脚本](./execute)，可以用来执行含有多条语句的 SQL 字符串或者加载外部资源文件中的查询。
-- [使用模版](./template)，通过模版方法来操作数据库。
-- [高级特性](./feature)，介绍 JdbcTemplate 类的一些特有属性功能和效果。
-- [参数传递](../../args/about)，了解使用不同的方式传进行递参数。
-- [接收结果](../../result/about)，了解接收数据的不同方式。
+- [查询](./query)，执行 SELECT 或其它带返回结果的语句。
+- [更新](./update)，执行 INSERT、UPDATE、DELETE 或 DDL。
+- [批量化](./batch)，执行批量操作。
+- [存储过程](./procedure)，调用存储过程/存储函数。
+- [规则](../../rules/about)，通过规则赋予 SQL 动态能力。
+- [多值](./multi)，执行多条语句的 SQL 并获取所有结果。
+- [脚本](./execute)，执行 SQL 脚本文件或多条语句。
+- [使用模板](./template)，通过模板方法直接操作 Connection。
+- [高级特性](./feature)，JdbcTemplate 特有属性与功能。
+- [参数传递](../../args/about)，了解不同的参数传递方式。
+- [接收结果](../../result/about)，了解不同的结果接收方式。

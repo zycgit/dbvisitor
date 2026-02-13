@@ -105,26 +105,27 @@ This page skips the API overview and organizes links by usage scenarios for quic
 
 ### Redis support
 - See the 140+ Redis commands supported by dbVisitor: [Commands](./drivers/redis/commands).
-- Learn how dbVisitor handles Redis data types ([String](./core/redis/redis_type#string), [Hash](./core/redis/redis_type#hash), [List](./core/redis/redis_type#list), [Set](./core/redis/redis_type#set), [Sorted Set](./core/redis/redis_type#sorted_set)).
-- Use JdbcTemplate to [Execute commands](./core/redis/exec_command).
-- Use @Insert, @Update, @Delete on Mapper interfaces for [Annotation-driven](./core/redis/exec_annotation) Redis operations.
-- In Mapper files, configure commands via tags: [Mapper File](./core/redis/exec_file).
+- Learn how dbVisitor handles Redis data types ([String](./api/differences/redis#string), [Hash](./api/differences/redis#hash),
+  [List](./api/differences/redis#list), [Set](./api/differences/redis#set), [Sorted Set](./api/differences/redis#sorted_set)).
+- Use JdbcTemplate to [Execute commands](./api/differences/redis#exec-command).
+- Use @Insert, @Update, @Delete on Mapper interfaces for [Annotation-driven](./api/differences/redis#exec-annotation) Redis operations.
+- Configure commands via tags in [Mapper File](./api/differences/redis#exec-file).
 
 ### MongoDB support
 - See MongoDB commands supported by dbVisitor: [Commands](./drivers/mongo/commands).
-- Use JdbcTemplate to [Execute commands](./core/mongo/exec_command).
-- Use [Fluent API](./core/mongo/exec_lambda).
-- Use [Common Mapper](./core/mongo/exec_mapper).
-- On Mapper interfaces, use @Insert, @Update, @Delete for [Annotation-driven](./core/mongo/exec_annotation) operations.
-- In Mapper files, configure commands via tags: [Mapper File](./core/mongo/exec_file).
+- Use JdbcTemplate to [Execute commands](./api/differences/mongo#exec-command).
+- Use [Fluent API](./api/differences/mongo#exec-lambda).
+- Use [Common Mapper](./api/differences/mongo#exec-mapper).
+- On Mapper interfaces, use @Insert, @Update, @Delete for [Annotation-driven](./api/differences/mongo#exec-annotation) operations.
+- Configure commands via tags in [Mapper File](./api/differences/mongo#exec-file).
 
 ### ElasticSearch support
 - See ElasticSearch commands supported by dbVisitor: [Commands](./drivers/elastic/commands).
-- Use JdbcTemplate to [Execute commands](./core/elastic/exec_command).
-- Use [Fluent API](./core/elastic/exec_lambda).
-- Use [Common Mapper](./core/elastic/exec_mapper).
-- On Mapper interfaces, use @Insert, @Update, @Delete for [Annotation-driven](./core/elastic/exec_annotation) operations.
-- In Mapper files, configure commands via tags: [Mapper File](./core/elastic/exec_file).
+- Use JdbcTemplate to [Execute commands](./api/differences/elastic#exec-command).
+- Use [Fluent API](./api/differences/elastic#exec-lambda).
+- Use [Common Mapper](./api/differences/elastic#exec-mapper).
+- On Mapper interfaces, use @Insert, @Update, @Delete for [Annotation-driven](./api/differences/elastic#exec-annotation) operations.
+- Configure commands via tags in [Mapper File](./api/differences/elastic#exec-file).
 
 ### Database transactions
 - Spring projects: use [Spring Annotations](./yourproject/with_spring#tran).

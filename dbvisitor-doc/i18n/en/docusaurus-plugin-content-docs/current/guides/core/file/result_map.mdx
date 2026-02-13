@@ -2,7 +2,7 @@
 id: result_map
 sidebar_position: 5
 hide_table_of_contents: true
-title: ResultMapping
+title: Mapping Result Sets
 description: Map results and tables via entity and resultMap tags in mapper XML.
 ---
 :::tip[Hint]
@@ -13,7 +13,7 @@ import TagRed from '@site/src/components/tags/TagRed';
 import TagGray from '@site/src/components/tags/TagGray';
 
 
-# ResultMapping
+# Mapping Result Sets
 
 Use either `<resultMap>` or `<entity>` to map query results:
 - [&lt;resultMap&gt;](./result_map): map SQL result sets.
@@ -21,13 +21,13 @@ Use either `<resultMap>` or `<entity>` to map query results:
 
 :::tip[How to choose between resultMap and entity?]
 - For the same table with different query shapes, `entity` is good when columns all come from one table; `resultMap` when columns span multiple tables.
-- Using the [Fluent API](../../api/lambda_api) requires `entity` or [object-mapping](../mapping/about) annotations.
+- Using the [Fluent API](../lambda/about) requires `entity` or [Object Mapping](../mapping/about) annotations.
 - If the SELECT uses aliases, functions, CASE, or columns from multiple tables, `resultMap` is safer.
 :::
 
-##resultMap tag
+## resultMap tag
 
-```xml title='using resultMap'
+```xml title='Define and use resultMap'
 <resultMap id="user_resultMap" type="com.example.dto.UserBean">
     <result column="id" property="id"/>
     <result column="name" property="name"/>

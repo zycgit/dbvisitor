@@ -14,11 +14,11 @@ import TagGray from '@site/src/components/tags/TagGray';
 
 # @Update Annotation
 
-Marks an interface method and accepts a string or string array that represents an UPDATE statement.
+Marks an interface method to execute an UPDATE statement.
 
 :::info
 If you pass a string array, the elements are concatenated with a single space between them.<br/>
-This makes it easy to manage SQL in a readable way.
+String arrays make it easy to manage multi-line SQL.
 :::
 
 ```java title='Example: update a user name by id'
@@ -29,7 +29,7 @@ public interface UserMapper {
              "where id = #{userId}"}) //
     int updateUserName(                // 2. userId & newName arguments
             @Param("userId") int userId,
-            @Param("newName") int newName
+            @Param("newName") String newName
     );
 }
 ```

@@ -6,6 +6,8 @@ title: 查询操作
 description: 在 dbVisitor 中使用 LambdaTemplate 查询数据可以有多种方式获取返回结果。
 ---
 
+# 查询操作
+
 在 dbVisitor 中使用 LambdaTemplate 查询数据可以有多种方式获取返回结果，具体如下：
 - [查询列表](./query#list)，执行查询并结果将被映射到一个对象列表。
 - [查询对象](./query#object)，执行查询并结果将被映射到一个对象。
@@ -103,7 +105,7 @@ result = lambda.query(User.class)
 LambdaTemplate lambda = ...
 RowMapper<UserVO> rowMapper = new BeanMappingRowMapper(UserVO.class);
 
-List<UserVO> result = null;
+UserVO result = null;
 result = lambda.query(User.class)
                .le(User::getId, 100)    // 匹配 ID 小于等于 100
                .queryForObject(rowMapper);// 使用 RowMapper 处理结果集
@@ -184,7 +186,7 @@ result = lambda.query(User.class)
 ## 分页查询 {#page}
 
 :::info[提示]
-分页查询需要依赖数据库方言的支持，在 **[数据库支持性](../../api/differences#dialect)** 中已列出 dbVisitor 所支持的数据库。
+分页查询需要依赖数据库方言的支持，在 **[数据库支持性](../../api/differences/about#dialect)** 中已列出 dbVisitor 所支持的数据库。
 :::
 
 dbVisitor 内置了分页查询机制，使用方便且无需任何配置。具体工作方式为：
@@ -194,7 +196,6 @@ LambdaTemplate lambda = ...
 
 List<User> result = null;
 result = lambda.query(User.class)
-               .usePage(pageInfo)
                .le(User::getId, 100) // 匹配 ID 小于等于 100
                .initPage(10, 1)      // 每页 10 条，查询第 2 页(起始页码为 0)
                .queryForList();      // 分页查询
@@ -217,5 +218,5 @@ result = lambda.query(User.class)
                .queryForList();      // 分页查询
 ```
 
-- 分页对象提供了诸多方法可用，详细请参考 [分页对象](../global/page) 了解更多内容。
+- 分页对象提供了诸多方法可用，详细请参考 [分页对象](../../api/page_object) 了解更多内容。
 - 本页前面 [查询列表](./query#list) 和 [处理查询结果](./query#process) 内容中所提到的结果集获取方式，可以和分页相互配合使用。

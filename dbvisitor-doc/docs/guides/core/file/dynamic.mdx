@@ -15,7 +15,7 @@ import TagGray from '@site/src/components/tags/TagGray';
 - [&lt;choose&gt;、&lt;when&gt;、&lt;otherwise&gt; 标签](./dynamic#choose)，多分支条件选择。
 - [&lt;trim&gt;、&lt;where&gt;、&lt;set&gt; 标签](./dynamic#trim)，三个标签可以帮助我们在生成特定 SQL 语句时不会造成纰漏。
 - [&lt;foreach&gt; 标签](./dynamic#foreach)，foreach。
-- [&lt;bind&gt; 标签](./dynamic#bind)，使用分页查询机制进行分页查询。
+- [&lt;bind&gt; 标签](./dynamic#bind)，通过 ognl 表达式创建变量并绑定到上下文。
 
 ## if 标签 {#if}
 
@@ -111,7 +111,7 @@ where
 
 ```sql title='根据 age 值不同，生成的语句将会是下列两种：'
 select * from users;
-select * from users where and age = ?
+select * from users where age = ?
 ```
 
 ### where 标签（例：2）
@@ -223,5 +223,5 @@ select * from users where and age = ?
 
 | 属性名   | 描述                                                    |
 |-------|-------------------------------------------------------|
-| name  | <TagRed/> 要遍历的数据，可以是数组、集合。                            |
-| value | <TagRed/> 在遍历数据过程中，用于标识当前元素的变量名。在标签中可以通过使用这个变量名访问到元素。 |
+| name  | <TagRed/> 绑定到上下文的变量名称。                                |
+| value | <TagRed/> 一个 ognl 表达式，其执行结果将作为变量值绑定到上下文中。             |

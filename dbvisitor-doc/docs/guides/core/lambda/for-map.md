@@ -5,6 +5,8 @@ title: 使用 Map 结构
 description: Map 模式的特点是可以将类型化的 EntityDelete、EntityInsert、EntityUpdate、EntityQuery 转换为对应 Map 操作接口进行操作。
 ---
 
+# 使用 Map 结构
+
 Map 模式的特点是可以将类型化的 EntityDelete、EntityInsert、EntityUpdate、EntityQuery 转换为对应 Map 操作接口进行操作。
 
 :::info[提示]

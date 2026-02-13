@@ -10,45 +10,47 @@ import TagGray from '@site/src/components/tags/TagGray';
 
 # @Insert 注解
 
-用来标记在接口方法上，它接受一个字符串参数或字符串数组表示执行一个 INSERT 语句。
+用来标记在接口方法上，执行一个 INSERT 语句。
+
+:::info
+如果传入的是一个字符串数组，它们会被连接起来，中间用一个空格隔开。<br/>
+通过字符串数组可以更清晰地管理多行 SQL。
+:::
 
 ```java title='示例：新增一条用户记录'
 @SimpleMapper
 public interface UserMapper {
-    @Insert({ "insert into users (",                       // 1. 定义 SQL 语句
-              "    id, name, age, create_time",            //
-              ") values (",                                //
-              "    #{id}, #{name}, #{age}, #{createTime})",//
+    @Insert({ "insert into users (",                      // 1. 定义 SQL 语句
+              "    id, name, age, create_time",           //
+              ") values (",                               //
+              "    #{id}, #{name}, #{age}, #{createTime}", //
               ")" })
-    int saveUser(UserDTO user);                            // 2. user 对象为参数
+    int saveUser(UserDTO user);                           // 2. user 对象为参数
 }
 ```
 
 ## 属性清单
 
-| 属性名              | 描述                                                                                                                                                                                                |
-|------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| value            | <TagRed/> 将要被执行的查询语句。                                                                                                                                                                             |
-| statementType    | <TagGray/> 表示查询类型，表示 JDBC 查询使用何种方式。默认值为 `PREPARED`<br/> - `STATEMENT` 对应 `java.sql.Statement`<br/> - `PREPARED` 对应 `java.sql.PreparedStatement`<br/> - `CALLABLE` 对应 `java.sql.CallableStatement` |
-| timeout          | <TagGray/> 通过设置一个大于 `0` 时会被设置到 `java.sql.Statement.setQueryTimeout(int)` 可以让查询在执行时候设置一个超时时间，单位是秒，默认值为 `-1`                                                                                        |
-| useGeneratedKeys | <TagGray/> 是否使用自增属性。<br/> - 如果同时配置了 `SelectKeySql` 注释，如果同时配置了 SelectKey 注解该配置将会失效。                                                                                                                |
-| keyProperty      | <TagGray/> 当 useGeneratedKeys 设置为 true 后，用于回填自增后属性值的 Bean 属性名。如果同时配置了 SelectKey 注解该属性将会失效。                                                                                                        |
-| keyColumn        | <TagGray/> 当 useGeneratedKeys 设置为 true 后，回填自增属性值时候选择的查询结果列名。如果同时配置了 SelectKey 注解该属性将会失效。                                                                                                          |
+| 属性名 | 描述 |
+|---|---|
+| value | <TagRed/> 将要被执行的 INSERT 语句。 |
+| statementType | <TagGray/> JDBC 执行使用何种方式。默认值为 `Prepared`<br/> - `Statement` 对应 `java.sql.Statement`<br/> - `Prepared` 对应 `java.sql.PreparedStatement`<br/> - `Callable` 对应 `java.sql.CallableStatement` |
+| timeout | <TagGray/> 设置执行超时时间（秒），会调用 `Statement.setQueryTimeout(int)`。默认值 `-1` 表示不设置 |
+| useGeneratedKeys | <TagGray/> 是否使用自增属性。如果同时配置了 `@SelectKeySql` 注解，该配置将会失效。 |
+| keyProperty | <TagGray/> 当 `useGeneratedKeys = true` 时，用于回填自增值的 Bean 属性名。如果同时配置了 `@SelectKeySql` 注解，该属性将会失效。 |
+| keyColumn | <TagGray/> 当 `useGeneratedKeys = true` 时，从返回结果集中选择的列名用于回填。默认选择结果集的第一列。如果同时配置了 `@SelectKeySql` 注解，该属性将会失效。 |
 
 :::info[小提示]
-keyColumn 属性为空时，将会选择返回结果集的第一个列值作为回填结果。
+`keyColumn` 属性为空时，将会选择返回结果集的第一个列值作为回填结果。
 :::
 
-# @SelectKeySql 注解
+# @SelectKeySql 注解 {#selectkey}
 
-## 注解说明 {#selectkey}
+有时新增数据后需要获取自增主键，用于后续业务逻辑。`@SelectKeySql` 注解可以在 INSERT 前后执行一条额外的 SQL 来获取主键值，并**回填到参数对象**中。
 
-有时候新增一条数据不仅仅要知道是否插入成功，因为后面的逻辑可能还需要这条新增数据的主键。这时候可以使用 SelectKeySql 注释，获取自增主键，从而避免再次查询数据库。
-另外，有些业务需要自定义数据表的主键，这个时候也可以使用 SelectKeySql 注释来实现，它可以随意的设置生成主键的方式。
+该注解需要与 `@Insert` 配合使用。
 
-该注解用来标记在接口方法上，需要与 Insert 注解配合使用。
-
-```java title='示例：新增一条用户记录'
+```java title='示例：INSERT 后获取 MySQL 自增 ID'
 //create table users (
 //  id          bigint auto_increment primary key,
 //  name        varchar(255),
@@ -58,33 +60,33 @@ keyColumn 属性为空时，将会选择返回结果集的第一个列值作为�
 
 @SimpleMapper
 public interface UserMapper {
-    @Insert({ "insert into users (",                // 1. 定义 SQL 语句
+    @Insert({ "insert into users (",               // 1. 定义 SQL 语句
               "    name, age, create_time",         //
               ") values (",                         //
-              "    #{name}, #{age}, #{createTime})",//
+              "    #{name}, #{age}, #{createTime}", //
               ")" })
-    // 在 Insert 语句执行后使用 MySQL last_insert_id() 函数获取自增 ID，并回填参数对象的 id 属性中
+    // 在 INSERT 执行后，使用 MySQL last_insert_id() 获取自增 ID，并回填到参数对象的 id 属性
     @SelectKeySql(value = "select last_insert_id()", keyProperty = "id", order = Order.After)
     int saveUser(UserDTO user);
 }
 
 UserMapper mapper = ...;
-UserDTO user = ...
+UserDTO user = ...;
 
 mapper.saveUser(user);
 
-long afterId = user.getId();
+long afterId = user.getId(); // 自增 ID 已被回填
 ```
 
 ## 属性清单
 
-| 属性名           | 描述                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-|---------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| value         | <TagRed/> 将要被执行的获取自增主键 SQL 查询语句。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| keyProperty   | <TagRed/> 用于回填自增后属性值的 Bean 属性名。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| keyColumn     | <TagGray/> 用于回填自增属性值时候选择的查询结果列名。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| order         | <TagRed/> 可以选择 Before 或者 After，表示用于获取自增主键的 SQL 执行时机是在 INERT 操作之前还是之后。                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| statementType | <TagGray/> 表示查询类型，表示 JDBC 查询使用何种方式。默认值为 `PREPARED`<br/> - `STATEMENT` 对应 `java.sql.Statement`<br/> - `PREPARED` 对应 `java.sql.PreparedStatement`<br/> - `CALLABLE` 对应 `java.sql.CallableStatement`                                                                                                                                                                                                                                                                                                                          |
-| timeout       | <TagGray/> 通过设置一个大于 `0` 时会被设置到 `java.sql.Statement.setQueryTimeout(int)` 可以让查询在执行时候设置一个超时时间，单位是秒，默认值为 `-1`                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| fetchSize     | <TagGray/> 通过设置一个大于 `0` 时会被设置到 `java.sql.Statement.setFetchSize(int)`，用于为 JDBC 驱动程序提供一个提示。它提示此查询生成的 ResultSet 对象需要更多行时应该从数据库获取的行数。默认值是 `256`                                                                                                                                                                                                                                                                                                                                                                               |
-| resultSetType | <TagGray/> 当通过 `java.sql.Connection` 创建查询 statement 时候，该值决定了 `resultSetType` 参数的具体值。<br/> - 可选值列表： `FORWARD_ONLY`、`SCROLL_INSENSITIVE`、`SCROLL_SENSITIVE` 和 `DEFAULT`。默认值为 `DEFAULT` 相当于未设置。<br/> - statementType 为 `STATEMENT` 时对应 `java.sql.Connection.createStatement(int, int)` 方法第一个参数。<br/> - statementType 为 `PREPARED` 时对应 `java.sql.Connection.prepareStatement(java.lang.String, int, int)`方法第二个参数。<br/> - statementType 为 `CALLABLE` 时对应 `java.sql.Connection..prepareCall(java.lang.String, int, int)`方法第二个参数。 |
+| 属性名 | 描述 |
+|---|---|
+| value | <TagRed/> 用于获取自增主键的 SQL 查询语句。 |
+| keyProperty | <TagRed/> 回填主键值的 Bean 属性名。 |
+| order | <TagRed/> 执行时机：`Before`（INSERT 之前）或 `After`（INSERT 之后）。 |
+| keyColumn | <TagGray/> 从查询结果中选择的列名用于回填。默认选择第一列。 |
+| statementType | <TagGray/> JDBC 执行方式。默认值为 `Prepared` |
+| timeout | <TagGray/> 执行超时时间（秒）。默认值 `-1` 表示不设置 |
+| fetchSize | <TagGray/> 每次从数据库获取的行数。默认值为 `256` |
+| resultSetType | <TagGray/> 结果集类型：`FORWARD_ONLY`、`SCROLL_INSENSITIVE`、`SCROLL_SENSITIVE`、`DEFAULT`（默认） |

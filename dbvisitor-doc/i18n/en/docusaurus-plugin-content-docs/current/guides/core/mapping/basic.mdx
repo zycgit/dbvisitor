@@ -16,10 +16,10 @@ import TagGray from '@site/src/components/tags/TagGray';
 
 ```java title='Example 1: class name as table name (default)'
 @Table
-public class Users {      // 映射为 Users 表
-    private Integer id;   // 映射为 id 列
-    private String  name; // 映射为 name 列
-    private Integer age;  // 映射为 age 列
+public class Users {      // Maps to Users table
+    private Integer id;   // Maps to id column
+    private String  name; // Maps to name column
+    private Integer age;  // Maps to age column
 
     // getters and setters omitted
 }
@@ -27,12 +27,12 @@ public class Users {      // 映射为 Users 表
 
 ```java title='Example 2: specify table name'
 @Table("admin_users")
-public class AdminUsers {       // 表名映射为 admin_users 表
-    private Integer id;         // 映射为 id 列
-    private String  name;       // 映射为 name 列
-    private Integer age;        // 映射为 age 列
+public class AdminUsers {       // Maps to admin_users table
+    private Integer id;         // Maps to id column
+    private String  name;       // Maps to name column
+    private Integer age;        // Maps to age column
     @Column("create_time")
-    private Date    createTime; // 映射为 create_time 列
+    private Date    createTime; // Maps to create_time column
 
     // getters and setters omitted
 }
@@ -42,10 +42,10 @@ public class AdminUsers {       // 表名映射为 admin_users 表
 @Table(catalog = "co", 
        schema  = "example", 
        table   = "admin_users")
-public class AdminUsers {       // 表名映射为 co.example.admin_users
-    private Integer id;         // 映射为 id 列
-    private String  name;       // 映射为 name 列
-    private Integer age;        // 映射为 age 列
+public class AdminUsers {       // Maps to co.example.admin_users
+    private Integer id;         // Maps to id column
+    private String  name;       // Maps to name column
+    private Integer age;        // Maps to age column
 
     // getters and setters omitted
 }
@@ -53,13 +53,13 @@ public class AdminUsers {       // 表名映射为 co.example.admin_users
 
 ```java title='Example 4: annotation-only mapping'
 @Table(table = "admin_users", autoMapping = false)
-public class AdminUsers {       // 表名映射为 admin_users
-    private Integer id;         // 不映射
-    private String  name;       // 不映射
+public class AdminUsers {       // Maps to admin_users table
+    private Integer id;         // Not mapped
+    private String  name;       // Not mapped
     @Column
-    private Integer age;        // 映射为 age 列
+    private Integer age;        // Maps to age column
     @Column("create_time")
-    private Date    createTime; // 映射为 create_time 列
+    private Date    createTime; // Maps to create_time column
 
     // getters and setters omitted
 }
@@ -67,12 +67,12 @@ public class AdminUsers {       // 表名映射为 admin_users
 
 ```java title='Example 5: ignore a property'
 @Table(table = "admin_users")
-public class AdminUsers {       // 表名映射为 admin_users
-    private Integer id;         // 映射为 id 列
-    private String  name;       // 映射为 name 列
-    private Integer age;        // 映射为 age 列
+public class AdminUsers {       // Maps to admin_users table
+    private Integer id;         // Maps to id column
+    private String  name;       // Maps to name column
+    private Integer age;        // Maps to age column
     @Ignore
-    private Date    modifyTime; // 忽略到列的映射
+    private Date    modifyTime; // Ignored from column mapping
 }
 ```
 
@@ -82,15 +82,52 @@ public class AdminUsers {       // 表名映射为 admin_users
 |--------------------------|------------------------------------------------------------------------------------------------------------------|
 | catalog                  | <TagGray/> Catalog name. Default empty.                                                                           |
 | schema                   | <TagGray/> Schema name. Default empty.                                                                            |
-| table                    | <TagGray/> Table name; defaults to class name when empty.<br/>Tip: `value` is equivalent; when all defaults are used you can omit the attribute name as in example 3. |
-| value                    | <TagGray/> Same as `table`; defaults to class name when empty.<br/>Tip: `value` is equivalent; when all defaults are used you can omit the attribute name as in example 3. |
+| table                    | <TagGray/> Table name; defaults to class name when empty.<br/>Tip: `value` is equivalent; when all defaults are used you can omit the attribute name as in Example 2. |
+| value                    | <TagGray/> Same as `table`; defaults to class name when empty.<br/>Tip: `value` is equivalent; when all defaults are used you can omit the attribute name as in Example 2. |
 | autoMapping              | <TagGray/> Auto mapping on by default. When false, every mapped column must be annotated with @Column.            |
 | useDelimited             | <TagGray/> Wrap table/column names in delimiters to handle reserved words. Default false.                         |
 | caseInsensitive          | <TagGray/> Case-insensitive table/column names when true (default). Applies when reading result sets.             |
 | mapUnderscoreToCamelCase | <TagGray/> Convert camel-case names to underscore in table/column names. Off by default.                          |
 | ddlAuto                  | <TagGray/> Auto DDL mode: `none, create, add, update, create-drop` (auto DDL not yet supported).                  |
 
-### @Column 注解属性
+#### @Table inheritance behavior
+
+In an entity inheritance hierarchy, annotations like `@Column` and `@Ignore` on parent class fields are correctly inherited by subclasses, but **`@Table` is a class-level annotation and is NOT inherited from the parent class**.
+Therefore, attributes like `autoMapping` are determined solely by the `@Table` declaration on the actual registered entity (leaf class) itself.
+
+```java title='Parent autoMapping=false does not affect child'
+@Table(value = "user_info", autoMapping = false)
+public class ParentEntity {
+    @Column(primary = true)
+    private Integer id;        // Has @Column → child will also map
+    private Integer age;       // No @Column → mapping depends on child's autoMapping
+}
+
+@Table(value = "user_info", autoMapping = true)
+public class ChildEntity extends ParentEntity {
+    private String email;      // No @Column → auto-mapped (child autoMapping=true takes effect)
+}
+// ChildEntity registered: id, age, email — all three fields are mapped
+// ParentEntity's autoMapping=false has no effect on ChildEntity
+```
+
+```java title='Conversely: parent autoMapping=true also does not affect child'
+@Table(value = "user_info", autoMapping = true)
+public class ParentEntity {
+    @Column(primary = true)
+    private Integer id;        // Has @Column → always mapped
+    private Integer age;       // No @Column → mapping depends on child's autoMapping
+}
+
+@Table(value = "user_info", autoMapping = false)
+public class ChildEntity extends ParentEntity {
+    private String email;      // No @Column → not mapped (child autoMapping=false takes effect)
+}
+// ChildEntity registered: only id is mapped (the only field with @Column)
+// age and email are not mapped because child autoMapping=false
+```
+
+### @Column Attributes
 | Attribute          | Description                                                                                                                              |
 |--------------------|------------------------------------------------------------------------------------------------------------------------------------------|
 | name               | <TagGray/> Column name; defaults to the property name.                                                                                   |
@@ -108,3 +145,47 @@ public class AdminUsers {       // 表名映射为 admin_users
 | whereColTemplate   | <TagGray/> For [Fluent API](../../core/lambda/about): column expression in WHERE (update/delete). Empty = column name. See [Statement templates](../mapping/template). |
 | whereValueTemplate | <TagGray/> For [Fluent API](../../core/lambda/about): argument expression in WHERE (update/delete), default `?`. See [Statement templates](../mapping/template). |
 | orderByColTemplate | <TagGray/> For [Fluent API](../../core/lambda/about): column expression in ORDER BY. Empty = column name. See [Statement templates](../mapping/template). |
+
+### @Primary Annotation
+
+:::warning[Note: distinguish `@Column(primary=true)` from `@Primary`]
+These two concepts have similar names but completely different meanings. Please note the distinction.
+:::
+
+**`@Column(primary = true)`** — indicates that the property's corresponding column is a **database primary key**. Used to determine the WHERE condition during INSERT/UPDATE/DELETE operations.
+
+```java
+@Table("user_info")
+public class UserInfo {
+    @Column(primary = true)
+    private Integer id;    // Marks the id column as database primary key
+    private String name;
+}
+```
+
+**`@Primary`** — when **the same column maps to multiple properties**, marks which property is the **preferred property**.
+The preferred property can be retrieved via the `getPrimaryPropertyByColumn` method.
+
+```java
+@Table("user_info")
+public class UserInfo {
+    @Column(primary = true)
+    private Integer id;
+
+    @Column("name")
+    private String aliasName;   // Property aliasName maps to the name column
+
+    @Primary
+    @Column("name")
+    private String primaryName; // Property primaryName also maps to the name column, and is the preferred one
+}
+```
+
+In the example above, both `aliasName` and `primaryName` map to the database's `name` column.
+`getPropertyByColumn("name")` returns both properties, while `getPrimaryPropertyByColumn("name")` returns only the `primaryName` annotated with `@Primary`.
+
+**Usage notes:**
+- Among multiple properties mapped to the same column, at most one can be annotated with `@Primary`; otherwise an `IllegalStateException` is thrown.
+- If none of the properties for the same column are annotated with `@Primary`, `getPrimaryPropertyByColumn` returns `null`.
+- `@Primary` can be placed on fields or getter/setter methods.
+- `@Primary` and `@Column(primary=true)` can be used together without conflict: the former resolves "which property to choose among multiple", while the latter declares "this is a primary key column".

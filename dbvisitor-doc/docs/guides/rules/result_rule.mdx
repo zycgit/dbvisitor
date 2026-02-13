@@ -14,19 +14,19 @@ import TabItem from '@theme/TabItem';
 # 结果处理规则
 
 本章介绍如何通过规则对查询结果进行后置处理，以及在存储过程等复杂场景下使用的辅助规则。
+这些规则本身**不影响 SQL 生成**，仅用于指导 dbVisitor 如何映射返回的数据。
 
 | 规则 | 描述 |
 |:---|:---|
 | [`@{resultSet}`](#result-set) | 配置结果集映射策略（用于存储过程/多结果集）。 |
+| [`@{resultUpdate}`](#result-update) | 标记某个结果为更新计数（非结果集）。 |
 | [`@{defaultResult}`](#default) | 配置默认的结果集映射策略。 |
 
 ---
 
-## 辅助规则
+## RESULTSET 规则 {#result-set}
 
-### RESULT 规则 {#result-set}
-
-`@{resultSet}` 规则本身不影响 SQL 生成，但在 **存储过程** 或 **多结果集查询** 场景下，用于指导 dbVisitor 如何映射返回的数据。
+在 **存储过程** 或 **多结果集查询** 场景下，用于指导 dbVisitor 如何映射返回的结果集。
 
 **语法**：
 `@{resultSet, key1 = value1, key2 = value2}`
@@ -39,15 +39,32 @@ import TabItem from '@theme/TabItem';
 
 | 名称 | 类型 | 说明 |
 | :--- | :--- | :--- |
-| `name` | String | OUT 参数在结果集中的名称。用于 `INOUT` 参数区分。 |
+| `name` | String | OUT 参数在结果集中的名称。 |
 | `javaType` | Class | 将结果集映射到的 Java 类型。详见 [对象映射](../core/mapping/about)。 |
 | `rowMapper` | RowMapper | 使用自定义 [RowMapper](../result/for_mapper) 处理映射。 |
 | `rowHandler` | RowCallbackHandler | 使用自定义 [RowCallbackHandler](../result/row_callback) 处理每一行。 |
 | `extractor` | ResultSetExtractor | 使用自定义 [ResultSetExtractor](../result/for_extractor) 处理整个结果集。 |
 
+:::info[属性优先级]
+配置多个映射属性时，按 `javaType` > `rowMapper` > `rowHandler` > `extractor` 的优先级生效，首先匹配的项优先。
+:::
+
 ---
 
-### DEFAULTRESULT 规则 {#default}
+## RESULTUPDATE 规则 {#result-update}
+
+将某个返回结果标记为**更新计数**（而非结果集），用于存储过程中区分返回的结果类型。
+
+**语法**：
+`@{resultUpdate, name = paramName}`
+
+| 名称 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| `name` | String | 更新计数在结果中的名称。 |
+
+---
+
+## DEFAULTRESULT 规则 {#default}
 
 `@{defaultResult}` 相当于 `@{resultSet}` 的全局默认配置。当一个查询返回多个结果集时，可以使用此规则避免为每个结果集重复配置。
 

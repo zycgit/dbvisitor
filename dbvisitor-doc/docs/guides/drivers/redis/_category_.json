@@ -1,9 +1,0 @@
-{
-  "label": "11.1 JDBC Redis",
-  "position": 1,
-  "className": "red",
-  "link": {
-    "type": "doc",
-    "id": "about"
-  }
-}

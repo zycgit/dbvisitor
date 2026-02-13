@@ -103,27 +103,27 @@ description: 本文会略过 API 概述部分并以更加直观的形式按照�
 
 ### Redis 支持
 - 了解 dbVisitor 对 Redis [支持的 140+ 命令](./drivers/redis/commands)。
-- 简单了解 dbVisitor 如何操作 Redis 不同类型的数据（[字符串](./core/redis/redis_type#string)、[哈希](./core/redis/redis_type#hash)、
-  [列表](./core/redis/redis_type#list)、[集合](./core/redis/redis_type#set)、[有序集合](./core/redis/redis_type#sorted_set)）
-- 使用 JdbcTemplate [执行命令方式](./core/redis/exec_command) 读写 Redis 数据。
-- 在 Mapper 接口上使用 @Insert、@Update、@Delete 注解，以 [注解方式](./core/redis/exec_annotation) 操作 Redis 数据。
-- 在 [Mapper 文件](./core/redis/exec_file) 中通过标签配置执行命令。
+- 简单了解 dbVisitor 如何操作 Redis 不同类型的数据（[字符串](./api/differences/redis#string)、[哈希](./api/differences/redis#hash)、
+  [列表](./api/differences/redis#list)、[集合](./api/differences/redis#set)、[有序集合](./api/differences/redis#sorted_set)）
+- 使用 JdbcTemplate [执行命令方式](./api/differences/redis#exec-command) 读写 Redis 数据。
+- 在 Mapper 接口上使用 @Insert、@Update、@Delete 注解，以 [注解方式](./api/differences/redis#exec-annotation) 操作 Redis 数据。
+- 在 [Mapper 文件](./api/differences/redis#exec-file) 中通过标签配置执行命令。
 
 ### MongoDB 支持
 - 了解 dbVisitor 对 MongoDB [支持的命令](./drivers/mongo/commands)。
-- 使用 JdbcTemplate [执行命令方式](./core/mongo/exec_command) 读写 MongoDB 数据。
-- 使用 [构造器方式](./core/mongo/exec_lambda) 读写 MongoDB 数据。
-- 使用 [通用 Mapper 方式](./core/mongo/exec_mapper) 读写 MongoDB 数据。
-- 在 Mapper 接口上使用 @Insert、@Update、@Delete 注解，以 [注解方式](./core/mongo/exec_annotation) 操作 MongoDB 数据。
-- 在 [Mapper 文件](./core/mongo/exec_file) 中通过标签配置执行命令。
+- 使用 JdbcTemplate [执行命令方式](./api/differences/mongo#exec-command) 读写 MongoDB 数据。
+- 使用 [构造器方式](./api/differences/mongo#exec-lambda) 读写 MongoDB 数据。
+- 使用 [通用 Mapper 方式](./api/differences/mongo#exec-mapper) 读写 MongoDB 数据。
+- 在 Mapper 接口上使用 @Insert、@Update、@Delete 注解，以 [注解方式](./api/differences/mongo#exec-annotation) 操作 MongoDB 数据。
+- 在 [Mapper 文件](./api/differences/mongo#exec-file) 中通过标签配置执行命令。
 
 ### ElasticSearch 支持
 - 了解 dbVisitor 对 ElasticSearch [支持的命令](./drivers/elastic/commands)。
-- 使用 JdbcTemplate [执行命令方式](./core/elastic/exec_command) 读写 ElasticSearch 数据。
-- 使用 [构造器方式](./core/elastic/exec_lambda) 读写 ElasticSearch 数据。
-- 使用 [通用 Mapper 方式](./core/elastic/exec_mapper) 读写 ElasticSearch 数据。
-- 在 Mapper 接口上使用 @Insert、@Update、@Delete 注解，以 [注解方式](./core/elastic/exec_annotation) 操作 ElasticSearch 数据。
-- 在 [Mapper 文件](./core/elastic/exec_file) 中通过标签配置执行命令。
+- 使用 JdbcTemplate [执行命令方式](./api/differences/elastic#exec-command) 读写 ElasticSearch 数据。
+- 使用 [构造器方式](./api/differences/elastic#exec-lambda) 读写 ElasticSearch 数据。
+- 使用 [通用 Mapper 方式](./api/differences/elastic#exec-mapper) 读写 ElasticSearch 数据。
+- 在 Mapper 接口上使用 @Insert、@Update、@Delete 注解，以 [注解方式](./api/differences/elastic#exec-annotation) 操作 ElasticSearch 数据。
+- 在 [Mapper 文件](./api/differences/elastic#exec-file) 中通过标签配置执行命令。
 
 
 ### 数据库事务

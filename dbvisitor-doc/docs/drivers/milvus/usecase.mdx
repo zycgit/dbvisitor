@@ -1,0 +1,174 @@
+---
+id: usecase
+sidebar_position: 2
+title: 安装与配置
+description: 介绍如何引入 jdbc-milvus 依赖以及配置 JDBC 连接。
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import Vars from '@site/plugins/projectVars';
+
+export const Highlight = ({children, color}) => (
+    <span style={{ backgroundColor: color, borderRadius: '2px', color: '#fff', padding: '0.2rem', }}>{children}</span>
+);
+
+## 引入依赖
+
+在使用 `jdbc-milvus` 之前，需要在项目中引入相应的 Maven 依赖。当前版本：<Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>
+
+<Tabs>
+  <TabItem value="maven" label="Maven" default>
+    ```xml
+    <dependency>
+        <groupId>net.hasor</groupId>
+        <artifactId>jdbc-milvus</artifactId>
+        <version>6.7.0</version> <!-- 请使用最新版本 -->
+    </dependency>
+    ```
+  </TabItem>
+  <TabItem value="gradle" label="Gradle">
+    ```groovy
+    implementation 'net.hasor:jdbc-milvus:6.7.0' // 请使用最新版本
+    ```
+  </TabItem>
+</Tabs>
+
+## JDBC 连接
+
+使用标准的 JDBC URL 格式进行连接。
+
+```text
+jdbc:dbvisitor:milvus://<host>:<port>/<database>?<parameters>
+```
+
+- `host`：Milvus 服务器地址。
+- `port`：Milvus gRPC 端口（默认 19530）。
+- `database`：数据库名称（默认 `default`）。
+- `parameters`：连接参数，详见 [连接参数](./params)。
+
+集群模式下多个主机用 `;` 分隔，可附带健康检测端口：
+
+```text
+jdbc:dbvisitor:milvus://host1:19530:9091;host2:19530:9091/default
+```
+
+### 示例代码
+
+#### 1. 创建集合与索引
+
+```java
+String url = "jdbc:dbvisitor:milvus://127.0.0.1:19530/default";
+try (Connection conn = DriverManager.getConnection(url)) {
+    try (Statement stmt = conn.createStatement()) {
+        // 创建集合（Collection）
+        stmt.executeUpdate("CREATE TABLE book_vectors ("
+                + "book_id int64 PRIMARY KEY, "
+                + "word_count int64, "
+                + "book_intro float_vector(2)"
+                + ")");
+
+        // 创建向量索引
+        stmt.executeUpdate("CREATE INDEX idx_book_intro ON book_vectors (book_intro) "
+                + "USING \"IVF_FLAT\" WITH (nlist = 1024, metric_type = \"L2\")");
+
+        // 加载集合到内存（搜索前必须执行）
+        stmt.executeUpdate("LOAD TABLE book_vectors");
+    }
+}
+```
+
+#### 2. 使用 PreparedStatement 插入数据
+
+```java
+String insertSql = "INSERT INTO book_vectors (book_id, word_count, book_intro) VALUES (?, ?, ?)";
+try (PreparedStatement ps = conn.prepareStatement(insertSql)) {
+    ps.setLong(1, 1L);
+    ps.setLong(2, 1000L);
+    ps.setObject(3, Arrays.asList(0.1f, 0.2f)); // 向量使用 List<Float>
+    ps.executeUpdate();
+}
+```
+
+#### 3. 向量搜索（KNN）
+
+使用 `ORDER BY vector_field <-> vector LIMIT n` 语法执行最近邻搜索。
+
+```java
+String searchSql = "SELECT book_id, word_count FROM book_vectors "
+        + "ORDER BY book_intro <-> ? LIMIT 5";
+try (PreparedStatement ps = conn.prepareStatement(searchSql)) {
+    ps.setObject(1, Arrays.asList(0.1f, 0.2f));
+    try (ResultSet rs = ps.executeQuery()) {
+        while (rs.next()) {
+            System.out.println("ID: " + rs.getLong("book_id")
+                    + ", Count: " + rs.getLong("word_count"));
+        }
+    }
+}
+```
+
+#### 4. 向量范围搜索
+
+使用 `WHERE vector_field <-> vector < radius` 或 `vector_range` 函数执行范围搜索。
+
+```java
+// 方式 1：比较表达式
+String rangeSql1 = "SELECT * FROM book_vectors WHERE book_intro <-> [0.1, 0.2] < 0.5";
+
+// 方式 2：vector_range 函数（推荐）
+String rangeSql2 = "SELECT * FROM book_vectors WHERE vector_range(book_intro, [0.1, 0.2], 0.5)";
+
+try (Statement stmt = conn.createStatement()) {
+    try (ResultSet rs = stmt.executeQuery(rangeSql2)) {
+        while (rs.next()) {
+            System.out.println("ID: " + rs.getLong("book_id"));
+        }
+    }
+}
+```
+
+#### 5. 标量过滤查询
+
+```java
+try (Statement stmt = conn.createStatement()) {
+    try (ResultSet rs = stmt.executeQuery(
+            "SELECT book_id, word_count FROM book_vectors WHERE word_count > 500 LIMIT 10")) {
+        while (rs.next()) {
+            System.out.println("ID: " + rs.getLong("book_id"));
+        }
+    }
+}
+```
+
+#### 6. 混合查询（标量过滤 + 向量搜索）
+
+```java
+String sql = "SELECT book_id FROM book_vectors "
+        + "WHERE word_count > 500 "
+        + "ORDER BY book_intro <-> [0.1, 0.2] LIMIT 3";
+try (Statement stmt = conn.createStatement()) {
+    try (ResultSet rs = stmt.executeQuery(sql)) {
+        while (rs.next()) {
+            System.out.println("ID: " + rs.getLong("book_id"));
+        }
+    }
+}
+```
+
+#### 7. 使用 Hint
+
+通过 SQL Hint 覆盖查询行为。
+
+```java
+try (Statement stmt = conn.createStatement()) {
+    // 覆盖 LIMIT 和 OFFSET
+    ResultSet rs = stmt.executeQuery(
+            "/*+ overwrite_find_limit=5, overwrite_find_skip=10 */ "
+            + "SELECT * FROM book_vectors WHERE word_count > 0");
+
+    // 将查询转换为 COUNT
+    ResultSet countRs = stmt.executeQuery(
+            "/*+ overwrite_find_as_count=true */ "
+            + "SELECT * FROM book_vectors WHERE word_count > 500");
+}
+```

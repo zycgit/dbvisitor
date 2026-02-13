@@ -17,7 +17,9 @@ description: 了解如何在 dbVisitor 中嵌套使用规则，实现复杂的�
 @{ 外层规则名, ..., @{ 内层规则名, ... } ... }
 ```
 
-例如，将用户输入的明文密码转换为 MD5 后再拼接到 SQL 中。
+### 示例 1：AND + MD5
+
+将用户输入的明文密码转换为 MD5 后再拼接到 SQL 中。
 
 ```sql
 -- 原始参数 :pwd = '123456'
@@ -27,7 +29,20 @@ description: 了解如何在 dbVisitor 中嵌套使用规则，实现复杂的�
 **执行流程：**
 1.  **内层求值**：`@{md5, :pwd}` 被执行，计算 MD5 值并将其注册为 SQL 参数（生成占位符 `?`）。
 2.  **外层求值**：内层生成的占位符文本参与外层 `@{and}` 规则的拼接。
-3.  **最终 SQL**：`AND password = ?` （实际执行时参数值为 MD5后的字符串）。
+3.  **最终 SQL**：`AND password = ?` （实际执行时参数值为 MD5 后的字符串）。
+
+### 示例 2：AND + IN
+
+`@{in}` 规则不会自动补全 `AND`/`OR` 前缀，因此需要嵌套在 `@{and}` 中使用。
+
+```sql
+select * from users where status = :status
+    @{and, id IN @{in, :ids}}
+```
+
+```sql title="生成的 SQL (ids=[1,2,3])"
+select * from users where status = ? and id IN (?, ?, ?)
+```
 
 ## 嵌套层级
 

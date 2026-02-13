@@ -1,0 +1,8 @@
+{
+  "label": "Custom Adapter",
+  "position": 2,
+  "link": {
+    "type": "doc",
+    "id": "about"
+  }
+}

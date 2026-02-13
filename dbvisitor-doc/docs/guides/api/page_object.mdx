@@ -1,0 +1,61 @@
+---
+id: page_object
+sidebar_position: 7
+hide_table_of_contents: true
+title: 4.7 分页对象
+description: PageObject 工具类和 Page 接口的属性与方法参考。
+---
+
+# 分页对象
+
+dbVisitor 提供了一个分页查询工具类 `PageObject`，它实现了 `Page` 接口。分页对象可在多种 API 中通用——
+[构造器 API](../core/lambda/query#page)、[Mapper 接口](../core/mapper/common#page)、[注解方式](../core/annotation/query#page)、[Mapper 文件](../core/file/page) 均支持通过它实现分页查询。
+
+export const HighAttr = () => (
+    <span style={{ backgroundColor: 'rgb(227 153 17)', color: '#fff', borderRadius: '2px', padding: '0.2rem'}}>属性</span>
+);
+
+export const HighMethod = () => (
+    <span style={{ backgroundColor: 'rgb(17 179 227)', color: '#fff', borderRadius: '2px', padding: '0.2rem'}}>方法</span>
+);
+
+| 名称                                               | 描述                                             |
+|--------------------------------------------------|------------------------------------------------|
+| <HighAttr/> `pageSize`                           | 分页查询的页大小，默认是 `-1` 表示无穷大                        |
+| <HighAttr/> `currentPage`                        | 当前页号                                           |
+| <HighAttr/> `pageNumberOffset`                   | 页码偏移量（例如：从 `1` 页作为起始页，可以设置为 `1`。否则第一页的页码是 `0`） |
+| <HighMethod/> `long getFirstRecordPosition()`    | 获取本页第一个记录的索引位置                                 |
+| <HighMethod/> `long getTotalPage()`              | 获取总页数                                          |
+| <HighMethod/> `long getTotalCount()`             | 获取记录总数                                         |
+| <HighMethod/> `long firstPage()`                 | 移动到第一页                                         |
+| <HighMethod/> `void previousPage()`              | 移动到上一页                                         |
+| <HighMethod/> `void nextPage()`                  | 移动到下一页                                         |
+| <HighMethod/> `void lastPage()`                  | 移动到最后一页                                        |
+| <HighMethod/> `Map<String, Object> toPageInfo()` | 获取分页信息                                         |
+
+## 创建方式
+
+```java title='通过静态工厂方法创建'
+Page page = PageObject.of(0, 20);      // 第 0 页，每页 20 条，页码从 0 开始
+Page page = PageObject.of(1, 20, 1);   // 第 1 页，每页 20 条，页码从 1 开始
+```
+
+```java title='通过构造方法创建'
+PageObject page = new PageObject();
+page.setPageSize(20);
+```
+
+## toPageInfo 方法
+
+`toPageInfo` 方法会返回一个包含分页信息的 Map：
+
+```js
+{
+    "enable" : true,    // 是否启用分页
+    "pageSize" : 20,    // 页大小
+    "totalCount" : 200, // 总记录数
+    "totalPage" : 10,   // 页总数
+    "currentPage" : 0,  // 当前页码
+    "recordPosition" : 0// 第一条记录的起始记录位置
+}
+```

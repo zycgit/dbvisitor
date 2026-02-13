@@ -30,3 +30,30 @@ Map<String, Object> args = CollectionUtils.asMap(
 );
 jdbcTemplate.queryForList("select * from users where id > #{id} order by ${order}", args);
 ```
+
+## Common Scenarios
+
+`${...}` is suitable for scenarios where the SQL structure itself needs to change dynamically, for example:
+
+```text title='Dynamic table name'
+select * from ${tableName} where id = #{id}
+```
+
+```text title='Dynamic column names'
+select ${columns} from users where id = #{id}
+```
+
+```text title='Dynamic ordering'
+select * from users order by ${orderBy}
+```
+
+## Difference from `#{...}`
+
+| Syntax | Behavior | Safety |
+|--------|----------|--------|
+| `#{...}` | Generates a `?` placeholder and binds the argument value via PreparedStatement | **Safe**, prevents SQL injection |
+| `${...}` | Evaluates via OGNL and splices the result directly into the SQL string | **Unsafe**, SQL injection risk |
+
+:::tip[Principle]
+Prefer `#{...}`. Only use `${...}` when the SQL structure (table name, column name, ordering, etc.) needs to change dynamically.
+:::

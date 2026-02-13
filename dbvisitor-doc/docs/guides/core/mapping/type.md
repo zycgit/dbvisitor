@@ -6,6 +6,8 @@ title: 类型映射和处理
 description: 使用 dbVisitor ORM 映射字段类型和 jdbcType。
 ---
 
+# 类型映射和处理
+
 如果一个 int 类型的 Java 属性映射到数据库的 int 类型上，对于这个属性类型映射而言将会有三个重要的参数：
 - ➊ 属性所使用的 Java 类型。
 - ➋ 属性映射列的 JDBC 类型。
@@ -50,13 +52,13 @@ public class Users {
 ```java title="使用 @Column 注解绑定 Json 序列化器"
 @Table
 public class Users {
-    @Column(typeHandler = net.hasor.dbvisitor.types.handler.json.JsonTypeHandler)
+    @Column(typeHandler = net.hasor.dbvisitor.types.handler.json.JsonTypeHandler.class)
     private UserExtInfo moreInfo; // 属性会使用 JSON 结构进行序列化/反序列化
 }
 ```
 
 ```java title="使用 @BindTypeHandler 为类型设置序列化器"
-@BindTypeHandler(net.hasor.dbvisitor.types.handler.json.JsonTypeHandler)
+@BindTypeHandler(net.hasor.dbvisitor.types.handler.json.JsonTypeHandler.class)
 public class UserExtInfo {
     ...
 }

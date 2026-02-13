@@ -78,13 +78,50 @@ public class AdminUsers {       // 表名映射为 admin_users
 |--------------------------|---------------------------------------------------------------------------------------------------------|
 | catalog                  | <TagGray/> 映射的 catalog 名，默认值为：空。                                                                        |
 | schema                   | <TagGray/> 映射的 schema 名，默认值为：空。                                                                         |
-| table                    | <TagGray/> 映射的 table，为空的话表示采用类名为表名，默认为：空。<br/>- 提示：value 属性和 table 具有同等效力，当所有属性都采用默认值时候可以利用 例3 方式省略属性名。 |
-| value                    | <TagGray/> 映射的 table，为空的话表示采用类名为表名，默认为：空。<br/>- 提示：value 属性和 table 具有同等效力，当所有属性都采用默认值时候可以利用 例3 方式省略属性名。 |
+| table                    | <TagGray/> 映射的 table，为空的话表示采用类名为表名，默认为：空。<br/>- 提示：value 属性和 table 具有同等效力，当所有属性都采用默认值时候可以利用 例2 方式省略属性名。 |
+| value                    | <TagGray/> 映射的 table，为空的话表示采用类名为表名，默认为：空。<br/>- 提示：value 属性和 table 具有同等效力，当所有属性都采用默认值时候可以利用 例2 方式省略属性名。 |
 | autoMapping              | <TagGray/> 自动映射，默认为 true 表示使用自动映射。当设置为 false 后所有列的映射必须通过 @Column 注解声明。                                  |
 | useDelimited             | <TagGray/> 会在生成的 SQL 语句中使用限定符将表或列的名称包裹起来，用于处理关键字为名称的情况。默认为 false 表示不使用限定符。                              |
 | caseInsensitive          | <TagGray/> 是否对表名列名敏感，默认 true 不敏感。该属性作用于获取查询结果时。                                                         |
 | mapUnderscoreToCamelCase | <TagGray/> 表名和属性名，根据驼峰规则转换为带有下划线的表名和列名，默认不启用。                                                           |
 | ddlAuto                  | <TagGray/> 自动建表方式，可选值范围：`none、create、add、update、create-drop`（目前还不支持自动建表）                                |
+
+#### 继承中的 @Table 行为
+
+在实体继承结构中，父类字段上的 `@Column`、`@Ignore` 等注解会被子类正确继承，但 **`@Table` 是类级注解，不会从父类继承**。
+因此 `autoMapping` 等属性只以实际注册的实体类（叶子类）自身的 `@Table` 声明为准。
+
+```java title='父类 autoMapping=false 不影响子类'
+@Table(value = "user_info", autoMapping = false)
+public class ParentEntity {
+    @Column(primary = true)
+    private Integer id;        // 有 @Column → 子类也会映射
+    private Integer age;       // 无 @Column → 是否映射取决于子类的 autoMapping
+}
+
+@Table(value = "user_info", autoMapping = true)
+public class ChildEntity extends ParentEntity {
+    private String email;      // 无 @Column → 自动映射（子类 autoMapping=true 生效）
+}
+// ChildEntity 注册后：id、age、email 三个字段全部映射
+// ParentEntity 的 autoMapping=false 对 ChildEntity 没有任何影响
+```
+
+```java title='反之：父类 autoMapping=true 也不影响子类'
+@Table(value = "user_info", autoMapping = true)
+public class ParentEntity {
+    @Column(primary = true)
+    private Integer id;        // 有 @Column → 始终映射
+    private Integer age;       // 无 @Column → 是否映射取决于子类的 autoMapping
+}
+
+@Table(value = "user_info", autoMapping = false)
+public class ChildEntity extends ParentEntity {
+    private String email;      // 无 @Column → 不映射（子类 autoMapping=false 生效）
+}
+// ChildEntity 注册后：仅 id 被映射（唯一有 @Column 的字段）
+// age 和 email 因子类 autoMapping=false 而未映射
+```
 
 ### @Column 注解属性
 
@@ -98,10 +135,54 @@ public class AdminUsers {       // 表名映射为 admin_users
 | keyType            | <TagGray/> 仅对 [构造器 API](../lambda/about) 有效。表示当属性值为 null 时所采用的数据生成算法。详细请了解 [主键生成器](./keytype#anno)。                                   |
 | primary            | <TagGray/> 是否为主键，默认为 false，表示不是主键                                                                                                     |
 | insert             | <TagGray/> 仅对 [构造器 API](../../core/lambda/about) 有效。表示当在 insert 操作时是否参与新增。详细请了解 [写入策略](./write_policy)。                               |
-| update             | <TagGray/> 仅对 [构造器 API](../../core/lambda/about) 有效。表示当在 update 操作时是否参与新增。详细请了解 [写入策略](./write_policy)。                               |
+| update             | <TagGray/> 仅对 [构造器 API](../../core/lambda/about) 有效。表示当在 update 操作时是否参与更新。详细请了解 [写入策略](./write_policy)。                               |
 | selectTemplate     | <TagGray/> 仅对 [构造器 API](../../core/lambda/about) 有效。当用作 select 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/template)。                |
 | insertTemplate     | <TagGray/> 仅对 [构造器 API](../../core/lambda/about) 有效。当用作 insert 语句时参数写法，默认是 ?。详细请了解 [语句模版](../mapping/template)。                       |
 | setValueTemplate   | <TagGray/> 仅对 [构造器 API](../../core/lambda/about) 有效。当用作 update set 语句时参数写法，默认是 ?。详细请了解 [语句模版](../mapping/template)。                   |
 | whereColTemplate   | <TagGray/> 仅对 [构造器 API](../../core/lambda/about) 有效。当用作 update/delete 的 where 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/template)。 |
 | whereValueTemplate | <TagGray/> 仅对 [构造器 API](../../core/lambda/about) 有效。当用作 update/delete 的 where 语句时参数写法，默认是 ?。详细请了解 [语句模版](../mapping/template)。        |
 | orderByColTemplate | <TagGray/> 仅对 [构造器 API](../../core/lambda/about) 有效。当用作 order by 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/template)。              |
+
+### @Primary 注解
+
+:::warning[注意区分 `@Column(primary=true)` 与 `@Primary`]
+这两个概念名称相近但含义完全不同，请注意区分。
+:::
+
+**`@Column(primary = true)`** —— 表示该属性对应的列是**数据库主键**。用于 INSERT/UPDATE/DELETE 操作时确定 WHERE 条件。
+
+```java
+@Table("user_info")
+public class UserInfo {
+    @Column(primary = true)
+    private Integer id;    // 标记 id 列为数据库主键
+    private String name;
+}
+```
+
+**`@Primary`** —— 当**同一列映射到多个属性**时，标记哪个属性是**首选属性**。
+通过 `getPrimaryPropertyByColumn` 方法可以获取该首选属性。
+
+```java
+@Table("user_info")
+public class UserInfo {
+    @Column(primary = true)
+    private Integer id;
+
+    @Column("name")
+    private String aliasName;   // 属性 aliasName 映射到 name 列
+
+    @Primary
+    @Column("name")
+    private String primaryName; // 属性 primaryName 也映射到 name 列，且为首选
+}
+```
+
+上例中 `aliasName` 和 `primaryName` 都映射到数据库的 `name` 列。
+通过 `getPropertyByColumn("name")` 会返回两个属性，而 `getPrimaryPropertyByColumn("name")` 只返回标注了 `@Primary` 的 `primaryName`。
+
+**使用注意事项：**
+- 同一列的多个属性中，最多只能有一个标注 `@Primary`，否则会抛出 `IllegalStateException` 异常。
+- 如果同一列的多个属性都没有标注 `@Primary`，则 `getPrimaryPropertyByColumn` 返回 `null`。
+- `@Primary` 可标注在字段或 getter/setter 方法上。
+- `@Primary` 与 `@Column(primary=true)` 可以同时使用且互不影响：前者解决"多属性选哪个"的问题，后者声明"这是主键列"。

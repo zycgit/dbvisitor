@@ -6,35 +6,52 @@ title: 编程式事务
 description: 了解 dbVisitor 中编程式事务的用法。
 ---
 
-编程式事务是指事务操作的需要通过编写代码方式来实现。
+# 编程式事务
 
-```java title='基本样例'
-TransactionManager txManager =  ...
+编程式事务通过手动调用 `TransactionManager` 的方法来控制事务的开启、提交和回滚。
 
-// begin
+```java title='基本用法'
+TransactionManager txManager = ...;
+
 TransactionStatus tranA = txManager.begin();
-...
-// commint
-txManager.commit(tranA);
+try {
+    // 执行业务逻辑
+    ...
+    txManager.commit(tranA);
+} catch (Throwable e) {
+    txManager.rollBack(tranA);
+    throw e;
+}
 ```
 
-通过 begin 方法的参数可以设置事务的 [传播属性](../propagation) 和 [隔离级别](../isolation)
+通过 `begin` 方法的参数可以设置事务的 [传播行为](../propagation) 和 [隔离级别](../isolation)：
 
-```java title='指定传播属性和隔离级别'
+```java title='指定传播行为和隔离级别'
 TransactionStatus tranA = txManager.begin(
-        Propagation.REQUIRES_NEW, // 传播属性
+        Propagation.REQUIRES_NEW, // 传播行为
         Isolation.READ_COMMITTED  // 隔离级别
 );
 ```
 
+也可以只指定传播行为（隔离级别使用默认值）：
+
+```java title='只指定传播行为'
+TransactionStatus tranA = txManager.begin(Propagation.REQUIRES_NEW);
+```
+
 ## 获取事务管理器
 
-```java title='通过 DataSource 获取'
-DataSource dataSource = ...
+```java title='方式 1：通过 TransactionHelper（同一 DataSource 共享实例）'
+DataSource dataSource = ...;
 TransactionManager txManager = TransactionHelper.txManager(dataSource);
 ```
 
-```java title='通过 依赖注入 获取'
+```java title='方式 2：直接创建 LocalTransactionManager'
+DataSource dataSource = ...;
+TransactionManager txManager = new LocalTransactionManager(dataSource);
+```
+
+```java title='方式 3：通过依赖注入获取'
 public class TxExample {
     // @Inject                 < Guice、Solon 和 Hasor
     // @Resource or @Autowired < Spring

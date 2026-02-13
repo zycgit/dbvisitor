@@ -3,8 +3,10 @@ id: write_policy
 sidebar_position: 5
 hide_table_of_contents: true
 title: 写入策略
-description: 使用 dbVisitor ORM 工具操作数据库时使用不通的写入策略。
+description: 使用 dbVisitor ORM 工具操作数据库时使用不同的写入策略。
 ---
+
+# 写入策略
 
 当在使用 [构造器 API](../../api/lambda_api) 操作数据库时，可以在列上配置写入策略来影响 INSERT、UPDATE 的行为。
 

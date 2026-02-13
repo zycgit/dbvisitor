@@ -5,6 +5,8 @@ title: 自由模式
 description: 自由模式中，允许在没有任何实体定义的前提下直接处理表的 INSERT、UPDATE、DELETE、QUERY。
 ---
 
+# 自由模式
+
 自由模式中，允许在没有任何实体定义的前提下直接处理表的 INSERT、UPDATE、DELETE、QUERY。
 
 :::info[提示]
@@ -15,7 +17,7 @@ description: 自由模式中，允许在没有任何实体定义的前提下直�
 Map<String, Object> u = ...
 
 LambdaTemplate lambda = ...
-MapInsert insert = lambda.freedomInsert("users");
+MapInsert insert = lambda.insertFreedom("users");
 insert.applyMap(u)
       .executeSumResult();
 ...
@@ -23,18 +25,19 @@ insert.applyMap(u)
 
 ```java title='使用自由模式更新数据'
 LambdaTemplate lambda = ...
-MapUpdate update = lambda.freedomUpdate("users");
+MapUpdate update = lambda.updateFreedom("users");
 
 Map<String, Object> u = ...
 int result = update.eq("loginName", "admin")
                    .eq("password", "pass")
-                   .updateRow(u);
+                   .updateRow(u)
+                   .doUpdate();
 ...
 ```
 
 ```java title='使用自由模式删除数据'
 LambdaTemplate lambda = ...
-MapDelete delete = lambda.freedomDelete("users");
+MapDelete delete = lambda.deleteFreedom("users");
 
 int result = delete.eq("loginName", "admin")
                    .eq("password", "pass")
@@ -44,7 +47,7 @@ int result = delete.eq("loginName", "admin")
 
 ```java title='使用自由模式查询数据'
 LambdaTemplate lambda = ...
-MapQuery query = lambda.freedomQuery("users");
+MapQuery query = lambda.queryFreedom("users");
 
 List<Map<String, Object>> result = null;
 result = query.eq("loginName", "admin")

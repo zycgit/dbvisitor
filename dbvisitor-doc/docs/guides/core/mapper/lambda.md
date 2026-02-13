@@ -10,13 +10,15 @@ description: 通过 BaseMapper 接口无参的 insert、update、delete、query 
 
 通过 BaseMapper 接口无参的 insert、update、delete、query 可以无需数据准备直接使用 [构造器 API](../lambda/about#principle) 进行数据库操作。
 
-你可以根据您的项目架构选择合适的方式获取 Session，详细信息请参考：**[框架整合](../../yourproject/buildtools#integration)**
+:::tip[提示]
+Session 的获取方式取决于项目架构，详见 **[框架整合](../../yourproject/buildtools#integration)**。
+:::
 
 ```java title='示例：新增'
 User user = ...
 
 BaseMapper<User> mapper = session.createBaseMapper(User.class);
-mapper.insert().applyEntity(user);
+mapper.insert().applyEntity(user)
                .executeSumResult();
 ```
 

@@ -19,12 +19,12 @@ select * from users where id > &id   and name = &name
 select * from users where id > #{id} and name = #{name}
 ```
 
-## Usage
+## Basic Usage
 
 ```java title='Example 1: Use a Map as the argument container'
 Map<String, Object> args = CollectionUtils.asMap(
         "id", 2,
-        "name", "Dave"
+        "Dave", true
 );
 jdbcTemplate.queryForList("select * from users where id > :id and name = :name", args);
 ```
@@ -45,9 +45,11 @@ User args = new User(2, "Dave");
 jdbcTemplate.queryForList("select * from users where id > :id and name = :name", args);
 ```
 
-## OGNL Extraction {#ognl}
+## OGNL Evaluation {#ognl}
 
-OGNL expressions can access object properties and methods to extract more complex arguments.
+All three named argument syntaxes (`:name`, `&name`, `#{...}`) support OGNL expressions, allowing nested property access, array/collection indexing, and method calls.
+
+### Nested Properties
 
 ```json title='Example: Extract a nested value'
 {
@@ -63,14 +65,40 @@ OGNL expressions can access object properties and methods to extract more comple
 }
 ```
 
-Use the OGNL expression `p.cfg_id.array[1].age` to extract the argument.
+Use the OGNL expression `p.cfg_id.array[1].age` to extract the argument from the above structure.
 
-```text title='Form 1'
+```text title='Syntax 1: Colon syntax'
 select * from user_table where age > :p.cfg_id.array[1].age order by id
 ```
 
-```text title='Form 2'
+```text title='Syntax 2: Curly brace syntax'
 select * from user_table where age > #{p.cfg_id.array[1].age} order by id
+```
+
+### Array and Collection Indexing
+
+OGNL expressions can access List and array elements directly via square brackets `[index]`.
+
+```java title='Example: Collection index access'
+Map<String, Object> params = new HashMap<>();
+params.put("ages", Arrays.asList(30, 35, 40));
+params.put("names", new String[] { "Alice", "Bob" });
+
+// Using colon syntax
+jdbcTemplate.queryForList(
+    "select * from users where age = :ages[0] and name = :names[0]", params);
+
+// Using curly brace syntax
+jdbcTemplate.queryForList(
+    "select * from users where age = #{ages[0]} and name = #{names[0]}", params);
+```
+
+## Argument Reuse {#reuse}
+
+The same named argument can appear multiple times in SQL. dbVisitor automatically binds it to the same value.
+
+```text title='Example: Using the same argument name twice'
+insert into users (id, name, email) values (#{id}, #{name}, #{name})
 ```
 
 ## Argument Options
@@ -100,3 +128,9 @@ This makes it easy to write JSON or MongoDB-like queries directly in SQL without
 -- The colon is followed by a space, so it is not treated as an argument
 select * from table where config = '{ "key": "value" }'
 ```
+
+Additional special handling to note:
+- **PostgreSQL type cast** `::` is not recognized as an argument, so you can safely use `column::integer` syntax.
+- **Quoted content** Argument syntax inside single quotes `'...'` and double quotes `"..."` is skipped.
+- **SQL comments** Argument syntax inside `/* ... */` and `-- ...` is skipped.
+- **Escaping** Use `\#{...}`, `\${...}`, `\@{...}` to escape them as plain text.

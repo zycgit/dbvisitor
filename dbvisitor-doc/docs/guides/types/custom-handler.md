@@ -9,34 +9,37 @@ description: 当 dbVisitor 所提供的类型处理器无法满足需要时，�
 
 当 dbVisitor 所提供的类型处理器无法满足需要时，可以根据自身需要自定义类型处理器。
 
-```java title='演示：如何将字符串以 Timestamp 类型方式写入数据库'
+继承 `AbstractTypeHandler<T>` 并实现 4 个抽象方法即可：
+
+```java title='演示：将字符串以 Timestamp 类型方式写入数据库'
 package net.demos.dto;
+
 public class MyDateTypeHandler extends AbstractTypeHandler<String> {
-    public void setNonNullParameter(PreparedStatement ps, int i, String parameter, Integer jdbcType) {
+    public void setNonNullParameter(PreparedStatement ps, int i,
+            String parameter, Integer jdbcType) throws SQLException {
         try {
             Date date = new SimpleDateFormat("yyyy-MM-dd").parse(parameter);
             ps.setTimestamp(i, new Timestamp(date.getTime()));
-        } catch (Exception e) {
+        } catch (ParseException e) {
             throw new SQLException(e);
         }
     }
 
-    public String getNullableResult(ResultSet rs, String columnName) {
+    public String getNullableResult(ResultSet rs, String columnName) throws SQLException {
         return fmtDate(rs.getTimestamp(columnName));
     }
 
-    public String getNullableResult(ResultSet rs, int columnIndex) {
+    public String getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
         return fmtDate(rs.getTimestamp(columnIndex));
     }
 
-    public String getNullableResult(CallableStatement cs, int columnIndex) {
+    public String getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
         return fmtDate(cs.getTimestamp(columnIndex));
     }
 
     private String fmtDate(Timestamp sqlTimestamp) {
         if (sqlTimestamp != null) {
-            Date date = new Date(sqlTimestamp.getTime());
-            return new SimpleDateFormat("yyyy-MM-dd").format(date);
+            return new SimpleDateFormat("yyyy-MM-dd").format(new Date(sqlTimestamp.getTime()));
         }
         return null;
     }
@@ -45,10 +48,9 @@ public class MyDateTypeHandler extends AbstractTypeHandler<String> {
 
 ## 显示引用
 
-显示引用类型处理器是最常见的使用方式，即通过查询语句或者代码中明确指定使用的类型处理器。
+显式引用是最常见的使用方式，即在 SQL 语句或代码中明确指定使用的类型处理器。
 
 ```java title='在参数传递中使用自定义类型处理器'
-// 查询参数
 String time = "2019-10-11";
 jdbc.queryForList("select * from users where create_time = #{arg0, typeHandler=net.demos.dto.MyDateTypeHandler}", time);
 ```
@@ -94,7 +96,7 @@ jdbc.queryForList("select * from users where id > ?", 2, User.class);
 
 ## 隐式引用
 
-隐式方式主要目的是用来替代已有 dbVisitor 提供的默认类型处理器，或者当某个全新类型没有支持的情况下使其作为默认处理而使用。
+隐式方式用于替换 dbVisitor 提供的默认类型处理器，或为某个全新类型添加默认支持。通过注册方式实现，无需在每个使用处显式指定。
 
 ```java title='使用自定义类型处理器替代默认 StringTypeHandler'
 // 自定义处理器
@@ -103,11 +105,11 @@ public class MyStringTypeHandler extends AbstractTypeHandler<String> {
     ...
 }
 
-// 注册处理器
+// 通过 registerHandler 注册，会自动读取注解并绑定到 String.class
 TypeHandlerRegistry.DEFAULT.registerHandler(MyStringTypeHandler.class, new MyStringTypeHandler());
 
-// 使用处理器，此时 dbVisitor 的所有查询中涉及字符串处理都会走 MyStringTypeHandler，
-// 因此 User 类无需 typeHandler 属性来明确指定。
+// 此时 dbVisitor 所有涉及 String 类型的读写都会使用 MyStringTypeHandler
+// User 类无需通过 typeHandler 属性明确指定
 jdbc.queryForList("select * from user_table where name = ?", arg, User.class);
 ```
 
@@ -128,7 +130,7 @@ public class MyStringTypeHandler extends AbstractTypeHandler<String> {
     ...
 }
 
-TypeHandlerRegistry typeRegistry = ...
+TypeHandlerRegistry typeRegistry = ...;
 typeRegistry.register(String.class, new MyStringTypeHandler());
 ```
 
@@ -138,7 +140,7 @@ public class MyStringTypeHandler extends AbstractTypeHandler<String> {
     ...
 }
 
-TypeHandlerRegistry typeRegistry = ...
+TypeHandlerRegistry typeRegistry = ...;
 typeRegistry.registerHandler(MyStringTypeHandler.class, new MyStringTypeHandler());
 ```
 
@@ -153,17 +155,17 @@ public class MyStringTypeHandler extends AbstractTypeHandler<String> {
     ...
 }
 
-TypeHandlerRegistry typeRegistry = ...
+TypeHandlerRegistry typeRegistry = ...;
 typeRegistry.register(Types.VARCHAR, new MyStringTypeHandler());
 ```
 
 ```java title='注解方式注册'
-@MappedJdbcTypes(String.class)
+@MappedJdbcTypes(Types.VARCHAR)
 public class MyStringTypeHandler extends AbstractTypeHandler<String> {
     ...
 }
 
-TypeHandlerRegistry typeRegistry = ...
+TypeHandlerRegistry typeRegistry = ...;
 typeRegistry.registerHandler(MyStringTypeHandler.class, new MyStringTypeHandler());
 ```
 
@@ -178,7 +180,7 @@ public class MyStringTypeHandler extends AbstractTypeHandler<String> {
     ...
 }
 
-TypeHandlerRegistry typeRegistry = ...
+TypeHandlerRegistry typeRegistry = ...;
 typeRegistry.register(Types.NVARCHAR, String.class, new MyStringTypeHandler());
 ```
 
@@ -188,7 +190,7 @@ public class MyStringTypeHandler extends AbstractTypeHandler<String> {
     ...
 }
 
-TypeHandlerRegistry typeRegistry = ...
+TypeHandlerRegistry typeRegistry = ...;
 typeRegistry.registerHandler(MyStringTypeHandler.class, new MyStringTypeHandler());
 ```
 
@@ -213,7 +215,7 @@ public class MyTypeHandler extends AbstractTypeHandler<Object> {
 
 当类型处理器使用了处理器参数后，缓存机制可能会命中到已创建的 typeHandler 而忽略相同 typeHandler 但参数不同的情况。例如：
 
-```test
+```text title='示例：两个查询使用相同 TypeHandler 但不同参数类型'
 select * from users 
 where user_type = #{arg0, javaType= net.demos.dto.UserTypeEnum, ➊
                           typeHandler=net.demos.dto.MyTypeHandler}

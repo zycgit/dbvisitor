@@ -6,6 +6,8 @@ title: 更新
 description: 用于执行无结果集的 SQL 语句，例如：INSERT、UPDATE、DELETE 或 DDL 操作。
 ---
 
+# 更新
+
 用于执行无结果集的 SQL 语句，例如：INSERT、UPDATE、DELETE 或 DDL 操作。
 
 :::info
@@ -24,13 +26,13 @@ description: 用于执行无结果集的 SQL 语句，例如：INSERT、UPDATE�
     int res = jdbc.executeUpdate("insert into users (id, name) values(2, 'Alice')");
     ```
     ```java title='使用位置参数'
-    Object[] args = new Object[] { 2, 'Alice' };
+    Object[] args = new Object[] { 2, "Alice" };
     int res = jdbc.executeUpdate("insert into users (id, name) values(?, ?)", args);
     ```
     ```java title='使用名称参数'
     Map<String, Object> args = new HashMap<>();
-    queryArg.put("id", 2);
-    queryArg.put("name", "Alice");
+    args.put("id", 2);
+    args.put("name", "Alice");
     
     int res = jdbc.executeUpdate("insert into users (id, name) values(:id, :name)", args);
     ```

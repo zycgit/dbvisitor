@@ -1,9 +1,0 @@
-{
-  "label": "5.8 Redis Specifics",
-  "position": 8,
-  "className": "red",
-  "link": {
-    "type": "doc",
-    "id": "about"
-  }
-}

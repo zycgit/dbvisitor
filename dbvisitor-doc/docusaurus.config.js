@@ -69,9 +69,16 @@ const config = {
             },
             items: [
                 {
+                    type: 'docSidebar',
+                    sidebarId: 'guides',
                     position: 'left',
-                    label: '文档',
-                    href: '/docs/guides/overview'
+                    label: '数据库访问',
+                },
+                {
+                    type: 'docSidebar',
+                    sidebarId: 'drivers',
+                    position: 'left',
+                    label: '驱动适配器',
                 },
                 {
                     type: 'doc',

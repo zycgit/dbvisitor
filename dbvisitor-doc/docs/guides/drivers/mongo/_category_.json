@@ -1,9 +1,0 @@
-{
-  "label": "11.2 JDBC Mongo",
-  "position": 2,
-  "className": "red",
-  "link": {
-    "type": "doc",
-    "id": "about"
-  }
-}

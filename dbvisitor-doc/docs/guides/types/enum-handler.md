@@ -2,14 +2,14 @@
 id: enum-handler
 sidebar_position: 4
 title: 8.4 枚举类型处理器
-description: dbVisitor ORM 工具处理枚举类型处理器。
+description: dbVisitor 枚举类型处理器的使用方式和自定义映射。
 ---
 
 # 枚举类型处理器
 
-dbVisitor 对于枚举类型通常会自动选择 `EnumTypeHandler` 进行处理，一般情况下无需干预。
+dbVisitor 对于枚举类型会自动选择 `EnumTypeHandler` 进行处理，一般无需干预。
 
-```java title='如对象映射中存在 userType 枚举' {2}
+```java title='如对象映射中存在枚举字段' {2}
 public class User {
     private UserType userType;
 
@@ -17,42 +17,48 @@ public class User {
 }
 ```
 
-```java title='程序无需特别处理'
-// 查询结果
+```java title='查询和参数传递无需特别处理'
+// 查询结果中枚举字段会自动转换
 jdbc.queryForList("select * from users", User.class);
 
-// 查询参数
-User userInfo= ...
+// 枚举参数也会自动处理
+User userInfo = ...;
 jdbc.queryForList("select * from users where user_type = #{userType}", userInfo);
 ```
 
-## 显示声明
+:::info
+默认情况下，`EnumTypeHandler` 使用枚举的 `name()` 值与数据库字段进行映射（字符串方式）。
+:::
 
-```java title='在参数传递中'
-// 查询参数
-User userInfo= ...
-jdbc.queryForList("select * from users where user_type = #{userType, typeHandler=net.<省略>.EnumTypeHandler}", userInfo);
+## 显式声明
+
+```java title='在参数传递中显式指定'
+jdbc.queryForList(
+    "select * from users where user_type = #{userType, typeHandler=net.hasor.dbvisitor.types.handler.string.EnumTypeHandler}",
+    userInfo
+);
 ```
-- EnumTypeHandler 完整名称为：net.hasor.dbvisitor.types.handler.string.EnumTypeHandler
 
-```java title='在对象映射中'
+```java title='在对象映射中显式指定'
 public class User {
-    @Column(typeHandler = net.hasor.dbvisitor.types.handler.string.EnumTypeHandler)
+    @Column(typeHandler = EnumTypeHandler.class)
     private UserType userType;
 
     // getters and setters omitted
 }
 ```
 
+- EnumTypeHandler 完整类名：`net.hasor.dbvisitor.types.handler.string.EnumTypeHandler`
+
 ## 将数值映射到枚举 {#ofvalue}
 
-若想将数据库中的数字值类型应为 Java 的枚举时候，枚举需要实现 `net.hasor.dbvisitor.types.handler.string.EnumOfValue` 接口以完成数据的转换。
+若数据库中存储的是数字，需要枚举实现 `EnumOfValue` 接口来完成数值与枚举的转换。
 
 ```java
 public enum LicenseEnum implements EnumOfValue<LicenseEnum> {
     Private(0),
     AGPLv3(1),
-    GPLv3(2),;
+    GPLv3(2);
 
     private final int type;
 
@@ -66,7 +72,7 @@ public enum LicenseEnum implements EnumOfValue<LicenseEnum> {
 
     public LicenseEnum valueOfCode(int codeValue) {
         for (LicenseEnum item : LicenseEnum.values()) {
-            if (item.getType() == codeValue) {
+            if (item.codeValue() == codeValue) {
                 return item;
             }
         }
@@ -75,26 +81,26 @@ public enum LicenseEnum implements EnumOfValue<LicenseEnum> {
 }
 ```
 
-## 将Code映射到枚举 {#ofcode}
+- `EnumOfValue` 接口位于 `net.hasor.dbvisitor.types.handler.string` 包
 
-通常情况下枚举类型的 name 属性将会作为最终数据读写数据库，但在一些特殊环境中若是枚举的 name 并不能直接做映射此时通常需要 [自定义类型处理器](./custom-handler) 来处理。
+## 将 Code 映射到枚举 {#ofcode}
 
-dbVisitor 允许在不动用类型处理器的情况下通过让枚举实现 `net.hasor.dbvisitor.types.handler.string.EnumOfCode` 接口来负责枚举值的映射，已完成此类需求。
+当枚举的 `name()` 不能直接作为数据库映射值时，可以让枚举实现 `EnumOfCode` 接口来自定义字符串映射逻辑。
 
 ```java
 public enum LicenseEnum implements EnumOfCode<LicenseEnum> {
-    Private("Private"),
-    AGPLv3("AGPLv3"),
-    GPLv3("GPLv3"),;
+    Private("private_license"),
+    AGPLv3("agpl_v3"),
+    GPLv3("gpl_v3");
 
-    private final String type;
+    private final String code;
 
-    LicenseEnum(String type) {
-        this.type = type;
+    LicenseEnum(String code) {
+        this.code = code;
     }
 
     public String codeName() {
-        return this.type;
+        return this.code;
     }
 
     public LicenseEnum valueOfCode(String codeValue) {
@@ -107,3 +113,6 @@ public enum LicenseEnum implements EnumOfCode<LicenseEnum> {
     }
 }
 ```
+
+- `EnumOfCode` 接口位于 `net.hasor.dbvisitor.types.handler.string` 包
+- 如果枚举已有默认的 `codeName()` 方法（返回 `name()`），可以只重写 `valueOfCode` 方法

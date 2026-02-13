@@ -15,9 +15,13 @@ description: dbVisitor 规则系统旨在通过简练的内嵌语法解决复杂
 
 由于规则解析是 dbVisitor 执行引擎的底层核心能力，因此您可以在任何定义 SQL 的地方使用它：
 
-*   **Java 注解**：在 `@Select`, `@Insert`, `@Update`, `@Delete` 等注解中直接编写。
+*   **Java 注解**：在 `@Query`, `@Insert`, `@Update`, `@Delete` 等注解中直接编写。
 *   **代码构建**：通过 `LambdaTemplate` 或 `JdbcTemplate` 执行的任意 SQL 字符串。
-*   **XML Mapper**：在 `.sql` 文件中定义复杂查询。
+*   **XML Mapper**：在 Mapper `.xml` 文件中定义复杂查询。
+
+:::tip[提示]
+规则名不区分大小写，`@{AND}`、`@{And}`、`@{and}` 等价。
+:::
 
 ## 使用限制
 
@@ -93,3 +97,5 @@ dbVisitor 提供了丰富的内置规则，满足不同场景的需求：
     - 用于对查询结果集进行后置处理，以及存储过程和多结果集查询的辅助配置（`@{resultSet}`）。
 - **[规则嵌套](./nested_rule)**
     - 了解如何组合使用多个规则，实现参数预处理和复杂逻辑（如 `@{and, col = @{md5, :val}}`）。
+- **[自定义规则](./custom-rule)**
+    - 当内置规则无法满足需求时，通过实现 `SqlRule` 接口扩展自定义规则。

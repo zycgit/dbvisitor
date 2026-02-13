@@ -128,15 +128,15 @@ Return one row mapped to the specified type. Common use: aggregates or primary-k
     <TabItem value="sig" label="Signatures">
 
         ```java
-        // Object mapping or type handler
-        List<T> queryForObject(String sql, Class<T> requiredType);
-        List<T> queryForObject(String sql, Object args, Class<T> requiredType);
-        List<T> queryForObject(String sql, PreparedStatementSetter pss, Class<T> requiredType);
+        // Object Mapping or Type Handler
+        T queryForObject(String sql, Class<T> requiredType);
+        T queryForObject(String sql, Object args, Class<T> requiredType);
+        T queryForObject(String sql, PreparedStatementSetter pss, Class<T> requiredType);
 
         // RowMapper
-        List<T> queryForObject(String sql, RowMapper<T> rowMapper);
-        List<T> queryForObject(String sql, Object args, RowMapper<T> rowMapper);
-        List<T> queryForObject(String sql, PreparedStatementSetter pss, RowMapper<T> rowMapper);
+        T queryForObject(String sql, RowMapper<T> rowMapper);
+        T queryForObject(String sql, Object args, RowMapper<T> rowMapper);
+        T queryForObject(String sql, PreparedStatementSetter pss, RowMapper<T> rowMapper);
 
         // Receive as List/Map without mapping
         Map<String, Object> queryForMap(String sql);
@@ -259,49 +259,27 @@ Values are the smallest mappable units (types registered in [TypeHandlerRegistry
 
 ## Use ResultSetExtractor {#extractor}
 
-`ResultSetExtractor` gives the most flexibility; implement how to extract results from `ResultSet` without worrying about exception handling.
+Using the `ResultSetExtractor` interface is the most flexible way to handle result sets. Users need to implement the actual work of extracting results from the ResultSet themselves, without worrying about exception handling.
 
 <Tabs>
-    <TabItem value="demo1" label="Single value">
+    <TabItem value="demo1" label="Example">
 
         ```java
-        // Raw SQL
-        long count = jdbc.queryForLong(
-        "select count(*) from user where age > 2");
-
-        // Positional arguments
-        Object[] args = new Object[]{ 2 };
-        long count = jdbc.queryForLong(
-        "select count(*) from user where age > ?", args);
-
-        // Named arguments
-        Map<String, Object> args = CollectionUtils.asMap("age", 2);
-        long count = jdbc.queryForLong(
-        "select count(*) from user where age > :age", args);
+        // Custom result extraction using ResultSetExtractor
+        User user = jdbc.query(
+            "select * from users where id = ?",
+            new Object[]{ 1 },
+            (ResultSetExtractor<User>) rs -> {
+                if (rs.next()) {
+                    User u = new User();
+                    u.setId(rs.getLong("id"));
+                    u.setName(rs.getString("name"));
+                    return u;
+                }
+                return null;
+            }
+        );
         ```
-
-        :::info[Hint]
-        - `jdbc.queryForObject("select count(*) from users", Integer.class);` is equivalent.
-        :::
-
-    </TabItem>
-    <TabItem value="demo2" label="Multiple value">
-
-        ```java
-        // Raw SQL
-        List<String> result = jdbc.queryForList(
-        "select name from users", String.class);
-
-        // Positional arguments
-        Object[] args = new Object[]{ 2 };
-        List<String> result = jdbc.queryForList(
-            "select name from users where name = ?", args, String.class);
-
-            // Named arguments
-            Map<String, Object> args = CollectionUtils.asMap("name", "Bob");
-            List<String> result = jdbc.queryForList(
-                "select name from users where id = :id", args, String.class);
-                ```
 
     </TabItem>
     <TabItem value="sig" label="Signatures">
@@ -381,18 +359,24 @@ With `jdbc.setResultsCaseInsensitive(false)`, column names become case-sensitive
 
 ## Result Handlers {#result}
 
-- [ResultSetExtractor](../../result/for_extractor): customize ResultSet processing.
-- [RowMapper](../../result/row_callback): focus on per-row mapping without handling ResultSet iteration.
-- [RowCallbackHandler](../../result/row_callback): stream large datasets without keeping rows in memory.
-- [TypeHandler](../../types/about): via `@BindTypeHandler`, handle serialization/deserialization for one cell or single-column queries.
+- [ResultSetExtractor](../../result/for_extractor): use the ResultSetExtractor interface to customize ResultSet processing.
+- [RowMapper](../../result/for_mapper): the benefit of using RowMapper is that you don't need to worry about ResultSet processing; just focus on processing each individual row.
+- [RowCallbackHandler](../../result/row_callback): typically used for streaming large-scale data. Data does not remain in memory during processing.
+- [TypeHandler](../../types/about): associate a TypeHandler via the `@BindTypeHandler` annotation to handle field serialization/deserialization in single-row-single-column or single-column-multi-row queries.
 
 ## Query Argument Notes {#arguments}
 
-Query APIs accept arguments as `Object`. Common forms:
+In query-related APIs, arguments are passed uniformly as `Object`. Supported types include:
 
-- Positional varargs (`Object... args`): pass scalars or objects in order.
-- `PreparedStatementSetter`: fully custom binding logic when you need manual type control.
-- Named/bean arguments: when SQL is built with [Rules](../../rules/about) or uses named placeholders, pass `Map`, entity beans, `SqlArg`, or other iterable structures for name-based binding.
-- Arrays/collections: arrays or `Collection` are expanded in order (same as `Object...`).
+- [Positional arguments](../../args/position) (equivalent to `Object... args`)
+    - Arrays, Collection, types registered in TypeRegistry
+- [Named arguments](../../args/named)
+    - Map, entity Bean, SqlArg (name will be fixed as `arg0`)
+- Custom: fully custom argument-setting logic for scenarios requiring manual type control.
+    - [PreparedStatementSetter](../../args/interface#pset), [SqlArgSource](../../args/interface#source)
+- Dynamic SQL
+    - Use [Rules](../../rules/dynamic_rule) to bind arguments when building query commands, supporting named arguments.
+    - Using `${...}` for [SQL injection](../../args/inject) does not participate in PreparedStatement but is still a form of argument passing.
 
-Arguments are processed through TypeHandler to map Java types to JDBC types correctly.
+
+Argument types are ultimately processed through TypeHandler to ensure correct mapping between JDBC types and Java types.

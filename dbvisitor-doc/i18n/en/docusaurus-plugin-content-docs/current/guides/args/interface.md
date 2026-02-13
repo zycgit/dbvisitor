@@ -27,28 +27,28 @@ The `SqlArgSource` interface defines common argument access. It can provide valu
 Examples below only showcase the capabilities of different `SqlArgSource` types.
 :::
 
-```sql title='Example 1: ArraySqlArgSource with positional arguments'
+```java title='Example 1: ArraySqlArgSource with positional arguments'
 Object[] array = new Object[] { 2, "Dave"};
-SqlArgSource source = new BeanSqlArgSource(array);
+SqlArgSource source = new ArraySqlArgSource(array);
 
 jdbcTemplate.queryForList("select * from users where id > ? and name = ?", source);
 ```
 
-```sql title='Example 2: ArraySqlArgSource with named positional arguments'
+```java title='Example 2: ArraySqlArgSource with named positional arguments'
 Object[] array = new Object[] { 2, "Dave"};
-SqlArgSource source = new BeanSqlArgSource(array);
+SqlArgSource source = new ArraySqlArgSource(array);
 
 jdbcTemplate.queryForList("select * from users where id > :arg0 and name = :arg1", source);
 ```
 
-```sql title='Example 3: BeanSqlArgSource passing a bean'
+```java title='Example 3: BeanSqlArgSource passing a bean'
 User user = new User(2, "Dave");
 SqlArgSource source = new BeanSqlArgSource(user);
 
 jdbcTemplate.queryForList("select * from users where id > :id and name = :name", source);
 ```
 
-```sql title='Example 4: MapSqlArgSource passing a map'
+```java title='Example 4: MapSqlArgSource passing a map'
 Map<String, Object> map = Collections.singletonMap("id", 40);
 SqlArgSource source = new MapSqlArgSource(map);
 
@@ -75,3 +75,35 @@ jdbcTemplate.queryForList(sql, new PreparedStatementSetter() {
     }
 });
 ```
+
+## @Param Annotation {#param}
+
+In the Declarative API ([Method Annotations](../core/annotation/about)), use the `@Param` annotation to name method parameters so they can be referenced by name in SQL.
+
+```java title='Example 1: Naming arguments with @Param'
+@Query("select * from users where id > #{id} and name = #{name}")
+List<User> findUsers(@Param("id") int id, @Param("name") String name);
+```
+
+### Argument Expansion Rules
+
+When a method has only one Bean or Map parameter and it is **not** annotated with `@Param`, dbVisitor automatically expands its properties/keys as top-level arguments.
+
+```java title='Example 2: Bean property auto-expansion (no @Param)'
+// Bean properties are used directly as SQL argument names
+@Insert("insert into users (id, name, age) values (#{id}, #{name}, #{age})")
+int insertUser(UserInfo user);
+```
+
+When `@Param` is present, properties must be accessed via `paramName.propertyName`:
+
+```java title='Example 3: @Param + Bean nested access'
+@Insert("insert into users (id, name, email) values (#{user.id}, #{user.name}, #{email})")
+int insertMixed(@Param("user") UserInfo user, @Param("email") String email);
+```
+
+:::info[Argument Expansion Summary]
+- **Single Bean/Map without @Param** → properties/keys are auto-expanded as top-level arguments
+- **With @Param** → access via `paramName.propertyName` nesting
+- **Multiple primitive-type parameters** → must use `@Param` naming
+:::

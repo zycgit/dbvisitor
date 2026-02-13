@@ -14,11 +14,11 @@ import TagGray from '@site/src/components/tags/TagGray';
 
 # @Execute Annotation
 
-Marks an interface method and accepts a string or string array that represents any SQL statement.
+Marks an interface method to execute any SQL statement (DML/DDL).
 
 :::info
 If you pass a string array, the elements are concatenated with a single space between them.<br/>
-This makes it easy to manage SQL in a readable way.
+String arrays make it easy to manage multi-line SQL.
 :::
 
 ```java title='Example: create a sharded users table'
@@ -34,7 +34,7 @@ public interface UserMapper {
 }
 ```
 
-- `${part}` is injected directly into the SQL string.
+- `${part}` uses direct string substitution to pass the argument (beware of SQL injection risks).
 
 ## Properties
 
@@ -43,4 +43,4 @@ public interface UserMapper {
 | value         | <TagRed/> SQL to execute.                                                                                                                                                                                  |
 | statementType | <TagGray/> Determines which JDBC statement type to use. Default is `PREPARED`.<br/>- `STATEMENT` → `java.sql.Statement`<br/>- `PREPARED` → `java.sql.PreparedStatement`<br/>- `CALLABLE` → `java.sql.CallableStatement` |
 | timeout       | <TagGray/> If set to a value greater than `0`, the value is applied to `java.sql.Statement.setQueryTimeout(int)` to enforce a timeout in seconds. Default is `-1`.                                         |
-| bindOut       | <TagGray/> Filters output arguments to decide which ones will be received. If omitted, all arguments are captured.<br/>Once configured, the method return type must be **Map&lt;String,Object&gt;**.          |
+| bindOut       | <TagGray/> Bind output parameter names, used to receive stored procedure output arguments or multiple result sets.<br/>When using this attribute, the method return type must be **Map&lt;String,Object&gt;**.          |

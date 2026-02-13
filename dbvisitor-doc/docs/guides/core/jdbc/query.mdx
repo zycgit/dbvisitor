@@ -129,14 +129,14 @@ JdbcTemplate 提供多种只读查询 API。大多数接口接受 SQL 字符串�
 
         ```java
         // 使用 对象映射 或 类型处理器
-        List<T> queryForObject(String sql, Class<T> requiredType);
-        List<T> queryForObject(String sql, Object args, Class<T> requiredType);
-        List<T> queryForObject(String sql, PreparedStatementSetter pss, Class<T> requiredType);
+        T queryForObject(String sql, Class<T> requiredType);
+        T queryForObject(String sql, Object args, Class<T> requiredType);
+        T queryForObject(String sql, PreparedStatementSetter pss, Class<T> requiredType);
 
         // 使用 RowMapper
-        List<T> queryForObject(String sql, RowMapper<T> rowMapper);
-        List<T> queryForObject(String sql, Object args, RowMapper<T> rowMapper);
-        List<T> queryForObject(String sql, PreparedStatementSetter pss, RowMapper<T> rowMapper);
+        T queryForObject(String sql, RowMapper<T> rowMapper);
+        T queryForObject(String sql, Object args, RowMapper<T> rowMapper);
+        T queryForObject(String sql, PreparedStatementSetter pss, RowMapper<T> rowMapper);
 
         // 无需映射使用 List/Map 接收结果
         Map<String, Object> queryForMap(String sql);
@@ -188,7 +188,7 @@ JdbcTemplate 提供多种只读查询 API。大多数接口接受 SQL 字符串�
 
 ## 查询值 {#value}
 
-查询值区别于查询对象是在于值是可映射的最小类型单元，可以是 [TypeHandlerRegistry](../../types/handlers/about) 注册器中的类型。如：`Stirng`、`Int`、`Date` 等。查询值通常有两种情况：
+查询值区别于查询对象是在于值是可映射的最小类型单元，可以是 [TypeHandlerRegistry](../../types/handlers/about) 注册器中的类型。如：`String`、`Int`、`Date` 等。查询值通常有两种情况：
 - 查询值列表，例如获取符合条件的对象 ID 集合。
 - 查询聚合汇总信息，例如统计总数，求平均值等。
 
@@ -263,46 +263,24 @@ JdbcTemplate 提供多种只读查询 API。大多数接口接受 SQL 字符串�
 使用 `ResultSetExtractor` 接口是最灵活处理结果集的方式，用户需要自行实现执行从 ResultSet 中提取结果的实际工作，同时无需担心异常处理。
 
 <Tabs>
-    <TabItem value="demo1" label="示例：单值">
+    <TabItem value="demo1" label="示例">
 
         ```java
-        // 原始 SQL
-        long count = jdbc.queryForLong(
-        "select count(*) from user where age > 2");
-
-        // 位置参数
-        Object[] args = new Object[]{ 2 };
-        long count = jdbc.queryForLong(
-        "select count(*) from user where age > ?", args);
-
-        // 名称参数
-        Map<String, Object> args = CollectionUtils.asMap("age", 2);
-        long count = jdbc.queryForLong(
-        "select count(*) from user where age > :age", args);
+        // 使用 ResultSetExtractor 自定义结果提取
+        User user = jdbc.query(
+            "select * from users where id = ?",
+            new Object[]{ 1 },
+            (ResultSetExtractor<User>) rs -> {
+                if (rs.next()) {
+                    User u = new User();
+                    u.setId(rs.getLong("id"));
+                    u.setName(rs.getString("name"));
+                    return u;
+                }
+                return null;
+            }
+        );
         ```
-
-        :::info[提示]
-        - jdbc.queryForObject("select count(*) from users", Integer.class); // 具有等效能力
-        :::
-
-    </TabItem>
-    <TabItem value="demo2" label="示例：值列表">
-
-        ```java
-        // 原始 SQL
-        List<String> result = jdbc.queryForList(
-        "select name from users", String.class);
-
-        // 位置参数
-        Object[] args = new Object[]{ 2 };
-        List<String> result = jdbc.queryForList(
-            "select name from users where name = ?", args, String.class);
-
-            // 名称参数
-            Map<String, Object> args = CollectionUtils.asMap("name", "Bob");
-            List<String> result = jdbc.queryForList(
-                "select name from users where id = :id", args, String.class);
-                ```
 
     </TabItem>
     <TabItem value="sig" label="函数签名">
@@ -385,7 +363,7 @@ List<Map<String, Object>> result = jdbc.queryForList("select * from users");
 ## 结果处理器 {#result}
 
 - [ResultSetExtractor](../../result/for_extractor)，使用 ResultSetExtractor 接口，自定义 ResultSet 结果集的处理。
-- [RowMapper](../../result/row_callback)，使用 RowMapper 的好处是无需关心 ResultSet 的处理过程，只需要将编程工作专注在每一行数据的处理上。
+- [RowMapper](../../result/for_mapper)，使用 RowMapper 的好处是无需关心 ResultSet 的处理过程，只需要将编程工作专注在每一行数据的处理上。
 - [RowCallbackHandler](../../result/row_callback)，通常可以用来流式的处理大规模数据。数据在处理过程中不会遗留在内存中。
 - [TypeHandler](../../types/about)，通过 @BindTypeHandler 注解关联一个 TypeHandler，可在一行一列或单列多行的查询中处理字段的序列化/反序列化。
 

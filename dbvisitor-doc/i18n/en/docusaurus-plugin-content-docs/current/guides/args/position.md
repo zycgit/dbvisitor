@@ -45,14 +45,36 @@ jdbcTemplate.queryForList("select * from users where id > :arg0 and name = :arg1
 
 ## Argument Options
 
-Argument options let you control argument handling, such as using `TypeHandler` for special types.
+Use the `SqlArg` class to provide more control when setting arguments, such as specifying a TypeHandler, Java type, or JDBC type.
 
-```java title='Example 5: Wrap arguments with SqlArg and specify TypeHandler'
+```java title='Example 1: Use SqlArg to specify TypeHandler'
 SqlArg[] args = new SqlArg[] {
       SqlArg.valueOf(2L, new LongTypeHandler()),     // LongTypeHandler sets a Long argument
       SqlArg.valueOf("Dave", new StringTypeHandler())// StringTypeHandler sets a String argument
 };
 jdbcTemplate.queryForList("select * from users where id > ? and name = ?", args);
+```
+
+`SqlArg` provides multiple factory methods for creating different types of arguments:
+
+| Method | Description |
+|--------|-------------|
+| `SqlArg.valueOf(Object)` | Create an IN argument |
+| `SqlArg.valueOf(Object, Class<?>)` | Create an IN argument with javaType |
+| `SqlArg.valueOf(Object, TypeHandler<?>)` | Create an IN argument with TypeHandler |
+| `SqlArg.valueOf(Object, int)` | Create an IN argument with jdbcType |
+| `SqlArg.asOut(String, int)` | Create an OUT argument (with jdbcType) |
+| `SqlArg.asOut(String, int, TypeHandler<?>)` | Create an OUT argument (with jdbcType + TypeHandler) |
+| `SqlArg.asInOut(String, Object, int)` | Create an INOUT argument (with jdbcType) |
+| `SqlArg.asInOut(String, Object, int, TypeHandler<?>)` | Create an INOUT argument (with jdbcType + TypeHandler) |
+
+`SqlArg` objects can also be placed directly in a Map as named argument values. The framework automatically recognizes and uses their type information.
+
+```java title='Example 2: Mixing SqlArg and plain values in Map'
+Map<String, Object> args = new HashMap<>();
+args.put("id", SqlArg.valueOf(2L, new LongTypeHandler()));
+args.put("name", "Dave");
+jdbcTemplate.queryForList("select * from users where id > :id and name = :name", args);
 ```
 
 :::info[For more argument options, see:]

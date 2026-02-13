@@ -14,11 +14,11 @@ import TagGray from '@site/src/components/tags/TagGray';
 
 # @Call Annotation
 
-Marks an interface method and accepts a string or string array that represents a stored procedure invocation.
+Marks an interface method to execute a stored procedure call.
 
 :::info
 If you pass a string array, the elements are concatenated with a single space between them.<br/>
-This makes it easy to manage SQL in a readable way.
+`@Call` implicitly uses `CallableStatement`, so it has no `statementType` attribute.
 :::
 
 ```java title='Example'
@@ -41,15 +41,15 @@ Map<String, Object> res2 = mapper.callSelectUser2();
 // res2.get("abc") retrieves the OUT argument "abc"
 ```
 
-- When using @Call to invoke a stored procedure, the method return type must be **Map&lt;String,Object&gt;**. See [Stored Procedures](../jdbc/procedure) for SQL syntax.
+- When using `@Call` to invoke a stored procedure, the method return type should be **Map&lt;String,Object&gt;**. See [Stored Procedures](../jdbc/procedure) for SQL syntax.
   - Stored procedure input arguments: passed in through method arguments
-    - Stored procedure output arguments: read from the returned map
-  - Result sets produced by the stored procedure: read from the returned map
+  - Stored procedure output arguments: read from the returned Map
+  - Result sets produced by the stored procedure: read from the returned Map
 
 ## Properties
 
 | Property   | Description                                                                                                                                                                         |
 |------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| value      | <TagRed/> SQL to execute.                                                                                                                                                           |
-| timeout    | <TagGray/> If set to a value greater than `0`, the value is applied to `java.sql.Statement.setQueryTimeout(int)` to enforce a timeout in seconds. Default is `-1`.                 |
-| bindOut    | <TagGray/> Filters the output arguments to decide which ones will be received. If omitted, all arguments are captured.                                                            |
+| value      | <TagRed/> Stored procedure call statement.                                                                                                                                                           |
+| timeout    | <TagGray/> Set query timeout in seconds via `Statement.setQueryTimeout(int)`. Default `-1` means not set.                 |
+| bindOut    | <TagGray/> Filter output arguments; only the specified argument names are received. If omitted, all output arguments are captured.                                                            |

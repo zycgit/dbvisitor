@@ -6,6 +6,8 @@ title: 删除操作
 description: 在 dbVisitor 中使用 LambdaTemplate 删除数据。
 ---
 
+# 删除操作
+
 在 dbVisitor 中使用 LambdaTemplate 删除数据如下所示：
 
 :::info[提示]
@@ -28,7 +30,7 @@ int result = lambda.delete(User.class)
 
 ```java
 LambdaTemplate lambda = ...
-int result = lambda.deleteByEntity(User.class)
+int result = lambda.delete(User.class)
                    .allowEmptyWhere() // 允许 doDelete 时没有任何条件
                    .doDelete();
 // 返回 result 为受影响的行数

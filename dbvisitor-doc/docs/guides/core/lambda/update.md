@@ -6,6 +6,8 @@ title: 更新操作
 description: 在 dbVisitor 中使用 LambdaTemplate 更新数据有三种用法。
 ---
 
+# 更新操作
+
 在 dbVisitor 中使用 LambdaTemplate 更新数据有三种用法，在使用过程中可以灵活搭配以满足需要。具体如下：
 - [字段更新](./update#field)，更新某个或者某些特定的字段。
 - [参照样本](./update#sample)，在更新多个字段时参考样本对象中的数据。
@@ -71,7 +73,7 @@ int result = lambda.update(User.class)
 在使用样本时需要注意以下几点：
 - updateToSample 方法只会寻找样本中不为空的属性作为更新字段，因此：
   - 不需要被更新的属性在样本对象中需要设置为 NULL。
-  - 不建议在样本对象中使用 byte、sort、int、long、float、double、char 基本类型属性。
+  - 不建议在样本对象中使用 byte、short、int、long、float、double、char 基本类型属性。
   - 若是需要更新为 NULL，可以追加使用 [字段更新](./update#field)。
 - 如果多次调用 updateToSample 设置样本数据，那么先后两次样本中重叠部分会被覆盖。
 :::

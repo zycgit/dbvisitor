@@ -45,6 +45,7 @@ dbVisitor cannot guarantee that different versions will work together (e.g., dbV
 All dbVisitor components used in a project or service should use the same version.
 
 ## Framework Integration {#integration}
+- Use dbVisitor in a Java program via [the plain way](./with_java).
 - Use [dbvisitor-guice](./with_guice) to use dbVisitor in Google Guice.
 - Use [dbvisitor-spring](./with_spring) to use dbVisitor in Spring, SpringBoot.
 - Use [dbvisitor-solon](./with_solon) to use dbVisitor in Solon.

@@ -7,9 +7,11 @@ description: 通用 BaseMapper 接口提供了一组常见的数据库操作方�
 ---
 
 # 常见操作
-通用 BaseMapper 接口提供了一组常见的数据库操作方法利用对象映射信息完成对数据库的基础 CRUD 操作。
+通用 BaseMapper 接口提供了一组常见的数据库操作方法，利用对象映射信息完成对数据库的基础 CRUD 操作。
 
-你可以根据您的项目架构选择合适的方式获取 Session，详细信息请参考：**[框架整合](../../yourproject/buildtools#integration)**
+:::tip[提示]
+Session 的获取方式取决于项目架构，详见 **[框架整合](../../yourproject/buildtools#integration)**。
+:::
 
 ## 增、删、改
 
@@ -62,7 +64,7 @@ User user = mapper.selectById(userId);
 
 ```java title='根据 ID 查询一组对象'
 BaseMapper<User> mapper = session.createBaseMapper(User.class);
-List<User> users = mapper.selectById(Arrays.asList(userId1, userId2));
+List<User> users = mapper.selectByIds(Arrays.asList(userId1, userId2));
 ```
 
 ```java title='根据样本查询列表'
