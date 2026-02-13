@@ -57,3 +57,18 @@ ElasticSearch:
   label: ElasticSearch
   permalink: /tags/elasticsearch
   description: 分布式搜索和分析引擎
+
+Security:
+  label: 安全
+  permalink: /tags/security
+  description: SQL 注入防护与安全最佳实践
+
+TypeHandler:
+  label: TypeHandler
+  permalink: /tags/typehandler
+  description: 类型处理器
+
+Vector:
+  label: Vector
+  permalink: /tags/vector
+  description: 向量数据库与相似性搜索

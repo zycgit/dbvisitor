@@ -17,7 +17,7 @@ const config = {
     organizationName: 'zycgit', // Usually your GitHub org/user name.
     projectName: 'dbVisitor',   // Usually your repo name.
     i18n: {
-        defaultLocale: 'zh-cn',
+        defaultLocale: 'en',
         locales: ['zh-cn', 'en'],
     },
     presets: [
@@ -84,7 +84,7 @@ const config = {
                     type: 'doc',
                     docId: 'releases/latest',
                     position: 'left',
-                    label: '版本',
+                    label: '版本记录',
                 },
                 {
                     to: '/blog',

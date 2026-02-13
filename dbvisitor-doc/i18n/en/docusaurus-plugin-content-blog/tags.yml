@@ -57,3 +57,18 @@ ElasticSearch:
   label: ElasticSearch
   permalink: /tags/elasticsearch
   description: Distributed search and analytics engine
+
+Security:
+  label: Security
+  permalink: /tags/security
+  description: SQL injection protection and security best practices
+
+TypeHandler:
+  label: TypeHandler
+  permalink: /tags/typehandler
+  description: Type Handlers
+
+Vector:
+  label: Vector
+  permalink: /tags/vector
+  description: Vector database and similarity search

@@ -5,11 +5,7 @@ authors: [ZhaoYongChun]
 tags: [dbVisitor, MyBatis, ORM]
 ---
  
-As a Java developer, you must have experienced the terror of being dominated by MyBatis XML.
-
-When you open a `UserMapper.xml`, you are greeted by hundreds or even thousands of lines of `<if>`, `<where>`, `<choose>`, and `<foreach>` tags. The originally clean SQL statements are cut into pieces by these XML tags, just like an old lady's **mummy's shroud**—long, smelly, and cumbersome.
-
-If you are fed up with writing logic in XML tags, and fed up with writing three lines of XML just for a simple non-null check, then please read on. dbVisitor's dynamic SQL rule mechanism might be the "scissors" you have been looking for.
+Hundreds of lines of `<if>`, `<where>`, `<choose>` tags in MyBatis XML — clean SQL buried under **mummy wrappings**. If you're fed up with three lines of XML for a simple null check, dbVisitor's dynamic SQL rules might be the scissors you need.
 
 <!--truncate-->
 

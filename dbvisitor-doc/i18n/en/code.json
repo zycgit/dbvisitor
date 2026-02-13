@@ -26,6 +26,147 @@
   "dbv.tagline": {
     "message": "dbVisitor provides a unified and simple way to access various types of databases."
   },
+  "dbv.hero.desc": {
+    "message": "Acknowledge differences, manage differences, not eliminate them — through a dual-layer adapter architecture, one set of APIs naturally accesses any database."
+  },
+  "dbv.hero.getStarted": {
+    "message": "Get Started"
+  },
+  "dbv.db.title": {
+    "message": "Broad Database Support"
+  },
+  "dbv.db.subtitle": {
+    "message": "Covers 11 relational database dialects, plus NoSQL and vector databases via JDBC driver adapters"
+  },
+  "dbv.phil.title": {
+    "message": "Core Philosophy"
+  },
+  "dbv.phil.subtitle": {
+    "message": "Use different levels of API to solve different levels of problems — respect and manage data source differences."
+  },
+  "dbv.phil.unified.title": {
+    "message": "Unified APIs"
+  },
+  "dbv.phil.unified.desc": {
+    "message": "Programmatic, Declarative, Mapper, XML File — 5 API styles"
+  },
+  "dbv.phil.adapter.title": {
+    "message": "Dual-Layer Adapter Architecture"
+  },
+  "dbv.phil.adapter.desc": {
+    "message": "Application access layer, standard driver layer, independent evolution, independent use"
+  },
+  "dbv.phil.zero.title": {
+    "message": "Zero Coupling"
+  },
+  "dbv.phil.zero.desc": {
+    "message": "Complex or simple, free integration, use anywhere"
+  },
+  "dbv.arch.title": {
+    "message": "Dual-Layer Adapter Architecture"
+  },
+  "dbv.arch.subtitle": {
+    "message": "Application layer manages query differences, Protocol layer manages communication differences"
+  },
+  "dbv.arch.api": {
+    "message": "Application Layer — 5 API Styles"
+  },
+  "dbv.arch.annotation": {
+    "message": "Annotation Mapping"
+  },
+  "dbv.arch.driver": {
+    "message": "Protocol Layer — JDBC Driver Adapters"
+  },
+  "dbv.arch.database": {
+    "message": "Databases"
+  },
+  "dbv.api.title": {
+    "message": "5 API Styles"
+  },
+  "dbv.api.subtitle": {
+    "message": "Choose the best API for your scenario — all styles share the same underlying runtime mechanism."
+  },
+  "dbv.api.jdbc.desc": {
+    "message": "Native SQL operations, the most direct way to access databases"
+  },
+  "dbv.api.annotation.name": {
+    "message": "Declarative Interface"
+  },
+  "dbv.api.annotation.desc": {
+    "message": "Declarative interfaces + annotations, similar to MyBatis Mapper"
+  },
+  "dbv.api.base.name": {
+    "message": "Generic Mapper"
+  },
+  "dbv.api.base.desc": {
+    "message": "Generic CRUD operations, zero-SQL rapid development"
+  },
+  "dbv.api.lambda.name": {
+    "message": "Criteria Builder"
+  },
+  "dbv.api.lambda.desc": {
+    "message": "Build queries with Lambda expressions, type-safe"
+  },
+  "dbv.api.xml.desc": {
+    "message": "XML-defined SQL mappings, MyBatis-compatible style"
+  },
+  "dbv.api.viewDoc": {
+    "message": "View Docs"
+  },
+  "dbv.api.jdbc.c1": {
+    "message": "// Query and map to Bean"
+  },
+  "dbv.api.jdbc.c2": {
+    "message": "// Query single value"
+  },
+  "dbv.api.base.c1": {
+    "message": "// Query by primary key"
+  },
+  "dbv.api.base.c2": {
+    "message": "// Insert & Update"
+  },
+  "dbv.api.base.c3": {
+    "message": "// Delete by primary key"
+  },
+  "dbv.api.lambda.c1": {
+    "message": "// Type-safe Lambda query"
+  },
+  "dbv.api.xml.c1": {
+    "message": "// XML definition (userMapper.xml)"
+  },
+  "dbv.api.xml.c2": {
+    "message": "// Java interface"
+  },
+  "dbv.code.title": {
+    "message": "Same APIs, Different Databases"
+  },
+  "dbv.code.subtitle": {
+    "message": "Whether the underlying database is MySQL or MongoDB, the application code stays the same"
+  },
+  "dbv.code.comment.rdb": {
+    "message": "// Connect to relational database"
+  },
+  "dbv.code.comment.lambda": {
+    "message": "// Lambda query"
+  },
+  "dbv.code.comment.nosql": {
+    "message": "// Connect to NoSQL database (same API)"
+  },
+  "dbv.code.comment.same": {
+    "message": "// Exact same Lambda query"
+  },
+  "dbv.start.title": {
+    "message": "Quick Start"
+  },
+  "dbv.start.subtitle": {
+    "message": "Just one Maven dependency to get started"
+  },
+  "dbv.cta.title": {
+    "message": "Join the Community"
+  },
+  "dbv.cta.desc": {
+    "message": "Apache 2.0 License · Only dependency: Cobble · Java 8+"
+  },
   "faker.feature1_title": {
     "message": "Full types"
   },

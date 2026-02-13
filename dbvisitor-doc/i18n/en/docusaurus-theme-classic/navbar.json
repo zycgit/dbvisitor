@@ -1,19 +1,27 @@
 {
   "title": {
-    "message": "dbVisitor",
-    "description": "dbVisitor project"
+    "message": "Home",
+    "description": "The title in the navbar"
   },
-  "item.label.ORM": {
-    "message": "ORM",
-    "description": "ORM"
+  "logo.alt": {
+    "message": "dbVisitor Logo",
+    "description": "The alt text of navbar logo"
   },
-  "item.label.Integration": {
-    "message": "Integration",
-    "description": "Integration"
+  "item.label.数据库访问": {
+    "message": "Database Access",
+    "description": "Navbar item with label 数据库访问"
   },
-  "item.label.Faker": {
-    "message": "Faker",
-    "description": "Faker"
+  "item.label.驱动适配器": {
+    "message": "Driver Adapters",
+    "description": "Navbar item with label 驱动适配器"
+  },
+  "item.label.版本记录": {
+    "message": "Release Notes",
+    "description": "Navbar item with label 版本记录"
+  },
+  "item.label.博客": {
+    "message": "Blog",
+    "description": "Navbar item with label 博客"
   },
   "item.label.码云": {
     "message": "Gitee",
@@ -22,21 +30,5 @@
   "item.label.Github": {
     "message": "Github",
     "description": "Navbar item with label Github"
-  },
-  "logo.alt": {
-    "message": "dbVisitor Logo",
-    "description": "The alt text of navbar logo"
-  },
-  "item.label.文档": {
-    "message": "Document",
-    "description": "Navbar item with label 文档"
-  },
-  "item.label.版本": {
-    "message": "Release Nodes",
-    "description": "Navbar item with label 版本"
-  },
-  "item.label.博客": {
-    "message": "Blog",
-    "description": "Navbar item with label 博客"
   }
 }

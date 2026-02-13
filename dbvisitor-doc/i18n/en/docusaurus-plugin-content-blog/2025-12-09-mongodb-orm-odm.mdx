@@ -16,11 +16,7 @@ export const Highlight = ({children, color}) => (
     <span style={{ backgroundColor: color, borderRadius: '2px', color: '#fff', padding: '0.2rem', }}>{children}</span>
 );
 
-Relational database ORM tools (Hibernate, MyBatis, etc.) are mature in Java. As NoSQL—especially MongoDB—has become popular, developers also want a clean, efficient way to work with MongoDB in Java.
-
-MongoDB is document-oriented and schema-less, but Java is strongly typed. We still need a way to map BSON documents to Java objects for business logic. That is where ODM (Object-Document Mapping) comes in.
-
-This post looks at the current state of MongoDB ORM/ODM and introduces a JDBC-based MongoDB tool: **dbVisitor**.
+Java ORM tools are mature for RDBMS, but MongoDB's document model needs ODM (Object-Document Mapping) for clean Java integration. This post surveys the landscape and introduces **dbVisitor** as a JDBC-based solution.
 
 <!--truncate-->
 

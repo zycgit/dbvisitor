@@ -19,7 +19,7 @@ dbVisitor 提出的"双层适配"架构旨在解决这一痛点。
 * **第一层（应用适配）**：在 API 层面，通过统一的 LambdaTemplate 和 Mapper 接口屏蔽底层语法差异（SQL vs DSL）。
 * **第二层（协议适配）**：在驱动层面，实现了标准的 JDBC 接口，将 NoSQL 数据源封装为标准 JDBC 驱动。
 
-这种设计不仅实现了"One API Access Any DataBase"的愿景，还带来了极高的灵活性：开发者既可以享受 dbVisitor 全栈的便捷，也可以仅使用其 JDBC 驱动，让现有的 MyBatis/Hibernate 项目瞬间具备操作 NoSQL 的能力。
+这种设计不仅实现了"One APIs Access Any DataBase"的愿景，还带来了极高的灵活性：开发者既可以享受 dbVisitor 全栈的便捷，也可以仅使用其 JDBC 驱动，让现有的 MyBatis/Hibernate 项目瞬间具备操作 NoSQL 的能力。
 
 <!-- truncate -->
 

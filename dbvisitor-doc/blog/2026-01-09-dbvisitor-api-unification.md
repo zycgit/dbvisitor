@@ -9,7 +9,7 @@ language: zh-cn
 有开发者引用物理学隐喻：“粒子的位置与动量不可同时确定”，暗示在框架设计中，通用性与专用性难以兼得。
 更有人直言，任何尝试“大一统”的框架，最终都会沦为“四不像”，不仅丢掉了数据库的强事务优势，也没能发挥出例如 Elasticsearch 的能力。
 
-面对这些质疑，dbVisitor 依然坚定地提出了 **"One API Access Any DataBase"** 的愿景。
+面对这些质疑，dbVisitor 依然坚定地提出了 **"One APIs Access Any DataBase"** 的愿景。
 为什么我敢这么说？今天我们就来拆解这个争议，聊聊 dbVisitor 敢于挑战“大一统”的底气究竟在哪里。
 
 <!-- truncate -->
@@ -51,7 +51,7 @@ MyBatis Plus 在国内的巨大成功，正是建立在 MyBatis 这个坚实的�
 *   Elasticsearch 插入一条数据用 `IndexRequest`
 *   Redis 插入一条数据用 `set` 命令
 
-这些“简单”的操作，API 风格天差地别。在 **"One API Access Any DataBase"** 的愿景下，能用统一的 `insert(entity)` 完成上述所有操作，本身就具有极高的普世价值，它消除了认知切换的成本。
+这些“简单”的操作，API 风格天差地别。在 **"One APIs Access Any DataBase"** 的愿景下，能用统一的 `insert(entity)` 完成上述所有操作，本身就具有极高的普世价值，它消除了认知切换的成本。
 
 #### 反驳观点二：API 不仅仅是查询构造器
 这是一个巨大的思维误区：**“统一 API” 不等于 “统一成某一特定的接口”**。
@@ -74,7 +74,7 @@ dbVisitor 之所以敢说“可以”，是因为其核心思想并非去 **消�
 而是通过 **JDBC 标准化** 和 **分层抽象** 来 **管理差异**。并通过独特的双层适配器架构来弥合鸿沟：
 
 #### JDBC 标准化
-这层是 dbVisitor 达成 “One API Access Any DataBase” 愿景的根基。
+这层是 dbVisitor 达成 “One APIs Access Any DataBase” 愿景的根基。
 
 *   **复用 JDBC 标准**：没有发明新协议，而是为 NoSQL（MongoDB, Elasticsearch, Redis）编写了遵循 JDBC 规范的驱动。
     并使用这些数据库官方原始的 DSL 语言来进行数据库操作。这些驱动在内部也仅仅是将 JDBC 的操作映射到各自的原生 SDK 调用上，并将返回值映射成 JDBC 标准方式。

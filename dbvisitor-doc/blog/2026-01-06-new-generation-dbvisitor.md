@@ -1,7 +1,7 @@
 ---
 slug: new-generation-dbvisitor
 title: 新一代 Java 数据访问库：dbVisitor
-description: 数据的存储形式从单一的关系型数据库演进到了多元化时代（NoSQL, NewSQL, AI Vector 等），数据访问层依然停留在旧时代。dbVisitor 的出世旨在定义“新一代”数据访问库的标准：One API Access Any DataBase。
+description: 数据的存储形式从单一的关系型数据库演进到了多元化时代（NoSQL, NewSQL, AI Vector 等），数据访问层依然停留在旧时代。dbVisitor 的出世旨在定义“新一代”数据访问库的标准：One APIs Access Any DataBase。
 authors: [ZhaoYongChun]
 tags: [dbVisitor, ORM, JDBC, NoSQL]
 language: zh-cn
@@ -52,13 +52,13 @@ language: zh-cn
     
     这种割裂不仅增加了学习成本，更让架构设计变得复杂。我们看似有了一堆工具，但依然没有一个真正的 “One API” 来统一所有数据访问。
 
-## 三、One API Access Any DataBase
+## 三、One APIs Access Any DataBase
 
 既然已经走向多元化，数据访问层（DAL）也必须进化。 **新一代数据访问库的使命，应当是让数据访问重新实现标准化和统一化。**
 
 我们不再应该问 “这是什么数据库？”，而应该问 “我想在这个数据源上做什么操作？”。
 
-继承 JDBC 和 SQL 的普世精神，但打破其对关系型数据库的枷锁，这就是新一代数据访问库的目标。将其概括为一句就是：**"One API Access Any DataBase"**。
+继承 JDBC 和 SQL 的普世精神，但打破其对关系型数据库的枷锁，这就是新一代数据访问库的目标。将其概括为一句就是：**"One APIs Access Any DataBase"**。
 
 ## 四、 技术选择与可行路径
 
@@ -95,7 +95,7 @@ language: zh-cn
 
 ## 五、 新一代数据访问库
 
-我认为 “新一代 Java 数据访问库” 应该具是以 **One API Access Any DataBase** 为核心愿景，通过标准化的 API 屏蔽底层数据源的差异，为开发者提供统一、简单、高效的数据操作体验为目标。
+我认为 “新一代 Java 数据访问库” 应该具是以 **One APIs Access Any DataBase** 为核心愿景，通过标准化的 API 屏蔽底层数据源的差异，为开发者提供统一、简单、高效的数据操作体验为目标。
 
 它不应再区分“这是 ORM”还是“这是 Client”，它就是应用通往数据的统一大门。
 

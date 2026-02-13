@@ -1,25 +1,534 @@
 /**
- * CSS files with the .module.css suffix will be treated as CSS modules
- * and scoped locally.
+ * Homepage styles for dbVisitor documentation site.
+ * CSS Modules - all class names are locally scoped.
  */
-/* You can override the default Infima variables here. */
+
+/* ==================== Hero Section ==================== */
 .heroBanner {
-  padding: 3rem 0;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-  background :#49A0F8;
+    padding: 4.5rem 0 3.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #3a8fe0 0%, #49A0F8 50%, #5fb3ff 100%);
+    color: #ffffff;
 }
 
-@media screen and (max-width: 966px) {
-  .heroBanner {
-    padding: 2rem;
-  }
+.heroTitle {
+    font-size: 3.2rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+    letter-spacing: -0.5px;
+    color: #ffffff;
 }
 
-.buttons {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.heroSlogan {
+    font-size: 1.5rem;
+    font-weight: 400;
+    opacity: 0.95;
+    margin-bottom: 0.6rem;
+    letter-spacing: 2px;
+    font-family: 'Courier New', Courier, monospace;
+    color: #e8f0fe;
+}
+
+.heroDesc {
+    font-size: 1rem;
+    max-width: 600px;
+    margin: 0 auto 1.5rem;
+    opacity: 0.85;
+    line-height: 1.6;
+}
+
+.heroBadges {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 1.8rem;
+}
+
+.heroBadges a {
+    display: inline-flex;
+    transition: opacity 0.2s;
+}
+
+.heroBadges a:hover {
+    opacity: 0.8;
+}
+
+.heroButtons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+}
+
+.heroButtons a {
+    min-width: 150px;
+}
+
+.btnPrimary {
+    background-color: #ffffff !important;
+    color: #3a8fe0 !important;
+    border: 2px solid #ffffff !important;
+    font-weight: 600 !important;
+}
+
+.btnPrimary:hover {
+    background-color: #e8f0fe !important;
+    color: #2d7bc7 !important;
+}
+
+.btnSecondary {
+    background-color: transparent !important;
+    color: #ffffff !important;
+    border: 2px solid rgba(255, 255, 255, 0.6) !important;
+    font-weight: 500 !important;
+}
+
+.btnSecondary:hover {
+    border-color: #ffffff !important;
+    background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* ==================== Database Strip ==================== */
+.dbSection {
+    padding: 2.5rem 0 2rem;
+    background: #f8f9fa;
+    text-align: center;
+}
+
+.sectionTitle {
+    font-size: 1.6rem;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+    color: #202124;
+}
+
+.sectionSubtitle {
+    font-size: 0.95rem;
+    color: #5f6368;
+    margin-bottom: 2rem;
+    max-width: 650px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.dbGrid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 18px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.dbItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    cursor: default;
+}
+
+.dbItem:hover {
+    background: #e8f0fe;
+    transform: translateY(-2px);
+}
+
+.dbIcon {
+    width: 44px;
+    height: 44px;
+}
+
+.dbLabel {
+    font-size: 0.75rem;
+    color: #5f6368;
+    font-weight: 500;
+}
+
+.dbDivider {
+    width: 1px;
+    height: 50px;
+    background: #dadce0;
+    margin: 0 8px;
+}
+
+/* ==================== Philosophy / Features Section ==================== */
+.philosophySection {
+    padding: 3.5rem 0;
+    background: #ffffff;
+}
+
+.featureGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.featureCard {
+    text-align: center;
+    padding: 2rem 1.5rem;
+    border-radius: 12px;
+    border: 1px solid #e8eaed;
+    transition: all 0.25s ease;
+}
+
+.featureCard:hover {
+    border-color: #49A0F8;
+    box-shadow: 0 4px 20px rgba(73, 160, 248, 0.15);
+    transform: translateY(-3px);
+}
+
+.featureIcon {
+    font-size: 2.5rem;
+    margin-bottom: 0.8rem;
+}
+
+.featureTitle {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #202124;
+    margin-bottom: 0.6rem;
+}
+
+.featureDesc {
+    font-size: 0.88rem;
+    color: #5f6368;
+    line-height: 1.6;
+}
+
+/* ==================== Architecture Section ==================== */
+.archSection {
+    padding: 3.5rem 0;
+    background: #f8f9fa;
+}
+
+.archDiagram {
+    max-width: 860px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.archImage {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+}
+
+/* ==================== API Styles Carousel Section ==================== */
+.apiSection {
+    padding: 3.5rem 0;
+    background: #ffffff;
+}
+
+/* Tab buttons row */
+.apiTabs {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    max-width: 900px;
+    margin: 0 auto 1rem;
+    flex-wrap: wrap;
+}
+
+.apiTab {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 18px;
+    border-radius: 8px;
+    border: 2px solid #e8eaed;
+    background: #f8f9fa;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: #5f6368;
+}
+
+.apiTab:hover {
+    border-color: #49A0F8;
+    background: #e8f0fe;
+    color: #202124;
+}
+
+.apiTabActive {
+    border-color: #49A0F8;
+    background: #e8f0fe;
+    color: #202124;
+    box-shadow: 0 2px 8px rgba(73, 160, 248, 0.2);
+}
+
+.apiTabIcon {
+    font-size: 1.2rem;
+}
+
+.apiTabName {
+    font-weight: 600;
+}
+
+/* Progress dots */
+.apiProgress {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.apiProgressDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #dadce0;
+    transition: all 0.3s ease;
+}
+
+.apiProgressDotActive {
+    background: #49A0F8;
+    width: 24px;
+    border-radius: 4px;
+}
+
+/* Showcase: left info + right code */
+.apiShowcase {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 28px;
+    max-width: 900px;
+    margin: 0 auto;
+    align-items: start;
+    min-height: 300px;
+}
+
+.apiInfo {
+    padding: 1.5rem;
+    border-radius: 12px;
+    background: #f8f9fa;
+    border: 1px solid #e8eaed;
+}
+
+.apiInfoIcon {
+    font-size: 2.5rem;
+    margin-bottom: 0.6rem;
+}
+
+.apiInfoTitle {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #202124;
+    margin-bottom: 0.5rem;
+}
+
+.apiInfoDesc {
+    font-size: 0.88rem;
+    color: #5f6368;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.apiCode {
+    min-width: 0;
+}
+
+/* ==================== Code Example Section ==================== */
+.codeSection {
+    padding: 3.5rem 0;
+    background: #f8f9fa;
+}
+
+.codeContainer {
+    max-width: 860px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+.codeBlock {
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #d0d7de;
+    background: #f6f8fa;
+}
+
+.codeHeader {
+    padding: 6px 16px;
+    background: #eef1f5;
+    border-bottom: 1px solid #d0d7de;
+}
+
+.codeTitle {
+    font-size: 0.78rem;
+    color: #656d76;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+}
+
+.codeContent {
+    padding: 16px;
+    margin: 0;
+    font-size: 0.78rem;
+    line-height: 1.7;
+    color: #24292f;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+    overflow-x: auto;
+    white-space: pre;
+}
+
+.codeComment { color: #6a737d; }
+.codeKeyword { color: #cf222e; }
+.codeString { color: #0a3069; }
+.codeType { color: #8250df; }
+.codeMethod { color: #116329; }
+
+/* ==================== Quick Start Section ==================== */
+.quickStartSection {
+    padding: 3.5rem 0;
+    background: #ffffff;
+}
+
+.quickStartContainer {
+    max-width: 620px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.mavenBlock {
+    text-align: left;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #d0d7de;
+    background: #f6f8fa;
+    margin-bottom: 1.5rem;
+}
+
+.quickStartButtons {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 1.5rem;
+}
+
+/* ==================== Bottom CTA ==================== */
+.ctaSection {
+    padding: 3rem 0;
+    background: linear-gradient(135deg, #3a8fe0 0%, #49A0F8 100%);
+    text-align: center;
+    color: #ffffff;
+}
+
+.ctaTitle {
+    font-size: 1.6rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #ffffff;
+}
+
+.ctaDesc {
+    font-size: 1rem;
+    opacity: 0.85;
+    margin-bottom: 1.5rem;
+}
+
+.ctaLinks {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.ctaLinks a {
+    display: inline-flex;
+    transition: opacity 0.2s;
+}
+
+.ctaLinks a:hover {
+    opacity: 0.8;
+}
+
+/* ==================== Responsive ==================== */
+@media screen and (max-width: 996px) {
+    .heroBanner {
+        padding: 3rem 1rem;
+    }
+
+    .heroTitle {
+        font-size: 2.5rem;
+    }
+
+    .heroSlogan {
+        font-size: 1.2rem;
+    }
+
+    .featureGrid {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+    }
+
+    .apiShowcase {
+        grid-template-columns: 1fr;
+    }
+
+    .apiTabs {
+        gap: 6px;
+    }
+
+    .apiTab {
+        padding: 8px 12px;
+        font-size: 0.82rem;
+    }
+
+    .codeContainer {
+        grid-template-columns: 1fr;
+    }
+
+    .dbGrid {
+        gap: 12px;
+    }
+
+    .dbDivider {
+        display: none;
+    }
+}
+
+@media screen and (max-width: 640px) {
+    .heroTitle {
+        font-size: 2rem;
+    }
+
+    .heroSlogan {
+        font-size: 1rem;
+        letter-spacing: 1px;
+    }
+
+    .heroButtons {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .apiTab {
+        padding: 6px 10px;
+        font-size: 0.78rem;
+    }
+
+    .apiTabIcon {
+        font-size: 1rem;
+    }
+
+    .dbIcon {
+        width: 36px;
+        height: 36px;
+    }
+
 
 }

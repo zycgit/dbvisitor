@@ -1,5 +1,5 @@
 <p align="center">
-    <b>愿景 “One API Access Any DataBase”</b>
+    <b>愿景 “One APIs Access Any DataBase”</b>
     <br>
     一款数据库访问库，提供 Java 对多种不同类型数据库统一访问，它的目标是使用一套 API 访问所有数据库。
 </p>
@@ -39,7 +39,7 @@
 
 ## 📖 简介 | Introduction
 
-**dbVisitor** 是一款基于 JDBC 标准构建的**统一数据访问基座**，致力于实现 **“One API Access Any DataBase”** 的愿景。
+**dbVisitor** 是一款基于 JDBC 标准构建的**统一数据访问基座**，致力于实现 **“One APIs Access Any DataBase”** 的愿景。
 借助独特的**双层适配器架构**，它成功打破了 RDBMS 与 NoSQL 之间的编程壁垒，让开发者能够使用**同一套标准 API** 无缝操作 MySQL、MongoDB、Elasticsearch 等各类数据库。
 dbVisitor 不主张发明新语法去掩盖差异，而是通过**标准化**与**分层抽象**来科学地**管理差异**，为 Java 应用提供了一个既具备便捷性又保留 JDBC 灵活性的通用数据底座。
 

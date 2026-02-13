@@ -1,7 +1,7 @@
 # dbVisitor
 
 <p align="center">
-    <b>Vision: “One API Access Any DataBase”</b>
+    <b>Vision: “One APIs Access Any DataBase”</b>
     <br>
     A database access library that provides unified access to different types of databases for Java, aiming to use a single API to access all databases.
 </p>
@@ -41,7 +41,7 @@
 
 ## 📖 Introduction
 
-**dbVisitor** is a **unified data access foundation** built on the JDBC standard, dedicated to realizing the vision of **“One API Access Any DataBase”**.
+**dbVisitor** is a **unified data access foundation** built on the JDBC standard, dedicated to realizing the vision of **“One APIs Access Any DataBase”**.
 With its unique **Dual-Layer Adapter Architecture**, it successfully breaks the programming barrier between RDBMS and NoSQL, allowing developers to seamlessly manipulate various databases such as MySQL, MongoDB, and Elasticsearch using **the same set of standard APIs**.
 dbVisitor does not advocate inventing new syntax to conceal differences, but rather scientifically **manages differences** through **standardization** and **layered abstraction**, providing a general-purpose data foundation for Java applications that is both convenient and retains the flexibility of JDBC.
 
