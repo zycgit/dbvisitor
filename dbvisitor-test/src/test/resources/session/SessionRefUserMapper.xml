@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="net.hasor.dbvisitor.test.dao.SessionRefUserMapper">
+
+    <resultMap id="userInfoMap" type="net.hasor.dbvisitor.test.model.UserInfo">
+        <result column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+        <result column="email" property="email"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <resultMap id="orderDtoMap" type="net.hasor.dbvisitor.test.model.UserOrderDTO">
+        <result column="order_id" property="orderId"/>
+        <result column="order_no" property="orderNo"/>
+        <result column="amount" property="amount"/>
+        <result column="create_time" property="createTime"/>
+        <result column="user_id" property="userId"/>
+        <result column="user_name" property="userName"/>
+        <result column="user_email" property="userEmail"/>
+    </resultMap>
+
+    <!-- ========== user_info CRUD ========== -->
+
+    <insert id="insertUser">
+        insert into user_info (id, name, age, email, create_time)
+        values (#{id}, #{name}, #{age}, #{email}, CURRENT_TIMESTAMP)
+    </insert>
+
+    <select id="queryUserById" resultMap="userInfoMap">
+        select * from user_info where id = #{id}
+    </select>
+
+    <select id="queryAllUsers" resultMap="userInfoMap">
+        select * from user_info order by id asc
+    </select>
+
+    <select id="countUsers" resultType="int">
+        select count(*) from user_info
+    </select>
+
+    <update id="updateUserEmail">
+        update user_info set email = #{email} where id = #{id}
+    </update>
+
+    <delete id="deleteUserById">
+        delete from user_info where id = #{id}
+    </delete>
+
+    <!-- ========== JOIN 查询 ========== -->
+
+    <select id="queryOrderWithUser" resultMap="orderDtoMap">
+        select o.id as order_id, o.order_no, o.amount, o.create_time,
+               u.id as user_id, u.name as user_name, u.email as user_email
+        from user_order o
+        left join user_info u on o.user_id = u.id
+        where o.id = #{orderId}
+    </select>
+
+</mapper>

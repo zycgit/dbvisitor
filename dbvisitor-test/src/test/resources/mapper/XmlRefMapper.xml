@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="net.hasor.dbvisitor.test.dao.XmlRefMapperDao">
+
+    <resultMap id="userResultMap" type="net.hasor.dbvisitor.test.model.UserInfo">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+        <result column="email" property="email"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <!-- CRUD -->
+    <insert id="insertUser">
+        INSERT INTO user_info (id, name, age, email, create_time)
+        VALUES (#{id}, #{name}, #{age}, #{email}, CURRENT_TIMESTAMP)
+    </insert>
+
+    <select id="selectById" resultMap="userResultMap">
+        SELECT * FROM user_info WHERE id = #{id}
+    </select>
+
+    <select id="selectAll" resultMap="userResultMap">
+        SELECT * FROM user_info WHERE name LIKE 'RefMap%' ORDER BY id
+    </select>
+
+    <update id="updateEmail">
+        UPDATE user_info SET email = #{email} WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM user_info WHERE id = #{id}
+    </delete>
+
+    <!-- 动态 SQL -->
+    <select id="selectByCondition" resultMap="userResultMap">
+        SELECT * FROM user_info
+        <where>
+            <if test="name != null">
+                AND name LIKE #{name}
+            </if>
+            <if test="minAge != null">
+                AND age &gt;= #{minAge}
+            </if>
+        </where>
+        ORDER BY id
+    </select>
+
+    <!-- foreach IN 查询 -->
+    <select id="selectByIds" resultMap="userResultMap">
+        SELECT * FROM user_info WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        ORDER BY id
+    </select>
+
+    <!-- Map 参数 -->
+    <select id="selectByAgeRange" resultMap="userResultMap">
+        SELECT * FROM user_info
+        WHERE age BETWEEN #{minAge} AND #{maxAge}
+        ORDER BY id
+    </select>
+
+    <!-- Bean 参数 -->
+    <select id="selectByBean" resultMap="userResultMap">
+        SELECT * FROM user_info
+        WHERE name LIKE #{name} AND age &gt;= #{age}
+        ORDER BY id
+    </select>
+
+    <!-- ${} 文本替换 -->
+    <select id="selectWithOrderBy" resultMap="userResultMap">
+        SELECT * FROM user_info
+        WHERE name LIKE 'RefMap%'
+        ORDER BY ${orderColumn}
+    </select>
+
+    <!-- resultType map 查询 -->
+    <select id="selectAgeStats" resultType="map">
+        SELECT age, COUNT(*) AS cnt
+        FROM user_info
+        WHERE name LIKE 'RefMap%'
+        GROUP BY age
+        ORDER BY age
+    </select>
+
+</mapper>

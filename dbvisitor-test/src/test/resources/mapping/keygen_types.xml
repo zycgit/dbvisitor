@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="net.hasor.test.xml.keygen">
+
+    <!-- keyType="auto" 自增主键 -->
+    <entity id="AutoKeyEntity" table="user_info_auto" type="net.hasor.dbvisitor.test.model.UserInfo">
+        <id column="id" property="id" keyType="auto"/>
+        <mapping column="name" property="name"/>
+    </entity>
+
+    <!-- keyType="uuid32" 32位UUID（无连字符） -->
+    <entity id="UUID32KeyEntity" table="user_info_uuid32" type="net.hasor.dbvisitor.test.model.UserInfo">
+        <id column="id" property="id"/>
+        <mapping column="name" property="name" keyType="uuid32"/>
+    </entity>
+
+    <!-- keyType="uuid36" 36位UUID（标准格式） -->
+    <entity id="UUID36KeyEntity" table="user_info_uuid36" type="net.hasor.dbvisitor.test.model.UserInfo">
+        <id column="id" property="id"/>
+        <mapping column="name" property="name" keyType="uuid36"/>
+    </entity>
+
+    <!-- 无 keyType → keySeqHolder 为 null -->
+    <entity id="NoneKeyEntity" table="user_info_none" type="net.hasor.dbvisitor.test.model.UserInfo">
+        <id column="id" property="id"/>
+        <mapping column="name" property="name"/>
+    </entity>
+
+    <!-- 多字段不同 keyType -->
+    <entity id="MappingKeyEntity" table="user_info_mapkey" type="net.hasor.dbvisitor.test.model.UserInfo">
+        <id column="id" property="id" keyType="auto"/>
+        <mapping column="name" property="name" keyType="uuid36"/>
+        <mapping column="email" property="email" keyType="uuid32"/>
+    </entity>
+
+</mapper>

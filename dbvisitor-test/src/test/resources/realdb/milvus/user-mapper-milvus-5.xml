@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.hasor.dbvisitor.test.realdb.milvus.dto5.UserInfoMilvus5Mapper">
+    <resultMap id="userInfoResultMap" type="net.hasor.dbvisitor.test.realdb.milvus.dto5.UserInfoMilvus5">
+        <id property="userId" column="uid"/>
+        <result property="userName" column="name"/>
+        <result property="account" column="loginName"/>
+        <result property="password" column="loginPassword"/>
+        <result property="vector" column="v"/>
+    </resultMap>
+
+    <insert id="insertUser">
+        INSERT INTO tb_mapper_user_milvus (uid, name, loginName, loginPassword, v)
+        VALUES (#{info.userId}, #{info.userName}, #{info.account}, #{info.password}, #{info.vector})
+    </insert>
+
+    <delete id="deleteUser">
+        DELETE FROM tb_mapper_user_milvus WHERE uid = #{uid}
+    </delete>
+
+    <select id="queryAll" resultMap="userInfoResultMap">
+        /*+ consistency_level=Strong */ SELECT * FROM tb_mapper_user_milvus limit 10
+    </select>
+</mapper>

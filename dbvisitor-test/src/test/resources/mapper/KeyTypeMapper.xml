@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="KeyTypeMapper">
+    
+    <!-- ========== Entity 配置示例 ========== -->
+    
+    <!-- 使用 keyType="auto" 的 entity -->
+    <entity id="AutoKeyEntity" table="user_info" type="map">
+        <id column="id" property="id" keyType="auto" />
+        <mapping column="name" property="name" />
+        <mapping column="age" property="age" />
+        <mapping column="create_time" property="createTime" />
+    </entity>
+    
+    <!-- 使用 keyType="uuid32" 的 entity -->
+    <entity id="Uuid32KeyEntity" table="user_info" type="map">
+        <id column="id" property="id" keyType="auto" />
+        <mapping column="name" property="name" keyType="uuid32" />
+        <mapping column="age" property="age" />
+        <mapping column="create_time" property="createTime" />
+    </entity>
+    
+    <!-- 使用 keyType="uuid36" 的 entity -->
+    <entity id="Uuid36KeyEntity" table="user_info" type="map">
+        <id column="id" property="id" keyType="auto" />
+        <mapping column="name" property="name" keyType="uuid36" />
+        <mapping column="age" property="age" />
+        <mapping column="create_time" property="createTime" />
+    </entity>
+    
+    <!-- 使用 keyType="Sequence::seq_name" 的 entity -->
+    <entity id="SequenceKeyEntity" table="user_info" type="map">
+        <id column="id" property="id" keyType="Sequence::user_id_seq" />
+        <mapping column="name" property="name" />
+        <mapping column="age" property="age" />
+        <mapping column="create_time" property="createTime" />
+    </entity>
+    
+    <!-- 使用 keyType="完整类名" 的 entity（自定义 Holder） -->
+    <entity id="CustomHolderEntity" table="user_info" type="map">
+        <id column="id" property="id" keyType="net.hasor.dbvisitor.test.handler.keygen.FixedValueKeyHolder" />
+        <mapping column="name" property="name" keyType="uuid36" />
+        <mapping column="age" property="age" />
+        <mapping column="create_time" property="createTime" />
+    </entity>
+    
+    <!-- 多个字段配置不同 keyType -->
+    <entity id="MultiKeyTypesEntity" table="user_info" type="map">
+        <id column="id" property="id" keyType="auto" />
+        <mapping column="name" property="name" keyType="uuid32" />
+        <mapping column="age" property="age" />
+        <mapping column="create_time" property="createTime" />
+    </entity>
+    
+    <!-- ========== ResultMap 配置示例 ========== -->
+    
+    <!-- ResultMap 中 <id> 标签配置 keyType -->
+    <resultMap id="UserResultMapWithKeyType" type="map">
+        <id column="id" property="id" keyType="auto" />
+        <result column="name" property="name" />
+        <result column="age" property="age" />
+        <result column="create_time" property="createTime" />
+    </resultMap>
+    
+    <!-- ResultMap 中 <result> 标签配置 keyType -->
+    <resultMap id="UserResultMapMappingKeyType" type="map">
+        <id column="id" property="id" keyType="auto" />
+        <result column="name" property="name" keyType="uuid36" />
+        <result column="age" property="age" />
+        <result column="create_time" property="createTime" />
+    </resultMap>
+    
+    <!-- ========== Insert 语句 ========== -->
+    
+    <insert id="insertAutoKeyUser" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user_info (name, age, create_time)
+        VALUES (#{name}, #{age}, #{createTime})
+    </insert>
+    
+    <insert id="insertUuid32User">
+        INSERT INTO user_info (name, age, create_time)
+        VALUES (#{name}, #{age}, #{createTime})
+    </insert>
+    
+    <insert id="insertUuid36User">
+        INSERT INTO user_info (name, age, create_time)
+        VALUES (#{name}, #{age}, #{createTime})
+    </insert>
+    
+    <insert id="insertSequenceUser" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user_info (name, age, create_time)
+        VALUES (#{name}, #{age}, #{createTime})
+    </insert>
+    
+    <insert id="insertCustomHolderUser">
+        INSERT INTO user_info (id, name, age, create_time)
+        VALUES (#{id}, #{name}, #{age}, #{createTime})
+    </insert>
+    
+    <insert id="insertWithResultMap" resultMap="UserResultMapWithKeyType" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user_info (name, age, create_time)
+        VALUES (#{name}, #{age}, #{createTime})
+    </insert>
+    
+    <insert id="insertWithMappingKeyType" resultMap="UserResultMapMappingKeyType" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user_info (name, age, create_time)
+        VALUES (#{name}, #{age}, #{createTime})
+    </insert>
+    
+    <insert id="insertMultiKeyTypes">
+        INSERT INTO user_info (name, age, create_time)
+        VALUES (#{name}, #{age}, #{createTime})
+    </insert>
+    
+    <!-- DDL Auto 示例（需要 <entity> 的 ddlAuto 属性支持） -->
+    <!-- 注意：这是示例，实际需要在 entity 中配置 ddlAuto="create" -->
+    <insert id="insertDdlAutoUser">
+        INSERT INTO auto_created_table (name, age, create_time)
+        VALUES (#{name}, #{age}, #{createTime})
+    </insert>
+    
+    <!-- 错误测试：无效的 keyType -->
+    <insert id="insertInvalidKeyType">
+        <!-- 这里故意配置无效的 keyType 用于测试错误处理 -->
+        INSERT INTO user_info (name, age, create_time)
+        VALUES (#{name}, #{age}, #{createTime})
+    </insert>
+    
+    <!-- 错误测试：不存在的 Holder 类 -->
+    <insert id="insertNonExistentHolder">
+        <!-- keyType 配置了不存在的类名 -->
+        INSERT INTO user_info (id, name, age, create_time)
+        VALUES (#{id}, #{name}, #{age}, #{createTime})
+    </insert>
+    
+</mapper>

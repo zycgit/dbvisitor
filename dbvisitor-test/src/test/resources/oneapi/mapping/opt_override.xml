@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
-        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
-<mapper namespace="opt.override">
-    <entity id="OverrideEntity" table="user_info" type="net.hasor.dbvisitor.test.oneapi.model.UserInfo"
-            catalog="entity_cat" schema="entity_sch">
-        <id column="id" property="id"/>
-    </entity>
-</mapper>

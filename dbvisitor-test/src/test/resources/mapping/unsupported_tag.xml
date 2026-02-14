@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="net.hasor.test.xml.unsupported">
+
+    <!-- entity 包含不支持的子标签 <badtag> -->
+    <entity id="BadTagEntity" table="user_info" type="net.hasor.dbvisitor.test.model.UserInfo">
+        <id column="id" property="id"/>
+        <badtag column="name" property="name"/>
+    </entity>
+
+</mapper>

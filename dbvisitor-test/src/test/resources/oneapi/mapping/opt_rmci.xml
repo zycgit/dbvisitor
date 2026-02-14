@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
-        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
-<mapper namespace="opt.rmci" caseInsensitive="true">
-    <resultMap id="CIResultMap" type="net.hasor.dbvisitor.test.oneapi.model.UserInfo">
-        <result column="id" property="id"/>
-        <result column="name" property="name"/>
-    </resultMap>
-</mapper>

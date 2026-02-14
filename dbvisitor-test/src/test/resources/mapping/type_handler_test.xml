@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="net.hasor.test.xml.typehandler">
+
+    <!-- 自定义 TypeHandler -->
+    <entity id="TypeHandlerEntity" table="user_info_th" type="net.hasor.dbvisitor.test.model.UserInfo">
+        <id column="id" property="id"/>
+        <mapping column="name" property="name"
+                 typeHandler="net.hasor.dbvisitor.test.handler.UpperCaseTypeHandler"/>
+    </entity>
+
+    <!-- 显式 jdbcType (4=INTEGER, 12=VARCHAR) -->
+    <entity id="JdbcTypeEntity" table="user_info_jt" type="net.hasor.dbvisitor.test.model.UserInfo">
+        <id column="id" property="id" jdbcType="4"/>
+        <mapping column="name" property="name" jdbcType="12"/>
+    </entity>
+
+    <!-- 列描述: character-set, collation, other -->
+    <entity id="DescCharsetEntity" table="user_info_dc" type="net.hasor.dbvisitor.test.model.UserInfo">
+        <id column="id" property="id"/>
+        <mapping column="name" property="name"
+                 character-set="utf8mb4" collation="utf8mb4_bin" other="COMMENT 'extra'"/>
+    </entity>
+
+</mapper>

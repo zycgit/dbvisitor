@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="net.hasor.test.xml.writepolicy">
+
+    <!-- insert="false": name 列不参与 INSERT -->
+    <entity id="InsertFalseEntity" table="user_info_if" type="net.hasor.dbvisitor.test.model.UserInfo">
+        <id column="id" property="id"/>
+        <mapping column="name" property="name" insert="false"/>
+        <mapping column="age" property="age"/>
+    </entity>
+
+    <!-- update="false": name 列不参与 UPDATE -->
+    <entity id="UpdateFalseEntity" table="user_info_uf" type="net.hasor.dbvisitor.test.model.UserInfo">
+        <id column="id" property="id"/>
+        <mapping column="name" property="name" update="false"/>
+        <mapping column="age" property="age"/>
+    </entity>
+
+    <!-- insert="false" update="false": name 列完全只读 -->
+    <entity id="BothFalseEntity" table="user_info_bf" type="net.hasor.dbvisitor.test.model.UserInfo">
+        <id column="id" property="id"/>
+        <mapping column="name" property="name" insert="false" update="false"/>
+        <mapping column="age" property="age"/>
+    </entity>
+
+    <!-- 默认策略: 不指定 insert/update → 均为 true -->
+    <entity id="DefaultPolicyEntity" table="user_info_dp" type="net.hasor.dbvisitor.test.model.UserInfo">
+        <id column="id" property="id"/>
+        <mapping column="name" property="name"/>
+        <mapping column="age" property="age"/>
+    </entity>
+
+</mapper>

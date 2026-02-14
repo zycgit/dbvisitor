@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="net.hasor.dbvisitor.test.realdb.mongo.dto5.UserInfo5Mapper">
+    <resultMap id="userResultMap" type="net.hasor.dbvisitor.test.realdb.mongo.dto5.UserInfo5">
+        <result column="uid" property="userId"/>
+        <result column="name" property="userName"/>
+        <result column="loginName" property="account"/>
+        <result column="loginPassword" property="password"/>
+    </resultMap>
+
+    <insert id="saveUser">
+        test.user_info.insert({
+            uid: #{info.userId},
+            name: #{info.userName},
+            loginName: #{info.account},
+            loginPassword: #{info.password}
+        })
+    </insert>
+
+    <select id="loadUser" resultMap="userResultMap">
+        test.user_info.find({uid: #{userId}})
+    </select>
+
+    <delete id="deleteUser">
+        test.user_info.remove({uid: #{userId}})
+    </delete>
+
+    <!-- 自动分页查询 -->
+    <select id="listByUserName" resultMap="userResultMap">
+        test.user_info.find({name: #{userName}})
+    </select>
+</mapper>

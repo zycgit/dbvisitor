@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="xmltest.ResultMapMapper">
+
+    <!-- 基础 resultMap：仅映射部分列 -->
+    <resultMap id="baseResultMap" type="net.hasor.dbvisitor.test.model.UserInfo">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+    </resultMap>
+
+    <!-- 完整列映射的 resultMap -->
+    <resultMap id="extendedResultMap" type="net.hasor.dbvisitor.test.model.UserInfo">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+        <result column="email" property="email"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <!-- 带 javaType 的 resultMap -->
+    <resultMap id="typedResultMap" type="net.hasor.dbvisitor.test.model.UserInfo">
+        <id column="id" property="id" javaType="java.lang.Integer"/>
+        <result column="name" property="name" javaType="java.lang.String"/>
+        <result column="age" property="age" javaType="java.lang.Integer"/>
+        <result column="email" property="email" javaType="java.lang.String"/>
+        <result column="create_time" property="createTime" javaType="java.util.Date"/>
+    </resultMap>
+
+    <!-- autoMapping=true 的 resultMap：显式映射所有列 + autoMapping 属性 -->
+    <resultMap id="autoMappingResultMap" type="net.hasor.dbvisitor.test.model.UserInfo" autoMapping="true">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+        <result column="email" property="email"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <!-- caseInsensitive=true：忽略列名大小写 -->
+    <resultMap id="caseInsensitiveResultMap" type="net.hasor.dbvisitor.test.model.UserInfo" caseInsensitive="true">
+        <id column="ID" property="id"/>
+        <result column="NAME" property="name"/>
+        <result column="AGE" property="age"/>
+        <result column="EMAIL" property="email"/>
+    </resultMap>
+
+    <!-- mapUnderscoreToCamelCase=true：下划线自动转驼峰 + 显式映射基本列 -->
+    <resultMap id="camelCaseResultMap" type="net.hasor.dbvisitor.test.model.UserInfo" mapUnderscoreToCamelCase="true">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+        <result column="email" property="email"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <!-- Map 类型：直接使用 resultType="map"，列别名即 key -->
+    <!-- 注意：resultMap 的 type 不支持 Map 类型（property 验证会失败） -->
+
+    <!-- 插入 -->
+    <insert id="insertUser">
+        INSERT INTO user_info (id, name, age, email, create_time)
+        VALUES (#{id}, #{name}, #{age}, #{email}, CURRENT_TIMESTAMP)
+    </insert>
+
+    <!-- 使用 baseResultMap（仅 id/name/age） -->
+    <select id="selectByIdBase" resultMap="baseResultMap">
+        SELECT * FROM user_info WHERE id = #{id}
+    </select>
+
+    <!-- 使用 extendedResultMap（全部列） -->
+    <select id="selectByIdExtended" resultMap="extendedResultMap">
+        SELECT * FROM user_info WHERE id = #{id}
+    </select>
+
+    <!-- 使用 typedResultMap -->
+    <select id="selectByIdTyped" resultMap="typedResultMap">
+        SELECT * FROM user_info WHERE id = #{id}
+    </select>
+
+    <!-- 使用 autoMappingResultMap -->
+    <select id="selectByIdAutoMapping" resultMap="autoMappingResultMap">
+        SELECT * FROM user_info WHERE id = #{id}
+    </select>
+
+    <!-- 使用 caseInsensitiveResultMap -->
+    <select id="selectByIdCaseInsensitive" resultMap="caseInsensitiveResultMap">
+        SELECT * FROM user_info WHERE id = #{id}
+    </select>
+
+    <!-- 使用 camelCaseResultMap -->
+    <select id="selectByIdCamelCase" resultMap="camelCaseResultMap">
+        SELECT * FROM user_info WHERE id = #{id}
+    </select>
+
+    <!-- 使用 resultType="map" + 列别名实现列重命名 -->
+    <select id="selectByIdAsRenamedMap" resultType="map">
+        SELECT id AS user_id, name AS user_name, age AS user_age FROM user_info WHERE id = #{id}
+    </select>
+
+    <!-- 所有用户（base） -->
+    <select id="selectAllBase" resultMap="baseResultMap">
+        SELECT * FROM user_info WHERE name LIKE 'RmCfg%' ORDER BY id
+    </select>
+
+</mapper>

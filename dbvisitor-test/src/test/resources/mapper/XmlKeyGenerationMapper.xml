@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="xmltest.KeyGenerationMapper">
+
+    <resultMap id="userResultMap" type="net.hasor.dbvisitor.test.model.UserInfo">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+        <result column="email" property="email"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <!-- useGeneratedKeys：插入后回填自增主键 -->
+    <insert id="insertWithGeneratedKeys" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user_info (name, age, email, create_time)
+        VALUES (#{name}, #{age}, #{email}, CURRENT_TIMESTAMP)
+    </insert>
+
+    <!-- useGeneratedKeys + keyColumn -->
+    <insert id="insertWithKeyColumn" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO user_info (name, age, email, create_time)
+        VALUES (#{name}, #{age}, #{email}, CURRENT_TIMESTAMP)
+    </insert>
+
+    <!-- selectKey order=BEFORE：先通过 SQL 获取主键再插入 -->
+    <insert id="insertWithSelectKeyBefore">
+        <selectKey keyProperty="id" order="BEFORE">
+            SELECT nextval('user_info_id_seq')
+        </selectKey>
+        INSERT INTO user_info (id, name, age, email, create_time)
+        VALUES (#{id}, #{name}, #{age}, #{email}, CURRENT_TIMESTAMP)
+    </insert>
+
+    <!-- selectKey order=AFTER：插入后通过 SQL 获取主键 -->
+    <insert id="insertWithSelectKeyAfter">
+        <selectKey keyProperty="id" order="AFTER">
+            SELECT currval('user_info_id_seq')
+        </selectKey>
+        INSERT INTO user_info (name, age, email, create_time)
+        VALUES (#{name}, #{age}, #{email}, CURRENT_TIMESTAMP)
+    </insert>
+
+    <!-- 普通插入（指定 ID，无主键生成） -->
+    <insert id="insertWithExplicitId">
+        INSERT INTO user_info (id, name, age, email, create_time)
+        VALUES (#{id}, #{name}, #{age}, #{email}, CURRENT_TIMESTAMP)
+    </insert>
+
+    <!-- 查询 -->
+    <select id="selectById" resultMap="userResultMap">
+        SELECT * FROM user_info WHERE id = #{id}
+    </select>
+
+</mapper>
