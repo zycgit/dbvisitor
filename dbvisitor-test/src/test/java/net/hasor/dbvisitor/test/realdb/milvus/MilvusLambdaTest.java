@@ -3,8 +3,6 @@ package net.hasor.dbvisitor.test.realdb.milvus;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
-
-import net.hasor.cobble.concurrent.ThreadUtils;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.page.PageObject;
@@ -42,9 +40,6 @@ public class MilvusLambdaTest {
             // 4. lambda_sum
             initTable(jdbc, "lambda_sum", "CREATE TABLE IF NOT EXISTS lambda_sum (uid VARCHAR(64) PRIMARY KEY, group_id VARCHAR(64), amount INT64, v FLOAT_VECTOR(2))");
             initIndex(jdbc, "idx_sum_v", "lambda_sum", "CREATE INDEX idx_sum_v ON TABLE lambda_sum (v) USING \"IVF_FLAT\" WITH (nlist = 128, metric_type = 'L2')");
-
-            // Allow time for async ops
-            ThreadUtils.sleep(2000);
 
         } catch (Throwable e) {
             Assume.assumeNoException("Milvus setup failed or timed out - skipping tests", e);
@@ -95,8 +90,6 @@ public class MilvusLambdaTest {
                     .executeSumResult();
             assert r1 == 1;
 
-            ThreadUtils.sleep(1000); // Wait for consistency
-
             // Select
             UserInfoMilvus l1 = lambda.query(UserInfoMilvus.class)//
                     .eq(UserInfoMilvus::getUid, user.getUid())//
@@ -111,8 +104,6 @@ public class MilvusLambdaTest {
                     .doUpdate();
             assert r2 == 1;
 
-            ThreadUtils.sleep(1000); // Wait for consistency
-
             // Verify Update
             UserInfoMilvus l2 = lambda.query(UserInfoMilvus.class)//
                     .eq(UserInfoMilvus::getUid, user.getUid())//
@@ -124,8 +115,6 @@ public class MilvusLambdaTest {
                     .eq(UserInfoMilvus::getUid, user.getUid())//
                     .doDelete();
             assert r3 == 1;
-
-            ThreadUtils.sleep(1000); // Wait for consistency
 
             UserInfoMilvus l3 = lambda.query(UserInfoMilvus.class)//
                     .eq(UserInfoMilvus::getUid, user.getUid())//
@@ -151,8 +140,6 @@ public class MilvusLambdaTest {
             int r1 = mapper.insert(user);
             assert r1 == 1;
 
-            ThreadUtils.sleep(1000);
-
             // Select
             UserInfoMilvus l1 = mapper.selectById(user.getUid());
             assert l1 != null;
@@ -163,8 +150,6 @@ public class MilvusLambdaTest {
             int r2 = mapper.update(user);
             assert r2 == 1;
 
-            ThreadUtils.sleep(1000);
-
             // Verify Update
             UserInfoMilvus l2 = mapper.selectById(user.getUid());
             assert "mapper_updated".equals(l2.getName());
@@ -172,8 +157,6 @@ public class MilvusLambdaTest {
             // Delete
             int r3 = mapper.deleteById(user.getUid());
             assert r3 == 1;
-
-            ThreadUtils.sleep(1000);
 
             UserInfoMilvus l3 = mapper.selectById(user.getUid());
             assert l3 == null;
@@ -214,8 +197,6 @@ public class MilvusLambdaTest {
                     .executeSumResult();
             assert r1 == 1;
 
-            ThreadUtils.sleep(1000);
-
             // Query
             ComplexOrderMilvus loadedOrder = lambda.query(ComplexOrderMilvus.class)//
                     .eq(ComplexOrderMilvus::getId, order.getId())//
@@ -252,8 +233,6 @@ public class MilvusLambdaTest {
                 int res = lambda.insertFreedom("lambda_page").applyMap(doc).executeSumResult();
                 assert res == 1;
             }
-
-            ThreadUtils.sleep(1000);
 
             PageObject pageInfo = new PageObject(0, 2);
 
@@ -302,8 +281,6 @@ public class MilvusLambdaTest {
             d3.put("amount", 3L);
             d3.put("v", sampleVector());
             assert lambda.insertFreedom("lambda_sum").applyMap(d3).executeSumResult() == 1;
-
-            ThreadUtils.sleep(1000);
 
             long count = lambda.queryFreedom("lambda_sum").eq("group_id", groupId).queryForCount();
             assert count == 3;

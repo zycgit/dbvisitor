@@ -5,8 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.hasor.dbvisitor.types.TypeHandler;
 
 public class OrderItemListTypeHandler implements TypeHandler<List<OrderItem>> {
@@ -25,7 +25,8 @@ public class OrderItemListTypeHandler implements TypeHandler<List<OrderItem>> {
     public List<OrderItem> getResult(ResultSet rs, String columnName) throws SQLException {
         String json = rs.getString(columnName);
         try {
-            return MAPPER.readValue(json, new TypeReference<List<OrderItem>>() {});
+            return MAPPER.readValue(json, new TypeReference<List<OrderItem>>() {
+            });
         } catch (Exception e) {
             throw new SQLException(e);
         }
@@ -35,7 +36,8 @@ public class OrderItemListTypeHandler implements TypeHandler<List<OrderItem>> {
     public List<OrderItem> getResult(ResultSet rs, int columnIndex) throws SQLException {
         String json = rs.getString(columnIndex);
         try {
-            return MAPPER.readValue(json, new TypeReference<List<OrderItem>>() {});
+            return MAPPER.readValue(json, new TypeReference<List<OrderItem>>() {
+            });
         } catch (Exception e) {
             throw new SQLException(e);
         }
@@ -45,7 +47,8 @@ public class OrderItemListTypeHandler implements TypeHandler<List<OrderItem>> {
     public List<OrderItem> getResult(CallableStatement cs, int columnIndex) throws SQLException {
         String json = cs.getString(columnIndex);
         try {
-            return MAPPER.readValue(json, new TypeReference<List<OrderItem>>() {});
+            return MAPPER.readValue(json, new TypeReference<List<OrderItem>>() {
+            });
         } catch (Exception e) {
             throw new SQLException(e);
         }

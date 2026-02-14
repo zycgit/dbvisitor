@@ -17,10 +17,27 @@ public class ComplexOrder {
     @Column(value = "items", typeHandler = BsonListTypeHandler.class)
     private List<OrderItem> items;
 
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
-    public Address getAddress() { return address; }
-    public void setAddress(Address address) { this.address = address; }
-    public List<OrderItem> getItems() { return items; }
-    public void setItems(List<OrderItem> items) { this.items = items; }
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
+
+    public List<OrderItem> getItems() {
+        return items;
+    }
+
+    public void setItems(List<OrderItem> items) {
+        this.items = items;
+    }
 }

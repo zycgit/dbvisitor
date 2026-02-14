@@ -4,14 +4,12 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
-
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.test.config.OneApiDataSourceManager;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
-
 import static org.junit.Assert.*;
 
 public class MilvusJdbcTest {
@@ -80,11 +78,6 @@ public class MilvusJdbcTest {
         this.jdbcTemplate.execute("UPDATE tb_crud_user SET name = 'User2_Updated' WHERE id = 2");
 
         // 6. Verify Update
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         Map<String, Object> user2 = jdbcTemplate.queryForMap("SELECT * FROM tb_crud_user WHERE id = 2");
         assertEquals("User2_Updated", user2.get("name"));
 
@@ -92,11 +85,6 @@ public class MilvusJdbcTest {
         this.jdbcTemplate.execute("DELETE FROM tb_crud_user WHERE id = 1");
 
         // 8. Verify Delete
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         list = jdbcTemplate.queryForList("SELECT * FROM tb_crud_user LIMIT 10");
         assertEquals(2, list.size());
     }

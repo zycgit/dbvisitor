@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import net.hasor.dbvisitor.mapper.BaseMapper;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
@@ -17,8 +16,8 @@ import net.hasor.dbvisitor.transaction.TransactionManager;
 import net.hasor.dbvisitor.transaction.TransactionStatus;
 import net.hasor.dbvisitor.transaction.support.TransactionHelper;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * 混合 API 事务测试 + 隔离级别测试
@@ -53,9 +52,7 @@ public class TransactionMixedApiTest extends AbstractOneApiTest {
         TransactionStatus status = tm.begin(Propagation.REQUIRED);
 
         // JdbcTemplate 写入
-        jdbcTemplate.executeUpdate(
-                "INSERT INTO user_info (id, name, age, create_time) VALUES (?, ?, ?, CURRENT_TIMESTAMP)",
-                new Object[]{ 63001, "MixJdbc1", 25 });
+        jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, create_time) VALUES (?, ?, ?, CURRENT_TIMESTAMP)", new Object[] { 63001, "MixJdbc1", 25 });
 
         // LambdaTemplate 写入
         UserInfo user = new UserInfo();
@@ -83,9 +80,7 @@ public class TransactionMixedApiTest extends AbstractOneApiTest {
         TransactionManager tm = getTxManager();
         TransactionStatus status = tm.begin(Propagation.REQUIRED);
 
-        jdbcTemplate.executeUpdate(
-                "INSERT INTO user_info (id, name, age, create_time) VALUES (?, ?, ?, CURRENT_TIMESTAMP)",
-                new Object[]{ 63003, "MixJdbcRb", 25 });
+        jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, create_time) VALUES (?, ?, ?, CURRENT_TIMESTAMP)", new Object[] { 63003, "MixJdbcRb", 25 });
 
         UserInfo user = new UserInfo();
         user.setId(63004);
@@ -223,9 +218,7 @@ public class TransactionMixedApiTest extends AbstractOneApiTest {
         TransactionManager tm = getTxManager();
 
         TransactionStatus outer = tm.begin(Propagation.REQUIRED);
-        jdbcTemplate.executeUpdate(
-                "INSERT INTO user_info (id, name, age, create_time) VALUES (?, ?, ?, CURRENT_TIMESTAMP)",
-                new Object[]{ 63031, "MixOuterJdbc", 25 });
+        jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, create_time) VALUES (?, ?, ?, CURRENT_TIMESTAMP)", new Object[] { 63031, "MixOuterJdbc", 25 });
 
         TransactionStatus inner = tm.begin(Propagation.REQUIRES_NEW);
         UserInfo user = new UserInfo();
@@ -254,9 +247,7 @@ public class TransactionMixedApiTest extends AbstractOneApiTest {
         // 验证事务属性
         assertEquals(Isolation.READ_COMMITTED, status.getIsolationLevel());
 
-        jdbcTemplate.executeUpdate(
-                "INSERT INTO user_info (id, name, age, create_time) VALUES (?, ?, ?, CURRENT_TIMESTAMP)",
-                new Object[]{ 63041, "IsoRC", 25 });
+        jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, create_time) VALUES (?, ?, ?, CURRENT_TIMESTAMP)", new Object[] { 63041, "IsoRC", 25 });
 
         tm.commit(status);
 
@@ -273,9 +264,7 @@ public class TransactionMixedApiTest extends AbstractOneApiTest {
 
         assertEquals(Isolation.REPEATABLE_READ, status.getIsolationLevel());
 
-        jdbcTemplate.executeUpdate(
-                "INSERT INTO user_info (id, name, age, create_time) VALUES (?, ?, ?, CURRENT_TIMESTAMP)",
-                new Object[]{ 63042, "IsoRR", 25 });
+        jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, create_time) VALUES (?, ?, ?, CURRENT_TIMESTAMP)", new Object[] { 63042, "IsoRR", 25 });
 
         tm.commit(status);
 
@@ -292,9 +281,7 @@ public class TransactionMixedApiTest extends AbstractOneApiTest {
 
         assertEquals(Isolation.SERIALIZABLE, status.getIsolationLevel());
 
-        jdbcTemplate.executeUpdate(
-                "INSERT INTO user_info (id, name, age, create_time) VALUES (?, ?, ?, CURRENT_TIMESTAMP)",
-                new Object[]{ 63043, "IsoSer", 25 });
+        jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, create_time) VALUES (?, ?, ?, CURRENT_TIMESTAMP)", new Object[] { 63043, "IsoSer", 25 });
 
         tm.commit(status);
 
@@ -315,16 +302,12 @@ public class TransactionMixedApiTest extends AbstractOneApiTest {
         TransactionStatus inner = tm.begin(Propagation.REQUIRES_NEW, Isolation.SERIALIZABLE);
         assertEquals(Isolation.SERIALIZABLE, inner.getIsolationLevel());
 
-        jdbcTemplate.executeUpdate(
-                "INSERT INTO user_info (id, name, age, create_time) VALUES (?, ?, ?, CURRENT_TIMESTAMP)",
-                new Object[]{ 63044, "IsoRestore", 25 });
+        jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, create_time) VALUES (?, ?, ?, CURRENT_TIMESTAMP)", new Object[] { 63044, "IsoRestore", 25 });
 
         tm.commit(inner); // 隔离级别应恢复
 
         // 外层事务继续
-        jdbcTemplate.executeUpdate(
-                "INSERT INTO user_info (id, name, age, create_time) VALUES (?, ?, ?, CURRENT_TIMESTAMP)",
-                new Object[]{ 63045, "IsoOuter", 25 });
+        jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, create_time) VALUES (?, ?, ?, CURRENT_TIMESTAMP)", new Object[] { 63045, "IsoOuter", 25 });
 
         tm.commit(outer);
 

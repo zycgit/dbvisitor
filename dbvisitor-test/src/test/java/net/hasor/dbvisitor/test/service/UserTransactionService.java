@@ -2,7 +2,6 @@ package net.hasor.dbvisitor.test.service;
 
 import java.sql.SQLException;
 import java.util.Date;
-
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.test.model.UserInfo;
 import net.hasor.dbvisitor.transaction.Isolation;

@@ -18,7 +18,6 @@ package net.hasor.dbvisitor.test.realdb.mongo;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
-
 import net.hasor.dbvisitor.test.config.OneApiDataSourceManager;
 import org.junit.Test;
 

@@ -57,18 +57,15 @@ public abstract class AbstractOneApiTest {
     }
 
     protected void requiresFeature(String feature) {
-        String features = OneApiDataSourceManager.getProperty("test.features");
-        if (features == null || features.trim().isEmpty()) {
-            // 未配置 test.features 时，跳过所有需要特殊 feature 的测试
-            System.out.println("Skipping test " + testName.getMethodName() + " because 'test.features' is not configured.");
-            Assume.assumeTrue("Feature '" + feature + "' not supported (test.features not configured)", false);
-            return;
+        String skipFeatures = OneApiDataSourceManager.getProperty("test.skip.features");
+        if (skipFeatures == null || skipFeatures.trim().isEmpty()) {
+            return; // 未配置黑名单，默认所有特性都启用
         }
 
-        Set<String> supportedFeatures = Arrays.stream(features.split(",")).map(String::trim).collect(Collectors.toSet());
-        if (!supportedFeatures.contains(feature)) {
-            System.out.println("Skipping test " + testName.getMethodName() + " because feature '" + feature + "' is not supported.");
-            Assume.assumeTrue("Feature '" + feature + "' not supported", false);
+        Set<String> disabledFeatures = Arrays.stream(skipFeatures.split(",")).map(String::trim).collect(Collectors.toSet());
+        if (disabledFeatures.contains(feature)) {
+            System.out.println("Skipping test " + testName.getMethodName() + " because feature '" + feature + "' is disabled.");
+            Assume.assumeTrue("Feature '" + feature + "' is disabled (in test.skip.features)", false);
         }
     }
 

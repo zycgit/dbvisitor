@@ -2,7 +2,6 @@ package net.hasor.dbvisitor.test.suite.transaction;
 
 import java.sql.SQLException;
 import java.util.Date;
-
 import net.hasor.dbvisitor.test.AbstractOneApiTest;
 import net.hasor.dbvisitor.test.model.UserInfo;
 import net.hasor.dbvisitor.transaction.Propagation;
@@ -10,7 +9,6 @@ import net.hasor.dbvisitor.transaction.TransactionManager;
 import net.hasor.dbvisitor.transaction.TransactionStatus;
 import net.hasor.dbvisitor.transaction.support.TransactionHelper;
 import org.junit.Test;
-
 import static org.junit.Assert.*;
 
 /**

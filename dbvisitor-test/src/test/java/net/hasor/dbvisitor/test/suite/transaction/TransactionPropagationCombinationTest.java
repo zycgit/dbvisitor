@@ -2,7 +2,6 @@ package net.hasor.dbvisitor.test.suite.transaction;
 
 import java.sql.SQLException;
 import java.util.Date;
-
 import net.hasor.dbvisitor.test.AbstractOneApiTest;
 import net.hasor.dbvisitor.test.model.UserInfo;
 import net.hasor.dbvisitor.test.service.CallerTransactionService;
@@ -13,8 +12,8 @@ import net.hasor.dbvisitor.transaction.TransactionStatus;
 import net.hasor.dbvisitor.transaction.support.TransactionHelper;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * 传播属性组合测试 — 方法调用方法，两层都有 @Transactional 传播属性

@@ -1,7 +1,6 @@
 package net.hasor.dbvisitor.test.realdb.redis;
 
 import java.util.Properties;
-
 import net.hasor.dbvisitor.adapter.redis.JedisKeys;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;

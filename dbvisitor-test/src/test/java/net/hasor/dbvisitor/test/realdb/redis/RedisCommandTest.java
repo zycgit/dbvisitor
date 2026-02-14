@@ -18,7 +18,6 @@ package net.hasor.dbvisitor.test.realdb.redis;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
-
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.test.config.OneApiDataSourceManager;
 import org.junit.Test;

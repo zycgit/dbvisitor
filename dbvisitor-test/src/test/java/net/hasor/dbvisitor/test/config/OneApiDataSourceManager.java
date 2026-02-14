@@ -20,6 +20,7 @@ import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 public class OneApiDataSourceManager {
     private static final String     DEFAULT_ENV        = "pg";
     private static final String     PROP_FILE_TEMPLATE = "/jdbc-%s.properties";
+    private static final Map<String, Properties> adapterPropsCache = new HashMap<>();
     private static       Properties cachedProperties;
     private static       DataSource cachedDataSource;
     private static       boolean    initialized        = false;
@@ -115,6 +116,8 @@ public class OneApiDataSourceManager {
         }
     }
 
+    // ==================== NoSQL Adapter Connection Support ====================
+
     /**
      * Reset cached data source (for testing or reconfiguration)
      */
@@ -126,10 +129,6 @@ public class OneApiDataSourceManager {
         cachedProperties = null;
         initialized = false;
     }
-
-    // ==================== NoSQL Adapter Connection Support ====================
-
-    private static final Map<String, Properties> adapterPropsCache = new HashMap<>();
 
     /**
      * 加载指定适配器的配置文件 /jdbc-{adapter}.properties
@@ -186,7 +185,7 @@ public class OneApiDataSourceManager {
 
     /**
      * 获取指定适配器的数据库连接，并附加额外的连接属性
-     * @param adapter    适配器名称
+     * @param adapter 适配器名称
      * @param extraProps 额外连接属性
      */
     public static Connection getConnection(String adapter, Properties extraProps) throws SQLException {

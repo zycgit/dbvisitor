@@ -3,7 +3,6 @@ package net.hasor.dbvisitor.test.realdb.redis;
 import java.sql.Connection;
 import java.util.Map;
 import java.util.Objects;
-
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.test.config.OneApiDataSourceManager;

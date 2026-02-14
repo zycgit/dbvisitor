@@ -1,11 +1,8 @@
 package net.hasor.dbvisitor.test.realdb.milvus;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
-import net.hasor.cobble.concurrent.ThreadUtils;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
@@ -43,10 +40,8 @@ public class MilvusMapperTest {
     private void initIndex(JdbcTemplate jdbc, String indexName, String tableName, String createIndexSql) {
         try {
             jdbc.execute(createIndexSql);
-            // Milvus index creation is async usually
-            ThreadUtils.sleep(2000);
         } catch (Exception e) {
-            // ignore
+            // Index likely exists
         }
     }
 
@@ -59,7 +54,6 @@ public class MilvusMapperTest {
             initTable(jdbc, "tb_mapper_user_milvus", "CREATE TABLE IF NOT EXISTS tb_mapper_user_milvus (uid VARCHAR(64) PRIMARY KEY, name VARCHAR(64), loginName VARCHAR(64), loginPassword VARCHAR(64), v FLOAT_VECTOR(2)) WITH (consistency_level = 'Strong')");
             initIndex(jdbc, "idx_mapper_user_v", "tb_mapper_user_milvus", "CREATE INDEX idx_mapper_user_v ON TABLE tb_mapper_user_milvus (v) USING \"IVF_FLAT\" WITH (nlist = 128, metric_type = 'L2')");
             jdbc.execute("LOAD TABLE tb_mapper_user_milvus");
-            ThreadUtils.sleep(2000);
         } catch (Exception e) {
             e.printStackTrace();
             Assume.assumeNoException(e);
@@ -93,14 +87,7 @@ public class MilvusMapperTest {
             assert result == 1;
 
             // Query
-            UserInfoMilvus1 loaded = null;
-            for (int i = 0; i < 20; i++) {
-                loaded = mapper.selectUser("u1");
-                if (loaded != null) {
-                    break;
-                }
-                ThreadUtils.sleep(1000);
-            }
+            UserInfoMilvus1 loaded = mapper.selectUser("u1");
             assert loaded != null;
             assert "u1".equals(loaded.getUid());
 
@@ -130,14 +117,7 @@ public class MilvusMapperTest {
             assert result == 1;
 
             // Query (BaseMapper method)
-            UserInfoMilvus2 loaded = null;
-            for (int i = 0; i < 20; i++) {
-                loaded = mapper.selectById("u2");
-                if (loaded != null) {
-                    break;
-                }
-                ThreadUtils.sleep(1000);
-            }
+            UserInfoMilvus2 loaded = mapper.selectById("u2");
             assert loaded != null;
             assert "nomo2".equals(loaded.getName());
 
@@ -167,14 +147,7 @@ public class MilvusMapperTest {
             assert result == 1;
 
             // Query
-            List<UserInfoMilvus3> users = null;
-            for (int i = 0; i < 20; i++) {
-                users = mapper.queryAll();
-                if (users != null && !users.isEmpty()) {
-                    break;
-                }
-                ThreadUtils.sleep(1000);
-            }
+            List<UserInfoMilvus3> users = mapper.queryAll();
             assert users != null && !users.isEmpty();
             assert users.stream().anyMatch(u -> "u3".equals(u.getUid()));
 
@@ -204,14 +177,7 @@ public class MilvusMapperTest {
             assert result == 1;
 
             // Query
-            UserInfoMilvus1 loaded = null;
-            for (int i = 0; i < 20; i++) {
-                loaded = mapper.findUser("u4");
-                if (loaded != null) {
-                    break;
-                }
-                ThreadUtils.sleep(1000);
-            }
+            UserInfoMilvus1 loaded = mapper.findUser("u4");
             assert loaded != null;
             assert "nomo4".equals(loaded.getName());
 
@@ -241,14 +207,7 @@ public class MilvusMapperTest {
             assert result == 1;
 
             // Query
-            List<UserInfoMilvus5> loadedList = new ArrayList<>();
-            for (int i = 0; i < 20; i++) {
-                loadedList = mapper.queryAll();
-                if (loadedList.stream().anyMatch(u -> "u5".equals(u.getUserId()))) {
-                    break;
-                }
-                ThreadUtils.sleep(1000);
-            }
+            List<UserInfoMilvus5> loadedList = mapper.queryAll();
             UserInfoMilvus5 loaded = loadedList.stream().filter(u -> "u5".equals(u.getUserId())).findFirst().orElse(null);
 
             assert loaded != null;
@@ -281,14 +240,7 @@ public class MilvusMapperTest {
             assert result == 1;
 
             // Query
-            UserInfoMilvus6 loaded = null;
-            for (int i = 0; i < 20; i++) {
-                loaded = mapper.selectById("u6");
-                if (loaded != null) {
-                    break;
-                }
-                ThreadUtils.sleep(1000);
-            }
+            UserInfoMilvus6 loaded = mapper.selectById("u6");
             assert loaded != null;
             assert "nomo6".equals(loaded.getUserName());
             assert "nomo6".equals(loaded.getAccount());

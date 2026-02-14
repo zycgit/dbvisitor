@@ -2,7 +2,6 @@ package net.hasor.dbvisitor.test.service;
 
 import java.sql.SQLException;
 import java.util.Date;
-
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.test.model.UserInfo;
 import net.hasor.dbvisitor.transaction.Propagation;
@@ -20,7 +19,7 @@ import net.hasor.dbvisitor.transaction.Transactional;
 public class CallerTransactionService {
 
     private final UserTransactionService userService;
-    private final LambdaTemplate lambdaTemplate;
+    private final LambdaTemplate         lambdaTemplate;
 
     /** 无参构造器 — Cobble ASM 动态代理创建子类时需要 */
     public CallerTransactionService() {

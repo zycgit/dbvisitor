@@ -2,14 +2,13 @@ package net.hasor.dbvisitor.test.suite.transaction;
 
 import java.sql.SQLException;
 import java.util.Date;
-
 import net.hasor.dbvisitor.test.AbstractOneApiTest;
 import net.hasor.dbvisitor.test.model.UserInfo;
 import net.hasor.dbvisitor.transaction.*;
 import net.hasor.dbvisitor.transaction.support.TransactionHelper;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * TransactionTemplate 模板式事务测试
