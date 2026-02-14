@@ -3,14 +3,32 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class MilvusCmdForHintsTest extends AbstractMilvusCmdForTest {
-    private void setupData() throws Exception {
-        if (!hasCollection(TEST_COLLECTION)) {
-            createCollection(TEST_COLLECTION);
+    @Before
+    public void setUp() {
+        if (!milvusReady) {
+            return;
         }
+        dropCollection(TEST_COLLECTION);
+    }
+
+    @After
+    public void tearDown() {
+        if (!milvusReady) {
+            return;
+        }
+        dropCollection(TEST_COLLECTION);
+    }
+
+    private void setupData() throws Exception {
+        // Always start with a clean collection
+        dropCollection(TEST_COLLECTION);
+        createCollection(TEST_COLLECTION);
 
         try (Connection conn = DriverManager.getConnection(MILVUS_URL); Statement stmt = conn.createStatement()) {
             // 1. Insert Data via JDBC

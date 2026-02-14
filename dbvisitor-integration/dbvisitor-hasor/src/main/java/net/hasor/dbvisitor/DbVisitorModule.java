@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor;
+import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -33,7 +34,6 @@ import net.hasor.cobble.loader.MatchType;
 import net.hasor.cobble.loader.ScanEvent;
 import net.hasor.cobble.loader.providers.ClassPathResourceLoader;
 import net.hasor.core.*;
-import net.hasor.core.setting.SettingNode;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
 import net.hasor.dbvisitor.jdbc.JdbcOperations;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
@@ -57,7 +57,7 @@ import static net.hasor.dbvisitor.ConfigKeys.*;
 public class DbVisitorModule implements net.hasor.core.Module {
     @Override
     public void loadModule(ApiBinder apiBinder) throws Exception {
-        String multipleDs = apiBinder.getEnvironment().getSettings().getString(MultipleDataSource.getConfigKey());
+        String multipleDs = configString(apiBinder.getEnvironment().getSettings(), MultipleDataSource.getConfigKey(), null);
         if (StringUtils.isNotBlank(multipleDs)) {
             String[] dsNames = multipleDs.split(",");
             for (String dbName : dsNames) {
@@ -84,7 +84,7 @@ public class DbVisitorModule implements net.hasor.core.Module {
     private BindInfo<DataSource> configDataSource(String dbName, ApiBinder apiBinder) throws Exception {
         Settings settings = apiBinder.getEnvironment().getSettings();
         String configKey = DataSourceType.buildConfigKey(dbName);
-        String dataSourceType = settings.getString(configKey, DataSourceType.getDefaultValue());
+        String dataSourceType = configString(settings, configKey, DataSourceType.getDefaultValue());
         DataSource dataSource;
         if (StringUtils.isBlank(dataSourceType)) {
             dataSource = new DefaultDataSource();
@@ -93,13 +93,7 @@ public class DbVisitorModule implements net.hasor.core.Module {
             dataSource = (DataSource) dsClass.newInstance();
         }
 
-        SettingNode configNode = settings.getNode(configKey);
-        String[] subKeys = configNode.getSubKeys();
-        for (String key : subKeys) {
-            String subValue = configNode.getSubValue(key);
-            String propName = lineToHump(key);
-            BeanUtils.writeProperty(dataSource, propName, subValue);
-        }
+        applySettingsByPropertyName(settings, configKey, dataSource);
 
         if (StringUtils.isBlank(dbName)) {
             return apiBinder.bindType(DataSource.class).toInstance(dataSource).toInfo();
@@ -186,7 +180,7 @@ public class DbVisitorModule implements net.hasor.core.Module {
             BindInfo<DataSource> dsInfo, BindInfo<Configuration> configInfo) throws IOException {
         Settings settings = apiBinder.getEnvironment().getSettings();
         String configKey = MapperLocations.buildConfigKey(dbName);
-        String resources = settings.getString(configKey, MapperLocations.getDefaultValue());
+        String resources = configString(settings, configKey, MapperLocations.getDefaultValue());
         Set<URI> mappers = new HashSet<>();
 
         if (StringUtils.isNotBlank(resources)) {
@@ -219,10 +213,10 @@ public class DbVisitorModule implements net.hasor.core.Module {
         String configScanMarkerAnnotation = ScanMarkerAnnotation.buildConfigKey(dbName);
         String configScanMarkerInterface = ScanMarkerInterface.buildConfigKey(dbName);
 
-        Boolean mapperDisabled = settings.getBoolean(configMapperDisabled, Boolean.parseBoolean(MapperDisabled.getDefaultValue()));
-        String mapperPackageConfig = settings.getString(configMapperPackages, MapperPackages.getDefaultValue());
-        String scanMarkerAnnotation = settings.getString(configScanMarkerAnnotation, ScanMarkerAnnotation.getDefaultValue());
-        String scanMarkerInterface = settings.getString(configScanMarkerInterface, ScanMarkerInterface.getDefaultValue());
+        Boolean mapperDisabled = Boolean.parseBoolean(configString(settings, configMapperDisabled, MapperDisabled.getDefaultValue()));
+        String mapperPackageConfig = configString(settings, configMapperPackages, MapperPackages.getDefaultValue());
+        String scanMarkerAnnotation = configString(settings, configScanMarkerAnnotation, ScanMarkerAnnotation.getDefaultValue());
+        String scanMarkerInterface = configString(settings, configScanMarkerInterface, ScanMarkerInterface.getDefaultValue());
 
         if (mapperDisabled || StringUtils.isBlank(mapperPackageConfig)) {
             return;
@@ -399,39 +393,69 @@ public class DbVisitorModule implements net.hasor.core.Module {
         return false;
     }
 
-    private static String lineToHump(String name) {
-        // copy from spring jdbc 6.0.12 JdbcUtils.convertUnderscoreNameToPropertyName
-        StringBuilder result = new StringBuilder();
-        boolean nextIsUpper = false;
-        if (name != null && name.length() > 0) {
-            if (name.length() > 1 && name.charAt(1) == '-') {
-                result.append(Character.toUpperCase(name.charAt(0)));
-            } else {
-                result.append(Character.toLowerCase(name.charAt(0)));
+    private static void applySettingsByPropertyName(Settings settings, String configKey, Object dataSource) {
+        if (settings == null || dataSource == null) {
+            return;
+        }
+        PropertyDescriptor[] descriptors = BeanUtils.getPropertyDescriptors(dataSource.getClass());
+        for (PropertyDescriptor descriptor : descriptors) {
+            String propName = descriptor.getName();
+            if ("class".equals(propName)) {
+                continue;
             }
-            for (int i = 1; i < name.length(); i++) {
-                char c = name.charAt(i);
-                if (c == '-') {
-                    nextIsUpper = true;
-                } else {
-                    if (nextIsUpper) {
-                        result.append(Character.toUpperCase(c));
-                        nextIsUpper = false;
-                    } else {
-                        result.append(Character.toLowerCase(c));
-                    }
-                }
+            String settingKey = configKey + "." + StringUtils.humpToLine(propName).replace('_', '-');
+            String propValue = configString(settings, settingKey, null);
+            if (StringUtils.isNotBlank(propValue)) {
+                BeanUtils.writeProperty(dataSource, propName, propValue);
             }
         }
-        return result.toString();
     }
 
     private String configValueOrDefault(String dbName, ConfigKeys configKey, Settings settings) {
-        String s = settings.getString(configKey.buildConfigKey(dbName), null);
+        String s = configString(settings, configKey.buildConfigKey(dbName), null);
         if (StringUtils.isBlank(s)) {
-            return settings.getString(configKey.getConfigKey(), configKey.getDefaultValue());
+            return configString(settings, configKey.getConfigKey(), configKey.getDefaultValue());
         } else {
             return s;
         }
+    }
+
+    private static String configString(Settings settings, String key, String defaultValue) {
+        String value = settings.getString(key, null);
+        if (StringUtils.isNotBlank(value)) {
+            return value;
+        }
+
+        String underscoreKey = key.replace('-', '_');
+        if (!underscoreKey.equals(key)) {
+            value = settings.getString(underscoreKey, null);
+            if (StringUtils.isNotBlank(value)) {
+                return value;
+            }
+        }
+
+        String camelKey = keyToCamelPath(key);
+        if (!camelKey.equals(key)) {
+            value = settings.getString(camelKey, null);
+            if (StringUtils.isNotBlank(value)) {
+                return value;
+            }
+        }
+
+        return defaultValue;
+    }
+
+    private static String keyToCamelPath(String key) {
+        if (StringUtils.isBlank(key)) {
+            return key;
+        }
+        String[] segments = key.split("\\.");
+        for (int i = 0; i < segments.length; i++) {
+            String segment = segments[i];
+            if (segment.indexOf('-') >= 0) {
+                segments[i] = StringUtils.lineToHump(segment.replace('-', '_'));
+            }
+        }
+        return String.join(".", segments);
     }
 }

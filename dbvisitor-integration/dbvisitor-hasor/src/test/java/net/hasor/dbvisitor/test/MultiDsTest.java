@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.test;
-import java.io.IOException;
-import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.sql.DataSource;
 import net.hasor.core.AppContext;
 import net.hasor.core.Hasor;
-import net.hasor.core.Inject;
-import net.hasor.core.Type;
 import net.hasor.dbvisitor.DbVisitorModule;
+import net.hasor.dbvisitor.DefaultDataSource;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.dao.role.RoleMapper;
 import net.hasor.dbvisitor.test.dao.user.UserMapper;
@@ -30,18 +29,34 @@ import net.hasor.dbvisitor.test.dto.UserDTO;
 import org.junit.Test;
 
 public class MultiDsTest {
-    @Inject(byType = Type.ByName, value = "one")
     private RoleMapper roleMapper;
-    @Inject(byType = Type.ByName, value = "two")
     private UserMapper userMapper;
-    @Inject(byType = Type.ByName, value = "three")
     private Session    dalSession;
 
     @Test
-    public void getListTest() throws SQLException, IOException {
+    public void getListTest() throws Exception {
         AppContext injector = Hasor.create().mainSettingWith("multi-ds.properties").build(new DbVisitorModule());
-        injector.justInject(this);
+        List<DataSource> dataSources = injector.findBindingBean(DataSource.class);
+        for (DataSource dataSource : dataSources) {
+            if (dataSource instanceof DefaultDataSource) {
+                DefaultDataSource defaultDataSource = (DefaultDataSource) dataSource;
+                defaultDataSource.setJdbcUrl("jdbc:mysql://127.0.0.1:13306/devtester?allowMultiQueries=true");
+                defaultDataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
+                defaultDataSource.setUsername("root");
+                defaultDataSource.setPassword("123456");
+            }
+        }
+        this.dalSession = injector.findBindingBean("three", Session.class);
+        if (this.dalSession == null) {
+            List<Session> sessions = injector.findBindingBean(Session.class);
+            if (sessions == null) {
+                sessions = new ArrayList<Session>();
+            }
+            this.dalSession = sessions.isEmpty() ? null : sessions.get(0);
+        }
         this.dalSession.jdbc().loadSQL("CreateDB.sql");
+        this.userMapper = this.dalSession.createMapper(UserMapper.class);
+        this.roleMapper = this.dalSession.createMapper(RoleMapper.class);
 
         assert userMapper != null;
         assert roleMapper != null;

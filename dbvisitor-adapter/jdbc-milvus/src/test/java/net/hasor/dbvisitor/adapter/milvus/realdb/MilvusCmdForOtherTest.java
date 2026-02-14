@@ -16,6 +16,14 @@ public class MilvusCmdForOtherTest extends AbstractMilvusCmdForTest {
         if (!milvusReady) {
             return;
         }
+        // Clean up any residual aliases from previous runs
+        dropAlias("test_alias_create");
+        dropAlias("test_alias_alter");
+        dropAlias("test_alias_drop");
+        dropAlias("test_alias_drop_not_exist");
+        // Drop and recreate collection to ensure clean state
+        dropCollection(TEST_COLLECTION);
+        dropCollection(TEST_COLLECTION_NEW);
         createCollection(TEST_COLLECTION);
     }
 
@@ -24,6 +32,11 @@ public class MilvusCmdForOtherTest extends AbstractMilvusCmdForTest {
         if (!milvusReady) {
             return;
         }
+        // Clean up aliases first (before dropping collections they point to)
+        dropAlias("test_alias_create");
+        dropAlias("test_alias_alter");
+        dropAlias("test_alias_drop");
+        dropAlias("test_alias_drop_not_exist");
         dropCollection(TEST_COLLECTION);
         dropCollection(TEST_COLLECTION_NEW);
     }

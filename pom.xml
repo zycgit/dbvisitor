@@ -56,7 +56,6 @@
         <module>dbvisitor-adapter/jdbc-mongo</module>
         <module>dbvisitor-adapter/jdbc-milvus</module>
         <module>dbvisitor-adapter/jdbc-elastic</module>
-        <module>dbvisitor-test</module>
     </modules>
 
     <dependencyManagement>
@@ -254,6 +253,12 @@
 
     <!-- 使用“-P release”启用下面配置 -->
     <profiles>
+        <profile>
+            <id>tests</id>
+            <modules>
+                <module>dbvisitor-test</module>
+            </modules>
+        </profile>
         <profile>
             <id>release</id>
             <properties>

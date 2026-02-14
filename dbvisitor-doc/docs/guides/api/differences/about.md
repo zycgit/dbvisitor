@@ -17,9 +17,7 @@ dbVisitor 对待差异的处理方式主要体现在两个方面：
 您若想改变这些差异，可以参与项目并贡献您的改进代码。
 :::
 
-## 数据源支持一览 {#api}
-
-<span id="dialect"></span>
+## 数据源支持一览 {#dialect}
 
 dbVisitor 在统一内核架构下设计了 4 种 API：[编程式 API](../program_api)、[声明式 API](../declarative_api)、[构造器 API](../lambda_api)、[Mapper File](../file_mapper)。
 其中 **JdbcTemplate**、**注解方式**、**Mapper File** 在所有数据源上均可使用。
@@ -74,7 +72,7 @@ dbVisitor 具备智能的方言推断能力，会自动根据 JDBC URL 识别目
 
 ### 非关系型数据源指南
 
-- **[Redis](./redis)** — 支持 [140+ 命令](../../drivers/redis/commands)，5 种数据类型操作；不支持构造器 API 和对象映射
+- **[Redis](./redis)** — 支持 [140+ 命令](../../../drivers/redis/commands)，5 种数据类型操作；不支持构造器 API 和对象映射
 - **[MongoDB](./mongo)** — 完整 CRUD 支持，ObjectId 自动映射，分页查询；不支持批量和存储过程
 - **[ElasticSearch](./elastic)** — 完整 CRUD 支持，基于 REST DSL；不支持批量和存储过程
 - **[Milvus](./milvus)** — SQL 风格语法操作向量数据库，完整 CRUD 支持，KNN 近邻搜索与范围搜索；不支持批量和存储过程

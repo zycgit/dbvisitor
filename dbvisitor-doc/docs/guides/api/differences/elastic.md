@@ -8,10 +8,10 @@ description: ElasticSearch 数据源使用 dbVisitor 的能力范围与限制。
 
 # ElasticSearch 数据源特异性
 
-dbVisitor 通过 [JDBC-Elastic](../../drivers/elastic/about) 驱动，基于 JDBC 协议访问 ElasticSearch 数据源。
+dbVisitor 通过 [JDBC-Elastic](../../../drivers/elastic/about) 驱动，基于 JDBC 协议访问 ElasticSearch 数据源。
 
 **支持的能力：**
-- 使用 ElasticSearch DSL 命令操作数据（[支持的命令列表](../../drivers/elastic/commands)）
+- 使用 ElasticSearch DSL 命令操作数据（[支持的命令列表](../../../drivers/elastic/commands)）
 - [JdbcTemplate](#exec-command)、[构造器 API](#exec-lambda)、[BaseMapper](#exec-mapper)、[方法注解](#exec-annotation)、[Mapper 文件](#exec-file)
 - 对象映射、结果集映射、[规则](../../rules/about)、[参数传递](../../args/about)、[ResultSetExtractor/RowMapper](../../result/about)
 - Mapper File 中的[动态 SQL](../../core/file/dynamic) 标签、`Statement.RETURN_GENERATED_KEYS`（自动获取 `_id`）
@@ -28,7 +28,7 @@ dbVisitor 通过 [JDBC-Elastic](../../drivers/elastic/about) 驱动，基于 JDB
 
 ## 命令方式（JdbcTemplate）{#exec-command}
 
-使用 JdbcTemplate 可以直接执行 ElasticSearch 命令，在此之前请确保已经正确配置好 ElasticSearch 数据源，具体请参考 [ElasticSearch 驱动使用指南](../../drivers/elastic/usecase)。
+使用 JdbcTemplate 可以直接执行 ElasticSearch 命令，在此之前请确保已经正确配置好 ElasticSearch 数据源，具体请参考 [ElasticSearch 驱动使用指南](../../../drivers/elastic/usecase)。
 
 :::tip[提示]
 更多使用方式请参考 [JdbcTemplate 类](../../core/jdbc/about#guide)，在使用过程中下面两个特性由于驱动原因无法支持：

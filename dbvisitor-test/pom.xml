@@ -16,12 +16,37 @@
         <dependency>
             <groupId>net.hasor</groupId>
             <artifactId>dbvisitor</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>1.2.11</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- driver adapter-->
+        <dependency>
+            <groupId>net.hasor</groupId>
+            <artifactId>dbvisitor-driver</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.hasor</groupId>
+            <artifactId>jdbc-redis</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.hasor</groupId>
+            <artifactId>jdbc-mongo</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.hasor</groupId>
+            <artifactId>jdbc-elastic</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.hasor</groupId>
+            <artifactId>jdbc-milvus</artifactId>
             <scope>test</scope>
         </dependency>
 
@@ -48,26 +73,6 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>42.6.0</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.hasor</groupId>
-            <artifactId>jdbc-redis</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.hasor</groupId>
-            <artifactId>jdbc-mongo</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.hasor</groupId>
-            <artifactId>jdbc-elastic</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.hasor</groupId>
-            <artifactId>jdbc-milvus</artifactId>
             <scope>test</scope>
         </dependency>
 
@@ -127,6 +132,32 @@
                         <configuration>
                             <dataFile>${project.build.directory}/jacoco.exec</dataFile>
                             <outputDirectory>${project.build.directory}/site/jacoco</outputDirectory>
+                            <excludes>
+                                <!-- Milvus -->
+                                <exclude>**/adapter/milvus/parser/MilvusLexer*</exclude>
+                                <exclude>**/adapter/milvus/parser/MilvusParser*</exclude>
+                                <exclude>**/adapter/milvus/parser/MilvusBase*</exclude>
+                                <exclude>**/adapter/milvus/parser/MilvusListener*</exclude>
+                                <exclude>**/adapter/milvus/parser/MilvusVisitor*</exclude>
+                                <!-- Redis -->
+                                <exclude>**/adapter/redis/parser/RedisLexer*</exclude>
+                                <exclude>**/adapter/redis/parser/RedisParser*</exclude>
+                                <exclude>**/adapter/redis/parser/RedisBase*</exclude>
+                                <exclude>**/adapter/redis/parser/RedisListener*</exclude>
+                                <exclude>**/adapter/redis/parser/RedisVisitor*</exclude>
+                                <!-- Elastic -->
+                                <exclude>**/adapter/elastic/parser/ElasticLexer*</exclude>
+                                <exclude>**/adapter/elastic/parser/ElasticParser*</exclude>
+                                <exclude>**/adapter/elastic/parser/ElasticBase*</exclude>
+                                <exclude>**/adapter/elastic/parser/ElasticListener*</exclude>
+                                <exclude>**/adapter/elastic/parser/ElasticVisitor*</exclude>
+                                <!-- Mongo -->
+                                <exclude>**/adapter/mongo/parser/MongoLexer*</exclude>
+                                <exclude>**/adapter/mongo/parser/MongoParser*</exclude>
+                                <exclude>**/adapter/mongo/parser/MongoBase*</exclude>
+                                <exclude>**/adapter/mongo/parser/MongoListener*</exclude>
+                                <exclude>**/adapter/mongo/parser/MongoVisitor*</exclude>
+                            </excludes>
                         </configuration>
                     </execution>
                 </executions>

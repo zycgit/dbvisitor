@@ -23,7 +23,7 @@ It consists of three parts:
   Supports [Spring/SpringBoot](./yourproject/with_spring), [Solon](./yourproject/with_solon),
   [Hasor](./yourproject/with_hasor), [Guice](./yourproject/with_guice).
 - dbvisitor-adapter: The module for JDBC driver adapters, used to connect to databases such as NoSQL.
-  For example: [Redis](./core/redis/about), [MongoDB](./core/mongo/about), [ElasticSearch](./core/elastic/about).
+  For example: [Redis](./api/differences/redis), [MongoDB](./api/differences/mongo), [ElasticSearch](./api/differences/elastic).
 
 It is not an ORM framework.
 - dbVisitor is a library that facilitates Java access to databases. Although it is somewhat similar to ORM, there are still many differences compared to a true ORM philosophy.
@@ -64,7 +64,7 @@ dbVisitor can run on all Java 8 or higher versions, and all versions are compile
 - dbVisitor provides a more flexible and efficient [Rule](./rules/about) mechanism, which makes maintaining application SQL more concise.
 - dbVisitor has built-in multiple [Type Handlers](./types/about), which can conveniently handle most database types.
 - dbVisitor supports using [Transactions](./transaction/about) between multiple different method calls.
-- dbVisitor uses a unified API to operate non-relational databases [Redis](./core/redis/about), [MongoDB](./core/mongo/about) and [ElasticSearch](./core/elastic/about).
+- dbVisitor uses a unified API to operate non-relational databases [Redis](./api/differences/redis), [MongoDB](./api/differences/mongo) and [ElasticSearch](./api/differences/elastic).
 
 ## Integration
 
@@ -72,9 +72,9 @@ dbVisitor can run on all Java 8 or higher versions, and all versions are compile
 - [dbvisitor-solon](./yourproject/with_solon): Supports automatic configuration and injection of dbVisitor configured Mappers and instances in applications using [Solon](https://solon.noear.org/) as the application development framework.
 - [dbvisitor-hasor](./yourproject/with_hasor): Supports automatic configuration and injection of dbVisitor configured Mappers and instances in applications using [Hasor](https://www.hasor.net/) as the application development framework.
 - [dbvisitor-guice](./yourproject/with_guice): Supports automatic configuration and injection of dbVisitor configured Mappers and instances in applications using [Google Guice](https://github.com/google/guice) dependency injection.
-- [jdbc-redis](./drivers/redis/about): A JDBC driver adapter for Redis, allowing developers to operate the database using standard JDBC interfaces and Redis commands.
-- [jdbc-mongo](./drivers/mongo/about): A JDBC driver adapter for MongoDB, allowing developers to operate the database using standard JDBC interfaces and MongoDB commands.
-- [jdbc-elastic](./drivers/elastic/about): A JDBC driver adapter for ElasticSearch, allowing developers to operate the database using standard JDBC interfaces and ElasticSearch QueryDSL.
+- [jdbc-redis](../drivers/redis/about): A JDBC driver adapter for Redis, allowing developers to operate the database using standard JDBC interfaces and Redis commands.
+- [jdbc-mongo](../drivers/mongo/about): A JDBC driver adapter for MongoDB, allowing developers to operate the database using standard JDBC interfaces and MongoDB commands.
+- [jdbc-elastic](../drivers/elastic/about): A JDBC driver adapter for ElasticSearch, allowing developers to operate the database using standard JDBC interfaces and ElasticSearch QueryDSL.
 
 ## Version Events
 

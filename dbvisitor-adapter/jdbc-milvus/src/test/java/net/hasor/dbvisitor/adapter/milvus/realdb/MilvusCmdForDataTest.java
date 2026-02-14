@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import io.milvus.client.MilvusServiceClient;
+import io.milvus.common.clientenum.ConsistencyLevelEnum;
 import io.milvus.grpc.GetLoadStateResponse;
 import io.milvus.grpc.LoadState;
 import io.milvus.grpc.QueryResults;
@@ -46,6 +47,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
+    private static final String STRONG_CONSISTENCY_HINT = "/*+ consistency_level=Strong */ ";
     @Test
     public void testInsert() throws Exception {
         if (!milvusReady) {
@@ -53,9 +55,8 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
         }
 
         try {
-            if (!hasCollection(TEST_COLLECTION)) {
-                createCollection(TEST_COLLECTION);
-            }
+            dropCollection(TEST_COLLECTION);
+            createCollection(TEST_COLLECTION);
 
             // 1. JDBC Insert
             String insertSQL = "INSERT INTO " + TEST_COLLECTION + " (book_id, word_count, book_intro) VALUES (?, ?, ?)";
@@ -146,13 +147,11 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
                 int affected = stmt.executeUpdate(updateSql);
                 assertEquals(1, affected);
             }
-            Thread.sleep(1000);
-
             // 5. Verify Update
             try (Connection conn = DriverManager.getConnection(MILVUS_URL);//
                  Statement stmt = conn.createStatement()) {
                 // Query via JDBC to verify
-                try (ResultSet rs = stmt.executeQuery("SELECT word_count FROM " + tableName + " WHERE book_id = 1")) {
+                try (ResultSet rs = stmt.executeQuery(STRONG_CONSISTENCY_HINT + "SELECT word_count FROM " + tableName + " WHERE book_id = 1")) {
                     if (rs.next()) {
                         long count = rs.getLong("word_count");
                         assertEquals(999L, count);
@@ -205,15 +204,13 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
                 int affected = stmt.executeUpdate("UPDATE " + tableName + " SET word_count = 999 ORDER BY book_intro <-> [0.1, 0.1] LIMIT 1");
                 assertEquals(1, affected);
             }
-            Thread.sleep(1000);
-
             try (Connection conn = DriverManager.getConnection(MILVUS_URL);//
                  Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("SELECT word_count FROM " + tableName + " WHERE book_id = 1")) {
+                try (ResultSet rs = stmt.executeQuery(STRONG_CONSISTENCY_HINT + "SELECT word_count FROM " + tableName + " WHERE book_id = 1")) {
                     assertTrue(rs.next());
                     assertEquals(999L, rs.getLong("word_count"));
                 }
-                try (ResultSet rs = stmt.executeQuery("SELECT word_count FROM " + tableName + " WHERE book_id = 2")) {
+                try (ResultSet rs = stmt.executeQuery(STRONG_CONSISTENCY_HINT + "SELECT word_count FROM " + tableName + " WHERE book_id = 2")) {
                     assertTrue(rs.next());
                     assertEquals(200L, rs.getLong("word_count")); // Unchanged
                 }
@@ -266,17 +263,15 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
                 int affected = stmt.executeUpdate("UPDATE " + tableName + " SET word_count = 888 WHERE vector_range(book_intro, [0.1, 0.1], 0.1)");
                 assertEquals(2, affected);
             }
-            Thread.sleep(1000);
-
             try (Connection conn = DriverManager.getConnection(MILVUS_URL);//
                  Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("SELECT word_count FROM " + tableName + " WHERE book_id IN (1, 2) AND word_count = 888")) {
+                try (ResultSet rs = stmt.executeQuery(STRONG_CONSISTENCY_HINT + "SELECT word_count FROM " + tableName + " WHERE book_id IN (1, 2) AND word_count = 888")) {
                     int count = 0;
                     while (rs.next())
                         count++;
                     assertEquals(2, count);
                 }
-                try (ResultSet rs = stmt.executeQuery("SELECT word_count FROM " + tableName + " WHERE book_id = 3")) {
+                try (ResultSet rs = stmt.executeQuery(STRONG_CONSISTENCY_HINT + "SELECT word_count FROM " + tableName + " WHERE book_id = 3")) {
                     assertTrue(rs.next());
                     assertEquals(300L, rs.getLong("word_count")); // Unchanged
                 }
@@ -336,24 +331,22 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
                 assertEquals(3, affected); // 1, 2, 3
             }
 
-            Thread.sleep(1000); // Consistency
-
             // 3. Verify
             try (Connection conn = DriverManager.getConnection(MILVUS_URL); //
                  Statement stmt = conn.createStatement()) {
 
                 // Check ID 1 (Updated)
-                try (ResultSet rs = stmt.executeQuery("SELECT word_count FROM " + tableName + " WHERE book_id = 1")) {
+                try (ResultSet rs = stmt.executeQuery(STRONG_CONSISTENCY_HINT + "SELECT word_count FROM " + tableName + " WHERE book_id = 1")) {
                     if (rs.next())
                         assertEquals(9999L, rs.getLong("word_count"));
                 }
                 // Check ID 3 (Updated)
-                try (ResultSet rs = stmt.executeQuery("SELECT word_count FROM " + tableName + " WHERE book_id = 3")) {
+                try (ResultSet rs = stmt.executeQuery(STRONG_CONSISTENCY_HINT + "SELECT word_count FROM " + tableName + " WHERE book_id = 3")) {
                     if (rs.next())
                         assertEquals(9999L, rs.getLong("word_count"));
                 }
                 // Check ID 4 (Not Updated)
-                try (ResultSet rs = stmt.executeQuery("SELECT word_count FROM " + tableName + " WHERE book_id = 4")) {
+                try (ResultSet rs = stmt.executeQuery(STRONG_CONSISTENCY_HINT + "SELECT word_count FROM " + tableName + " WHERE book_id = 4")) {
                     if (rs.next())
                         assertEquals(4000L, rs.getLong("word_count"));
                 }
@@ -371,9 +364,8 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
         }
 
         try {
-            if (!hasCollection(TEST_COLLECTION)) {
-                createCollection(TEST_COLLECTION);
-            }
+            dropCollection(TEST_COLLECTION);
+            createCollection(TEST_COLLECTION);
 
             // 1. Prepare Data using SDK (Isolation)
             MilvusServiceClient client = newClient();
@@ -401,14 +393,13 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
                 assertEquals(1, affected);
             }
 
-            // Wait a bit for delete consistency if needed
-            Thread.sleep(1000);
-
             // Verify Delete using SDK
             R<QueryResults> queryResAfter = client.query(QueryParam.newBuilder()//
                     .withCollectionName(TEST_COLLECTION)//
                     .withExpr("book_id == 1")//
-                    .withOutFields(Collections.singletonList("word_count")).build());
+                    .withOutFields(Collections.singletonList("word_count"))//
+                    .withConsistencyLevel(ConsistencyLevelEnum.STRONG)//
+                    .build());
 
             assertEquals(R.Status.Success.getCode(), queryResAfter.getStatus().intValue());
             QueryResultsWrapper wrapper2 = new QueryResultsWrapper(queryResAfter.getData());
@@ -427,9 +418,8 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
         }
 
         try {
-            if (!hasCollection(TEST_COLLECTION)) {
-                createCollection(TEST_COLLECTION);
-            }
+            dropCollection(TEST_COLLECTION);
+            createCollection(TEST_COLLECTION);
 
             // 1. Prepare Data
             MilvusServiceClient client = newClient();
@@ -466,13 +456,13 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
                 assertEquals(3, affected);
             }
 
-            Thread.sleep(1000); // Consistency wait
-
             // 3. Verify
             R<QueryResults> queryRes = client.query(QueryParam.newBuilder()//
                     .withCollectionName(TEST_COLLECTION)//
                     .withExpr("book_id > 0")//
-                    .withOutFields(Collections.singletonList("book_id")).build());
+                    .withOutFields(Collections.singletonList("book_id"))//
+                    .withConsistencyLevel(ConsistencyLevelEnum.STRONG)//
+                    .build());
 
             QueryResultsWrapper wrapper = new QueryResultsWrapper(queryRes.getData());
             assertEquals(1, wrapper.getRowRecords().size());
@@ -491,9 +481,8 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
         }
 
         try {
-            if (!hasCollection(TEST_COLLECTION)) {
-                createCollection(TEST_COLLECTION);
-            }
+            dropCollection(TEST_COLLECTION);
+            createCollection(TEST_COLLECTION);
 
             // 1. Prepare Data
             MilvusServiceClient client = newClient();
@@ -527,13 +516,13 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
                 assertEquals(2, affected);
             }
 
-            Thread.sleep(1000);
-
             // 3. Verify
             R<QueryResults> queryRes = client.query(QueryParam.newBuilder()//
                     .withCollectionName(TEST_COLLECTION)//
                     .withExpr("book_id > 0")//
-                    .withOutFields(Collections.singletonList("book_id")).build());
+                    .withOutFields(Collections.singletonList("book_id"))//
+                    .withConsistencyLevel(ConsistencyLevelEnum.STRONG)//
+                    .build());
 
             QueryResultsWrapper wrapper = new QueryResultsWrapper(queryRes.getData());
             assertEquals(1, wrapper.getRowRecords().size());
@@ -552,9 +541,8 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
         }
 
         try {
-            if (!hasCollection(TEST_COLLECTION)) {
-                createCollection(TEST_COLLECTION);
-            }
+            dropCollection(TEST_COLLECTION);
+            createCollection(TEST_COLLECTION);
 
             // 1. Prepare Data
             MilvusServiceClient client = newClient();
@@ -594,13 +582,13 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
                 assertEquals(2, affected);
             }
 
-            Thread.sleep(1000);
-
             // 3. Verify
             R<QueryResults> queryRes = client.query(QueryParam.newBuilder()//
                     .withCollectionName(TEST_COLLECTION)//
                     .withExpr("book_id > 0")//
-                    .withOutFields(Collections.singletonList("book_id")).build());
+                    .withOutFields(Collections.singletonList("book_id"))//
+                    .withConsistencyLevel(ConsistencyLevelEnum.STRONG)//
+                    .build());
 
             QueryResultsWrapper wrapper = new QueryResultsWrapper(queryRes.getData());
             assertEquals(1, wrapper.getRowRecords().size());
@@ -618,9 +606,8 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
             return;
         }
         try {
-            if (!hasCollection(TEST_COLLECTION)) {
-                createCollection(TEST_COLLECTION);
-            }
+            dropCollection(TEST_COLLECTION);
+            createCollection(TEST_COLLECTION);
 
             // 1. Prepare Data
             MilvusServiceClient client = newClient();
@@ -657,13 +644,13 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
                 assertEquals(1, affected);
             }
 
-            Thread.sleep(1000);
-
             // 3. Verify
             R<QueryResults> queryRes = client.query(QueryParam.newBuilder()//
                     .withCollectionName(TEST_COLLECTION)//
                     .withExpr("book_id > 0")//
-                    .withOutFields(Collections.singletonList("book_id")).build());
+                    .withOutFields(Collections.singletonList("book_id"))//
+                    .withConsistencyLevel(ConsistencyLevelEnum.STRONG)//
+                    .build());
 
             QueryResultsWrapper wrapper = new QueryResultsWrapper(queryRes.getData());
             assertEquals(2, wrapper.getRowRecords().size());
@@ -686,9 +673,8 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
             return;
         }
         try {
-            if (!hasCollection(TEST_COLLECTION)) {
-                createCollection(TEST_COLLECTION);
-            }
+            dropCollection(TEST_COLLECTION);
+            createCollection(TEST_COLLECTION);
             MilvusServiceClient client = newClient();
             // Create Index (Required for Load)
             client.createIndex(CreateIndexParam.newBuilder()//
@@ -738,9 +724,8 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
             return;
         }
         try {
-            if (!hasCollection(TEST_COLLECTION)) {
-                createCollection(TEST_COLLECTION);
-            }
+            dropCollection(TEST_COLLECTION);
+            createCollection(TEST_COLLECTION);
             MilvusServiceClient client = newClient();
             client.createIndex(CreateIndexParam.newBuilder()//
                     .withCollectionName(TEST_COLLECTION)//
@@ -793,9 +778,8 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
             return;
         }
         try {
-            if (!hasCollection(TEST_COLLECTION)) {
-                createCollection(TEST_COLLECTION);
-            }
+            dropCollection(TEST_COLLECTION);
+            createCollection(TEST_COLLECTION);
 
             // 1. Prepare Data locally
             File tempFile = File.createTempFile("milvus_import_", ".json");

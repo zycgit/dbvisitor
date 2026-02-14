@@ -8,11 +8,11 @@ description: Milvus 数据源使用 dbVisitor 的能力范围与限制。
 
 # Milvus 数据源特异性
 
-dbVisitor 通过 [JDBC-Milvus](../../drivers/milvus/about) 驱动，基于 JDBC 协议访问 Milvus 向量数据库。
+dbVisitor 通过 [JDBC-Milvus](../../../drivers/milvus/about) 驱动，基于 JDBC 协议访问 Milvus 向量数据库。
 与 MongoDB/ElasticSearch 的原生命令风格不同，Milvus 适配器采用 **SQL 风格语法**（`CREATE TABLE`、`INSERT`、`SELECT`、`DELETE` 等），学习成本更低。
 
 **支持的能力：**
-- 使用 SQL 风格命令操作数据（[支持的命令列表](../../drivers/milvus/commands)）
+- 使用 SQL 风格命令操作数据（[支持的命令列表](../../../drivers/milvus/commands)）
 - [JdbcTemplate](#exec-command)、[构造器 API](#exec-lambda)、[BaseMapper](#exec-mapper)、[方法注解](#exec-annotation)、[Mapper 文件](#exec-file)
 - 对象映射、结果集映射、[规则](../../rules/about)、[参数传递](../../args/about)、[ResultSetExtractor/RowMapper](../../result/about)
 - **向量搜索**：KNN 近邻搜索（`ORDER BY field <-> vector`）、范围搜索（`vector_range()`）
@@ -35,7 +35,7 @@ Milvus 要求在查询前将集合 **加载到内存**，需先执行 `LOAD TABL
 
 ## 命令方式（JdbcTemplate）{#exec-command}
 
-使用 JdbcTemplate 可以直接执行 SQL 风格命令操作 Milvus，在此之前请确保已经正确配置好 Milvus 数据源，具体请参考 [Milvus 驱动使用指南](../../drivers/milvus/usecase)。
+使用 JdbcTemplate 可以直接执行 SQL 风格命令操作 Milvus，在此之前请确保已经正确配置好 Milvus 数据源，具体请参考 [Milvus 驱动使用指南](../../../drivers/milvus/usecase)。
 
 :::tip[提示]
 更多使用方式请参考 [JdbcTemplate 类](../../core/jdbc/about#guide)，在使用过程中下面两个特性由于驱动原因无法支持：
@@ -427,5 +427,5 @@ List<BookVector> results = lambda.query(BookVector.class)
 | 范围过滤 | `vectorByIP(property, vector, threshold)` | 内积距离 < 阈值 |
 
 :::tip[SQL 命令方式]
-如需直接使用 SQL 风格语法进行向量搜索（如 `ORDER BY field <-> vector`、`vector_range()` 等），请参考 [支持的命令列表](../../drivers/milvus/commands#dql)。
+如需直接使用 SQL 风格语法进行向量搜索（如 `ORDER BY field <-> vector`、`vector_range()` 等），请参考 [支持的命令列表](../../../drivers/milvus/commands#dql)。
 :::

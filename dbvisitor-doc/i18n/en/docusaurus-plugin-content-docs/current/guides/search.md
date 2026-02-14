@@ -104,7 +104,7 @@ This page skips the API overview and organizes links by usage scenarios for quic
 - dbVisitor also supports [InputStream/Reader](./types/stream-handler) and [Array](./types/array-handler) types.
 
 ### Redis support
-- See the 140+ Redis commands supported by dbVisitor: [Commands](./drivers/redis/commands).
+- See the 140+ Redis commands supported by dbVisitor: [Commands](../drivers/redis/commands).
 - Learn how dbVisitor handles Redis data types ([String](./api/differences/redis#string), [Hash](./api/differences/redis#hash),
   [List](./api/differences/redis#list), [Set](./api/differences/redis#set), [Sorted Set](./api/differences/redis#sorted_set)).
 - Use JdbcTemplate to [Execute commands](./api/differences/redis#exec-command).
@@ -112,7 +112,7 @@ This page skips the API overview and organizes links by usage scenarios for quic
 - Configure commands via tags in [Mapper File](./api/differences/redis#exec-file).
 
 ### MongoDB support
-- See MongoDB commands supported by dbVisitor: [Commands](./drivers/mongo/commands).
+- See MongoDB commands supported by dbVisitor: [Commands](../drivers/mongo/commands).
 - Use JdbcTemplate to [Execute commands](./api/differences/mongo#exec-command).
 - Use [Fluent API](./api/differences/mongo#exec-lambda).
 - Use [Common Mapper](./api/differences/mongo#exec-mapper).
@@ -120,7 +120,7 @@ This page skips the API overview and organizes links by usage scenarios for quic
 - Configure commands via tags in [Mapper File](./api/differences/mongo#exec-file).
 
 ### ElasticSearch support
-- See ElasticSearch commands supported by dbVisitor: [Commands](./drivers/elastic/commands).
+- See ElasticSearch commands supported by dbVisitor: [Commands](../drivers/elastic/commands).
 - Use JdbcTemplate to [Execute commands](./api/differences/elastic#exec-command).
 - Use [Fluent API](./api/differences/elastic#exec-lambda).
 - Use [Common Mapper](./api/differences/elastic#exec-mapper).

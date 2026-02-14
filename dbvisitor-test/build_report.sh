@@ -67,7 +67,7 @@ echo ""
 
 # ==================== Step 1: 全量测试 ====================
 echo "▶ 执行全量测试 (可能需要数分钟)..."
-TEMP_LOG=$(mktemp /tmp/dbvisitor-test-XXXXXX.log)
+TEMP_LOG="/tmp/dbvisitor-test-$$.log"
 
 set +e
 $MVN_CMD clean test -fn -Dmaven.test.failure.ignore=true -B > "$TEMP_LOG" 2>&1
@@ -76,7 +76,9 @@ set -e
 
 WORK_DIR="$SCRIPT_DIR/target/report"
 mkdir -p "$WORK_DIR"
-mv "$TEMP_LOG" "$WORK_DIR/mvn.log"
+# 使用 cat + rm 替代 mv，避免在外部磁盘(如 FAT/ExFAT)上移动文件时出现"权限/属主"错误
+cat "$TEMP_LOG" > "$WORK_DIR/mvn.log"
+rm -f "$TEMP_LOG"
 
 if [ $MVN_EXIT -eq 0 ]; then
     echo "  ✅ 全量测试完成"
@@ -92,7 +94,7 @@ count_java_lines() {
     if [ -n "$CLOC_CMD" ]; then
         find . -type f -name "*.java" "${args[@]}" -print0 2>/dev/null | \
             xargs -0 $CLOC_CMD --csv --quiet 2>/dev/null | \
-            grep "Java" | awk -F, '{sum+=$5} END {print sum+0}'
+            { grep "Java" || true; } | awk -F, '{sum+=$5} END {print sum+0}'
     else
         # 回退: 统计非空行 (包含注释, 不如 cloc 精确)
         find . -type f -name "*.java" "${args[@]}" -print0 2>/dev/null | \
@@ -163,11 +165,27 @@ parse_surefire() {
 GTT=0 GTP=0 GTF=0 GTS=0
 MODULE_TABLE=""
 
+# 用于存储每个模块的测试结果 (后续组件报告使用)
+declare -a MOD_NAMES=()
+declare -a MOD_PATHS=()
+declare -a MOD_TESTS=()
+declare -a MOD_PASS=()
+declare -a MOD_FAIL=()
+declare -a MOD_SKIP=()
+
+mod_idx=0
 for entry in "${MODULES[@]}"; do
     mod_path="${entry%%:*}"
     mod_name="${entry##*:}"
 
     read -r mt mp mf ms <<< "$(parse_surefire "$mod_path/target/surefire-reports")"
+
+    MOD_NAMES[$mod_idx]="$mod_name"
+    MOD_PATHS[$mod_idx]="$mod_path"
+    MOD_TESTS[$mod_idx]=$mt
+    MOD_PASS[$mod_idx]=$mp
+    MOD_FAIL[$mod_idx]=$mf
+    MOD_SKIP[$mod_idx]=$ms
 
     if [ "$mt" -gt 0 ]; then
         MODULE_TABLE="${MODULE_TABLE}| ${mod_name} | ${mt} | ${mp} | ${mf} | ${ms} |
@@ -178,6 +196,7 @@ for entry in "${MODULES[@]}"; do
     GTP=$((GTP + mp))
     GTF=$((GTF + mf))
     GTS=$((GTS + ms))
+    mod_idx=$((mod_idx + 1))
 done
 
 echo "  总测试: ${GTT}, 通过: ${GTP}, 失败: ${GTF}, 跳过: ${GTS}"
@@ -220,6 +239,18 @@ if [ -n "$EXEC_FILES" ]; then
     # 合并所有 exec 文件
     echo "$EXEC_FILES" | xargs $JAVA_CMD -jar "$JACOCO_CLI" merge \
         --destfile "$WORK_DIR/merged.exec" 2>/dev/null
+
+    # -------------------------------------------------------------------------
+    # 过滤 Generated 代码 (ANTLR) - 避免污染覆盖率统计
+    # 对应 pom.xml 中的 exclusion 配置: Milvus, Redis, Elastic, Mongo
+    echo "  过滤 Generated 代码..."
+    find . -path "*/target/classes/*" \( \
+          -name "MilvusLexer*.class"  -o -name "MilvusParser*.class"  -o -name "MilvusBase*.class"   -o -name "MilvusListener*.class"   -o -name "MilvusVisitor*.class" \
+       -o -name "RedisLexer*.class"   -o -name "RedisParser*.class"   -o -name "RedisBase*.class"    -o -name "RedisListener*.class"    -o -name "RedisVisitor*.class" \
+       -o -name "ElasticLexer*.class" -o -name "ElasticParser*.class" -o -name "ElasticBase*.class"  -o -name "ElasticListener*.class"  -o -name "ElasticVisitor*.class" \
+       -o -name "MongoLexer*.class"   -o -name "MongoParser*.class"   -o -name "MongoBase*.class"    -o -name "MongoListener*.class"    -o -name "MongoVisitor*.class" \
+    \) -delete
+    # -------------------------------------------------------------------------
 
     # 收集所有框架代码的 classes + sourcefiles 目录
     CLASS_ARGS=""
@@ -267,6 +298,107 @@ fi
 echo "  行覆盖率: ${LINE_COVERAGE}%"
 echo "  分支覆盖率: ${BRANCH_COVERAGE}%"
 
+# ==================== Step 4b: 组件级别覆盖率 ====================
+echo "▶ 计算各组件覆盖率..."
+
+# 用于存储每个模块的代码行数和覆盖率
+declare -a MOD_MAIN_FILES=()
+declare -a MOD_MAIN_LINES=()
+declare -a MOD_TEST_FILES=()
+declare -a MOD_TEST_LINES=()
+declare -a MOD_LINE_COV=()
+declare -a MOD_BRANCH_COV=()
+declare -a MOD_LINE_COVERED_ARR=()
+declare -a MOD_LINE_TOTAL_ARR=()
+declare -a MOD_BRANCH_COVERED_ARR=()
+declare -a MOD_BRANCH_TOTAL_ARR=()
+
+# 计算指定目录下 Java 文件的行数
+count_lines_in_dir() {
+    local dir="$1"
+    if [ ! -d "$dir" ]; then
+        echo "0"
+        return
+    fi
+    local result=""
+    if [ -n "$CLOC_CMD" ]; then
+        result=$(find "$dir" -type f -name "*.java" -print0 2>/dev/null | \
+            xargs -0 $CLOC_CMD --csv --quiet 2>/dev/null | \
+            { grep "Java" || true; } | awk -F, '{sum+=$5} END {print sum+0}')
+    else
+        result=$(find "$dir" -type f -name "*.java" -print0 2>/dev/null | \
+            xargs -0 grep -c '[^[:space:]]' 2>/dev/null | \
+            awk -F: '{sum+=$NF} END {print sum+0}' || echo "0")
+    fi
+    echo "${result:-0}"
+}
+
+count_files_in_dir() {
+    local dir="$1"
+    if [ ! -d "$dir" ]; then
+        echo "0"
+        return
+    fi
+    find "$dir" -type f -name "*.java" 2>/dev/null | wc -l | tr -d ' '
+}
+
+for i in $(seq 0 $((mod_idx - 1))); do
+    mp="${MOD_PATHS[$i]}"
+
+    # 统计代码行数
+    MOD_MAIN_FILES[$i]=$(count_files_in_dir "$mp/src/main/java")
+    MOD_MAIN_LINES[$i]=$(count_lines_in_dir "$mp/src/main/java")
+    MOD_MAIN_LINES[$i]=${MOD_MAIN_LINES[$i]:-0}
+    MOD_TEST_FILES[$i]=$(count_files_in_dir "$mp/src/test/java")
+    MOD_TEST_LINES[$i]=$(count_lines_in_dir "$mp/src/test/java")
+    MOD_TEST_LINES[$i]=${MOD_TEST_LINES[$i]:-0}
+
+    # 计算覆盖率 (仅对有源码的模块)
+    MOD_LINE_COV[$i]="—"
+    MOD_BRANCH_COV[$i]="—"
+    MOD_LINE_COVERED_ARR[$i]=0
+    MOD_LINE_TOTAL_ARR[$i]=0
+    MOD_BRANCH_COVERED_ARR[$i]=0
+    MOD_BRANCH_TOTAL_ARR[$i]=0
+
+    if [ -d "$mp/target/classes" ] && [ -d "$mp/src/main/java" ] && [ -f "$WORK_DIR/merged.exec" ]; then
+        # 为当前模块生成单独的 CSV
+        mod_csv="$WORK_DIR/jacoco_${i}.csv"
+        $JAVA_CMD -jar "$JACOCO_CLI" report "$WORK_DIR/merged.exec" \
+            --classfiles "$mp/target/classes" \
+            --sourcefiles "$mp/src/main/java" \
+            --csv "$mod_csv" \
+            2>/dev/null || true
+
+        if [ -f "$mod_csv" ]; then
+            mod_stats=$(awk -F, 'NR>1 {lm+=$8; lc+=$9; bm+=$6; bc+=$7} END {printf "%d %d %d %d", lm, lc, bm, bc}' "$mod_csv")
+            m_lm=$(echo "$mod_stats" | awk '{print $1}')
+            m_lc=$(echo "$mod_stats" | awk '{print $2}')
+            m_bm=$(echo "$mod_stats" | awk '{print $3}')
+            m_bc=$(echo "$mod_stats" | awk '{print $4}')
+
+            m_lt=$((m_lm + m_lc))
+            m_bt=$((m_bm + m_bc))
+
+            MOD_LINE_COVERED_ARR[$i]=$m_lc
+            MOD_LINE_TOTAL_ARR[$i]=$m_lt
+            MOD_BRANCH_COVERED_ARR[$i]=$m_bc
+            MOD_BRANCH_TOTAL_ARR[$i]=$m_bt
+
+            if [ "$m_lt" -gt 0 ]; then
+                MOD_LINE_COV[$i]=$(awk "BEGIN {printf \"%.1f%%\", ($m_lc / $m_lt) * 100}")
+            fi
+            if [ "$m_bt" -gt 0 ]; then
+                MOD_BRANCH_COV[$i]=$(awk "BEGIN {printf \"%.1f%%\", ($m_bc / $m_bt) * 100}")
+            fi
+
+            rm -f "$mod_csv"
+        fi
+    fi
+done
+
+echo "  ✅ 组件级别统计完成"
+
 # ==================== Step 5: 生成报告 ====================
 echo "▶ 生成报告..."
 
@@ -287,13 +419,55 @@ cat > "$REPORT_FILE" <<EOF
 
 - **测试与示例代码 / 框架代码比**: **${TEST_RATIO}%**
 
-## 2. 单元测试 & 集成测试结果
+## 2. 组件质量概览
+
+EOF
+
+# ---------- 动态生成组件质量表格 ----------
+{
+    echo "| 组件 | 框架代码 | 测试代码 | 用例总数 | 通过 | 失败 | 行覆盖率 | 分支覆盖率 |"
+    echo "|------|:-------:|:-------:|:-------:|:----:|:----:|:-------:|:--------:|"
+
+    for i in $(seq 0 $((mod_idx - 1))); do
+        mn="${MOD_NAMES[$i]}"
+        m_main="${MOD_MAIN_LINES[$i]}"
+        m_test="${MOD_TEST_LINES[$i]}"
+        m_tt="${MOD_TESTS[$i]}"
+        m_tp="${MOD_PASS[$i]}"
+        m_tf="${MOD_FAIL[$i]}"
+        m_lc="${MOD_LINE_COV[$i]}"
+        m_bc="${MOD_BRANCH_COV[$i]}"
+
+        # 跳过无代码且无测试的模块
+        if [ "$m_main" -eq 0 ] && [ "$m_test" -eq 0 ] && [ "$m_tt" -eq 0 ]; then
+            continue
+        fi
+
+        # 为有失败的模块标记
+        if [ "$m_tf" -gt 0 ]; then
+            fail_mark="**${m_tf}** ⚠️"
+        else
+            fail_mark="${m_tf}"
+        fi
+
+        echo "| ${mn} | ${m_main} | ${m_test} | ${m_tt} | ${m_tp} | ${fail_mark} | ${m_lc} | ${m_bc} |"
+    done
+
+    # 合计行
+    echo "| **合计** | **${MAIN_LINES}** | **${TEST_LINES}** | **${GTT}** | **${GTP}** | **${GTF}** | **${LINE_COVERAGE}%** | **${BRANCH_COVERAGE}%** |"
+} >> "$REPORT_FILE"
+
+cat >> "$REPORT_FILE" <<EOF
+
+> 覆盖率数据来源: 所有模块 jacoco.exec 合并后按组件分析。无框架代码的模块覆盖率显示"—"。
+
+## 3. 单元测试 & 集成测试结果
 
 | 模块 | 总数 | 通过 | 失败 | 跳过 |
 |------|:----:|:----:|:----:|:----:|
 ${MODULE_TABLE}| **合计** | **${GTT}** | **${GTP}** | **${GTF}** | **${GTS}** |
 
-## 3. 框架代码覆盖率 (JaCoCo)
+## 4. 总体覆盖率 (JaCoCo)
 
 > 数据来源: 所有模块 jacoco.exec 合并后的聚合覆盖率
 
@@ -306,7 +480,7 @@ ${MODULE_TABLE}| **合计** | **${GTT}** | **${GTP}** | **${GTF}** | **${GTS}** 
 
 > HTML 详细报告: dbvisitor-test/target/report/jacoco-aggregate/index.html
 
-## 4. 如何生成此报告
+## 5. 如何生成此报告
 
 ### 前置条件
 - **JDK**: 8+

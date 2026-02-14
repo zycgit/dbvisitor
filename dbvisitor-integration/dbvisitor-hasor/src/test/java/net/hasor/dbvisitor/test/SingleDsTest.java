@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.test;
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.inject.Inject;
+import javax.sql.DataSource;
 import net.hasor.core.AppContext;
 import net.hasor.core.Hasor;
 import net.hasor.dbvisitor.DbVisitorModule;
+import net.hasor.dbvisitor.DefaultDataSource;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.dao.role.RoleMapper;
 import net.hasor.dbvisitor.test.dao.user.UserMapper;
@@ -29,18 +28,25 @@ import net.hasor.dbvisitor.test.dto.UserDTO;
 import org.junit.Test;
 
 public class SingleDsTest {
-    @Inject
     private UserMapper userMapper;
-    @Inject
     private RoleMapper roleMapper;
-    @Inject
     private Session    dalSession;
 
     @Test
-    public void getListTest() throws SQLException, IOException {
+    public void getListTest() throws Exception {
         AppContext injector = Hasor.create().mainSettingWith("single-ds.properties").build(new DbVisitorModule());
-        injector.justInject(this);
+        DataSource dataSource = injector.getInstance(DataSource.class);
+        if (dataSource instanceof DefaultDataSource) {
+            DefaultDataSource defaultDataSource = (DefaultDataSource) dataSource;
+            defaultDataSource.setJdbcUrl("jdbc:mysql://127.0.0.1:13306/devtester?allowMultiQueries=true");
+            defaultDataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
+            defaultDataSource.setUsername("root");
+            defaultDataSource.setPassword("123456");
+        }
+        this.dalSession = injector.getInstance(Session.class);
         this.dalSession.jdbc().loadSQL("CreateDB.sql");
+        this.userMapper = this.dalSession.createMapper(UserMapper.class);
+        this.roleMapper = this.dalSession.createMapper(RoleMapper.class);
 
         assert userMapper != null;
         assert roleMapper != null;

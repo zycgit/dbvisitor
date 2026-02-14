@@ -48,7 +48,7 @@ public interface UserMapper {
 If `keyColumn` is empty, the first column of the returned result set is used.
 :::
 
-# @SelectKeySql Annotation {#selectkey}
+## @SelectKeySql Annotation {#selectkey}
 
 Sometimes you need the generated primary key immediately after inserting a row for subsequent business logic. `@SelectKeySql` allows executing an additional SQL before or after the INSERT to retrieve the key value and **write it back to the parameter object**.
 

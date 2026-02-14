@@ -347,17 +347,17 @@ class JdbcConnection implements Connection, Closeable {
 
     @Override
     public Clob createClob() {
-        return new JdbcCob(null);
+        return new JdbcCob("");
     }
 
     @Override
     public NClob createNClob() {
-        return new JdbcCob(null);
+        return new JdbcCob("");
     }
 
     @Override
     public Blob createBlob() {
-        return new JdbcBob(null);
+        return new JdbcBob(new byte[0]);
     }
 
     @Override

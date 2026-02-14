@@ -13,13 +13,14 @@ import io.milvus.param.index.CreateIndexParam;
 import io.milvus.param.index.DescribeIndexParam;
 import io.milvus.param.index.DropIndexParam;
 import io.milvus.param.partition.HasPartitionParam;
+import io.milvus.param.partition.ShowPartitionsParam;
 import org.junit.Assume;
 import org.junit.Before;
 
 public class AbstractMilvusCmdForTest {
     protected static final String  MILVUS_HOST         = "127.0.0.1";
     protected static final int     MILVUS_PORT         = 19530;
-    protected static final String  MILVUS_URL          = "jdbc:dbvisitor:milvus://" + MILVUS_HOST + ":" + MILVUS_PORT;
+    protected static final String  MILVUS_URL          = "jdbc:dbvisitor:milvus://" + MILVUS_HOST + ":" + MILVUS_PORT + "?consistencylevel=strong";
     protected              boolean milvusReady         = false;
     protected static final String  TEST_COLLECTION     = "dbv_table_col";
     protected static final String  TEST_COLLECTION_NEW = "dbv_table_col_renamed";
@@ -97,6 +98,22 @@ public class AbstractMilvusCmdForTest {
             client = newClient();
             R<Boolean> has = client.hasCollection(HasCollectionParam.newBuilder().withCollectionName(collectionName).build());
             if (has.getStatus() == R.Status.Success.getCode() && Boolean.TRUE.equals(has.getData())) {
+                // Release collection first (ignore errors - it may not be loaded)
+                try {
+                    client.releaseCollection(ReleaseCollectionParam.newBuilder().withCollectionName(collectionName).build());
+                } catch (Exception e) {
+                    // ignore
+                }
+                // Also try to release any loaded partitions
+                try {
+                    R<io.milvus.grpc.ShowPartitionsResponse> partResp = client.showPartitions(
+                            ShowPartitionsParam.newBuilder().withCollectionName(collectionName).build());
+                    if (partResp.getStatus() == R.Status.Success.getCode() && partResp.getData() != null) {
+                        // Releasing collection already handles partitions, but just in case
+                    }
+                } catch (Exception e) {
+                    // ignore
+                }
                 client.dropCollection(DropCollectionParam.newBuilder().withCollectionName(collectionName).build());
             }
         } finally {
@@ -106,6 +123,7 @@ public class AbstractMilvusCmdForTest {
         }
     }
 
+    /** Create collection only if it doesn't exist. For a clean start, call dropCollection first. */
     protected void createCollection(String collectionName) {
         MilvusServiceClient client = null;
         try {

@@ -21,9 +21,7 @@ dbVisitor handles these differences in two main areas:
 If you want to change these differences, you are welcome to participate in the project and contribute your improvements.
 :::
 
-## Datasource Support Overview {#api}
-
-<span id="dialect"></span>
+## Datasource Support Overview {#dialect}
 
 dbVisitor has designed 4 types of APIs under a unified kernel architecture: [Programmatic API](../program_api), [Declarative API](../declarative_api), [Fluent API](../lambda_api), and [Mapper File](../file_mapper).
 Among them, **JdbcTemplate**, **Annotations**, and **Mapper File** are available on all data sources.
@@ -78,7 +76,7 @@ This means when using `JdbcTemplate` or `Statement` for insert operations, the g
 
 ### Non-Relational Datasource Guides
 
-- **[Redis](./redis)** — supports [140+ commands](../../drivers/redis/commands), 5 data type operations; does not support Fluent API or Object Mapping
+- **[Redis](./redis)** — supports [140+ commands](../../../drivers/redis/commands), 5 data type operations; does not support Fluent API or Object Mapping
 - **[MongoDB](./mongo)** — full CRUD support, automatic ObjectId mapping, paginated queries; does not support batch and stored procedures
 - **[ElasticSearch](./elastic)** — full CRUD support, based on REST DSL; does not support batch and stored procedures
 - **[Milvus](./milvus)** — SQL-style syntax for vector database operations, full CRUD support, KNN nearest-neighbor search and range search; does not support batch and stored procedures

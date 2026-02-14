@@ -7,7 +7,7 @@ description: dbvisitor-driver 适配器层的核心架构、组件职责和执�
 
 dbVisitor 的协议适配层（dbvisitor-driver）允许开发者将非关系型数据库封装为类 JDBC 接口，从而复用 dbVisitor 的全部上层 API（JdbcTemplate、LambdaTemplate、BaseMapper 等）。
 
-本文介绍适配器层的核心组件和执行模型。动手实现请参考 [实现指南](./guide.md)。
+本文介绍适配器层的核心组件和执行模型。动手实现请参考 [实现指南](./guide)。
 
 ## 核心组件
 

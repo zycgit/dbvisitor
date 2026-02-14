@@ -10,10 +10,10 @@ import TabItem from '@theme/TabItem';
 
 # Redis 数据源特异性
 
-dbVisitor 通过 [JDBC-Redis](../../drivers/redis/about) 驱动，基于 JDBC 协议访问 Redis 数据源。
+dbVisitor 通过 [JDBC-Redis](../../../drivers/redis/about) 驱动，基于 JDBC 协议访问 Redis 数据源。
 
 **支持的能力：**
-- 使用 Redis 命令操作数据（[支持的命令列表](../../drivers/redis/commands)）
+- 使用 Redis 命令操作数据（[支持的命令列表](../../../drivers/redis/commands)）
 - [JdbcTemplate](#exec-command)、[方法注解](#exec-annotation)、[Mapper 文件](#exec-file) 三种使用方式
 - [规则](../../rules/about)、[参数传递](../../args/about)、[ResultSetExtractor/RowMapper](../../result/about) 等通用能力
 - Mapper File 中的[动态 SQL](../../core/file/dynamic) 标签
@@ -30,7 +30,7 @@ dbVisitor 通过 [JDBC-Redis](../../drivers/redis/about) 驱动，基于 JDBC �
 
 ## 命令方式（JdbcTemplate）{#exec-command}
 
-使用 JdbcTemplate 可以直接执行 Redis 命令，在此之前请确保已经正确配置好 Redis 数据源，具体请参考 [Redis 驱动使用指南](../../drivers/redis/usecase)。
+使用 JdbcTemplate 可以直接执行 Redis 命令，在此之前请确保已经正确配置好 Redis 数据源，具体请参考 [Redis 驱动使用指南](../../../drivers/redis/usecase)。
 
 :::tip[提示]
 更多使用方式请参考 [JdbcTemplate 类](../../core/jdbc/about#guide)，在使用过程中下面两个特性由于驱动原因无法支持：
@@ -245,7 +245,7 @@ UserInfoMapper mapper = session.createMapper(UserInfoMapper.class);
 Redis 有 5 个主要的数据类型，下面介绍如何使用 dbVisitor 对这些数据类型进行读写操作。
 
 :::tip[提示]
-Redis 主要数据类型命令参考：[String](../../drivers/redis/commands#string)、[Hash](../../drivers/redis/commands#hash)、[List](../../drivers/redis/commands#list)、[Set](../../drivers/redis/commands#set)、[StoreSet](../../drivers/redis/commands#storeset)
+Redis 主要数据类型命令参考：[String](../../../drivers/redis/commands#string)、[Hash](../../../drivers/redis/commands#hash)、[List](../../../drivers/redis/commands#list)、[Set](../../../drivers/redis/commands#set)、[StoreSet](../../../drivers/redis/commands#storeset)
 :::
 
 ### 字符串 {#string}

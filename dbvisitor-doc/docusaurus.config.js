@@ -17,7 +17,7 @@ const config = {
     organizationName: 'zycgit', // Usually your GitHub org/user name.
     projectName: 'dbVisitor',   // Usually your repo name.
     i18n: {
-        defaultLocale: 'en',
+        defaultLocale: 'zh-cn',
         locales: ['zh-cn', 'en'],
     },
     presets: [

@@ -36,10 +36,12 @@ public class DefaultDataSource extends AbstractDataSource {
 
     @Override
     public Connection getConnection(String username, String password) throws SQLException {
-        try {
-            Class.forName(this.driverClassName);
-        } catch (ClassNotFoundException e) {
-            throw new SQLException(e);
+        if (this.driverClassName != null && !this.driverClassName.isEmpty()) {
+            try {
+                Class.forName(this.driverClassName);
+            } catch (ClassNotFoundException e) {
+                throw new SQLException(e);
+            }
         }
 
         return DriverManager.getConnection(jdbcUrl, username, password);

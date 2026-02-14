@@ -52,7 +52,7 @@ class AdapterMemoryCursor implements AdapterCursor {
             return null;
         }
 
-        return this.data[this.row][column];
+        return this.data[this.row][column - 1];
     }
 
     @Override
