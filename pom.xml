@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.hasor</groupId>
     <artifactId>dbvisitor-parent</artifactId>
-    <version>6.7.0-SNAPSHOT</version>
+    <version>6.7.0</version>
     <packaging>pom</packaging>
 
     <!-- Project Info -->
@@ -34,7 +34,7 @@
         <connection>scm:git:git@gitee.com:zycgit/dbvisitor.git</connection>
         <developerConnection>scm:git:git@gitee.com:zycgit/dbvisitor.git</developerConnection>
         <url>https://www.dbvisitor.net/</url>
-        <tag>v5.4.4</tag>
+        <tag>v6.7.0</tag>
     </scm>
 
     <developers>
@@ -137,7 +137,7 @@
                                         </goals>
                                     </pluginExecutionFilter>
                                     <action>
-                                        <ignore/>
+                                        <ignore />
                                     </action>
                                 </pluginExecution>
                             </pluginExecutions>

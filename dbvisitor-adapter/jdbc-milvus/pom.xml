@@ -4,7 +4,7 @@
     <parent>
         <groupId>net.hasor</groupId>
         <artifactId>dbvisitor-parent</artifactId>
-        <version>6.7.0-SNAPSHOT</version>
+        <version>6.7.0</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -124,8 +124,8 @@
                         <phase>compile</phase>
                         <configuration>
                             <target>
-                                <copy file="${basedir}/target/generated-sources/antlr4/MilvusParser.tokens" tofile="${basedir}/target/generated-sources/antlr4/net/hasor/dbvisitor/adapter/milvus/parser/MilvusParser.tokens"/>
-                                <copy file="${basedir}/target/generated-sources/antlr4/MilvusLexer.tokens" tofile="${basedir}/target/generated-sources/antlr4/net/hasor/dbvisitor/adapter/milvus/parser/MilvusLexer.tokens"/>
+                                <copy file="${basedir}/target/generated-sources/antlr4/MilvusParser.tokens" tofile="${basedir}/target/generated-sources/antlr4/net/hasor/dbvisitor/adapter/milvus/parser/MilvusParser.tokens" />
+                                <copy file="${basedir}/target/generated-sources/antlr4/MilvusLexer.tokens" tofile="${basedir}/target/generated-sources/antlr4/net/hasor/dbvisitor/adapter/milvus/parser/MilvusLexer.tokens" />
                             </target>
                         </configuration>
                         <goals>
