@@ -110,7 +110,8 @@ public class MilvusConnFactory implements AdapterFactory {
         return new String[] { MilvusKeys.ADAPTER_NAME, MilvusKeys.INTERCEPTOR, MilvusKeys.CUSTOM_MILVUS, MilvusKeys.SERVER,//
                 MilvusKeys.TIME_ZONE, MilvusKeys.DATABASE, MilvusKeys.TOKEN, MilvusKeys.USERNAME, MilvusKeys.PASSWORD,     //
                 MilvusKeys.TIMEOUT, MilvusKeys.CONNECT_TIMEOUT, MilvusKeys.KEEP_ALIVE_TIME, MilvusKeys.KEEP_ALIVE_TIMEOUT, //
-                MilvusKeys.KEEP_ALIVE_WITHOUT_CALLS, MilvusKeys.IDLE_TIMEOUT, MilvusKeys.RPC_DEADLINE };
+                MilvusKeys.KEEP_ALIVE_WITHOUT_CALLS, MilvusKeys.IDLE_TIMEOUT, MilvusKeys.RPC_DEADLINE,                     //
+                MilvusKeys.CONSISTENCY_LEVEL };
     }
 
     @Override

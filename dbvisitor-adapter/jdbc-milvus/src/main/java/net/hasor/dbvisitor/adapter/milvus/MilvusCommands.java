@@ -18,6 +18,9 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import io.milvus.common.clientenum.ConsistencyLevelEnum;
+import io.milvus.param.dml.QueryParam;
+import io.milvus.param.dml.SearchParam;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.concurrent.future.Future;
@@ -584,5 +587,17 @@ abstract class MilvusCommands {
         }
 
         return null;
+    }
+
+    protected static void applyConsistencyLevel(ConsistencyLevelEnum connLevel, QueryParam.Builder builder) {
+        if (connLevel != null) {
+            builder.withConsistencyLevel(connLevel);
+        }
+    }
+
+    protected static void applyConsistencyLevel(ConsistencyLevelEnum connLevel, SearchParam.Builder builder) {
+        if (connLevel != null) {
+            builder.withConsistencyLevel(connLevel);
+        }
     }
 }

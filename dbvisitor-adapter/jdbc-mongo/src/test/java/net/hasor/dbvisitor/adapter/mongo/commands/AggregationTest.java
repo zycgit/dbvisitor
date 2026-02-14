@@ -1,5 +1,4 @@
 package net.hasor.dbvisitor.adapter.mongo.commands;
-import com.mongodb.client.MongoDatabase;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -7,6 +6,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 import net.hasor.dbvisitor.adapter.mongo.AbstractJdbcTest;
 import net.hasor.dbvisitor.adapter.mongo.MongoCommandInterceptor;
 import org.bson.Document;
@@ -14,7 +14,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
-
 import static org.mockito.ArgumentMatchers.any;
 
 @SuppressWarnings("unchecked")

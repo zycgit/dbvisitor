@@ -1,6 +1,4 @@
 package net.hasor.dbvisitor.adapter.mongo.commands;
-import org.bson.Document;
-import static org.mockito.ArgumentMatchers.any;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,8 +11,10 @@ import com.mongodb.client.MongoCluster;
 import com.mongodb.client.MongoDatabase;
 import net.hasor.dbvisitor.adapter.mongo.AbstractJdbcTest;
 import net.hasor.dbvisitor.adapter.mongo.MongoCommandInterceptor;
+import org.bson.Document;
 import org.junit.Test;
 import org.powermock.api.mockito.PowerMockito;
+import static org.mockito.ArgumentMatchers.any;
 
 public class DatabaseCommandTest extends AbstractJdbcTest {
 

@@ -234,6 +234,7 @@ class MilvusCommandsForData extends MilvusCommands {
         if (StringUtils.isNotBlank(partitionName)) {
             queryBuilder.withPartitionNames(Collections.singletonList(partitionName));
         }
+        applyConsistencyLevel(((MilvusRequest) request).getConsistencyLevel(), queryBuilder);
 
         R<QueryResults> queryResult = cmd.getClient().query(queryBuilder.build());
         if (queryResult.getStatus() != R.Status.Success.getCode()) {
@@ -291,6 +292,7 @@ class MilvusCommandsForData extends MilvusCommands {
         if (partitionName != null) {
             searchBuilder.withPartitionNames(Collections.singletonList(partitionName));
         }
+        applyConsistencyLevel(((MilvusRequest) request).getConsistencyLevel(), searchBuilder);
 
         return executeSearchAndUpdate(future, cmd, collectionName, partitionName, searchBuilder.build(), request, receive, newValues);
     }
@@ -315,6 +317,7 @@ class MilvusCommandsForData extends MilvusCommands {
         if (partitionName != null) {
             searchBuilder.withPartitionNames(Collections.singletonList(partitionName));
         }
+        applyConsistencyLevel(((MilvusRequest) request).getConsistencyLevel(), searchBuilder);
 
         return executeSearchAndUpdate(future, cmd, collectionName, partitionName, searchBuilder.build(), request, receive, newValues);
     }
@@ -466,6 +469,7 @@ class MilvusCommandsForData extends MilvusCommands {
         if (partitionName != null) {
             searchBuilder.withPartitionNames(Collections.singletonList(partitionName));
         }
+        applyConsistencyLevel(((MilvusRequest) request).getConsistencyLevel(), searchBuilder);
 
         return executeSearchAndDelete(future, cmd, collectionName, partitionName, searchBuilder.build(), receive, request);
     }
@@ -489,6 +493,7 @@ class MilvusCommandsForData extends MilvusCommands {
         if (partitionName != null) {
             searchBuilder.withPartitionNames(Collections.singletonList(partitionName));
         }
+        applyConsistencyLevel(((MilvusRequest) request).getConsistencyLevel(), searchBuilder);
 
         return executeSearchAndDelete(future, cmd, collectionName, partitionName, searchBuilder.build(), receive, request);
     }

@@ -41,4 +41,6 @@ public interface MilvusKeys {
     String KEEP_ALIVE_WITHOUT_CALLS = "keepAliveWithoutCalls";
     String IDLE_TIMEOUT             = "idleTimeout";
     String RPC_DEADLINE             = "rpcDeadline";
+    // query options
+    String CONSISTENCY_LEVEL        = "consistencyLevel";
 }

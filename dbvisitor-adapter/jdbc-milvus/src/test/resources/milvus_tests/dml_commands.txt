@@ -24,3 +24,6 @@ LOAD TABLE my_table PARTITION p_2024;
 -- Test Release (Mem)
 RELEASE TABLE my_table;
 RELEASE TABLE my_table PARTITION p_2024;
+
+-- Test Flush
+FLUSH my_table;

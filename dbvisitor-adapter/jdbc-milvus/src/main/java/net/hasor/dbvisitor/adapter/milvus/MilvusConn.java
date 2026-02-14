@@ -20,6 +20,7 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
 import io.milvus.client.MilvusClient;
+import io.milvus.common.clientenum.ConsistencyLevelEnum;
 import io.milvus.grpc.GetVersionResponse;
 import io.milvus.param.R;
 import net.hasor.cobble.StringUtils;
@@ -36,12 +37,20 @@ public class MilvusConn extends AdapterConnection {
     private static final Logger     logger    = LoggerFactory.getLogger(MilvusConn.class);
     private final        Connection owner;
     private final        MilvusCmd  milvusCmd;
+    private final        ConsistencyLevelEnum consistencyLevel;
     private volatile     boolean    cancelled = false;
 
     public MilvusConn(Connection owner, MilvusCmd milvusCmd, String jdbcUrl, Map<String, String> prop) {
         super(jdbcUrl, prop.get(MilvusKeys.USERNAME));
         this.owner = owner;
         this.milvusCmd = milvusCmd;
+
+        String cl = prop.get(MilvusKeys.CONSISTENCY_LEVEL);
+        if (StringUtils.isNotBlank(cl)) {
+            this.consistencyLevel = ConsistencyLevelEnum.valueOf(cl.toUpperCase());
+        } else {
+            this.consistencyLevel = null;
+        }
     }
 
     @Override
@@ -99,7 +108,7 @@ public class MilvusConn extends AdapterConnection {
 
     @Override
     public AdapterRequest newRequest(String sql) {
-        return new MilvusRequest(sql);
+        return new MilvusRequest(sql, this.consistencyLevel);
     }
 
     @Override

@@ -14,16 +14,23 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.adapter.milvus;
+import io.milvus.common.clientenum.ConsistencyLevelEnum;
 import net.hasor.dbvisitor.driver.AdapterRequest;
 
 public class MilvusRequest extends AdapterRequest {
     private final String commandBody;
+    private final ConsistencyLevelEnum consistencyLevel;
 
-    public MilvusRequest(String commandBody) {
+    public MilvusRequest(String commandBody, ConsistencyLevelEnum consistencyLevel) {
         this.commandBody = commandBody;
+        this.consistencyLevel = consistencyLevel;
     }
 
     public String getCommandBody() {
         return commandBody;
+    }
+
+    public ConsistencyLevelEnum getConsistencyLevel() {
+        return consistencyLevel;
     }
 }

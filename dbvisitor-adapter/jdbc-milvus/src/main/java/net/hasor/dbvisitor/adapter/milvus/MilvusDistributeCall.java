@@ -73,6 +73,9 @@ public class MilvusDistributeCall {
             if (command.countCmd() != null) {
                 return MilvusCommandsForDQL.execCountCmd(sync, milvusCmd, h, command.countCmd(), request, receive, startArgIdx);
             }
+            if (command.flushCmd() != null) {
+                return MilvusCommandsForOther.execFlushCmd(sync, milvusCmd, h, command.flushCmd(), request, receive, startArgIdx);
+            }
 
             sync.failed(new SQLException("unknown command."));
             return sync;

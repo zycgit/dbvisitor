@@ -38,6 +38,7 @@ import net.hasor.dbvisitor.driver.AdapterType;
 import net.hasor.dbvisitor.driver.JdbcColumn;
 
 class MilvusCommandsForDQL extends MilvusCommands {
+
     public static Future<?> execSelectCmd(Future<Object> future, MilvusCmd cmd, HintCommandContext h, SelectCmdContext c, //
             AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
@@ -116,10 +117,7 @@ class MilvusCommandsForDQL extends MilvusCommands {
                 .withExpr(expr)//
                 .withOutFields(Collections.singletonList("count(*)"));
 
-        String consistency = hints.containsKey("consistency_level") ? hints.get("consistency_level").toString() : null;
-        if (StringUtils.isNotBlank(consistency)) {
-            queryBuilder.withConsistencyLevel(ConsistencyLevelEnum.valueOf(consistency.toUpperCase()));
-        }
+        applyConsistencyLevel(((MilvusRequest) request).getConsistencyLevel(), queryBuilder);
 
         if (StringUtils.isNotBlank(partitionName)) {
             queryBuilder.withPartitionNames(Collections.singletonList(partitionName));
@@ -198,10 +196,7 @@ class MilvusCommandsForDQL extends MilvusCommands {
                 .withTopK(topK)//
                 .withOutFields(outFields);
 
-        String consistency = hints.containsKey("consistency_level") ? hints.get("consistency_level").toString() : null;
-        if (StringUtils.isNotBlank(consistency)) {
-            searchBuilder.withConsistencyLevel(ConsistencyLevelEnum.valueOf(consistency.toUpperCase()));
-        }
+        applyConsistencyLevel(((MilvusRequest) request).getConsistencyLevel(), searchBuilder);
 
         if (StringUtils.isNotBlank(partitionName)) {
             searchBuilder.withPartitionNames(Collections.singletonList(partitionName));
@@ -293,10 +288,7 @@ class MilvusCommandsForDQL extends MilvusCommands {
                 .withTopK(topK)//
                 .withOutFields(outFields);
 
-        String consistency = hints.containsKey("consistency_level") ? hints.get("consistency_level").toString() : null;
-        if (StringUtils.isNotBlank(consistency)) {
-            searchBuilder.withConsistencyLevel(ConsistencyLevelEnum.valueOf(consistency.toUpperCase()));
-        }
+        applyConsistencyLevel(((MilvusRequest) request).getConsistencyLevel(), searchBuilder);
 
         if (StringUtils.isNotBlank(partitionName)) {
             searchBuilder.withPartitionNames(Collections.singletonList(partitionName));
@@ -347,11 +339,7 @@ class MilvusCommandsForDQL extends MilvusCommands {
                 .withExpr(expr)//
                 .withOutFields(outFields);
 
-        String consistency = hints.containsKey("consistency_level") ? hints.get("consistency_level").toString() : null;
-
-        if (StringUtils.isNotBlank(consistency)) {
-            queryBuilder.withConsistencyLevel(ConsistencyLevelEnum.valueOf(consistency.toUpperCase()));
-        }
+        applyConsistencyLevel(((MilvusRequest) request).getConsistencyLevel(), queryBuilder);
 
         if (StringUtils.isNotBlank(partitionName)) {
             queryBuilder.withPartitionNames(Collections.singletonList(partitionName));
@@ -407,9 +395,7 @@ class MilvusCommandsForDQL extends MilvusCommands {
                 .withExpr(expr)//
                 .withOutFields(Collections.singletonList("count(*)"));
 
-        if (hints.containsKey("consistency_level")) {
-            queryBuilder.withConsistencyLevel(ConsistencyLevelEnum.valueOf(hints.get("consistency_level").toString().toUpperCase()));
-        }
+        applyConsistencyLevel(((MilvusRequest) request).getConsistencyLevel(), queryBuilder);
 
         if (StringUtils.isNotBlank(partitionName)) {
             queryBuilder.withPartitionNames(Collections.singletonList(partitionName));

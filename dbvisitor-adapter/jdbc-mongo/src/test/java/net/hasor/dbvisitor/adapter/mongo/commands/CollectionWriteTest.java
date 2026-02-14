@@ -12,7 +12,6 @@ import com.mongodb.client.model.BulkWriteOptions;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.InsertManyResult;
-import com.mongodb.client.result.InsertOneResult;
 import com.mongodb.client.result.UpdateResult;
 import net.hasor.dbvisitor.adapter.mongo.AbstractJdbcTest;
 import net.hasor.dbvisitor.adapter.mongo.MongoCommandInterceptor;

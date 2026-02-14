@@ -17,11 +17,13 @@ package net.hasor.dbvisitor.adapter.milvus;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
+import io.milvus.grpc.FlushResponse;
 import io.milvus.grpc.GetLoadingProgressResponse;
 import io.milvus.param.R;
 import io.milvus.param.alias.AlterAliasParam;
 import io.milvus.param.alias.CreateAliasParam;
 import io.milvus.param.alias.DropAliasParam;
+import io.milvus.param.collection.FlushParam;
 import io.milvus.param.collection.GetLoadingProgressParam;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.concurrent.future.Future;
@@ -33,6 +35,25 @@ import net.hasor.dbvisitor.driver.JdbcColumn;
 
 class MilvusCommandsForOther extends MilvusCommands {
     private static final JdbcColumn COL_PROGRESS = new JdbcColumn("PROGRESS", AdapterType.Long, "", "", "");
+
+    public static Future<?> execFlushCmd(Future<Object> future, MilvusCmd cmd, HintCommandContext h, FlushCmdContext c,//
+            AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
+        AtomicInteger argIndex = new AtomicInteger(startArgIdx);
+        readHints(argIndex, request, h.hint());
+        String collectionName = argAsName(argIndex, request, c.collectionName);
+
+        FlushParam param = FlushParam.newBuilder()//
+                .withCollectionNames(Collections.singletonList(collectionName))//
+                .build();
+
+        R<FlushResponse> result = cmd.getClient().flush(param);
+        if (result.getStatus() != R.Status.Success.getCode()) {
+            throw new SQLException(result.getMessage());
+        }
+
+        receive.responseUpdateCount(request, 0);
+        return completed(future);
+    }
 
     public static Future<?> execCreateAlias(Future<Object> future, MilvusCmd cmd, HintCommandContext h, CreateCmdContext c,//
             AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {

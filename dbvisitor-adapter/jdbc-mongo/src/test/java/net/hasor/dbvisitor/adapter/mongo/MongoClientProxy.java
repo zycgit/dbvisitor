@@ -17,8 +17,8 @@ import org.bson.conversions.Bson;
 @SuppressWarnings({ "NullableProblems" })
 class MongoClientProxy implements MongoClient {
     private final MongoClient       proxy;
-    private       MongoClient       target;
     private final InvocationHandler handler;
+    private       MongoClient       target;
 
     public MongoClientProxy(final InvocationHandler handler) {
         this.handler = handler;

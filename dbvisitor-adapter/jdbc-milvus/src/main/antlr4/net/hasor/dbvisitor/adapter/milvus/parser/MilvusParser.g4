@@ -44,6 +44,7 @@ command
     | countCmd
     | releaseCmd
     | renameCmd
+    | flushCmd
     ;
 
 createCmd
@@ -151,6 +152,10 @@ loadCmd
 
 releaseCmd
     : RELEASE TABLE collectionName=IDENTIFIER (PARTITION partitionName=IDENTIFIER)?
+    ;
+
+flushCmd
+    : FLUSH collectionName=identifier
     ;
 
 selectElements
