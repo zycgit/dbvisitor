@@ -43,5 +43,6 @@ jdbc:dbvisitor:milvus://host:port/database?param1=value1&param2=value2
 
 | Parameter | Description | Default |
 |---|---|---|
+| `consistencyLevel` | Consistency level for queries. Options: `Strong`, `Session`, `Bounded`, `Eventually`. When set, all queries automatically use this level | None (uses collection default) |
 | `interceptor` | Client interceptor. Must implement `java.lang.reflect.InvocationHandler` | None |
 | `customMilvus` | Custom Milvus client. Must implement `net.hasor.dbvisitor.adapter.milvus.CustomMilvus` | None |

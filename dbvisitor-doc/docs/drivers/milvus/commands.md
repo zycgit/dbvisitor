@@ -545,12 +545,29 @@ SELECT * FROM table_name WHERE age > 20;
 
 ### consistency_level
 
-设置查询的一致性级别。
+:::caution[已移除]
+`consistency_level` Hint 已被移除。请改用 JDBC 连接参数 `consistencyLevel` 在连接级别统一设置一致性级别。
+
+```text
+jdbc:dbvisitor:milvus://host:port?consistencyLevel=Strong
+```
+
+详见 [连接参数](params.md)。
+:::
+
+---
+
+## 数据刷新 {#flush}
+
+将指定集合的内存数据刷新到持久化存储。
 
 ```sql
-/*+ consistency_level=Strong */
-SELECT * FROM table_name ORDER BY vector_col <-> [0.1, 0.2] LIMIT 10;
+FLUSH collection_name;
 ```
+
+:::tip
+在大多数场景中，推荐使用 `consistencyLevel=Strong` 连接参数而非 `FLUSH`，因为 `FLUSH` 是较重的持久化操作。`FLUSH` 更适合批量写入后确保数据落盘的场景。
+:::
 
 ---
 

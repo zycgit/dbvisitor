@@ -39,5 +39,6 @@ jdbc:dbvisitor:milvus://host:port/database?param1=value1&param2=value2
 
 | 参数名 | 描述 | 默认值 |
 |---|---|---|
+| `consistencyLevel` | 查询的一致性级别，可选值：`Strong`、`Session`、`Bounded`、`Eventually`。设置后所有查询自动使用该级别 | 无（使用集合默认级别） |
 | `interceptor` | 客户端拦截器，需实现 `java.lang.reflect.InvocationHandler` | 无 |
 | `customMilvus` | 自定义 Milvus 客户端，需实现 `net.hasor.dbvisitor.adapter.milvus.CustomMilvus` | 无 |

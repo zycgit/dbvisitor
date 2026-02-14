@@ -1,8 +1,4 @@
 {
   "label": "自定义适配器",
-  "position": 2,
-  "link": {
-    "type": "doc",
-    "id": "about"
-  }
+  "position": 2
 }

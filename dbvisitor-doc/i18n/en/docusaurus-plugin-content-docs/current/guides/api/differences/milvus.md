@@ -258,8 +258,7 @@ public interface BookVectorMapper {
           + "VALUES (#{bookId}, #{title}, #{wordCount}, #{bookIntro})")
     int saveBook(BookVector book);
 
-    @Query("/*+ consistency_level=Strong */ "
-         + "SELECT * FROM book_vectors WHERE book_id = #{bookId}")
+    @Query("SELECT * FROM book_vectors WHERE book_id = #{bookId}")
     BookVector loadBook(@Param("bookId") Long bookId);
 
     @Delete("DELETE FROM book_vectors WHERE book_id = #{bookId}")
@@ -275,7 +274,11 @@ BookVectorMapper mapper = session.createMapper(BookVectorMapper.class);
 ```
 
 :::info[Consistency Level]
-Milvus's default consistency level may cause newly inserted data to not be immediately visible. To ensure instant visibility, add a SQL Hint before `SELECT`: `/*+ consistency_level=Strong */`.
+Milvus's default consistency level may cause newly inserted data to not be immediately visible. It is recommended to add the `consistencyLevel=Strong` parameter in the JDBC connection URL to ensure instant visibility:
+
+```text
+jdbc:dbvisitor:milvus://host:port?consistencyLevel=Strong
+```
 :::
 
 ### Paginated Query
@@ -334,12 +337,10 @@ public class BookVector {
     </insert>
 
     <select id="loadBook" resultMap="bookResultMap">
-        /*+ consistency_level=Strong */
         SELECT * FROM book_vectors WHERE book_id = #{bookId}
     </select>
 
     <select id="queryAll" resultMap="bookResultMap">
-        /*+ consistency_level=Strong */
         SELECT * FROM book_vectors LIMIT 100
     </select>
 

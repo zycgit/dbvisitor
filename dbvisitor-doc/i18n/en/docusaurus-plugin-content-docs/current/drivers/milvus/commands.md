@@ -549,12 +549,29 @@ SELECT * FROM table_name WHERE age > 20;
 
 ### consistency_level
 
-Set the query's consistency level.
+:::caution[Removed]
+The `consistency_level` Hint has been removed. Use the JDBC connection parameter `consistencyLevel` instead to set the consistency level at the connection level.
+
+```text
+jdbc:dbvisitor:milvus://host:port?consistencyLevel=Strong
+```
+
+See [Connection Parameters](params.md) for details.
+:::
+
+---
+
+## Data Flush {#flush}
+
+Flush the in-memory data of a specified collection to persistent storage.
 
 ```sql
-/*+ consistency_level=Strong */
-SELECT * FROM table_name ORDER BY vector_col <-> [0.1, 0.2] LIMIT 10;
+FLUSH collection_name;
 ```
+
+:::tip
+In most scenarios, using the `consistencyLevel=Strong` connection parameter is recommended over `FLUSH`, as `FLUSH` is a heavy persistence operation. `FLUSH` is more suitable for ensuring data is persisted after bulk writes.
+:::
 
 ---
 

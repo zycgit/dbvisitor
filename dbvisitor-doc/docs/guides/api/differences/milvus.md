@@ -254,8 +254,7 @@ public interface BookVectorMapper {
           + "VALUES (#{bookId}, #{title}, #{wordCount}, #{bookIntro})")
     int saveBook(BookVector book);
 
-    @Query("/*+ consistency_level=Strong */ "
-         + "SELECT * FROM book_vectors WHERE book_id = #{bookId}")
+    @Query("SELECT * FROM book_vectors WHERE book_id = #{bookId}")
     BookVector loadBook(@Param("bookId") Long bookId);
 
     @Delete("DELETE FROM book_vectors WHERE book_id = #{bookId}")
@@ -271,7 +270,11 @@ BookVectorMapper mapper = session.createMapper(BookVectorMapper.class);
 ```
 
 :::info[一致性级别]
-Milvus 默认的一致性级别可能导致刚插入的数据无法立即查到。如需即时可见，可在 `SELECT` 前添加 SQL Hint：`/*+ consistency_level=Strong */`。
+Milvus 默认的一致性级别可能导致刚插入的数据无法立即查到。推荐在 JDBC 连接 URL 中添加 `consistencyLevel=Strong` 参数来确保即时可见：
+
+```text
+jdbc:dbvisitor:milvus://host:port?consistencyLevel=Strong
+```
 :::
 
 ### 分页查询
@@ -330,12 +333,10 @@ public class BookVector {
     </insert>
 
     <select id="loadBook" resultMap="bookResultMap">
-        /*+ consistency_level=Strong */
         SELECT * FROM book_vectors WHERE book_id = #{bookId}
     </select>
 
     <select id="queryAll" resultMap="bookResultMap">
-        /*+ consistency_level=Strong */
         SELECT * FROM book_vectors LIMIT 100
     </select>
 
