@@ -237,8 +237,8 @@ services:
     container_name: dynamodb-local
     ports:
       - "8000:8000"
-    volumes:
-      - "./docker/dynamodb:/home/dynamodblocal/data"
+    #volumes:
+    #  - "./docker/dynamodb:/home/dynamodblocal/data"
     #working_dir: /home/dynamodblocal
 
     #endpoint: http://localhost:8000
