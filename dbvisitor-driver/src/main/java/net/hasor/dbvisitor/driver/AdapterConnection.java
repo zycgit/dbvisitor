@@ -103,30 +103,30 @@ public abstract class AdapterConnection implements Closeable {
         JdbcConnection jdbcConn;
         Statement jdbcStatement;
         ResultSet jdbcResultSet;
-        if (target instanceof JdbcConnection) {
+        if (target instanceof JdbcConnection c) {
             jdbcResultSet = null;
             jdbcStatement = null;
-            jdbcConn = (JdbcConnection) target;
-        } else if (target instanceof JdbcDatabaseMetaData) {
+            jdbcConn = c;
+        } else if (target instanceof JdbcDatabaseMetaData m) {
             jdbcResultSet = null;
             jdbcStatement = null;
-            jdbcConn = (JdbcConnection) ((JdbcDatabaseMetaData) target).getConnection();
-        } else if (target instanceof JdbcParameterMetaData) {
+            jdbcConn = (JdbcConnection) m.getConnection();
+        } else if (target instanceof JdbcParameterMetaData m) {
             jdbcResultSet = null;
-            jdbcStatement = ((JdbcParameterMetaData) target).getStatement();
+            jdbcStatement = m.getStatement();
             jdbcConn = (JdbcConnection) jdbcStatement.getConnection();
-        } else if (target instanceof JdbcStatement) {
+        } else if (target instanceof JdbcStatement s) {
             jdbcResultSet = null;
-            jdbcStatement = (Statement) target;
+            jdbcStatement = s;
             jdbcConn = (JdbcConnection) jdbcStatement.getConnection();
-        } else if (target instanceof JdbcResultSet) {
-            jdbcResultSet = (ResultSet) target;
-            jdbcStatement = ((JdbcResultSet) target).getStatement();
+        } else if (target instanceof JdbcResultSet r) {
+            jdbcResultSet = r;
+            jdbcStatement = r.getStatement();
             jdbcConn = (JdbcConnection) jdbcStatement.getConnection();
-        } else if (target instanceof JdbcResultSetMetaData) {
-            jdbcResultSet = ((JdbcResultSetMetaData) target).getResultSet();
-            jdbcStatement = ((JdbcResultSetMetaData) target).getStatement();
-            jdbcConn = (JdbcConnection) ((JdbcResultSetMetaData) target).getStatement().getConnection();
+        } else if (target instanceof JdbcResultSetMetaData m) {
+            jdbcResultSet = m.getResultSet();
+            jdbcStatement = m.getStatement();
+            jdbcConn = (JdbcConnection) jdbcStatement.getConnection();
         } else {
             jdbcResultSet = null;
             jdbcStatement = null;

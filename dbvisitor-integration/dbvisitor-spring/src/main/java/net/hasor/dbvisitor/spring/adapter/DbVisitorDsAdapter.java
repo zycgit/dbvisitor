@@ -54,8 +54,8 @@ public class DbVisitorDsAdapter extends AbstractDsAdapter {
 
     @Override
     public void releaseConnection(Connection conn) throws SQLException {
-        if (conn instanceof ConnectionProxy) {
-            conn.close();
+        if (conn instanceof ConnectionProxy connectionProxy) {
+            connectionProxy.close();
         }
     }
 }

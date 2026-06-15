@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.adapter.mongo.parser;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -145,7 +150,7 @@ public class MongoBsonVisitor extends MongoParserBaseVisitor<Object> {
             return convertObjectId(arg0);
         }
         if ("ISODate".equalsIgnoreCase(funcName)) {
-            return arg0 == null ? new Date() : new Date(arg0.toString()); // TODO: better ISO parsing
+            return toDate(arg0);
         }
         if ("NumberInt".equalsIgnoreCase(funcName)) {
             return arg0 instanceof Number ? ((Number) arg0).intValue() : Integer.parseInt(arg0.toString());
@@ -183,8 +188,7 @@ public class MongoBsonVisitor extends MongoParserBaseVisitor<Object> {
             return convertObjectId(arg0);
         }
         if (ctx.ISO_DATE() != null) {
-            // Simple implementation, might need better parsing for ISO strings
-            return arg0 == null ? new Date() : new Date(arg0.toString()); // TODO: Parse ISO String
+            return toDate(arg0);
         }
         if (ctx.NUMBER_INT() != null) {
             return arg0 instanceof Number ? ((Number) arg0).intValue() : Integer.parseInt(arg0.toString());
@@ -212,6 +216,36 @@ public class MongoBsonVisitor extends MongoParserBaseVisitor<Object> {
         }
         // Add other types as needed
         return null;
+    }
+
+    private Date toDate(Object arg0) {
+        if (arg0 == null) {
+            return new Date();
+        }
+        if (arg0 instanceof Date date) {
+            return date;
+        }
+        if (arg0 instanceof Number number) {
+            return new Date(number.longValue());
+        }
+
+        String dateText = arg0.toString();
+        try {
+            return Date.from(Instant.parse(dateText));
+        } catch (RuntimeException ignored) {
+            // try the next common ISO shape
+        }
+        try {
+            return Date.from(OffsetDateTime.parse(dateText).toInstant());
+        } catch (RuntimeException ignored) {
+            // try the next common ISO shape
+        }
+        try {
+            return Date.from(LocalDateTime.parse(dateText).atZone(ZoneId.systemDefault()).toInstant());
+        } catch (RuntimeException ignored) {
+            // try the next common ISO shape
+        }
+        return Date.from(LocalDate.parse(dateText).atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
 
     private Object convertObjectId(Object arg0) {

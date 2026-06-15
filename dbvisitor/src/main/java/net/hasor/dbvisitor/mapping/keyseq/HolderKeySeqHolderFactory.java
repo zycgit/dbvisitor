@@ -50,7 +50,7 @@ public class HolderKeySeqHolderFactory implements GeneratedKeyHandlerFactory {
 
         if (!HolderCache.containsKey(keyHolderType)) {
             try {
-                HolderCache.put(keyHolderType, (GeneratedKeyHandlerFactory) keyHolderType.newInstance());
+                HolderCache.put(keyHolderType, (GeneratedKeyHandlerFactory) keyHolderType.getDeclaredConstructor().newInstance());
             } catch (ReflectiveOperationException e) {
                 throw ExceptionUtils.toRuntime(e);
             }

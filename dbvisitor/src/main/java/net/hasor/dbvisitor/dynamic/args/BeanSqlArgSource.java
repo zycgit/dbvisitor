@@ -45,11 +45,7 @@ public class BeanSqlArgSource extends BindSqlArgSource implements SqlArgSource, 
      */
     @Override
     public boolean hasValue(final String paramName) {
-        if (this.bindValues.containsKey(paramName)) {
-            return true;
-        } else {
-            return this.dataProperty.containsKey(paramName);
-        }
+        return this.bindValues.containsKey(paramName) || this.dataProperty.containsKey(paramName);
     }
 
     /**
@@ -75,8 +71,7 @@ public class BeanSqlArgSource extends BindSqlArgSource implements SqlArgSource, 
      */
     @Override
     public String[] getParameterNames() {
-        Set<String> names = new HashSet<>();
-        names.addAll(Arrays.asList(super.getParameterNames()));
+        Set<String> names = new HashSet<>(Arrays.asList(super.getParameterNames()));
         names.addAll(this.dataProperty.keySet());
         return names.toArray(new String[0]);
     }
@@ -88,8 +83,8 @@ public class BeanSqlArgSource extends BindSqlArgSource implements SqlArgSource, 
     @Override
     public void cleanupParameters() {
         super.cleanupParameters();
-        if (this.dataBean instanceof SqlArgDisposer) {
-            ((SqlArgDisposer) this.dataBean).cleanupParameters();
+        if (this.dataBean instanceof SqlArgDisposer d) {
+            d.cleanupParameters();
         }
     }
 }

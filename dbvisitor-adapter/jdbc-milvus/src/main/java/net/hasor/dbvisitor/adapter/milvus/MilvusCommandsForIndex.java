@@ -177,7 +177,7 @@ class MilvusCommandsForIndex extends MilvusCommands {
         R<DescribeIndexResponse> resp = cmd.getClient()//
                 .describeIndex(DescribeIndexParam.newBuilder()//
                         .withCollectionName(collectionName)//
-                        .withIndexName(indexName == null ? "" : indexName)//
+                        .withFieldName(indexName == null ? "" : indexName)//
                         .build());
 
         if (resp.getStatus() != R.Status.Success.getCode()) {

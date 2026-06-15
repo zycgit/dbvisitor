@@ -240,6 +240,7 @@
 		<setting id="org.eclipse.jdt.core.formatter.blank_lines_after_package" value="0"/>
 		<setting id="org.eclipse.jdt.core.formatter.blank_lines_before_imports" value="0"/>
 		<setting id="org.eclipse.jdt.core.formatter.blank_lines_after_imports" value="0"/>
+		<setting id="org.eclipse.jdt.core.formatter.blank_lines_between_import_groups" value="0"/>
 		<setting id="org.eclipse.jdt.core.formatter.blank_lines_between_type_declarations" value="1"/>
 		<setting id="org.eclipse.jdt.core.formatter.blank_lines_before_first_class_body_declaration" value="0"/>
 		<setting id="org.eclipse.jdt.core.formatter.blank_lines_after_last_class_body_declaration" value="0"/>
@@ -356,7 +357,7 @@
 		<setting id="org.eclipse.jdt.core.formatter.comment.format_block_comments" value="false"/>
 		<setting id="org.eclipse.jdt.core.formatter.comment.format_line_comments" value="false"/>
 		<setting id="org.eclipse.jdt.core.formatter.format_line_comment_starting_on_first_column" value="false"/>
-		<setting id="org.eclipse.jdt.core.formatter.comment.format_header" value="true"/>
+		<setting id="org.eclipse.jdt.core.formatter.comment.format_header" value="false"/>
 		<setting id="org.eclipse.jdt.core.formatter.comment.preserve_white_space_between_code_and_line_comments" value="true"/>
 		<setting id="org.eclipse.jdt.core.formatter.never_indent_line_comments_on_first_column" value="false"/>
 		<setting id="org.eclipse.jdt.core.formatter.never_indent_block_comments_on_first_column" value="false"/>

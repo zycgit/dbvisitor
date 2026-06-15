@@ -109,7 +109,7 @@ public class DbVisitorModule implements com.google.inject.Module {
             dataSource = new DefaultDataSource();
         } else {
             Class<?> dsClass = this.classLoader.loadClass(dataSourceType);
-            dataSource = (DataSource) dsClass.newInstance();
+            dataSource = (DataSource) dsClass.getDeclaredConstructor().newInstance();
         }
 
         SettingNode configNode = this.settings.getNode(configKey);

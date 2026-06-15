@@ -185,7 +185,7 @@ class ElasticCommandsForQuery extends ElasticCommands {
         }
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            String fieldName = parser.getCurrentName();
+            String fieldName = parser.currentName();
             parser.nextToken(); // move to value
 
             if ("responses".equals(fieldName) && parser.currentToken() == JsonToken.START_ARRAY) {
@@ -206,7 +206,7 @@ class ElasticCommandsForQuery extends ElasticCommands {
         }
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            String fieldName = parser.getCurrentName();
+            String fieldName = parser.currentName();
             parser.nextToken(); // move to value
 
             if ("docs".equals(fieldName) && parser.currentToken() == JsonToken.START_ARRAY) {
@@ -357,12 +357,12 @@ class ElasticCommandsForQuery extends ElasticCommands {
         }
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            String fieldName = parser.getCurrentName();
+            String fieldName = parser.currentName();
             parser.nextToken(); // move to value
 
             if ("hits".equals(fieldName) && parser.currentToken() == JsonToken.START_OBJECT) {
                 while (parser.nextToken() != JsonToken.END_OBJECT) {
-                    String innerFieldName = parser.getCurrentName();
+                    String innerFieldName = parser.currentName();
                     parser.nextToken(); // move to value
 
                     if ("hits".equals(innerFieldName) && parser.currentToken() == JsonToken.START_ARRAY) {

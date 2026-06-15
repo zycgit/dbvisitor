@@ -52,8 +52,8 @@ public class CallableStatementExecute extends AbstractStatementExecute {
 
     @Override
     protected CallableStatement createStatement(Connection conn, SqlConfig config, BoundSql execSql) throws SQLException {
-        if (config instanceof DqlConfig) {
-            ResultSetType resultSetType = ((DqlConfig) config).getResultSetType();
+        if (config instanceof DqlConfig c) {
+            ResultSetType resultSetType = c.getResultSetType();
             if (resultSetType == null || resultSetType == ResultSetType.DEFAULT) {
                 return conn.prepareCall(execSql.getSqlString(), ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
             } else {
@@ -89,10 +89,10 @@ public class CallableStatementExecute extends AbstractStatementExecute {
     protected Object fetchResult(boolean retVal, Statement stat, StatementDef def, SqlBuilder oriSql, Map<String, Object> ctx, Page oriPageInfo, long newPageCnt, boolean pageResult) throws SQLException {
         String[] bindOut = null;
 
-        if (def.getConfig() instanceof DqlConfig) {
-            bindOut = ((DqlConfig) def.getConfig()).getBindOut();
-        } else if (def.getConfig() instanceof ExecuteConfig) {
-            bindOut = ((ExecuteConfig) def.getConfig()).getBindOut();
+        if (def.getConfig() instanceof DqlConfig c) {
+            bindOut = c.getBindOut();
+        } else if (def.getConfig() instanceof ExecuteConfig executeConfig) {
+            bindOut = executeConfig.getBindOut();
         } else {
             bindOut = ArrayUtils.EMPTY_STRING_ARRAY;
         }

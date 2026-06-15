@@ -98,7 +98,14 @@ public class OgnlMemberAccess implements MemberAccess {
         Object result = null;
         if (isAccessible(context, target, member, propertyName)) {
             AccessibleObject accessible = (AccessibleObject) member;
-            if (!accessible.isAccessible()) {
+            Object accessTarget = member instanceof java.lang.reflect.Constructor<?> || Modifier.isStatic(member.getModifiers()) ? null : target;
+            boolean accessibleNow;
+            try {
+                accessibleNow = accessible.canAccess(accessTarget);
+            } catch (IllegalArgumentException e) {
+                accessibleNow = false;
+            }
+            if (!accessibleNow) {
                 result = Boolean.FALSE;
                 accessible.setAccessible(true);
             }

@@ -46,18 +46,14 @@ public enum DdlAuto {
                 }
             }
 
-            switch (code.toLowerCase()) {
-                case "none":
-                    return DdlAuto.None;
-                case "create":
-                    return DdlAuto.Create;
-                case "add":
-                    return DdlAuto.AddColumn;
-                case "update":
-                    return DdlAuto.Update;
-                case "create-drop":
-                    return DdlAuto.CreateDrop;
-            }
+            return switch (code.toLowerCase()) {
+                case "none" -> DdlAuto.None;
+                case "create" -> DdlAuto.Create;
+                case "add" -> DdlAuto.AddColumn;
+                case "update" -> DdlAuto.Update;
+                case "create-drop" -> DdlAuto.CreateDrop;
+                default -> DdlAuto.None;
+            };
 
         }
         return DdlAuto.None;

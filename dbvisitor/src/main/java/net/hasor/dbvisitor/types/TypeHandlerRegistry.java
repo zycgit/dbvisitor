@@ -659,7 +659,7 @@ public final class TypeHandlerRegistry {
                     BindTypeHandler handler = typeClass.getAnnotation(BindTypeHandler.class);
                     Constructor<?> constructor = ConstructorUtils.getAccessibleConstructor(handler.value(), Class.class);
                     if (constructor == null) {
-                        typeHandler = (TypeHandler<?>) handler.value().newInstance();
+                        typeHandler = (TypeHandler<?>) handler.value().getDeclaredConstructor().newInstance();
                     } else {
                         typeHandler = (TypeHandler<?>) ConstructorUtils.invokeConstructor(handler.value(), typeClass);
                     }
@@ -759,7 +759,7 @@ public final class TypeHandlerRegistry {
                     BindTypeHandler handler = typeClass.getAnnotation(BindTypeHandler.class);
                     Constructor<?> constructor = ConstructorUtils.getAccessibleConstructor(handler.value(), Class.class);
                     if (constructor == null) {
-                        typeHandler = (TypeHandler<?>) handler.value().newInstance();
+                        typeHandler = (TypeHandler<?>) handler.value().getDeclaredConstructor().newInstance();
                     } else {
                         typeHandler = (TypeHandler<?>) ConstructorUtils.invokeConstructor(handler.value(), typeClass);
                     }

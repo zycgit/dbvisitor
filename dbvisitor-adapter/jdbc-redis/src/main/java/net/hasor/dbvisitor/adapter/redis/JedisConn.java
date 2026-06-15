@@ -63,14 +63,11 @@ public class JedisConn extends AdapterConnection {
     }
 
     protected String getSeparatorCharString() {
-        switch (this.separatorChar) {
-            case '\n':
-                return "\\n";
-            case ';':
-                return ";";
-            default:
-                return String.valueOf(this.separatorChar);
-        }
+        return switch (this.separatorChar) {
+            case '\n' -> "\\n";
+            case ';' -> ";";
+            default -> String.valueOf(this.separatorChar);
+        };
     }
 
     protected Connection getOwner() {
@@ -165,8 +162,8 @@ public class JedisConn extends AdapterConnection {
                 conn.close();
             } catch (Throwable e) {
                 Throwable ee = ExceptionUtils.getRootCause(e);
-                if (ee instanceof SQLException) {
-                    throw (SQLException) ee;
+                if (ee instanceof SQLException sqlException) {
+                    throw sqlException;
                 } else {
                     throw new SQLException(e);
                 }

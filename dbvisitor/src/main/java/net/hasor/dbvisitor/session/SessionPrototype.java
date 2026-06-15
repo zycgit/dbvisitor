@@ -104,8 +104,8 @@ public class SessionPrototype {
     protected static <E> List<E> asList(Object result) {
         if (result == null) {
             return Collections.emptyList();
-        } else if (result instanceof List) {
-            return (List<E>) result;
+        } else if (result instanceof List<?> list) {
+            return (List<E>) list;
         } else {
             List<E> list = new ArrayList<>();
             list.add((E) result);
@@ -114,8 +114,8 @@ public class SessionPrototype {
     }
 
     protected static Map<String, Object> extractData(Object parameter) {
-        if (parameter instanceof Map) {
-            return (Map) parameter;
+        if (parameter instanceof Map<?, ?> map) {
+            return (Map) map;
         } else if (!(parameter instanceof Collection)) {
             BeanMap beanMap = new BeanMap(parameter);
             beanMap.setTransformConvert(ConverterBean.getInstance());

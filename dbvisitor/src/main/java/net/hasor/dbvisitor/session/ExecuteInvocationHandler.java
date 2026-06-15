@@ -18,12 +18,13 @@ import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.convert.ConverterBean;
 import net.hasor.cobble.logging.Logger;
@@ -45,6 +46,12 @@ import net.hasor.dbvisitor.page.PageResult;
  */
 class ExecuteInvocationHandler implements InvocationHandler {
     private static final Logger                            logger        = LoggerFactory.getLogger(ExecuteInvocationHandler.class);
+    private static final ClassValue<ConcurrentMap<Method, MethodHandle>> defaultMethodHandleCache = new ClassValue<>() {
+        @Override
+        protected ConcurrentMap<Method, MethodHandle> computeValue(Class<?> type) {
+            return new ConcurrentHashMap<>();
+        }
+    };
     private final        String                            space;
     private final        Session                           session;
     private final        Map<String, FacadeStatement>      dynamicSqlMap = new HashMap<>();
@@ -103,11 +110,11 @@ class ExecuteInvocationHandler implements InvocationHandler {
 
                 Annotation[] annotations = parameters[i].getAnnotations();
                 for (Annotation paramAnno : annotations) {
-                    if (!(paramAnno instanceof Param)) {
+                    if (!(paramAnno instanceof Param param)) {
                         continue;
                     }
 
-                    String paramName = ((Param) paramAnno).value();
+                    String paramName = param.value();
                     if (StringUtils.isBlank(paramName)) {
                         continue;
                     }
@@ -151,8 +158,8 @@ class ExecuteInvocationHandler implements InvocationHandler {
         if (objects.length == 1) {
             if (objects[0] == null) {
                 // null
-            } else if (objects[0] instanceof Map) {
-                mergedMap.appendMap((Map<? extends String, ?>) objects[0], true);
+            } else if (objects[0] instanceof Map<?, ?> map) {
+                mergedMap.appendMap((Map<? extends String, ?>) map, true);
             } else if (!MappingHelper.typeName(objects[0].getClass()).contains(".")) {
                 // basic type
             } else if (!(objects[0] instanceof Collection)) {
@@ -180,12 +187,7 @@ class ExecuteInvocationHandler implements InvocationHandler {
             return this.processResult(result, method.getReturnType());
         } else if (method.isDefault()) {
             // use interface default method
-            MethodHandle handle;
-            if (privateLookupInMethod == null) {
-                handle = getMethodHandleJava8(method);
-            } else {
-                handle = getMethodHandleJava9(method);
-            }
+            MethodHandle handle = getDefaultMethodHandle(method);
             return handle.bindTo(o).invokeWithArguments(objects);
         } else {
             throw new NoSuchMethodException("method '" + method.getDeclaringClass().getName() + "." + method.getName() + "' does not exist in mapper.");
@@ -203,20 +205,20 @@ class ExecuteInvocationHandler implements InvocationHandler {
 
     private Object processResult(Object result, Class<?> returnType) throws SQLException {
         if (List.class == returnType || Collection.class == returnType || Iterable.class == returnType) {
-            if (result instanceof List) {
-                return result;
+            if (result instanceof List<?> list) {
+                return list;
             } else {
                 List<Object> list = new ArrayList<>();
                 list.add(result);
                 return list;
             }
         } else if (Map.class == returnType) {
-            if (result instanceof Map) {
-                return result;
-            } else if (result instanceof Iterable) {
+            if (result instanceof Map<?, ?> map) {
+                return map;
+            } else if (result instanceof Iterable<?> iterable) {
                 Map<String, Object> map = new HashMap<>();
                 int i = 0;
-                for (Object obj : (Iterable) result) {
+                for (Object obj : iterable) {
                     map.put("result-" + (i++), obj);
                 }
                 return map;
@@ -226,14 +228,14 @@ class ExecuteInvocationHandler implements InvocationHandler {
                 return map;
             }
         } else {
-            if (result instanceof List) {
-                int nrOfColumns = ((List<?>) result).size();
+            if (result instanceof List<?> list) {
+                int nrOfColumns = list.size();
                 if (nrOfColumns > 1) {
                     throw new SQLException("Incorrect row count: expected 1, actual " + nrOfColumns);
                 } else if (nrOfColumns == 0) {
                     return null;
                 } else {
-                    return ((List<?>) result).get(0);
+                    return list.get(0);
                 }
             } else {
                 return result;
@@ -242,45 +244,23 @@ class ExecuteInvocationHandler implements InvocationHandler {
     }
 
     //
-    //
-    //
-    private static final Constructor<MethodHandles.Lookup> lookupConstructor;
-    private static final Method                            privateLookupInMethod;
-    private static final int                               ALLOWED_MODES = MethodHandles.Lookup.PRIVATE | MethodHandles.Lookup.PROTECTED | MethodHandles.Lookup.PACKAGE | MethodHandles.Lookup.PUBLIC;
 
-    static {
-        Method privateLookupIn;
-        try {
-            privateLookupIn = MethodHandles.class.getMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class);
-        } catch (NoSuchMethodException e) {
-            privateLookupIn = null;
+    private static MethodHandle getDefaultMethodHandle(Method method) throws ReflectiveOperationException {
+        ConcurrentMap<Method, MethodHandle> methodHandleMap = defaultMethodHandleCache.get(method.getDeclaringClass());
+        MethodHandle methodHandle = methodHandleMap.get(method);
+        if (methodHandle != null) {
+            return methodHandle;
         }
-        privateLookupInMethod = privateLookupIn;
 
-        Constructor<MethodHandles.Lookup> lookup = null;
-        if (privateLookupInMethod == null) {
-            // JDK 1.8
-            try {
-                lookup = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, int.class);
-                lookup.setAccessible(true);
-            } catch (NoSuchMethodException e) {
-                throw new IllegalStateException("There is neither 'privateLookupIn(Class, Lookup)' nor 'Lookup(Class, int)' method in java.lang.invoke.MethodHandles.", e);
-            } catch (Throwable t) {
-                lookup = null;
-            }
-        }
-        lookupConstructor = lookup;
+        MethodHandle newMethodHandle = createDefaultMethodHandle(method);
+        MethodHandle previousMethodHandle = methodHandleMap.putIfAbsent(method, newMethodHandle);
+        return previousMethodHandle != null ? previousMethodHandle : newMethodHandle;
     }
 
-    private static MethodHandle getMethodHandleJava9(Method method) throws ReflectiveOperationException {
+    private static MethodHandle createDefaultMethodHandle(Method method) throws ReflectiveOperationException {
         final Class<?> declaringClass = method.getDeclaringClass();
-        MethodHandles.Lookup lookup = ((MethodHandles.Lookup) privateLookupInMethod.invoke(null, declaringClass, MethodHandles.lookup()));
+        MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(declaringClass, MethodHandles.lookup());
         MethodType methodType = MethodType.methodType(method.getReturnType(), method.getParameterTypes());
         return lookup.findSpecial(declaringClass, method.getName(), methodType, declaringClass);
-    }
-
-    private static MethodHandle getMethodHandleJava8(Method method) throws ReflectiveOperationException {
-        final Class<?> declaringClass = method.getDeclaringClass();
-        return lookupConstructor.newInstance(declaringClass, ALLOWED_MODES).unreflectSpecial(method, declaringClass);
     }
 }

@@ -120,15 +120,13 @@ public class ArrayTypeHandler extends AbstractTypeHandler<Object> {
         try {
             Object result = array.getArray();
             // array.getArray() 返回的是 Object[]
-            if (result instanceof Object[]) {
-                Object[] objArray = (Object[]) result;
-                
+            if (result instanceof Object[] objArray) {
                 // 对于空数组，尝试根据数据库类型推断 Java 类型
                 // 注意：某些数据库（如H2）对空数组可能返回 baseTypeName="NULL"，此时返回 Object[]
                 if (objArray.length == 0) {
                     return createTypedEmptyArray(array.getBaseTypeName());
                 }
-                
+
                 // 检测第一个非 null 元素的类型
                 Class<?> componentType = null;
                 for (Object elem : objArray) {
@@ -137,12 +135,12 @@ public class ArrayTypeHandler extends AbstractTypeHandler<Object> {
                         break;
                     }
                 }
-                
+
                 if (componentType == null) {
                     // 所有元素都是 null，根据数据库类型推断
                     return createTypedArrayFromSqlType(array.getBaseTypeName(), objArray.length);
                 }
-                
+
                 // 针对常见类型，创建强类型数组
                 if (componentType == Integer.class) {
                     Integer[] typed = new Integer[objArray.length];
@@ -160,8 +158,8 @@ public class ArrayTypeHandler extends AbstractTypeHandler<Object> {
                     // H2 可能返回 Double，但我们需要 Float
                     Float[] typed = new Float[objArray.length];
                     for (int i = 0; i < objArray.length; i++) {
-                        if (objArray[i] instanceof Number) {
-                            typed[i] = ((Number) objArray[i]).floatValue();
+                        if (objArray[i] instanceof Number number) {
+                            typed[i] = number.floatValue();
                         } else {
                             typed[i] = (Float) objArray[i];
                         }
@@ -186,7 +184,7 @@ public class ArrayTypeHandler extends AbstractTypeHandler<Object> {
                     }
                     return typed;
                 }
-                
+
                 // 其他类型保持不变
                 return objArray;
             }
@@ -201,42 +199,17 @@ public class ArrayTypeHandler extends AbstractTypeHandler<Object> {
         if (baseTypeName == null) {
             return new Object[0];
         }
-        switch (baseTypeName.toUpperCase()) {
-            case "INTEGER":
-            case "INT":
-            case "INT4":    // PostgreSQL internal type name
-                return new Integer[0];
-            case "BIGINT":
-            case "LONG":
-            case "INT8":    // PostgreSQL internal type name
-                return new Long[0];
-            case "SMALLINT":
-            case "SHORT":
-            case "INT2":    // PostgreSQL internal type name
-                return new Short[0];
-            case "REAL":
-            case "FLOAT":
-            case "FLOAT4":  // PostgreSQL internal type name
-                return new Float[0];
-            case "DOUBLE":
-            case "DOUBLE PRECISION":
-            case "FLOAT8":  // PostgreSQL internal type name
-                return new Double[0];
-            case "NUMERIC":
-            case "DECIMAL":
-                return new java.math.BigDecimal[0];
-            case "BOOLEAN":
-            case "BOOL":
-                return new Boolean[0];
-            case "VARCHAR":
-            case "CHAR":
-            case "TEXT":
-            case "STRING":
-            case "BPCHAR":  // PostgreSQL internal type name for CHAR
-                return new String[0];
-            default:
-                return new Object[0];
-        }
+        return switch (baseTypeName.toUpperCase()) {
+            case "INTEGER", "INT", "INT4" -> new Integer[0];
+            case "BIGINT", "LONG", "INT8" -> new Long[0];
+            case "SMALLINT", "SHORT", "INT2" -> new Short[0];
+            case "REAL", "FLOAT", "FLOAT4" -> new Float[0];
+            case "DOUBLE", "DOUBLE PRECISION", "FLOAT8" -> new Double[0];
+            case "NUMERIC", "DECIMAL" -> new java.math.BigDecimal[0];
+            case "BOOLEAN", "BOOL" -> new Boolean[0];
+            case "VARCHAR", "CHAR", "TEXT", "STRING", "BPCHAR" -> new String[0];
+            default -> new Object[0];
+        };
     }
     
     /** 根据 SQL 类型创建指定长度的强类型数组（所有元素为 null） */
@@ -244,41 +217,16 @@ public class ArrayTypeHandler extends AbstractTypeHandler<Object> {
         if (baseTypeName == null || length == 0) {
             return new Object[length];
         }
-        switch (baseTypeName.toUpperCase()) {
-            case "INTEGER":
-            case "INT":
-            case "INT4":    // PostgreSQL internal type name
-                return new Integer[length];
-            case "BIGINT":
-            case "LONG":
-            case "INT8":    // PostgreSQL internal type name
-                return new Long[length];
-            case "SMALLINT":
-            case "SHORT":
-            case "INT2":    // PostgreSQL internal type name
-                return new Short[length];
-            case "REAL":
-            case "FLOAT":
-            case "FLOAT4":  // PostgreSQL internal type name
-                return new Float[length];
-            case "DOUBLE":
-            case "DOUBLE PRECISION":
-            case "FLOAT8":  // PostgreSQL internal type name
-                return new Double[length];
-            case "NUMERIC":
-            case "DECIMAL":
-                return new java.math.BigDecimal[length];
-            case "BOOLEAN":
-            case "BOOL":
-                return new Boolean[length];
-            case "VARCHAR":
-            case "CHAR":
-            case "TEXT":
-            case "STRING":
-            case "BPCHAR":  // PostgreSQL internal type name for CHAR
-                return new String[length];
-            default:
-                return new Object[length];
-        }
+        return switch (baseTypeName.toUpperCase()) {
+            case "INTEGER", "INT", "INT4" -> new Integer[length];
+            case "BIGINT", "LONG", "INT8" -> new Long[length];
+            case "SMALLINT", "SHORT", "INT2" -> new Short[length];
+            case "REAL", "FLOAT", "FLOAT4" -> new Float[length];
+            case "DOUBLE", "DOUBLE PRECISION", "FLOAT8" -> new Double[length];
+            case "NUMERIC", "DECIMAL" -> new java.math.BigDecimal[length];
+            case "BOOLEAN", "BOOL" -> new Boolean[length];
+            case "VARCHAR", "CHAR", "TEXT", "STRING", "BPCHAR" -> new String[length];
+            default -> new Object[length];
+        };
     }
 }

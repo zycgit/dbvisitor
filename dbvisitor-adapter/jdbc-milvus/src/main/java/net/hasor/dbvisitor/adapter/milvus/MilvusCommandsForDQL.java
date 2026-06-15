@@ -192,7 +192,7 @@ class MilvusCommandsForDQL extends MilvusCommands {
                 .withCollectionName(collectionName)//
                 .withExpr(expr)//
                 .withVectorFieldName(annsField)//
-                .withVectors(vectors)//
+                .withFloatVectors(vectors)//
                 .withTopK(topK)//
                 .withOutFields(outFields);
 
@@ -253,7 +253,7 @@ class MilvusCommandsForDQL extends MilvusCommands {
         }
 
         SearchResultsWrapper wrapper = new SearchResultsWrapper(callback.getData().getResults());
-        return wrapper.getRowRecords().stream().map(row -> (Map<String, Object>) row.getFieldValues()).collect(Collectors.toList());
+        return wrapper.getRowRecords(0).stream().map(row -> (Map<String, Object>) row.getFieldValues()).collect(Collectors.toList());
     }
 
     private static List<Map<String, Object>> execRangeSearch(MilvusCmd cmd, String collectionName, String partitionName, VectorRangeExpr rangeExpr, List<String> outFields, //
@@ -284,7 +284,7 @@ class MilvusCommandsForDQL extends MilvusCommands {
                 .withCollectionName(collectionName)//
                 .withExpr(rangeExpr.scalarFilter)//
                 .withVectorFieldName(rangeExpr.fieldName)//
-                .withVectors(Collections.singletonList(vector))//
+                .withFloatVectors(Collections.singletonList(vector))//
                 .withTopK(topK)//
                 .withOutFields(outFields);
 
@@ -328,7 +328,7 @@ class MilvusCommandsForDQL extends MilvusCommands {
         }
 
         SearchResultsWrapper wrapper = new SearchResultsWrapper(callback.getData().getResults());
-        return wrapper.getRowRecords().stream().map(QueryResultsWrapper.RowRecord::getFieldValues).collect(Collectors.toList());
+        return wrapper.getRowRecords(0).stream().map(QueryResultsWrapper.RowRecord::getFieldValues).collect(Collectors.toList());
     }
 
     private static List<Map<String, Object>> execQuery(MilvusCmd cmd, String collectionName, String partitionName, String expr, List<String> outFields, //

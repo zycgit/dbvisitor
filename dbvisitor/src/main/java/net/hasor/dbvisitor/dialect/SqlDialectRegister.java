@@ -124,7 +124,7 @@ public class SqlDialectRegister {
         }
         if (aClass != null) {
             try {
-                dialect = (SqlDialect) aClass.newInstance();
+                dialect = (SqlDialect) aClass.getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 throw new IllegalStateException("load dialect '" + aClass.getName() + "' failed, " + e.getMessage(), e);
             }

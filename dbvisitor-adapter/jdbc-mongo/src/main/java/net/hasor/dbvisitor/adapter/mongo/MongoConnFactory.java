@@ -56,26 +56,21 @@ public class MongoConnFactory implements AdapterFactory {
         }
         String password = StringUtils.trimToEmpty(caseProps.get(MongoKeys.PASSWORD));
         String mechanism = StringUtils.trimToEmpty(caseProps.get(MongoKeys.MECHANISM)).toUpperCase();
-        switch (mechanism) {
-            case "PLAIN":
-                return MongoCredential.createPlainCredential(username, defaultDB, password.toCharArray());
-            case "SCRAM-SHA-1":
-                return MongoCredential.createScramSha1Credential(username, defaultDB, password.toCharArray());
-            case "SCRAM-SHA-256":
-                return MongoCredential.createScramSha256Credential(username, defaultDB, password.toCharArray());
-            case "GSSAPI":
-                return MongoCredential.createGSSAPICredential(username);
-            case "X-509":
+        return switch (mechanism) {
+            case "PLAIN" -> MongoCredential.createPlainCredential(username, defaultDB, password.toCharArray());
+            case "SCRAM-SHA-1" -> MongoCredential.createScramSha1Credential(username, defaultDB, password.toCharArray());
+            case "SCRAM-SHA-256" -> MongoCredential.createScramSha256Credential(username, defaultDB, password.toCharArray());
+            case "GSSAPI" -> MongoCredential.createGSSAPICredential(username);
+            case "X-509" -> {
                 if (StringUtils.isNotBlank(username)) {
-                    return MongoCredential.createMongoX509Credential(username);
+                    yield MongoCredential.createMongoX509Credential(username);
                 } else {
-                    return MongoCredential.createMongoX509Credential();
+                    yield MongoCredential.createMongoX509Credential();
                 }
-            case "":
-                return MongoCredential.createCredential(username, defaultDB, password.toCharArray());
-            default:
-                throw new SQLException("unsupported authentication mechanism:" + mechanism);
-        }
+            }
+            case "" -> MongoCredential.createCredential(username, defaultDB, password.toCharArray());
+            default -> throw new SQLException("unsupported authentication mechanism:" + mechanism);
+        };
     }
 
     private static MongoClientSettings passerMongoSettings(String defaultDB, Map<String, String> caseProps, List<ServerAddress> clusterHosts) throws SQLException {
@@ -170,7 +165,7 @@ public class MongoConnFactory implements AdapterFactory {
             if (StringUtils.isNotBlank(customMongo)) {
                 try {
                     Class<?> customMongoClass = MongoConnFactory.class.getClassLoader().loadClass(customMongo);
-                    CustomMongo customCmd = (CustomMongo) customMongoClass.newInstance();
+                    CustomMongo customCmd = (CustomMongo) customMongoClass.getDeclaredConstructor().newInstance();
                     mongoObject = customCmd.createMongoClient(jdbcUrl, caseProps);
                     if (mongoObject == null) {
                         throw new SQLException("create Mongo connection failed, custom Mongo return null.");

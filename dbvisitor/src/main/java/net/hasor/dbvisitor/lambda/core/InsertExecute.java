@@ -31,14 +31,10 @@ public interface InsertExecute<R, T> extends BasicFunc<R>, BoundSqlBuilder {
     /** 执行插入，并且将返回的int结果相加。 */
     default int executeSumResult() throws SQLException {
         int[] results = this.executeGetResult();
-        return Arrays.stream(results).map(v -> {
-            if (v == Statement.SUCCESS_NO_INFO) {
-                return 1;
-            } else if (v == Statement.EXECUTE_FAILED) {
-                return 0;
-            } else {
-                return v;
-            }
+        return Arrays.stream(results).map(v -> switch (v) {
+            case Statement.SUCCESS_NO_INFO -> 1;
+            case Statement.EXECUTE_FAILED -> 0;
+            default -> v;
         }).sum();
     }
 
@@ -50,8 +46,8 @@ public interface InsertExecute<R, T> extends BasicFunc<R>, BoundSqlBuilder {
 
     /** 批量插入记录 */
     default R applyEntity(T entity) throws SQLException {
-        if (entity instanceof Map) {
-            return this.applyMap(Collections.singletonList((Map<String, Object>) entity));
+        if (entity instanceof Map map) {
+            return this.applyMap(Collections.singletonList((Map<String, Object>) map));
         } else {
             return this.applyEntity(Collections.singletonList(entity));
         }

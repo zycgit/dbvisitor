@@ -141,15 +141,14 @@ public class ConfigurationBean extends AbstractSupportBean<Configuration> {
 
     private TypeHandler<?> castToTypeHandler(Object handlerObject) throws Exception {
         TypeHandler<?> handler = null;
-        if (handlerObject instanceof TypeHandler) {
-            handler = (TypeHandler<?>) handlerObject;
-        } else if (handlerObject instanceof Class) {
-            Class<?> handlerClass = (Class) handlerObject;
+        if (handlerObject instanceof TypeHandler<?> typeHandler) {
+            handler = typeHandler;
+        } else if (handlerObject instanceof Class<?> handlerClass) {
             if (TypeHandler.class.isAssignableFrom(handlerClass)) {
                 if (this.applicationContext != null) {
                     handler = (TypeHandler<?>) createBeanByType(handlerClass, this.applicationContext);
                 } else {
-                    handler = (TypeHandler<?>) handlerClass.newInstance();
+                    handler = (TypeHandler<?>) handlerClass.getDeclaredConstructor().newInstance();
                 }
             }
         } else if (handlerObject instanceof String) {
@@ -157,7 +156,7 @@ public class ConfigurationBean extends AbstractSupportBean<Configuration> {
             if (this.applicationContext != null) {
                 handler = (TypeHandler<?>) createBeanByType(handlerClass, this.applicationContext);
             } else {
-                handler = (TypeHandler<?>) handlerClass.newInstance();
+                handler = (TypeHandler<?>) handlerClass.getDeclaredConstructor().newInstance();
             }
         }
 
@@ -170,15 +169,14 @@ public class ConfigurationBean extends AbstractSupportBean<Configuration> {
 
     private SqlRule castToRuleHandler(Object handlerObject) throws Exception {
         SqlRule handler = null;
-        if (handlerObject instanceof SqlRule) {
-            handler = (SqlRule) handlerObject;
-        } else if (handlerObject instanceof Class) {
-            Class<?> handlerClass = (Class) handlerObject;
+        if (handlerObject instanceof SqlRule sqlRule) {
+            handler = sqlRule;
+        } else if (handlerObject instanceof Class<?> handlerClass) {
             if (SqlRule.class.isAssignableFrom(handlerClass)) {
                 if (this.applicationContext != null) {
                     handler = (SqlRule) createBeanByType(handlerClass, this.applicationContext);
                 } else {
-                    handler = (SqlRule) handlerClass.newInstance();
+                    handler = (SqlRule) handlerClass.getDeclaredConstructor().newInstance();
                 }
             }
         } else if (handlerObject instanceof String) {
@@ -186,7 +184,7 @@ public class ConfigurationBean extends AbstractSupportBean<Configuration> {
             if (this.applicationContext != null) {
                 handler = (SqlRule) createBeanByType(handlerClass, this.applicationContext);
             } else {
-                handler = (SqlRule) handlerClass.newInstance();
+                handler = (SqlRule) handlerClass.getDeclaredConstructor().newInstance();
             }
         }
 

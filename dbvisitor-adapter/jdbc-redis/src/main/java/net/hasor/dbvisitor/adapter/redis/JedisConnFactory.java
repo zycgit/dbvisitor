@@ -178,7 +178,7 @@ public class JedisConnFactory implements AdapterFactory {
         if (StringUtils.isNotBlank(customJedis)) {
             try {
                 Class<?> customJedisClass = JedisConnFactory.class.getClassLoader().loadClass(customJedis);
-                CustomJedis customJedisCmd = (CustomJedis) customJedisClass.newInstance();
+                CustomJedis customJedisCmd = (CustomJedis) customJedisClass.getDeclaredConstructor().newInstance();
                 jedisObject = customJedisCmd.createJedisCmd(jdbcUrl, caseProps);
                 database = StringUtils.isNotBlank(defaultDataBase) ? Integer.parseInt(defaultDataBase) : Protocol.DEFAULT_DATABASE;
                 if (jedisObject == null) {
@@ -211,13 +211,13 @@ public class JedisConnFactory implements AdapterFactory {
         Closeable closeable = null;
         try {
             JedisConn jedisConn;
-            if (jedisObject instanceof JedisCluster) {
-                closeable = () -> ((JedisCluster) jedisObject).close();
-                JedisCmd cmd = new JedisCmd((JedisCluster) jedisObject, this.createInvocation(caseProps));
+            if (jedisObject instanceof JedisCluster j) {
+                closeable = j::close;
+                JedisCmd cmd = new JedisCmd(j, this.createInvocation(caseProps));
                 jedisConn = new JedisConn(owner, cmd, jdbcUrl, caseProps, database);
-            } else if (jedisObject instanceof Jedis) {
-                closeable = () -> ((Jedis) jedisObject).close();
-                JedisCmd cmd = new JedisCmd((Jedis) jedisObject, this.createInvocation(caseProps));
+            } else if (jedisObject instanceof Jedis j) {
+                closeable = j::close;
+                JedisCmd cmd = new JedisCmd(j, this.createInvocation(caseProps));
                 jedisConn = new JedisConn(owner, cmd, jdbcUrl, caseProps, database);
             } else {
                 throw new SQLException("create jedis connection failed, unknown jedis object type " + jedisObject.getClass().getName());
@@ -236,7 +236,7 @@ public class JedisConnFactory implements AdapterFactory {
             try {
                 String interceptorClass = props.get(JedisKeys.INTERCEPTOR);
                 Class<?> interceptor = ClassUtils.getClass(JedisConnFactory.class.getClassLoader(), interceptorClass);
-                return (InvocationHandler) interceptor.newInstance();
+                return (InvocationHandler) interceptor.getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 throw new SQLException("create interceptor failed, " + e.getMessage(), e);
             }

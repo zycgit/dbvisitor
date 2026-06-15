@@ -43,15 +43,15 @@ public class PreparedStatementExecute extends AbstractStatementExecute {
 
     @Override
     protected PreparedStatement createStatement(Connection conn, SqlConfig config, BoundSql execSql) throws SQLException {
-        if (config instanceof DqlConfig) {
-            ResultSetType resultSetType = ((DqlConfig) config).getResultSetType();
+        if (config instanceof DqlConfig c) {
+            ResultSetType resultSetType = c.getResultSetType();
             if (resultSetType == null || resultSetType == ResultSetType.DEFAULT) {
                 return conn.prepareStatement(execSql.getSqlString(), ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
             } else {
                 int resultSetTypeInt = resultSetType.getResultSetType();
                 return conn.prepareStatement(execSql.getSqlString(), resultSetTypeInt, ResultSet.CONCUR_READ_ONLY);
             }
-        } else if (config instanceof InsertConfig && ((InsertConfig) config).isUseGeneratedKeys()) {
+        } else if (config instanceof InsertConfig c && c.isUseGeneratedKeys()) {
             return conn.prepareStatement(execSql.getSqlString(), Statement.RETURN_GENERATED_KEYS);
         } else {
             return conn.prepareStatement(execSql.getSqlString());

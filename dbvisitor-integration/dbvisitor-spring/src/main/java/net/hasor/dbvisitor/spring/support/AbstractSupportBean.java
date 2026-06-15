@@ -34,7 +34,7 @@ public abstract class AbstractSupportBean<T> implements FactoryBean<T>, BeanClas
     protected Object createBeanByType(Class<?> beanType, ApplicationContext applicationContext) throws Exception {
         String[] beanNamesForType = applicationContext.getBeanNamesForType(beanType);
         if (beanNamesForType == null || beanNamesForType.length == 0) {
-            return beanType.newInstance();
+            return beanType.getDeclaredConstructor().newInstance();
         } else {
             return applicationContext.getBean(beanType);
         }

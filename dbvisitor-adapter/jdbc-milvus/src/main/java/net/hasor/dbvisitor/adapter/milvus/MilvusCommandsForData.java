@@ -284,7 +284,7 @@ class MilvusCommandsForData extends MilvusCommands {
                 .withCollectionName(collectionName)//
                 .withMetricType(io.milvus.param.MetricType.L2) // Default to L2 for <->
                 .withTopK(topK)//
-                .withVectors(Collections.singletonList(vectorValue))//
+                .withFloatVectors(Collections.singletonList(vectorValue))//
                 .withVectorFieldName(annsField)//
                 .withExpr(filter)//
                 .withOutFields(Collections.singletonList("*"));
@@ -304,7 +304,7 @@ class MilvusCommandsForData extends MilvusCommands {
                 .withCollectionName(collectionName)//
                 .withMetricType(io.milvus.param.MetricType.L2)//
                 .withTopK(16384)// Use a large TopK to simulate "Update All in Range"
-                .withVectors(Collections.singletonList(toFloatList(rangeExpr.vectorValue)))//
+                .withFloatVectors(Collections.singletonList(toFloatList(rangeExpr.vectorValue)))//
                 .withVectorFieldName(rangeExpr.fieldName)//
                 .withExpr(rangeExpr.scalarFilter)//
                 .withOutFields(Collections.singletonList("*"));
@@ -330,7 +330,7 @@ class MilvusCommandsForData extends MilvusCommands {
         }
 
         SearchResultsWrapper wrapper = new SearchResultsWrapper(searchRes.getData().getResults());
-        List<Map<String, Object>> records = wrapper.getRowRecords().stream().map(QueryResultsWrapper.RowRecord::getFieldValues).collect(Collectors.toList());
+        List<Map<String, Object>> records = wrapper.getRowRecords(0).stream().map(QueryResultsWrapper.RowRecord::getFieldValues).collect(Collectors.toList());
 
         return executeUpdateProcess(future, cmd, collectionName, partitionName, records, request, receive, newValues);
     }
@@ -462,7 +462,7 @@ class MilvusCommandsForData extends MilvusCommands {
                 .withCollectionName(collectionName)//
                 .withMetricType(io.milvus.param.MetricType.L2) // Default to L2 for <->
                 .withTopK(topK)//
-                .withVectors(Collections.singletonList(vectorValue))//
+                .withFloatVectors(Collections.singletonList(vectorValue))//
                 .withVectorFieldName(annsField)//
                 .withExpr(parseWhere(filterExpr, argIndex, request));
 
@@ -481,7 +481,7 @@ class MilvusCommandsForData extends MilvusCommands {
                 .withCollectionName(collectionName)//
                 .withMetricType(io.milvus.param.MetricType.L2)//
                 .withTopK(16384)// Use a large TopK to simulate "Delete All in Range"
-                .withVectors(Collections.singletonList(toFloatList(rangeExpr.vectorValue)))//
+                .withFloatVectors(Collections.singletonList(toFloatList(rangeExpr.vectorValue)))//
                 .withVectorFieldName(rangeExpr.fieldName)//
                 .withExpr(rangeExpr.scalarFilter);
 
@@ -507,7 +507,7 @@ class MilvusCommandsForData extends MilvusCommands {
 
         SearchResultsWrapper wrapper = new SearchResultsWrapper(searchRes.getData().getResults());
         List<Object> idsToDelete = new ArrayList<>();
-        if (!wrapper.getRowRecords().isEmpty()) {
+        if (!wrapper.getRowRecords(0).isEmpty()) {
             List<SearchResultsWrapper.IDScore> scores = wrapper.getIDScore(0);
             for (SearchResultsWrapper.IDScore idScore : scores) {
                 if (idScore.getLongID() != 0 || idScore.getStrID().isEmpty()) {

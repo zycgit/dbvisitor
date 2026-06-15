@@ -86,6 +86,7 @@ class MilvusCommandsForTable extends MilvusCommands {
             }
         }
 
+        List<FieldType> fieldTypes = new ArrayList<>();
         for (FieldDefinitionContext fieldCtx : c.fieldDefinition()) {
             String fieldName = argAsName(argIndex, request, fieldCtx.fieldName);
             FieldTypeContext typeCtx = fieldCtx.fieldType();
@@ -145,8 +146,9 @@ class MilvusCommandsForTable extends MilvusCommands {
                 }
             }
 
-            builder.addFieldType(fieldBuilder.build());
+            fieldTypes.add(fieldBuilder.build());
         }
+        builder.withSchema(CollectionSchemaParam.newBuilder().withFieldTypes(fieldTypes).build());
 
         R<?> result = cmd.getClient().createCollection(builder.build());
         if (result.getStatus() != R.Status.Success.getCode()) {

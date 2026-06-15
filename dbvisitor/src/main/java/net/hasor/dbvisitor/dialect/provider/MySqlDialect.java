@@ -69,15 +69,11 @@ public class MySqlDialect extends AbstractSqlDialect implements PageSqlDialect, 
     @Override
     public String orderByNulls(boolean useQualifier, String name, String nameTerm, OrderType orderType) {
         String orderName = StringUtils.isBlank(nameTerm) ? this.fmtName(useQualifier, name) : nameTerm;
-        switch (orderType) {
-            case ASC:
-                return orderName + " IS NULL ASC";
-            case DESC:
-                return orderName + " IS NULL DESC";
-            case DEFAULT:
-            default:
-                return orderName + " IS NULL" + orderName;
-        }
+        return switch (orderType) {
+            case ASC -> orderName + " IS NULL ASC";
+            case DESC -> orderName + " IS NULL DESC";
+            case DEFAULT -> orderName + " IS NULL" + orderName;
+        };
     }
 
     @Override

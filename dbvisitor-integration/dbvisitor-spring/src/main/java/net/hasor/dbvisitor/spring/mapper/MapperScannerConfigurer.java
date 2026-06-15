@@ -88,7 +88,7 @@ public class MapperScannerConfigurer extends AbstractConfigurer implements BeanD
             Class<?> nameGeneratorClass = tryToClass(this.nameGeneratorName);
             if (nameGeneratorClass != null) {
                 try {
-                    this.nameGenerator = (BeanNameGenerator) nameGeneratorClass.newInstance();
+                    this.nameGenerator = (BeanNameGenerator) nameGeneratorClass.getDeclaredConstructor().newInstance();
                 } catch (Exception e) {
                     throw ExceptionUtils.toRuntime(e, ee -> new BeanCreationException(ee.getMessage(), ee));
                 }
@@ -126,8 +126,8 @@ public class MapperScannerConfigurer extends AbstractConfigurer implements BeanD
     private void processPropertyPlaceHolders() {
         Map<String, PropertyResourceConfigurer> prcs = this.applicationContext.getBeansOfType(PropertyResourceConfigurer.class, false, false);
 
-        if (!prcs.isEmpty() && this.applicationContext instanceof ConfigurableApplicationContext) {
-            BeanDefinition mapperScannerBean = ((ConfigurableApplicationContext) this.applicationContext).getBeanFactory().getBeanDefinition(beanName);
+        if (!prcs.isEmpty() && this.applicationContext instanceof ConfigurableApplicationContext configurableContext) {
+            BeanDefinition mapperScannerBean = configurableContext.getBeanFactory().getBeanDefinition(beanName);
 
             // PropertyResourceConfigurer does not expose any methods to explicitly perform
             // property placeholder substitution. Instead, create a BeanFactory that just

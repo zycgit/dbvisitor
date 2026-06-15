@@ -59,7 +59,7 @@ public abstract class AbstractMapping<T> {
     protected T extractRow(List<String> columns, ResultSet rs, int rowNum) throws SQLException {
         T target;
         try {
-            target = (T) this.tableMapping.entityType().newInstance();
+            target = (T) this.tableMapping.entityType().getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             throw new SQLException("newInstance " + this.tableMapping.entityType().getName() + " failed.", e);
         }

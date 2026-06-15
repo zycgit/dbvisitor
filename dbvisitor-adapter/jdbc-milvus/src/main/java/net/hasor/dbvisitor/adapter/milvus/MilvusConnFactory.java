@@ -145,7 +145,7 @@ public class MilvusConnFactory implements AdapterFactory {
             if (StringUtils.isNotBlank(customMilvus)) {
                 try {
                     Class<?> customMongoClass = MilvusConnFactory.class.getClassLoader().loadClass(customMilvus);
-                    CustomMilvus customCmd = (CustomMilvus) customMongoClass.newInstance();
+                    CustomMilvus customCmd = (CustomMilvus) customMongoClass.getDeclaredConstructor().newInstance();
                     milvusClient = customCmd.createMilvusClient(jdbcUrl, caseProps);
                     if (milvusClient == null) {
                         throw new SQLException("create Milvus connection failed, custom Milvus return null.");
@@ -190,7 +190,7 @@ public class MilvusConnFactory implements AdapterFactory {
             try {
                 String interceptorClass = props.get(MilvusKeys.INTERCEPTOR);
                 Class<?> interceptor = ClassUtils.getClass(MilvusConnFactory.class.getClassLoader(), interceptorClass);
-                return (InvocationHandler) interceptor.newInstance();
+                return (InvocationHandler) interceptor.getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 throw new SQLException("create interceptor failed, " + e.getMessage(), e);
             }

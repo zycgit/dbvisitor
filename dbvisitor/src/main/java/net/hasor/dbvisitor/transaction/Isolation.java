@@ -67,19 +67,14 @@ public enum Isolation {
     }
 
     public static Isolation valueOf(final int value) {
-        switch (value) {
-            case Connection.TRANSACTION_NONE:
-                return Isolation.DEFAULT;
-            case Connection.TRANSACTION_READ_UNCOMMITTED:
-                return Isolation.READ_UNCOMMITTED;
-            case Connection.TRANSACTION_READ_COMMITTED:
-                return Isolation.READ_COMMITTED;
-            case Connection.TRANSACTION_REPEATABLE_READ:
-                return Isolation.REPEATABLE_READ;
-            case Connection.TRANSACTION_SERIALIZABLE:
-                return Isolation.SERIALIZABLE;
-        }
-        throw new IllegalStateException(String.format("Connection ISOLATION error level %s.", value));
+        return switch (value) {
+            case Connection.TRANSACTION_NONE -> Isolation.DEFAULT;
+            case Connection.TRANSACTION_READ_UNCOMMITTED -> Isolation.READ_UNCOMMITTED;
+            case Connection.TRANSACTION_READ_COMMITTED -> Isolation.READ_COMMITTED;
+            case Connection.TRANSACTION_REPEATABLE_READ -> Isolation.REPEATABLE_READ;
+            case Connection.TRANSACTION_SERIALIZABLE -> Isolation.SERIALIZABLE;
+            default -> throw new IllegalStateException(String.format("Connection ISOLATION error level %s.", value));
+        };
     }
 
     public int getValue() {

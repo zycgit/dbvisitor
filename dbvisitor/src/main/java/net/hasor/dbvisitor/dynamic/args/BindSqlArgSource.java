@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,7 +32,9 @@ import net.hasor.dbvisitor.dynamic.SqlArgSource;
 public class BindSqlArgSource implements SqlArgSource, SqlArgDisposer {
     protected final Map<String, Object> bindValues;
 
-    /** 默认构造函数，初始化空参数 Map */
+    /**
+     * 默认构造函数，初始化空参数 Map
+     */
     public BindSqlArgSource() {
         this.bindValues = new HashMap<>();
     }
@@ -64,8 +66,8 @@ public class BindSqlArgSource implements SqlArgSource, SqlArgDisposer {
     @Override
     public Object getValue(final String paramName) throws IllegalArgumentException {
         Object object = this.bindValues.get(paramName);
-        if (object instanceof Supplier) {
-            object = ((Supplier<?>) object).get();
+        if (object instanceof Supplier<?> s) {
+            object = s.get();
         }
         return object;
     }
@@ -95,10 +97,9 @@ public class BindSqlArgSource implements SqlArgSource, SqlArgDisposer {
      */
     @Override
     public void cleanupParameters() {
-        for (String name : this.bindValues.keySet()) {
-            Object obj = this.bindValues.get(name);
-            if (obj instanceof SqlArgDisposer) {
-                ((SqlArgDisposer) obj).cleanupParameters();
+        for (Object obj : this.bindValues.values()) {
+            if (obj instanceof SqlArgDisposer disposer) {
+                disposer.cleanupParameters();
             }
         }
     }

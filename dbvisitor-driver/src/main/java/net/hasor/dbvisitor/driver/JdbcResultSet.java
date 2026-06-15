@@ -386,12 +386,14 @@ class JdbcResultSet implements ResultSet, Closeable {
     }
 
     @Override
+    @Deprecated
     public BigDecimal getBigDecimal(int columnIndex, int scale) throws SQLException {
         BigDecimal res = this.getBigDecimal(columnIndex);
         return res == null ? null : res.setScale(scale, RoundingMode.HALF_UP);
     }
 
     @Override
+    @Deprecated
     public BigDecimal getBigDecimal(String columnLabel, int scale) throws SQLException {
         BigDecimal res = this.getBigDecimal(columnLabel);
         return res == null ? null : res.setScale(scale, RoundingMode.HALF_UP);
@@ -607,11 +609,13 @@ class JdbcResultSet implements ResultSet, Closeable {
     }
 
     @Override
+    @Deprecated
     public InputStream getUnicodeStream(int columnIndex) throws SQLException {
         return this.getBinaryStream(columnIndex);
     }
 
     @Override
+    @Deprecated
     public InputStream getUnicodeStream(String columnLabel) throws SQLException {
         return this.getBinaryStream(columnLabel);
     }

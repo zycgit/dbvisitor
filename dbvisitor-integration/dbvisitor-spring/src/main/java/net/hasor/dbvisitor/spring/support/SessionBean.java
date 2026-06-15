@@ -69,10 +69,10 @@ public class SessionBean extends AbstractSupportBean<Session> {
         if (this.dsAdapter == null) {
             if (this.dsAdapterClass != null) {
                 this.dsAdapterName = this.dsAdapterClass.getName();
-                this.dsAdapter = (AbstractDsAdapter) this.dsAdapterClass.newInstance();
+                this.dsAdapter = (AbstractDsAdapter) this.dsAdapterClass.getDeclaredConstructor().newInstance();
             } else if (StringUtils.isNotBlank(this.dsAdapterName)) {
                 this.dsAdapterClass = this.classLoader.loadClass(this.dsAdapterName);
-                this.dsAdapter = (AbstractDsAdapter) this.dsAdapterClass.newInstance();
+                this.dsAdapter = (AbstractDsAdapter) this.dsAdapterClass.getDeclaredConstructor().newInstance();
             } else {
                 this.dsAdapterName = SpringDsAdapter.class.getName();
                 this.dsAdapterClass = SpringDsAdapter.class;

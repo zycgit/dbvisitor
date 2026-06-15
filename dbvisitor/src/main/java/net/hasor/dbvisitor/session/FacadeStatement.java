@@ -51,8 +51,8 @@ class FacadeStatement {
 
     private void initExecute(Configuration config) {
         this.statementExecute = this.createExecute(this.statementDef.getConfig().getStatementType(), config);
-        if (this.statementDef.getConfig() instanceof InsertConfig) {
-            SelectKeyConfig keyConfig = ((InsertConfig) this.statementDef.getConfig()).getSelectKey();
+        if (this.statementDef.getConfig() instanceof InsertConfig c) {
+            SelectKeyConfig keyConfig = c.getSelectKey();
             if (keyConfig != null) {
                 AbstractStatementExecute selectKey = this.createExecute(this.statementDef.getConfig().getStatementType(), config);
                 this.selectKeyExecute = new SelectKeyStatementExecute(this.statementDef, keyConfig, selectKey);
@@ -61,17 +61,12 @@ class FacadeStatement {
     }
 
     private AbstractStatementExecute createExecute(StatementType statementType, Configuration registry) {
-        switch (statementType) {
-            case Statement:
-                return new StatementExecute(registry);
-            case Prepared:
-                return new PreparedStatementExecute(registry);
-            case Callable:
-                return new CallableStatementExecute(registry);
-            default: {
-                throw new UnsupportedOperationException("statementType '" + statementType.getTypeName() + "' Unsupported.");
-            }
-        }
+        return switch (statementType) {
+            case Statement -> new StatementExecute(registry);
+            case Prepared -> new PreparedStatementExecute(registry);
+            case Callable -> new CallableStatementExecute(registry);
+            default -> throw new UnsupportedOperationException("statementType '" + statementType.getTypeName() + "' Unsupported.");
+        };
     }
 
     public Object execute(Connection conn, Map<String, Object> data, Page pageInfo, boolean pageResult) throws SQLException {

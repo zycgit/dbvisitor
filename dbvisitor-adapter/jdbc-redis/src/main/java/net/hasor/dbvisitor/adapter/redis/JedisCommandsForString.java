@@ -194,6 +194,7 @@ class JedisCommandsForString extends JedisCommands {
         String key = argAsString(argIndex, request, cmd.stringKeyName().identifier());
         String append = argAsString(argIndex, request, cmd.identifier());
 
+        @SuppressWarnings("deprecation")
         String value = jedisCmd.getStringCommands().getSet(key, append);
 
         receive.responseResult(request, singleResult(request, COL_VALUE_STRING, value));

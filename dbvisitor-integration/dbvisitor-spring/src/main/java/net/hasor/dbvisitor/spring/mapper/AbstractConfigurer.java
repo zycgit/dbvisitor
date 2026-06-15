@@ -65,10 +65,10 @@ public class AbstractConfigurer implements ApplicationContextAware, BeanClassLoa
 
         if (value == null) {
             return null;
-        } else if (value instanceof String) {
-            return value.toString();
-        } else if (value instanceof TypedStringValue) {
-            return ((TypedStringValue) value).getValue();
+        } else if (value instanceof String s) {
+            return s;
+        } else if (value instanceof TypedStringValue s) {
+            return s.getValue();
         } else {
             return null;
         }

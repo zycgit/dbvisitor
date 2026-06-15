@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URL;
 import java.sql.*;
 import java.time.OffsetDateTime;
@@ -245,10 +246,12 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
     }
 
     @Override
+    @Deprecated
     public BigDecimal getBigDecimal(int parameterIndex, int scale) throws SQLException {
         this.checkOpen();
         this.checkParameterIndex(parameterIndex);
-        return this.getOutParameter().getBigDecimal("arg" + parameterIndex, scale);
+        BigDecimal res = this.getBigDecimal(parameterIndex);
+        return res == null ? null : res.setScale(scale, RoundingMode.HALF_UP);
     }
 
     @Override

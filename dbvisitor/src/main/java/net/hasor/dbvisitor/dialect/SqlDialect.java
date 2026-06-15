@@ -56,15 +56,11 @@ public interface SqlDialect {
      */
     default String orderByDefault(boolean useQualifier, String name, String nameTerm, OrderType orderType) {
         String orderName = StringUtils.isBlank(nameTerm) ? this.fmtName(useQualifier, name) : nameTerm;
-        switch (orderType) {
-            case ASC:
-                return orderName + " ASC";
-            case DESC:
-                return orderName + " DESC";
-            case DEFAULT:
-            default:
-                return orderName;
-        }
+        return switch (orderType) {
+            case ASC -> orderName + " ASC";
+            case DESC -> orderName + " DESC";
+            case DEFAULT -> orderName;
+        };
     }
 
     /**
@@ -99,14 +95,11 @@ public interface SqlDialect {
      */
     default String like(SqlLike likeType, Object value, String valueTerm) {
         valueTerm = StringUtils.isBlank(valueTerm) ? "?" : valueTerm.trim();
-        switch (likeType) {
-            case LEFT:
-                return "CONCAT('%', " + valueTerm + " )";
-            case RIGHT:
-                return "CONCAT( " + valueTerm + " ,'%')";
-            default:
-                return "CONCAT('%', " + valueTerm + " ,'%')";
-        }
+        return switch (likeType) {
+            case LEFT -> "CONCAT('%', " + valueTerm + " )";
+            case RIGHT -> "CONCAT( " + valueTerm + " ,'%')";
+            case DEFAULT -> "CONCAT('%', " + valueTerm + " ,'%')";
+        };
     }
 
     /** like 查询相关的选项 */

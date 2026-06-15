@@ -50,10 +50,9 @@ public final class ConvertUtils {
             return null;
         }
 
-        if (v instanceof Boolean) {
-            return ((Boolean) v) ? "1" : "0";
-        } else if (v instanceof String) {
-            String sv = (String) v;
+        if (v instanceof Boolean boolVal) {
+            return boolVal ? "1" : "0";
+        } else if (v instanceof String sv) {
             if (sv.isEmpty()) {
                 return null;
             }
@@ -67,19 +66,19 @@ public final class ConvertUtils {
 
             return sv;
         } else if (v instanceof Number) {
-            if (v instanceof Byte) {
-                return HexUtils.bytes2bit(new byte[] { (Byte) v });
-            } else if (v instanceof Short) {
-                return HexUtils.bytes2bit(buildBytes(2, bb -> bb.putShort(0, (Short) v)));
-            } else if (v instanceof Integer) {
-                return HexUtils.bytes2bit(buildBytes(4, bb -> bb.putInt(0, (Integer) v)));
-            } else if (v instanceof Long) {
-                return HexUtils.bytes2bit(buildBytes(8, bb -> bb.putLong(0, (Long) v)));
-            } else if (v instanceof BigInteger) {
-                return HexUtils.bytes2bit(((BigInteger) v).toByteArray());
+            if (v instanceof Byte byteVal) {
+                return HexUtils.bytes2bit(new byte[] { byteVal });
+            } else if (v instanceof Short shortVal) {
+                return HexUtils.bytes2bit(buildBytes(2, bb -> bb.putShort(0, shortVal)));
+            } else if (v instanceof Integer intVal) {
+                return HexUtils.bytes2bit(buildBytes(4, bb -> bb.putInt(0, intVal)));
+            } else if (v instanceof Long longVal) {
+                return HexUtils.bytes2bit(buildBytes(8, bb -> bb.putLong(0, longVal)));
+            } else if (v instanceof BigInteger bigInt) {
+                return HexUtils.bytes2bit(bigInt.toByteArray());
             }
-        } else if (v instanceof byte[]) {
-            return HexUtils.bytes2bit((byte[]) v);
+        } else if (v instanceof byte[] bytes) {
+            return HexUtils.bytes2bit(bytes);
         }
 
         throw new IllegalArgumentException("unsupported value type convert to Bit,type:" + v.getClass().getName());
@@ -91,10 +90,9 @@ public final class ConvertUtils {
             return primitive ? false : null;
         }
 
-        if (v instanceof Boolean) {
-            return (Boolean) v;
-        } else if (v instanceof String) {
-            String sv = (String) v;
+        if (v instanceof Boolean boolVal) {
+            return boolVal;
+        } else if (v instanceof String sv) {
             if (sv.isEmpty()) {
                 return primitive ? false : null;
             }
@@ -110,25 +108,25 @@ public final class ConvertUtils {
             }
             throw new ConversionException("Can't convert value '" + sv + "' to a Boolean");
         } else if (v instanceof Number) {
-            if (v instanceof Integer) {
-                return ((Integer) v) != 0;
-            } else if (v instanceof Long) {
-                return ((Long) v) != 0;
-            } else if (v instanceof Short) {
-                return ((Short) v) != 0;
-            } else if (v instanceof Byte) {
-                return ((Byte) v) != 0;
-            } else if (v instanceof Float) {
-                return ((Float) v) != 0;
-            } else if (v instanceof Double) {
-                return ((Double) v) != 0;
-            } else if (v instanceof BigDecimal) {
-                return !v.equals(BigDecimal.ZERO);
-            } else if (v instanceof BigInteger) {
-                return !v.equals(BigInteger.ZERO);
+            if (v instanceof Integer intVal) {
+                return intVal != 0;
+            } else if (v instanceof Long longVal) {
+                return longVal != 0;
+            } else if (v instanceof Short shortVal) {
+                return shortVal != 0;
+            } else if (v instanceof Byte byteVal) {
+                return byteVal != 0;
+            } else if (v instanceof Float floatVal) {
+                return floatVal != 0;
+            } else if (v instanceof Double doubleVal) {
+                return doubleVal != 0;
+            } else if (v instanceof BigDecimal bigDecimal) {
+                return !bigDecimal.equals(BigDecimal.ZERO);
+            } else if (v instanceof BigInteger bigInt) {
+                return !bigInt.equals(BigInteger.ZERO);
             }
-        } else if (v instanceof byte[]) {
-            for (byte b : (byte[]) v) {
+        } else if (v instanceof byte[] bytes) {
+            for (byte b : bytes) {
                 if (b != 0) {
                     return true;
                 }
@@ -146,10 +144,9 @@ public final class ConvertUtils {
             return primitive ? (byte) 0 : null;
         }
 
-        if (v instanceof Boolean) {
-            return (byte) ((Boolean) v ? 1 : 0);
-        } else if (v instanceof String) {
-            String sv = (String) v;
+        if (v instanceof Boolean boolVal) {
+            return (byte) (boolVal ? 1 : 0);
+        } else if (v instanceof String sv) {
             if (sv.isEmpty()) {
                 return primitive ? (byte) 0 : null;
             }
@@ -160,26 +157,26 @@ public final class ConvertUtils {
             }
 
         } else if (v instanceof Number) {
-            if (v instanceof Integer) {
-                return ((Integer) v).byteValue();
-            } else if (v instanceof Long) {
-                return ((Long) v).byteValue();
-            } else if (v instanceof Short) {
-                return ((Short) v).byteValue();
-            } else if (v instanceof Byte) {
-                return (Byte) v;
-            } else if (v instanceof Float) {
-                return ((Float) v).byteValue();
-            } else if (v instanceof Double) {
-                return ((Double) v).byteValue();
-            } else if (v instanceof BigDecimal) {
-                return ((BigDecimal) v).byteValue();
-            } else if (v instanceof BigInteger) {
-                return ((BigInteger) v).byteValue();
+            if (v instanceof Integer intVal) {
+                return intVal.byteValue();
+            } else if (v instanceof Long longVal) {
+                return longVal.byteValue();
+            } else if (v instanceof Short shortVal) {
+                return shortVal.byteValue();
+            } else if (v instanceof Byte byteVal) {
+                return byteVal;
+            } else if (v instanceof Float floatVal) {
+                return floatVal.byteValue();
+            } else if (v instanceof Double doubleVal) {
+                return doubleVal.byteValue();
+            } else if (v instanceof BigDecimal bigDecimal) {
+                return bigDecimal.byteValue();
+            } else if (v instanceof BigInteger bigInt) {
+                return bigInt.byteValue();
             }
-        } else if (v instanceof byte[]) {
-            if (((byte[]) v).length > 0) {
-                return ((byte[]) v)[0];
+        } else if (v instanceof byte[] bytes) {
+            if (bytes.length > 0) {
+                return bytes[0];
             } else {
                 return (byte) 0;
             }
@@ -195,10 +192,9 @@ public final class ConvertUtils {
             return primitive ? (short) 0 : null;
         }
 
-        if (v instanceof Boolean) {
-            return (short) ((Boolean) v ? 1 : 0);
-        } else if (v instanceof String) {
-            String sv = (String) v;
+        if (v instanceof Boolean boolVal) {
+            return (short) (boolVal ? 1 : 0);
+        } else if (v instanceof String sv) {
             if (sv.isEmpty()) {
                 return primitive ? (short) 0 : null;
             }
@@ -208,30 +204,30 @@ public final class ConvertUtils {
                 throw new ConversionException("Can't convert value '" + sv + "' to a Short");
             }
         } else if (v instanceof Number) {
-            if (v instanceof Integer) {
-                return ((Integer) v).shortValue();
-            } else if (v instanceof Long) {
-                return ((Long) v).shortValue();
-            } else if (v instanceof Short) {
-                return (Short) v;
-            } else if (v instanceof Byte) {
-                return ((Byte) v).shortValue();
-            } else if (v instanceof Float) {
-                return ((Float) v).shortValue();
-            } else if (v instanceof Double) {
-                return ((Double) v).shortValue();
-            } else if (v instanceof BigDecimal) {
-                return ((BigDecimal) v).shortValue();
-            } else if (v instanceof BigInteger) {
-                return ((BigInteger) v).shortValue();
+            if (v instanceof Integer intVal) {
+                return intVal.shortValue();
+            } else if (v instanceof Long longVal) {
+                return longVal.shortValue();
+            } else if (v instanceof Short shortVal) {
+                return shortVal;
+            } else if (v instanceof Byte byteVal) {
+                return byteVal.shortValue();
+            } else if (v instanceof Float floatVal) {
+                return floatVal.shortValue();
+            } else if (v instanceof Double doubleVal) {
+                return doubleVal.shortValue();
+            } else if (v instanceof BigDecimal bigDecimal) {
+                return bigDecimal.shortValue();
+            } else if (v instanceof BigInteger bigInt) {
+                return bigInt.shortValue();
             }
-        } else if (v instanceof byte[]) {
-            if (((byte[]) v).length >= 2) {
-                ByteBuffer bb = ByteBuffer.wrap((byte[]) v);
+        } else if (v instanceof byte[] bytes) {
+            if (bytes.length >= 2) {
+                ByteBuffer bb = ByteBuffer.wrap(bytes);
                 bb = bb.order(bigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN);
                 return bb.getShort();
             } else {
-                throw new ConversionException("Can't convert value '" + HexUtils.bytes2hex((byte[]) v) + "' to a Short");
+                throw new ConversionException("Can't convert value '" + HexUtils.bytes2hex(bytes) + "' to a Short");
             }
         }
 

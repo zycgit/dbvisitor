@@ -62,16 +62,12 @@ class JdbcParameterMetaData implements ParameterMetaData {
     @Override
     public int getParameterMode(int param) throws SQLException {
         JdbcArgMode mode = this.checkAndGet("arg" + param).getMode();
-        switch (mode) {
-            case In:
-                return parameterModeIn;
-            case InOut:
-                return parameterModeInOut;
-            case Out:
-                return parameterModeOut;
-            default:
-                return parameterModeUnknown;
-        }
+        return switch (mode) {
+            case In -> parameterModeIn;
+            case InOut -> parameterModeInOut;
+            case Out -> parameterModeOut;
+            default -> parameterModeUnknown;
+        };
     }
 
     @Override
