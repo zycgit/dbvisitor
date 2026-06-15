@@ -62,7 +62,7 @@ JDBC URL 支持以下参数（来源于 `MilvusKeys` 与 `getPropertyNames`）�
 | token | Token 认证 | 设置后优先于 user/password |
 | user | 用户名 | 与 `password` 一起使用 |
 | password | 密码 | 与 `user` 一起使用 |
-| timeout | 超时 | 仅声明，未在 `MilvusConnFactory` 中使用 |
+| timeout | 同步等待超时 | JDBC URL 中不用于建连；作为 SQL Hint 可控制 `IMPORT`、`LOAD`、`RELEASE` 的同步等待超时时间（毫秒），默认 `60000` |
 | connectTimeout | 连接超时 | 毫秒 |
 | keepAliveTime | Keep-Alive 时间 | 毫秒 |
 | keepAliveTimeout | Keep-Alive 超时 | 毫秒 |
@@ -112,9 +112,13 @@ JDBC URL 支持以下参数（来源于 `MilvusKeys` 与 `getPropertyNames`）�
   - `COUNT FROM table WHERE ...`
 
 - Import / Load / Release
-  - `IMPORT FROM FILE 'path' INTO TABLE name [PARTITION p]`
+  - `IMPORT FROM 'path' INTO TABLE name [PARTITION p]`
   - `LOAD TABLE name [PARTITION p]`
   - `RELEASE TABLE name [PARTITION p]`
+
+  `IMPORT FROM` 默认等待 Milvus BulkInsert 任务完成；`LOAD TABLE` 默认等待集合或分区进入 Loaded 状态；`RELEASE TABLE` 默认等待进入 NotLoad 状态。可通过 SQL Hint 调整等待行为：
+  - `/*+ sync=false */`：提交任务后立即返回。
+  - `/*+ timeout=60000 */`：设置同步等待超时时间，单位毫秒。
 
 - Alias
   - `CREATE ALIAS a FOR TABLE name`

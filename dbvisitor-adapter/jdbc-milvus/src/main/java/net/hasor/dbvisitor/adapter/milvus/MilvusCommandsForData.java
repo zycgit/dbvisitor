@@ -18,30 +18,29 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import org.antlr.v4.runtime.Token;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import io.milvus.grpc.*;
 import io.milvus.param.R;
 import io.milvus.param.bulkinsert.BulkInsertParam;
-import io.milvus.param.collection.DescribeCollectionParam;
-import io.milvus.param.collection.FieldType;
-import io.milvus.param.collection.LoadCollectionParam;
-import io.milvus.param.collection.ReleaseCollectionParam;
+import io.milvus.param.bulkinsert.GetBulkInsertStateParam;
+import io.milvus.param.collection.*;
 import io.milvus.param.dml.*;
 import io.milvus.param.partition.LoadPartitionsParam;
 import io.milvus.param.partition.ReleasePartitionsParam;
-import io.milvus.response.DescCollResponseWrapper;
-import io.milvus.response.QueryResultsWrapper;
-import io.milvus.response.SearchResultsWrapper;
+import io.milvus.response.*;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser;
 import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser.*;
 import net.hasor.dbvisitor.driver.AdapterReceive;
 import net.hasor.dbvisitor.driver.AdapterRequest;
-import org.antlr.v4.runtime.Token;
 
 class MilvusCommandsForData extends MilvusCommands {
+    private static final long DEFAULT_WAIT_TIMEOUT_MS  = 60_000L;
+    private static final long DEFAULT_WAIT_INTERVAL_MS = 100L;
+
     public static Future<?> execInsertCmd(Future<Object> future, MilvusCmd cmd, HintCommandContext h, InsertCmdContext c, //
             AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
@@ -564,7 +563,7 @@ class MilvusCommandsForData extends MilvusCommands {
     public static Future<?> execImportCmd(Future<Object> future, MilvusCmd cmd, HintCommandContext h, ImportCmdContext c, //
             AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        readHints(argIndex, request, h.hint());
+        Map<String, Object> hints = readHints(argIndex, request, h.hint());
 
         String collectionName = getIdentifier(c.collectionName.getText());
         String partitionName = c.partitionName != null ? getIdentifier(c.partitionName.getText()) : null;
@@ -582,19 +581,23 @@ class MilvusCommandsForData extends MilvusCommands {
         if (result.getStatus() != R.Status.Success.getCode()) {
             throw new SQLException(result.getMessage() == null ? "status=" + result.getStatus() : result.getMessage());
         }
+        if (hintAsBoolean(hints, "sync", true)) {
+            waitForBulkInsert(cmd, result.getData(), hintAsLong(hints, MilvusKeys.TIMEOUT, DEFAULT_WAIT_TIMEOUT_MS));
+        }
 
-        receive.responseUpdateCount(request, 0); // Bulk insert is async, return 0
+        receive.responseUpdateCount(request, 0);
         return completed(future);
     }
 
     public static Future<?> execLoadCmd(Future<Object> future, MilvusCmd cmd, HintCommandContext h, LoadCmdContext c,//
             AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        readHints(argIndex, request, h.hint());
+        Map<String, Object> hints = readHints(argIndex, request, h.hint());
         String collectionName = getIdentifier(c.collectionName.getText());
+        String partitionName = null;
 
         if (c.partitionName != null) {
-            String partitionName = getIdentifier(c.partitionName.getText());
+            partitionName = getIdentifier(c.partitionName.getText());
             LoadPartitionsParam param = LoadPartitionsParam.newBuilder()//
                     .withCollectionName(collectionName)//
                     .withPartitionNames(Collections.singletonList(partitionName))//
@@ -614,6 +617,9 @@ class MilvusCommandsForData extends MilvusCommands {
                 throw new SQLException(result.getMessage() == null ? "status=" + result.getStatus() : result.getMessage());
             }
         }
+        if (hintAsBoolean(hints, "sync", true)) {
+            waitForLoadState(cmd, collectionName, partitionName, LoadState.LoadStateLoaded, hintAsLong(hints, MilvusKeys.TIMEOUT, DEFAULT_WAIT_TIMEOUT_MS));
+        }
 
         receive.responseUpdateCount(request, 0);
         return completed(future);
@@ -622,11 +628,12 @@ class MilvusCommandsForData extends MilvusCommands {
     public static Future<?> execReleaseCmd(Future<Object> future, MilvusCmd cmd, HintCommandContext h, ReleaseCmdContext c,//
             AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        readHints(argIndex, request, h.hint());
+        Map<String, Object> hints = readHints(argIndex, request, h.hint());
         String collectionName = getIdentifier(c.collectionName.getText());
+        String partitionName = null;
 
         if (c.partitionName != null) {
-            String partitionName = getIdentifier(c.partitionName.getText());
+            partitionName = getIdentifier(c.partitionName.getText());
             ReleasePartitionsParam param = ReleasePartitionsParam.newBuilder()//
                     .withCollectionName(collectionName)//
                     .withPartitionNames(Collections.singletonList(partitionName))//
@@ -647,7 +654,64 @@ class MilvusCommandsForData extends MilvusCommands {
             }
         }
 
+        if (hintAsBoolean(hints, "sync", true)) {
+            waitForLoadState(cmd, collectionName, partitionName, LoadState.LoadStateNotLoad, hintAsLong(hints, MilvusKeys.TIMEOUT, DEFAULT_WAIT_TIMEOUT_MS));
+        }
+
         receive.responseUpdateCount(request, 0);
         return completed(future);
+    }
+
+    //
+
+    private static void waitForBulkInsert(MilvusCmd cmd, ImportResponse importResponse, long timeoutMillis) throws SQLException {
+        long taskId = new BulkInsertResponseWrapper(importResponse).getTaskID();
+        long endTime = System.currentTimeMillis() + timeoutMillis;
+        ImportState lastState = null;
+        int lastProgress = 0;
+
+        while (System.currentTimeMillis() <= endTime) {
+            R<GetImportStateResponse> stateResp = cmd.getClient().getBulkInsertState(GetBulkInsertStateParam.newBuilder().withTask(taskId).build());
+            if (stateResp.getStatus() != R.Status.Success.getCode()) {
+                throw new SQLException(stateResp.getMessage() == null ? "status=" + stateResp.getStatus() : stateResp.getMessage());
+            }
+
+            GetBulkInsertStateWrapper state = new GetBulkInsertStateWrapper(stateResp.getData());
+            lastState = state.getState();
+            lastProgress = state.getProgress();
+            if (lastState == ImportState.ImportCompleted) {
+                return;
+            }
+            if (lastState == ImportState.ImportFailed || lastState == ImportState.ImportFailedAndCleaned) {
+                throw new SQLException("Bulk insert failed, taskId=" + taskId + ", reason=" + state.getFailedReason());
+            }
+            sleepQuietly(DEFAULT_WAIT_INTERVAL_MS);
+        }
+
+        throw new SQLException("Timeout waiting bulk insert, taskId=" + taskId + ", state=" + lastState + ", progress=" + lastProgress);
+    }
+
+    private static void waitForLoadState(MilvusCmd cmd, String collectionName, String partitionName, LoadState expectedState, long timeoutMillis) throws SQLException {
+        long endTime = System.currentTimeMillis() + timeoutMillis;
+        LoadState lastState = null;
+        while (System.currentTimeMillis() <= endTime) {
+            GetLoadStateParam.Builder builder = GetLoadStateParam.newBuilder().withCollectionName(collectionName);
+            if (StringUtils.isNotBlank(partitionName)) {
+                builder.withPartitionNames(Collections.singletonList(partitionName));
+            }
+
+            R<GetLoadStateResponse> stateResp = cmd.getClient().getLoadState(builder.build());
+            if (stateResp.getStatus() != R.Status.Success.getCode()) {
+                throw new SQLException(stateResp.getMessage() == null ? "status=" + stateResp.getStatus() : stateResp.getMessage());
+            }
+
+            lastState = stateResp.getData().getState();
+            if (lastState == expectedState) {
+                return;
+            }
+            sleepQuietly(DEFAULT_WAIT_INTERVAL_MS);
+        }
+
+        throw new SQLException("Timeout waiting load state, collection=" + collectionName + ", partition=" + partitionName + ", expected=" + expectedState + ", actual=" + lastState);
     }
 }

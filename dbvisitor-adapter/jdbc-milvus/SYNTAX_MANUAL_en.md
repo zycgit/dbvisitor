@@ -257,14 +257,30 @@ DELETE FROM table_name WHERE vector_range(vector_col, [0.1, 0.2], 0.5) LIMIT 100
 -- Import from file (For server-side file loading)
 IMPORT FROM 'path/to/file.csv' INTO TABLE table_name;
 IMPORT FROM 'file.json' INTO TABLE table_name PARTITION partition_name;
+
+-- Wait for the import task to finish, up to 60 seconds
+/*+ timeout=60000 */ IMPORT FROM 'file.json' INTO TABLE table_name;
+
+-- Submit the import task without waiting
+/*+ sync=false */ IMPORT FROM 'file.json' INTO TABLE table_name;
 ```
+
+`IMPORT FROM` waits for the Milvus BulkInsert task to finish by default. Use the `sync=false` hint to return asynchronously. The `timeout` hint sets the sync wait timeout in milliseconds.
 
 ### Load & Release
 Milvus requires collections to be loaded into memory before searching.
 ```sql
 LOAD TABLE table_name [PARTITION partition_name];
 RELEASE TABLE table_name [PARTITION partition_name];
+
+-- Set the load wait timeout
+/*+ timeout=60000 */ LOAD TABLE table_name;
+
+-- Submit the release request without waiting
+/*+ sync=false */ RELEASE TABLE table_name;
 ```
+
+`LOAD TABLE` waits until the collection or partition is Loaded by default, and `RELEASE TABLE` waits until it becomes NotLoad. Use `sync=false` to disable waiting.
 
 ---
 

@@ -257,14 +257,30 @@ DELETE FROM table_name WHERE vector_range(vector_col, [0.1, 0.2], 0.5) LIMIT 100
 -- 从文件导入 (用于服务端文件加载)
 IMPORT FROM 'path/to/file.csv' INTO TABLE table_name;
 IMPORT FROM 'file.json' INTO TABLE table_name PARTITION partition_name;
+
+-- 等待导入任务完成，最多等待 60 秒
+/*+ timeout=60000 */ IMPORT FROM 'file.json' INTO TABLE table_name;
+
+-- 仅提交导入任务，不等待完成
+/*+ sync=false */ IMPORT FROM 'file.json' INTO TABLE table_name;
 ```
+
+`IMPORT FROM` 默认同步等待 Milvus BulkInsert 任务完成；如需异步返回，可使用 `sync=false` Hint。`timeout` Hint 用于设置同步等待超时时间，单位为毫秒。
 
 ### 加载与释放 (Load / Release)
 Milvus 要求在搜索前将 Collection 加载到内存。
 ```sql
 LOAD TABLE table_name [PARTITION partition_name];
 RELEASE TABLE table_name [PARTITION partition_name];
+
+-- 设置加载等待超时
+/*+ timeout=60000 */ LOAD TABLE table_name;
+
+-- 仅提交释放请求，不等待释放完成
+/*+ sync=false */ RELEASE TABLE table_name;
 ```
+
+`LOAD TABLE` 默认等待集合或分区进入 Loaded 状态，`RELEASE TABLE` 默认等待进入 NotLoad 状态；可使用 `sync=false` 关闭等待。
 
 ---
 

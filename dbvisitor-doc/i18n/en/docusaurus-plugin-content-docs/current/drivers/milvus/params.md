@@ -39,6 +39,20 @@ jdbc:dbvisitor:milvus://host:port/database?param1=value1&param2=value2
 | `idleTimeout` | Idle connection timeout (milliseconds) | Driver default |
 | `rpcDeadline` | RPC deadline (milliseconds) | Driver default |
 
+## Command Hints
+
+The following parameters are SQL hints, not JDBC URL connection parameters. They control the wait behavior for asynchronous Milvus operations such as `IMPORT FROM`, `LOAD TABLE`, and `RELEASE TABLE`.
+
+| Hint | Description | Default |
+|---|---|---|
+| `sync` | Whether to wait for the asynchronous task to finish. Set to `false` to return immediately after submitting the task | `true` |
+| `timeout` | Sync wait timeout in milliseconds | `60000` |
+
+```sql
+/*+ timeout=60000 */ IMPORT FROM 'file.json' INTO TABLE table_name;
+/*+ sync=false */ LOAD TABLE table_name;
+```
+
 ## Other Parameters
 
 | Parameter | Description | Default |

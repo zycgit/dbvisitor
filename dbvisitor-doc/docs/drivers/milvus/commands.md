@@ -333,16 +333,21 @@ DELETE FROM table_name
 
 ### 数据导入
 
+`IMPORT FROM` 默认等待 Milvus BulkInsert 任务完成；可通过 `sync=false` Hint 改为提交后立即返回，通过 `timeout` Hint 设置等待超时时间（毫秒）。
+
 ```sql
 IMPORT FROM 'path/to/file.csv' INTO TABLE table_name;
 IMPORT FROM 'file.json' INTO TABLE table_name PARTITION partition_name;
+
+/*+ timeout=60000 */ IMPORT FROM 'file.json' INTO TABLE table_name;
+/*+ sync=false */ IMPORT FROM 'file.json' INTO TABLE table_name;
 ```
 
 ---
 
 ## 加载与释放 {#load}
 
-Milvus 要求在搜索前将 Collection 加载到内存。
+Milvus 要求在搜索前将 Collection 加载到内存。`LOAD TABLE` 默认等待集合或分区进入 Loaded 状态，`RELEASE TABLE` 默认等待进入 NotLoad 状态；可通过 `sync=false` Hint 关闭等待，通过 `timeout` Hint 设置等待超时时间（毫秒）。
 
 ```sql
 -- 加载集合
@@ -356,6 +361,12 @@ RELEASE TABLE table_name;
 
 -- 释放指定分区
 RELEASE TABLE table_name PARTITION partition_name;
+
+-- 设置同步等待超时
+/*+ timeout=60000 */ LOAD TABLE table_name;
+
+-- 提交释放请求后立即返回
+/*+ sync=false */ RELEASE TABLE table_name;
 ```
 
 ### 查看加载进度

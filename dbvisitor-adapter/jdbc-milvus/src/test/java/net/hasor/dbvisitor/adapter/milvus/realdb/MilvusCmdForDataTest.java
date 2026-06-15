@@ -818,7 +818,7 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
 
             // 3. Execute IMPORT (Server-side via MinIO object path)
             try (Connection conn = DriverManager.getConnection(MILVUS_URL); Statement stmt = conn.createStatement()) {
-                stmt.execute("IMPORT FROM '" + objectName + "' INTO " + TEST_COLLECTION);
+                stmt.execute("/*+ timeout=60000 */ IMPORT FROM '" + objectName + "' INTO " + TEST_COLLECTION);
             }
 
             // 4. Verify Import using SDK
@@ -832,38 +832,20 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
                     .withIndexType(IndexType.IVF_FLAT)      //
                     .withMetricType(MetricType.L2)          //
                     .withExtraParam("{\"nlist\":1024}")     //
+                    .withSyncMode(Boolean.TRUE)             //
                     .build());
 
-            // Wait loop for import data visibility
-            long endTime = System.currentTimeMillis() + 60000; // 60s
-            boolean dataFound = false;
-
-            // Retry loading and querying
-            while (System.currentTimeMillis() < endTime) {
-                try {
-                    R<GetLoadStateResponse> loadState = client.getLoadState(GetLoadStateParam.newBuilder().withCollectionName(TEST_COLLECTION).build());
-                    if (loadState.getData().getState() != LoadState.LoadStateLoaded) {
-                        client.loadCollection(LoadCollectionParam.newBuilder().withCollectionName(TEST_COLLECTION).build());
-                    }
-
-                    R<QueryResults> queryRes = client.query(QueryParam.newBuilder()//
-                            .withCollectionName(TEST_COLLECTION)//
-                            .withExpr("book_id > 0")//
-                            .withOutFields(Collections.singletonList("word_count"))//
-                            .build());
-
-                    if (queryRes.getStatus() == R.Status.Success.getCode()) {
-                        QueryResultsWrapper wrapper = new QueryResultsWrapper(queryRes.getData());
-                        if (!wrapper.getRowRecords().isEmpty()) {
-                            dataFound = true;
-                            break;
-                        }
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                Thread.sleep(500);
+            try (Connection conn = DriverManager.getConnection(MILVUS_URL); Statement stmt = conn.createStatement()) {
+                stmt.execute("/*+ timeout=60000 */ LOAD TABLE " + TEST_COLLECTION);
             }
+
+            R<QueryResults> queryRes = client.query(QueryParam.newBuilder()//
+                    .withCollectionName(TEST_COLLECTION)//
+                    .withExpr("book_id > 0")//
+                    .withOutFields(Collections.singletonList("word_count"))//
+                    .build());
+            assertEquals(R.Status.Success.getCode(), (int) queryRes.getStatus());
+            QueryResultsWrapper wrapper = new QueryResultsWrapper(queryRes.getData());
 
             // Cleanup MinIO finally
             for (Bucket bucket : buckets) {
@@ -875,7 +857,7 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
                 }
             }
 
-            assertTrue("Data should be imported", dataFound);
+            assertTrue("Data should be imported", !wrapper.getRowRecords().isEmpty());
             client.close();
 
         } finally {

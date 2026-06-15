@@ -62,7 +62,7 @@ The adapter exposes the following JDBC URL properties (from `MilvusKeys` and `ge
 | token | Token auth | Used when set; overrides user/password |
 | user | Username | Used with `password` when `token` is absent |
 | password | Password | Used with `user` when `token` is absent |
-| timeout | Timeout | Declared property; not applied in `MilvusConnFactory` |
+| timeout | Sync wait timeout | Not used for connection setup in JDBC URLs; as a SQL hint, controls the sync wait timeout for `IMPORT`, `LOAD`, and `RELEASE` in milliseconds. Default: `60000` |
 | connectTimeout | Connect timeout | Milliseconds |
 | keepAliveTime | Keep-alive time | Milliseconds |
 | keepAliveTimeout | Keep-alive timeout | Milliseconds |
@@ -112,9 +112,13 @@ The grammar is defined in [SYNTAX_MANUAL_en.md](SYNTAX_MANUAL_en.md). The adapte
   - `COUNT FROM table WHERE ...`
 
 - Import / Load / Release
-  - `IMPORT FROM FILE 'path' INTO TABLE name [PARTITION p]`
+  - `IMPORT FROM 'path' INTO TABLE name [PARTITION p]`
   - `LOAD TABLE name [PARTITION p]`
   - `RELEASE TABLE name [PARTITION p]`
+
+  `IMPORT FROM` waits for the Milvus BulkInsert task to finish by default; `LOAD TABLE` waits until the collection or partition is Loaded; `RELEASE TABLE` waits until it becomes NotLoad. SQL hints can tune this behavior:
+  - `/*+ sync=false */`: return immediately after submitting the task.
+  - `/*+ timeout=60000 */`: set the sync wait timeout in milliseconds.
 
 - Alias
   - `CREATE ALIAS a FOR TABLE name`

@@ -337,16 +337,21 @@ DELETE FROM table_name
 
 ### Data Import
 
+`IMPORT FROM` waits for the Milvus BulkInsert task to finish by default. Use the `sync=false` hint to return immediately after submission, and the `timeout` hint to set the wait timeout in milliseconds.
+
 ```sql
 IMPORT FROM 'path/to/file.csv' INTO TABLE table_name;
 IMPORT FROM 'file.json' INTO TABLE table_name PARTITION partition_name;
+
+/*+ timeout=60000 */ IMPORT FROM 'file.json' INTO TABLE table_name;
+/*+ sync=false */ IMPORT FROM 'file.json' INTO TABLE table_name;
 ```
 
 ---
 
 ## Load & Release {#load}
 
-Milvus requires Collections to be loaded into memory before searching.
+Milvus requires Collections to be loaded into memory before searching. `LOAD TABLE` waits until the collection or partition is Loaded by default, and `RELEASE TABLE` waits until it becomes NotLoad. Use the `sync=false` hint to disable waiting, and the `timeout` hint to set the wait timeout in milliseconds.
 
 ```sql
 -- Load collection
@@ -360,6 +365,12 @@ RELEASE TABLE table_name;
 
 -- Release specific partition
 RELEASE TABLE table_name PARTITION partition_name;
+
+-- Set the sync wait timeout
+/*+ timeout=60000 */ LOAD TABLE table_name;
+
+-- Return immediately after submitting the release request
+/*+ sync=false */ RELEASE TABLE table_name;
 ```
 
 ### Show Loading Progress

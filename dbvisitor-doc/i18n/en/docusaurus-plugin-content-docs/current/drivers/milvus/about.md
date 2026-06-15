@@ -22,6 +22,7 @@ Its purpose is to enable developers to seamlessly use Milvus vector database thr
 - Full DDL support — includes collection creation (with vector field definitions), index creation (with index types and parameters), partition and alias management.
 - Supports `Statement.RETURN_GENERATED_KEYS`, automatically returning the generated primary key on insert operations.
 - Supports SQL Hints to override query `LIMIT`, `OFFSET`, or convert queries to Count operations.
+- Provides blocking wait semantics for asynchronous Milvus operations such as `IMPORT FROM`, `LOAD TABLE`, and `RELEASE TABLE`; use `sync` and `timeout` hints to tune the wait behavior.
 - Supports command interceptors for logging, performance monitoring, and similar scenarios.
 - Flexible vector formats — supports JSON array literals, `?` parameter binding (`List<Float>`, `float[]`, etc.), and batch vector search.
 

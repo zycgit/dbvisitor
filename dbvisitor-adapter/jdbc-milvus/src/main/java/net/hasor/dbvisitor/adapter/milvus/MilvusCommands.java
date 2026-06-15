@@ -80,6 +80,45 @@ abstract class MilvusCommands {
         return hintMap;
     }
 
+    protected static boolean hintAsBoolean(Map<String, Object> hints, String key, boolean defaultValue) {
+        Object value = hints.get(key);
+        if (value == null) {
+            return defaultValue;
+        }
+        if (value instanceof Boolean boolValue) {
+            return boolValue;
+        }
+        if (value instanceof Number numberValue) {
+            return numberValue.longValue() != 0;
+        }
+        String text = value.toString();
+        return StringUtils.equalsIgnoreCase(text, "true") || StringUtils.equalsIgnoreCase(text, "yes") || StringUtils.equalsIgnoreCase(text, "on") || "1".equals(text);
+    }
+
+    protected static long hintAsLong(Map<String, Object> hints, String key, long defaultValue) throws SQLException {
+        Object value = hints.get(key);
+        if (value == null) {
+            return defaultValue;
+        }
+        if (value instanceof Number numberValue) {
+            return numberValue.longValue();
+        }
+        try {
+            return Long.parseLong(value.toString());
+        } catch (NumberFormatException e) {
+            throw new SQLException("Invalid hint '" + key + "': " + value, e);
+        }
+    }
+
+    protected static void sleepQuietly(long millis) throws SQLException {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new SQLException("Interrupted while waiting Milvus operation.", e);
+        }
+    }
+
     protected static Map<String, String> readProperties(AtomicInteger argIndex, AdapterRequest request, PropertiesListContext propertiesList) throws SQLException {
         Map<String, String> properties = new LinkedHashMap<>();
         if (propertiesList == null) {

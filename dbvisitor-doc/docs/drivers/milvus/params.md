@@ -35,6 +35,20 @@ jdbc:dbvisitor:milvus://host:port/database?param1=value1&param2=value2
 | `idleTimeout` | 空闲连接超时时间（毫秒） | 驱动默认值 |
 | `rpcDeadline` | RPC 截止时间（毫秒） | 驱动默认值 |
 
+## 命令 Hint
+
+以下参数通过 SQL Hint 使用，不属于 JDBC URL 连接参数。它们用于控制 `IMPORT FROM`、`LOAD TABLE`、`RELEASE TABLE` 这类 Milvus 异步操作的等待行为。
+
+| Hint | 描述 | 默认值 |
+|---|---|---|
+| `sync` | 是否等待异步任务完成。设置为 `false` 时，提交任务后立即返回 | `true` |
+| `timeout` | 同步等待超时时间（毫秒） | `60000` |
+
+```sql
+/*+ timeout=60000 */ IMPORT FROM 'file.json' INTO TABLE table_name;
+/*+ sync=false */ LOAD TABLE table_name;
+```
+
 ## 其它参数
 
 | 参数名 | 描述 | 默认值 |
