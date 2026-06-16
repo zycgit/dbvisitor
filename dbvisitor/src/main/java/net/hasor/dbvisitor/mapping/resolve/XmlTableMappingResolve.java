@@ -20,6 +20,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import net.hasor.cobble.*;
 import net.hasor.cobble.convert.ConverterUtils;
 import net.hasor.cobble.function.Property;
@@ -30,10 +34,6 @@ import net.hasor.dbvisitor.mapping.*;
 import net.hasor.dbvisitor.mapping.def.*;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  * 通过 Xml 来解析 TableMapping
@@ -327,7 +327,7 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
             return KeyType.Sequence.createHolder(new GeneratedKeyHandlerContext(registry, tableDef, colDef, mockAnno));
         } else {
             Class<?> aClass = registry.getClassLoader().loadClass(keyType);
-            GeneratedKeyHandlerFactory holderFactory = (GeneratedKeyHandlerFactory) aClass.getDeclaredConstructor().newInstance();
+            GeneratedKeyHandlerFactory holderFactory = ClassUtils.newInstance(aClass);
             return holderFactory.createHolder(new GeneratedKeyHandlerContext(registry, tableDef, colDef, Annotations.empty()));
         }
     }

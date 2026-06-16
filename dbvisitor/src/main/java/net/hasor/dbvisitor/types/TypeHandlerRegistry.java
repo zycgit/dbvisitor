@@ -59,7 +59,7 @@ import net.hasor.dbvisitor.types.handler.time.*;
 public final class TypeHandlerRegistry {
     private static final Map<String, Integer>  javaTypeToJdbcTypeMap = new ConcurrentHashMap<>();
     private static final Map<String, Class<?>> typeHandlerTypeCache  = new ConcurrentHashMap<>();
-    public static final  TypeHandlerRegistry   DEFAULT               = new TypeHandlerRegistry();
+    public static final TypeHandlerRegistry    DEFAULT               = new TypeHandlerRegistry();
 
     private final UnknownTypeHandler                          defaultTypeHandler        = new UnknownTypeHandler(this);
     private final Map<String, TypeHandler<?>>                 cachedByHandlerType       = new ConcurrentHashMap<>();
@@ -659,7 +659,7 @@ public final class TypeHandlerRegistry {
                     BindTypeHandler handler = typeClass.getAnnotation(BindTypeHandler.class);
                     Constructor<?> constructor = ConstructorUtils.getAccessibleConstructor(handler.value(), Class.class);
                     if (constructor == null) {
-                        typeHandler = (TypeHandler<?>) handler.value().getDeclaredConstructor().newInstance();
+                        typeHandler = (TypeHandler<?>) ClassUtils.newInstance(handler.value());
                     } else {
                         typeHandler = (TypeHandler<?>) ConstructorUtils.invokeConstructor(handler.value(), typeClass);
                     }
@@ -759,7 +759,7 @@ public final class TypeHandlerRegistry {
                     BindTypeHandler handler = typeClass.getAnnotation(BindTypeHandler.class);
                     Constructor<?> constructor = ConstructorUtils.getAccessibleConstructor(handler.value(), Class.class);
                     if (constructor == null) {
-                        typeHandler = (TypeHandler<?>) handler.value().getDeclaredConstructor().newInstance();
+                        typeHandler = (TypeHandler<?>) ClassUtils.newInstance(handler.value());
                     } else {
                         typeHandler = (TypeHandler<?>) ConstructorUtils.invokeConstructor(handler.value(), typeClass);
                     }

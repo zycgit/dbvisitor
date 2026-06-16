@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.io.IOUtils;
@@ -30,7 +31,6 @@ import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.dbvisitor.driver.AdapterFactory;
 import net.hasor.dbvisitor.driver.AdapterTypeSupport;
 import net.hasor.dbvisitor.driver.TypeSupport;
-import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import redis.clients.jedis.*;
 
 public class JedisConnFactory implements AdapterFactory {
@@ -178,7 +178,7 @@ public class JedisConnFactory implements AdapterFactory {
         if (StringUtils.isNotBlank(customJedis)) {
             try {
                 Class<?> customJedisClass = JedisConnFactory.class.getClassLoader().loadClass(customJedis);
-                CustomJedis customJedisCmd = (CustomJedis) customJedisClass.getDeclaredConstructor().newInstance();
+                CustomJedis customJedisCmd = ClassUtils.newInstance(customJedisClass);
                 jedisObject = customJedisCmd.createJedisCmd(jdbcUrl, caseProps);
                 database = StringUtils.isNotBlank(defaultDataBase) ? Integer.parseInt(defaultDataBase) : Protocol.DEFAULT_DATABASE;
                 if (jedisObject == null) {
@@ -236,7 +236,7 @@ public class JedisConnFactory implements AdapterFactory {
             try {
                 String interceptorClass = props.get(JedisKeys.INTERCEPTOR);
                 Class<?> interceptor = ClassUtils.getClass(JedisConnFactory.class.getClassLoader(), interceptorClass);
-                return (InvocationHandler) interceptor.getDeclaredConstructor().newInstance();
+                return (InvocationHandler) net.hasor.cobble.ClassUtils.newInstance(interceptor);
             } catch (Exception e) {
                 throw new SQLException("create interceptor failed, " + e.getMessage(), e);
             }

@@ -18,6 +18,8 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.Map;
+
+import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.ResourcesUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.logging.Logger;
@@ -124,7 +126,7 @@ public class SqlDialectRegister {
         }
         if (aClass != null) {
             try {
-                dialect = (SqlDialect) aClass.getDeclaredConstructor().newInstance();
+                dialect = ClassUtils.newInstance(aClass);
             } catch (Exception e) {
                 throw new IllegalStateException("load dialect '" + aClass.getName() + "' failed, " + e.getMessage(), e);
             }

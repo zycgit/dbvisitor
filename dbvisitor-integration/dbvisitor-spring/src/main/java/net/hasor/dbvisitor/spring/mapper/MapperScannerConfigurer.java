@@ -16,11 +16,8 @@
 package net.hasor.dbvisitor.spring.mapper;
 import java.lang.annotation.Annotation;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
-import net.hasor.cobble.ExceptionUtils;
-import net.hasor.dbvisitor.session.Session;
-import net.hasor.dbvisitor.spring.annotation.MapperScan;
-import net.hasor.dbvisitor.spring.support.MapperBean;
 import org.springframework.beans.PropertyValues;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.InitializingBean;
@@ -33,7 +30,11 @@ import org.springframework.beans.factory.support.BeanNameGenerator;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.util.StringUtils;
-import static org.springframework.util.Assert.notNull;
+import net.hasor.cobble.ClassUtils;
+import net.hasor.cobble.ExceptionUtils;
+import net.hasor.dbvisitor.session.Session;
+import net.hasor.dbvisitor.spring.annotation.MapperScan;
+import net.hasor.dbvisitor.spring.support.MapperBean;
 
 /**
  * A resource load for {@link MapperScan}.
@@ -62,7 +63,7 @@ public class MapperScannerConfigurer extends AbstractConfigurer implements BeanD
 
     @Override
     public void afterPropertiesSet() {
-        notNull(this.basePackage, "Property 'basePackage' is required");
+        Objects.requireNonNull(this.basePackage, "Property 'basePackage' is required");
     }
 
     @Override
@@ -88,7 +89,7 @@ public class MapperScannerConfigurer extends AbstractConfigurer implements BeanD
             Class<?> nameGeneratorClass = tryToClass(this.nameGeneratorName);
             if (nameGeneratorClass != null) {
                 try {
-                    this.nameGenerator = (BeanNameGenerator) nameGeneratorClass.getDeclaredConstructor().newInstance();
+                    this.nameGenerator = ClassUtils.newInstance(nameGeneratorClass);
                 } catch (Exception e) {
                     throw ExceptionUtils.toRuntime(e, ee -> new BeanCreationException(ee.getMessage(), ee));
                 }

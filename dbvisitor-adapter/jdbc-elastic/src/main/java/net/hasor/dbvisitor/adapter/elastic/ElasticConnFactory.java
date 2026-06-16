@@ -17,13 +17,6 @@ package net.hasor.dbvisitor.adapter.elastic;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
-import net.hasor.cobble.StringUtils;
-import net.hasor.cobble.io.IOUtils;
-import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
-import net.hasor.dbvisitor.driver.AdapterConnection;
-import net.hasor.dbvisitor.driver.AdapterFactory;
-import net.hasor.dbvisitor.driver.AdapterTypeSupport;
-import net.hasor.dbvisitor.driver.TypeSupport;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -31,6 +24,14 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
+import net.hasor.cobble.ClassUtils;
+import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.io.IOUtils;
+import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
+import net.hasor.dbvisitor.driver.AdapterConnection;
+import net.hasor.dbvisitor.driver.AdapterFactory;
+import net.hasor.dbvisitor.driver.AdapterTypeSupport;
+import net.hasor.dbvisitor.driver.TypeSupport;
 
 public class ElasticConnFactory implements AdapterFactory {
     private static HttpHost passerIpPort(String host, int defaultPort) {
@@ -129,7 +130,7 @@ public class ElasticConnFactory implements AdapterFactory {
             if (StringUtils.isNotBlank(customElastic)) {
                 try {
                     Class<?> customMongoClass = ElasticConnFactory.class.getClassLoader().loadClass(customElastic);
-                    CustomElastic customCmd = (CustomElastic) customMongoClass.getDeclaredConstructor().newInstance();
+                    CustomElastic customCmd = ClassUtils.newInstance(customMongoClass);
                     elasticClient = customCmd.createElasticClient(jdbcUrl, caseProps);
                     if (elasticClient == null) {
                         throw new SQLException("create Elastic connection failed, custom Elastic return null.");

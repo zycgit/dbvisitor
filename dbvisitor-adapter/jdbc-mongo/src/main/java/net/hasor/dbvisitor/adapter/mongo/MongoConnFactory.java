@@ -18,20 +18,21 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import org.bson.codecs.configuration.CodecRegistries;
+import org.bson.codecs.configuration.CodecRegistry;
+import org.bson.codecs.pojo.PojoCodecProvider;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
+import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.io.IOUtils;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.dbvisitor.driver.AdapterFactory;
 import net.hasor.dbvisitor.driver.AdapterTypeSupport;
 import net.hasor.dbvisitor.driver.TypeSupport;
-import org.bson.codecs.configuration.CodecRegistries;
-import org.bson.codecs.configuration.CodecRegistry;
-import org.bson.codecs.pojo.PojoCodecProvider;
 
 public class MongoConnFactory implements AdapterFactory {
     private static ServerAddress passerIpPort(String host, int defaultPort) {
@@ -165,7 +166,7 @@ public class MongoConnFactory implements AdapterFactory {
             if (StringUtils.isNotBlank(customMongo)) {
                 try {
                     Class<?> customMongoClass = MongoConnFactory.class.getClassLoader().loadClass(customMongo);
-                    CustomMongo customCmd = (CustomMongo) customMongoClass.getDeclaredConstructor().newInstance();
+                    CustomMongo customCmd = ClassUtils.newInstance(customMongoClass);
                     mongoObject = customCmd.createMongoClient(jdbcUrl, caseProps);
                     if (mongoObject == null) {
                         throw new SQLException("create Mongo connection failed, custom Mongo return null.");

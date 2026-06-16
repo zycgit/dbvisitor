@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor;
+import static net.hasor.dbvisitor.ConfigKeys.*;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -26,6 +27,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 import javax.sql.DataSource;
 import net.hasor.cobble.BeanUtils;
+import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.MatchUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.loader.ClassMatcher;
@@ -48,7 +50,6 @@ import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.transaction.*;
 import net.hasor.dbvisitor.transaction.support.TransactionHelper;
-import static net.hasor.dbvisitor.ConfigKeys.*;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
@@ -90,7 +91,7 @@ public class DbVisitorModule implements net.hasor.core.Module {
             dataSource = new DefaultDataSource();
         } else {
             Class<?> dsClass = apiBinder.getEnvironment().getClassLoader().loadClass(dataSourceType);
-            dataSource = (DataSource) dsClass.getDeclaredConstructor().newInstance();
+            dataSource = ClassUtils.newInstance(dsClass);
         }
 
         applySettingsByPropertyName(settings, configKey, dataSource);

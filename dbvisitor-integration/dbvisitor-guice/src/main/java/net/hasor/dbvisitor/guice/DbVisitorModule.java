@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.guice;
+import static net.hasor.dbvisitor.guice.ConfigKeys.*;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -22,12 +23,15 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.sql.DataSource;
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.google.inject.Provider;
 import com.google.inject.matcher.AbstractMatcher;
 import com.google.inject.name.Names;
 import net.hasor.cobble.BeanUtils;
+import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.MatchUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.loader.ClassMatcher.ClassInfo;
@@ -53,9 +57,6 @@ import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.transaction.*;
 import net.hasor.dbvisitor.transaction.support.TransactionHelper;
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
-import static net.hasor.dbvisitor.guice.ConfigKeys.*;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
@@ -109,7 +110,7 @@ public class DbVisitorModule implements com.google.inject.Module {
             dataSource = new DefaultDataSource();
         } else {
             Class<?> dsClass = this.classLoader.loadClass(dataSourceType);
-            dataSource = (DataSource) dsClass.getDeclaredConstructor().newInstance();
+            dataSource = ClassUtils.newInstance(dsClass);
         }
 
         SettingNode configNode = this.settings.getNode(configKey);

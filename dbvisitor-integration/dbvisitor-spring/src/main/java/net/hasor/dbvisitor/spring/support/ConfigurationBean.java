@@ -16,6 +16,8 @@
 package net.hasor.dbvisitor.spring.support;
 import java.util.Map;
 import java.util.Objects;
+import org.springframework.core.io.Resource;
+import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
@@ -29,7 +31,6 @@ import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
-import org.springframework.core.io.Resource;
 
 /**
  * BeanFactory that enables injection of DalRegistry.
@@ -55,18 +56,18 @@ public class ConfigurationBean extends AbstractSupportBean<Configuration> {
     private RuleRegistry          ruleRegistry;
     private Map<String, Object>   ruleHandlerMap;
     // options
-    private Boolean               autoMapping;
-    private Boolean               camelCase;
-    private Boolean               caseInsensitive;
-    private Boolean               useDelimited;
-    private String                dialectName;
-    private SqlDialect            dialect;
-    private Boolean               ignoreNonExistStatement;
+    private Boolean    autoMapping;
+    private Boolean    camelCase;
+    private Boolean    caseInsensitive;
+    private Boolean    useDelimited;
+    private String     dialectName;
+    private SqlDialect dialect;
+    private Boolean    ignoreNonExistStatement;
     // mappers
-    private Resource[]            mapperResources;
-    private Class<?>[]            mapperInterfaces;
+    private Resource[] mapperResources;
+    private Class<?>[] mapperInterfaces;
     //
-    private Configuration         configuration;
+    private Configuration configuration;
 
     private void initDialect() {
         if (this.dialect == null && StringUtils.isNotBlank(this.dialectName)) {
@@ -148,7 +149,7 @@ public class ConfigurationBean extends AbstractSupportBean<Configuration> {
                 if (this.applicationContext != null) {
                     handler = (TypeHandler<?>) createBeanByType(handlerClass, this.applicationContext);
                 } else {
-                    handler = (TypeHandler<?>) handlerClass.getDeclaredConstructor().newInstance();
+                    handler = (TypeHandler<?>) ClassUtils.newInstance(handlerClass);
                 }
             }
         } else if (handlerObject instanceof String) {
@@ -156,7 +157,7 @@ public class ConfigurationBean extends AbstractSupportBean<Configuration> {
             if (this.applicationContext != null) {
                 handler = (TypeHandler<?>) createBeanByType(handlerClass, this.applicationContext);
             } else {
-                handler = (TypeHandler<?>) handlerClass.getDeclaredConstructor().newInstance();
+                handler = (TypeHandler<?>) ClassUtils.newInstance(handlerClass);
             }
         }
 
@@ -176,7 +177,7 @@ public class ConfigurationBean extends AbstractSupportBean<Configuration> {
                 if (this.applicationContext != null) {
                     handler = (SqlRule) createBeanByType(handlerClass, this.applicationContext);
                 } else {
-                    handler = (SqlRule) handlerClass.getDeclaredConstructor().newInstance();
+                    handler = (SqlRule) net.hasor.cobble.ClassUtils.newInstance(handlerClass);
                 }
             }
         } else if (handlerObject instanceof String) {
@@ -184,7 +185,7 @@ public class ConfigurationBean extends AbstractSupportBean<Configuration> {
             if (this.applicationContext != null) {
                 handler = (SqlRule) createBeanByType(handlerClass, this.applicationContext);
             } else {
-                handler = (SqlRule) handlerClass.getDeclaredConstructor().newInstance();
+                handler = (SqlRule) net.hasor.cobble.ClassUtils.newInstance(handlerClass);
             }
         }
 

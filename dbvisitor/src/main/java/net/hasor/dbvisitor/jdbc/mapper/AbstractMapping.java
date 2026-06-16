@@ -18,6 +18,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
+
+import net.hasor.cobble.ClassUtils;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
@@ -59,7 +61,7 @@ public abstract class AbstractMapping<T> {
     protected T extractRow(List<String> columns, ResultSet rs, int rowNum) throws SQLException {
         T target;
         try {
-            target = (T) this.tableMapping.entityType().getDeclaredConstructor().newInstance();
+            target = ClassUtils.newInstance(this.tableMapping.entityType());
         } catch (Exception e) {
             throw new SQLException("newInstance " + this.tableMapping.entityType().getName() + " failed.", e);
         }

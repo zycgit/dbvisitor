@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.spring.support;
-import net.hasor.dbvisitor.mapper.Mapper;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import net.hasor.cobble.ClassUtils;
+import net.hasor.dbvisitor.mapper.Mapper;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
@@ -34,7 +35,7 @@ public abstract class AbstractSupportBean<T> implements FactoryBean<T>, BeanClas
     protected Object createBeanByType(Class<?> beanType, ApplicationContext applicationContext) throws Exception {
         String[] beanNamesForType = applicationContext.getBeanNamesForType(beanType);
         if (beanNamesForType == null || beanNamesForType.length == 0) {
-            return beanType.getDeclaredConstructor().newInstance();
+            return ClassUtils.newInstance(beanType);
         } else {
             return applicationContext.getBean(beanType);
         }

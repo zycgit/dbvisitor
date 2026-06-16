@@ -16,7 +16,8 @@
 package net.hasor.dbvisitor.mapping.keyseq;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import net.hasor.cobble.ExceptionUtils;
+
+import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.reflect.Annotation;
 import net.hasor.cobble.reflect.Annotations;
 import net.hasor.dbvisitor.mapping.GeneratedKeyHandler;
@@ -49,11 +50,7 @@ public class HolderKeySeqHolderFactory implements GeneratedKeyHandlerFactory {
         }
 
         if (!HolderCache.containsKey(keyHolderType)) {
-            try {
-                HolderCache.put(keyHolderType, (GeneratedKeyHandlerFactory) keyHolderType.getDeclaredConstructor().newInstance());
-            } catch (ReflectiveOperationException e) {
-                throw ExceptionUtils.toRuntime(e);
-            }
+            HolderCache.put(keyHolderType, ClassUtils.newInstance(keyHolderType));
         }
 
         return HolderCache.get(keyHolderType).createHolder(context);

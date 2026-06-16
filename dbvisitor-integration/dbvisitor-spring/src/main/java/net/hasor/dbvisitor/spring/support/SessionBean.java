@@ -16,6 +16,7 @@
 package net.hasor.dbvisitor.spring.support;
 import java.util.Objects;
 import javax.sql.DataSource;
+import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.mapper.Mapper;
 import net.hasor.dbvisitor.session.Configuration;
@@ -42,14 +43,14 @@ import net.hasor.dbvisitor.spring.adapter.SpringDsAdapter;
  * @see Mapper
  */
 public class SessionBean extends AbstractSupportBean<Session> {
-    private Configuration     configuration;
+    private Configuration configuration;
     // - dsAdapter
     private AbstractDsAdapter dsAdapter;
     private Class<?>          dsAdapterClass;
     private String            dsAdapterName;
     private DataSource        dataSource;
     //
-    private Session           session;
+    private Session session;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -69,10 +70,10 @@ public class SessionBean extends AbstractSupportBean<Session> {
         if (this.dsAdapter == null) {
             if (this.dsAdapterClass != null) {
                 this.dsAdapterName = this.dsAdapterClass.getName();
-                this.dsAdapter = (AbstractDsAdapter) this.dsAdapterClass.getDeclaredConstructor().newInstance();
+                this.dsAdapter = ClassUtils.newInstance(this.dsAdapterClass);
             } else if (StringUtils.isNotBlank(this.dsAdapterName)) {
                 this.dsAdapterClass = this.classLoader.loadClass(this.dsAdapterName);
-                this.dsAdapter = (AbstractDsAdapter) this.dsAdapterClass.getDeclaredConstructor().newInstance();
+                this.dsAdapter = ClassUtils.newInstance(this.dsAdapterClass);
             } else {
                 this.dsAdapterName = SpringDsAdapter.class.getName();
                 this.dsAdapterClass = SpringDsAdapter.class;
