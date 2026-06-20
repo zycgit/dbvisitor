@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.hasor</groupId>
     <artifactId>dbvisitor-parent</artifactId>
@@ -63,7 +64,7 @@
             <dependency>
                 <groupId>net.hasor</groupId>
                 <artifactId>cobble-all</artifactId>
-                <version>4.8.5</version>
+                <version>5.0.0</version>
             </dependency>
             <dependency>
                 <groupId>net.hasor</groupId>
@@ -137,7 +138,7 @@
                                         </goals>
                                     </pluginExecutionFilter>
                                     <action>
-                                        <ignore />
+                                        <ignore/>
                                     </action>
                                 </pluginExecution>
                             </pluginExecutions>
@@ -337,7 +338,10 @@
                         <version>3.2.5</version>
                         <configuration>
                             <testFailureIgnore>true</testFailureIgnore>
-                            <argLine>@{argLine} --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED</argLine>
+                            <argLine>@{argLine} --add-opens=java.base/java.lang=ALL-UNNAMED
+                                --add-opens=java.base/java.lang.reflect=ALL-UNNAMED
+                                --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED
+                            </argLine>
                         </configuration>
                     </plugin>
                 </plugins>
