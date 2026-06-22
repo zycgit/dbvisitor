@@ -3,7 +3,7 @@
         "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
 <mapper namespace="xmltest.StatementAttrMapper">
 
-    <resultMap id="userResultMap" type="net.hasor.dbvisitor.test.model.UserInfo">
+    <resultMap id="userResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
         <id column="id" property="id"/>
         <result column="name" property="name"/>
         <result column="age" property="age"/>
@@ -13,7 +13,7 @@
 
     <insert id="insertUser">
         INSERT INTO user_info (id, name, age, email, create_time)
-        VALUES (#{id}, #{name}, #{age}, #{email}, CURRENT_TIMESTAMP)
+        VALUES (#{id}, #{name}, #{age}, #{email}, @{macro, currentTimestamp})
     </insert>
 
     <!-- 默认 PREPARED 类型 -->
@@ -59,7 +59,7 @@
     <!-- insert 的 statementType（使用默认 PREPARED 但显式标注） -->
     <insert id="insertWithStatement" statementType="PREPARED">
         INSERT INTO user_info (id, name, age, email, create_time)
-        VALUES (#{id}, #{name}, #{age}, #{email}, CURRENT_TIMESTAMP)
+        VALUES (#{id}, #{name}, #{age}, #{email}, @{macro, currentTimestamp})
     </insert>
 
 </mapper>

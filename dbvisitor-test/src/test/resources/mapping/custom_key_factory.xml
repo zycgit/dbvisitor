@@ -4,7 +4,7 @@
 <mapper namespace="net.hasor.test.xml.customkey">
 
     <!-- 使用自定义 GeneratedKeyHandlerFactory 类名作为 keyType -->
-    <entity id="CustomKeyEntity" table="user_info" type="net.hasor.dbvisitor.test.model.UserInfo">
+    <entity id="CustomKeyEntity" table="user_info" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
         <id column="id" property="id"
             keyType="net.hasor.dbvisitor.mapping.keyseq.Uuid32KeySeqHolderFactory"/>
         <mapping column="name" property="name"/>

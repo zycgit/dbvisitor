@@ -2,15 +2,21 @@ package net.hasor.dbvisitor.test.config;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+
 import javax.sql.DataSource;
+
+import org.junit.Assume;
+
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 
 /**
@@ -18,18 +24,18 @@ import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
  * Provides database initialization with SQL script loading
  */
 public class OneApiDataSourceManager {
-    private static final String     DEFAULT_ENV        = "pg";
-    private static final String     PROP_FILE_TEMPLATE = "/jdbc-%s.properties";
-    private static final Map<String, Properties> adapterPropsCache = new HashMap<>();
-    private static       Properties cachedProperties;
-    private static       DataSource cachedDataSource;
-    private static       boolean    initialized        = false;
+    private static final String                  DEFAULT_ENV        = "pg";
+    private static final String                  PROP_FILE_TEMPLATE = "/jdbc-%s.properties";
+    private static final Map<String, Properties> adapterPropsCache  = new HashMap<>();
+    private static Properties                    cachedProperties;
+    private static DataSource                    cachedDataSource;
+    private static boolean                       initialized        = false;
 
     private static synchronized Properties loadProperties() throws IOException {
         if (cachedProperties != null) {
             return cachedProperties;
         }
-        String env = System.getProperty("test.env", DEFAULT_ENV);
+        String env = getDbDialect();
         String propFileName = String.format(PROP_FILE_TEMPLATE, env);
 
         Properties props = new Properties();
@@ -49,24 +55,74 @@ public class OneApiDataSourceManager {
      */
     private static void initDatabase(JdbcTemplate jdbcTemplate, String dialect) {
         try {
-            String initScript = "/sql/" + dialect + "/init.sql";
-            System.out.println("[OneAPI] Initializing database: " + dialect + " using " + initScript);
-
-            // Check if init script exists
-            try (InputStream in = OneApiDataSourceManager.class.getResourceAsStream(initScript)) {
-                if (in != null) {
-                    // Use loadSplitSQL with semicolon delimiter to handle multiple statements
-                    jdbcTemplate.loadSplitSQL(";", initScript);
-                    System.out.println("[OneAPI] Database initialization completed");
-                } else {
-                    System.out.println("[OneAPI] No init script found at: " + initScript + ", skipping initialization");
-                }
-            }
+            initializeDatabase(jdbcTemplate, dialect);
         } catch (Exception e) {
             System.err.println("[OneAPI] Failed to initialize database: " + e.getMessage());
             e.printStackTrace();
             // Don't throw - allow tests to continue with manual schema setup
         }
+    }
+
+    public static void initializeDatabase(JdbcTemplate jdbcTemplate, String dialect) throws IOException, SQLException {
+        String initScript = "/sql/" + dialect + "/init.sql";
+        System.out.println("[OneAPI] Initializing database: " + dialect + " using " + initScript);
+
+        // Check if init script exists
+        try (InputStream in = OneApiDataSourceManager.class.getResourceAsStream(initScript)) {
+            if (in != null) {
+                // Use loadSplitSQL with semicolon delimiter to handle multiple statements
+                if ("oracle".equals(dialect) || "db2".equals(dialect)) {
+                    loadInitScriptIgnoringMissingDrops(jdbcTemplate, in, dialect);
+                } else {
+                    jdbcTemplate.loadSplitSQL(";", initScript);
+                }
+                System.out.println("[OneAPI] Database initialization completed");
+            } else {
+                System.out.println("[OneAPI] No init script found at: " + initScript + ", skipping initialization");
+            }
+        }
+    }
+
+    private static void loadInitScriptIgnoringMissingDrops(JdbcTemplate jdbcTemplate, InputStream in, String dialect) throws IOException, SQLException {
+        String script = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+        for (String rawSql : script.split(";")) {
+            String sql = removeLineComments(rawSql).trim();
+            if (sql.isEmpty()) {
+                continue;
+            }
+            try {
+                jdbcTemplate.execute(sql);
+            } catch (SQLException e) {
+                if (!isIgnorableDropFailure(sql, e, dialect)) {
+                    throw e;
+                }
+            }
+        }
+    }
+
+    private static String removeLineComments(String sql) {
+        StringBuilder cleaned = new StringBuilder();
+        for (String line : sql.split("\\R")) {
+            if (!line.trim().startsWith("--")) {
+                cleaned.append(line).append('\n');
+            }
+        }
+        return cleaned.toString();
+    }
+
+    private static boolean isIgnorableDropFailure(String sql, SQLException e, String dialect) {
+        String loweredSql = sql.trim().toLowerCase();
+        String message = String.valueOf(e.getMessage()).toLowerCase();
+        if (!loweredSql.startsWith("drop ")) {
+            return false;
+        }
+        if ("oracle".equals(dialect)) {
+            return message.contains("ora-00942") || message.contains("ora-02289") || message.contains("does not exist");
+        }
+        if ("db2".equals(dialect)) {
+            return message.contains("sqlcode=-204") || message.contains("sqlstate=42704") || message.contains("undefined name");
+        }
+        return false;
     }
 
     public static synchronized DataSource createDataSource() throws IOException {
@@ -83,6 +139,10 @@ public class OneApiDataSourceManager {
         config.setPassword(props.getProperty("jdbc.password"));
         config.setDriverClassName(props.getProperty("jdbc.driver"));
         config.setAutoCommit(true);
+        String connectionTimeout = props.getProperty("jdbc.connectionTimeoutMs");
+        if (connectionTimeout != null && !connectionTimeout.trim().isEmpty()) {
+            config.setConnectionTimeout(Long.parseLong(connectionTimeout.trim()));
+        }
         config.setMaximumPoolSize(5);
         config.setMinimumIdle(1);
 
@@ -104,8 +164,16 @@ public class OneApiDataSourceManager {
     }
 
     public static String getDbDialect() {
-        String env = System.getProperty("test.env", DEFAULT_ENV);
-        return env;
+        String env = System.getProperty("nxn.env");
+        if (env == null || env.trim().isEmpty()) {
+            return DEFAULT_ENV;
+        }
+        return env.trim();
+    }
+
+    public static void assumeCurrentDataSource(String targetEnv) {
+        String currentEnv = getDbDialect();
+        Assume.assumeTrue("Skipping data source '" + targetEnv + "' scenario because nxn.env=" + currentEnv, targetEnv.equals(currentEnv));
     }
 
     public static String getProperty(String key) {

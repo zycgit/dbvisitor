@@ -3,7 +3,7 @@
         "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
 <mapper namespace="xmltest.ResultHandlerMapper">
 
-    <resultMap id="userResultMap" type="net.hasor.dbvisitor.test.model.UserInfo">
+    <resultMap id="userResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
         <id column="id" property="id"/>
         <result column="name" property="name"/>
         <result column="age" property="age"/>
@@ -13,11 +13,11 @@
 
     <insert id="insertUser">
         INSERT INTO user_info (id, name, age, email, create_time)
-        VALUES (#{id}, #{name}, #{age}, #{email}, CURRENT_TIMESTAMP)
+        VALUES (#{id}, #{name}, #{age}, #{email}, @{macro, currentTimestamp})
     </insert>
 
     <!-- resultType：实体类 -->
-    <select id="selectByResultType" resultType="net.hasor.dbvisitor.test.model.UserInfo">
+    <select id="selectByResultType" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
         SELECT * FROM user_info WHERE name LIKE 'ResHdl%' AND age &gt; #{minAge} ORDER BY id
     </select>
 

@@ -3,7 +3,7 @@
         "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
 <mapper namespace="session.UserSessionMapper">
 
-    <resultMap id="userInfoMap" type="net.hasor.dbvisitor.test.model.UserInfo">
+    <resultMap id="userInfoMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
         <result column="id" property="id"/>
         <result column="name" property="name"/>
         <result column="age" property="age"/>
@@ -11,7 +11,7 @@
         <result column="create_time" property="createTime"/>
     </resultMap>
 
-    <resultMap id="orderMap" type="net.hasor.dbvisitor.test.model.UserOrder">
+    <resultMap id="orderMap" type="net.hasor.dbvisitor.test.contract.material.model.UserOrder">
         <result column="id" property="id"/>
         <result column="user_id" property="userId"/>
         <result column="order_no" property="orderNo"/>
@@ -19,7 +19,7 @@
         <result column="create_time" property="createTime"/>
     </resultMap>
 
-    <resultMap id="orderDtoMap" type="net.hasor.dbvisitor.test.model.UserOrderDTO">
+    <resultMap id="orderDtoMap" type="net.hasor.dbvisitor.test.contract.material.model.UserOrderDTO">
         <result column="order_id" property="orderId"/>
         <result column="order_no" property="orderNo"/>
         <result column="amount" property="amount"/>
@@ -33,7 +33,7 @@
 
     <insert id="insertUser">
         insert into user_info (id, name, age, email, create_time)
-        values (#{id}, #{name}, #{age}, #{email}, CURRENT_TIMESTAMP)
+        values (#{id}, #{name}, #{age}, #{email}, @{macro, currentTimestamp})
     </insert>
 
     <select id="queryUserById" resultMap="userInfoMap">
@@ -64,7 +64,7 @@
 
     <insert id="insertOrder">
         insert into user_order (id, user_id, order_no, amount, create_time)
-        values (#{id}, #{userId}, #{orderNo}, #{amount}, CURRENT_TIMESTAMP)
+        values (#{id}, #{userId}, #{orderNo}, #{amount}, @{macro, currentTimestamp})
     </insert>
 
     <select id="queryOrdersByUserId" resultMap="orderMap">

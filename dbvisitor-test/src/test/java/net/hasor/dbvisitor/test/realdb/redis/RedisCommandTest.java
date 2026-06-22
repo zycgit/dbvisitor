@@ -20,10 +20,18 @@ import java.util.List;
 import java.util.Map;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.test.config.OneApiDataSourceManager;
+import net.hasor.dbvisitor.test.nxn.capability.Capability;
+import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import org.junit.Test;
 
 public class RedisCommandTest {
+    @org.junit.BeforeClass
+    public static void assumeDataSource() {
+        OneApiDataSourceManager.assumeCurrentDataSource("redis");
+    }
+
     @Test
+    @Capability(CapabilityId.ADAPTER_REDIS_COMMAND_QUERY)
     public void testGetSet() throws Exception {
         try (Connection conn = OneApiDataSourceManager.getConnection("redis")) {
             JdbcTemplate jdbc = new JdbcTemplate(conn);

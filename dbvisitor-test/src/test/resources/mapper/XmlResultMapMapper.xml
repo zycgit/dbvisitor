@@ -4,14 +4,14 @@
 <mapper namespace="xmltest.ResultMapMapper">
 
     <!-- 基础 resultMap：仅映射部分列 -->
-    <resultMap id="baseResultMap" type="net.hasor.dbvisitor.test.model.UserInfo">
+    <resultMap id="baseResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
         <id column="id" property="id"/>
         <result column="name" property="name"/>
         <result column="age" property="age"/>
     </resultMap>
 
     <!-- 完整列映射的 resultMap -->
-    <resultMap id="extendedResultMap" type="net.hasor.dbvisitor.test.model.UserInfo">
+    <resultMap id="extendedResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
         <id column="id" property="id"/>
         <result column="name" property="name"/>
         <result column="age" property="age"/>
@@ -20,7 +20,7 @@
     </resultMap>
 
     <!-- 带 javaType 的 resultMap -->
-    <resultMap id="typedResultMap" type="net.hasor.dbvisitor.test.model.UserInfo">
+    <resultMap id="typedResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
         <id column="id" property="id" javaType="java.lang.Integer"/>
         <result column="name" property="name" javaType="java.lang.String"/>
         <result column="age" property="age" javaType="java.lang.Integer"/>
@@ -29,7 +29,7 @@
     </resultMap>
 
     <!-- autoMapping=true 的 resultMap：显式映射所有列 + autoMapping 属性 -->
-    <resultMap id="autoMappingResultMap" type="net.hasor.dbvisitor.test.model.UserInfo" autoMapping="true">
+    <resultMap id="autoMappingResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo" autoMapping="true">
         <id column="id" property="id"/>
         <result column="name" property="name"/>
         <result column="age" property="age"/>
@@ -38,7 +38,7 @@
     </resultMap>
 
     <!-- caseInsensitive=true：忽略列名大小写 -->
-    <resultMap id="caseInsensitiveResultMap" type="net.hasor.dbvisitor.test.model.UserInfo" caseInsensitive="true">
+    <resultMap id="caseInsensitiveResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo" caseInsensitive="true">
         <id column="ID" property="id"/>
         <result column="NAME" property="name"/>
         <result column="AGE" property="age"/>
@@ -46,7 +46,7 @@
     </resultMap>
 
     <!-- mapUnderscoreToCamelCase=true：下划线自动转驼峰 + 显式映射基本列 -->
-    <resultMap id="camelCaseResultMap" type="net.hasor.dbvisitor.test.model.UserInfo" mapUnderscoreToCamelCase="true">
+    <resultMap id="camelCaseResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo" mapUnderscoreToCamelCase="true">
         <id column="id" property="id"/>
         <result column="name" property="name"/>
         <result column="age" property="age"/>
@@ -60,7 +60,7 @@
     <!-- 插入 -->
     <insert id="insertUser">
         INSERT INTO user_info (id, name, age, email, create_time)
-        VALUES (#{id}, #{name}, #{age}, #{email}, CURRENT_TIMESTAMP)
+        VALUES (#{id}, #{name}, #{age}, #{email}, @{macro, currentTimestamp})
     </insert>
 
     <!-- 使用 baseResultMap（仅 id/name/age） -->

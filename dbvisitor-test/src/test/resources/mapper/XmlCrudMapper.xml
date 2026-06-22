@@ -3,7 +3,7 @@
         "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
 <mapper namespace="xmltest.CrudMapper">
 
-    <resultMap id="simpleResultMap" type="net.hasor.dbvisitor.test.model.UserInfo">
+    <resultMap id="simpleResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
         <result column="id" property="id"/>
         <result column="name" property="name"/>
         <result column="age" property="age"/>
@@ -14,7 +14,7 @@
     <!-- insert -->
     <insert id="insertUser">
         INSERT INTO user_info (id, name, age, email, create_time)
-        VALUES (#{id}, #{name}, #{age}, #{email}, CURRENT_TIMESTAMP)
+        VALUES (#{id}, #{name}, #{age}, #{email}, @{macro, currentTimestamp})
     </insert>
 
     <!-- select single by resultMap -->
@@ -23,7 +23,7 @@
     </select>
 
     <!-- select list by resultType entity -->
-    <select id="selectAll" resultType="net.hasor.dbvisitor.test.model.UserInfo">
+    <select id="selectAll" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
         SELECT * FROM user_info WHERE name LIKE 'XmlCrud%' ORDER BY id
     </select>
 

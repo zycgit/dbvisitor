@@ -4,7 +4,7 @@
 <mapper namespace="net.hasor.test.xml.indexcolsub">
 
     <!-- 使用 <column> 子元素方式声明索引 -->
-    <entity id="IndexColSubEntity" table="user_info" type="net.hasor.dbvisitor.test.model.UserInfo">
+    <entity id="IndexColSubEntity" table="user_info" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
         <id column="id" property="id"/>
         <mapping column="name" property="name"/>
         <mapping column="email" property="email"/>

@@ -3,7 +3,7 @@
         "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
 <mapper namespace="xmltest.KeyGenerationMapper">
 
-    <resultMap id="userResultMap" type="net.hasor.dbvisitor.test.model.UserInfo">
+    <resultMap id="userResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
         <id column="id" property="id"/>
         <result column="name" property="name"/>
         <result column="age" property="age"/>
@@ -14,13 +14,13 @@
     <!-- useGeneratedKeys：插入后回填自增主键 -->
     <insert id="insertWithGeneratedKeys" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO user_info (name, age, email, create_time)
-        VALUES (#{name}, #{age}, #{email}, CURRENT_TIMESTAMP)
+        VALUES (#{name}, #{age}, #{email}, @{macro, currentTimestamp})
     </insert>
 
     <!-- useGeneratedKeys + keyColumn -->
     <insert id="insertWithKeyColumn" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
         INSERT INTO user_info (name, age, email, create_time)
-        VALUES (#{name}, #{age}, #{email}, CURRENT_TIMESTAMP)
+        VALUES (#{name}, #{age}, #{email}, @{macro, currentTimestamp})
     </insert>
 
     <!-- selectKey order=BEFORE：先通过 SQL 获取主键再插入 -->
@@ -29,7 +29,7 @@
             SELECT nextval('user_info_id_seq')
         </selectKey>
         INSERT INTO user_info (id, name, age, email, create_time)
-        VALUES (#{id}, #{name}, #{age}, #{email}, CURRENT_TIMESTAMP)
+        VALUES (#{id}, #{name}, #{age}, #{email}, @{macro, currentTimestamp})
     </insert>
 
     <!-- selectKey order=AFTER：插入后通过 SQL 获取主键 -->
@@ -38,13 +38,13 @@
             SELECT currval('user_info_id_seq')
         </selectKey>
         INSERT INTO user_info (name, age, email, create_time)
-        VALUES (#{name}, #{age}, #{email}, CURRENT_TIMESTAMP)
+        VALUES (#{name}, #{age}, #{email}, @{macro, currentTimestamp})
     </insert>
 
     <!-- 普通插入（指定 ID，无主键生成） -->
     <insert id="insertWithExplicitId">
         INSERT INTO user_info (id, name, age, email, create_time)
-        VALUES (#{id}, #{name}, #{age}, #{email}, CURRENT_TIMESTAMP)
+        VALUES (#{id}, #{name}, #{age}, #{email}, @{macro, currentTimestamp})
     </insert>
 
     <!-- 查询 -->

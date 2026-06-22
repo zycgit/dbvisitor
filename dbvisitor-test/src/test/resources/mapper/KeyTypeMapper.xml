@@ -39,7 +39,7 @@
     
     <!-- 使用 keyType="完整类名" 的 entity（自定义 Holder） -->
     <entity id="CustomHolderEntity" table="user_info" type="map">
-        <id column="id" property="id" keyType="net.hasor.dbvisitor.test.handler.keygen.FixedValueKeyHolder" />
+        <id column="id" property="id" keyType="net.hasor.dbvisitor.test.contract.material.handler.keygen.FixedValueKeyHolder" />
         <mapping column="name" property="name" keyType="uuid36" />
         <mapping column="age" property="age" />
         <mapping column="create_time" property="createTime" />

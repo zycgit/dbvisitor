@@ -5,6 +5,8 @@ import net.hasor.dbvisitor.adapter.redis.JedisKeys;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.config.OneApiDataSourceManager;
+import net.hasor.dbvisitor.test.nxn.capability.Capability;
+import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.realdb.redis.dto1.UserInfo1;
 import net.hasor.dbvisitor.test.realdb.redis.dto1.UserInfo1Mapper;
 import net.hasor.dbvisitor.test.realdb.redis.dto2.UserInfo2;
@@ -16,7 +18,13 @@ import org.junit.Test;
 import redis.clients.jedis.Jedis;
 
 public class RedisMapperTest {
+    @org.junit.BeforeClass
+    public static void assumeDataSource() {
+        OneApiDataSourceManager.assumeCurrentDataSource("redis");
+    }
+
     @Test
+    @Capability(CapabilityId.ADAPTER_REDIS_MAPPER_ANNOTATION_CRUD)
     public void using_mapper_api_1() throws Exception {
         Configuration config = new Configuration();
         config.options().mapUnderscoreToCamelCase(true);
@@ -51,6 +59,7 @@ public class RedisMapperTest {
     }
 
     @Test
+    @Capability(CapabilityId.ADAPTER_REDIS_MAPPER_ANNOTATION_JSON_HANDLER)
     public void using_mapper_api_2() throws Exception {
         Configuration config = new Configuration();
         config.options().mapUnderscoreToCamelCase(true);
@@ -85,6 +94,7 @@ public class RedisMapperTest {
     }
 
     @Test
+    @Capability(CapabilityId.ADAPTER_REDIS_MAPPER_XML_JSON_HANDLER)
     public void using_mapper_file_1() throws Exception {
         Configuration config = new Configuration();
         config.options().mapUnderscoreToCamelCase(true);
@@ -127,6 +137,7 @@ public class RedisMapperTest {
     }
 
     @Test
+    @Capability(CapabilityId.ADAPTER_REDIS_MAPPER_XML_CRUD)
     public void using_mapper_file_2() throws Exception {
         Configuration config = new Configuration();
         config.options().mapUnderscoreToCamelCase(true);

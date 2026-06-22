@@ -5,23 +5,27 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import javax.sql.DataSource;
-import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
-import net.hasor.dbvisitor.session.Configuration;
-import net.hasor.dbvisitor.session.Session;
-import net.hasor.dbvisitor.test.config.OneApiDataSourceManager;
+
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
 
+import net.hasor.dbvisitor.jdbc.core.JdbcQueryContext;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.session.Configuration;
+import net.hasor.dbvisitor.session.Session;
+import net.hasor.dbvisitor.test.config.OneApiDataSourceManager;
+
 public abstract class AbstractOneApiTest {
-    protected static DataSource     dataSource;
+    protected static DataSource dataSource;
     @Rule
-    public           TestName       testName = new TestName();
-    protected        JdbcTemplate   jdbcTemplate;
-    protected        LambdaTemplate lambdaTemplate;
+    public TestName             testName = new TestName();
+    protected JdbcTemplate      jdbcTemplate;
+    protected LambdaTemplate    lambdaTemplate;
 
     @Before
     public void setup() throws IOException, SQLException {
@@ -31,6 +35,7 @@ public abstract class AbstractOneApiTest {
             dataSource = OneApiDataSourceManager.createDataSource();
         }
         jdbcTemplate = new JdbcTemplate(dataSource);
+        registerCommonMacros(jdbcTemplate);
         lambdaTemplate = new LambdaTemplate(jdbcTemplate);
 
         // Ensure schema exists (workaround for H2 memory DB connection pooling issues)
@@ -69,6 +74,18 @@ public abstract class AbstractOneApiTest {
         }
     }
 
+    protected boolean isDataSource(String dataSourceName) {
+        return OneApiDataSourceManager.getDbDialect().equals(dataSourceName);
+    }
+
+    protected void requiresDataSource(String... dataSourceNames) {
+        Set<String> allowedDataSources = Arrays.stream(dataSourceNames).map(String::trim).collect(Collectors.toSet());
+        String currentDataSource = OneApiDataSourceManager.getDbDialect();
+        if (!allowedDataSources.contains(currentDataSource)) {
+            Assume.assumeTrue("Data source '" + currentDataSource + "' is not in " + allowedDataSources, false);
+        }
+    }
+
     /**
      * Ensure schema exists (workaround for H2 memory DB connection pooling)
      * Check if user_info table exists, if not, re-initialize
@@ -76,19 +93,17 @@ public abstract class AbstractOneApiTest {
     protected void ensureSchemaExists() {
         try {
             // Try a simple query to check if tables exist
-            jdbcTemplate.queryForObject("SELECT COUNT(*) FROM user_info WHERE 1=0", Integer.class);
+            jdbcTemplate.execute("SELECT COUNT(*) FROM user_info WHERE 1=0");
         } catch (Exception e) {
             // Tables don't exist, need to re-initialize
             System.out.println("[OneAPI] Schema not found in current connection, re-initializing...");
             System.out.println("[OneAPI] Error was: " + e.getClass().getName() + ": " + e.getMessage());
             try {
                 String dialect = OneApiDataSourceManager.getDbDialect();
-                String initScript = "/sql/" + dialect + "/init.sql";
-                System.out.println("[OneAPI] Loading script: " + initScript);
-                jdbcTemplate.loadSplitSQL(";", initScript);
+                OneApiDataSourceManager.initializeDatabase(jdbcTemplate, dialect);
 
                 // Verify tables were created
-                Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM user_info WHERE 1=0", Integer.class);
+                jdbcTemplate.execute("SELECT COUNT(*) FROM user_info WHERE 1=0");
                 System.out.println("[OneAPI] Schema re-initialized successfully, user_info table exists");
             } catch (Exception ex) {
                 System.err.println("[OneAPI] Failed to re-initialize schema: " + ex.getMessage());
@@ -104,26 +119,32 @@ public abstract class AbstractOneApiTest {
     protected void cleanTestData() {
         try {
             // Delete in reverse order of foreign key dependencies
-            jdbcTemplate.executeUpdate("DELETE FROM user_order");
-            jdbcTemplate.executeUpdate("DELETE FROM user_info");
-            jdbcTemplate.executeUpdate("DELETE FROM complex_order");
-            jdbcTemplate.executeUpdate("DELETE FROM product_vector");
-            jdbcTemplate.executeUpdate("DELETE FROM array_types_test");
-            jdbcTemplate.executeUpdate("DELETE FROM array_types_explicit_test");
-            jdbcTemplate.executeUpdate("DELETE FROM basic_types_test");
-            jdbcTemplate.executeUpdate("DELETE FROM basic_types_explicit_test");
+            deleteAll("user_order");
+            deleteAll("user_info");
+            deleteAll("complex_order");
+            deleteAll("product_vector");
+            deleteAll("array_types_test");
+            deleteAll("array_types_explicit_test");
+            deleteAll("array_types_annotation_test");
+            deleteAll("test_special_types");
+            deleteAll("basic_types_test");
+            deleteAll("basic_types_explicit_test");
+            deleteAll("binary_types_explicit_test");
+            deleteAll("enum_types_explicit_test");
+            deleteAll("json_types_explicit_test");
+            deleteAll("time_types_explicit_test");
             // Composite primary key test table
             try {
-                jdbcTemplate.executeUpdate("DELETE FROM user_role");
+                deleteAll("user_role");
             } catch (Exception ignored) {
             }
             // Case sensitivity test tables (may not exist for all dialects)
             try {
-                jdbcTemplate.executeUpdate("DELETE FROM case_test_lower");
+                deleteAll("case_test_lower");
             } catch (Exception ignored) {
             }
             try {
-                jdbcTemplate.executeUpdate("DELETE FROM \"Case_Test_Upper\"");
+                deleteAll("\"Case_Test_Upper\"");
             } catch (Exception ignored) {
             }
         } catch (Exception e) {
@@ -132,11 +153,20 @@ public abstract class AbstractOneApiTest {
         }
     }
 
+    private void deleteAll(String tableName) throws SQLException {
+        if (isDataSource("clickhouse")) {
+            jdbcTemplate.executeUpdate("ALTER TABLE " + tableName + " DELETE WHERE 1=1");
+        } else {
+            jdbcTemplate.executeUpdate("DELETE FROM " + tableName);
+        }
+    }
+
     /**
      * 创建新的 Session 实例
      */
     protected Session newSession() throws SQLException {
         Configuration configuration = new Configuration();
+        registerCommonMacros(configuration);
         return configuration.newSession(dataSource);
     }
 
@@ -146,5 +176,22 @@ public abstract class AbstractOneApiTest {
      */
     protected void initData() throws SQLException {
         // Default: no additional data
+    }
+
+    protected String currentTimestampExpression() {
+        if (isDataSource("clickhouse")) {
+            return "current_timestamp()";
+        }
+        return "CURRENT_TIMESTAMP";
+    }
+
+    protected void registerCommonMacros(Configuration configuration) {
+        configuration.addMacro("currentTimestamp", currentTimestampExpression());
+    }
+
+    private void registerCommonMacros(JdbcTemplate template) {
+        if (template.getQueryContext() instanceof JdbcQueryContext) {
+            ((JdbcQueryContext) template.getQueryContext()).addMacro("currentTimestamp", currentTimestampExpression());
+        }
     }
 }

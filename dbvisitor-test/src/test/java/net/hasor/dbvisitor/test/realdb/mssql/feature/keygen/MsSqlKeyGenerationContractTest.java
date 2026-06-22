@@ -1,0 +1,12 @@
+package net.hasor.dbvisitor.test.realdb.mssql.feature.keygen;
+
+import net.hasor.dbvisitor.test.contract.feature.keygen.AbstractKeyGenerationContractTest;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.MsSqlProfile;
+
+public class MsSqlKeyGenerationContractTest extends AbstractKeyGenerationContractTest {
+    @Override
+    protected DataSourceProfile profile() {
+        return MsSqlProfile.INSTANCE;
+    }
+}

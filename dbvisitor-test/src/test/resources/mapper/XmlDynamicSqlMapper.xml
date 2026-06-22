@@ -3,7 +3,7 @@
         "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
 <mapper namespace="xmltest.DynamicSqlMapper">
 
-    <resultMap id="userResultMap" type="net.hasor.dbvisitor.test.model.UserInfo">
+    <resultMap id="userResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
         <id column="id" property="id"/>
         <result column="name" property="name"/>
         <result column="age" property="age"/>
@@ -13,7 +13,7 @@
 
     <insert id="insertUser">
         INSERT INTO user_info (id, name, age, email, create_time)
-        VALUES (#{id}, #{name}, #{age}, #{email}, CURRENT_TIMESTAMP)
+        VALUES (#{id}, #{name}, #{age}, #{email}, @{macro, currentTimestamp})
     </insert>
 
     <!-- if 标签测试 -->
@@ -109,7 +109,7 @@
     <insert id="batchInsert">
         INSERT INTO user_info (id, name, age, email, create_time) VALUES
         <foreach collection="users" item="u" separator=",">
-            (#{u.id}, #{u.name}, #{u.age}, #{u.email}, CURRENT_TIMESTAMP)
+            (#{u.id}, #{u.name}, #{u.age}, #{u.email}, @{macro, currentTimestamp})
         </foreach>
     </insert>
 

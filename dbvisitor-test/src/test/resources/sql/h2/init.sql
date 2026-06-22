@@ -1,11 +1,14 @@
 DROP TABLE IF EXISTS user_role;
+DROP TABLE IF EXISTS array_types_annotation_test;
 DROP TABLE IF EXISTS binary_types_explicit_test;
 DROP TABLE IF EXISTS enum_types_explicit_test;
+DROP TABLE IF EXISTS time_types_explicit_test;
 DROP TABLE IF EXISTS json_types_explicit_test;
 DROP TABLE IF EXISTS basic_types_explicit_test;
 DROP TABLE IF EXISTS basic_types_test;
 DROP TABLE IF EXISTS array_types_explicit_test;
 DROP TABLE IF EXISTS array_types_test;
+DROP TABLE IF EXISTS test_special_types;
 DROP TABLE IF EXISTS complex_order;
 DROP TABLE IF EXISTS product_vector;
 DROP TABLE IF EXISTS user_order;
@@ -80,20 +83,6 @@ CREATE TABLE basic_types_explicit_test (
     nvarchar_value NVARCHAR(255)
 );
 
-CREATE TABLE time_types_test (
-    id                INT PRIMARY KEY AUTO_INCREMENT,
-    util_date         TIMESTAMP,
-    sql_date          DATE,
-    sql_time          TIME,
-    sql_timestamp     TIMESTAMP,
-    local_date        DATE,
-    local_time        TIME,
-    local_datetime    TIMESTAMP,
-    offset_datetime   TIMESTAMP WITH TIME ZONE,
-    zoned_datetime    TIMESTAMP WITH TIME ZONE,
-    instant           TIMESTAMP
-);
-
 CREATE TABLE time_types_explicit_test (
     id                  INT PRIMARY KEY AUTO_INCREMENT,
     date_value          DATE,
@@ -127,6 +116,14 @@ CREATE TABLE array_types_annotation_test (
     array_full_annotated    INT ARRAY
 );
 
+CREATE TABLE test_special_types (
+    id        INT PRIMARY KEY,
+    json_map  VARCHAR(1000),
+    json_list VARCHAR(1000),
+    json_set  VARCHAR(1000),
+    int_array INT ARRAY
+);
+
 -- Binary Types Test Tables
 CREATE TABLE binary_types_explicit_test (
     id                      INT PRIMARY KEY AUTO_INCREMENT,
@@ -152,4 +149,3 @@ CREATE TABLE json_types_explicit_test (
     json_mysql      VARCHAR(2000),
     nested_json     VARCHAR(2000)
 );
-

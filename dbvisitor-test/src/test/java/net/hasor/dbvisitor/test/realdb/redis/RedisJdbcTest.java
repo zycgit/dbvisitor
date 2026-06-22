@@ -6,13 +6,21 @@ import java.util.Objects;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.test.config.OneApiDataSourceManager;
+import net.hasor.dbvisitor.test.nxn.capability.Capability;
+import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.realdb.redis.dto1.UserInfo1;
 import org.junit.Test;
 import redis.clients.jedis.Jedis;
 
 public class RedisJdbcTest {
+    @org.junit.BeforeClass
+    public static void assumeDataSource() {
+        OneApiDataSourceManager.assumeCurrentDataSource("redis");
+    }
+
 
     @Test
+    @Capability(CapabilityId.ADAPTER_REDIS_JDBC_DSL_CRUD)
     public void using_jdbc_1() throws Exception {
         Configuration config = new Configuration();
         config.options().mapUnderscoreToCamelCase(true);
@@ -37,6 +45,7 @@ public class RedisJdbcTest {
     }
 
     @Test
+    @Capability(CapabilityId.ADAPTER_REDIS_JDBC_DSL_PAIRS)
     public void using_jdbc_2() throws Exception {
         Configuration config = new Configuration();
         config.options().mapUnderscoreToCamelCase(true);
@@ -64,6 +73,7 @@ public class RedisJdbcTest {
     }
 
     @Test
+    @Capability(CapabilityId.ADAPTER_REDIS_JDBC_DSL_BEAN)
     public void using_jdbc_bean_1() throws Exception {
         Configuration config = new Configuration();
         config.options().mapUnderscoreToCamelCase(true);

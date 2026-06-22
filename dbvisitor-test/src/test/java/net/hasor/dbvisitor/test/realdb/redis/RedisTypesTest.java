@@ -9,14 +9,22 @@ import net.hasor.cobble.ref.Tuple;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.test.config.OneApiDataSourceManager;
+import net.hasor.dbvisitor.test.nxn.capability.Capability;
+import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.realdb.redis.dto1.UserInfo1;
 import net.hasor.dbvisitor.types.SqlArg;
 import org.junit.Test;
 import redis.clients.jedis.Jedis;
 
 public class RedisTypesTest {
+    @org.junit.BeforeClass
+    public static void assumeDataSource() {
+        OneApiDataSourceManager.assumeCurrentDataSource("redis");
+    }
+
 
     @Test
+    @Capability(CapabilityId.ADAPTER_REDIS_TYPE_STRING)
     public void string_1() throws Exception {
         Configuration config = new Configuration();
         config.options().mapUnderscoreToCamelCase(true);
@@ -41,6 +49,7 @@ public class RedisTypesTest {
     }
 
     @Test
+    @Capability(CapabilityId.ADAPTER_REDIS_TYPE_HASH)
     public void hash_1() throws Exception {
         Configuration config = new Configuration();
         config.options().mapUnderscoreToCamelCase(true);
@@ -60,6 +69,7 @@ public class RedisTypesTest {
     }
 
     @Test
+    @Capability(CapabilityId.ADAPTER_REDIS_TYPE_HASH)
     public void hash_2() throws Exception {
         Configuration config = new Configuration();
         config.options().mapUnderscoreToCamelCase(true);
@@ -89,6 +99,7 @@ public class RedisTypesTest {
     }
 
     @Test
+    @Capability(CapabilityId.ADAPTER_REDIS_TYPE_HASH)
     public void hash_3() throws Exception {
         Configuration config = new Configuration();
         config.options().mapUnderscoreToCamelCase(true);
@@ -121,6 +132,7 @@ public class RedisTypesTest {
     }
 
     @Test
+    @Capability(CapabilityId.ADAPTER_REDIS_TYPE_LIST)
     public void list_1() throws Exception {
         Configuration config = new Configuration();
         config.options().mapUnderscoreToCamelCase(true);
@@ -142,6 +154,7 @@ public class RedisTypesTest {
     }
 
     @Test
+    @Capability(CapabilityId.ADAPTER_REDIS_TYPE_LIST)
     public void list_2() throws Exception {
         Configuration config = new Configuration();
         config.options().mapUnderscoreToCamelCase(true);
@@ -169,6 +182,7 @@ public class RedisTypesTest {
     }
 
     @Test
+    @Capability(CapabilityId.ADAPTER_REDIS_JDBC_DSL_BEAN)
     public void bean_1() throws Exception {
         Configuration config = new Configuration();
         config.options().mapUnderscoreToCamelCase(true);
@@ -202,6 +216,7 @@ public class RedisTypesTest {
     }
 
     @Test
+    @Capability(CapabilityId.ADAPTER_REDIS_TYPE_SET)
     public void set_1() throws Exception {
         Configuration config = new Configuration();
         config.options().mapUnderscoreToCamelCase(true);
@@ -224,6 +239,7 @@ public class RedisTypesTest {
     }
 
     @Test
+    @Capability(CapabilityId.ADAPTER_REDIS_TYPE_SET)
     public void set_2() throws Exception {
         Configuration config = new Configuration();
         config.options().mapUnderscoreToCamelCase(true);
@@ -249,6 +265,7 @@ public class RedisTypesTest {
     }
 
     @Test
+    @Capability(CapabilityId.ADAPTER_REDIS_TYPE_SET)
     public void set_3() throws Exception {
         Configuration config = new Configuration();
         config.options().mapUnderscoreToCamelCase(true);
@@ -275,6 +292,7 @@ public class RedisTypesTest {
     }
 
     @Test
+    @Capability(CapabilityId.ADAPTER_REDIS_TYPE_ZSET)
     public void zset_1() throws Exception {
         Configuration config = new Configuration();
         config.options().mapUnderscoreToCamelCase(true);
@@ -297,6 +315,7 @@ public class RedisTypesTest {
     }
 
     @Test
+    @Capability(CapabilityId.ADAPTER_REDIS_TYPE_ZSET)
     public void zset_2() throws Exception {
         Configuration config = new Configuration();
         config.options().mapUnderscoreToCamelCase(true);
@@ -325,6 +344,7 @@ public class RedisTypesTest {
     }
 
     @Test
+    @Capability(CapabilityId.ADAPTER_REDIS_TYPE_ZSET)
     public void zset_3() throws Exception {
         Configuration config = new Configuration();
         config.options().mapUnderscoreToCamelCase(true);

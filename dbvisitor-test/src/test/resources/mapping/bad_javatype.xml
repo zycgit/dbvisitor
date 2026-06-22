@@ -4,7 +4,7 @@
 <mapper namespace="net.hasor.test.xml.javatype.err">
 
     <!-- javaType 与属性类型不兼容 → ClassCastException -->
-    <entity id="BadJavaTypeEntity" table="user_info" type="net.hasor.dbvisitor.test.model.UserInfo">
+    <entity id="BadJavaTypeEntity" table="user_info" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
         <id column="id" property="id" javaType="java.lang.String"/>
         <mapping column="name" property="name"/>
     </entity>

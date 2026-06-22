@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
         "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
 <mapper namespace="naming.rootcc" mapUnderscoreToCamelCase="true">
-    <entity id="InheritedEntity" table="user_info" type="net.hasor.dbvisitor.test.model.UserInfo">
+    <entity id="InheritedEntity" table="user_info" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
         <id column="id" property="id"/>
         <mapping column="name" property="name"/>
     </entity>

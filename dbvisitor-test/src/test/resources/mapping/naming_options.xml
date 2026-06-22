@@ -4,7 +4,7 @@
 <mapper namespace="net.hasor.test.xml.naming">
 
     <!-- mapUnderscoreToCamelCase=true -->
-    <entity id="CamelCaseEntity" table="user_info" type="net.hasor.dbvisitor.test.model.UserInfo"
+    <entity id="CamelCaseEntity" table="user_info" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo"
             mapUnderscoreToCamelCase="true">
         <id column="id" property="id"/>
         <mapping column="name" property="name"/>
@@ -12,21 +12,21 @@
     </entity>
 
     <!-- caseInsensitive=true -->
-    <entity id="CaseInsensitiveEntity" table="user_info_ci" type="net.hasor.dbvisitor.test.model.UserInfo"
+    <entity id="CaseInsensitiveEntity" table="user_info_ci" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo"
             caseInsensitive="true">
         <id column="id" property="id"/>
         <mapping column="name" property="name"/>
     </entity>
 
     <!-- useDelimited=true -->
-    <entity id="DelimitedEntity" table="user_info_delim" type="net.hasor.dbvisitor.test.model.UserInfo"
+    <entity id="DelimitedEntity" table="user_info_delim" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo"
             useDelimited="true">
         <id column="id" property="id"/>
         <mapping column="name" property="name"/>
     </entity>
 
     <!-- all naming options combined -->
-    <entity id="AllNamingEntity" table="user_info_all" type="net.hasor.dbvisitor.test.model.UserInfo"
+    <entity id="AllNamingEntity" table="user_info_all" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo"
             mapUnderscoreToCamelCase="true" caseInsensitive="false" useDelimited="true">
         <id column="id" property="id"/>
         <mapping column="name" property="name"/>

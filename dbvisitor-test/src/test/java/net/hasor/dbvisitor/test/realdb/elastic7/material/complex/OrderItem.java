@@ -1,0 +1,22 @@
+package net.hasor.dbvisitor.test.realdb.elastic7.material.complex;
+
+public class OrderItem {
+    private String itemName;
+    private int    quantity;
+
+    public String getItemName() {
+        return itemName;
+    }
+
+    public void setItemName(String itemName) {
+        this.itemName = itemName;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+}

@@ -3,7 +3,7 @@
         "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
 <mapper namespace="StatementTestMapper">
 
-    <resultMap id="userResultMap" type="net.hasor.dbvisitor.test.model.UserInfo">
+    <resultMap id="userResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
         <result column="id" property="id"/>
         <result column="name" property="name"/>
         <result column="age" property="age"/>
@@ -14,7 +14,7 @@
     <!-- insert with explicit id -->
     <insert id="insertUserWithId">
         INSERT INTO user_info (id, name, age, email, create_time)
-        VALUES (#{id}, #{name}, #{age}, #{email}, CURRENT_TIMESTAMP)
+        VALUES (#{id}, #{name}, #{age}, #{email}, @{macro, currentTimestamp})
     </insert>
 
     <!-- update email by id -->
@@ -43,7 +43,7 @@
     </select>
 
     <!-- query all users (resultType) -->
-    <select id="queryAllUsers" resultType="net.hasor.dbvisitor.test.model.UserInfo">
+    <select id="queryAllUsers" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
         SELECT * FROM user_info ORDER BY id
     </select>
 

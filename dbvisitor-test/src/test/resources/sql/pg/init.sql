@@ -10,6 +10,7 @@ DROP TABLE IF EXISTS basic_types_test CASCADE;
 DROP TABLE IF EXISTS array_types_explicit_test CASCADE;
 DROP TABLE IF EXISTS array_types_test CASCADE;
 DROP TABLE IF EXISTS array_types_annotation_test CASCADE;
+DROP TABLE IF EXISTS test_special_types CASCADE;
 DROP TABLE IF EXISTS complex_order CASCADE;
 DROP TABLE IF EXISTS product_vector CASCADE;
 DROP TABLE IF EXISTS user_order CASCADE;
@@ -100,6 +101,14 @@ CREATE TABLE array_types_annotation_test (
     array_full_annotated    INTEGER[]
 );
 
+CREATE TABLE test_special_types (
+    id        INTEGER PRIMARY KEY,
+    json_map  VARCHAR(1000),
+    json_list VARCHAR(1000),
+    json_set  VARCHAR(1000),
+    int_array INTEGER[]
+);
+
 -- Binary Types Test Tables
 CREATE TABLE binary_types_explicit_test (
     id                      SERIAL PRIMARY KEY,
@@ -140,10 +149,10 @@ CREATE TABLE json_types_explicit_test (
 
 -- Case Sensitivity Test Tables
 -- Two tables with identical columns but different case in table/column names.
--- Used by CaseSensitiveTest to verify caseInsensitive behavior with real data.
+-- Used by the naming contract to verify caseInsensitive behavior with real data.
 -- Table 1: all lowercase (standard PG behavior)
 -- Composite Primary Key Test Table
--- Used by CompositeKeyTest to verify BaseMapper behavior with multi-column primary keys.
+-- Used by the BaseMapper composite-key contract to verify multi-column primary keys.
 CREATE TABLE user_role (
     user_id     INT NOT NULL,
     role_id     INT NOT NULL,
@@ -165,4 +174,3 @@ CREATE TABLE "Case_Test_Upper" (
     "Age"       INT,
     "Memo"      VARCHAR(200)
 );
-

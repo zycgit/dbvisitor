@@ -4,7 +4,7 @@
 <mapper namespace="net.hasor.test.xml.indexempty">
 
     <!-- index 定义没有指定任何列 -->
-    <entity id="EmptyIndexEntity" table="user_info" type="net.hasor.dbvisitor.test.model.UserInfo">
+    <entity id="EmptyIndexEntity" table="user_info" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
         <id column="id" property="id"/>
         <index name="idx_empty"/>
     </entity>

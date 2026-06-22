@@ -4,10 +4,10 @@
 <mapper namespace="net.hasor.test.xml.tablelevel.dup">
 
     <!-- 两个 entity 映射到同一张表（同 name） -->
-    <entity id="DupEntityA" table="user_info" type="net.hasor.dbvisitor.test.model.UserInfo">
+    <entity id="DupEntityA" table="user_info" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
         <id column="id" property="id"/>
     </entity>
-    <entity id="DupEntityA" table="user_info" type="net.hasor.dbvisitor.test.model.UserInfo">
+    <entity id="DupEntityA" table="user_info" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
         <id column="id" property="id"/>
     </entity>
 

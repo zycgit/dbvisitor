@@ -4,7 +4,7 @@
 <mapper namespace="net.hasor.test.xml.unsupported">
 
     <!-- entity 包含不支持的子标签 <badtag> -->
-    <entity id="BadTagEntity" table="user_info" type="net.hasor.dbvisitor.test.model.UserInfo">
+    <entity id="BadTagEntity" table="user_info" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
         <id column="id" property="id"/>
         <badtag column="name" property="name"/>
     </entity>
