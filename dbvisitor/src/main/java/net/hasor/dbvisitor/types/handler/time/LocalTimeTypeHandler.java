@@ -18,6 +18,7 @@ import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Time;
 import java.time.LocalTime;
 import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
 
@@ -33,16 +34,29 @@ public class LocalTimeTypeHandler extends AbstractTypeHandler<LocalTime> {
 
     @Override
     public LocalTime getNullableResult(ResultSet rs, String columnName) throws SQLException {
-        return rs.getObject(columnName, LocalTime.class);
+        return toLocalTime(rs.getTime(columnName));
     }
 
     @Override
     public LocalTime getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
-        return rs.getObject(columnIndex, LocalTime.class);
+        return toLocalTime(rs.getTime(columnIndex));
     }
 
     @Override
     public LocalTime getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
-        return cs.getObject(columnIndex, LocalTime.class);
+        return toLocalTime(cs.getTime(columnIndex));
+    }
+
+    private LocalTime toLocalTime(Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof LocalTime) {
+            return (LocalTime) value;
+        }
+        if (value instanceof Time) {
+            return ((Time) value).toLocalTime();
+        }
+        return LocalTime.parse(value.toString().trim());
     }
 }

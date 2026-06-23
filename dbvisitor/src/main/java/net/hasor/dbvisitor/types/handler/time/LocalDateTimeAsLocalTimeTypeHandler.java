@@ -18,9 +18,12 @@ import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
 import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
 
 /**
@@ -35,19 +38,40 @@ public class LocalDateTimeAsLocalTimeTypeHandler extends AbstractTypeHandler<Loc
 
     @Override
     public LocalTime getNullableResult(ResultSet rs, String columnName) throws SQLException {
-        LocalDateTime dateTime = rs.getObject(columnName, LocalDateTime.class);
-        return (dateTime == null) ? null : dateTime.toLocalTime();
+        return toLocalTime(rs.getObject(columnName));
     }
 
     @Override
     public LocalTime getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
-        LocalDateTime dateTime = rs.getObject(columnIndex, LocalDateTime.class);
-        return (dateTime == null) ? null : dateTime.toLocalTime();
+        return toLocalTime(rs.getObject(columnIndex));
     }
 
     @Override
     public LocalTime getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
-        LocalDateTime dateTime = cs.getObject(columnIndex, LocalDateTime.class);
-        return (dateTime == null) ? null : dateTime.toLocalTime();
+        return toLocalTime(cs.getObject(columnIndex));
+    }
+
+    private LocalTime toLocalTime(Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof LocalTime) {
+            return (LocalTime) value;
+        }
+        if (value instanceof LocalDateTime) {
+            return ((LocalDateTime) value).toLocalTime();
+        }
+        if (value instanceof Time) {
+            return ((Time) value).toLocalTime();
+        }
+        if (value instanceof Timestamp) {
+            return ((Timestamp) value).toLocalDateTime().toLocalTime();
+        }
+        String text = value.toString().trim();
+        try {
+            return LocalTime.parse(text);
+        } catch (DateTimeParseException e) {
+            return Timestamp.valueOf(text).toLocalDateTime().toLocalTime();
+        }
     }
 }

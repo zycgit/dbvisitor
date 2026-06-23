@@ -15,9 +15,12 @@
  */
 package net.hasor.dbvisitor.types.handler.time;
 import java.sql.CallableStatement;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.sql.Types;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -31,24 +34,44 @@ import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
 public class LocalDateTimeAsLocalDateTypeHandler extends AbstractTypeHandler<LocalDate> {
     @Override
     public void setNonNullParameter(PreparedStatement ps, int i, LocalDate parameter, Integer jdbcType) throws SQLException {
-        ps.setObject(i, LocalDateTime.of(parameter, LocalTime.of(0, 0, 0, 0)));
+        if (jdbcType != null && jdbcType == Types.DATE) {
+            ps.setObject(i, parameter);
+        } else {
+            ps.setObject(i, LocalDateTime.of(parameter, LocalTime.of(0, 0, 0, 0)));
+        }
     }
 
     @Override
     public LocalDate getNullableResult(ResultSet rs, String columnName) throws SQLException {
-        LocalDateTime dateTime = rs.getObject(columnName, LocalDateTime.class);
-        return (dateTime == null) ? null : dateTime.toLocalDate();
+        return toLocalDate(rs.getObject(columnName));
     }
 
     @Override
     public LocalDate getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
-        LocalDateTime dateTime = rs.getObject(columnIndex, LocalDateTime.class);
-        return (dateTime == null) ? null : dateTime.toLocalDate();
+        return toLocalDate(rs.getObject(columnIndex));
     }
 
     @Override
     public LocalDate getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
-        LocalDateTime dateTime = cs.getObject(columnIndex, LocalDateTime.class);
-        return (dateTime == null) ? null : dateTime.toLocalDate();
+        return toLocalDate(cs.getObject(columnIndex));
+    }
+
+    private LocalDate toLocalDate(Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof LocalDate) {
+            return (LocalDate) value;
+        }
+        if (value instanceof LocalDateTime) {
+            return ((LocalDateTime) value).toLocalDate();
+        }
+        if (value instanceof Date) {
+            return ((Date) value).toLocalDate();
+        }
+        if (value instanceof Timestamp) {
+            return ((Timestamp) value).toLocalDateTime().toLocalDate();
+        }
+        return LocalDate.parse(value.toString());
     }
 }

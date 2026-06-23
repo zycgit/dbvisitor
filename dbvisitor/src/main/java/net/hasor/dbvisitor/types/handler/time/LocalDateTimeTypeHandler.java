@@ -18,6 +18,7 @@ import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
 
@@ -34,16 +35,29 @@ public class LocalDateTimeTypeHandler extends AbstractTypeHandler<LocalDateTime>
 
     @Override
     public LocalDateTime getNullableResult(ResultSet rs, String columnName) throws SQLException {
-        return rs.getObject(columnName, LocalDateTime.class);
+        return toLocalDateTime(rs.getObject(columnName));
     }
 
     @Override
     public LocalDateTime getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
-        return rs.getObject(columnIndex, LocalDateTime.class);
+        return toLocalDateTime(rs.getObject(columnIndex));
     }
 
     @Override
     public LocalDateTime getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
-        return cs.getObject(columnIndex, LocalDateTime.class);
+        return toLocalDateTime(cs.getObject(columnIndex));
+    }
+
+    private LocalDateTime toLocalDateTime(Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof LocalDateTime) {
+            return (LocalDateTime) value;
+        }
+        if (value instanceof Timestamp) {
+            return ((Timestamp) value).toLocalDateTime();
+        }
+        return LocalDateTime.parse(value.toString().replace(' ', 'T'));
     }
 }
