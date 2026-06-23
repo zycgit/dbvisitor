@@ -72,7 +72,7 @@ public class MySqlDialect extends AbstractSqlDialect implements PageSqlDialect, 
         return switch (orderType) {
             case ASC -> orderName + " IS NULL ASC";
             case DESC -> orderName + " IS NULL DESC";
-            case DEFAULT -> orderName + " IS NULL" + orderName;
+            case DEFAULT -> orderName + " IS NULL";
         };
     }
 

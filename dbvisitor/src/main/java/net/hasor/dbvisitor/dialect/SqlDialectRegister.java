@@ -40,6 +40,7 @@ public class SqlDialectRegister {
 
     static {
         registerDialect(JdbcHelper.DB2, Db2Dialect.DEFAULT);
+        registerDialect(JdbcHelper.CLICKHOUSE, ClickHouseDialect.DEFAULT);
         registerDialect(JdbcHelper.DERBY, DerbyDialect.DEFAULT);// Apache Derby
         registerDialect(JdbcHelper.DM, DmDialect.DEFAULT);
         registerDialect(JdbcHelper.H2, H2Dialect.DEFAULT);
