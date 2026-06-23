@@ -49,7 +49,13 @@ public class Dialect4db2Test extends AbstractDialectTest {
         assert pageSql.getSqlString().equals("SELECT * FROM (SELECT TMP_PAGE.*,ROWNUMBER() OVER() AS ROW_ID FROM ( select * from tb_user where age > 12 and sex = ? ) AS TMP_PAGE) TMP_PAGE WHERE ROW_ID BETWEEN ? AND ?");
         assert pageSql.getArgs().length == 3;
         assert pageSql.getArgs()[0].equals('F');
-        assert pageSql.getArgs()[1].equals(1L);
-        assert pageSql.getArgs()[2].equals(3L);
+        assert pageSql.getArgs()[1].equals(2L);
+        assert pageSql.getArgs()[2].equals(4L);
+
+        assert dialect.like(SqlDialect.SqlLike.LEFT, null, "?").equals("CONCAT('%', ? )");
+        assert dialect.like(SqlDialect.SqlLike.RIGHT, null, "?").equals("CONCAT( ? ,'%')");
+        assert dialect.like(SqlDialect.SqlLike.DEFAULT, null, "?").equals("CONCAT(CONCAT('%', ? ) ,'%')");
+        assert dialect.selectSeq(false, null, null, "user_seq").equals("VALUES NEXT VALUE FOR user_seq");
+        assert dialect.selectSeq(true, null, "app", "user_seq").equals("VALUES NEXT VALUE FOR \"app\".\"user_seq\"");
     }
 }

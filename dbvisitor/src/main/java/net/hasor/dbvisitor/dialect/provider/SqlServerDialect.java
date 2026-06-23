@@ -17,18 +17,20 @@ package net.hasor.dbvisitor.dialect.provider;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
 import net.hasor.dbvisitor.dialect.SqlDialect;
+import net.hasor.dbvisitor.dialect.features.InsertSqlDialect;
 import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
-
 /**
  * SqlServer2005 的 SqlDialect 实现
  * @author 赵永春 (zyc@hasor.net)
  * @since 2016-11-10
  */
-public class SqlServerDialect extends AbstractSqlDialect implements PageSqlDialect {
+public class SqlServerDialect extends AbstractSqlDialect implements PageSqlDialect, InsertSqlDialect {
     public static final SqlDialect DEFAULT = new SqlServerDialect();
 
     @Override
@@ -80,6 +82,21 @@ public class SqlServerDialect extends AbstractSqlDialect implements PageSqlDiale
         }
     }
 
+    private static String removeOrderByPart(String sql) {
+        String loweredString = sql.toLowerCase();
+        int orderByIndex = loweredString.indexOf("order by");
+        if (orderByIndex != -1) {
+            return sql.substring(0, orderByIndex);
+        } else {
+            return sql;
+        }
+    }
+
+    @Override
+    public BoundSql countSql(BoundSql boundSql) {
+        return new BoundSql.BoundSqlObj("SELECT COUNT(*) FROM (" + removeOrderByPart(boundSql.getSqlString()) + ") as TEMP_T", boundSql.getArgs());
+    }
+
     @Override
     public BoundSql pageSql(BoundSql boundSql, long start, long limit) {
         String sqlString = boundSql.getSqlString();
@@ -88,11 +105,11 @@ public class SqlServerDialect extends AbstractSqlDialect implements PageSqlDiale
         StringBuilder pagingBuilder = new StringBuilder();
         String orderby = getOrderByPart(sqlString);
         String distinctStr = "";
-        String loweredString = sqlString.toLowerCase();
-        String sqlPartString = sqlString;
-        if (loweredString.trim().toLowerCase().startsWith("select")) {
+        String sqlPartString = removeOrderByPart(sqlString).trim();
+        String loweredPartString = sqlPartString.toLowerCase();
+        if (loweredPartString.startsWith("select")) {
             int index = 6;
-            if (loweredString.toLowerCase().startsWith("select distinct")) {
+            if (loweredPartString.startsWith("select distinct")) {
                 distinctStr = "DISTINCT ";
                 index = 15;
             }
@@ -106,12 +123,7 @@ public class SqlServerDialect extends AbstractSqlDialect implements PageSqlDiale
         long firstParam = start + 1;
         long secondParam = start + limit;
         sqlString = "WITH selectTemp AS (SELECT " + distinctStr + "TOP 100 PERCENT " + //
-                " ROW_NUMBER() OVER (" + orderby + ") as __row_number__, " + pagingBuilder + ") SELECT * FROM selectTemp WHERE __row_number__ BETWEEN " +
-                //FIX#299：原因：mysql 中 limit 10(offset,size) 是从第10开始（不包含10）,；而这里用的BETWEEN是两边都包含，所以改为offset+1
-                firstParam + " AND " + secondParam + " ORDER BY __row_number__";
-        //
-        paramArrays.add(firstParam);
-        paramArrays.add(secondParam);
+                " ROW_NUMBER() OVER (" + orderby + ") as __row_number__, " + pagingBuilder + ") SELECT * FROM selectTemp WHERE __row_number__ BETWEEN " + firstParam + " AND " + secondParam + " ORDER BY __row_number__";
         return new BoundSql.BoundSqlObj(sqlString, paramArrays.toArray());
     }
 
@@ -133,5 +145,128 @@ public class SqlServerDialect extends AbstractSqlDialect implements PageSqlDiale
         }
 
         return "select top " + recordSize + " " + select + " from " + tableName + " order by newid()";
+    }
+
+    // --- InsertSqlDialect impl ---
+
+    @Override
+    public boolean supportInto(List<String> primaryKey, List<String> columns) {
+        return true;
+    }
+
+    @Override
+    public String insertInto(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
+        return buildInsertSql("INSERT INTO ", useQualifier, catalog, schema, table, columns, columnValueTerms);
+    }
+
+    @Override
+    public boolean supportIgnore(List<String> primaryKey, List<String> columns) {
+        return primaryKey != null && !primaryKey.isEmpty();
+    }
+
+    @Override
+    public String insertIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
+        StringBuilder sb = new StringBuilder();
+        buildMergeInfoBasic(useQualifier, catalog, schema, table, primaryKey, columns, columnValueTerms, sb);
+        buildMergeInfoWhenNotMatched(useQualifier, columns, sb);
+        return sb.toString();
+    }
+
+    @Override
+    public boolean supportReplace(List<String> primaryKey, List<String> columns) {
+        return primaryKey != null && !primaryKey.isEmpty();
+    }
+
+    @Override
+    public String insertReplace(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
+        StringBuilder sb = new StringBuilder();
+        buildMergeInfoBasic(useQualifier, catalog, schema, table, primaryKey, columns, columnValueTerms, sb);
+        buildMergeInfoWhenMatched(useQualifier, primaryKey, columns, sb);
+        buildMergeInfoWhenNotMatched(useQualifier, columns, sb);
+        return sb.toString();
+    }
+
+    private String buildInsertSql(String markString, boolean useQualifier, String catalog, String schema, String table, List<String> columns, Map<String, String> columnValueTerms) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(markString);
+        sb.append(tableName(useQualifier, catalog, schema, table));
+        sb.append(" (");
+        appendColumnNames(sb, useQualifier, columns);
+        sb.append(") VALUES (");
+        appendValueTerms(sb, columns, columnValueTerms);
+        sb.append(")");
+        return sb.toString();
+    }
+
+    private void buildMergeInfoBasic(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms, StringBuilder sb) {
+        sb.append("MERGE INTO ");
+        sb.append(tableName(useQualifier, catalog, schema, table));
+        sb.append(" AS TMP USING (VALUES (");
+        appendValueTerms(sb, columns, columnValueTerms);
+        sb.append(")) AS SRC(");
+        appendColumnNames(sb, useQualifier, columns);
+        sb.append(") ON ");
+        for (int i = 0; i < primaryKey.size(); i++) {
+            if (i > 0) {
+                sb.append(" AND ");
+            }
+            String pkColumn = fmtName(useQualifier, primaryKey.get(i));
+            sb.append("TMP.").append(pkColumn).append(" = SRC.").append(pkColumn);
+        }
+        sb.append(" ");
+    }
+
+    private void buildMergeInfoWhenNotMatched(boolean useQualifier, List<String> allColumns, StringBuilder sb) {
+        sb.append("WHEN NOT MATCHED THEN INSERT (");
+        appendColumnNames(sb, useQualifier, allColumns);
+        sb.append(") VALUES (");
+        appendSourceColumnNames(sb, useQualifier, allColumns);
+        sb.append(");");
+    }
+
+    private void buildMergeInfoWhenMatched(boolean useQualifier, List<String> primaryKey, List<String> allColumns, StringBuilder sb) {
+        List<String> updateColumns = allColumns.stream().filter(c -> !primaryKey.contains(c)).collect(Collectors.toList());
+        if (updateColumns.isEmpty()) {
+            return;
+        }
+
+        sb.append("WHEN MATCHED THEN UPDATE SET ");
+        for (int i = 0; i < updateColumns.size(); i++) {
+            if (i > 0) {
+                sb.append(", ");
+            }
+            String column = fmtName(useQualifier, updateColumns.get(i));
+            sb.append(column).append(" = SRC.").append(column);
+        }
+        sb.append(" ");
+    }
+
+    private void appendColumnNames(StringBuilder sb, boolean useQualifier, List<String> columns) {
+        for (int i = 0; i < columns.size(); i++) {
+            if (i > 0) {
+                sb.append(", ");
+            }
+            sb.append(fmtName(useQualifier, columns.get(i)));
+        }
+    }
+
+    private void appendSourceColumnNames(StringBuilder sb, boolean useQualifier, List<String> columns) {
+        for (int i = 0; i < columns.size(); i++) {
+            if (i > 0) {
+                sb.append(", ");
+            }
+            sb.append("SRC.").append(fmtName(useQualifier, columns.get(i)));
+        }
+    }
+
+    private void appendValueTerms(StringBuilder sb, List<String> columns, Map<String, String> columnValueTerms) {
+        for (int i = 0; i < columns.size(); i++) {
+            if (i > 0) {
+                sb.append(", ");
+            }
+            String colName = columns.get(i);
+            String valueTerm = columnValueTerms != null ? columnValueTerms.get(colName) : null;
+            sb.append(StringUtils.isNotBlank(valueTerm) ? valueTerm : "?");
+        }
     }
 }
