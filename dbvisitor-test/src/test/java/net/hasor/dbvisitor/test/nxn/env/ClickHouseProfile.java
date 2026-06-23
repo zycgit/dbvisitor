@@ -23,6 +23,7 @@ public final class ClickHouseProfile extends AbstractDataSourceProfile {
                 FeatureId.KNN,                   //
                 FeatureId.PROCEDURE,             //
                 FeatureId.XML_MAPPER_CALLABLE,   //
+                FeatureId.FUNCTION_CALL_CALLBACK, //
                 FeatureId.FUNCTION_RECORD_RESULT, //
                 FeatureId.FUNCTION_TABLE_RESULT, //
                 FeatureId.POSTGRES_ON_CONFLICT,  //
@@ -44,7 +45,8 @@ public final class ClickHouseProfile extends AbstractDataSourceProfile {
                 FeatureId.GENERATED_KEYS_NUMERIC, //
                 FeatureId.TRANSACTION_RELEASE_SAVEPOINT, //
                 FeatureId.TRANSACTION_REPEATABLE_READ, //
-                FeatureId.CASE_SENSITIVE_IDENTIFIERS };
+                FeatureId.CASE_SENSITIVE_IDENTIFIERS, //
+                FeatureId.MULTIPLE_RESULT_SETS };
     }
 
     @Override

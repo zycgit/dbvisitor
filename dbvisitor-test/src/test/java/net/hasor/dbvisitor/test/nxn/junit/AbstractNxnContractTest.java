@@ -1,5 +1,8 @@
 package net.hasor.dbvisitor.test.nxn.junit;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Collections;
@@ -15,9 +18,6 @@ import net.hasor.dbvisitor.test.AbstractOneApiTest;
 import net.hasor.dbvisitor.test.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public abstract class AbstractNxnContractTest extends AbstractOneApiTest {
     protected abstract DataSourceProfile profile();
@@ -47,6 +47,10 @@ public abstract class AbstractNxnContractTest extends AbstractOneApiTest {
             executeDropIgnoringMissing("DROP TABLE " + tableName + " PURGE");
             return;
         }
+        if (isDb2()) {
+            executeDropIgnoringMissing("DROP TABLE " + tableName);
+            return;
+        }
         jdbcTemplate.executeUpdate("DROP TABLE IF EXISTS " + tableName);
     }
 
@@ -70,6 +74,14 @@ public abstract class AbstractNxnContractTest extends AbstractOneApiTest {
             return "ALTER TABLE " + tableName + " ADD " + columnDefinition;
         }
         return "ALTER TABLE " + tableName + " ADD COLUMN " + columnDefinition;
+    }
+
+    protected void deleteAllRows(String tableName) throws SQLException {
+        if (profile().id().name().equals("CLICKHOUSE")) {
+            jdbcTemplate.executeUpdate("ALTER TABLE " + tableName + " DELETE WHERE 1=1");
+        } else {
+            jdbcTemplate.executeUpdate("DELETE FROM " + tableName);
+        }
     }
 
     protected String primaryKeyColumn(String columnName, String columnType) {

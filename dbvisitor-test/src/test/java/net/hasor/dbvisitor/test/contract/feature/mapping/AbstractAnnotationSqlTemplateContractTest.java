@@ -2,7 +2,9 @@ package net.hasor.dbvisitor.test.contract.feature.mapping;
 
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -29,15 +31,27 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public abstract class AbstractAnnotationSqlTemplateContractTest extends AbstractNxnContractTest {
+    private static final Set<String> INITIALIZED_ENVS = new HashSet<>();
     private LambdaTemplate lambdaTemplate;
 
     @Before
     public void createLambdaTemplate() throws SQLException {
         this.lambdaTemplate = new LambdaTemplate(dataSource);
-        dropTableIfExists("test_md5_user");
-        jdbcTemplate.executeUpdate("CREATE TABLE test_md5_user (" + primaryKeyColumn("id", "varchar(50)") + ", name varchar(100), password varchar(100))");
-        dropTableIfExists("test_template_user");
-        jdbcTemplate.executeUpdate("CREATE TABLE test_template_user (" + primaryKeyColumn("id", "int") + ", name varchar(50), login_ip varchar(50), create_at " + profile().datetimeColumnType() + ", data_value varchar(200))");
+        synchronized (INITIALIZED_ENVS) {
+            if (INITIALIZED_ENVS.add(profile().env())) {
+                dropTableIfExists("test_md5_user");
+                jdbcTemplate.executeUpdate("CREATE TABLE test_md5_user (" + primaryKeyColumn("id", "varchar(50)") + ", name varchar(100), password varchar(100))");
+                dropTableIfExists("test_template_user");
+                jdbcTemplate.executeUpdate("CREATE TABLE test_template_user (" + primaryKeyColumn("id", "int") + ", name varchar(50), login_ip varchar(50), create_at " + profile().datetimeColumnType() + ", data_value varchar(200))");
+                createSqlTemplateDefinitions();
+            } else {
+                deleteAllRows("test_md5_user");
+                deleteAllRows("test_template_user");
+            }
+        }
+    }
+
+    protected void createSqlTemplateDefinitions() throws SQLException {
     }
 
     @Test

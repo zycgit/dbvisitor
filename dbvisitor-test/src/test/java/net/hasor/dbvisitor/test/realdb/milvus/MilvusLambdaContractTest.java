@@ -38,18 +38,22 @@ public class MilvusLambdaContractTest extends AbstractAdapterContractTest {
             // 1. UserInfoMilvus
             initTable(jdbc, "tb_user_info_milvus", "CREATE TABLE IF NOT EXISTS tb_user_info_milvus (uid VARCHAR(64) PRIMARY KEY, name VARCHAR(64), loginName VARCHAR(64), loginPassword VARCHAR(64), v FLOAT_VECTOR(2))");
             initIndex(jdbc, "idx_user_v", "tb_user_info_milvus", "CREATE INDEX idx_user_v ON TABLE tb_user_info_milvus (v) USING \"IVF_FLAT\" WITH (nlist = 128, metric_type = 'L2')");
+            loadTable(jdbc, "tb_user_info_milvus");
 
             // 2. ComplexOrderMilvus
             initTable(jdbc, "tb_complex_order_milvus", "CREATE TABLE IF NOT EXISTS tb_complex_order_milvus (id VARCHAR(64) PRIMARY KEY, address JSON, items JSON, v FLOAT_VECTOR(2))");
             initIndex(jdbc, "idx_order_v", "tb_complex_order_milvus", "CREATE INDEX idx_order_v ON TABLE tb_complex_order_milvus (v) USING \"IVF_FLAT\" WITH (nlist = 128, metric_type = 'L2')");
+            loadTable(jdbc, "tb_complex_order_milvus");
 
             // 3. lambda_page
             initTable(jdbc, "lambda_page", "CREATE TABLE IF NOT EXISTS lambda_page (uid VARCHAR(64) PRIMARY KEY, name VARCHAR(64), group_id VARCHAR(64), seq INT64, v FLOAT_VECTOR(2))");
             initIndex(jdbc, "idx_page_v", "lambda_page", "CREATE INDEX idx_page_v ON TABLE lambda_page (v) USING \"IVF_FLAT\" WITH (nlist = 128, metric_type = 'L2')");
+            loadTable(jdbc, "lambda_page");
 
             // 4. lambda_sum
             initTable(jdbc, "lambda_sum", "CREATE TABLE IF NOT EXISTS lambda_sum (uid VARCHAR(64) PRIMARY KEY, group_id VARCHAR(64), amount INT64, v FLOAT_VECTOR(2))");
             initIndex(jdbc, "idx_sum_v", "lambda_sum", "CREATE INDEX idx_sum_v ON TABLE lambda_sum (v) USING \"IVF_FLAT\" WITH (nlist = 128, metric_type = 'L2')");
+            loadTable(jdbc, "lambda_sum");
 
         } catch (Throwable e) {
             Assume.assumeNoException("Milvus setup failed or timed out - skipping tests", e);
@@ -59,14 +63,8 @@ public class MilvusLambdaContractTest extends AbstractAdapterContractTest {
     private void initTable(JdbcTemplate jdbc, String tableName, String createSql) {
         try {
             jdbc.execute(createSql);
-            jdbc.execute("LOAD TABLE " + tableName);
         } catch (Exception e) {
-            // Check if loaded?
-            try {
-                jdbc.execute("LOAD TABLE " + tableName);
-            } catch (Exception ex) {
-                // ignore
-            }
+            // Table likely exists.
         }
     }
 
@@ -76,6 +74,19 @@ public class MilvusLambdaContractTest extends AbstractAdapterContractTest {
         } catch (Exception e) {
             // Index likely exists
         }
+    }
+
+    private void loadTable(JdbcTemplate jdbc, String tableName) throws SQLException {
+        SQLException last = null;
+        for (int i = 0; i < 3; i++) {
+            try {
+                jdbc.execute("LOAD TABLE " + tableName);
+                return;
+            } catch (SQLException e) {
+                last = e;
+            }
+        }
+        throw last;
     }
 
     private List<Float> sampleVector() {

@@ -556,6 +556,7 @@ public final class CapabilityId {
     public static final String PROCEDURE_CALL_MULTIPLE_INOUT                            = "procedure.call.multiple-inout";
     public static final String PROCEDURE_CALL_DATA_LOOKUP                               = "procedure.call.data-lookup";
     public static final String PROCEDURE_CALL_HASH_METADATA                             = "procedure.call.hash-metadata";
+    public static final String PROCEDURE_CALL_RESULT_SET                                = "procedure.call.result-set";
     public static final String PROCEDURE_CALL_CURSOR_RESULT                             = "procedure.call.cursor-result";
     public static final String FUNCTION_QUERY_SCALAR                                    = "function.query.scalar";
     public static final String FUNCTION_QUERY_NAMED_PARAMETER                           = "function.query.named-parameter";

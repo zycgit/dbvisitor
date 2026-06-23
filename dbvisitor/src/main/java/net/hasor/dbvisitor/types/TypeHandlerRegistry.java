@@ -921,9 +921,6 @@ public final class TypeHandlerRegistry {
 
         if (sqlMode.isIn()) {
             this.setParameterValue((PreparedStatement) cs, parameterPosition, value);
-        } else if (sqlMode == SqlMode.Cursor) {
-            int cursorType = JdbcHelper.getCursorJdbcType(JdbcHelper.getDbType(cs));
-            cs.setNull(parameterPosition, cursorType);
         }
 
         if (sqlMode.isOut()) {

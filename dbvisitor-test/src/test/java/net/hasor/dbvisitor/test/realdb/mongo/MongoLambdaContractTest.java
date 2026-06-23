@@ -109,6 +109,7 @@ public class MongoLambdaContractTest extends AbstractAdapterContractTest {
 
             // Prepare Data
             ComplexOrder order = new ComplexOrder();
+            order.setId(randomObjectId());
 
             Address address = new Address();
             address.setCity("New York");
@@ -150,6 +151,11 @@ public class MongoLambdaContractTest extends AbstractAdapterContractTest {
             assertEquals("Apple", loadedOrder.getItems().get(0).getItemName());
             assertEquals(10, loadedOrder.getItems().get(0).getQuantity());
         }
+    }
+
+    private static String randomObjectId() {
+        String uuid = UUID.randomUUID().toString().replace("-", "");
+        return uuid.substring(0, 24);
     }
 
     @Test

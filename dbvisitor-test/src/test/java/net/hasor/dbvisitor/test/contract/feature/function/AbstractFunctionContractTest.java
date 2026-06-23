@@ -71,9 +71,9 @@ public abstract class AbstractFunctionContractTest extends AbstractNxnContractTe
 
         Map<String, Object> result = jdbcTemplate.queryForMap(calcNumbersQuerySql(), new Object[] { 100, 20 });
 
-        assertEquals(120, value(result, "sum_result"));
-        assertEquals(80, value(result, "diff_result"));
-        assertEquals(2000, value(result, "mult_result"));
+        assertNumberEquals(120, value(result, "sum_result"));
+        assertNumberEquals(80, value(result, "diff_result"));
+        assertNumberEquals(2000, value(result, "mult_result"));
         assertEquals(new BigDecimal("5"), ((BigDecimal) value(result, "div_result")).stripTrailingZeros());
     }
 
@@ -88,9 +88,9 @@ public abstract class AbstractFunctionContractTest extends AbstractNxnContractTe
         assertEquals(5, allRows.size());
         assertEquals(2, filtered.size());
         assertEquals("FuncBob", value(filtered.get(0), "name"));
-        assertEquals(30, value(filtered.get(0), "age"));
+        assertNumberEquals(30, value(filtered.get(0), "age"));
         assertEquals("FuncCharlie", value(filtered.get(1), "name"));
-        assertEquals(35, value(filtered.get(1), "age"));
+        assertNumberEquals(35, value(filtered.get(1), "age"));
     }
 
     @Test
@@ -101,15 +101,15 @@ public abstract class AbstractFunctionContractTest extends AbstractNxnContractTe
         Map<String, Object> result = jdbcTemplate.queryForMap(complexParamsQuerySql(), new Object[] { 999999, 5 });
 
         assertNotNull(result);
-        assertEquals(6, value(result, "counter"));
+        assertNumberEquals(6, value(result, "counter"));
         assertEquals("Unknown", value(result, "user_name"));
-        assertEquals(0, value(result, "user_age"));
+        assertNumberEquals(0, value(result, "user_age"));
     }
 
     @Test
     @Capability(CapabilityId.FUNCTION_CALL_CALLBACK)
     public void callFunction_shouldSupportCallableStatementCallbackAccess() throws SQLException {
-        requiresNxnFeature(FeatureId.FUNCTION);
+        requiresNxnFeature(FeatureId.FUNCTION_CALL_CALLBACK);
 
         Integer sum = jdbcTemplate.call(addNumbersCallableSql(), new CallableStatementSetter() {
             @Override
@@ -148,6 +148,10 @@ public abstract class AbstractFunctionContractTest extends AbstractNxnContractTe
             return row.get(key);
         }
         return row.get(key.toUpperCase());
+    }
+
+    private void assertNumberEquals(int expected, Object actual) {
+        assertEquals(0, BigDecimal.valueOf(expected).compareTo(new BigDecimal(actual.toString())));
     }
 
     protected String addNumbersQuerySql() {

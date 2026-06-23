@@ -19,9 +19,8 @@ public final class OracleProfile extends AbstractDataSourceProfile {
                 FeatureId.SEQUENCE,              //
                 FeatureId.XML_SELECT_KEY_USER_INFO_SEQUENCE, //
                 FeatureId.KNN,                   //
+                FeatureId.PROCEDURE_RESULT_SET,  //
                 FeatureId.XML_MAPPER_CALLABLE,   //
-                FeatureId.FUNCTION_RECORD_RESULT, //
-                FeatureId.FUNCTION_TABLE_RESULT, //
                 FeatureId.VECTOR,                //
                 FeatureId.POSTGRES_ON_CONFLICT,  //
                 FeatureId.SQL_MD5_FUNCTION,      //
@@ -32,7 +31,8 @@ public final class OracleProfile extends AbstractDataSourceProfile {
                 FeatureId.XML_FOREACH_BATCH_INSERT_VALUES, //
                 FeatureId.LOWERCASE_STANDARD_RESULT_COLUMNS, //
                 FeatureId.TRANSACTION_RELEASE_SAVEPOINT, //
-                FeatureId.TRANSACTION_REPEATABLE_READ };
+                FeatureId.TRANSACTION_REPEATABLE_READ, //
+                FeatureId.MULTIPLE_RESULT_SETS };
     }
 
     @Override

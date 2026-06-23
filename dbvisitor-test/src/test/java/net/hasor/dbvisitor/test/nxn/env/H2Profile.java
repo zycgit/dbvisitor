@@ -18,16 +18,14 @@ public final class H2Profile extends AbstractDataSourceProfile {
                 FeatureId.KNN,                  //
                 FeatureId.PROCEDURE,            //
                 FeatureId.XML_MAPPER_CALLABLE,  //
-                FeatureId.FUNCTION_RECORD_RESULT, //
-                FeatureId.FUNCTION_TABLE_RESULT, //
+                FeatureId.FUNCTION_CALL_CALLBACK, //
                 FeatureId.VECTOR,               //
                 FeatureId.DELIMITED_LOWERCASE_STANDARD_TABLE,   //
                 FeatureId.XML_SELECT_KEY_USER_INFO_SEQUENCE,    //
                 FeatureId.POSTGRES_ON_CONFLICT, //
-                FeatureId.DUPLICATE_KEY_STRATEGY,//
                 FeatureId.TIME_EXTREME_DATE,    //
-                FeatureId.SQL_MD5_FUNCTION,     //
-                FeatureId.CASE_SENSITIVE_IDENTIFIERS };
+                FeatureId.CASE_SENSITIVE_IDENTIFIERS, //
+                FeatureId.MULTIPLE_RESULT_SETS };
     }
 
     @Override

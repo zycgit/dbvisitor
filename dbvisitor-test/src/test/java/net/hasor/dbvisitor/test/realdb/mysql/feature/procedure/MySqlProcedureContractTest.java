@@ -19,6 +19,7 @@ public class MySqlProcedureContractTest extends AbstractProcedureContractTest {
         jdbcTemplate.execute("DROP PROCEDURE IF EXISTS nxn_sp_transform_string");
         jdbcTemplate.execute("DROP PROCEDURE IF EXISTS nxn_sp_get_user_info");
         jdbcTemplate.execute("DROP PROCEDURE IF EXISTS nxn_sp_update_counter");
+        jdbcTemplate.execute("DROP PROCEDURE IF EXISTS nxn_sp_result_set_users");
 
         jdbcTemplate.execute("CREATE PROCEDURE nxn_sp_add_numbers(IN a INT, IN b INT, INOUT result INT) " + //
                 "BEGIN SET result = a + b; END");
@@ -36,6 +37,8 @@ public class MySqlProcedureContractTest extends AbstractProcedureContractTest {
                 "BEGIN SELECT name, age INTO user_name, user_age FROM user_info WHERE id = user_id; END");
         jdbcTemplate.execute("CREATE PROCEDURE nxn_sp_update_counter(INOUT counter INT, IN increment INT) " + //
                 "BEGIN SET counter = counter + increment; END");
+        jdbcTemplate.execute("CREATE PROCEDURE nxn_sp_result_set_users(IN p_id INT) " + //
+                "BEGIN SELECT id, name, age, email FROM user_info WHERE id = p_id; END");
     }
 
     @Override
@@ -82,5 +85,10 @@ public class MySqlProcedureContractTest extends AbstractProcedureContractTest {
     @Override
     protected String addNumbersInferredHashCallSql() {
         return "CALL nxn_sp_add_numbers(#{a}, #{b}, #{result,mode=inout,jdbcType=integer})";
+    }
+
+    @Override
+    protected String resultSetUsersCallSql() {
+        return "CALL nxn_sp_result_set_users(#{p_id,jdbcType=integer})";
     }
 }

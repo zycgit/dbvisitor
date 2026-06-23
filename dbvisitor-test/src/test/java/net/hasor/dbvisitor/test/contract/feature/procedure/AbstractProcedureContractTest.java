@@ -165,6 +165,36 @@ public abstract class AbstractProcedureContractTest extends AbstractNxnContractT
         }
     }
 
+    @Test
+    @Capability(CapabilityId.PROCEDURE_CALL_RESULT_SET)
+    public void callProcedure_shouldCollectReturnedResultSet() throws SQLException {
+        requiresNxnFeature(FeatureId.PROCEDURE);
+        requiresNxnFeature(FeatureId.PROCEDURE_RESULT_SET);
+
+        Map<String, Object> result = jdbcTemplate.call(resultSetUsersCallSql(), //
+                CollectionUtils.asMap("p_id", 918001));
+
+        assertNotNull(result);
+        assertTrue(result.get("#result-set-1") instanceof List);
+        List<?> users = (List<?>) result.get("#result-set-1");
+        assertEquals(1, users.size());
+        assertTrue(users.get(0) instanceof Map);
+
+        Map<?, ?> user = (Map<?, ?>) users.get(0);
+        assertEquals("ProcAlice", rowValue(user, "name"));
+        assertEquals(25, ((Number) rowValue(user, "age")).intValue());
+    }
+
+    private Object rowValue(Map<?, ?> row, String columnName) {
+        for (Map.Entry<?, ?> entry : row.entrySet()) {
+            Object key = entry.getKey();
+            if (key != null && columnName.equalsIgnoreCase(key.toString())) {
+                return entry.getValue();
+            }
+        }
+        return null;
+    }
+
     protected String addNumbersPositionalCallSql() {
         throw new UnsupportedOperationException("Procedure call SQL must be provided by the concrete data source test.");
     }
@@ -202,6 +232,10 @@ public abstract class AbstractProcedureContractTest extends AbstractNxnContractT
     }
 
     protected String cursorUsersCallSql() {
+        throw new UnsupportedOperationException("Procedure call SQL must be provided by the concrete data source test.");
+    }
+
+    protected String resultSetUsersCallSql() {
         throw new UnsupportedOperationException("Procedure call SQL must be provided by the concrete data source test.");
     }
 }

@@ -121,6 +121,9 @@ public abstract class AbstractDataSourceProfile implements DataSourceProfile {
         if (CapabilityId.PROCEDURE_CALL_CURSOR_RESULT.equals(capabilityId)) {
             return FeatureId.PROCEDURE_CURSOR_RESULT;
         }
+        if (CapabilityId.PROCEDURE_CALL_RESULT_SET.equals(capabilityId)) {
+            return FeatureId.PROCEDURE_RESULT_SET;
+        }
         if (capabilityId.startsWith("mapper.xml.callable.")) {
             return FeatureId.XML_MAPPER_CALLABLE;
         }
@@ -132,6 +135,9 @@ public abstract class AbstractDataSourceProfile implements DataSourceProfile {
         }
         if (CapabilityId.FUNCTION_QUERY_TABLE_RESULT.equals(capabilityId)) {
             return FeatureId.FUNCTION_TABLE_RESULT;
+        }
+        if (CapabilityId.FUNCTION_CALL_CALLBACK.equals(capabilityId)) {
+            return FeatureId.FUNCTION_CALL_CALLBACK;
         }
         if (capabilityId.startsWith("function.")) {
             return FeatureId.FUNCTION;

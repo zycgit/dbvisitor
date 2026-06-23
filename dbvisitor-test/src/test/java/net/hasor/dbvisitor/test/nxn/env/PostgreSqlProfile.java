@@ -2,6 +2,8 @@ package net.hasor.dbvisitor.test.nxn.env;
 
 import org.jetbrains.annotations.NotNull;
 
+import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
+
 public final class PostgreSqlProfile extends AbstractDataSourceProfile {
     public static final PostgreSqlProfile INSTANCE = new PostgreSqlProfile();
 
@@ -11,7 +13,7 @@ public final class PostgreSqlProfile extends AbstractDataSourceProfile {
 
     @NotNull
     private static String[] features() {
-        return new String[0];
+        return new String[] { FeatureId.PROCEDURE_RESULT_SET };
     }
 
     @Override

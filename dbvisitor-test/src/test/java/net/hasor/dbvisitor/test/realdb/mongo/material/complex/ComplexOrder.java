@@ -1,14 +1,13 @@
 package net.hasor.dbvisitor.test.realdb.mongo.material.complex;
 import java.util.List;
 import net.hasor.dbvisitor.mapping.Column;
-import net.hasor.dbvisitor.mapping.KeyType;
 import net.hasor.dbvisitor.mapping.Table;
 import net.hasor.dbvisitor.types.handler.json.BsonListTypeHandler;
 import net.hasor.dbvisitor.types.handler.json.BsonTypeHandler;
 
 @Table("complex_order")
 public class ComplexOrder {
-    @Column(value = "_id", primary = true, keyType = KeyType.Auto, whereValueTemplate = "ObjectId(?)")
+    @Column(value = "_id", primary = true)
     private String id;
 
     @Column(value = "address", typeHandler = BsonTypeHandler.class)

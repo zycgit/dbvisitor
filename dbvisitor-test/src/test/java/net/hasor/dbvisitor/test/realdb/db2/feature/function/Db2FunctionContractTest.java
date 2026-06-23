@@ -16,6 +16,10 @@ public class Db2FunctionContractTest extends AbstractFunctionContractTest {
     protected void createFunctionDefinitions() throws SQLException {
         dropFunction("nxn_fn_add_numbers");
         dropFunction("nxn_fn_multiply");
+        dropFunction("nxn_fn_calc_numbers");
+        dropFunction("nxn_fn_multi_resultsets");
+        dropFunction("nxn_fn_filter_users");
+        dropFunction("nxn_fn_complex_params");
         dropFunction("nxn_fn_get_username");
         dropFunction("nxn_fn_transform_string");
 
@@ -28,6 +32,24 @@ public class Db2FunctionContractTest extends AbstractFunctionContractTest {
                 "RETURN SELECT name FROM user_info WHERE id = user_id");
         jdbcTemplate.execute("CREATE FUNCTION nxn_fn_transform_string(text_value VARCHAR(255), suffix VARCHAR(255)) " + //
                 "RETURNS VARCHAR(255) LANGUAGE SQL DETERMINISTIC NO EXTERNAL ACTION RETURN UPPER(text_value) || suffix");
+        jdbcTemplate.execute("CREATE FUNCTION nxn_fn_calc_numbers(a INT, b INT) " + //
+                "RETURNS TABLE(sum_result INT, diff_result INT, mult_result INT, div_result DECIMAL(10, 2)) " + //
+                "LANGUAGE SQL DETERMINISTIC NO EXTERNAL ACTION RETURN " + //
+                "SELECT a + b, a - b, a * b, DECIMAL(a, 10, 2) / DECIMAL(b, 10, 2) FROM SYSIBM.SYSDUMMY1");
+        jdbcTemplate.execute("CREATE FUNCTION nxn_fn_multi_resultsets() " + //
+                "RETURNS TABLE(result_set INT, name VARCHAR(255), value INT) " + //
+                "LANGUAGE SQL READS SQL DATA NO EXTERNAL ACTION RETURN " + //
+                "SELECT 1, CAST(name AS VARCHAR(255)), age FROM user_info WHERE id BETWEEN 918101 AND 918103 " + //
+                "UNION ALL SELECT 2, CAST(string_value AS VARCHAR(255)), int_value FROM basic_types_test WHERE id BETWEEN 918101 AND 918102");
+        jdbcTemplate.execute("CREATE FUNCTION nxn_fn_filter_users(min_age INT) " + //
+                "RETURNS TABLE(id INT, name VARCHAR(255), age INT) " + //
+                "LANGUAGE SQL READS SQL DATA NO EXTERNAL ACTION RETURN " + //
+                "SELECT id, CAST(name AS VARCHAR(255)), age FROM user_info WHERE id BETWEEN 918101 AND 918103 AND age >= min_age");
+        jdbcTemplate.execute("CREATE FUNCTION nxn_fn_complex_params(input_id INT, counter INT) " + //
+                "RETURNS TABLE(counter INT, user_name VARCHAR(255), user_age INT) " + //
+                "LANGUAGE SQL READS SQL DATA NO EXTERNAL ACTION RETURN " + //
+                "SELECT counter + 1, COALESCE((SELECT name FROM user_info WHERE id = input_id), 'Unknown'), "
+                + "COALESCE((SELECT age FROM user_info WHERE id = input_id), 0) FROM SYSIBM.SYSDUMMY1");
     }
 
     @Override
@@ -38,6 +60,26 @@ public class Db2FunctionContractTest extends AbstractFunctionContractTest {
     @Override
     protected String multiplyNamedQuerySql() {
         return "SELECT nxn_fn_multiply(:x, :y) AS result FROM SYSIBM.SYSDUMMY1";
+    }
+
+    @Override
+    protected String calcNumbersQuerySql() {
+        return "SELECT * FROM TABLE(nxn_fn_calc_numbers(?, ?))";
+    }
+
+    @Override
+    protected String multiResultsetsQuerySql() {
+        return "SELECT * FROM TABLE(nxn_fn_multi_resultsets())";
+    }
+
+    @Override
+    protected String filterUsersQuerySql() {
+        return "SELECT * FROM TABLE(nxn_fn_filter_users(?)) ORDER BY age, id";
+    }
+
+    @Override
+    protected String complexParamsQuerySql() {
+        return "SELECT * FROM TABLE(nxn_fn_complex_params(?, ?))";
     }
 
     @Override

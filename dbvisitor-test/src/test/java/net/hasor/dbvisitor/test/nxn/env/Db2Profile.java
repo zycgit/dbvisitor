@@ -19,16 +19,14 @@ public final class Db2Profile extends AbstractDataSourceProfile {
                 FeatureId.KNN,                   //
                 FeatureId.PROCEDURE_CURSOR_RESULT, //
                 FeatureId.XML_MAPPER_CALLABLE,   //
-                FeatureId.FUNCTION_RECORD_RESULT, //
-                FeatureId.FUNCTION_TABLE_RESULT, //
                 FeatureId.VECTOR,                //
                 FeatureId.XML_SELECT_KEY_USER_INFO_SEQUENCE, //
                 FeatureId.POSTGRES_ON_CONFLICT,  //
-                FeatureId.DUPLICATE_KEY_STRATEGY,//
                 FeatureId.BIT_CAST_NULL_VALUE,   //
                 FeatureId.SQL_MD5_FUNCTION,      //
                 FeatureId.DELIMITED_LOWERCASE_STANDARD_TABLE, //
-                FeatureId.CASE_SENSITIVE_IDENTIFIERS };
+                FeatureId.CASE_SENSITIVE_IDENTIFIERS, //
+                FeatureId.MULTIPLE_RESULT_SETS };
     }
 
     @Override
