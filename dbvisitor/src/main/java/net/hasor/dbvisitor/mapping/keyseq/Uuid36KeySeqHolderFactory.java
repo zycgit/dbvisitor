@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.mapping.keyseq;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.UUID;
 import net.hasor.dbvisitor.mapping.GeneratedKeyHandler;
 import net.hasor.dbvisitor.mapping.GeneratedKeyHandlerContext;
@@ -36,7 +37,12 @@ public class Uuid36KeySeqHolderFactory implements GeneratedKeyHandlerFactory {
             }
 
             @Override
-            public Object beforeApply(Connection conn, Object entity, ColumnMapping mapping) {
+            public Object beforeApply(Connection conn, Object entity, ColumnMapping mapping) throws java.sql.SQLException {
+                Class<?> javaType = mapping.getJavaType();
+                if (!String.class.equals(javaType)) {
+                    throw new SQLException("UUID36 key holder requires String target property, but was " + (javaType == null ? "null" : javaType.getName()));
+                }
+
                 String genUUID = UUID.randomUUID().toString();
                 mapping.getHandler().set(entity, genUUID);
                 return genUUID;
