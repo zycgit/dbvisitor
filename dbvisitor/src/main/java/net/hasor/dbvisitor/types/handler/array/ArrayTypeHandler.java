@@ -100,17 +100,38 @@ public class ArrayTypeHandler extends AbstractTypeHandler<Object> {
 
     @Override
     public Object getNullableResult(ResultSet rs, String columnName) throws SQLException {
-        return extractArray(rs.getArray(columnName));
+        try {
+            return extractArray(rs.getArray(columnName));
+        } catch (SQLException e) {
+            if (rs.getObject(columnName) == null) {
+                return null;
+            }
+            throw e;
+        }
     }
 
     @Override
     public Object getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
-        return extractArray(rs.getArray(columnIndex));
+        try {
+            return extractArray(rs.getArray(columnIndex));
+        } catch (SQLException e) {
+            if (rs.getObject(columnIndex) == null) {
+                return null;
+            }
+            throw e;
+        }
     }
 
     @Override
     public Object getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
-        return extractArray(cs.getArray(columnIndex));
+        try {
+            return extractArray(cs.getArray(columnIndex));
+        } catch (SQLException e) {
+            if (cs.getObject(columnIndex) == null) {
+                return null;
+            }
+            throw e;
+        }
     }
 
     protected Object extractArray(Array array) throws SQLException {
