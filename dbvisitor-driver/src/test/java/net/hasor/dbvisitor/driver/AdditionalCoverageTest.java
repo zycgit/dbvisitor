@@ -1,5 +1,5 @@
 package net.hasor.dbvisitor.driver;
-
+import static org.junit.Assert.*;
 import java.io.ByteArrayInputStream;
 import java.io.StringReader;
 import java.math.BigDecimal;
@@ -9,7 +9,6 @@ import java.util.Properties;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /** Additional tests for JdbcStatement, JdbcResultSet, JdbcParameterMetaData — targeting remaining uncovered lines. */
 public class AdditionalCoverageTest {
@@ -21,7 +20,7 @@ public class AdditionalCoverageTest {
         Class.forName("net.hasor.dbvisitor.driver.JdbcDriver");
         Properties props = new Properties();
         props.setProperty(JdbcDriver.P_ADAPTER_NAME, "mock");
-        conn = new JdbcConnection("jdbc:dbvisitor:mock://localhost", props, null);
+        conn = new JdbcConnection("jdbc:dbvisitor:mock://localhost", props);
     }
 
     @After
@@ -121,7 +120,9 @@ public class AdditionalCoverageTest {
         stmt.setLargeMaxRows(Long.MAX_VALUE);
         try {
             stmt.getMaxRows();
-        } catch (SQLException expected) { /* overflow */ }
+        } catch (SQLException expected) {
+            /* overflow */
+        }
         assertEquals(Long.MAX_VALUE, stmt.getLargeMaxRows());
         stmt.close();
     }

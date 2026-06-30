@@ -1,5 +1,5 @@
 package net.hasor.dbvisitor.driver;
-
+import static org.junit.Assert.assertEquals;
 import java.io.ByteArrayInputStream;
 import java.io.StringReader;
 import java.math.BigDecimal;
@@ -13,8 +13,6 @@ import java.util.Properties;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-
 /** Comprehensive tests for JdbcCallableStatement — covers callable execution, OUT parameters, named set/get methods. */
 public class JdbcCallableStatementTest {
 
@@ -25,7 +23,7 @@ public class JdbcCallableStatementTest {
         Class.forName("net.hasor.dbvisitor.driver.JdbcDriver");
         Properties props = new Properties();
         props.setProperty(JdbcDriver.P_ADAPTER_NAME, "mock");
-        conn = new JdbcConnection("jdbc:dbvisitor:mock://localhost", props, null);
+        conn = new JdbcConnection("jdbc:dbvisitor:mock://localhost", props);
     }
 
     @After
@@ -51,7 +49,9 @@ public class JdbcCallableStatementTest {
         cs.execute();
         try {
             cs.getInt(1);
-        } catch (SQLException ignore) { /* No row available - expected */ }
+        } catch (SQLException ignore) {
+            /* No row available - expected */
+        }
         cs.close();
     }
 
@@ -78,7 +78,9 @@ public class JdbcCallableStatementTest {
         cs.execute();
         try {
             cs.getInt("arg1");
-        } catch (SQLException ignore) { /* No row available - expected */ }
+        } catch (SQLException ignore) {
+            /* No row available - expected */
+        }
         cs.close();
     }
 
@@ -967,7 +969,9 @@ public class JdbcCallableStatementTest {
         CallableStatement cs = conn.prepareCall("{call myproc}");
         try {
             cs.setTime("arg1", java.sql.Time.valueOf("12:30:00"), Calendar.getInstance());
-        } catch (UnsupportedOperationException ignore) { /* Time.toInstant() unsupported in Java 8 */ }
+        } catch (UnsupportedOperationException ignore) {
+            /* Time.toInstant() unsupported in Java 8 */
+        }
         cs.execute();
         cs.close();
     }

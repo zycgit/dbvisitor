@@ -1,5 +1,5 @@
 package net.hasor.dbvisitor.driver;
-
+import static org.junit.Assert.*;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.sql.Array;
@@ -10,7 +10,6 @@ import java.util.*;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 public class JdbcResultSetTest {
 
@@ -42,7 +41,7 @@ public class JdbcResultSetTest {
         Properties props = new Properties();
         props.setProperty(JdbcDriver.P_ADAPTER_NAME, "mock");
 
-        JdbcConnection conn = new JdbcConnection("jdbc:dbvisitor:mock://localhost", props, null);
+        JdbcConnection conn = new JdbcConnection("jdbc:dbvisitor:mock://localhost", props);
         JdbcStatement statement = new JdbcStatement(conn);
         return new JdbcResultSet(statement, cursor);
     }
@@ -128,7 +127,7 @@ public class JdbcResultSetTest {
     public void testGetArray_withSqlArray() throws SQLException {
         Properties props = new Properties();
         props.setProperty(JdbcDriver.P_ADAPTER_NAME, "mock");
-        JdbcConnection conn = new JdbcConnection("jdbc:dbvisitor:mock://localhost", props, null);
+        JdbcConnection conn = new JdbcConnection("jdbc:dbvisitor:mock://localhost", props);
 
         Array mockArray = new JdbcArray(conn, "VARCHAR", Arrays.asList("1", "2"));
         JdbcResultSet rs = createResultSet(mockArray);

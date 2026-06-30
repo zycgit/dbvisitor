@@ -23,16 +23,16 @@ import net.hasor.dbvisitor.driver.lob.JdbcBob;
 import net.hasor.dbvisitor.driver.lob.JdbcCob;
 
 class JdbcConnection implements Connection, Closeable {
-    private       boolean            closed = false;
+    private boolean                  closed = false;
     private final AdapterConnection  connection;
     private final TypeSupport        typeSupport;
     private final TransactionSupport txSupport;
 
-    JdbcConnection(String jdbcUrl, Properties properties, ClassLoader cl) throws SQLException {
+    JdbcConnection(String jdbcUrl, Properties properties) throws SQLException {
         Objects.requireNonNull(properties, "parameter properties is null.");
         String adapter = properties.getProperty(JdbcDriver.P_ADAPTER_NAME);
 
-        AdapterFactory factory = AdapterManager.lookup(adapter, cl);
+        AdapterFactory factory = AdapterManager.lookup(adapter);
         TypeSupport ts = factory.createTypeSupport(properties);
 
         this.connection = factory.createConnection(this, jdbcUrl, properties);

@@ -24,9 +24,8 @@ import java.util.logging.Logger;
 import net.hasor.cobble.StringUtils;
 
 public class JdbcDriver implements java.sql.Driver {
-    private static final Logger      loggerParent = Logger.getLogger("dbvisitor.adapter");
-    private static final Logger      logger       = Logger.getLogger("dbvisitor.adapter.driver");
-    private static final ClassLoader classLoader  = JdbcDriver.class.getClassLoader();
+    private static final Logger loggerParent = Logger.getLogger("dbvisitor.adapter");
+    private static final Logger logger       = Logger.getLogger("dbvisitor.adapter.driver");
 
     //
     public static final String P_SERVER       = "server";     // driver attr for host
@@ -52,6 +51,7 @@ public class JdbcDriver implements java.sql.Driver {
 
     static {
         try {
+            AdapterManager.register(JdbcDriver.class.getClassLoader());
             DriverManager.registerDriver(new JdbcDriver());
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -61,7 +61,7 @@ public class JdbcDriver implements java.sql.Driver {
     @Override
     public Connection connect(String url, Properties info) throws SQLException {
         if (StringUtils.startsWith(url, START_URL)) {
-            return new JdbcConnection(url, parseURL(url, info), classLoader);
+            return new JdbcConnection(url, parseURL(url, info));
         } else {
             return null;
         }
@@ -145,7 +145,7 @@ public class JdbcDriver implements java.sql.Driver {
             return new DriverPropertyInfo[0];
         }
 
-        String[] knownProperties = AdapterManager.propertyNames(adapterName, copy, classLoader);
+        String[] knownProperties = AdapterManager.propertyNames(adapterName, copy);
         DriverPropertyInfo[] props = new DriverPropertyInfo[knownProperties.length];
         for (int i = 0; i < props.length; ++i) {
             String name = knownProperties[i];

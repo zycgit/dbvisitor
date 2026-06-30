@@ -1,5 +1,5 @@
 package net.hasor.dbvisitor.driver;
-
+import static org.junit.Assert.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,8 +9,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
-
 /** Tests targeting AdapterConnection (unwrap, timer, features) and AdapterContainer (package-private). */
 public class AdapterConnectionContainerTest {
 
@@ -22,7 +20,7 @@ public class AdapterConnectionContainerTest {
         Class.forName("net.hasor.dbvisitor.driver.JdbcDriver");
         Properties props = new Properties();
         props.setProperty(JdbcDriver.P_ADAPTER_NAME, "mock");
-        conn = new JdbcConnection("jdbc:dbvisitor:mock://localhost", props, null);
+        conn = new JdbcConnection("jdbc:dbvisitor:mock://localhost", props);
         mockConn = (MockAdapterConnection) conn.adapterConnection();
     }
 

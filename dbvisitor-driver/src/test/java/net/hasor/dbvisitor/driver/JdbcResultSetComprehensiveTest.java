@@ -1,5 +1,5 @@
 package net.hasor.dbvisitor.driver;
-
+import static org.junit.Assert.*;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.Calendar;
@@ -7,7 +7,6 @@ import java.util.Properties;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /** Comprehensive tests for JdbcResultSet — covers getXxx, navigation, metadata, wasNull, updateXxx unsupported, etc. */
 public class JdbcResultSetComprehensiveTest {
@@ -19,7 +18,7 @@ public class JdbcResultSetComprehensiveTest {
         Class.forName("net.hasor.dbvisitor.driver.JdbcDriver");
         Properties props = new Properties();
         props.setProperty(JdbcDriver.P_ADAPTER_NAME, "mock");
-        conn = new JdbcConnection("jdbc:dbvisitor:mock://localhost", props, null);
+        conn = new JdbcConnection("jdbc:dbvisitor:mock://localhost", props);
     }
 
     @After

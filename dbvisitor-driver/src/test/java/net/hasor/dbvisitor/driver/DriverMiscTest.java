@@ -1,5 +1,5 @@
 package net.hasor.dbvisitor.driver;
-
+import static org.junit.Assert.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.DriverPropertyInfo;
@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.Properties;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /** Tests for JdbcDriver, AdapterManager, JdbcArray, and other small utility classes. */
 public class DriverMiscTest {
@@ -87,7 +86,7 @@ public class DriverMiscTest {
     public void array_getBaseTypeName() throws Exception {
         Properties props = new Properties();
         props.setProperty(JdbcDriver.P_ADAPTER_NAME, "mock");
-        JdbcConnection conn = new JdbcConnection("jdbc:dbvisitor:mock://localhost", props, null);
+        JdbcConnection conn = new JdbcConnection("jdbc:dbvisitor:mock://localhost", props);
 
         JdbcArray arr = new JdbcArray(conn, "VARCHAR", Arrays.asList("a", "b", "c"));
         assertEquals("VARCHAR", arr.getBaseTypeName());
@@ -108,7 +107,7 @@ public class DriverMiscTest {
     public void array_getArray_map_unsupported() throws Exception {
         Properties props = new Properties();
         props.setProperty(JdbcDriver.P_ADAPTER_NAME, "mock");
-        JdbcConnection conn = new JdbcConnection("jdbc:dbvisitor:mock://localhost", props, null);
+        JdbcConnection conn = new JdbcConnection("jdbc:dbvisitor:mock://localhost", props);
         JdbcArray arr = new JdbcArray(conn, "VARCHAR", Arrays.asList("a"));
         arr.getArray(new java.util.HashMap<String, Class<?>>());
     }
@@ -117,7 +116,7 @@ public class DriverMiscTest {
     public void array_getArray_subMap_unsupported() throws Exception {
         Properties props = new Properties();
         props.setProperty(JdbcDriver.P_ADAPTER_NAME, "mock");
-        JdbcConnection conn = new JdbcConnection("jdbc:dbvisitor:mock://localhost", props, null);
+        JdbcConnection conn = new JdbcConnection("jdbc:dbvisitor:mock://localhost", props);
         JdbcArray arr = new JdbcArray(conn, "VARCHAR", Arrays.asList("a"));
         arr.getArray(1, 1, new java.util.HashMap<String, Class<?>>());
     }
@@ -126,7 +125,7 @@ public class DriverMiscTest {
     public void array_getResultSet_unsupported() throws Exception {
         Properties props = new Properties();
         props.setProperty(JdbcDriver.P_ADAPTER_NAME, "mock");
-        JdbcConnection conn = new JdbcConnection("jdbc:dbvisitor:mock://localhost", props, null);
+        JdbcConnection conn = new JdbcConnection("jdbc:dbvisitor:mock://localhost", props);
         JdbcArray arr = new JdbcArray(conn, "VARCHAR", Arrays.asList("a"));
         arr.getResultSet();
     }
@@ -135,7 +134,7 @@ public class DriverMiscTest {
     public void array_getResultSet_range_unsupported() throws Exception {
         Properties props = new Properties();
         props.setProperty(JdbcDriver.P_ADAPTER_NAME, "mock");
-        JdbcConnection conn = new JdbcConnection("jdbc:dbvisitor:mock://localhost", props, null);
+        JdbcConnection conn = new JdbcConnection("jdbc:dbvisitor:mock://localhost", props);
         JdbcArray arr = new JdbcArray(conn, "VARCHAR", Arrays.asList("a"));
         arr.getResultSet(1, 1);
     }
@@ -144,7 +143,7 @@ public class DriverMiscTest {
     public void array_getResultSet_map_unsupported() throws Exception {
         Properties props = new Properties();
         props.setProperty(JdbcDriver.P_ADAPTER_NAME, "mock");
-        JdbcConnection conn = new JdbcConnection("jdbc:dbvisitor:mock://localhost", props, null);
+        JdbcConnection conn = new JdbcConnection("jdbc:dbvisitor:mock://localhost", props);
         JdbcArray arr = new JdbcArray(conn, "VARCHAR", Arrays.asList("a"));
         arr.getResultSet(new java.util.HashMap<String, Class<?>>());
     }
@@ -153,7 +152,7 @@ public class DriverMiscTest {
     public void array_getResultSet_rangeMap_unsupported() throws Exception {
         Properties props = new Properties();
         props.setProperty(JdbcDriver.P_ADAPTER_NAME, "mock");
-        JdbcConnection conn = new JdbcConnection("jdbc:dbvisitor:mock://localhost", props, null);
+        JdbcConnection conn = new JdbcConnection("jdbc:dbvisitor:mock://localhost", props);
         JdbcArray arr = new JdbcArray(conn, "VARCHAR", Arrays.asList("a"));
         arr.getResultSet(1, 1, new java.util.HashMap<String, Class<?>>());
     }
@@ -171,13 +170,13 @@ public class DriverMiscTest {
     // ==================== AdapterManager ====================
     @Test
     public void adapterManager_lookup() throws Exception {
-        AdapterFactory factory = AdapterManager.lookup("mock", null);
+        AdapterFactory factory = AdapterManager.lookup("mock");
         assertNotNull(factory);
         assertEquals("mock", factory.getAdapterName());
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void adapterManager_lookup_unknown() throws Exception {
-        AdapterManager.lookup("nonexistent_adapter_xyz", null);
+        AdapterManager.lookup("nonexistent_adapter_xyz");
     }
 }

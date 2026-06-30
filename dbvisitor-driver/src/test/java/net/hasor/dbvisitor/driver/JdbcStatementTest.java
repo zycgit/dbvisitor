@@ -1,5 +1,5 @@
 package net.hasor.dbvisitor.driver;
-
+import static org.junit.Assert.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
@@ -8,7 +8,6 @@ import java.util.Properties;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /** Comprehensive tests for JdbcStatement — covers execute, query, update, cancel, properties, and unsupported methods. */
 public class JdbcStatementTest {
@@ -20,7 +19,7 @@ public class JdbcStatementTest {
         Class.forName("net.hasor.dbvisitor.driver.JdbcDriver");
         Properties props = new Properties();
         props.setProperty(JdbcDriver.P_ADAPTER_NAME, "mock");
-        conn = new JdbcConnection("jdbc:dbvisitor:mock://localhost", props, null);
+        conn = new JdbcConnection("jdbc:dbvisitor:mock://localhost", props);
     }
 
     @After
@@ -108,7 +107,9 @@ public class JdbcStatementTest {
         try {
             boolean more = stmt.getMoreResults();
             // mock returns single result, no more
-        } catch (SQLException ignore) { /* expected - mock may not support nextResult */ }
+        } catch (SQLException ignore) {
+            /* expected - mock may not support nextResult */
+        }
         stmt.close();
     }
 

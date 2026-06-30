@@ -1,5 +1,5 @@
 package net.hasor.dbvisitor.driver;
-
+import static org.junit.Assert.*;
 import java.io.ByteArrayInputStream;
 import java.io.StringReader;
 import java.math.BigDecimal;
@@ -7,12 +7,11 @@ import java.net.URL;
 import java.sql.*;
 import java.util.Calendar;
 import java.util.Properties;
-import net.hasor.dbvisitor.driver.lob.JdbcBob;
-import net.hasor.dbvisitor.driver.lob.JdbcCob;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import net.hasor.dbvisitor.driver.lob.JdbcBob;
+import net.hasor.dbvisitor.driver.lob.JdbcCob;
 
 /** Comprehensive tests for JdbcPreparedStatement — covers all setXxx, execute, clearing, and metadata. */
 public class JdbcPreparedStatementTest {
@@ -24,7 +23,7 @@ public class JdbcPreparedStatementTest {
         Class.forName("net.hasor.dbvisitor.driver.JdbcDriver");
         Properties props = new Properties();
         props.setProperty(JdbcDriver.P_ADAPTER_NAME, "mock");
-        conn = new JdbcConnection("jdbc:dbvisitor:mock://localhost", props, null);
+        conn = new JdbcConnection("jdbc:dbvisitor:mock://localhost", props);
     }
 
     @After
@@ -219,7 +218,9 @@ public class JdbcPreparedStatementTest {
         PreparedStatement ps = conn.prepareStatement("INSERT INTO test VALUES (?)");
         try {
             ps.setTime(1, java.sql.Time.valueOf("12:30:00"), Calendar.getInstance());
-        } catch (UnsupportedOperationException ignore) { /* Time.toInstant() unsupported in Java 8 */ }
+        } catch (UnsupportedOperationException ignore) {
+            /* Time.toInstant() unsupported in Java 8 */
+        }
         ps.close();
     }
 

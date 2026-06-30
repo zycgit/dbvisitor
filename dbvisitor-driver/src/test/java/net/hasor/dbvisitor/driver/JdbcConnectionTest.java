@@ -1,11 +1,10 @@
 package net.hasor.dbvisitor.driver;
-
+import static org.junit.Assert.*;
 import java.sql.*;
 import java.util.Properties;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /** Comprehensive tests for JdbcConnection — covers all creation methods, transaction, metadata, and unsupported. */
 public class JdbcConnectionTest {
@@ -17,7 +16,7 @@ public class JdbcConnectionTest {
         Class.forName("net.hasor.dbvisitor.driver.JdbcDriver");
         Properties props = new Properties();
         props.setProperty(JdbcDriver.P_ADAPTER_NAME, "mock");
-        conn = new JdbcConnection("jdbc:dbvisitor:mock://localhost", props, null);
+        conn = new JdbcConnection("jdbc:dbvisitor:mock://localhost", props);
     }
 
     @After
