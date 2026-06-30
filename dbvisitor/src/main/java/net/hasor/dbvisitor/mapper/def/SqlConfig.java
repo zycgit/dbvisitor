@@ -33,8 +33,8 @@ import net.hasor.dbvisitor.mapper.StatementType;
  */
 public abstract class SqlConfig implements DynamicSql, ConfigKeys {
     protected ArrayDynamicSql target;
-    private   StatementType   statementType = StatementType.Prepared;
-    private   int             timeout       = -1;
+    private StatementType     statementType = StatementType.Prepared;
+    private int               timeout       = -1;
 
     /**
      * 构造函数，用于初始化 SqlConfig 对象。

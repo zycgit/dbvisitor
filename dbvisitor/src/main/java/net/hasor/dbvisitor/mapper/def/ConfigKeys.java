@@ -39,6 +39,7 @@ public interface ConfigKeys {
 
     // 插入(INSERT)相关配置键
     String KEY_GENERATED = "useGeneratedKeys";          // 是否使用生成键
+    String KEY_SOURCE    = "generatedKeySource";        // 生成键来源
     String KEY_PROPERTY  = "keyProperty";               // 键属性名
     String KEY_COLUMN    = "keyColumn";                 // 键列名
 

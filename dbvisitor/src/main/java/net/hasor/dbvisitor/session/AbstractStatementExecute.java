@@ -34,12 +34,9 @@ import net.hasor.dbvisitor.jdbc.extractor.ColumnMapResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.extractor.RowCallbackHandlerResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.extractor.RowMapperResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.mapper.TypeHandlerColumnRowMapper;
+import net.hasor.dbvisitor.mapper.GeneratedKeySource;
 import net.hasor.dbvisitor.mapper.StatementDef;
-import net.hasor.dbvisitor.mapper.def.DmlConfig;
-import net.hasor.dbvisitor.mapper.def.DqlConfig;
-import net.hasor.dbvisitor.mapper.def.ExecuteConfig;
-import net.hasor.dbvisitor.mapper.def.InsertConfig;
-import net.hasor.dbvisitor.mapper.def.SqlConfig;
+import net.hasor.dbvisitor.mapper.def.*;
 import net.hasor.dbvisitor.mapping.MappingHelper;
 import net.hasor.dbvisitor.page.Page;
 import net.hasor.dbvisitor.page.PageResult;
@@ -52,8 +49,8 @@ import net.hasor.dbvisitor.types.TypeHandlerRegistry;
  * @version 2021-07-20
  */
 public abstract class AbstractStatementExecute {
-    protected static final Logger        logger = LoggerFactory.getLogger(AbstractStatementExecute.class);
-    protected final        Configuration registry;
+    protected static final Logger logger = LoggerFactory.getLogger(AbstractStatementExecute.class);
+    protected final Configuration registry;
 
     public AbstractStatementExecute(Configuration registry) {
         this.registry = registry;
@@ -214,9 +211,12 @@ public abstract class AbstractStatementExecute {
             if (def.getConfig() instanceof DmlConfig) {
                 int updateCount = stat.getUpdateCount();
                 if (def.getConfig() instanceof InsertConfig) {
-                    InsertConfig insertConfig = (InsertConfig) def.getConfig();
-                    if (insertConfig.isUseGeneratedKeys() && insertConfig.getKeyProperty() != null && !insertConfig.getKeyProperty().isEmpty()) {
-                        this.fillGeneratedKeys(stat, insertConfig, ctx);
+                    InsertConfig c = (InsertConfig) def.getConfig();
+                    if (c.isUseGeneratedKeys() && c.getKeyProperty() != null && !c.getKeyProperty().isEmpty()) {
+                        int affectedRows = this.fillGeneratedKeys(stat, c, ctx, retVal, c.getGeneratedKeySource());
+                        if (updateCount < 0 && affectedRows > 0) {
+                            return affectedRows;
+                        }
                     }
                 }
                 return updateCount;
@@ -224,10 +224,6 @@ public abstract class AbstractStatementExecute {
 
             if (retVal) {
                 try (ResultSet rs = stat.getResultSet()) {
-                    if (rs.isLast()) {
-                        return Collections.emptyList();
-                    }
-
                     if (def.getResultExtractor() != null) {
                         return def.getResultExtractor().extractData(rs);
                     } else if (def.getResultRowCallback() != null) {
@@ -279,17 +275,34 @@ public abstract class AbstractStatementExecute {
     }
 
     /** fetch generated keys from statement and backfill into parameter context (MergedMap → BeanMap → original bean) */
-    private void fillGeneratedKeys(Statement stat, InsertConfig insertConfig, Map<String, Object> ctx) throws SQLException {
+    private int fillGeneratedKeys(Statement stat, InsertConfig insertConfig, Map<String, Object> ctx, boolean retVal, GeneratedKeySource source) throws SQLException {
+        if (source == GeneratedKeySource.ResultSet) {
+            if (!retVal) {
+                return 0;
+            }
+            try (ResultSet rs = stat.getResultSet()) {
+                return this.fillGeneratedKeysFromResultSet(rs, insertConfig, ctx);
+            }
+        } else {
+            try (ResultSet rs = stat.getGeneratedKeys()) {
+                return this.fillGeneratedKeysFromResultSet(rs, insertConfig, ctx);
+            }
+        }
+    }
+
+    private int fillGeneratedKeysFromResultSet(ResultSet rs, InsertConfig insertConfig, Map<String, Object> ctx) throws SQLException {
         String keyProperty = insertConfig.getKeyProperty();
         String keyColumn = insertConfig.getKeyColumn();
         String[] properties = keyProperty.split(",");
 
-        try (ResultSet rs = stat.getGeneratedKeys()) {
-            if (rs != null && rs.next()) {
+        int rowCount = 0;
+        while (rs != null && rs.next()) {
+            rowCount++;
+            if (rowCount == 1) {
                 if (StringUtils.isNotBlank(keyColumn)) {
                     String[] columns = keyColumn.split(",");
                     for (int i = 0; i < properties.length && i < columns.length; i++) {
-                        Object value = rs.getObject(columns[i].trim());
+                        Object value = generatedKeyValue(rs, columns[i].trim(), i + 1);
                         ctx.put(properties[i].trim(), value);
                     }
                 } else {
@@ -299,6 +312,15 @@ public abstract class AbstractStatementExecute {
                     }
                 }
             }
+        }
+        return rowCount;
+    }
+
+    private Object generatedKeyValue(ResultSet rs, String column, int columnIndex) throws SQLException {
+        try {
+            return rs.getObject(column);
+        } catch (SQLException e) {
+            return rs.getObject(columnIndex);
         }
     }
 

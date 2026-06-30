@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import javax.xml.parsers.ParserConfigurationException;
+import org.xml.sax.SAXException;
 import net.hasor.cobble.ExceptionUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dynamic.logic.ArrayDynamicSql;
@@ -29,8 +30,6 @@ import net.hasor.dbvisitor.mapper.*;
 import net.hasor.dbvisitor.mapper.def.*;
 import net.hasor.dbvisitor.mapping.MappingHelper;
 import net.hasor.dbvisitor.mapping.ResultMap;
-import org.xml.sax.SAXException;
-
 /**
  * 解析动态 SQL 配置（注解形式）
  * @author 赵永春 (zyc@hasor.net)
@@ -46,7 +45,7 @@ public class ClassSqlConfigResolve implements SqlConfigResolve<Method>, ConfigKe
                 || annotation instanceof Execute//
                 || annotation instanceof Call   //
                 || annotation instanceof Segment//
-                ;
+        ;
     }
 
     protected void parseSelectKey(InsertConfig parentConfig, Method dalMethod) {
@@ -74,6 +73,7 @@ public class ClassSqlConfigResolve implements SqlConfigResolve<Method>, ConfigKe
             cfg.put(STATEMENT_TYPE, ((Insert) annotation).statementType().getTypeName());
             cfg.put(TIMEOUT, String.valueOf(((Insert) annotation).timeout()));
             cfg.put(KEY_GENERATED, String.valueOf(((Insert) annotation).useGeneratedKeys()));
+            cfg.put(KEY_SOURCE, ((Insert) annotation).generatedKeySource().getTypeName());
             cfg.put(KEY_PROPERTY, ((Insert) annotation).keyProperty());
             cfg.put(KEY_COLUMN, ((Insert) annotation).keyColumn());
 

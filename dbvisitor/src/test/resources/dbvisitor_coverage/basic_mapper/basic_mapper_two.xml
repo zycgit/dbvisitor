@@ -36,7 +36,7 @@
     </select>
 
     <insert id="configInsert" statementType="CALLABLE" timeout="123" useGeneratedKeys="true" keyProperty="numId"
-            keyColumn="num_id">
+            keyColumn="num_id" generatedKeySource="resultSet">
         insert into console_job (uid,name,login) values (#{info.userUuid}, #{info.name}, #{info.loginName})
     </insert>
 

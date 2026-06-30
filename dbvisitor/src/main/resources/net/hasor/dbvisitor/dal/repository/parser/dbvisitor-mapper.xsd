@@ -43,6 +43,15 @@
         </xs:restriction>
     </xs:simpleType>
 
+    <xs:simpleType name="generatedKeySource_type">
+        <xs:restriction base="xs:token">
+            <xs:enumeration value="generatedKeys"/>
+            <xs:enumeration value="GeneratedKeys"/>
+            <xs:enumeration value="resultSet"/>
+            <xs:enumeration value="ResultSet"/>
+        </xs:restriction>
+    </xs:simpleType>
+
     <!-- element -->
     <xs:element name="mapper">
         <xs:complexType>
@@ -202,6 +211,7 @@
             <xs:attribute name="statementType" type="statementType_type"/>
             <xs:attribute name="timeout"/>
             <xs:attribute name="useGeneratedKeys" type="boolean_type"/>
+            <xs:attribute name="generatedKeySource" type="generatedKeySource_type"/>
             <xs:attribute name="keyProperty"/>
             <xs:attribute name="keyColumn"/>
         </xs:complexType>

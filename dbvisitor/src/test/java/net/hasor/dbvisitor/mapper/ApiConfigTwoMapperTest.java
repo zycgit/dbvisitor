@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapper;
-
+import org.junit.Test;
 import net.hasor.dbvisitor.jdbc.mapper.BeanMappingRowMapper;
 import net.hasor.dbvisitor.mapper.def.*;
 import net.hasor.dbvisitor.mapper.dto.*;
-import org.junit.Test;
-
 /**
  * @author 赵永春 (zyc@hasor.net)
  * @version 2013-12-10
@@ -180,6 +178,7 @@ public class ApiConfigTwoMapperTest {
         assert ((InsertConfig) def.getConfig()).isUseGeneratedKeys();
         assert ((InsertConfig) def.getConfig()).getKeyProperty().equals("numId");
         assert ((InsertConfig) def.getConfig()).getKeyColumn().equals("num_id");
+        assert ((InsertConfig) def.getConfig()).getGeneratedKeySource() == GeneratedKeySource.ResultSet;
         assert ((InsertConfig) def.getConfig()).getSelectKey() == null;
     }
 

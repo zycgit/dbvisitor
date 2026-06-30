@@ -17,6 +17,7 @@ package net.hasor.dbvisitor.mapper.def;
 import java.util.function.Function;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dynamic.logic.ArrayDynamicSql;
+import net.hasor.dbvisitor.mapper.GeneratedKeySource;
 
 /**
  * Insert SqlConfig
@@ -24,14 +25,15 @@ import net.hasor.dbvisitor.dynamic.logic.ArrayDynamicSql;
  * @version 2021-06-19
  */
 public class InsertConfig extends DmlConfig {
-    private SelectKeyConfig selectKey;
-    private boolean         useGeneratedKeys;
-    private String          keyProperty;
-    private String          keyColumn;
+    private SelectKeyConfig    selectKey;
+    private boolean            useGeneratedKeys;
+    private GeneratedKeySource generatedKeySource;
+    private String             keyProperty;
+    private String             keyColumn;
 
     /**
      * 构造函数
-     * @param target 动态SQL构建目标对象
+     * @param target 动态 sql 构建目标对象
      * @param config 配置获取函数
      */
     public InsertConfig(ArrayDynamicSql target, Function<String, String> config) {
@@ -42,6 +44,7 @@ public class InsertConfig extends DmlConfig {
             this.useGeneratedKeys = StringUtils.isNotBlank(generated) && Boolean.parseBoolean(generated);
             this.keyProperty = config.apply(KEY_PROPERTY);
             this.keyColumn = config.apply(KEY_COLUMN);
+            this.generatedKeySource = GeneratedKeySource.valueOfCode(config.apply(KEY_SOURCE), GeneratedKeySource.GeneratedKeys);
         }
     }
 
@@ -80,5 +83,13 @@ public class InsertConfig extends DmlConfig {
 
     public void setKeyColumn(String keyColumn) {
         this.keyColumn = keyColumn;
+    }
+
+    public GeneratedKeySource getGeneratedKeySource() {
+        return this.generatedKeySource;
+    }
+
+    public void setGeneratedKeySource(GeneratedKeySource generatedKeySource) {
+        this.generatedKeySource = generatedKeySource;
     }
 }

@@ -15,17 +15,19 @@
  */
 package net.hasor.dbvisitor.session;
 import java.sql.*;
+import java.util.Arrays;
 import java.util.Map;
+import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.jdbc.extractor.PreparedMultipleResultSetExtractor;
+import net.hasor.dbvisitor.mapper.GeneratedKeySource;
 import net.hasor.dbvisitor.mapper.ResultSetType;
 import net.hasor.dbvisitor.mapper.def.DqlConfig;
 import net.hasor.dbvisitor.mapper.def.InsertConfig;
 import net.hasor.dbvisitor.mapper.def.SqlConfig;
 import net.hasor.dbvisitor.page.Page;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
-
 /**
  * 负责参数化SQL调用的执行器
  * @author 赵永春 (zyc@hasor.net)
@@ -52,9 +54,24 @@ public class PreparedStatementExecute extends AbstractStatementExecute {
                 return conn.prepareStatement(execSql.getSqlString(), resultSetTypeInt, ResultSet.CONCUR_READ_ONLY);
             }
         } else if (config instanceof InsertConfig c && c.isUseGeneratedKeys()) {
-            return conn.prepareStatement(execSql.getSqlString(), Statement.RETURN_GENERATED_KEYS);
+            return this.createInsertStatement(conn, execSql, c, c.getGeneratedKeySource());
         } else {
             return conn.prepareStatement(execSql.getSqlString());
+        }
+    }
+
+    private PreparedStatement createInsertStatement(Connection conn, BoundSql execSql, InsertConfig config, GeneratedKeySource source) throws SQLException {
+        if (source == GeneratedKeySource.ResultSet) {
+            return conn.prepareStatement(execSql.getSqlString());
+        } else {
+            String[] keyColumns = StringUtils.isBlank(config.getKeyColumn()) ? //
+                    new String[0] : //
+                    Arrays.stream(config.getKeyColumn().split(",")).map(String::trim).filter(StringUtils::isNotBlank).toArray(String[]::new);
+            if (keyColumns.length > 0) {
+                return conn.prepareStatement(execSql.getSqlString(), keyColumns);
+            } else {
+                return conn.prepareStatement(execSql.getSqlString(), Statement.RETURN_GENERATED_KEYS);
+            }
         }
     }
 

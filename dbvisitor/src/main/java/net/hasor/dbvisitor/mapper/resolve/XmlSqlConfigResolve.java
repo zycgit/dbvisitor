@@ -16,13 +16,12 @@
 package net.hasor.dbvisitor.mapper.resolve;
 import java.util.HashMap;
 import java.util.Map;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dynamic.logic.*;
 import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
 import net.hasor.dbvisitor.mapper.def.*;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 /**
  * parse dynamic SQL from mapperFile
  * @author 赵永春 (zyc@hasor.net)
@@ -52,6 +51,7 @@ public class XmlSqlConfigResolve implements SqlConfigResolve<Node>, ConfigKeys {
                 cfg.put(STATEMENT_TYPE, getNodeAttributeValue(config, "statementType"));
                 cfg.put(TIMEOUT, getNodeAttributeValue(config, "timeout"));
                 cfg.put(KEY_GENERATED, getNodeAttributeValue(config, "useGeneratedKeys"));
+                cfg.put(KEY_SOURCE, getNodeAttributeValue(config, "generatedKeySource"));
                 cfg.put(KEY_PROPERTY, getNodeAttributeValue(config, "keyProperty"));
                 cfg.put(KEY_COLUMN, getNodeAttributeValue(config, "keyColumn"));
 
