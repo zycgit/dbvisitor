@@ -24,6 +24,8 @@ import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.features.InsertSqlDialect;
 import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
+import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
+import net.hasor.dbvisitor.lambda.GeneratedKeyStrategy;
 import net.hasor.dbvisitor.lambda.core.OrderType;
 
 /**
@@ -108,32 +110,46 @@ public class MySqlDialect extends AbstractSqlDialect implements PageSqlDialect, 
     // --- InsertSqlDialect impl ---
 
     @Override
-    public boolean supportInto(List<String> primaryKey, List<String> columns) {
+    public GeneratedKeyStrategy generatedKeyStrategy(List<String> primaryKey, List<String> columns, List<String> returnColumns, DuplicateKeyStrategy strategy) {
+        if (returnColumns.isEmpty()) {
+            if (this.supportBatch()) {
+                return GeneratedKeyStrategy.JdbcBatch;
+            }
+        }
+
+        if (strategy == DuplicateKeyStrategy.Into) {
+            if (this.supportBatch()) {
+                return GeneratedKeyStrategy.JdbcBatchGeneratedKeys;
+            }
+        }
+
+        return GeneratedKeyStrategy.OneByOne;
+    }
+
+    @Override
+    public boolean supportDuplicateStrategy(List<String> primaryKey, List<String> columns, List<String> returnColumns, DuplicateKeyStrategy strategy) {
         return true;
     }
 
     @Override
-    public String insertInto(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
+    public String insertSql(DuplicateKeyStrategy duplicateStrategy, GeneratedKeyStrategy generatedStrategy, boolean useQualifier, String catalog, String schema, String table,//
+            List<String> primaryKey, List<String> columns, List<String> returnColumns, int insertRows, Map<String, String> columnValueTerms) {
+        return switch (duplicateStrategy == null ? DuplicateKeyStrategy.Into : duplicateStrategy) {
+            case Into -> this.insertInto(useQualifier, catalog, schema, table, columns, columnValueTerms);
+            case Ignore -> this.insertIgnore(useQualifier, catalog, schema, table, columns, columnValueTerms);
+            case Update -> this.insertReplace(useQualifier, catalog, schema, table, columns, columnValueTerms);
+        };
+    }
+
+    private String insertInto(boolean useQualifier, String catalog, String schema, String table, List<String> columns, Map<String, String> columnValueTerms) {
         return buildSql("INSERT INTO ", useQualifier, catalog, schema, table, columns, columnValueTerms, "");
     }
 
-    @Override
-    public boolean supportIgnore(List<String> primaryKey, List<String> columns) {
-        return true;
-    }
-
-    @Override
-    public String insertIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
+    private String insertIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> columns, Map<String, String> columnValueTerms) {
         return buildSql("INSERT IGNORE ", useQualifier, catalog, schema, table, columns, columnValueTerms, "");
     }
 
-    @Override
-    public boolean supportReplace(List<String> primaryKey, List<String> columns) {
-        return true;
-    }
-
-    @Override
-    public String insertReplace(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
+    private String insertReplace(boolean useQualifier, String catalog, String schema, String table, List<String> columns, Map<String, String> columnValueTerms) {
         StringBuilder sb = new StringBuilder(" ON DUPLICATE KEY UPDATE ");
         boolean first = true;
         for (String col : columns) {

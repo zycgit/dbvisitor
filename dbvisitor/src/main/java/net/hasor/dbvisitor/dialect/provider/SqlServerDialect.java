@@ -18,13 +18,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.features.InsertSqlDialect;
 import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
+import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
+import net.hasor.dbvisitor.lambda.GeneratedKeyStrategy;
+
 /**
  * SqlServer2005 的 SqlDialect 实现
  * @author 赵永春 (zyc@hasor.net)
@@ -150,35 +153,53 @@ public class SqlServerDialect extends AbstractSqlDialect implements PageSqlDiale
     // --- InsertSqlDialect impl ---
 
     @Override
-    public boolean supportInto(List<String> primaryKey, List<String> columns) {
-        return true;
+    public GeneratedKeyStrategy generatedKeyStrategy(List<String> primaryKey, List<String> columns, List<String> returnColumns, DuplicateKeyStrategy strategy) {
+        if (!returnColumns.isEmpty()) {
+            if (strategy == DuplicateKeyStrategy.Into) {
+                return GeneratedKeyStrategy.MultiValuesResultSet;
+            }
+        }
+
+        if (returnColumns.isEmpty()) {
+            if (this.supportBatch()) {
+                return GeneratedKeyStrategy.JdbcBatch;
+            }
+        }
+
+        return GeneratedKeyStrategy.OneByOne;
     }
 
     @Override
-    public String insertInto(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
-        return buildInsertSql("INSERT INTO ", useQualifier, catalog, schema, table, columns, columnValueTerms);
+    public boolean supportDuplicateStrategy(List<String> primaryKey, List<String> columns, List<String> returnColumns, DuplicateKeyStrategy strategy) {
+        return switch (strategy == null ? DuplicateKeyStrategy.Into : strategy) {
+            case Into -> true;
+            case Ignore, Update -> primaryKey != null && !primaryKey.isEmpty();
+        };
     }
 
     @Override
-    public boolean supportIgnore(List<String> primaryKey, List<String> columns) {
-        return primaryKey != null && !primaryKey.isEmpty();
+    public String insertSql(DuplicateKeyStrategy duplicateStrategy, GeneratedKeyStrategy generatedStrategy, boolean useQualifier, String catalog, String schema, String table,//
+            List<String> primaryKey, List<String> columns, List<String> returnColumns, int insertRows, Map<String, String> columnValueTerms) {
+        insertRows = generatedStrategy == GeneratedKeyStrategy.MultiValuesResultSet ? insertRows : 1;
+        return switch (duplicateStrategy == null ? DuplicateKeyStrategy.Into : duplicateStrategy) {
+            case Into -> this.insertInto(useQualifier, catalog, schema, table, columns, columnValueTerms, returnColumns, insertRows);
+            case Ignore -> this.insertIgnore(useQualifier, catalog, schema, table, primaryKey, columns, columnValueTerms);
+            case Update -> this.insertReplace(useQualifier, catalog, schema, table, primaryKey, columns, columnValueTerms);
+        };
     }
 
-    @Override
-    public String insertIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
+    private String insertInto(boolean useQualifier, String catalog, String schema, String table, List<String> columns, Map<String, String> columnValueTerms, List<String> returnColumns, int insertRows) {
+        return buildInsertSql("INSERT INTO ", useQualifier, catalog, schema, table, columns, columnValueTerms, returnColumns, insertRows);
+    }
+
+    private String insertIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
         StringBuilder sb = new StringBuilder();
         buildMergeInfoBasic(useQualifier, catalog, schema, table, primaryKey, columns, columnValueTerms, sb);
         buildMergeInfoWhenNotMatched(useQualifier, columns, sb);
         return sb.toString();
     }
 
-    @Override
-    public boolean supportReplace(List<String> primaryKey, List<String> columns) {
-        return primaryKey != null && !primaryKey.isEmpty();
-    }
-
-    @Override
-    public String insertReplace(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
+    private String insertReplace(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
         StringBuilder sb = new StringBuilder();
         buildMergeInfoBasic(useQualifier, catalog, schema, table, primaryKey, columns, columnValueTerms, sb);
         buildMergeInfoWhenMatched(useQualifier, primaryKey, columns, sb);
@@ -186,15 +207,35 @@ public class SqlServerDialect extends AbstractSqlDialect implements PageSqlDiale
         return sb.toString();
     }
 
-    private String buildInsertSql(String markString, boolean useQualifier, String catalog, String schema, String table, List<String> columns, Map<String, String> columnValueTerms) {
+    private String buildInsertSql(String markString, boolean useQualifier, String catalog, String schema, String table,//
+            List<String> columns, Map<String, String> columnValueTerms, List<String> returnColumns, int insertRows) {
         StringBuilder sb = new StringBuilder();
         sb.append(markString);
         sb.append(tableName(useQualifier, catalog, schema, table));
         sb.append(" (");
         appendColumnNames(sb, useQualifier, columns);
-        sb.append(") VALUES (");
-        appendValueTerms(sb, columns, columnValueTerms);
-        sb.append(")");
+        sb.append(") ");
+
+        if (CollectionUtils.isNotEmpty(returnColumns)) {
+            sb.append("OUTPUT ");
+            for (int i = 0; i < returnColumns.size(); i++) {
+                if (i > 0) {
+                    sb.append(", ");
+                }
+                sb.append("INSERTED.").append(fmtName(useQualifier, returnColumns.get(i)));
+            }
+            sb.append(" ");
+        }
+
+        sb.append("VALUES ");
+        for (int i = 0; i < insertRows; i++) {
+            if (i > 0) {
+                sb.append(", ");
+            }
+            sb.append("(");
+            appendValueTerms(sb, columns, columnValueTerms);
+            sb.append(")");
+        }
         return sb.toString();
     }
 
@@ -225,7 +266,7 @@ public class SqlServerDialect extends AbstractSqlDialect implements PageSqlDiale
     }
 
     private void buildMergeInfoWhenMatched(boolean useQualifier, List<String> primaryKey, List<String> allColumns, StringBuilder sb) {
-        List<String> updateColumns = allColumns.stream().filter(c -> !primaryKey.contains(c)).collect(Collectors.toList());
+        List<String> updateColumns = allColumns.stream().filter(c -> !primaryKey.contains(c)).toList();
         if (updateColumns.isEmpty()) {
             return;
         }

@@ -25,6 +25,8 @@ import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.features.InsertSqlDialect;
 import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
 import net.hasor.dbvisitor.dialect.features.SeqSqlDialect;
+import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
+import net.hasor.dbvisitor.lambda.GeneratedKeyStrategy;
 
 /**
  * H2 的 SqlDialect 实现
@@ -83,22 +85,39 @@ public class H2Dialect extends AbstractSqlDialect implements PageSqlDialect, Seq
     // --- InsertSqlDialect impl ---
 
     @Override
-    public boolean supportInto(List<String> primaryKey, List<String> columns) {
-        return true;
+    public GeneratedKeyStrategy generatedKeyStrategy(List<String> primaryKey, List<String> columns, List<String> returnColumns, DuplicateKeyStrategy strategy) {
+        if (returnColumns.isEmpty()) {
+            if (this.supportBatch()) {
+                return GeneratedKeyStrategy.JdbcBatch;
+            }
+        }
+        return GeneratedKeyStrategy.OneByOne;
     }
 
     @Override
-    public String insertInto(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
+    public boolean supportDuplicateStrategy(List<String> primaryKey, List<String> columns, List<String> returnColumns, DuplicateKeyStrategy strategy) {
+        return switch (strategy == null ? DuplicateKeyStrategy.Into : strategy) {
+            case Into -> true;
+            case Ignore, Update -> primaryKey != null && !primaryKey.isEmpty();
+        };
+    }
+
+    @Override
+    public String insertSql(DuplicateKeyStrategy duplicateStrategy, GeneratedKeyStrategy generatedStrategy, boolean useQualifier, String catalog, String schema, String table,//
+            List<String> primaryKey, List<String> columns, List<String> returnColumns, int insertRows, Map<String, String> columnValueTerms) {
+        insertRows = generatedStrategy == GeneratedKeyStrategy.MultiValuesResultSet ? insertRows : 1;
+        return switch (duplicateStrategy == null ? DuplicateKeyStrategy.Into : duplicateStrategy) {
+            case Into -> this.insertInto(useQualifier, catalog, schema, table, columns, columnValueTerms);
+            case Ignore -> this.insertIgnore(useQualifier, catalog, schema, table, primaryKey, columns, columnValueTerms);
+            case Update -> this.insertReplace(useQualifier, catalog, schema, table, primaryKey, columns, columnValueTerms);
+        };
+    }
+
+    private String insertInto(boolean useQualifier, String catalog, String schema, String table, List<String> columns, Map<String, String> columnValueTerms) {
         return buildInsertSql("INSERT INTO ", useQualifier, catalog, schema, table, columns, columnValueTerms);
     }
 
-    @Override
-    public boolean supportIgnore(List<String> primaryKey, List<String> columns) {
-        return primaryKey != null && !primaryKey.isEmpty();
-    }
-
-    @Override
-    public String insertIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
+    private String insertIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
         StringBuilder sb = new StringBuilder();
         sb.append("MERGE INTO ");
         sb.append(tableName(useQualifier, catalog, schema, table));
@@ -122,13 +141,7 @@ public class H2Dialect extends AbstractSqlDialect implements PageSqlDialect, Seq
         return sb.toString();
     }
 
-    @Override
-    public boolean supportReplace(List<String> primaryKey, List<String> columns) {
-        return primaryKey != null && !primaryKey.isEmpty();
-    }
-
-    @Override
-    public String insertReplace(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
+    private String insertReplace(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
         StringBuilder sb = new StringBuilder();
         sb.append("MERGE INTO ");
         sb.append(tableName(useQualifier, catalog, schema, table));

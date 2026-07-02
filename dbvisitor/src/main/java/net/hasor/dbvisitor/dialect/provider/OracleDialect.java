@@ -18,13 +18,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.features.InsertSqlDialect;
 import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
+import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
+import net.hasor.dbvisitor.lambda.GeneratedKeyStrategy;
 
 /**
  * Oracle 的 SqlDialect 实现
@@ -122,12 +123,37 @@ public class OracleDialect extends AbstractSqlDialect implements PageSqlDialect,
     // --- InsertSqlDialect impl ---
 
     @Override
-    public boolean supportInto(List<String> primaryKey, List<String> columns) {
-        return true;
+    public GeneratedKeyStrategy generatedKeyStrategy(List<String> primaryKey, List<String> columns, List<String> returnColumns, DuplicateKeyStrategy strategy) {
+        if (returnColumns.isEmpty()) {
+            if (this.supportBatch()) {
+                return GeneratedKeyStrategy.JdbcBatch;
+            } else {
+                return GeneratedKeyStrategy.OneByOne;
+            }
+        }
+
+        return GeneratedKeyStrategy.OneByOne;
     }
 
     @Override
-    public String insertInto(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
+    public boolean supportDuplicateStrategy(List<String> primaryKey, List<String> columns, List<String> returnColumns, DuplicateKeyStrategy strategy) {
+        return switch (strategy == null ? DuplicateKeyStrategy.Into : strategy) {
+            case Into -> true;
+            case Ignore, Update -> !primaryKey.isEmpty();
+        };
+    }
+
+    @Override
+    public String insertSql(DuplicateKeyStrategy duplicateStrategy, GeneratedKeyStrategy generatedStrategy, boolean useQualifier, String catalog, String schema, String table,//
+            List<String> primaryKey, List<String> columns, List<String> returnColumns, int insertRows, Map<String, String> columnValueTerms) {
+        return switch (duplicateStrategy == null ? DuplicateKeyStrategy.Into : duplicateStrategy) {
+            case Into -> this.insertInto(useQualifier, catalog, schema, table, columns, columnValueTerms);
+            case Ignore -> this.insertIgnore(useQualifier, catalog, schema, table, primaryKey, columns, columnValueTerms);
+            case Update -> this.insertReplace(useQualifier, catalog, schema, table, primaryKey, columns, columnValueTerms);
+        };
+    }
+
+    private String insertInto(boolean useQualifier, String catalog, String schema, String table, List<String> columns, Map<String, String> columnValueTerms) {
         StringBuilder sb = new StringBuilder();
         sb.append("INSERT INTO ");
         sb.append(tableName(useQualifier, catalog, schema, table));
@@ -156,35 +182,23 @@ public class OracleDialect extends AbstractSqlDialect implements PageSqlDialect,
         return sb.toString();
     }
 
-    @Override
-    public boolean supportIgnore(List<String> primaryKey, List<String> columns) {
-        return !primaryKey.isEmpty();
-    }
-
-    @Override
-    public String insertIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
+    private String insertIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
         StringBuilder sb = new StringBuilder();
 
         buildMergeInfoBasic(useQualifier, catalog, schema, table, primaryKey, columns, columnValueTerms, sb);
 
-        buildMergeInfoWhenNotMatched(useQualifier, catalog, schema, table, columns, sb);
+        buildMergeInfoWhenNotMatched(useQualifier, columns, sb);
 
         return sb.toString();
     }
 
-    @Override
-    public boolean supportReplace(List<String> primaryKey, List<String> columns) {
-        return !primaryKey.isEmpty();
-    }
-
-    @Override
-    public String insertReplace(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
+    private String insertReplace(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
         StringBuilder sb = new StringBuilder();
 
         buildMergeInfoBasic(useQualifier, catalog, schema, table, primaryKey, columns, columnValueTerms, sb);
 
-        buildMergeInfoWhenMatched(useQualifier, catalog, schema, table, primaryKey, columns, sb);
-        buildMergeInfoWhenNotMatched(useQualifier, catalog, schema, table, columns, sb);
+        buildMergeInfoWhenMatched(useQualifier, primaryKey, columns, sb);
+        buildMergeInfoWhenNotMatched(useQualifier, columns, sb);
 
         return sb.toString();
     }
@@ -220,7 +234,7 @@ public class OracleDialect extends AbstractSqlDialect implements PageSqlDialect,
         sb.append(") ");
     }
 
-    private void buildMergeInfoWhenNotMatched(boolean useQualifier, String catalog, String schema, String table, List<String> allColumns, StringBuilder sb) {
+    private void buildMergeInfoWhenNotMatched(boolean useQualifier, List<String> allColumns, StringBuilder sb) {
         sb.append("WHEN NOT MATCHED THEN ");
         sb.append("INSERT (");
 
@@ -239,10 +253,10 @@ public class OracleDialect extends AbstractSqlDialect implements PageSqlDialect,
         sb.append(")");
     }
 
-    private void buildMergeInfoWhenMatched(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> allColumns, StringBuilder sb) {
+    private void buildMergeInfoWhenMatched(boolean useQualifier, List<String> primaryKey, List<String> allColumns, StringBuilder sb) {
         sb.append("WHEN MATCHED THEN ");
         sb.append("UPDATE SET ");
-        List<String> updateColumns = allColumns.stream().filter(c -> !primaryKey.contains(c)).collect(Collectors.toList());
+        List<String> updateColumns = allColumns.stream().filter(c -> !primaryKey.contains(c)).toList();
         for (int i = 0; i < updateColumns.size(); i++) {
             String column = updateColumns.get(i);
             if (i != 0) {

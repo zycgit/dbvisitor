@@ -24,13 +24,16 @@ import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.features.InsertSqlDialect;
 import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
+import net.hasor.dbvisitor.dialect.features.SeqSqlDialect;
+import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
+import net.hasor.dbvisitor.lambda.GeneratedKeyStrategy;
 
 /**
  * 达梦 的 SqlDialect 实现
  * @author 赵永春 (zyc@hasor.net)
  * @version 2020-10-31
  */
-public class DmDialect extends AbstractSqlDialect implements PageSqlDialect, InsertSqlDialect {
+public class DmDialect extends AbstractSqlDialect implements PageSqlDialect, SeqSqlDialect, InsertSqlDialect {
     public static final SqlDialect DEFAULT = new DmDialect();
 
     @Override
@@ -84,102 +87,134 @@ public class DmDialect extends AbstractSqlDialect implements PageSqlDialect, Ins
         return new BoundSql.BoundSqlObj(sb.toString(), paramArrays.toArray());
     }
 
+    // --- SeqSqlDialect impl ---
+
+    @Override
+    public String selectSeq(boolean useQualifier, String catalog, String schema, String seqName) {
+        StringBuilder sb = new StringBuilder("SELECT ");
+        if (StringUtils.isNotBlank(schema)) {
+            sb.append(fmtName(useQualifier, schema)).append(".");
+        }
+        sb.append(fmtName(useQualifier, seqName));
+        sb.append(".NEXTVAL");
+        return sb.toString();
+    }
+
     // --- InsertSqlDialect impl ---
 
     @Override
-    public boolean supportInto(List<String> primaryKey, List<String> columns) {
-        return true;
+    public GeneratedKeyStrategy generatedKeyStrategy(List<String> primaryKey, List<String> columns, List<String> returnColumns, DuplicateKeyStrategy strategy) {
+        if (returnColumns.isEmpty()) {
+            if (this.supportBatch()) {
+                return GeneratedKeyStrategy.JdbcBatch;
+            }
+        }
+        return GeneratedKeyStrategy.OneByOne;
     }
 
     @Override
-    public String insertInto(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
+    public boolean supportDuplicateStrategy(List<String> primaryKey, List<String> columns, List<String> returnColumns, DuplicateKeyStrategy strategy) {
+        return switch (strategy == null ? DuplicateKeyStrategy.Into : strategy) {
+            case Into -> true;
+            case Ignore -> primaryKey != null && !primaryKey.isEmpty();
+            case Update -> primaryKey != null && !primaryKey.isEmpty() && columns.stream().anyMatch(c -> !primaryKey.contains(c));
+        };
+    }
+
+    @Override
+    public String insertSql(DuplicateKeyStrategy duplicateStrategy, GeneratedKeyStrategy generatedStrategy, boolean useQualifier, String catalog, String schema, String table,//
+            List<String> primaryKey, List<String> columns, List<String> returnColumns, int insertRows, Map<String, String> columnValueTerms) {
+        return switch (duplicateStrategy == null ? DuplicateKeyStrategy.Into : duplicateStrategy) {
+            case Into -> this.insertInto(useQualifier, catalog, schema, table, columns, columnValueTerms);
+            case Ignore -> this.insertIgnore(useQualifier, catalog, schema, table, primaryKey, columns, columnValueTerms);
+            case Update -> this.insertReplace(useQualifier, catalog, schema, table, primaryKey, columns, columnValueTerms);
+        };
+    }
+
+    private String insertInto(boolean useQualifier, String catalog, String schema, String table, List<String> columns, Map<String, String> columnValueTerms) {
         return buildSql("INSERT INTO ", useQualifier, catalog, schema, table, columns, columnValueTerms);
     }
 
-    @Override
-    public boolean supportIgnore(List<String> primaryKey, List<String> columns) {
-        return !primaryKey.isEmpty();
-    }
-
-    @Override
-    public String insertIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
+    private String insertIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
         String ignoreHint = "/*+ IGNORE_ROW_ON_DUPKEY_INDEX(" + table + "(" + StringUtils.join(primaryKey.toArray(), ",") + ")) */ ";
         return buildSql("INSERT " + ignoreHint, useQualifier, catalog, schema, table, columns, columnValueTerms);
     }
 
-    @Override
-    public boolean supportReplace(List<String> primaryKey, List<String> columns) {
-        return false;//!primaryKey.isEmpty();
+    private String insertReplace(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
+        StringBuilder sb = new StringBuilder();
+        buildMergeInfoBasic(useQualifier, catalog, schema, table, primaryKey, columns, columnValueTerms, sb);
+        buildMergeInfoWhenMatched(useQualifier, primaryKey, columns, sb);
+        buildMergeInfoWhenNotMatched(useQualifier, columns, sb);
+        return sb.toString();
     }
 
-    @Override
-    public String insertReplace(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
-        throw new UnsupportedOperationException();
+    private void buildMergeInfoBasic(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms, StringBuilder sb) {
+        sb.append("MERGE INTO ");
+        sb.append(tableName(useQualifier, catalog, schema, table));
+        sb.append(" TMP USING (SELECT ");
+
+        for (int i = 0; i < columns.size(); i++) {
+            String colName = columns.get(i);
+            if (i > 0) {
+                sb.append(", ");
+            }
+
+            String valueTerm = columnValueTerms != null ? columnValueTerms.get(colName) : null;
+            if (StringUtils.isNotBlank(valueTerm)) {
+                sb.append(valueTerm).append(" ");
+            } else {
+                sb.append("?").append(" ");
+            }
+            sb.append(fmtName(useQualifier, columns.get(i)));
+        }
+
+        sb.append(" FROM dual) SRC ON (");
+        for (int i = 0; i < primaryKey.size(); i++) {
+            if (i != 0) {
+                sb.append(" AND ");
+            }
+            String pkColumn = fmtName(useQualifier, primaryKey.get(i));
+            sb.append("TMP.").append(pkColumn).append(" = SRC.").append(pkColumn);
+        }
+        sb.append(") ");
     }
 
-    //    @Override
-    //    public String insertWithReplace(boolean useQualifier, String category, String tableName, List<FieldInfo> pkFields, List<FieldInfo> insertFields) {
-    //        //        MERGE INTO DS_ENV TMP
-    //        //        USING (SELECT 3            "ID",
-    //        //                systimestamp GMT_CREATE,
-    //        //                systimestamp GMT_MODIFIED,
-    //        //                'abc'        OWNER_UID,
-    //        //                'dev'        ENV_NAME,
-    //        //                'dddddd'     DESCRIPTION
-    //        //                FROM dual) SRC
-    //        //        ON (TMP."ID" = SRC."ID")
-    //        //        WHEN MATCHED THEN
-    //        //                UPDATE
-    //        //            SET "GMT_CREATE"   = SRC."GMT_CREATE",
-    //        //                "GMT_MODIFIED" = SRC."GMT_MODIFIED",
-    //        //                "OWNER_UID"    = SRC."OWNER_UID",
-    //        //                "ENV_NAME"     = SRC."ENV_NAME",
-    //        //                "DESCRIPTION"  = SRC."DESCRIPTION"
-    //        List<FieldInfo> pkColumns = insertFields.stream().filter(FieldInfo::isPrimary).collect(Collectors.toList());
-    //        StringBuilder mergeBasic = buildMergeInfoBasic(useQualifier, category, tableName, insertFields, pkColumns);
-    //        StringBuilder mergeWhenMatched = buildMergeInfoWhenMatched(useQualifier, insertFields);
-    //        return mergeBasic.toString() + " " + mergeWhenMatched.toString();
-    //    }
-    //
-    //    private static StringBuilder buildMergeInfoBasic(boolean useQualifier, String category, String tableName, List<FieldInfo> allColumns, List<FieldInfo> pkColumns) {
-    //        StringBuilder mergeBuilder = new StringBuilder();
-    //        String finalTableName = fmtQualifier(useQualifier, category) + "." + fmtQualifier(useQualifier, tableName);
-    //        mergeBuilder.append("MERGE INTO " + finalTableName + " TMP USING( SELECT ");
-    //        for (int i = 0; i < allColumns.size(); i++) {
-    //            FieldInfo fieldInfo = allColumns.get(i);
-    //            if (i != 0) {
-    //                mergeBuilder.append(",");
-    //            }
-    //            mergeBuilder.append("? " + fmtQualifier(useQualifier, fieldInfo.getColumnName()));
-    //        }
-    //        mergeBuilder.append(" FROM dual) SRC ON (");
-    //        for (int i = 0; i < pkColumns.size(); i++) {
-    //            if (i != 0) {
-    //                mergeBuilder.append(" AND ");
-    //            }
-    //            String pkColumn = fmtQualifier(useQualifier, pkColumns.get(i).getColumnName());
-    //            mergeBuilder.append("TMP." + pkColumn + " = SRC." + pkColumn);
-    //        }
-    //        mergeBuilder.append(") ");
-    //        return mergeBuilder;
-    //    }
-    //
-    //
-    //    private static StringBuilder buildMergeInfoWhenMatched(boolean useQualifier, List<FieldInfo> allColumns) {
-    //        StringBuilder mergeBuilder = new StringBuilder();
-    //        mergeBuilder.append("WHEN MATCHED THEN ");
-    //        mergeBuilder.append("UPDATE SET ");
-    //        for (int i = 0; i < allColumns.size(); i++) {
-    //            FieldInfo column = allColumns.get(i);
-    //            if (i != 0) {
-    //                mergeBuilder.append(",");
-    //            }
-    //            String columnName = fmtQualifier(useQualifier, column.getColumnName());
-    //            mergeBuilder.append(columnName + " = SRC." + columnName);
-    //        }
-    //        mergeBuilder.append(" ");
-    //        return mergeBuilder;
-    //    }
+    private void buildMergeInfoWhenMatched(boolean useQualifier, List<String> primaryKey, List<String> allColumns, StringBuilder sb) {
+        List<String> updateColumns = allColumns.stream().filter(c -> !primaryKey.contains(c)).toList();
+        if (updateColumns.isEmpty()) {
+            return;
+        }
+
+        sb.append("WHEN MATCHED THEN UPDATE SET ");
+        for (int i = 0; i < updateColumns.size(); i++) {
+            String column = updateColumns.get(i);
+            if (i != 0) {
+                sb.append(", ");
+            }
+            sb.append(fmtName(useQualifier, column));
+            sb.append(" = SRC.");
+            sb.append(fmtName(useQualifier, column));
+        }
+        sb.append(" ");
+    }
+
+    private void buildMergeInfoWhenNotMatched(boolean useQualifier, List<String> allColumns, StringBuilder sb) {
+        sb.append("WHEN NOT MATCHED THEN INSERT (");
+
+        StringBuilder argBuilder = new StringBuilder();
+        for (int i = 0; i < allColumns.size(); i++) {
+            if (i > 0) {
+                sb.append(", ");
+                argBuilder.append(", ");
+            }
+            sb.append(fmtName(useQualifier, allColumns.get(i)));
+            argBuilder.append("SRC.").append(fmtName(useQualifier, allColumns.get(i)));
+        }
+
+        sb.append(") VALUES ( ");
+        sb.append(argBuilder);
+        sb.append(")");
+    }
 
     protected String buildSql(String markString, boolean useQualifier, String catalog, String schema, String table, List<String> columns, Map<String, String> columnValueTerms) {
         StringBuilder sb = new StringBuilder();

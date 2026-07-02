@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dialect;
+import java.util.Arrays;
+import java.util.Collections;
 import net.hasor.dbvisitor.dialect.provider.Db2Dialect;
 import net.hasor.dbvisitor.jdbc.JdbcHelper;
+import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
+import net.hasor.dbvisitor.lambda.GeneratedKeyStrategy;
 import org.junit.Test;
 
 /***
@@ -57,5 +61,15 @@ public class Dialect4db2Test extends AbstractDialectTest {
         assert dialect.like(SqlDialect.SqlLike.DEFAULT, null, "?").equals("CONCAT(CONCAT('%', ? ) ,'%')");
         assert dialect.selectSeq(false, null, null, "user_seq").equals("VALUES NEXT VALUE FOR user_seq");
         assert dialect.selectSeq(true, null, "app", "user_seq").equals("VALUES NEXT VALUE FOR \"app\".\"user_seq\"");
+    }
+
+    @Test
+    public void dialect_db2_insert_strategy() {
+        Db2Dialect dialect = findDialect();
+
+        assert dialect.generatedKeyStrategy(Collections.singletonList("id"), Arrays.asList("name", "age"), Collections.emptyList(), DuplicateKeyStrategy.Into) == GeneratedKeyStrategy.JdbcBatch;
+        assert dialect.generatedKeyStrategy(Collections.singletonList("id"), Arrays.asList("name", "age"), Collections.singletonList("id"), DuplicateKeyStrategy.Into) == GeneratedKeyStrategy.OneByOne;
+        assert dialect.generatedKeyStrategy(Collections.singletonList("id"), Arrays.asList("name", "age"), Collections.singletonList("id"), DuplicateKeyStrategy.Ignore) == GeneratedKeyStrategy.OneByOne;
+        assert dialect.generatedKeyStrategy(Collections.singletonList("id"), Arrays.asList("name", "age"), Collections.singletonList("id"), DuplicateKeyStrategy.Update) == GeneratedKeyStrategy.OneByOne;
     }
 }

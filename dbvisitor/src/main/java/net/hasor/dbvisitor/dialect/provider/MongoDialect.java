@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dialect.provider;
-
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +24,7 @@ import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
 import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
+import net.hasor.dbvisitor.lambda.GeneratedKeyStrategy;
 import net.hasor.dbvisitor.lambda.core.OrderNullsStrategy;
 import net.hasor.dbvisitor.lambda.core.OrderType;
 import net.hasor.dbvisitor.lambda.segment.MergeSqlSegment;
@@ -391,7 +391,8 @@ public class MongoDialect extends AbstractBuilderDialect implements PageSqlDiale
     }
 
     @Override
-    public BoundSql buildInsert(boolean delimited, List<String> primaryKey, DuplicateKeyStrategy strategy) throws SQLException {
+    public BoundSql buildInsert(boolean delimited, List<String> primaryKey, int insertRows,//
+            List<String> generatedColumns, DuplicateKeyStrategy duplicateStrategy, GeneratedKeyStrategy generatedStrategy) throws SQLException {
         MergeSqlSegment s = new MergeSqlSegment("");
 
         s.addSegment((d, dia) -> dia.tableName(d, catalog, null, collection) + ".insertMany([");

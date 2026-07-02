@@ -24,6 +24,8 @@ import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.features.InsertSqlDialect;
 import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
+import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
+import net.hasor.dbvisitor.lambda.GeneratedKeyStrategy;
 
 /**
  * ClickHouse SqlDialect implementation.
@@ -80,12 +82,34 @@ public class ClickHouseDialect extends AbstractSqlDialect implements PageSqlDial
     // --- InsertSqlDialect impl ---
 
     @Override
-    public boolean supportInto(List<String> primaryKey, List<String> columns) {
-        return true;
+    public GeneratedKeyStrategy generatedKeyStrategy(List<String> primaryKey, List<String> columns, List<String> returnColumns, DuplicateKeyStrategy strategy) {
+        if (returnColumns.isEmpty()) {
+            if (this.supportBatch()) {
+                return GeneratedKeyStrategy.JdbcBatch;
+            }
+        }
+        return GeneratedKeyStrategy.OneByOne;
     }
 
     @Override
-    public String insertInto(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
+    public boolean supportDuplicateStrategy(List<String> primaryKey, List<String> columns, List<String> returnColumns, DuplicateKeyStrategy strategy) {
+        return switch (strategy == null ? DuplicateKeyStrategy.Into : strategy) {
+            case Into -> true;
+            case Ignore, Update -> false;
+        };
+    }
+
+    @Override
+    public String insertSql(DuplicateKeyStrategy duplicateStrategy, GeneratedKeyStrategy generatedStrategy, boolean useQualifier, String catalog, String schema, String table,//
+            List<String> primaryKey, List<String> columns, List<String> returnColumns, int insertRows, Map<String, String> columnValueTerms) {
+        insertRows = generatedStrategy == GeneratedKeyStrategy.MultiValuesResultSet ? insertRows : 1;
+        return switch (duplicateStrategy == null ? DuplicateKeyStrategy.Into : duplicateStrategy) {
+            case Into -> this.insertInto(useQualifier, catalog, schema, table, columns, columnValueTerms);
+            case Ignore, Update -> throw new UnsupportedOperationException();
+        };
+    }
+
+    private String insertInto(boolean useQualifier, String catalog, String schema, String table, List<String> columns, Map<String, String> columnValueTerms) {
         StringBuilder sb = new StringBuilder();
         sb.append("INSERT INTO ");
         sb.append(tableName(useQualifier, catalog, schema, table));
@@ -108,25 +132,5 @@ public class ClickHouseDialect extends AbstractSqlDialect implements PageSqlDial
         sb.append(argBuilder);
         sb.append(")");
         return sb.toString();
-    }
-
-    @Override
-    public boolean supportIgnore(List<String> primaryKey, List<String> columns) {
-        return false;
-    }
-
-    @Override
-    public String insertIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean supportReplace(List<String> primaryKey, List<String> columns) {
-        return false;
-    }
-
-    @Override
-    public String insertReplace(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
-        throw new UnsupportedOperationException();
     }
 }

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dialect;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -90,6 +91,16 @@ public class Dialect4OracleTest extends AbstractDialectTest {
 
         String sql = dialect.insertSql(DuplicateKeyStrategy.Update, GeneratedKeyStrategy.OneByOne, false, null, null, table, keys, columns, Collections.emptyList(), 1, terms);
         assert sql.equals("MERGE INTO examination TMP USING (SELECT ? student, ? course, ? score, to_char(?) passed, ? teacher FROM dual) SRC ON (TMP.student = SRC.student AND TMP.course = SRC.course) WHEN MATCHED THEN UPDATE SET score = SRC.score, passed = SRC.passed, teacher = SRC.teacher WHEN NOT MATCHED THEN INSERT (student, course, score, passed, teacher) VALUES ( SRC.student, SRC.course, SRC.score, SRC.passed, SRC.teacher)");
+    }
+
+    @Test
+    public void dialect_oracle_insert_strategy() {
+        OracleDialect dialect = findDialect();
+
+        assert dialect.generatedKeyStrategy(Collections.singletonList("id"), Arrays.asList("name", "age"), Collections.emptyList(), DuplicateKeyStrategy.Into) == GeneratedKeyStrategy.OneByOne;
+        assert dialect.generatedKeyStrategy(Collections.singletonList("id"), Arrays.asList("name", "age"), Collections.singletonList("id"), DuplicateKeyStrategy.Into) == GeneratedKeyStrategy.OneByOne;
+        assert dialect.generatedKeyStrategy(Collections.singletonList("id"), Arrays.asList("name", "age"), Collections.singletonList("id"), DuplicateKeyStrategy.Ignore) == GeneratedKeyStrategy.OneByOne;
+        assert dialect.generatedKeyStrategy(Collections.singletonList("id"), Arrays.asList("name", "age"), Collections.singletonList("id"), DuplicateKeyStrategy.Update) == GeneratedKeyStrategy.OneByOne;
     }
 
 }

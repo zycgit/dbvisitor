@@ -26,6 +26,8 @@ import net.hasor.dbvisitor.dialect.features.InsertSqlDialect;
 import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
 import net.hasor.dbvisitor.dialect.features.SeqSqlDialect;
 import net.hasor.dbvisitor.dialect.features.VectorSqlDialect;
+import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
+import net.hasor.dbvisitor.lambda.GeneratedKeyStrategy;
 import net.hasor.dbvisitor.lambda.core.MetricType;
 
 /**
@@ -96,33 +98,51 @@ public class PostgreSqlDialect extends AbstractSqlDialect implements PageSqlDial
     // --- InsertSqlDialect impl ---
 
     @Override
-    public boolean supportInto(List<String> primaryKey, List<String> columns) {
-        return true;
+    public GeneratedKeyStrategy generatedKeyStrategy(List<String> primaryKey, List<String> columns, List<String> returnColumns, DuplicateKeyStrategy strategy) {
+        if (returnColumns.isEmpty()) {
+            if (this.supportBatch()) {
+                return GeneratedKeyStrategy.JdbcBatch;
+            } else {
+                return GeneratedKeyStrategy.OneByOne;
+            }
+        } else {
+            return switch (strategy == null ? DuplicateKeyStrategy.Into : strategy) {
+                case Into, Update -> GeneratedKeyStrategy.MultiValuesResultSet;
+                case Ignore -> GeneratedKeyStrategy.OneByOne;
+            };
+        }
     }
 
     @Override
-    public String insertInto(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
-        return buildSql("INSERT INTO ", useQualifier, catalog, schema, table, columns, columnValueTerms, "");
+    public boolean supportDuplicateStrategy(List<String> primaryKey, List<String> columns, List<String> returnColumns, DuplicateKeyStrategy strategy) {
+        return switch (strategy == null ? DuplicateKeyStrategy.Into : strategy) {
+            case Into, Ignore -> true;
+            case Update -> !primaryKey.isEmpty() && columns.stream().anyMatch(c -> !primaryKey.contains(c));
+        };
     }
 
     @Override
-    public boolean supportIgnore(List<String> primaryKey, List<String> columns) {
-        return true;
+    public String insertSql(DuplicateKeyStrategy duplicateStrategy, GeneratedKeyStrategy generatedStrategy, boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey,//
+            List<String> columns, List<String> returnColumns, int insertRows, Map<String, String> columnValueTerms) {
+        insertRows = generatedStrategy == GeneratedKeyStrategy.MultiValuesResultSet ? insertRows : 1;
+        return switch (duplicateStrategy == null ? DuplicateKeyStrategy.Into : duplicateStrategy) {
+            case Into -> this.insertInto(useQualifier, catalog, schema, table, columns, returnColumns, insertRows, columnValueTerms);
+            case Ignore -> this.insertIgnore(useQualifier, catalog, schema, table, columns, columnValueTerms);
+            case Update -> this.insertReplace(useQualifier, catalog, schema, table, columns, columnValueTerms, primaryKey, returnColumns, insertRows);
+        };
     }
 
-    @Override
-    public String insertIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
-        return buildSql("INSERT INTO ", useQualifier, catalog, schema, table, columns, columnValueTerms, " ON CONFLICT DO NOTHING");
+    private String insertInto(boolean useQualifier, String catalog, String schema, String table, List<String> columns, List<String> returnColumns, int insertRows, Map<String, String> columnValueTerms) {
+        String sqlString = buildSql("INSERT INTO ", useQualifier, catalog, schema, table, columns, insertRows, columnValueTerms, "");
+        return appendReturning(sqlString, useQualifier, returnColumns);
     }
 
-    @Override
-    public boolean supportReplace(List<String> primaryKey, List<String> columns) {
-        return !primaryKey.isEmpty();
+    private String insertIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> columns, Map<String, String> columnValueTerms) {
+        return buildSql("INSERT INTO ", useQualifier, catalog, schema, table, columns, 1, columnValueTerms, " ON CONFLICT DO NOTHING");
     }
 
     // 主键冲突更新非主键列
-    @Override
-    public String insertReplace(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
+    private String insertReplace(boolean useQualifier, String catalog, String schema, String table, List<String> columns, Map<String, String> columnValueTerms, List<String> primaryKey, List<String> returnColumns, int insertRows) {
         // ... ON CONFLICT (a) DO UPDATE SET (b, c, d) = (excluded.b, excluded.c, excluded.d);
 
         StringBuilder sb = new StringBuilder(" ON CONFLICT (");
@@ -142,6 +162,9 @@ public class PostgreSqlDialect extends AbstractSqlDialect implements PageSqlDial
         StringBuilder updateBuffer = new StringBuilder();
         first = true;
         for (String col : columns) {
+            if (primaryKey.contains(col)) {
+                continue;
+            }
             if (!first) {
                 namesBuffer.append(", ");
                 updateBuffer.append(", ");
@@ -153,10 +176,11 @@ public class PostgreSqlDialect extends AbstractSqlDialect implements PageSqlDial
         }
         sb.append("(" + namesBuffer + ") = (" + updateBuffer + ")");
 
-        return buildSql("INSERT INTO ", useQualifier, catalog, schema, table, columns, columnValueTerms, sb.toString());
+        String sqlString = buildSql("INSERT INTO ", useQualifier, catalog, schema, table, columns, insertRows, columnValueTerms, sb.toString());
+        return appendReturning(sqlString, useQualifier, returnColumns);
     }
 
-    protected String buildSql(String markString, boolean useQualifier, String catalog, String schema, String table, List<String> columns, Map<String, String> columnValueTerms, String appendSql) {
+    protected String buildSql(String markString, boolean useQualifier, String catalog, String schema, String table, List<String> columns, int insertRows, Map<String, String> columnValueTerms, String appendSql) {
         StringBuilder sb = new StringBuilder();
         sb.append(markString);
         sb.append(tableName(useQualifier, catalog, schema, table));
@@ -180,11 +204,32 @@ public class PostgreSqlDialect extends AbstractSqlDialect implements PageSqlDial
             }
         }
 
-        sb.append(") VALUES (");
-        sb.append(argBuilder);
-        sb.append(")");
+        sb.append(") VALUES ");
+        for (int i = 0; i < insertRows; i++) {
+            if (i > 0) {
+                sb.append(", ");
+            }
+            sb.append("(");
+            sb.append(argBuilder);
+            sb.append(")");
+        }
         sb.append(appendSql);
         return sb.toString();
+    }
+
+    private String appendReturning(String sqlString, boolean useQualifier, List<String> returnColumns) {
+        if (returnColumns != null && !returnColumns.isEmpty()) {
+            StringBuilder sb = new StringBuilder(sqlString);
+            sb.append(" RETURNING ");
+            for (int i = 0; i < returnColumns.size(); i++) {
+                if (i > 0) {
+                    sb.append(", ");
+                }
+                sb.append(fmtName(useQualifier, returnColumns.get(i)));
+            }
+            return sb.toString();
+        }
+        return sqlString;
     }
 
     // --- VectorSqlDialect impl ---
