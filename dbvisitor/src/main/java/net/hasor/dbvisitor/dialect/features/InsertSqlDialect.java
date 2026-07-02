@@ -17,6 +17,8 @@ package net.hasor.dbvisitor.dialect.features;
 import java.util.List;
 import java.util.Map;
 import net.hasor.dbvisitor.dialect.SqlDialect;
+import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
+import net.hasor.dbvisitor.lambda.GeneratedKeyStrategy;
 
 /**
  * 插入 SQL 方言接口，扩展 {@link SqlDialect} 以支持多种插入操作
@@ -24,21 +26,13 @@ import net.hasor.dbvisitor.dialect.SqlDialect;
  * @version 2020-10-31
  */
 public interface InsertSqlDialect extends SqlDialect {
-    /** 是否支持 insert into */
-    boolean supportInto(List<String> primaryKey, List<String> columns);
+    /** 根据本次 insert 上下文决定生成键回填场景下的执行策略。 */
+    GeneratedKeyStrategy generatedKeyStrategy(List<String> primaryKey, List<String> columns, List<String> returnColumns, DuplicateKeyStrategy strategy);
 
-    /** 生成标准 insert into 语句 */
-    String insertInto(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms);
+    /** 是否支持指定的 insert 行为。 */
+    boolean supportDuplicateStrategy(List<String> primaryKey, List<String> columns, List<String> returnColumns, DuplicateKeyStrategy strategy);
 
-    /** 是否支持 insert ignore */
-    boolean supportIgnore(List<String> primaryKey, List<String> columns);
-
-    /** 生成 insert ignore 语句，根据具体数据库类型生成语句不一定是 insert 例如 oracle 会使用 merge 语句。 */
-    String insertIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms);
-
-    /** 是否支持 insert replace */
-    boolean supportReplace(List<String> primaryKey, List<String> columns);
-
-    /** 生成 insert replace 语句，根据具体数据库类型生成语句不一定是 insert 例如 oracle 会使用 merge 语句。 */
-    String insertReplace(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms);
+    /** 生成指定 insert 行为的 SQL 语句。 */
+    String insertSql(DuplicateKeyStrategy duplicateStrategy, GeneratedKeyStrategy generatedStrategy, boolean useQualifier, String catalog, String schema, String table,//
+            List<String> primaryKey, List<String> columns, List<String> returnColumns, int insertRows, Map<String, String> columnValueTerms);
 }

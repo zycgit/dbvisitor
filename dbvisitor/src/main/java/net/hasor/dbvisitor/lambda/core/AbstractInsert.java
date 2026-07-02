@@ -20,13 +20,13 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.error.RuntimeSQLException;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
+import net.hasor.dbvisitor.lambda.GeneratedKeyStrategy;
 import net.hasor.dbvisitor.mapping.GeneratedKeyHandler;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
@@ -39,14 +39,16 @@ import net.hasor.dbvisitor.types.TypeHandlerRegistry;
  * @version 2020-10-27
  */
 public abstract class AbstractInsert<R, T, P> extends BasicLambda<R, P> implements InsertExecute<R, T> {
-    protected final List<ColumnMapping>  primaryKeys;
-    protected final List<ColumnMapping>  insertProperties;
-    protected final List<ColumnMapping>  fillBeforeProperties;
-    protected final List<ColumnMapping>  fillAfterProperties;
+    protected final List<ColumnMapping>  primaryKeys;             // 主键映射。
+    protected final List<ColumnMapping>  insertProperties;        // 可参与 INSERT 的列映射。
+    protected final List<ColumnMapping>  fillBeforeProperties;    // INSERT 前填充值的 KeyHandler。
+    protected final List<ColumnMapping>  fillAfterProperties;     // INSERT 后填充值的 KeyHandler。
+    protected final List<ColumnMapping>  returnKeyProperties;     // 后填充值 Keys, 从数据库返回。
+    protected final List<ColumnMapping>  customAfterProperties;   // 后填充值 Keys, 从程序本地处理。
     protected final boolean              hasKeySeqHolderColumn;
-    protected final List<String>         forBuildPrimaryKeys;
-    protected final List<String>         forBuildInsertColumns;
-    protected final Map<String, String>  forBuildInsertColumnTerms;
+    protected final List<String>         forBuildPrimaryKeys;     // SQL 生成用主键列名。
+    protected final List<String>         forBuildInsertColumns;   // SQL 生成用 INSERT 列名。
+    protected final Map<String, String>  forBuildInsertColumnTerms; // INSERT value 模板。
     //
     protected       DuplicateKeyStrategy insertStrategy;
     protected final AtomicInteger        insertValuesCount;
@@ -62,7 +64,7 @@ public abstract class AbstractInsert<R, T, P> extends BasicLambda<R, P> implemen
         List<ColumnMapping> fillAfterProperties = new ArrayList<>();
         initProperties(primaryKeys, insertProperties, fillBeforeProperties, fillAfterProperties);
 
-        List<String> forBuildPrimaryKeys = primaryKeys.stream().map(ColumnMapping::getColumn).collect(Collectors.toList());
+        List<String> forBuildPrimaryKeys = primaryKeys.stream().map(ColumnMapping::getColumn).toList();
         List<String> forBuildInsertColumns = new ArrayList<>();
         Map<String, String> forBuildInsertColumnTerms = new LinkedHashMap<>();
         for (ColumnMapping m : insertProperties) {
@@ -74,6 +76,8 @@ public abstract class AbstractInsert<R, T, P> extends BasicLambda<R, P> implemen
         this.insertProperties = Collections.unmodifiableList(insertProperties);
         this.fillBeforeProperties = Collections.unmodifiableList(fillBeforeProperties);
         this.fillAfterProperties = Collections.unmodifiableList(fillAfterProperties);
+        this.returnKeyProperties = Collections.unmodifiableList(this.fillAfterProperties.stream().filter(m -> m.getKeySeqHolder().useGeneratedKeys()).toList());
+        this.customAfterProperties = Collections.unmodifiableList(this.fillAfterProperties.stream().filter(m -> !m.getKeySeqHolder().useGeneratedKeys()).toList());
         this.forBuildPrimaryKeys = Collections.unmodifiableList(forBuildPrimaryKeys);
         this.forBuildInsertColumns = Collections.unmodifiableList(forBuildInsertColumns);
         this.forBuildInsertColumnTerms = Collections.unmodifiableMap(forBuildInsertColumnTerms);
@@ -148,7 +152,7 @@ public abstract class AbstractInsert<R, T, P> extends BasicLambda<R, P> implemen
         return this.getSelf();
     }
 
-    protected String buildInsert(List<String> primaryKeys, List<String> insertColumns, Map<String, String> insertColumnTerms) throws SQLException {
+    protected String buildInsert(List<String> primaryKeys, List<String> insertColumns, Map<String, String> insertColumnTerms, List<String> generatedColumns, GeneratedKeyStrategy generatedStrategy, int insertRows) throws SQLException {
         this.cmdBuilder.clearAll();
         this.cmdBuilder.setTable(this.getTableMapping().getCatalog(), this.getTableMapping().getSchema(), this.getTableMapping().getTable());
 
@@ -160,7 +164,7 @@ public abstract class AbstractInsert<R, T, P> extends BasicLambda<R, P> implemen
             this.cmdBuilder.addInsert(col, null, term);
         }
 
-        BoundSql boundSql = this.cmdBuilder.buildInsert(isQualifier(), primaryKeys, this.insertStrategy);
+        BoundSql boundSql = this.cmdBuilder.buildInsert(isQualifier(), primaryKeys, insertRows, generatedColumns, this.insertStrategy, generatedStrategy);
         return boundSql.getSqlString();
     }
 

@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dialect;
+import java.util.Arrays;
+import java.util.Collections;
 import net.hasor.dbvisitor.dialect.provider.SqlServerDialect;
 import net.hasor.dbvisitor.jdbc.JdbcHelper;
+import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
+import net.hasor.dbvisitor.lambda.GeneratedKeyStrategy;
 import org.junit.Test;
 
 /***
@@ -77,5 +81,19 @@ public class Dialect4SqlServerTest extends AbstractDialectTest {
         assert pageSql2.getSqlString().equals("WITH selectTemp AS (SELECT TOP 100 PERCENT  ROW_NUMBER() OVER (order by a desc) as __row_number__,  * from tb_user where age > 12 and sex = ?) SELECT * FROM selectTemp WHERE __row_number__ BETWEEN 2 AND 4 ORDER BY __row_number__");
         assert pageSql2.getArgs().length == 1;
         assert pageSql2.getArgs()[0].equals('F');
+    }
+
+    @Test
+    public void dialect_insert_output_generated_keys_1() throws Exception {
+        SqlServerDialect dialect = findDialect();
+        SqlCommandBuilder builder = dialect.newBuilder();
+        builder.setTable(null, "dbo", "user_info");
+        builder.addInsert("name", null, "?");
+        builder.addInsert("age", null, "?");
+
+        BoundSql boundSql = builder.buildInsert(true, Collections.singletonList("id"), 3, Collections.singletonList("id"), DuplicateKeyStrategy.Into, GeneratedKeyStrategy.MultiValuesResultSet);
+
+        assert boundSql.getSqlString().equals("INSERT INTO [dbo].[user_info] ([name], [age]) OUTPUT INSERTED.[id] VALUES (?, ?), (?, ?), (?, ?)");
+        assert dialect.generatedKeyStrategy(Collections.singletonList("id"), Arrays.asList("name", "age"), Collections.singletonList("id"), DuplicateKeyStrategy.Into) == GeneratedKeyStrategy.MultiValuesResultSet;
     }
 }

@@ -22,6 +22,7 @@ import net.hasor.dbvisitor.dialect.SqlCommandBuilder.ConditionLogic;
 import net.hasor.dbvisitor.dialect.SqlCommandBuilder.ConditionType;
 import net.hasor.dbvisitor.dialect.provider.MySqlDialect;
 import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
+import net.hasor.dbvisitor.lambda.GeneratedKeyStrategy;
 import net.hasor.dbvisitor.lambda.core.OrderNullsStrategy;
 import net.hasor.dbvisitor.lambda.core.OrderType;
 import org.junit.Test;
@@ -71,7 +72,7 @@ public class SqlCommandBuilderTest {
         builder.addInsert("name", "John", null);
         builder.addInsert("age", 25, null);
 
-        BoundSql boundSql = builder.buildInsert(false, Collections.emptyList(), DuplicateKeyStrategy.Into);
+        BoundSql boundSql = builder.buildInsert(false, Collections.emptyList(), 1, Collections.emptyList(), DuplicateKeyStrategy.Into, GeneratedKeyStrategy.OneByOne);
         assertEquals("INSERT INTO user_table (name, age) VALUES (?, ?)", boundSql.getSqlString());
         assertEquals(2, boundSql.getArgs().length);
         assertEquals("John", boundSql.getArgs()[0]);
@@ -172,7 +173,7 @@ public class SqlCommandBuilderTest {
         builder.addInsert("name", "John", "upper(?)");
         builder.addInsert("age", 25, null);
 
-        BoundSql boundSql = builder.buildInsert(false, Collections.emptyList(), DuplicateKeyStrategy.Into);
+        BoundSql boundSql = builder.buildInsert(false, Collections.emptyList(), 1, Collections.emptyList(), DuplicateKeyStrategy.Into, GeneratedKeyStrategy.OneByOne);
         assertEquals("INSERT INTO user_table (name, age) VALUES (upper(?), ?)", boundSql.getSqlString());
         assertEquals(2, boundSql.getArgs().length);
         assertEquals("John", boundSql.getArgs()[0]);
@@ -209,7 +210,7 @@ public class SqlCommandBuilderTest {
         builder.addInsert("name", null, null);
         builder.addInsert("age", 25, null);
 
-        BoundSql boundSql = builder.buildInsert(false, Collections.emptyList(), DuplicateKeyStrategy.Into);
+        BoundSql boundSql = builder.buildInsert(false, Collections.emptyList(), 1, Collections.emptyList(), DuplicateKeyStrategy.Into, GeneratedKeyStrategy.OneByOne);
         assertEquals("INSERT INTO user_table (name, age) VALUES (?, ?)", boundSql.getSqlString());
         assertEquals(2, boundSql.getArgs().length);
         assertEquals(null, boundSql.getArgs()[0]);

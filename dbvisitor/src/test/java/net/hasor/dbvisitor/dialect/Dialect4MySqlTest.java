@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dialect;
+import java.util.Arrays;
+import java.util.Collections;
 import net.hasor.dbvisitor.dialect.provider.MySqlDialect;
 import net.hasor.dbvisitor.jdbc.JdbcHelper;
+import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
+import net.hasor.dbvisitor.lambda.GeneratedKeyStrategy;
 import org.junit.Test;
 
 /***
@@ -57,6 +61,16 @@ public class Dialect4MySqlTest extends AbstractDialectTest {
         assert pageSql2.getArgs().length == 2;
         assert pageSql2.getArgs()[0].equals('F');
         assert pageSql2.getArgs()[1].equals(3L);
+    }
+
+    @Test
+    public void dialect_mysql_insert_strategy() {
+        MySqlDialect dialect = findDialect();
+
+        assert dialect.generatedKeyStrategy(Collections.singletonList("id"), Arrays.asList("name", "age"), Collections.emptyList(), DuplicateKeyStrategy.Into) == GeneratedKeyStrategy.JdbcBatch;
+        assert dialect.generatedKeyStrategy(Collections.singletonList("id"), Arrays.asList("name", "age"), Collections.singletonList("id"), DuplicateKeyStrategy.Into) == GeneratedKeyStrategy.JdbcBatchGeneratedKeys;
+        assert dialect.generatedKeyStrategy(Collections.singletonList("id"), Arrays.asList("name", "age"), Collections.singletonList("id"), DuplicateKeyStrategy.Ignore) == GeneratedKeyStrategy.OneByOne;
+        assert dialect.generatedKeyStrategy(Collections.singletonList("id"), Arrays.asList("name", "age"), Collections.singletonList("id"), DuplicateKeyStrategy.Update) == GeneratedKeyStrategy.OneByOne;
     }
 
     //    @Test

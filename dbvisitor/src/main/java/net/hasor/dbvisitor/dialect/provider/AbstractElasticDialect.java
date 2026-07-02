@@ -25,6 +25,7 @@ import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
 import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
 import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
+import net.hasor.dbvisitor.lambda.GeneratedKeyStrategy;
 import net.hasor.dbvisitor.lambda.core.OrderNullsStrategy;
 import net.hasor.dbvisitor.lambda.core.OrderType;
 import net.hasor.dbvisitor.lambda.segment.MergeSqlSegment;
@@ -360,7 +361,7 @@ public abstract class AbstractElasticDialect extends AbstractBuilderDialect impl
     protected abstract String getDeleteEndpoint();
 
     @Override
-    public BoundSql buildInsert(boolean useQualifier, List<String> primaryKey, DuplicateKeyStrategy duplicateKeyStrategy) throws SQLException {
+    public BoundSql buildInsert(boolean useQualifier, List<String> primaryKey, int insertRows, List<String> generatedColumns, DuplicateKeyStrategy duplicateStrategy, GeneratedKeyStrategy generatedStrategy) throws SQLException {
         StringBuilder json = new StringBuilder();
         json.append("{");
         json.append(this.inserts.getSqlSegment(useQualifier, this));

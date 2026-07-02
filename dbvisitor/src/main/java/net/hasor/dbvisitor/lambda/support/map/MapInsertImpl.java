@@ -26,6 +26,7 @@ import net.hasor.dbvisitor.dialect.BoundSql.BoundSqlObj;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.lambda.GeneratedKeyStrategy;
 import net.hasor.dbvisitor.lambda.Insert;
 import net.hasor.dbvisitor.lambda.MapInsert;
 import net.hasor.dbvisitor.lambda.core.AbstractInsert;
@@ -40,8 +41,7 @@ import net.hasor.dbvisitor.types.TypeHandlerRegistry;
  * @author 赵永春 (zyc@hasor.net)
  * @version 2022-04-02
  */
-public class MapInsertImpl extends AbstractInsert<Insert<Map<String, Object>>, Map<String, Object>, String> //
-        implements MapInsert {
+public class MapInsertImpl extends AbstractInsert<Insert<Map<String, Object>>, Map<String, Object>, String> implements MapInsert {
 
     public MapInsertImpl(TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc, QueryContext ctx) {
         super(Map.class, tableMapping, registry, jdbc, ctx);
@@ -119,7 +119,7 @@ public class MapInsertImpl extends AbstractInsert<Insert<Map<String, Object>>, M
             insertColumns.add(c);
         });
 
-        String insertSql = buildInsert(this.forBuildPrimaryKeys, insertColumns, this.forBuildInsertColumnTerms);
+        String insertSql = buildInsert(this.forBuildPrimaryKeys, insertColumns, this.forBuildInsertColumnTerms, Collections.emptyList(), GeneratedKeyStrategy.OneByOne, 1);
         SqlArg[] args = new SqlArg[entityKeyMap.size()];
 
         for (int i = 0; i < insertProperties.size(); i++) {

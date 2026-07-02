@@ -18,6 +18,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.function.Consumer;
 import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
+import net.hasor.dbvisitor.lambda.GeneratedKeyStrategy;
 import net.hasor.dbvisitor.lambda.core.MetricType;
 import net.hasor.dbvisitor.lambda.core.OrderNullsStrategy;
 import net.hasor.dbvisitor.lambda.core.OrderType;
@@ -112,7 +113,8 @@ public interface SqlCommandBuilder extends SqlDialect {
     BoundSql buildDelete(boolean delimited, boolean allowEmptyWhere) throws SQLException;
 
     /** 构建 Insert */
-    BoundSql buildInsert(boolean delimited, List<String> primaryKey, DuplicateKeyStrategy strategy) throws SQLException;
+    BoundSql buildInsert(boolean delimited, List<String> primaryKey, int insertRows,//
+            List<String> generatedColumns, DuplicateKeyStrategy duplicateStrategy, GeneratedKeyStrategy generatedStrategy) throws SQLException;
 
     /**
      * 条件逻辑

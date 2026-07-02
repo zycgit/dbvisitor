@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.dialect.provider;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.util.*;
 import java.util.function.Consumer;
 import net.hasor.cobble.StringUtils;
@@ -23,6 +24,7 @@ import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.features.InsertSqlDialect;
 import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
+import net.hasor.dbvisitor.lambda.GeneratedKeyStrategy;
 import net.hasor.dbvisitor.lambda.core.OrderNullsStrategy;
 import net.hasor.dbvisitor.lambda.core.OrderType;
 import net.hasor.dbvisitor.lambda.segment.MergeSqlSegment;
@@ -517,33 +519,18 @@ public abstract class AbstractSqlDialect extends AbstractBuilderDialect {
     }
 
     @Override
-    public BoundSql buildInsert(boolean delimited, List<String> primaryKey, DuplicateKeyStrategy strategy) throws SQLException {
+    public BoundSql buildInsert(boolean delimited, List<String> primaryKey, int insertRows, List<String> generatedColumns, DuplicateKeyStrategy duplicateStrategy, GeneratedKeyStrategy generatedStrategy) throws SQLException {
         this.args.clear();
         MergeSqlSegment s = new MergeSqlSegment();
 
         if (this instanceof InsertSqlDialect) {
-            InsertSqlDialect idia = ((InsertSqlDialect) this);
-            String sql;
-            switch (strategy == null ? DuplicateKeyStrategy.Into : strategy) {
-                case Ignore:
-                    if (idia.supportIgnore(primaryKey, this.insertColNames)) {
-                        sql = idia.insertIgnore(delimited, this.catalog, this.schema, this.table, primaryKey, this.insertColNames, this.insertColTerms);
-                    } else {
-                        sql = idia.insertInto(delimited, this.catalog, this.schema, this.table, primaryKey, this.insertColNames, this.insertColTerms);
-                    }
-                    break;
-                case Update:
-                    if (idia.supportReplace(primaryKey, this.insertColNames)) {
-                        sql = idia.insertReplace(delimited, this.catalog, this.schema, this.table, primaryKey, this.insertColNames, this.insertColTerms);
-                    } else {
-                        sql = idia.insertInto(delimited, this.catalog, this.schema, this.table, primaryKey, this.insertColNames, this.insertColTerms);
-                    }
-                    break;
-                case Into:
-                default:
-                    sql = idia.insertInto(delimited, this.catalog, this.schema, this.table, primaryKey, this.insertColNames, this.insertColTerms);
-                    break;
+            InsertSqlDialect idia = (InsertSqlDialect) this;
+            duplicateStrategy = duplicateStrategy == null ? DuplicateKeyStrategy.Into : duplicateStrategy;
+            if (!idia.supportDuplicateStrategy(primaryKey, this.insertColNames, generatedColumns, duplicateStrategy)) {
+                throw new SQLFeatureNotSupportedException("insert strategy '" + duplicateStrategy + "' is not supported.");
             }
+
+            String sql = idia.insertSql(duplicateStrategy, generatedStrategy, delimited, this.catalog, this.schema, this.table, primaryKey, this.insertColNames, generatedColumns, insertRows, this.insertColTerms);
             s.addSegment((d, dia) -> sql);
             this.args.addAll(this.insertColValues);
         } else {

@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dialect;
-
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.dialect.provider.OracleDialect;
 import net.hasor.dbvisitor.jdbc.JdbcHelper;
+import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
+import net.hasor.dbvisitor.lambda.GeneratedKeyStrategy;
 import org.junit.Test;
 
 /***
@@ -86,7 +88,7 @@ public class Dialect4OracleTest extends AbstractDialectTest {
         List<String> columns = CollectionUtils.asList("student", "course", "score", "passed", "teacher");
         Map<String, String> terms = CollectionUtils.asMap("passed", "to_char(?)");
 
-        String sql = dialect.insertReplace(false, null, null, table, keys, columns, terms);
+        String sql = dialect.insertSql(DuplicateKeyStrategy.Update, GeneratedKeyStrategy.OneByOne, false, null, null, table, keys, columns, Collections.emptyList(), 1, terms);
         assert sql.equals("MERGE INTO examination TMP USING (SELECT ? student, ? course, ? score, to_char(?) passed, ? teacher FROM dual) SRC ON (TMP.student = SRC.student AND TMP.course = SRC.course) WHEN MATCHED THEN UPDATE SET score = SRC.score, passed = SRC.passed, teacher = SRC.teacher WHEN NOT MATCHED THEN INSERT (student, course, score, passed, teacher) VALUES ( SRC.student, SRC.course, SRC.score, SRC.passed, SRC.teacher)");
     }
 

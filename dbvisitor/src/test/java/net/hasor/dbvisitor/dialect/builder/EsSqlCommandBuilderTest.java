@@ -23,6 +23,7 @@ import net.hasor.dbvisitor.dialect.SqlCommandBuilder.ConditionType;
 import net.hasor.dbvisitor.dialect.provider.Elastic6Dialect;
 import net.hasor.dbvisitor.dialect.provider.Elastic7Dialect;
 import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
+import net.hasor.dbvisitor.lambda.GeneratedKeyStrategy;
 import net.hasor.dbvisitor.lambda.core.OrderType;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
@@ -94,7 +95,7 @@ public class EsSqlCommandBuilderTest {
         builder.addInsert("name", "John", null);
         builder.addInsert("age", 25, null);
 
-        BoundSql boundSql = builder.buildInsert(false, Collections.emptyList(), DuplicateKeyStrategy.Into);
+        BoundSql boundSql = builder.buildInsert(false, Collections.emptyList(), 1, Collections.emptyList(), DuplicateKeyStrategy.Into, GeneratedKeyStrategy.OneByOne);
         String sql = boundSql.getSqlString();
 
         assertTrue(sql.startsWith("POST /my_index/my_type"));
@@ -110,7 +111,7 @@ public class EsSqlCommandBuilderTest {
         builder.addInsert("name", "John", null);
         builder.addInsert("age", 25, null);
 
-        BoundSql boundSql = builder.buildInsert(false, Collections.emptyList(), DuplicateKeyStrategy.Into);
+        BoundSql boundSql = builder.buildInsert(false, Collections.emptyList(), 1, Collections.emptyList(), DuplicateKeyStrategy.Into, GeneratedKeyStrategy.OneByOne);
         String sql = boundSql.getSqlString();
 
         assertTrue(sql.startsWith("POST /my_index/_doc"));

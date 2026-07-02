@@ -23,6 +23,7 @@ import net.hasor.dbvisitor.dialect.SqlCommandBuilder.ConditionType;
 import net.hasor.dbvisitor.dialect.SqlDialect.SqlLike;
 import net.hasor.dbvisitor.dialect.provider.MongoDialect;
 import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
+import net.hasor.dbvisitor.lambda.GeneratedKeyStrategy;
 import net.hasor.dbvisitor.lambda.core.OrderType;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
@@ -72,7 +73,7 @@ public class MongoSqlCommandBuilderTest {
         builder.addInsert("name", "John", null);
         builder.addInsert("age", 25, null);
 
-        BoundSql boundSql = builder.buildInsert(false, Collections.emptyList(), DuplicateKeyStrategy.Into);
+        BoundSql boundSql = builder.buildInsert(false, Collections.emptyList(), 1, Collections.emptyList(), DuplicateKeyStrategy.Into, GeneratedKeyStrategy.OneByOne);
         assertEquals("db.user_collection.insertMany([{name: ?, age: ?}])", boundSql.getSqlString());
         assertEquals(2, boundSql.getArgs().length);
         assertEquals("John", boundSql.getArgs()[0]);
