@@ -307,9 +307,9 @@
             </build>
         </profile>
         <profile>
-            <id>jdk-1.8</id>
+            <id>jdk-17</id>
             <activation>
-                <jdk>1.8</jdk>
+                <jdk>17</jdk>
             </activation>
             <build>
                 <plugins>

@@ -172,7 +172,7 @@ Hint 必须位于命令开头，格式为 `/*+ name=value */`，支持多个 Hin
 - `connectTimeout` 已声明但未应用到 MongoClient 设置中。
 
 ## 兼容性
-- JDK 8+
+- JDK 17+
 - MongoDB Java Driver：`mongodb-driver-sync` 5.6.1（兼容该驱动支持的 MongoDB 服务器版本）
 
 ## 更多资源

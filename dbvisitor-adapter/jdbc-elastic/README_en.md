@@ -164,7 +164,7 @@ Hints must appear at the beginning of the command text. Format: `/*+ name=value 
 - Only REST-style command grammar is supported; Elasticsearch SQL is not supported.
 
 ## Compatibility
-- JDK 8+
+- JDK 17+
 - Elasticsearch REST client: `elasticsearch-rest-client` 7.17.10
 - Jackson: `jackson-databind` 2.18.0
 - dbVisitor includes Elastic6/Elastic7 dialects and realdb test suites for ES6/ES7 scenarios.

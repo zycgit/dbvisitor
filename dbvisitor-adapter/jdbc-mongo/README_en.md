@@ -172,7 +172,7 @@ Supported hints:
 - `connectTimeout` is declared but not applied in MongoClient settings.
 
 ## Compatibility
-- JDK 8+
+- JDK 17+
 - MongoDB Java driver: `mongodb-driver-sync` 5.6.1 (compatible with the server versions supported by this driver)
 
 ## More Resources

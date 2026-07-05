@@ -17,8 +17,8 @@
     <a target="_blank" href="LICENSE.txt">
 		<img src="https://img.shields.io/:License-Apache2-blue.svg" alt="Apache 2" />
 	</a>
-    <a target="_blank" href="https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html">
-		<img src="https://img.shields.io/badge/JDK-8-green.svg" alt="jdk-8" />
+    <a target="_blank" href="https://www.oracle.com/java/technologies/javase/jdk17-downloads.html">
+		<img src="https://img.shields.io/badge/JDK-17-green.svg" alt="jdk-17" />
 	</a>
     <a target="_blank" href='https://gitee.com/zycgit/dbvisitor/stargazers'>
 		<img src='https://gitee.com/zycgit/dbvisitor/badge/star.svg' alt='gitee star'/>
@@ -135,7 +135,7 @@ dbVisitor 提供了多层次的 API 抽象，允许在 **简单性** 与 **灵�
   - 不同于简单的拼凑，dbVisitor 在 **API 分层抽象** 中提供的各级 API **共享** 同一套底层机制。
     告别多框架产生的缝合怪效应。
 - **独立性**
-  - 不绑定任何生态框架 Spring 或任何 Web 容器。基于纯 Java (JDK 8+) 和 JDBC 标准构建。
+  - 不绑定任何生态框架 Spring 或任何 Web 容器。基于纯 Java (JDK 17+) 和 JDBC 标准构建。
     无论是 Spring、SpringBoot、Solon、Hasor、Guice 还是 Main 方法控制台程序，都能无缝集成。
 
 ## 🚀 使用介绍

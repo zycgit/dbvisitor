@@ -164,7 +164,7 @@ Hint 必须位于命令开头，格式为 `/*+ name=value */`。
 - 仅支持 REST 风格命令语法，不支持 Elasticsearch SQL。
 
 ## 兼容性
-- JDK 8+
+- JDK 17+
 - Elasticsearch REST Client：`elasticsearch-rest-client` 7.17.10
 - Jackson：`jackson-databind` 2.18.0
 - dbVisitor 含 Elastic6/Elastic7 方言与 ES6/ES7 realdb 场景化测试。

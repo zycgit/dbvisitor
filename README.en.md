@@ -19,8 +19,8 @@
     <a target="_blank" href="LICENSE.txt">
 		<img src="https://img.shields.io/:License-Apache2-blue.svg" alt="Apache 2" />
 	</a>
-    <a target="_blank" href="https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html">
-		<img src="https://img.shields.io/badge/JDK-8-green.svg" alt="jdk-8" />
+    <a target="_blank" href="https://www.oracle.com/java/technologies/javase/jdk17-downloads.html">
+		<img src="https://img.shields.io/badge/JDK-17-green.svg" alt="jdk-17" />
 	</a>
     <a target="_blank" href='https://gitee.com/zycgit/dbvisitor/stargazers'>
 		<img src='https://gitee.com/zycgit/dbvisitor/badge/star.svg' alt='gitee star'/>
@@ -135,7 +135,7 @@ dbVisitor provides multi-level API abstraction, allowing for free switching betw
 - **Unified Underlying Architecture**
   - Unlike simple patching, the various API levels in dbVisitor's **Layered Abstraction** **share** the same underlying mechanisms, avoiding the "Frankenstein" effect of multiple frameworks.
 - **Independence**
-  - Not bound to any ecosystem framework like Spring or any Web container. Built on pure Java (JDK 8+) and JDBC standards. Seamlessly integrates whether it's Spring, SpringBoot, Solon, Hasor, Guice, or a Main method console program.
+  - Not bound to any ecosystem framework like Spring or any Web container. Built on pure Java (JDK 17+) and JDBC standards. Seamlessly integrates whether it's Spring, SpringBoot, Solon, Hasor, Guice, or a Main method console program.
 
 ## 🚀 Usage
 

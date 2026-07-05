@@ -15,7 +15,7 @@
 - 业务 CRUD 优先用 `net.hasor.dbvisitor.lambda.LambdaTemplate`；需要原生 SQL/更底层 JDBC 行为再用 `net.hasor.dbvisitor.jdbc.core.JdbcTemplate`。
 
 ## 本项目约定
-- Java 8 编译/兼容（不要用高版本 JDK API）。
+- Java 17 编译/兼容。
 - 依赖尽量少：优先用 `net.hasor.cobble.*` 工具类。
 - 改动前先看目标模块的 `pom.xml`：核心 `dbvisitor/pom.xml` 里有不少 `optional` 依赖（别在未声明的情况下直接使用）。
 
