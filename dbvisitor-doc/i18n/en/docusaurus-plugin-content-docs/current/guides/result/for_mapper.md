@@ -1,7 +1,6 @@
 ---
 id: for_mapper
 sidebar_position: 1
-hide_table_of_contents: true
 title: 9.1 RowMapper
 description: RowMapper maps each row when reading a ResultSet so you can focus on per-row logic without handling the ResultSet lifecycle.
 ---

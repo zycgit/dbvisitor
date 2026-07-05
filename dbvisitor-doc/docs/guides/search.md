@@ -128,9 +128,10 @@ description: 按使用场景组织常用手册入口，便于快速定位对应�
 ### 数据库事务
 - 当项目是基于 Spring 技术构建时，通过 Spring 的 [事务注解](./yourproject/with_spring#tran) 完成事务控制。
 - 当项目是基于 Solon 技术构建时，通过 Solon 的 [事务注解](./yourproject/with_solon#tran) 完成事务控制。
-- 对于 Guice 和 Hasor 项目，可以使用 dbVisitor 的 [@Transactional 注解](./transaction/manager/annotation) 进行事务控制。
-- 在没有任何字节码增强技术的应用程序中，可以利用 TransactionHelper 工具类将对象进行增强后在通过，[@Transactional 注解](./transaction/manager/annotation) 进行事务控制。
-- 也可以通过 [Java Code 方式](./transaction/manager/program)、或者 [模版代码](./transaction/manager/template) 方式进行事务控制。
+- 对于 Guice 和 Hasor 项目，可以使用 dbVisitor 的 [@Transactional 注解](./transaction/annotation) 进行事务控制。
+- 在没有框架代理能力的普通 Java 程序中，可以通过 `TransactionHelper.support()` 创建代理对象，再使用 [@Transactional 注解](./transaction/annotation)。
+- 只想包住一段代码时，使用 [模板事务](./transaction/template)。
+- 需要手动控制 `begin/commit/rollBack` 时，使用 [编程式事务](./transaction/program)。
 
 ### 框架整合
 - 利用 [dbvisitor-guice](./yourproject/with_guice) 在 Google Guice 中使用 dbVisitor。

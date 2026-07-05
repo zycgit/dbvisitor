@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.test.contract.api.adapter.AbstractAdapterContractTest;
+import net.hasor.dbvisitor.test.contract.api.adapter.AdapterContractTest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
@@ -13,7 +13,7 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import org.junit.Test;
 
-public class Elastic6JdbcDslContractTest extends AbstractAdapterContractTest {
+public class Elastic6JdbcDslContractTest extends AdapterContractTest {
     @Override
     protected DataSourceProfile profile() {
         return Elastic6Profile.INSTANCE;

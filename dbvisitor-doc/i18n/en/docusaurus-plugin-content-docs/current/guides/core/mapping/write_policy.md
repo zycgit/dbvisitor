@@ -9,6 +9,8 @@ description: Configure how fields participate in database writes with dbVisitor 
 
 When using the [Fluent API](../../api/lambda), set column write policies to control INSERT/UPDATE behavior.
 
+## Disallow Updates
+
 ```java title='Disallow updates: excluded from UPDATE SET'
 @Table
 public class Users {
@@ -18,6 +20,8 @@ public class Users {
     ...
 }
 ```
+
+## Disallow Inserts
 
 ```java title='Disallow inserts: excluded from INSERT values'
 @Table

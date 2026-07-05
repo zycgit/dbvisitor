@@ -12,6 +12,8 @@ import TagGray from '@site/src/components/tags/TagGray';
 Java 编写的类通常以驼峰命名法为命名规范，而数据库中通常是用下划线来用作命名规范。
 在 dbVisitor 中只需要开启 mapUnderscoreToCamelCase 选项就可以自动对驼峰命名进行转换。
 
+## 开启方式
+
 ```java title='例1：将驼峰的命名规范的名称转换为下划线命名规范'
 @Table(mapUnderscoreToCamelCase = true)
 public class AdminUsers {       // 表名映射为 admin_users
@@ -28,6 +30,8 @@ public class AdminUsers {       // 表名映射为 admin_users
 <!-- 以 entity 标签为例，resultMap 标签同理 -->
 <entity type="com.example.dto.AdminUsers" mapUnderscoreToCamelCase="true"/>
 ```
+
+## 作用范围
 
 :::info[作用范围：]
 驼峰命名转换默认情况下不开启，根据需要可以在如下范围内启用

@@ -1,10 +1,10 @@
 package net.hasor.dbvisitor.test.realdb.mssql.api.lambda;
 
-import net.hasor.dbvisitor.test.contract.api.lambda.AbstractLambdaSecurityValueContractTest;
+import net.hasor.dbvisitor.test.contract.api.lambda.LambdaSecurityValueContractTest;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MsSqlProfile;
 
-public class MsSqlLambdaSecurityValueContractTest extends AbstractLambdaSecurityValueContractTest {
+public class MsSqlLambdaSecurityValueContractTest extends LambdaSecurityValueContractTest {
     @Override
     protected DataSourceProfile profile() {
         return MsSqlProfile.INSTANCE;

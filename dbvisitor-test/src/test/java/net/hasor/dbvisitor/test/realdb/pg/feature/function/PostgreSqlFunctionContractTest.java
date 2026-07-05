@@ -2,11 +2,11 @@ package net.hasor.dbvisitor.test.realdb.pg.feature.function;
 
 import java.sql.SQLException;
 
-import net.hasor.dbvisitor.test.contract.feature.function.AbstractFunctionContractTest;
+import net.hasor.dbvisitor.test.contract.feature.function.FunctionContractTest;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.PostgreSqlProfile;
 
-public class PostgreSqlFunctionContractTest extends AbstractFunctionContractTest {
+public class PostgreSqlFunctionContractTest extends FunctionContractTest {
     @Override
     protected DataSourceProfile profile() {
         return PostgreSqlProfile.INSTANCE;

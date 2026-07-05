@@ -1,7 +1,6 @@
 ---
 id: rule
 sidebar_position: 5
-hide_table_of_contents: true
 title: 6.4 Rule Parameters
 description: By using the @{...} syntax in statements, you can leverage the rule mechanism to elegantly handle common dynamic SQL scenarios.
 ---

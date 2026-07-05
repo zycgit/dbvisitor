@@ -1,10 +1,10 @@
 package net.hasor.dbvisitor.test.realdb.mysql.feature.mapping;
 
-import net.hasor.dbvisitor.test.contract.feature.mapping.AbstractMappingRegistryContractTest;
+import net.hasor.dbvisitor.test.contract.feature.mapping.MappingRegistryContractTest;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MySqlProfile;
 
-public class MySqlMappingRegistryContractTest extends AbstractMappingRegistryContractTest {
+public class MySqlMappingRegistryContractTest extends MappingRegistryContractTest {
     @Override
     protected DataSourceProfile profile() {
         return MySqlProfile.INSTANCE;

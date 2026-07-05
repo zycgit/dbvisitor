@@ -1,7 +1,6 @@
 ---
 id: row_callback
 sidebar_position: 3
-hide_table_of_contents: true
 title: 9.3 RowCallbackHandler
 description: RowCallbackHandler 用于逐行处理查询结果，而非收集它们。适用于流式处理大规模数据，处理过程中数据不会堆积在内存中。
 ---

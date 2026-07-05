@@ -1,10 +1,10 @@
 package net.hasor.dbvisitor.test.realdb.h2.api.lambda;
 
-import net.hasor.dbvisitor.test.contract.api.lambda.AbstractLambdaBatchMutationContractTest;
+import net.hasor.dbvisitor.test.contract.api.lambda.LambdaBatchMutationContractTest;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.H2Profile;
 
-public class H2LambdaBatchMutationContractTest extends AbstractLambdaBatchMutationContractTest {
+public class H2LambdaBatchMutationContractTest extends LambdaBatchMutationContractTest {
     @Override
     protected DataSourceProfile profile() {
         return H2Profile.INSTANCE;

@@ -110,9 +110,9 @@ dbVisitor 提供了多层次的 API 抽象，允许在 **简单性** 与 **灵�
 - **Session/Transaction**：
   - 支持多数据源事物管理（非分布式事务）
   - 支持和 Spring 一样的事务控制能力，包括 [7 种事物传播行为](https://www.dbvisitor.net/docs/guides/transaction/propagation)。
-  - 支持通过 [编程式](https://www.dbvisitor.net/docs/guides/transaction/manager/program)、
-    [注解式](https://www.dbvisitor.net/docs/guides/transaction/manager/annotation)、
-    [模版方法](https://www.dbvisitor.net/docs/guides/transaction/manager/template) 几种方式控制事务。
+  - 支持通过 [编程式](https://www.dbvisitor.net/docs/guides/transaction/program)、
+    [注解式](https://www.dbvisitor.net/docs/guides/transaction/annotation)、
+    [模版方法](https://www.dbvisitor.net/docs/guides/transaction/template) 几种方式控制事务。
   - Tips：尽管 dbVisitor 统一了事务等调用形式，但它不能改变底层数据库的物理特性。
 - **高级特性**：
   - Map 结构亲和力强，支持多种结果集格式：

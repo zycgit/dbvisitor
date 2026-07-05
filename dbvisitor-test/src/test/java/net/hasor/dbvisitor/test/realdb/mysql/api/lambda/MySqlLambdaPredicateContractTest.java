@@ -1,10 +1,10 @@
 package net.hasor.dbvisitor.test.realdb.mysql.api.lambda;
 
-import net.hasor.dbvisitor.test.contract.api.lambda.AbstractLambdaPredicateContractTest;
+import net.hasor.dbvisitor.test.contract.api.lambda.LambdaPredicateContractTest;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MySqlProfile;
 
-public class MySqlLambdaPredicateContractTest extends AbstractLambdaPredicateContractTest {
+public class MySqlLambdaPredicateContractTest extends LambdaPredicateContractTest {
     @Override
     protected DataSourceProfile profile() {
         return MySqlProfile.INSTANCE;

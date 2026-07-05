@@ -6,7 +6,7 @@ import java.util.List;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
-import net.hasor.dbvisitor.test.contract.api.adapter.AbstractAdapterContractTest;
+import net.hasor.dbvisitor.test.contract.api.adapter.AdapterContractTest;
 import net.hasor.dbvisitor.test.realdb.milvus.material.user.UserInfoMilvus1;
 import net.hasor.dbvisitor.test.realdb.milvus.material.user.UserInfoMilvus1Mapper;
 import net.hasor.dbvisitor.test.realdb.milvus.material.user.UserInfoMilvus2;
@@ -28,7 +28,7 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import org.junit.Test;
 
-public class MilvusMapperContractTest extends AbstractAdapterContractTest {
+public class MilvusMapperContractTest extends AdapterContractTest {
     @Override
     protected DataSourceProfile profile() {
         return MilvusProfile.INSTANCE;

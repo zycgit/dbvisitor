@@ -1,7 +1,6 @@
 ---
 id: string-handler
 sidebar_position: 4
-hide_table_of_contents: true
 title: 字符类型
 description: dbVisitor 处理字符类型的类型处理器。
 ---

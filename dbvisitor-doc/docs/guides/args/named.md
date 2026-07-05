@@ -1,7 +1,6 @@
 ---
 id: named
 sidebar_position: 3
-hide_table_of_contents: true
 title: 6.2 名称参数
 description: 在 SQL 语句使用 :name、&name 或 #{...} 写法，可以将 SQL 中的参数进行名称化。
 ---

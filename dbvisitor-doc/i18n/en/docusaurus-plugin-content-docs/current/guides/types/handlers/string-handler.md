@@ -1,7 +1,6 @@
 ---
 id: string-handler
 sidebar_position: 4
-hide_table_of_contents: true
 title: String/Char Types
 description: Type handlers for string and character types in dbVisitor.
 ---

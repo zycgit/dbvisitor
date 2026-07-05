@@ -11,15 +11,24 @@ import java.util.Set;
 
 import org.junit.Assume;
 import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
 
 import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.session.Configuration;
-import net.hasor.dbvisitor.test.AbstractOneApiTest;
-import net.hasor.dbvisitor.test.config.OneApiDataSourceManager;
+import net.hasor.dbvisitor.test.contract.AbstractOneApiTest;
+import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
+import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
+import net.hasor.dbvisitor.test.nxn.capability.SupportStatus;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 
 public abstract class AbstractNxnContractTest extends AbstractOneApiTest {
+    @Rule
+    public final TestRule nxnCapabilityRule = this::applyNxnCapabilityRule;
+
     protected abstract DataSourceProfile profile();
 
     @Override
@@ -32,6 +41,49 @@ public abstract class AbstractNxnContractTest extends AbstractOneApiTest {
 
     protected void requiresNxnFeature(String featureId) {
         Assume.assumeTrue("Feature '" + featureId + "' is unsupported by " + profile().env(), profile().supportsFeature(featureId));
+    }
+
+    private Statement applyNxnCapabilityRule(Statement base, Description description) {
+        return new Statement() {
+            @Override
+            public void evaluate() throws Throwable {
+                Capability capability = findCapability(description);
+                if (capability != null) {
+                    SupportStatus support = profile().support(capability.value());
+                    Assume.assumeTrue("Capability '" + capability.value() + "' is " + support + " by " + profile().env(), SupportStatus.SUPPORTED == support);
+                }
+                base.evaluate();
+            }
+        };
+    }
+
+    private Capability findCapability(Description description) {
+        Capability capability = description.getAnnotation(Capability.class);
+        if (capability != null) {
+            return capability;
+        }
+
+        String methodName = description.getMethodName();
+        Class<?> testClass = description.getTestClass();
+        while (testClass != null) {
+            if (methodName != null) {
+                try {
+                    capability = testClass.getMethod(methodName).getAnnotation(Capability.class);
+                    if (capability != null) {
+                        return capability;
+                    }
+                } catch (NoSuchMethodException ignored) {
+                    // Keep walking inherited contract methods.
+                }
+            }
+
+            capability = testClass.getAnnotation(Capability.class);
+            if (capability != null) {
+                return capability;
+            }
+            testClass = testClass.getSuperclass();
+        }
+        return null;
     }
 
     protected void assertMutationRows(int expected, int actual) {

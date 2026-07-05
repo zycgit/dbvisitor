@@ -1,10 +1,10 @@
 package net.hasor.dbvisitor.test.realdb.db2.api.mapper.xml;
 
-import net.hasor.dbvisitor.test.contract.api.mapper.xml.AbstractXmlMapperDynamicSqlContractTest;
+import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperDynamicSqlContractTest;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Db2Profile;
 
-public class Db2XmlMapperDynamicSqlContractTest extends AbstractXmlMapperDynamicSqlContractTest {
+public class Db2XmlMapperDynamicSqlContractTest extends XmlMapperDynamicSqlContractTest {
     @Override
     protected DataSourceProfile profile() {
         return Db2Profile.INSTANCE;

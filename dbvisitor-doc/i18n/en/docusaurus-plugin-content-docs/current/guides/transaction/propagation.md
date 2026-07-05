@@ -1,7 +1,7 @@
 ---
 id: propagation
-sidebar_position: 2
-title: 10.2 Propagation Behavior
+sidebar_position: 5
+title: 10.5 Propagation Behavior
 description: Transaction propagation behaviors in dbVisitor ORM.
 ---
 

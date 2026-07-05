@@ -8,7 +8,7 @@ import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.page.PageObject;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
-import net.hasor.dbvisitor.test.contract.api.adapter.AbstractAdapterContractTest;
+import net.hasor.dbvisitor.test.contract.api.adapter.AdapterContractTest;
 import net.hasor.dbvisitor.test.realdb.milvus.material.user.UserInfoMilvus;
 import net.hasor.dbvisitor.test.realdb.milvus.material.user.UserInfoMilvusBaseMapper;
 import net.hasor.dbvisitor.test.realdb.milvus.material.complex.Address;
@@ -24,7 +24,7 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import org.junit.Test;
 
-public class MilvusLambdaContractTest extends AbstractAdapterContractTest {
+public class MilvusLambdaContractTest extends AdapterContractTest {
     @Override
     protected DataSourceProfile profile() {
         return MilvusProfile.INSTANCE;

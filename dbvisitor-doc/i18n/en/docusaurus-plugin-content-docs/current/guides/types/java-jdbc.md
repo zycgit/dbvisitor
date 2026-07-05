@@ -1,7 +1,6 @@
 ---
 id: java-jdbc
 sidebar_position: 1
-hide_table_of_contents: true
 title: 8.1 Java/JDBC Type Mapping
 description: Java-to-JDBC type mapping used by dbVisitor ORM.
 ---
@@ -9,6 +8,8 @@ description: Java-to-JDBC type mapping used by dbVisitor ORM.
 # Java/JDBC Type Mapping
 
 When no JDBC type is explicitly specified, dbVisitor automatically selects the JDBC type corresponding to the Java type from the mapping table.
+
+## Default Mapping Table
 
 | Java Type | JDBC Type |
 |---|---|

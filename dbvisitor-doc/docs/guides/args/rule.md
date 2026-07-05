@@ -1,7 +1,6 @@
 ---
 id: rule
 sidebar_position: 5
-hide_table_of_contents: true
 title: 6.4 规则传参
 description: 语句中通过 @{...} 写法，可以借助规则机制，优雅的处理一些常见动态 SQL 场景。
 ---

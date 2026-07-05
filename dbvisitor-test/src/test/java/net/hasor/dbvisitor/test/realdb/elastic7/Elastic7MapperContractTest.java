@@ -10,7 +10,7 @@ import net.hasor.dbvisitor.page.PageObject;
 import net.hasor.dbvisitor.page.PageResult;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
-import net.hasor.dbvisitor.test.contract.api.adapter.AbstractAdapterContractTest;
+import net.hasor.dbvisitor.test.contract.api.adapter.AdapterContractTest;
 import net.hasor.dbvisitor.test.realdb.elastic7.material.user.UserInfo1BaseMapper;
 import net.hasor.dbvisitor.test.realdb.elastic7.material.user.UserInfo1Mapper;
 import net.hasor.dbvisitor.test.realdb.elastic7.material.user.UserInfo1a;
@@ -31,7 +31,7 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import org.junit.Test;
 
-public class Elastic7MapperContractTest extends AbstractAdapterContractTest {
+public class Elastic7MapperContractTest extends AdapterContractTest {
     @Override
     protected DataSourceProfile profile() {
         return Elastic7Profile.INSTANCE;

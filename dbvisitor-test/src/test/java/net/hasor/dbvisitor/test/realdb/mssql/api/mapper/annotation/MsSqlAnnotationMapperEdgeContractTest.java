@@ -1,10 +1,10 @@
 package net.hasor.dbvisitor.test.realdb.mssql.api.mapper.annotation;
 
-import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AbstractAnnotationMapperEdgeContractTest;
+import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperEdgeContractTest;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MsSqlProfile;
 
-public class MsSqlAnnotationMapperEdgeContractTest extends AbstractAnnotationMapperEdgeContractTest {
+public class MsSqlAnnotationMapperEdgeContractTest extends AnnotationMapperEdgeContractTest {
     @Override
     protected DataSourceProfile profile() {
         return MsSqlProfile.INSTANCE;

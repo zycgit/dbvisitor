@@ -8,7 +8,7 @@ import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.page.PageObject;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
-import net.hasor.dbvisitor.test.contract.api.adapter.AbstractAdapterContractTest;
+import net.hasor.dbvisitor.test.contract.api.adapter.AdapterContractTest;
 import net.hasor.dbvisitor.test.realdb.elastic6.material.user.UserInfo1BaseMapper;
 import net.hasor.dbvisitor.test.realdb.elastic6.material.user.UserInfo1a;
 import net.hasor.dbvisitor.test.realdb.elastic6.material.complex.Address;
@@ -23,7 +23,7 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import org.junit.Test;
 
-public class Elastic6LambdaContractTest extends AbstractAdapterContractTest {
+public class Elastic6LambdaContractTest extends AdapterContractTest {
     @Override
     protected DataSourceProfile profile() {
         return Elastic6Profile.INSTANCE;

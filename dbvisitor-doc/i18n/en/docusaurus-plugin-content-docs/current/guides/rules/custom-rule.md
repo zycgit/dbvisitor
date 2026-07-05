@@ -1,7 +1,6 @@
 ---
 id: custom-rule
 sidebar_position: 5
-hide_table_of_contents: true
 title: 7.4 Custom Rules
 description: When dbVisitor built-in rules cannot meet your needs, you can extend the required rules through custom methods.
 ---

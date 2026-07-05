@@ -13,7 +13,7 @@ public final class PostgreSqlProfile extends AbstractDataSourceProfile {
 
     @NotNull
     private static String[] features() {
-        return new String[] { FeatureId.PROCEDURE_RESULT_SET };
+        return new String[] { FeatureId.PROCEDURE_RESULT_SET, FeatureId.GENERATED_KEY_RESULT_SET };
     }
 
     @Override

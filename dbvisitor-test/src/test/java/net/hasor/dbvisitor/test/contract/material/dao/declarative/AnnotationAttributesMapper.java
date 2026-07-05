@@ -98,6 +98,11 @@ public interface AnnotationAttributesMapper {
             useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
     int insertWithKeyProperty(UserInfo user);
 
+    @Insert(value = "INSERT INTO user_info (name, age, email, create_time) " +//
+            "VALUES (#{name}, #{age}, #{email}, #{createTime})",//
+            useGeneratedKeys = true, keyProperty = "id", keyColumn = "id", generatedKeySource = GeneratedKeySource.ResultSet)
+    int insertWithGeneratedKeyResultSet(UserInfo user);
+
     // ========== @SelectKeySql (PostgreSQL compatible) ==========
 
     @SelectKeySql(value = "SELECT nextval('user_info_id_seq')", keyProperty = "id", order = Order.Before)

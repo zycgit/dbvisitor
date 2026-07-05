@@ -1,7 +1,6 @@
 ---
 id: number-handler
 sidebar_position: 3
-hide_table_of_contents: true
 title: 数字类型
 description: dbVisitor 处理数字类型的类型处理器。
 ---

@@ -1,0 +1,67 @@
+---
+id: program
+sidebar_position: 3
+title: 10.3 Programmatic API
+description: How to use programmatic transactions in dbVisitor.
+---
+
+# Programmatic API
+
+Programmatic transactions manually control transaction begin, commit, and rollback through `TransactionManager` methods.
+
+```java title='Basic usage'
+TransactionManager txManager = ...;
+
+TransactionStatus tranA = txManager.begin();
+try {
+    // Execute business logic
+    ...
+    txManager.commit(tranA);
+} catch (Throwable e) {
+    txManager.rollBack(tranA);
+    throw e;
+}
+```
+
+You can configure [propagation](./propagation) and [isolation](./isolation) via `begin` arguments:
+
+```java title='Specify propagation and isolation'
+TransactionStatus tranA = txManager.begin(
+        Propagation.REQUIRES_NEW, // propagation
+        Isolation.READ_COMMITTED  // isolation
+);
+```
+
+You can also specify only the propagation behavior (isolation defaults to DEFAULT):
+
+```java title='Specify propagation only'
+TransactionStatus tranA = txManager.begin(Propagation.REQUIRES_NEW);
+```
+
+## Obtain a Transaction Manager
+
+```java title='Method 1: Via TransactionHelper (shared instance per DataSource)'
+DataSource dataSource = ...;
+TransactionManager txManager = TransactionHelper.txManager(dataSource);
+```
+
+```java title='Method 2: Create LocalTransactionManager directly'
+DataSource dataSource = ...;
+TransactionManager txManager = new LocalTransactionManager(dataSource);
+```
+
+```java title='Method 3: Via dependency injection'
+public class TxExample {
+    // @Inject                 < Guice, Solon and Hasor
+    // @Resource or @Autowired < Spring
+    private TransactionManager txManager;
+    ...
+}
+```
+
+:::info[For DI usage, see the framework-specific docs]
+- Spring-based projects: [see details](../yourproject/with_spring#tran)
+- Solon-based projects: [see details](../yourproject/with_solon#tran)
+- In Hasor and Guice you can inject with `@Inject`
+  - [Guice Injectable types](../yourproject/with_guice#inject), [Hasor Injectable types](../yourproject/with_hasor#inject)
+:::

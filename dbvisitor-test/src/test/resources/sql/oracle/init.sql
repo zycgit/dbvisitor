@@ -15,6 +15,9 @@ DROP TABLE complex_order PURGE;
 DROP TABLE product_vector PURGE;
 DROP TABLE user_order PURGE;
 DROP TABLE user_info PURGE;
+DROP SEQUENCE user_info_id_seq;
+
+CREATE SEQUENCE user_info_id_seq START WITH 100000 INCREMENT BY 1;
 
 CREATE TABLE user_role (
     user_id     NUMBER(10) NOT NULL,

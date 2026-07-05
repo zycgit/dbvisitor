@@ -9,6 +9,8 @@ description: How to paginate once a mapper interface is linked to a mapper XML f
 
 After linking a mapper interface to a mapper XML via `@RefMapper`, add a paging object argument to enable pagination.
 
+## Mapper Methods
+
 ```java title='Mapper methods with paging arguments'
 @RefMapper("/mapper/userMapper.xml")
 public interface UserMapper {
@@ -18,6 +20,8 @@ public interface UserMapper {
 }
 ```
 
+## Return a List
+
 ```java title='Paging: return a list'
 Page pageInfo = PageObject.of(0, 20);   // page 0, size 20 (0-based)
 //or pageInfo = PageObject.of(1, 20, 1);// page 1, size 20 (1-based)
@@ -26,6 +30,8 @@ UserMapper userMapper = ...
 List<User> result = userMapper.listUsers1(123, pageInfo);
 ```
 
+## Return a PageResult
+
 ```java title='Paging: return a PageResult'
 Page pageInfo = PageObject.of(0, 20);   // page 0, size 20 (0-based)
 //or pageInfo = PageObject.of(1, 20, 1);// page 1, size 20 (1-based)
@@ -33,5 +39,7 @@ Page pageInfo = PageObject.of(0, 20);   // page 0, size 20 (0-based)
 UserMapper userMapper = ...
 PageResult<User> result = userMapper.listUsers2(123, pageInfo);
 ```
+
+## Page Result Fields
 
 - `PageResult` also contains the **original paging info**, **total rows**, and **total pages**.

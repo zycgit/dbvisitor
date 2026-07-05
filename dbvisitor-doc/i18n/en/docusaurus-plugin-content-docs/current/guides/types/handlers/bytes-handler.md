@@ -1,7 +1,6 @@
 ---
 id: bytes-handler
 sidebar_position: 6
-hide_table_of_contents: true
 title: Byte Array Types
 description: Type handlers for byte arrays in dbVisitor.
 ---
@@ -9,6 +8,8 @@ description: Type handlers for byte arrays in dbVisitor.
 # Byte Array Type Handlers
 
 Byte array type handlers are located in the `net.hasor.dbvisitor.types.handler.bytes` package.
+
+## Handler List
 
 | Handler | Java Type | Purpose |
 |---|---|---|

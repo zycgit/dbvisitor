@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="XmlCallableMapper">
+
+    <execute id="callInsertUser" statementType="CALLABLE">
+        {call proc_insert_user(#{id}, #{name})}
+    </execute>
+
+    <execute id="callDoubleValue" statementType="CALLABLE" bindOut="p_result">
+        {call proc_double_value(#{p_input},
+                                #{p_result, mode=INOUT, jdbcType=INTEGER})}
+    </execute>
+
+    <execute id="callMultiInout" statementType="CALLABLE" bindOut="p_concat,p_length">
+        {call proc_multi_inout(#{p_prefix},
+                               #{p_suffix},
+                               #{p_concat, mode=INOUT, jdbcType=VARCHAR},
+                               #{p_length, mode=INOUT, jdbcType=INTEGER})}
+    </execute>
+
+    <execute id="callUserCount" statementType="CALLABLE" bindOut="p_count">
+        {call proc_user_count(#{p_count, mode=INOUT, jdbcType=INTEGER})}
+    </execute>
+
+    <execute id="callUserStats" statementType="CALLABLE" bindOut="p_count,p_max_id,p_min_name">
+        {call proc_user_stats(#{p_count, mode=INOUT, jdbcType=INTEGER},
+                              #{p_max_id, mode=INOUT, jdbcType=INTEGER},
+                              #{p_min_name, mode=INOUT, jdbcType=VARCHAR})}
+    </execute>
+
+</mapper>

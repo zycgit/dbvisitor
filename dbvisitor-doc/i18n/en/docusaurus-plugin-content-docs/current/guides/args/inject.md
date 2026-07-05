@@ -2,7 +2,6 @@
 id: inject
 sidebar_position: 4
 title: 6.3 SQL Injection
-hide_table_of_contents: true
 description: Use ${...} to fetch named arguments and inject the result into SQL text.
 ---
 

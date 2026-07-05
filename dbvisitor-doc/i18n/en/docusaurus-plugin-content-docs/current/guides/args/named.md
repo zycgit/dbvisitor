@@ -1,7 +1,6 @@
 ---
 id: named
 sidebar_position: 3
-hide_table_of_contents: true
 title: 6.2 Named Arguments
 description: Use :name, &name, or #{...} to name arguments in SQL.
 ---

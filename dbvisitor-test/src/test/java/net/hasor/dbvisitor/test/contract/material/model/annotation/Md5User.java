@@ -4,35 +4,37 @@ import net.hasor.dbvisitor.mapping.Column;
 import net.hasor.dbvisitor.mapping.Table;
 
 @Table(value = "test_md5_user")
-public class Md5User {
+public class Md5User extends AbstractMd5User {
+    @Override
     @Column(primary = true)
-    private String id;
-    @Column
-    private String name;
-    @Column(insertTemplate = "MD5(?)")
-    private String password;
-
     public String getId() {
-        return id;
+        return super.getId();
     }
 
+    @Override
     public void setId(String id) {
-        this.id = id;
+        super.setId(id);
     }
 
+    @Override
+    @Column
     public String getName() {
-        return name;
+        return super.getName();
     }
 
+    @Override
     public void setName(String name) {
-        this.name = name;
+        super.setName(name);
     }
 
+    @Override
+    @Column(insertTemplate = "MD5(?)")
     public String getPassword() {
-        return password;
+        return super.getPassword();
     }
 
+    @Override
     public void setPassword(String password) {
-        this.password = password;
+        super.setPassword(password);
     }
 }

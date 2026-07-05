@@ -6,11 +6,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.h2.tools.SimpleResultSet;
-import net.hasor.dbvisitor.test.contract.feature.function.AbstractFunctionContractTest;
+import net.hasor.dbvisitor.test.contract.feature.function.FunctionContractTest;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.H2Profile;
 
-public class H2FunctionContractTest extends AbstractFunctionContractTest {
+public class H2FunctionContractTest extends FunctionContractTest {
     @Override
     protected DataSourceProfile profile() {
         return H2Profile.INSTANCE;

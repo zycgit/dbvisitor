@@ -3,7 +3,6 @@ id: interface
 sidebar_position: 6
 title: 6.5 Interface-based
 description: dbVisitor offers SqlArgSource and PreparedStatement-based argument APIs.
-hide_table_of_contents: true
 ---
 
 # Interface-based Arguments

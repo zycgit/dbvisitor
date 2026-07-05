@@ -1,7 +1,6 @@
 ---
 id: for_extractor
 sidebar_position: 4
-hide_table_of_contents: true
 title: 9.4 ResultSetExtractor
 description: 使用 ResultSetExtractor 接口，自定义 ResultSet 结果集的处理。
 ---

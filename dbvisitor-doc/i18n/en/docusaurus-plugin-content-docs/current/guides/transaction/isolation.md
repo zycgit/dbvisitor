@@ -1,7 +1,7 @@
 ---
 id: isolation
-sidebar_position: 3
-title: 10.3 Isolation Levels
+sidebar_position: 6
+title: 10.6 Isolation Levels
 description: Detailed explanation of transaction isolation levels in dbVisitor.
 ---
 

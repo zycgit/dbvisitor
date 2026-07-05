@@ -1,10 +1,10 @@
 package net.hasor.dbvisitor.test.realdb.clickhouse.feature.mapping;
 
-import net.hasor.dbvisitor.test.contract.feature.mapping.AbstractXmlMappingMetadataContractTest;
+import net.hasor.dbvisitor.test.contract.feature.mapping.XmlMappingMetadataContractTest;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
 
-public class ClickHouseXmlMappingMetadataContractTest extends AbstractXmlMappingMetadataContractTest {
+public class ClickHouseXmlMappingMetadataContractTest extends XmlMappingMetadataContractTest {
     @Override
     protected DataSourceProfile profile() {
         return ClickHouseProfile.INSTANCE;

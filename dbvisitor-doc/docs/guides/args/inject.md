@@ -2,7 +2,6 @@
 id: inject
 sidebar_position: 4
 title: 6.3 SQL 注入
-hide_table_of_contents: true
 description: 语句中使用 ${...} 写法，可以对已名称化的参数进行取值，并将结果注入到 SQL 语句中。
 ---
 

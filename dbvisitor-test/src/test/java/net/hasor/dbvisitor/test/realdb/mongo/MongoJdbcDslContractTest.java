@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.test.contract.api.adapter.AbstractAdapterContractTest;
+import net.hasor.dbvisitor.test.contract.api.adapter.AdapterContractTest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -15,7 +15,7 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import org.junit.Test;
 
-public class MongoJdbcDslContractTest extends AbstractAdapterContractTest {
+public class MongoJdbcDslContractTest extends AdapterContractTest {
     @Override
     protected DataSourceProfile profile() {
         return MongoProfile.INSTANCE;

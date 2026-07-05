@@ -3,7 +3,7 @@ package net.hasor.dbvisitor.test.realdb.elastic6;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import net.hasor.dbvisitor.test.contract.api.adapter.AbstractAdapterContractTest;
+import net.hasor.dbvisitor.test.contract.api.adapter.AdapterContractTest;
 import static org.junit.Assert.*;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic6Profile;
@@ -11,7 +11,7 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import org.junit.Test;
 
-public class Elastic6CommandContractTest extends AbstractAdapterContractTest {
+public class Elastic6CommandContractTest extends AdapterContractTest {
     @Override
     protected DataSourceProfile profile() {
         return Elastic6Profile.INSTANCE;

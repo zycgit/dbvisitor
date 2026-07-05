@@ -9,6 +9,8 @@ description: 使用 LambdaTemplate 通过如下方式可以构建排序查询。
 
 使用 LambdaTemplate 通过如下方式可以构建排序查询。
 
+## 基础排序
+
 ```java title='排序用法'
 LambdaTemplate lambda = ...
 
@@ -23,6 +25,8 @@ result = lambda.query(User.class)
 //   select * from users where id >= 100 order by name;
 ```
 
+## 多列排序
+
 ```java title='多个排序列'
 LambdaTemplate lambda = ...
 
@@ -35,6 +39,8 @@ result = lambda.query(User.class)
 // 对应的 SQL
 //   select * from users where id >= 100 order by name, age;
 ```
+
+## 空值排序
 
 ```java title='NULL 最前'
 LambdaTemplate lambda = ...

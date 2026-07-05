@@ -1,0 +1,99 @@
+---
+id: template
+sidebar_position: 2
+title: 10.2 Transaction Template
+description: How to use transaction templates in dbVisitor.
+---
+
+# Transaction Template
+
+Transaction templates follow this general pattern, automatically handling commit and rollback:
+
+```java
+try {
+    txManager.begin(propagation, isolation);
+    ...
+    txManager.commit();
+} catch (Throwable e) {
+    txManager.rollBack();
+    throw e;
+}
+```
+
+To use transaction templates, first create a `TransactionTemplate`:
+
+```java title='Create TransactionTemplate'
+DataSource dataSource = ...;
+TransactionManager txManager = TransactionHelper.txManager(dataSource);
+TransactionTemplate template = new TransactionTemplateManager(txManager);
+```
+
+Then use the `execute` method to run transactional code blocks:
+
+```java title='Basic usage'
+Object result = template.execute(tranStatus -> {
+    // Execute business logic within a transaction
+    return ...;
+});
+```
+
+```java title='When no return value is needed'
+template.execute((TransactionCallbackWithoutResult) tranStatus -> {
+    // Execute transactional operations
+    ...
+});
+```
+
+The `execute` method can also specify propagation behavior and isolation level:
+
+```java title='Specify propagation and isolation'
+Object result = template.execute(tranStatus -> {
+    return ...;
+}, Propagation.REQUIRES_NEW, Isolation.READ_COMMITTED);
+```
+
+## Rolling Back
+
+There are two ways to roll back when using the template:
+- **Method 1**: Throw an exception — the template will automatically roll back and rethrow.
+- **Method 2**: Mark the transaction for rollback via `setRollback()` or `setReadOnly()` — this will not throw an exception.
+
+```java title='Mark rollback without throwing'
+Object result = template.execute(tranStatus -> {
+    tranStatus.setRollback();
+    // or
+    tranStatus.setReadOnly();
+    return ...;
+});
+```
+
+## Obtain TransactionTemplate {#get-template}
+
+```java title='Create from DataSource'
+DataSource dataSource = ...;
+TransactionManager txManager = TransactionHelper.txManager(dataSource);
+TransactionTemplate template = new TransactionTemplateManager(txManager);
+```
+
+```java title='Create after obtaining TransactionManager via dependency injection'
+public class TxExample {
+    // @Inject                 < Guice, Solon and Hasor
+    // @Resource or @Autowired < Spring
+    private TransactionManager txManager;
+
+    public void doWork() throws Throwable {
+        TransactionTemplate template = new TransactionTemplateManager(txManager);
+        template.execute(tranStatus -> {
+            ...
+            return null;
+        });
+    }
+}
+```
+
+:::info[For DI usage, see the framework-specific docs]
+- Spring-based projects: [see details](../yourproject/with_spring#tran)
+- Solon-based projects: [see details](../yourproject/with_solon#tran)
+- In Hasor and Guice you can inject with `@Inject`
+    - [Guice Injectable types](../yourproject/with_guice#inject), [Hasor Injectable types](../yourproject/with_hasor#inject)
+:::

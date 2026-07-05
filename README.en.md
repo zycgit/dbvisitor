@@ -112,9 +112,9 @@ dbVisitor provides multi-level API abstraction, allowing for free switching betw
 - **Session/Transaction**:
   - Supports multi-datasource transaction management (non-distributed transactions).
   - Supports transaction control capabilities identical to Spring, including [7 Transaction Propagation Behaviors](https://www.dbvisitor.net/docs/guides/transaction/propagation).
-  - Control transactions via [Programmatic](https://www.dbvisitor.net/docs/guides/transaction/manager/program),
-    [Annotation](https://www.dbvisitor.net/docs/guides/transaction/manager/annotation),
-    and [Template Method](https://www.dbvisitor.net/docs/guides/transaction/manager/template) approaches.
+  - Control transactions via [Programmatic](https://www.dbvisitor.net/docs/guides/transaction/program),
+    [Annotation](https://www.dbvisitor.net/docs/guides/transaction/annotation),
+    and [Template Method](https://www.dbvisitor.net/docs/guides/transaction/template) approaches.
   - Tips: Although dbVisitor unifies transaction call forms, it cannot change the physical characteristics of the underlying database.
 - **Advanced Features**:
   - Strong affinity for Map structures, supporting multiple result set formats:

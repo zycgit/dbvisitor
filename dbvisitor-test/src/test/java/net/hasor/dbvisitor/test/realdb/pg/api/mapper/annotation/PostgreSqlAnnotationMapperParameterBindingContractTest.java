@@ -1,10 +1,10 @@
 package net.hasor.dbvisitor.test.realdb.pg.api.mapper.annotation;
 
-import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AbstractAnnotationMapperParameterBindingContractTest;
+import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperParameterBindingContractTest;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.PostgreSqlProfile;
 
-public class PostgreSqlAnnotationMapperParameterBindingContractTest extends AbstractAnnotationMapperParameterBindingContractTest {
+public class PostgreSqlAnnotationMapperParameterBindingContractTest extends AnnotationMapperParameterBindingContractTest {
     @Override
     protected DataSourceProfile profile() {
         return PostgreSqlProfile.INSTANCE;

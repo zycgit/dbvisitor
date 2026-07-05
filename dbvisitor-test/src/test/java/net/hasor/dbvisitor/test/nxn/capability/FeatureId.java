@@ -6,6 +6,7 @@ public final class FeatureId {
     public static final String BINARY                             = "binary";
     public static final String SEQUENCE                           = "sequence";
     public static final String GENERATED_KEY_COLUMN               = "generated-key-column";
+    public static final String GENERATED_KEY_RESULT_SET           = "generated-key-result-set";
     public static final String XML_SELECT_KEY_USER_INFO_SEQUENCE  = "xml-select-key-user-info-sequence";
     public static final String PROCEDURE                          = "procedure";
     public static final String PROCEDURE_CURSOR_RESULT            = "procedure-cursor-result";
@@ -35,12 +36,12 @@ public final class FeatureId {
     public static final String SQL_NOT_IN_NULL_SEMANTICS          = "sql-not-in-null-semantics";
     public static final String BIT_CAST_NULL_VALUE                = "bit-cast-null-value";
     public static final String MULTIPLE_RESULT_SETS               = "multiple-result-sets";
-    public static final String SQL_MD5_FUNCTION                   = "sql-md5-function";
     public static final String KEYGEN_AUTO_BATCH_EXPLICIT_NULL    = "keygen-auto-batch-explicit-null";
     public static final String KEYGEN_UUID_WRONG_TYPE_REJECTED    = "keygen-uuid-wrong-type-rejected";
     public static final String CASE_SENSITIVE_IDENTIFIERS         = "case-sensitive-identifiers";
     public static final String DISTINCT_EMPTY_STRING              = "distinct-empty-string";
     public static final String LARGE_IN_LIST                      = "large-in-list";
+    public static final String REPEATED_ORDER_BY_COLUMN           = "repeated-order-by-column";
     public static final String XML_FOREACH_BATCH_INSERT_VALUES    = "xml-foreach-batch-insert-values";
     public static final String GENERATED_KEYS_NUMERIC             = "generated-keys-numeric";
     public static final String LOWERCASE_STANDARD_RESULT_COLUMNS  = "lowercase-standard-result-columns";

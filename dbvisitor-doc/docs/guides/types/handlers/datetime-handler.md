@@ -1,7 +1,6 @@
 ---
 id: datetime-handler
 sidebar_position: 5
-hide_table_of_contents: true
 title: 时间类型
 description: dbVisitor 处理时间类型的类型处理器。
 ---

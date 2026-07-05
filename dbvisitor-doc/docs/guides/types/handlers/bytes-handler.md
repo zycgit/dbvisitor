@@ -1,7 +1,6 @@
 ---
 id: bytes-handler
 sidebar_position: 6
-hide_table_of_contents: true
 title: 字节数组类型
 description: dbVisitor 处理字节数组类型的类型处理器。
 ---
@@ -9,6 +8,8 @@ description: dbVisitor 处理字节数组类型的类型处理器。
 # 字节数组类型处理器
 
 字节数组类型处理器位于 `net.hasor.dbvisitor.types.handler.bytes` 包中。
+
+## 处理器列表
 
 | 类型处理器 | Java 类型 | 作用 |
 |---|---|---|

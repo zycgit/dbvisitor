@@ -10,7 +10,7 @@ import net.hasor.dbvisitor.page.PageObject;
 import net.hasor.dbvisitor.page.PageResult;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
-import net.hasor.dbvisitor.test.contract.api.adapter.AbstractAdapterContractTest;
+import net.hasor.dbvisitor.test.contract.api.adapter.AdapterContractTest;
 import net.hasor.dbvisitor.test.realdb.mongo.material.user.UserInfo1;
 import net.hasor.dbvisitor.test.realdb.mongo.material.user.UserInfo1BaseMapper;
 import net.hasor.dbvisitor.test.realdb.mongo.material.user.UserInfo1Mapper;
@@ -30,7 +30,7 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import org.junit.Test;
 
-public class MongoMapperContractTest extends AbstractAdapterContractTest {
+public class MongoMapperContractTest extends AdapterContractTest {
     @Override
     protected DataSourceProfile profile() {
         return MongoProfile.INSTANCE;

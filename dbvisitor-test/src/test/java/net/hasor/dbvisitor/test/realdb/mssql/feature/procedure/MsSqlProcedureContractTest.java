@@ -2,11 +2,11 @@ package net.hasor.dbvisitor.test.realdb.mssql.feature.procedure;
 
 import java.sql.SQLException;
 
-import net.hasor.dbvisitor.test.contract.feature.procedure.AbstractProcedureContractTest;
+import net.hasor.dbvisitor.test.contract.feature.procedure.ProcedureContractTest;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MsSqlProfile;
 
-public class MsSqlProcedureContractTest extends AbstractProcedureContractTest {
+public class MsSqlProcedureContractTest extends ProcedureContractTest {
     @Override
     protected DataSourceProfile profile() {
         return MsSqlProfile.INSTANCE;

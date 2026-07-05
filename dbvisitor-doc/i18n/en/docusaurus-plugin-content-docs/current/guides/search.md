@@ -127,9 +127,10 @@ This page skips the API overview and organizes links by usage scenarios for quic
 ### Database transactions
 - Spring projects: use [Spring Annotations](./yourproject/with_spring#tran).
 - Solon projects: use [Solon Annotations](./yourproject/with_solon#tran).
-- Guice and Hasor: use dbVisitor [@Transactional](./transaction/manager/annotation).
-- Without bytecode enhancement, enhance objects via TransactionHelper, then use [@Transactional](./transaction/manager/annotation).
-- Alternatively, control transactions via [Java code](./transaction/manager/program) or [templates](./transaction/manager/template).
+- Guice and Hasor: use dbVisitor [@Transactional](./transaction/annotation).
+- In plain Java programs without framework proxies, create a proxy with `TransactionHelper.support()` and then use [@Transactional](./transaction/annotation).
+- To wrap a local code block, use [transaction templates](./transaction/template).
+- To control `begin/commit/rollBack` manually, use [programmatic transactions](./transaction/program).
 
 ### Framework integrations
 - Use [dbvisitor-guice](./yourproject/with_guice) with Google Guice.

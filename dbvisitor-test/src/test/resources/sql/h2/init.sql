@@ -13,6 +13,8 @@ DROP TABLE IF EXISTS complex_order;
 DROP TABLE IF EXISTS product_vector;
 DROP TABLE IF EXISTS user_order;
 DROP TABLE IF EXISTS user_info;
+DROP SEQUENCE IF EXISTS user_info_id_seq;
+CREATE SEQUENCE user_info_id_seq START WITH 100000;
 
 CREATE TABLE user_role (
     user_id     INT NOT NULL,

@@ -1,7 +1,6 @@
 ---
 id: position
 sidebar_position: 2
-hide_table_of_contents: true
 title: 6.1 Positional Arguments
 description: When SQL uses `?`, you can bind arguments to the corresponding zero-based index.
 ---

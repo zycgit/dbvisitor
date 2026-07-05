@@ -11,6 +11,8 @@ import TagGray from '@site/src/components/tags/TagGray';
 
 Java classes are typically camel-cased, while databases often use snake case. Enable `mapUnderscoreToCamelCase` to convert automatically.
 
+## Enable Conversion
+
 ```java title='Example 1: convert camel case to snake case'
 @Table(mapUnderscoreToCamelCase = true)
 public class AdminUsers {       // Maps to table admin_users
@@ -27,6 +29,8 @@ public class AdminUsers {       // Maps to table admin_users
 <!-- entity tag shown; resultMap works the same -->
 <entity type="com.example.dto.AdminUsers" mapUnderscoreToCamelCase="true"/>
 ```
+
+## Scope
 
 :::info[Scope]
 Camel-case conversion is off by default; enable it where needed:

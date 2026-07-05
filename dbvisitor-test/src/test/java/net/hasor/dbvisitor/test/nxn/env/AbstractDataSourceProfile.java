@@ -23,6 +23,12 @@ public abstract class AbstractDataSourceProfile implements DataSourceProfile {
 
     @Override
     public SupportStatus support(String capabilityId) {
+        if (CapabilityId.MAPPER_XML_CALLABLE_REFCURSOR.equals(capabilityId)) {
+            if (supportsFeature(FeatureId.XML_MAPPER_CALLABLE) && supportsFeature(FeatureId.PROCEDURE_CURSOR_RESULT)) {
+                return SupportStatus.SUPPORTED;
+            }
+            return SupportStatus.UNSUPPORTED_BY_DATABASE;
+        }
         String requiredFeature = requiredFeature(capabilityId);
         if (requiredFeature == null || supportsFeature(requiredFeature)) {
             return SupportStatus.SUPPORTED;
@@ -85,6 +91,9 @@ public abstract class AbstractDataSourceProfile implements DataSourceProfile {
         if (CapabilityId.LAMBDA_PREDICATE_NOT_IN_NULL.equals(capabilityId)) {
             return FeatureId.SQL_NOT_IN_NULL_SEMANTICS;
         }
+        if (CapabilityId.LAMBDA_SORT_REPEATED_COLUMN.equals(capabilityId)) {
+            return FeatureId.REPEATED_ORDER_BY_COLUMN;
+        }
         if (CapabilityId.MAPPER_XML_DYNAMIC_FOREACH.equals(capabilityId)) {
             return FeatureId.XML_FOREACH_BATCH_INSERT_VALUES;
         }
@@ -112,6 +121,9 @@ public abstract class AbstractDataSourceProfile implements DataSourceProfile {
         if (CapabilityId.KEYGEN_DUPLICATE_KEY.equals(capabilityId) || CapabilityId.MAPPER_ANNOTATION_DUPLICATE_KEY.equals(capabilityId) || CapabilityId.LAMBDA_DUPLICATE_STRATEGY_INTO.equals(capabilityId) || CapabilityId.LAMBDA_DUPLICATE_STRATEGY_DEFAULT.equals(capabilityId)) {
             return FeatureId.DUPLICATE_PRIMARY_KEY_REJECTED;
         }
+        if (CapabilityId.MAPPER_XML_KEYGEN_RESULT_SET_SOURCE.equals(capabilityId) || CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_RESULT_SET_KEY_SOURCE.equals(capabilityId)) {
+            return FeatureId.GENERATED_KEY_RESULT_SET;
+        }
         if (CapabilityId.MAPPER_XML_KEYGEN_KEY_COLUMN.equals(capabilityId) || CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_KEY_COLUMN.equals(capabilityId)) {
             return FeatureId.GENERATED_KEY_COLUMN;
         }
@@ -123,6 +135,9 @@ public abstract class AbstractDataSourceProfile implements DataSourceProfile {
         }
         if (CapabilityId.PROCEDURE_CALL_RESULT_SET.equals(capabilityId)) {
             return FeatureId.PROCEDURE_RESULT_SET;
+        }
+        if (CapabilityId.MAPPER_XML_CALLABLE_REFCURSOR.equals(capabilityId)) {
+            return FeatureId.PROCEDURE_CURSOR_RESULT;
         }
         if (capabilityId.startsWith("mapper.xml.callable.")) {
             return FeatureId.XML_MAPPER_CALLABLE;
@@ -141,9 +156,6 @@ public abstract class AbstractDataSourceProfile implements DataSourceProfile {
         }
         if (capabilityId.startsWith("function.")) {
             return FeatureId.FUNCTION;
-        }
-        if (CapabilityId.MAPPING_ANNOTATION_SQL_TEMPLATE_MD5.equals(capabilityId)) {
-            return FeatureId.SQL_MD5_FUNCTION;
         }
         if (capabilityId.startsWith("vector.knn.") || capabilityId.startsWith("vector.range.") || CapabilityId.VECTOR_RANGE_FILTER.equals(capabilityId)) {
             return FeatureId.KNN;

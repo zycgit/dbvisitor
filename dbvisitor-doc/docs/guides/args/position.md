@@ -1,7 +1,6 @@
 ---
 id: position
 sidebar_position: 2
-hide_table_of_contents: true
 title: 6.1 位置参数
 description: 当在 SQL 语句使用 “?” 标记时，可以将值绑定到相应索引（从 0 开始）的参数。
 ---

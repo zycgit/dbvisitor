@@ -130,18 +130,25 @@ public final class CapabilityMatrixReport {
     }
 
     private static List<Class<?>> contractClasses() throws Exception {
-        return classNamesUnder("net/hasor/dbvisitor/test/contract", "Abstract", "ContractTest.java").stream()//
+        List<Class<?>> contracts = classNamesUnder("net/hasor/dbvisitor/test/contract", "Abstract", "ContractTest.java").stream()//
                 .map(CapabilityMatrixReport::loadClass)//
                 .filter(clazz -> Modifier.isAbstract(clazz.getModifiers()))//
                 .filter(clazz -> AbstractNxnContractTest.class.isAssignableFrom(clazz))//
                 .collect(Collectors.toList());
+        contracts.add(NxnMetadataContractTest.class);
+        return contracts;
     }
 
     private static List<Class<?>> realdbClasses(DataSourceProfile profile) throws Exception {
-        return classNamesUnder("net/hasor/dbvisitor/test/realdb/" + realdbPackage(profile), "", "Test.java").stream()//
+        List<Class<?>> realdbClasses = classNamesUnder("net/hasor/dbvisitor/test/realdb/" + realdbPackage(profile), "", "Test.java").stream()//
                 .map(CapabilityMatrixReport::loadClass)//
                 .filter(clazz -> !Modifier.isAbstract(clazz.getModifiers()))//
                 .collect(Collectors.toList());
+        Class<?> metadataClass = metadataClass(profile);
+        if (metadataClass != null) {
+            realdbClasses.add(metadataClass);
+        }
+        return realdbClasses;
     }
 
     private static List<String> classNamesUnder(String packagePath, String filePrefix, String fileSuffix) throws IOException {
@@ -185,12 +192,16 @@ public final class CapabilityMatrixReport {
     private static Class<?> nearestContractSuperclass(Class<?> realdbClass) {
         Class<?> cursor = realdbClass.getSuperclass();
         while (cursor != null && cursor != Object.class) {
-            if (cursor.getName().startsWith("net.hasor.dbvisitor.test.contract.")) {
+            if (isContractBaseClass(cursor)) {
                 return cursor;
             }
             cursor = cursor.getSuperclass();
         }
         return null;
+    }
+
+    private static boolean isContractBaseClass(Class<?> clazz) {
+        return clazz.getName().startsWith("net.hasor.dbvisitor.test.contract.") || clazz == NxnMetadataContractTest.class;
     }
 
     private static String realdbPackage(DataSourceProfile profile) {
@@ -201,6 +212,30 @@ public final class CapabilityMatrixReport {
             return "elastic7";
         }
         return profile.env();
+    }
+
+    private static Class<?> metadataClass(DataSourceProfile profile) {
+        String className;
+        if (DataSourceId.H2.equals(profile.id())) {
+            className = "H2NxnMetadataContractTest";
+        } else if (DataSourceId.MYSQL.equals(profile.id())) {
+            className = "MySqlNxnMetadataContractTest";
+        } else if (DataSourceId.PG.equals(profile.id())) {
+            className = "PostgreSqlNxnMetadataContractTest";
+        } else if (DataSourceId.MSSQL.equals(profile.id())) {
+            className = "MsSqlNxnMetadataContractTest";
+        } else if (DataSourceId.ORACLE.equals(profile.id())) {
+            className = "OracleNxnMetadataContractTest";
+        } else if (DataSourceId.DB2.equals(profile.id())) {
+            className = "Db2NxnMetadataContractTest";
+        } else if (DataSourceId.CLICKHOUSE.equals(profile.id())) {
+            className = "ClickHouseNxnMetadataContractTest";
+        } else if (DataSourceId.REDIS.equals(profile.id())) {
+            className = "RedisNxnMetadataContractTest";
+        } else {
+            return null;
+        }
+        return loadClass("net.hasor.dbvisitor.test.nxn.report.metadata." + className);
     }
 
     static final class CapabilityRow {

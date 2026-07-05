@@ -5,7 +5,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.test.contract.api.adapter.AbstractAdapterContractTest;
+import net.hasor.dbvisitor.test.contract.api.adapter.AdapterContractTest;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
@@ -16,7 +16,7 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import org.junit.Test;
 
-public class MilvusJdbcDslContractTest extends AbstractAdapterContractTest {
+public class MilvusJdbcDslContractTest extends AdapterContractTest {
     @Override
     protected DataSourceProfile profile() {
         return MilvusProfile.INSTANCE;

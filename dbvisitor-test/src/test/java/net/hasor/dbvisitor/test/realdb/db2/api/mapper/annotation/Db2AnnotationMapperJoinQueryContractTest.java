@@ -1,10 +1,10 @@
 package net.hasor.dbvisitor.test.realdb.db2.api.mapper.annotation;
 
-import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AbstractAnnotationMapperJoinQueryContractTest;
+import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperJoinQueryContractTest;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Db2Profile;
 
-public class Db2AnnotationMapperJoinQueryContractTest extends AbstractAnnotationMapperJoinQueryContractTest {
+public class Db2AnnotationMapperJoinQueryContractTest extends AnnotationMapperJoinQueryContractTest {
     @Override
     protected DataSourceProfile profile() {
         return Db2Profile.INSTANCE;

@@ -9,6 +9,8 @@ description: Built-in short names and their target types.
 
 Built-in short names and their corresponding types:
 
+## Built-in Aliases
+
 | Alias                | Type                                           |
 |--------------------|-----------------------------------------------|
 | boolean, bool       | boolean                                       |

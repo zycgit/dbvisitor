@@ -1,7 +1,6 @@
 ---
 id: row_callback
 sidebar_position: 3
-hide_table_of_contents: true
 title: 9.3 RowCallbackHandler
 description: RowCallbackHandler processes each record in the result set without collecting them—ideal for streaming large datasets without retaining them in memory.
 ---

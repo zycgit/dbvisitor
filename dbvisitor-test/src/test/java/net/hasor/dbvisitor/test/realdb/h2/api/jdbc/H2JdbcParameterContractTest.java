@@ -1,10 +1,10 @@
 package net.hasor.dbvisitor.test.realdb.h2.api.jdbc;
 
-import net.hasor.dbvisitor.test.contract.api.jdbc.AbstractJdbcParameterContractTest;
+import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcParameterContractTest;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.H2Profile;
 
-public class H2JdbcParameterContractTest extends AbstractJdbcParameterContractTest {
+public class H2JdbcParameterContractTest extends JdbcParameterContractTest {
     @Override
     protected DataSourceProfile profile() {
         return H2Profile.INSTANCE;

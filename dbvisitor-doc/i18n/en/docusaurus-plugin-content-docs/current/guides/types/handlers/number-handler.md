@@ -1,7 +1,6 @@
 ---
 id: number-handler
 sidebar_position: 3
-hide_table_of_contents: true
 title: Numeric Types
 description: Type handlers for numeric values in dbVisitor.
 ---

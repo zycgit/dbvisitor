@@ -1,10 +1,10 @@
 package net.hasor.dbvisitor.test.realdb.mssql.feature.type;
 
-import net.hasor.dbvisitor.test.contract.feature.type.AbstractArrayTypeJdbcContractTest;
+import net.hasor.dbvisitor.test.contract.feature.type.ArrayTypeJdbcContractTest;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MsSqlProfile;
 
-public class MsSqlArrayTypeJdbcContractTest extends AbstractArrayTypeJdbcContractTest {
+public class MsSqlArrayTypeJdbcContractTest extends ArrayTypeJdbcContractTest {
     @Override
     protected DataSourceProfile profile() {
         return MsSqlProfile.INSTANCE;

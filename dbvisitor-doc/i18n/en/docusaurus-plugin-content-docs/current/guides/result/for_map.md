@@ -1,7 +1,6 @@
 ---
 id: for_map
 sidebar_position: 2
-hide_table_of_contents: true
 title: 9.2 List/Map
 description: List/Map is a common structure that represents datasets as collections of maps, making it adaptable to varying shapes.
 ---

@@ -2,7 +2,6 @@
 id: interface
 sidebar_position: 6
 title: 6.5 接口方式
-hide_table_of_contents: true
 description: dbVisitor 提供了 SqlArgSource、PreparedStatement 两种接口方式进行传参。
 ---
 

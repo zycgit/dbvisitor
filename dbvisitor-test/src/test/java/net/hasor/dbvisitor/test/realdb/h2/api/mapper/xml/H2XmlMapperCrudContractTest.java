@@ -1,10 +1,10 @@
 package net.hasor.dbvisitor.test.realdb.h2.api.mapper.xml;
 
-import net.hasor.dbvisitor.test.contract.api.mapper.xml.AbstractXmlMapperCrudContractTest;
+import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperCrudContractTest;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.H2Profile;
 
-public class H2XmlMapperCrudContractTest extends AbstractXmlMapperCrudContractTest {
+public class H2XmlMapperCrudContractTest extends XmlMapperCrudContractTest {
     @Override
     protected DataSourceProfile profile() {
         return H2Profile.INSTANCE;

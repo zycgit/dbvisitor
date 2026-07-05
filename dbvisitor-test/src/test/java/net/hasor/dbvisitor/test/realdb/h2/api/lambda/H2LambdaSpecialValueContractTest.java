@@ -1,10 +1,10 @@
 package net.hasor.dbvisitor.test.realdb.h2.api.lambda;
 
-import net.hasor.dbvisitor.test.contract.api.lambda.AbstractLambdaSpecialValueContractTest;
+import net.hasor.dbvisitor.test.contract.api.lambda.LambdaSpecialValueContractTest;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.H2Profile;
 
-public class H2LambdaSpecialValueContractTest extends AbstractLambdaSpecialValueContractTest {
+public class H2LambdaSpecialValueContractTest extends LambdaSpecialValueContractTest {
     @Override
     protected DataSourceProfile profile() {
         return H2Profile.INSTANCE;

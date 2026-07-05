@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
-import net.hasor.dbvisitor.test.contract.api.adapter.AbstractAdapterContractTest;
+import net.hasor.dbvisitor.test.contract.api.adapter.AdapterContractTest;
 import net.hasor.dbvisitor.test.realdb.milvus.material.user.UserInfoMilvus;
 import org.junit.Assume;
 import org.junit.Before;
@@ -20,7 +20,7 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import org.junit.Test;
 
-public class MilvusUpdateContractTest extends AbstractAdapterContractTest {
+public class MilvusUpdateContractTest extends AdapterContractTest {
     @Override
     protected DataSourceProfile profile() {
         return MilvusProfile.INSTANCE;

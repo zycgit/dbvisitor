@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
-import net.hasor.dbvisitor.test.contract.api.adapter.AbstractAdapterContractTest;
+import net.hasor.dbvisitor.test.contract.api.adapter.AdapterContractTest;
 import net.hasor.dbvisitor.test.realdb.mongo.material.BsonTypesDto;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -24,7 +24,7 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import org.junit.Test;
 
-public class MongoBsonContractTest extends AbstractAdapterContractTest {
+public class MongoBsonContractTest extends AdapterContractTest {
     @Override
     protected DataSourceProfile profile() {
         return MongoProfile.INSTANCE;

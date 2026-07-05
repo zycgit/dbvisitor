@@ -1,7 +1,6 @@
 ---
 id: datetime-handler
 sidebar_position: 5
-hide_table_of_contents: true
 title: Date/Time Types
 description: Type handlers for date and time types in dbVisitor.
 ---

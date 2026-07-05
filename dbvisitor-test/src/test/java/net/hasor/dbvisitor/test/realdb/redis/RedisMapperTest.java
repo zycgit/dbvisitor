@@ -4,7 +4,7 @@ import java.util.Properties;
 import net.hasor.dbvisitor.adapter.redis.JedisKeys;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
-import net.hasor.dbvisitor.test.config.OneApiDataSourceManager;
+import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.realdb.redis.dto1.UserInfo1;

@@ -1,7 +1,6 @@
 ---
 id: for_extractor
 sidebar_position: 4
-hide_table_of_contents: true
 title: 9.4 ResultSetExtractor
 description: Use the ResultSetExtractor interface to customize how a ResultSet is processed.
 ---

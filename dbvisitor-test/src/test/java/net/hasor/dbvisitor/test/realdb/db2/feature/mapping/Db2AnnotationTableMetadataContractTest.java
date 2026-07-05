@@ -1,10 +1,10 @@
 package net.hasor.dbvisitor.test.realdb.db2.feature.mapping;
 
-import net.hasor.dbvisitor.test.contract.feature.mapping.AbstractAnnotationTableMetadataContractTest;
+import net.hasor.dbvisitor.test.contract.feature.mapping.AnnotationTableMetadataContractTest;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Db2Profile;
 
-public class Db2AnnotationTableMetadataContractTest extends AbstractAnnotationTableMetadataContractTest {
+public class Db2AnnotationTableMetadataContractTest extends AnnotationTableMetadataContractTest {
     @Override
     protected DataSourceProfile profile() {
         return Db2Profile.INSTANCE;

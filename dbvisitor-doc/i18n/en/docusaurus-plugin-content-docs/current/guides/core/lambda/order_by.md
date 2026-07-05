@@ -9,6 +9,8 @@ description: Build ordered queries with LambdaTemplate.
 
 Build ordered queries with `LambdaTemplate` as follows.
 
+## Basic Ordering
+
 ```java title='Ordering basics'
 LambdaTemplate lambda = ...
 
@@ -22,6 +24,8 @@ result = lambda.query(User.class)
 // SQL: select * from users where id >= 100 order by name;
 ```
 
+## Multiple Columns
+
 ```java title='Multiple sort columns'
 LambdaTemplate lambda = ...
 
@@ -33,6 +37,8 @@ result = lambda.query(User.class)
 
 // SQL: select * from users where id >= 100 order by name, age;
 ```
+
+## Null Ordering
 
 ```java title='NULLS FIRST'
 LambdaTemplate lambda = ...

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="xmltest.KeyGenerationMapper">
+
+    <resultMap id="userResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+        <result column="email" property="email"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <insert id="insertWithGeneratedKeys"
+            useGeneratedKeys="true"
+            keyProperty="id"
+            keyColumn="id"
+            generatedKeySource="resultSet">
+        INSERT INTO user_info (name, age, email, create_time)
+        OUTPUT INSERTED.id
+        VALUES (#{name}, #{age}, #{email}, @{macro, currentTimestamp})
+    </insert>
+
+    <insert id="insertWithKeyColumn"
+            useGeneratedKeys="true"
+            keyProperty="id"
+            keyColumn="id"
+            generatedKeySource="resultSet">
+        INSERT INTO user_info (name, age, email, create_time)
+        OUTPUT INSERTED.id
+        VALUES (#{name}, #{age}, #{email}, @{macro, currentTimestamp})
+    </insert>
+
+    <insert id="insertWithGeneratedKeyResultSet"
+            useGeneratedKeys="true"
+            keyProperty="id"
+            keyColumn="id"
+            generatedKeySource="resultSet">
+        INSERT INTO user_info (name, age, email, create_time)
+        OUTPUT INSERTED.id
+        VALUES (#{name}, #{age}, #{email}, @{macro, currentTimestamp})
+    </insert>
+
+    <insert id="insertWithSelectKeyBefore">
+        <selectKey keyProperty="id" order="BEFORE">
+            SELECT NEXT VALUE FOR user_info_id_seq
+        </selectKey>
+        INSERT INTO user_info (id, name, age, email, create_time)
+        VALUES (#{id}, #{name}, #{age}, #{email}, @{macro, currentTimestamp})
+    </insert>
+
+    <insert id="insertWithSelectKeyAfter">
+        <selectKey keyProperty="id" order="AFTER">
+            SELECT CONVERT(INT, current_value) FROM sys.sequences WHERE name = 'user_info_id_seq'
+        </selectKey>
+        INSERT INTO user_info (id, name, age, email, create_time)
+        VALUES (NEXT VALUE FOR user_info_id_seq, #{name}, #{age}, #{email}, @{macro, currentTimestamp})
+    </insert>
+
+    <insert id="insertWithExplicitId">
+        INSERT INTO user_info (id, name, age, email, create_time)
+        VALUES (#{id}, #{name}, #{age}, #{email}, @{macro, currentTimestamp})
+    </insert>
+
+    <select id="selectById" resultMap="userResultMap">
+        SELECT * FROM user_info WHERE id = #{id}
+    </select>
+
+</mapper>

@@ -2,11 +2,11 @@ package net.hasor.dbvisitor.test.realdb.clickhouse.feature.function;
 
 import java.sql.SQLException;
 
-import net.hasor.dbvisitor.test.contract.feature.function.AbstractFunctionContractTest;
+import net.hasor.dbvisitor.test.contract.feature.function.FunctionContractTest;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
 
-public class ClickHouseFunctionContractTest extends AbstractFunctionContractTest {
+public class ClickHouseFunctionContractTest extends FunctionContractTest {
     @Override
     protected DataSourceProfile profile() {
         return ClickHouseProfile.INSTANCE;

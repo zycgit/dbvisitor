@@ -15,23 +15,19 @@ public final class OracleProfile extends AbstractDataSourceProfile {
     private static String[] features() {
         return new String[] { //
                 FeatureId.ARRAY,                 //
-                FeatureId.JSON,                  //
                 FeatureId.SEQUENCE,              //
-                FeatureId.XML_SELECT_KEY_USER_INFO_SEQUENCE, //
                 FeatureId.KNN,                   //
                 FeatureId.PROCEDURE_RESULT_SET,  //
                 FeatureId.XML_MAPPER_CALLABLE,   //
                 FeatureId.VECTOR,                //
                 FeatureId.POSTGRES_ON_CONFLICT,  //
-                FeatureId.SQL_MD5_FUNCTION,      //
-                FeatureId.KEYGEN_AUTO_BATCH_EXPLICIT_NULL, //
-                FeatureId.DELIMITED_LOWERCASE_STANDARD_TABLE, //
+                FeatureId.TRANSACTION_RELEASE_SAVEPOINT, //
+                                FeatureId.DELIMITED_LOWERCASE_STANDARD_TABLE, //
                 FeatureId.DISTINCT_EMPTY_STRING, //
                 FeatureId.LARGE_IN_LIST,         //
                 FeatureId.XML_FOREACH_BATCH_INSERT_VALUES, //
                 FeatureId.LOWERCASE_STANDARD_RESULT_COLUMNS, //
-                FeatureId.TRANSACTION_RELEASE_SAVEPOINT, //
-                FeatureId.TRANSACTION_REPEATABLE_READ, //
+                                FeatureId.TRANSACTION_REPEATABLE_READ, //
                 FeatureId.MULTIPLE_RESULT_SETS };
     }
 

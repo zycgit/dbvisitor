@@ -2,11 +2,11 @@ package net.hasor.dbvisitor.test.realdb.pg.api.mapper.xml;
 
 import java.sql.SQLException;
 
-import net.hasor.dbvisitor.test.contract.api.mapper.xml.AbstractXmlMapperCallableContractTest;
+import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperCallableContractTest;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.PostgreSqlProfile;
 
-public class PostgreSqlXmlMapperCallableContractTest extends AbstractXmlMapperCallableContractTest {
+public class PostgreSqlXmlMapperCallableContractTest extends XmlMapperCallableContractTest {
     @Override
     protected DataSourceProfile profile() {
         return PostgreSqlProfile.INSTANCE;

@@ -15,10 +15,9 @@ public final class ClickHouseProfile extends AbstractDataSourceProfile {
     private static String[] features() {
         return new String[] { //
                 FeatureId.ARRAY,                 //
-                FeatureId.JSON,                  //
-                FeatureId.BINARY,                //
-                FeatureId.SEQUENCE,              //
+                                                FeatureId.SEQUENCE,              //
                 FeatureId.GENERATED_KEY_COLUMN,  //
+                FeatureId.GENERATED_KEY_RESULT_SET, //
                 FeatureId.XML_SELECT_KEY_USER_INFO_SEQUENCE, //
                 FeatureId.KNN,                   //
                 FeatureId.PROCEDURE,             //
@@ -39,9 +38,7 @@ public final class ClickHouseProfile extends AbstractDataSourceProfile {
                 FeatureId.LEFT_JOIN_NULL_VALUES, //
                 FeatureId.SQL_NOT_IN_NULL_SEMANTICS, //
                 FeatureId.BIT_CAST_NULL_VALUE, //
-                FeatureId.TIME_EXTREME_DATE,     //
-                FeatureId.SQL_MD5_FUNCTION,      //
-                FeatureId.KEYGEN_AUTO_BATCH_EXPLICIT_NULL, //
+                                FeatureId.KEYGEN_AUTO_BATCH_EXPLICIT_NULL, //
                 FeatureId.GENERATED_KEYS_NUMERIC, //
                 FeatureId.TRANSACTION_RELEASE_SAVEPOINT, //
                 FeatureId.TRANSACTION_REPEATABLE_READ, //

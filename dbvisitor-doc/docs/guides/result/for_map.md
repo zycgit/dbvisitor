@@ -1,7 +1,6 @@
 ---
 id: for_map
 sidebar_position: 2
-hide_table_of_contents: true
 title: 9.2 List/Map
 description: 使用 Map 接收查询结果是最通用的方式，每行数据用 Map 表示列名到值的映射，无需定义实体类。
 ---

@@ -1,7 +1,6 @@
 ---
 id: for_mapper
 sidebar_position: 1
-hide_table_of_contents: true
 title: 9.1 RowMapper
 description: RowMapper 在 ResultSet 读取每一行时进行映射操作，无需关心 ResultSet 的遍历过程，只需专注每行数据的转换。
 ---
