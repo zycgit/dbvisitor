@@ -1,8 +1,11 @@
 {
-  "label": "4. API 概述",
+  "label": "4. API 选择指南",
   "position": 4,
   "className": "red",
   "collapsible": true,
   "collapsed": false,
-  "link": null
+  "link": {
+    "type": "doc",
+    "id": "about"
+  }
 }

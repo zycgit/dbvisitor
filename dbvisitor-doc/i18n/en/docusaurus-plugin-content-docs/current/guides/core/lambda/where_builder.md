@@ -1,0 +1,262 @@
+---
+id: where_builder
+sidebar_position: 6
+title: Where Builder
+description: Build WHERE conditions for query, update, and delete operations.
+---
+
+# Where Builder
+
+The where builder can be used with `query`, `update`, and `delete` operations to generate the WHERE clause. This page covers:
+- Condition samples
+- Condition groups
+- Relations: [and](./where_builder#and), [or](./where_builder#or), [not](./where_builder#not)
+
+```java title='Example'
+LambdaTemplate lambda = ...;
+List<User> result = lambda.query(User.class)
+                          .eq(User::getAge, 32)
+                          .queryForList();
+```
+
+```sql title='Generated SQL'
+SELECT * FROM users WHERE age = ?
+```
+
+Available methods:
+
+| Method                     | SQL                                 | Description                                                                 |
+|:---------------------------|:------------------------------------|:----------------------------------------------------------------------------|
+| eq                         | `=`                                 | Column equals value                                                         |
+| ne                         | `<>`                                | Column not equal to value                                                   |
+| gt                         | `>`                                 | Column greater than value                                                   |
+| ge                         | `>=`                                | Column greater than or equal to value                                       |
+| lt                         | `<`                                 | Column less than value                                                      |
+| le                         | `<=`                                | Column less than or equal to value                                          |
+| like                       | `LIKE concat('%', ? ,'%')`          | Column fuzzy match                                                          |
+| likeLeft                   | `LIKE concat('%', ?)`               | Column left-side fuzzy match                                                |
+| likeRight                  | `LIKE concat(?, '%')`               | Column right-side fuzzy match                                               |
+| notLike                    | `NOT LIKE concat('%', ? ,'%')`      | Column fuzzy match (negated)                                                |
+| notLikeLeft                | `NOT LIKE concat('%', ?)`           | Column left-side fuzzy match (negated)                                      |
+| notLikeRight               | `NOT LIKE concat(?, '%')`           | Column right-side fuzzy match (negated)                                     |
+| isNull                     | `IS NULL`                           | Column is null                                                              |
+| isNotNull                  | `IS NOT NULL`                       | Column is not null                                                          |
+| in                         | `IN (? ,?)`                         | Column value is **in** the set                                              |
+| notIn                      | `NOT IN (? ,?)`                     | Column value is **not in** the set                                          |
+| rangeBetween               | `BETWEEN ? AND ?`                   | Range query using BETWEEN ... AND ...                                       |
+| rangeOpenOpen              | `? <  col AND col <  ?`             | Value is inside an **open interval** `(a,b)`                                |
+| rangeClosedClosed          | `? <= col AND col <= ?`             | Value is inside a **closed interval** `[a,b]`                               |
+| rangeOpenClosed            | `? <  col AND col <= ?`             | Value is inside a **left-open, right-closed interval** `(a,b]`              |
+| rangeClosedOpen            | `? <= col AND col <  ?`             | Value is inside a **left-closed, right-open interval** `[a,b)`              |
+| rangeNotBetween            | `NOT BETWEEN ? AND ?`               | Range query using NOT BETWEEN ... AND ...                                   |
+| rangeNotOpenOpen           | `not (? <  col AND col <  ?)`       | Value is **outside** the open interval `(a,b)`                              |
+| rangeNotClosedClosed       | `not (? <= col AND col <= ?)`       | Value is **outside** the closed interval `[a,b]`                            |
+| rangeNotOpenClosed         | `not (? <  col AND col <= ?)`       | Value is **outside** the left-open, right-closed interval `(a,b]`           |
+| rangeNotClosedOpen         | `not (? <= col AND col <  ?)`       | Value is **outside** the left-closed, right-open interval `[a,b)`           |
+| eqBySample, eqBySampleMap  | See [condition sample](./where_builder#sample) | Build conditions from a sample.                                             |
+| nested(...)                | See [condition group](./where_builder#nested)  | Add parentheses to define a condition group.                                |
+| and, and(...)              | See [and](./where_builder#and)              | Define an **and** relation between conditions or groups.                    |
+| or, or(...)                | See [or](./where_builder#or)               | Define an **or** relation between conditions or groups.                     |
+| not, not(...)              | See [not](./where_builder#not)              | Negate the following condition or group.                                    |
+
+## Sample {#sample}
+
+Non-null properties of the sample are joined with `and` and treated as one group, e.g. `('col1 = ?' and 'col2 = ?' and col3 = ?)`.
+
+For multiple equality checks, repeated `eq` calls work but samples simplify it. Example requirement: set name, mail, uid as conditions only when values exist. The two approaches are equivalent:
+
+```java title='Chaining eq conditions'
+LambdaTemplate lambda = ...;
+User c = ...;
+
+List<User> result = null;
+result = lambda.query(User.class)
+               // add condition when name is not blank
+               .eq(StringUtils.isNotBlank(c.getName()), User::getName, c.getName())
+               // add condition when email is not blank
+               .eq(StringUtils.isNotBlank(c.getEmail()), User::getEmail, c.getEmail())
+               // add condition when uid is not blank
+               .eq(StringUtils.isNotBlank(c.getUID()), User::getUID, c.getUID())
+               .queryForList();
+```
+
+```java title='Use a Bean sample'
+LambdaTemplate lambda = ...;
+User u = ...;
+
+List<User> result = null;
+result = lambda.query(User.class)
+               .eqBySample(u)
+               .queryForList();
+```
+
+```java title='Use a Map sample'
+LambdaTemplate lambda = ...;
+Map<String,Object> u = ...;
+
+List<User> result = null;
+result = lambda.query(User.class)
+               .eqBySampleMap(u)
+               .queryForList();
+```
+
+:::info[Usage notes]
+- `eqBySample` and `eqBySampleMap` only use non-null sample properties:
+  - To match null, explicitly call `isNull`.
+  - Avoid primitive properties (byte, short, int, long, float, double, char) in samples.
+- If `eqBySample` is called multiple times, later samples override overlapping fields.
+:::
+
+## Nested {#nested}
+
+Use nested groups (parentheses) like this:
+
+```java
+LambdaTemplate lambda = ...;
+
+List<User> result = null;
+result = lambda.query(User.class)
+               .nested(qc -> {
+                   qc.eq(User::getName, "log1");
+                   qc.and();
+                   qc.eq(User::getEmail, "log1@xx.com");
+               })
+               .or()
+               .nested(qc -> {
+                   qc.eq(User::getName, "log2");
+                   qc.and();
+                   qc.eq(User::getEmail, "log2@xx.com");
+               })
+               .queryForList();
+```
+
+```sql title='Generated SQL'
+SELECT * FROM users WHERE ( name = ? AND email = ? ) OR ( name = ? AND email = ? )
+```
+
+:::info[Tips]
+- `nested(...).or().nested(...)` can be shortened to `nested(...).or(...)`
+- `nested(...).and().nested(...)` can be shortened to `nested(...).nested(...)` or `nested(...).and(...)`
+- `nested(...).not().nested(...)` can be shortened to `nested(...).not(...)`
+- Parentheses can nest multiple levels.
+:::
+
+## And {#and}
+
+`and` is the default relation between expressions, so you can omit it:
+
+```java
+LambdaTemplate lambda = ...;
+
+List<User> result = null;
+result = lambda.query(User.class)
+               .eq(User::getName, "123")
+             //.and() // default relation, optional
+               .eq(User::getAge, 12)
+               .queryForList();
+```
+
+```sql title='Generated SQL'
+SELECT * FROM users WHERE name = ? AND age = ?
+```
+
+To connect groups with `and`:
+
+```java
+LambdaTemplate lambda = ...;
+
+List<User> result = null;
+result = lambda.query(User.class)
+               .nested(qc -> {
+                   qc.eq(User::getId, 1)
+                     .or()
+                     .eq(User::getId, 2);
+               }).and(qc -> {
+                   qc.eq(User::getName, "user-1")
+                     .or()
+                     .eq(User::getName, "user-2");
+               }).queryForList();
+```
+
+```sql title='Generated SQL'
+SELECT * FROM users WHERE (id = ? OR id = ?) AND (name = ? OR name = ?);
+```
+
+## Or {#or}
+
+Use `or` between conditions:
+
+```java
+LambdaTemplate lambda = ...;
+
+List<User> result = null;
+result = lambda.query(User.class)
+               .eq(User::getName, "123") // condition 1
+               .or()                     // or relation
+               .eq(User::getAge, 12)     // condition 2
+               .queryForList();
+```
+
+```sql title='Generated SQL'
+SELECT * FROM users WHERE name = ? OR age = ?
+```
+
+Connect groups with `or`:
+
+```java
+LambdaTemplate lambda = ...;
+
+List<User> result = null;
+result = lambda.query(User.class)
+               .nested(qc -> {
+                   qc.eq(User::getName, "user-1")
+                     .eq(User::getStatus, 2);
+               }).or(qc -> {
+                   qc.eq(User::getName, "user-2")
+                     .eq(User::getStatus, 2);
+               }).queryForList();
+```
+
+```sql title='Generated SQL'
+SELECT * FROM users WHERE ( name = ? AND status = ? ) OR ( name = ? AND status = ? )
+```
+
+## Not {#not}
+
+Negate a condition like this:
+
+```java
+LambdaTemplate lambda = ...;
+
+List<User> result = null;
+result = lambda.query(User.class)
+               .not()   // invert the next equality check
+               .eq(User::getName, "123")
+               .queryForList();
+```
+
+```sql title='Generated SQL'
+SELECT * FROM users WHERE not name = ?
+```
+
+:::info[Tip]
+Most conditions have a paired negation method; prefer those when available, e.g. `eq` vs `ne`, `isNull` vs `isNotNull`.
+:::
+
+Negation is also useful for entire groups:
+
+```java
+LambdaTemplate lambda = ...;
+
+List<User> result = null;
+result = lambda.query(User.class)
+               .not(qc -> {
+                   qc.eq(User::getId, 1)
+                     .or()
+                     .eq(User::getId, 2);
+               }).queryForList();
+```
+
+```sql title='Generated SQL'
+SELECT * FROM users WHERE NOT (id = ? OR id = ?);
+```

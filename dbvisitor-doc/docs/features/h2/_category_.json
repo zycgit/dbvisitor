@@ -1,0 +1,8 @@
+{
+  "label": "H2",
+  "position": 30,
+  "link": {
+    "type": "doc",
+    "id": "features/h2/about"
+  }
+}

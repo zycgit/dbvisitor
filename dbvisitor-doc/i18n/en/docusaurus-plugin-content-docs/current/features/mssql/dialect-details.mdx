@@ -1,0 +1,99 @@
+---
+id: dialect-details
+sidebar_position: 2
+hide_table_of_contents: true
+title: Dialect Details
+description: Low-level behavioral details of SQL Server dialect including pagination, OUTPUT INSERTED, MERGE, ROW_NUMBER, and identifier behavior.
+---
+
+# SQL Server Dialect Details
+
+## Pagination SQL
+
+SQL Server uses `ROW_NUMBER()` + CTE for pagination:
+
+```sql
+WITH selectTemp AS (
+  SELECT TOP 100 PERCENT ROW_NUMBER() OVER (ORDER BY CURRENT_TIMESTAMP) as __row_number__, *
+  FROM original query
+)
+SELECT * FROM selectTemp
+WHERE __row_number__ BETWEEN ? AND ?
+ORDER BY __row_number__
+```
+
+When the original query already has `ORDER BY`, the `ROW_NUMBER()` `OVER` clause reuses that ordering:
+
+```sql
+WITH selectTemp AS (
+  SELECT TOP 100 PERCENT ROW_NUMBER() OVER (order by a desc) as __row_number__, *
+  FROM original query (containing order by a desc)
+)
+SELECT * FROM selectTemp
+WHERE __row_number__ BETWEEN ? AND ?
+ORDER BY __row_number__
+```
+
+## Count SQL
+
+```sql
+SELECT COUNT(*) FROM (original query) as TEMP_T
+```
+
+## Identifier Quoting
+
+Uses square brackets `[]`:
+
+```sql
+SELECT * FROM [users] WHERE [name] = ?
+```
+
+**Important**: SQL Server's default schema is `dbo`. When only a catalog is specified without a schema, `dbo` is automatically inserted:
+
+```
+catalog.[table]  →  [catalog].dbo.[table]
+schema.[table]   →  [schema].[table]
+```
+
+## Write Conflict Strategies
+
+| Strategy | SQL Syntax | PK Required |
+|------|---------|:----------:|
+| Into | `INSERT INTO ... VALUES (...)` | No |
+| Ignore | `MERGE INTO ... WHEN NOT MATCHED THEN INSERT ...` | Yes |
+| Update | `MERGE INTO ... WHEN MATCHED THEN UPDATE ... WHEN NOT MATCHED THEN INSERT ...` | Yes |
+
+## OUTPUT INSERTED
+
+The SQL Server dialect generates `OUTPUT INSERTED` when primary key backfill is needed:
+
+```sql
+INSERT INTO [dbo].[user_info] ([name], [age])
+OUTPUT INSERTED.[id]
+VALUES (?, ?), (?, ?), (?, ?)
+```
+
+Multi-row inserts are read from the current `ResultSet` (`MultiValuesResultSet`), similar to PostgreSQL `RETURNING`.
+
+For Ignore/Update + backfill columns, conservative `OneByOne` (row-by-row execution) is used.
+
+## Sequences
+
+SQL Server does not implement `SeqSqlDialect`; sequences are read via `selectKey` or `@KeySeq` + `KeyType.Sequence`:
+
+```sql
+SELECT NEXT VALUE FOR user_info_id_seq
+```
+
+## Caveats
+
+- Duplicate column names cannot appear in `ORDER BY`
+- Pagination depends on `ROW_NUMBER()` + CTE, semantically different from MySQL's `LIMIT`
+- Default schema is `dbo`; be mindful when creating tables
+
+## Key Differences Summary
+
+- The only database that uses square brackets `[]` for identifier quoting
+- The only database that uses `ROW_NUMBER() OVER()` + CTE for pagination
+- Automatically inserts `dbo` as the default schema
+- `OUTPUT INSERTED` is similar to PostgreSQL `RETURNING`, but not used for Ignore/Update

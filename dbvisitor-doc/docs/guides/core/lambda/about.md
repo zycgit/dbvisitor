@@ -1,14 +1,23 @@
 ---
 id: about
-sidebar_position: 0
-hide_table_of_contents: true
-title: LambdaTemplate 类
-description: 通过编程方式生成 SQL，屏蔽数据库方言差异，支持实体模式和自由模式。
+sidebar_position: 1
+title: 5.3 构造器 API
+description: 通过编程方式生成 SQL，屏蔽数据库方言差异，支持实体模式和 Map 查询模式。
 ---
 
-# LambdaTemplate
+# 5.3 构造器 API
 
-`LambdaTemplate` 是 dbVisitor 的构造器 API 核心类，通过编程方式构建 SQL 语句，**自动处理数据库方言差异**。使用前需要为数据库表建立 [对象映射](../mapping/about)。
+`LambdaTemplate` 是 dbVisitor 的构造器 API 核心类，通过编程方式构建 SQL 语句，**自动处理数据库方言差异**。
+
+## 先选模式
+
+| 模式 | 是否需要对象映射 | 适合场景 |
+| --- | --- | --- |
+| Entity 模式 | 需要 | 有实体类，使用 `User::getName` 这类方法引用操作列。 |
+| [映射 Map 模式](../map_query/mapped) | 需要 | 有表映射，但数据载体是 `Map`。 |
+| [自由 Map 模式](../map_query/freedom) | 不需要 | 没有实体类或不想维护映射，直接使用表名和列名。 |
+
+Entity 模式和 [映射 Map 模式](../map_query/mapped) 使用前需要为数据库表建立 [对象映射](../mapping/about)。[自由 Map 模式](../map_query/freedom) 不需要实体映射。
 
 ```java title='实体类映射'
 @Table("users")
@@ -43,8 +52,8 @@ LambdaTemplate 的获取方式取决于项目架构，详见 **[框架整合](..
 - [Update](./update)，三种更新方式及不安全更新防护。
 - [Delete](./delete)，删除数据。
 - [Query](./query)，查询数据。
-- [条件构造器](./where-builder)，构建复杂查询条件，用于 Update/Delete/Query。
-- [分组](./groupby)，GROUP BY 分组查询。
-- [排序](./orderby)，ORDER BY 查询排序。
-- [专为 Map 设计的 API](./for-map)，以 Map 而非实体对象作为数据载体。
-- [自由模式](./freedom)，无对象映射类，基于表名 + Map 直接操作。
+- [条件构造器](./where_builder)，构建复杂查询条件，用于 Update/Delete/Query。
+- [分组](./group_by)，GROUP BY 分组查询。
+- [排序](./order_by)，ORDER BY 查询排序。
+- [映射 Map 模式](../map_query/mapped)，复用对象映射，但以 Map 作为数据载体。
+- [自由 Map 模式](../map_query/freedom)，不依赖对象映射，直接使用表名和列名。

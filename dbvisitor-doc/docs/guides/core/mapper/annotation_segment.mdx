@@ -1,0 +1,35 @@
+---
+id: annotation_segment
+sidebar_position: 9
+title: "@Segment"
+description: Segment 注解用来标记在接口方法上，定义可复用的 SQL 片段。
+---
+
+import TagRed from '@site/src/components/tags/TagRed';
+import TagGray from '@site/src/components/tags/TagGray';
+
+# @Segment 注解
+
+用来标记在接口方法上，定义可复用的 SQL 片段。方法名即片段名，通过 `@{macro,片段名}` 规则在其他 SQL 中引用。
+
+```java title='示例：用 SQL 片段复用列列表'
+@SimpleMapper
+public interface UserMapper {
+    @Segment("user_uuid, user_name, login_name, email, register_time")
+    void userColumns(); // 方法名 = 片段名
+
+    @Insert({"insert into user_info (@{macro,userColumns})",
+             "values (#{userUuid}, #{name}, #{loginName}, #{email}, #{registerTime})"})
+    int createUser(UserInfo info);
+}
+```
+
+:::tip
+`@Segment` 方法返回 `void`，不被实际调用，仅作为 SQL 片段载体。`value` 支持字符串数组。
+:::
+
+## 属性清单
+
+| 属性名 | 描述 |
+|---|---|
+| value | <TagRed/> SQL 片段内容（支持字符串数组，以空格连接）。 |

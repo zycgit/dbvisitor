@@ -1,0 +1,41 @@
+---
+id: annotation_execute
+sidebar_position: 7
+title: "@Execute"
+description: The Execute annotation marks interface methods and accepts a string or string array that represents any SQL statement.
+---
+import TagRed from '@site/src/components/tags/TagRed';
+import TagGray from '@site/src/components/tags/TagGray';
+
+# @Execute Annotation
+
+Marks an interface method to execute any SQL statement (DML/DDL).
+
+:::info
+If you pass a string array, the elements are concatenated with a single space between them.<br/>
+String arrays make it easy to manage multi-line SQL.
+:::
+
+```java title='Example: create a sharded users table'
+@SimpleMapper
+public interface UserMapper {
+    @Execute({"create table users_${part} (",// 1. SQL definition
+              "   id   int primary key,",    //
+              "   name varchar(50)",         //
+              ")"})
+        int newPartTable(
+            @Param("part") int partId        // 2. partId argument
+        );
+}
+```
+
+- `${part}` uses direct string substitution to pass the argument (beware of SQL injection risks).
+
+## Properties
+
+| Property      | Description                                                                                                                                                                                                |
+|---------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| value         | <TagRed/> SQL to execute.                                                                                                                                                                                  |
+| statementType | <TagGray/> Determines which JDBC statement type to use. Default is `PREPARED`.<br/>- `STATEMENT` → `java.sql.Statement`<br/>- `PREPARED` → `java.sql.PreparedStatement`<br/>- `CALLABLE` → `java.sql.CallableStatement` |
+| timeout       | <TagGray/> If set to a value greater than `0`, the value is applied to `java.sql.Statement.setQueryTimeout(int)` to enforce a timeout in seconds. Default is `-1`.                                         |
+| bindOut       | <TagGray/> Bind output parameter names, used to receive stored procedure output arguments or multiple result sets.<br/>When using this attribute, the method return type must be **Map&lt;String,Object&gt;**.          |

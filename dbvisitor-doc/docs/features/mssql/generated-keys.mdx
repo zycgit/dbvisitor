@@ -1,0 +1,148 @@
+---
+id: generated-keys
+sidebar_position: 1
+hide_table_of_contents: true
+title: 自增主键回填
+description: SQL Server 下使用 dbVisitor 处理自增主键、默认值主键和 OUTPUT INSERTED 的方式。
+---
+
+# SQL Server 自增主键回填
+
+SQL Server 的 generated keys 行为和 MySQL、H2 等数据库不完全一致。对于一些默认值主键或 sequence default 主键，JDBC `Statement#getGeneratedKeys()` 不一定能稳定返回业务主键列。SQL Server 原生更常见的方式是使用 `OUTPUT INSERTED.<column>`。
+
+```sql
+INSERT INTO user_info (name, age, email)
+OUTPUT INSERTED.id
+VALUES (?, ?, ?)
+```
+
+这条 SQL 的返回值通常表现为当前执行返回的 `ResultSet`，而不是所有数据库通用的 `getGeneratedKeys()`。
+
+## Lambda / BaseMapper
+
+Lambda 和 BaseMapper 的 INSERT SQL 由 dbVisitor 根据对象映射生成，因此 SQL Server 方言可以在生成 SQL 时插入 `OUTPUT INSERTED`，并声明从当前 `ResultSet` 回填主键。
+
+```java title='Lambda 新增后读取回填主键'
+UserInfo user = new UserInfo();
+user.setName("mali");
+user.setAge(18);
+
+LambdaTemplate lambda = ...
+int rows = lambda.insert(UserInfo.class)
+                 .applyEntity(user)
+                 .executeSumResult();
+
+Integer id = user.getId();
+```
+
+```java title='BaseMapper 新增后读取回填主键'
+BaseMapper<UserInfo> mapper = session.createBaseMapper(UserInfo.class);
+
+UserInfo user = new UserInfo();
+user.setName("mali");
+user.setAge(18);
+
+int rows = mapper.insert(user);
+Integer id = user.getId();
+```
+
+这类入口的关键点是：SQL 由框架生成，所以方言可以安全地选择 SQL Server 专有写法。
+
+## Mapper XML
+
+Mapper XML 是用户手写 SQL，dbVisitor 不应自动改写 SQL。若需要使用 SQL Server `OUTPUT INSERTED`，建议在 XML 中明确写出 SQL，并声明 generated key 从当前结果集读取。
+
+```xml title='SQL Server OUTPUT INSERTED'
+<insert id="insertUser"
+        useGeneratedKeys="true"
+        keyProperty="id"
+        keyColumn="id"
+        generatedKeySource="resultSet">
+    INSERT INTO user_info (name, age, email)
+    OUTPUT INSERTED.id
+    VALUES (#{name}, #{age}, #{email})
+</insert>
+```
+
+多列回填也应显式列出：
+
+```xml
+<insert id="insertOrder"
+        useGeneratedKeys="true"
+        keyProperty="id,orderNo"
+        keyColumn="id,order_no"
+        generatedKeySource="resultSet">
+    INSERT INTO user_order (user_id, amount)
+    OUTPUT INSERTED.id, INSERTED.order_no
+    VALUES (#{userId}, #{amount})
+</insert>
+```
+
+`generatedKeySource="resultSet"` 表示 generated key 从当前 `ResultSet` 读取，适合配合 SQL Server `OUTPUT INSERTED` 使用。
+
+## Annotation Mapper
+
+Annotation 中同样由用户负责写出 SQL Server 专有语法：
+
+```java
+@Insert(
+    value = """
+        INSERT INTO user_info (name, age, email)
+        OUTPUT INSERTED.id
+        VALUES (#{name}, #{age}, #{email})
+        """,
+    useGeneratedKeys = true,
+    keyProperty = "id",
+    keyColumn = "id",
+    generatedKeySource = GeneratedKeySource.ResultSet
+)
+int insertUser(UserInfo user);
+```
+
+如果不使用 `OUTPUT INSERTED`，则继续使用普通 JDBC generated keys：
+
+```java
+@Insert(
+    value = "INSERT INTO user_info (name, age) VALUES (#{name}, #{age})",
+    useGeneratedKeys = true,
+    keyProperty = "id",
+    keyColumn = "id"
+)
+int insertUser(UserInfo user);
+```
+
+## 方言策略
+
+SQL Server 当前策略如下：
+
+| 场景 | GeneratedKeyStrategy |
+| --- | --- |
+| 无回填列 | `JdbcBatch` |
+| `Into` + 有回填列 | `MultiValuesResultSet` |
+| `Ignore` + 有回填列 | `OneByOne` |
+| `Update` + 有回填列 | `OneByOne` |
+
+`DuplicateKeyStrategy.Ignore` / `Update` 由 `MERGE` 实现，需要主键列。`Into` + 回填列时使用 `OUTPUT INSERTED`，结果从当前 `ResultSet` 读取。
+
+## selectKey
+
+如果希望完全避开 JDBC generated keys 和当前 `ResultSet` 读取差异，可以使用 `selectKey` / `@SelectKeySql`：
+
+```xml
+<insert id="insertUser">
+    <selectKey keyProperty="id" order="BEFORE">
+        SELECT NEXT VALUE FOR user_info_id_seq
+    </selectKey>
+    INSERT INTO user_info (id, name, age)
+    VALUES (#{id}, #{name}, #{age})
+</insert>
+```
+
+这种方式适合业务希望先拿到主键，再执行 INSERT 的场景。
+
+## 设计原则
+
+- Lambda / BaseMapper：SQL 由框架生成，可以由 SQL Server 方言生成 `OUTPUT INSERTED`。
+- XML / Annotation：SQL 由用户编写，dbVisitor 不自动改写；需要用户显式写出 `OUTPUT INSERTED`。
+- Session / JDBC 原始 SQL：保持忠实执行，不猜测当前 `ResultSet` 是否是 generated keys。
+- 通用说明见 [Generated Keys](../../guides/core/mapper/annotation_insert#generated-keys)。

@@ -1,7 +1,6 @@
 ---
 id: update
 sidebar_position: 3
-hide_table_of_contents: true
 title: 更新操作
 description: 在 dbVisitor 中使用 LambdaTemplate 更新数据有三种用法。
 ---
@@ -14,7 +13,7 @@ description: 在 dbVisitor 中使用 LambdaTemplate 更新数据有三种用法�
 - [整行覆盖](./update#overwrite)，这种方式将会使用新数据覆盖整行数据。
 
 :::info[提示]
-更新操作中涉及查询条件相关内容请参考 **[条件构造器](./where-builder)**。
+更新操作中涉及查询条件相关内容请参考 **[条件构造器](./where_builder)**。
 :::
 
 ## 字段更新 {#field}
@@ -95,7 +94,7 @@ int result = lambda.update(User.class)
 // 返回 result 为受影响的行数
 ```
 
-例如上面例子中：
+该示例中：
 - User 对象总共有 `id`、`name`、`status`、`age` 4 个属性
 - 更新操作设置了 2 个属性
 - `id` 属性为主键。

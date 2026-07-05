@@ -1,10 +1,12 @@
 ---
 id: about
-sidebar_position: 1
+sidebar_position: 0
 hide_table_of_contents: true
 title: 事务管理器
 description: dbVisitor 事务管理器的工作原理。
 ---
+
+# 事务管理器
 
 `TransactionManager` 接口是 dbVisitor 事务管理的核心，它在抽象层面提供了如下方法：
 

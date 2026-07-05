@@ -1,0 +1,54 @@
+---
+id: annotation_query
+sidebar_position: 3
+title: "@Query"
+description: Query 注解用来标记在接口方法上，执行一个可以返回结果集的查询语句。
+---
+
+import TagRed from '@site/src/components/tags/TagRed';
+import TagGray from '@site/src/components/tags/TagGray';
+
+# @Query 注解
+
+用来标记在接口方法上，执行一个可以返回结果集的查询语句。
+
+:::info
+`value` 支持字符串数组，元素以空格连接，方便多行书写。
+:::
+
+```java title='示例：查询用户列表'
+@SimpleMapper
+public interface UserMapper {
+    @Query("select * from users where id > #{id}")
+    List<User> listUsers(@Param("id") long searchId);
+}
+```
+
+## 分页查询
+
+方法参数中增加 `Page` 参数即可分页：
+
+```java
+// 返回 List
+@Query("select * from users where id > #{id}")
+List<User> listUsers(@Param("id") long searchId, Page page);
+
+// 返回 PageResult（含总记录数和总页数）
+@Query("select * from users where id > #{id}")
+PageResult<User> listUsers(@Param("id") long searchId, Page page);
+```
+
+## 属性清单
+
+| 属性名 | 描述 |
+|---|---|
+| value | <TagRed/> 将要被执行的查询语句。 |
+| statementType | <TagGray/> JDBC 查询方式。默认 `Prepared`<br/> - `Statement` → `java.sql.Statement`<br/> - `Prepared` → `java.sql.PreparedStatement`<br/> - `Callable` → `java.sql.CallableStatement` |
+| timeout | <TagGray/> 查询超时秒数，调用 `Statement.setQueryTimeout(int)`。默认 `-1` |
+| fetchSize | <TagGray/> 每次获取行数，调用 `Statement.setFetchSize(int)`。默认 `256` |
+| resultSetType | <TagGray/> 结果集类型：`FORWARD_ONLY`、`SCROLL_INSENSITIVE`、`SCROLL_SENSITIVE`、`DEFAULT`（默认） |
+| resultSetExtractor | <TagGray/> 配置 [ResultSetExtractor](../../result/for_extractor) 处理结果集（`bindOut` 时失效） |
+| resultRowCallback | <TagGray/> 配置 [RowCallbackHandler](../../result/row_callback) 处理结果集（`bindOut` 时失效） |
+| resultRowMapper | <TagGray/> 配置 [RowMapper](../../result/for_mapper) 处理结果集（`bindOut` 时失效） |
+| resultTypeHandler | <TagGray/> 配置 [TypeHandler](../../types/about) 处理结果集（`bindOut` 时失效） |
+| bindOut | <TagGray/> 绑定输出参数，配合存储过程或多结果集。此时返回值须为 `Map<String,Object>` |

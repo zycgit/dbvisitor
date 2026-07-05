@@ -1,7 +1,6 @@
 ---
 id: document
 sidebar_position: 2
-hide_table_of_contents: true
 title: 文档结构
 description: 了解 Mapper 文件是以 XML 形式保存，它的基本结构和可用的 XML 元素。
 ---
@@ -37,11 +36,11 @@ Mapper 文件是以 XML 形式保存，它的基本结构如下：
 
 - [&lt;entity&gt; 标签](./entity_map) 用于描述一个数据库表和类型的映射，每个类型只能映射一次。
 - [&lt;resultMap&gt; 标签](./result_map) 用于描述如何从查询结果集中加载数据。
-- [&lt;select&gt; 标签](./sql_element#select)，用于配置 SELECT 语句。
-- [&lt;update&gt; 标签、&lt;delete&gt; 标签](./sql_element#update_delete)，用于配置 UPDATE 和 DELETE 语句。
-- [&lt;insert&gt; 标签](./sql_element#insert)，用于配置 INSERT 语句。
-- [&lt;execute&gt; 标签](./sql_element#execute)，可以用来执行任意的 SQL 语句。
-- [&lt;sql&gt; 标签](./sql_element#sql)，代码片段，可在同一个 Mapper 文件内进行引用。
+- [&lt;select&gt; 标签](./statements#select)，用于配置 SELECT 语句。
+- [&lt;update&gt; 标签、&lt;delete&gt; 标签](./statements#update_delete)，用于配置 UPDATE 和 DELETE 语句。
+- [&lt;insert&gt; 标签](./statements#insert)，用于配置 INSERT 语句。
+- [&lt;execute&gt; 标签](./statements#execute)，可以用来执行任意的 SQL 语句。
+- [&lt;sql&gt; 标签](./statements#sql)，代码片段，可在同一个 Mapper 文件内进行引用。
 
 ## 验证文档
 

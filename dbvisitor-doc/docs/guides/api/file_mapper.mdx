@@ -1,196 +1,111 @@
 ---
 id: file_mapper
-sidebar_position: 5
+sidebar_position: 6
 hide_table_of_contents: true
-title: 4.5 文件 Mapper
-description: 当遇到大段查询语句时将复杂的 SQL 放置于独立的 Mapper 文件成为最佳选择。
+title: 4.6 文件 Mapper
+description: 文件 Mapper 把 Mapper 接口背后的 SQL 放到 XML 文件中集中维护。
 ---
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# 文件 Mapper
+# 4.6 文件 Mapper
 
-当 SQL 逻辑复杂或篇幅较长时，[编程式 API](../api/program_api)、[声明式 API](../api/declarative_api) 或 [构造器 API](../api/lambda_api) 都会导致代码可读性下降。
-此时将 SQL 放置于独立的 **Mapper XML 文件** 中是最佳选择。
+文件 Mapper 不是独立于 Mapper API 的另一套 DAO 形态。它通常和 Mapper 接口配合使用，把接口方法背后的 SQL 从注解迁移到 XML 文件中。
 
-:::tip[特点]
-- **SQL 与代码分离**：通过 [Mapper XML](../core/file/about) 文件集中管理 SQL，代码中只需调用接口方法。
-- 支持 **两种动态 SQL 方式**：[规则方式](../rules/dynamic_rule)（推荐，语法更简洁）和 XML 标签方式（兼容 MyBatis 风格）。
-- 支持 **SQL 片段复用** `<sql>` + `<include>` ，避免重复 SQL。
-- 支持 **多种结果映射**：`resultType`（Bean、Map、int、string 等）和 `resultMap`（自定义列到属性的映射）。
-- Mapper 文件是 [声明式 API](../api/declarative_api) 的扩展，可混合使用注解方法和 XML 方法。
-- 通过 `session.executeStatement` / `session.queryStatement` / `session.pageStatement` 执行。
-:::
+## 适合场景
 
-## 定义 Mapper 文件
+- SQL 较长，不适合放在 Java 注解中。
+- 动态 SQL 片段多，需要集中维护。
+- 希望 SQL 和 Java 代码分离，便于 review 或交给数据库相关角色维护。
+- 需要复用 SQL 片段、配置 `resultMap`、配置 XML 形式的对象映射。
 
-```xml title='classpath:/mapper/userMapper.xml'
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
-        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
-<mapper namespace="com.example.UserMapper">
-    <insert id="insertUser">
-        insert into users (id, name, age) values (#{id}, #{name}, #{age})
-    </insert>
+## 不适合场景
 
-    <select id="selectById" resultType="com.example.User">
-        select * from users where id = #{id}
-    </select>
+- SQL 很短，直接用方法注解更直观。
+- 只是常规单表 CRUD，优先使用 [Mapper API（BaseMapper）](./mapper)。
+- 希望完全通过链式 API 生成 SQL，优先使用 [构造器 API](./lambda)。
 
-    <select id="selectAll" resultType="com.example.User">
-        select * from users order by id
-    </select>
+## 最小示例
 
-    <update id="updateEmail">
-        update users set email = #{email} where id = #{id}
-    </update>
-
-    <delete id="deleteById">
-        delete from users where id = #{id}
-    </delete>
-</mapper>
-```
-
-## 动态 SQL
-
-Mapper 文件中可以使用动态 SQL 实现条件查询、动态更新等逻辑。dbVisitor 提供了 **两种方式**：
-
-### 条件查询
-
-<Tabs>
-  <TabItem value="rule-style" label="使用规则（推荐）" default>
-
-使用 `@{and}` 规则，参数为空时自动跳过该条件，无需手动处理 `WHERE` 和 `AND` 连接符。
-
-```xml
-<select id="search" resultType="com.example.User">
-    select * from users
-        @{and, name = :name}
-        @{and, age = :age}
-        @{and, email = :email}
-</select>
-```
-
-  </TabItem>
-  <TabItem value="xml-style" label="XML 标签">
-
-使用 `<where>` + `<if>` 标签，`<where>` 会自动去除首个多余的 `AND`/`OR`。
-
-```xml
-<select id="search" resultType="com.example.User">
-    select * from users
-    <where>
-        <if test="name != null">AND name = #{name}</if>
-        <if test="age != null">AND age = #{age}</if>
-        <if test="email != null">AND email = #{email}</if>
-    </where>
-</select>
-```
-
-  </TabItem>
-</Tabs>
-
-### 集合 IN 查询
-
-<Tabs>
-  <TabItem value="rule-style" label="使用规则（推荐）" default>
-
-使用 `@{in}` 规则，自动将集合参数展平为 `IN (?, ?, ...)`。
-
-```xml
-<select id="selectByIds" resultType="com.example.User">
-    select * from users
-    where id in @{in, :ids}
-</select>
-```
-
-  </TabItem>
-  <TabItem value="xml-style" label="XML 标签">
-
-使用 `<foreach>` 标签遍历集合生成 `IN` 子句。
-
-```xml
-<select id="selectByIds" resultType="com.example.User">
-    select * from users where id in
-    <foreach collection="ids" item="id" open="(" separator="," close=")">
-        #{id}
-    </foreach>
-</select>
-```
-
-  </TabItem>
-</Tabs>
-
-### 动态更新
-
-<Tabs>
-  <TabItem value="rule-style" label="使用规则（推荐）" default>
-
-使用 `@{set}` 规则，参数为空时自动跳过，自动管理逗号分隔符。
-
-```xml
-<update id="updateUser">
-    update users
-    set update_time = now()
-        @{set, name = :name}
-        @{set, email = :email}
-    where id = :id
-</update>
-```
-
-  </TabItem>
-  <TabItem value="xml-style" label="XML 标签">
-
-使用 `<set>` + `<if>` 标签，`<set>` 会自动去除末尾多余的逗号。
-
-```xml
-<update id="updateUser">
-    update users
-    <set>
-        update_time = now(),
-        <if test="name != null">name = #{name},</if>
-        <if test="email != null">email = #{email},</if>
-    </set>
-    where id = #{id}
-</update>
-```
-
-  </TabItem>
-</Tabs>
-
-:::info[了解更多动态 SQL]
-- [语句生成规则](../rules/dynamic_rule) — 完整的规则清单，包括 `@{and}`、`@{or}`、`@{in}`、`@{set}`、`@{case}`、`@{macro}` 等。
-- [动态 SQL 标签](../core/file/dynamic) — XML 标签详细用法（`<if>`、`<choose>`、`<where>`、`<set>`、`<foreach>` 等）。
-:::
-
-## 关联接口
-
-```java title='通过 @RefMapper 将接口方法映射到 XML 中的语句'
+```java title='Mapper 接口'
 @RefMapper("/mapper/userMapper.xml")
 public interface UserMapper {
-    int insertUser(User user);
-    User selectById(@Param("id") int id);
-    List<User> selectAll();
-    int updateEmail(@Param("id") int id, @Param("email") String email);
-    int deleteById(@Param("id") int id);
+    List<User> listUsers(@Param("status") String status, @Param("name") String name);
 }
 ```
 
-## 创建和使用
+<Tabs>
+  <TabItem value="rule" label="规则写法（推荐）" default>
 
-```java title='加载 Mapper 并通过接口或 Session 调用'
-Configuration config = new Configuration();
-Session session = config.newSession(dataSource);
+规则写法让 SQL 保持接近原生 SQL，动态条件直接内嵌在语句中。简单查询和常见条件拼接优先使用这种方式。
 
-// 方式一：通过接口调用（推荐）
-UserMapper mapper = session.createMapper(UserMapper.class);
-User user = mapper.selectById(1);
-
-// 方式二：通过 Session 直接调用（使用 namespace.id）
-List<User> list = session.queryStatement("com.example.UserMapper.selectAll", null);
+```xml title='userMapper.xml'
+<mapper namespace="com.example.UserMapper">
+    <select id="listUsers" resultType="com.example.User">
+        select * from users
+        where
+            @{and, status = :status}
+            @{and, name like concat(:name, '%')}
+    </select>
+</mapper>
 ```
 
-:::info[有关 文件 Mapper 的详细信息，请参阅：]
-- [Mapper 文件](../core/file/about)
-:::
+  </TabItem>
+  <TabItem value="xml" label="XML 标签写法">
+
+XML 标签写法适合迁移已有 MyBatis 风格 SQL，或团队已经习惯通过标签表达动态逻辑的场景。
+
+```xml title='userMapper.xml'
+<mapper namespace="com.example.UserMapper">
+    <select id="listUsers" resultType="com.example.User">
+        select * from users
+        <where>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="name != null">
+                and name like concat(#{name}, '%')
+            </if>
+        </where>
+    </select>
+</mapper>
+```
+
+  </TabItem>
+</Tabs>
+
+```java title='已有 DataSource'
+DataSource dataSource = ...;
+
+Configuration config = new Configuration();
+Session session = config.newSession(dataSource);
+UserMapper mapper = session.createMapper(UserMapper.class);
+
+List<User> users = mapper.listUsers("ACTIVE", "A");
+```
+
+```java title='已有 Connection'
+Connection conn = ...;
+
+Configuration config = new Configuration();
+Session session = config.newSession(conn);
+UserMapper mapper = session.createMapper(UserMapper.class);
+
+List<User> users = mapper.listUsers("ACTIVE", "A");
+```
+
+## 动态 SQL 选择
+
+Mapper 文件中有两类动态 SQL 能力：
+
+| 方式 | 说明 | 入口 |
+| --- | --- | --- |
+| 规则系统 | `@{and}`、`@{in}`、`@{set}` 等，写法更轻量。 | [SQL 规则](../rules/about) |
+| XML 标签 | `<if>`、`<choose>`、`<foreach>` 等，兼容 MyBatis 风格。 | [动态 SQL 标签](../core/file/dynamic_sql) |
+
+## 深入阅读
+
+- [Mapper 文件](../core/file/about)：XML 文件结构、标签和映射能力。
+- [SQL 标签](../core/file/statements)：`select`、`insert`、`update`、`execute` 等标签。
+- [调用文件 Mapper](../core/mapper/file_statement)：通过 Mapper/BaseMapper 调用 XML statement。

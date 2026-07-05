@@ -1,0 +1,67 @@
+---
+id: page_object
+sidebar_position: 5
+hide_table_of_contents: true
+title: 9.5 Pagination
+description: How to create PageObject requests, read PageResult output, and use pagination across APIs.
+---
+
+# Pagination
+
+dbVisitor pagination revolves around two core types: **input** `PageObject` describing the request, and **output** `PageResult` carrying the result.
+
+## Input: Creating a Page Request {#create}
+
+```java title='Static factory (recommended)'
+Page page = PageObject.of(0, 20);      // Page 0, 20 per page, 0-based
+Page page = PageObject.of(1, 20, 1);   // Page 1, 20 per page, 1-based
+```
+
+```java title='Constructor'
+PageObject page = new PageObject();
+page.setPageSize(20);          // Page size (default -1 = no pagination)
+page.setCurrentPage(2);        // Current page number
+page.setPageNumberOffset(1);   // Page offset: 1 means first page is 1 (default 0)
+```
+
+Core properties:
+
+| Property | Description |
+|----------|-------------|
+| `pageSize` | Records per page, default `-1` (no pagination) |
+| `currentPage` | Current page number |
+| `pageNumberOffset` | Starting page offset. Set `1` for 1-based pages; default `0` |
+
+Navigation: `firstPage()` / `previousPage()` / `nextPage()` / `lastPage()`.
+
+## Output: Reading Paginated Results {#result}
+
+When an API returns `PageResult<T>`, read pagination stats:
+
+```java
+PageResult<User> result = mapper.pageBySample(sample, pageInfo);
+
+List<User> data = result.getData();        // Current page data
+long total = result.getTotalCount();       // Total record count
+long pages = result.getTotalPage();        // Total page count
+long position = result.getFirstRecordPosition(); // First record position
+```
+
+`PageResult` implements `Iterable<T>` — iterate current page data directly with for-each.
+
+## Using Pagination Across APIs {#usage}
+
+The PageObject itself is universal; integration varies by API:
+
+| API | How to paginate | Return type |
+|-----|----------------|-------------|
+| Fluent API | `lambda.query(...).initPage(10, 0)` or `.usePage(page)` | `List<T>` |
+| BaseMapper | `mapper.pageBySample(sample, page)` | `PageResult<T>` (with stats) |
+| Annotation Mapper | Add `Page` parameter to method signature | `List<T>` |
+| Mapper File | Add `Page` parameter to method signature | `List<T>` |
+
+Detailed usage per API:
+- [Fluent API Pagination](../core/lambda/query#page)
+- [BaseMapper Pagination](../core/mapper/about#base-mapper)
+- [Annotation Pagination](../core/mapper/annotation_query)
+- [Mapper File Pagination](../core/file/paging)

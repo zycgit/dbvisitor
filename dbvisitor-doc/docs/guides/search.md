@@ -2,31 +2,31 @@
 id: search
 sidebar_position: 2
 title: 2. 快速查找
-description: 本文会略过 API 概述部分并以更加直观的形式按照使用场景对手册做分类检索。
+description: 按使用场景组织常用手册入口，便于快速定位对应功能。
 ---
 
 # 快速查找
 
 :::info[说明]
-本文会略过 API 概述部分并以更加直观的形式按照使用场景对手册做分类检索。
+以下入口按使用场景组织，便于快速定位对应功能。
 :::
 
 ### 增、删、改
 - 使用原始 [SQL 语句](./core/jdbc/update)。
-- 使用注解 [@Insert](./core/annotation/insert)、[@Delete](./core/annotation/delete)、[@Update](./core/annotation/update)。
+- 使用注解 [@Insert](./core/mapper/annotation_insert)、[@Delete](./core/mapper/annotation_delete)、[@Update](./core/mapper/annotation_update)。
 - 使用查询构造器 [新增](./core/lambda/insert)、[删除](./core/lambda/delete)、[更新](./core/lambda/update) 数据。
-- 使用 [通用 Mapper](./core/mapper/common) 接口。
-- 在 Mapper File 中使用 [&lt;insert&gt;](./core/file/sql_element#insert) 标签新增数据。
-- 在 Mapper File 中通过 [&lt;selectKey&gt;](./core/file/sql_element#selectKey) 标签在插入数据时处理数据库自增 ID。
-- 在 Mapper File 中使用 [&lt;update&gt;、&lt;delete&gt;](./core/file/sql_element#update_delete) 标签更新或删除数据。
+- 使用 [BaseMapper](./core/mapper/about#base-mapper) 接口。
+- 在 Mapper File 中使用 [&lt;insert&gt;](./core/file/statements#insert) 标签新增数据。
+- 在 Mapper File 中通过 [&lt;selectKey&gt;](./core/file/statements#selectKey) 标签在插入数据时处理数据库自增 ID。
+- 在 Mapper File 中使用 [&lt;update&gt;、&lt;delete&gt;](./core/file/statements#update_delete) 标签更新或删除数据。
 
 ### 基础查询
 - 使用 SQL 语句 [查询结果集](./core/jdbc/query#list)、[查询对象](./core/jdbc/query#one)、[查询键值对](./core/jdbc/query#pairs)、[查询值/值列表](./core/jdbc/query#value)、[流式查询](./core/jdbc/query#stream)
-- 执行语句块并 [接收多个结果集](./core/jdbc/multi)。
-- 通过 [@Query](./core/annotation/query) 在接口上定义查询。
+- 执行语句块并 [接收多个结果集](./core/jdbc/multiple_results)。
+- 通过 [@Query](./core/mapper/annotation_query) 在接口上定义查询。
 - 使用构造器 [查询单个对象](./core/lambda/query#object)、[查询列表](./core/lambda/query#list)、[查询总数](./core/lambda/query#count)。
-- 使用构造器进行 [分组查询](./core/lambda/groupby)、[查询排序](./core/lambda/orderby)。
-- 在 Mapper File 中使用 [&lt;select&gt;](./core/file/sql_element#select) 标签查询数据、使用 [&lt;sql&gt;](./core/file/sql_element#sql) 标签定义 SQL 片段。
+- 使用构造器进行 [分组查询](./core/lambda/group_by)、[查询排序](./core/lambda/order_by)。
+- 在 Mapper File 中使用 [&lt;select&gt;](./core/file/statements#select) 标签查询数据、使用 [&lt;sql&gt;](./core/file/statements#sql) 标签定义 SQL 片段。
 
 ### 参数传递
 - 在动态 SQL 中利用 [SQL 注入](./args/inject) 进行参数传递（需要自行评估 SQL 注入安全风险）
@@ -37,10 +37,10 @@ description: 本文会略过 API 概述部分并以更加直观的形式按照�
 
 ### 分页查询
 - 查询构造器中使用 [分页查询](./core/lambda/query#page)。
-- 在 Mapper 接口中 @Query 注解方法通过增加分页参数实现 [分页查询](./core/annotation/query#page)。
-- 在 [通用 Mapper](./core/mapper/common#page) 中进行分页查询（包含排序、Null值排序）
-- 利用 Session 对象的 [queryStatement、pageStatement](./core/mapper/file#page) 重载方法进行分页查询。
-- Mapper 接口在和 Mapper XML 文件建立关系后通过 [分页对象](./core/file/page) 进行分页查询。
+- 在 Mapper 接口中 @Query 注解方法通过增加分页参数实现 [分页查询](./core/mapper/annotation_query)。
+- 在 [BaseMapper](./core/mapper/about#base-mapper) 中进行分页查询（包含排序、Null值排序）
+- 利用 Session 对象的 [queryStatement、pageStatement](./core/mapper/file_statement#page) 重载方法进行分页查询。
+- Mapper 接口在和 Mapper XML 文件建立关系后通过 [分页对象](./core/file/paging) 进行分页查询。
 
 ### 动态 SQL
 - 规则手册：[动态 SQL 规则](./rules/dynamic_rule) 、[嵌套规则](./rules/nested_rule) 、[结果处理](./rules/result_rule) 等。
@@ -51,33 +51,32 @@ description: 本文会略过 API 概述部分并以更加直观的形式按照�
 - 利用 [IFAND](./rules/dynamic_rule#and)、[IFOR](./rules/dynamic_rule#or)、[IFSET](./rules/dynamic_rule#set)、[IFIN](./rules/dynamic_rule#in) 规则，允许通过一个条件参数来控制规则是否有效。
 - 规则还可以处理 [一段 SQL](/blog/rule_multiple_conditions) 而不仅仅是一个参数。
 - 嵌套规则: `@{case, ... @{and, ...}}` 通过嵌套，让 SQL 具备逻辑处理能力。
-- 在 Mapper File 中使用 [&lt;if&gt;](./core/file/dynamic#if)、[&lt;choose&gt;、&lt;when&gt;、&lt;otherwise&gt;](./core/file/dynamic#choose) 标签进行条件判断。
-- 在 Mapper File 中使用 [&lt;trim&gt;、&lt;where&gt;、&lt;set&gt;](./core/file/dynamic#trim) 标签增强特定 SQL 语句的生成。
-- 在 Mapper File 中使用 [&lt;foreach&gt;](./core/file/dynamic#foreach) 标签处理循环需求。
+- 在 Mapper File 中使用 [&lt;if&gt;](./core/file/dynamic_sql#if)、[&lt;choose&gt;、&lt;when&gt;、&lt;otherwise&gt;](./core/file/dynamic_sql#choose) 标签进行条件判断。
+- 在 Mapper File 中使用 [&lt;trim&gt;、&lt;where&gt;、&lt;set&gt;](./core/file/dynamic_sql#trim) 标签增强特定 SQL 语句的生成。
+- 在 Mapper File 中使用 [&lt;foreach&gt;](./core/file/dynamic_sql#foreach) 标签处理循环需求。
 
 ### 对象映射
-- 使用 [@Table 和 @Column](./core/mapping/basic) 注解进行对象映射。
+- 使用 [@Table 和 @Column](./core/mapping/table) 注解进行对象映射。
 - 使用 [驼峰命名法](./core/mapping/camel_case) 将属性自动映射到列上。
-- 掌握当遇到 [名称大小写敏感、列名为关键字](./core/mapping/delimited) 时的映射技巧，可以帮您处理一些特殊问题。
+- 掌握当遇到 [名称大小写敏感、列名为关键字](./core/mapping/name_sensitivity) 时的映射技巧，可以帮您处理一些特殊问题。
 - 通过映射时的 [写入策略](./core/mapping/write_policy) 可以控制在新增/修改数据时列是否参与到其中。
-- 通过映射时的 [写入策略](./core/mapping/write_policy) 可以控制在新增/修改数据时列是否参与到其中。
-- 通过指定 @Column 注解的 keyType 属性可以设定不同的 [主键生成器](./core/mapping/keytype) 策略。
+- 通过指定 @Column 注解的 keyType 属性可以设定不同的 [主键生成器](./core/mapping/key_generator) 策略。
 - 在 Mapper File 中使用 [&lt;entity&gt;](./core/file/entity_map) 标签以 XML 方式描述对象映射可以避免代码的侵入。
 - 在 Mapper File 中使用 [&lt;resultMap&gt;](./core/file/result_map) 和 &lt;entity&gt; 两个标签很接近，但不同的是它只能处理查询结果的映射。
-- 在 Mapper File 中使用利用 [自动映射](./core/file/automapping) 机制可以极大的简化配置。
-- 在使用构造器进行数据库操作时 [语句模版](./core/mapping/template) 可以决定生成的 SQL 的语句元素内容。
+- 在 Mapper File 中使用利用 [自动映射](./core/file/auto_mapping) 机制可以极大的简化配置。
+- 在使用构造器进行数据库操作时 [语句模版](./core/mapping/statement_template) 可以决定生成的 SQL 的语句元素内容。
 
 ### 存储过程
 - 使用 SQL 语句 [调用存储过程](./core/jdbc/procedure#exec)。
 - 通过参数的 mode 选项将存储过程参数设置为 [OUT 类型](./core/jdbc/procedure#outp)。
 - 将 mode 设置为 cursor 用来读取存储过程 [游标参数](./core/jdbc/procedure#outcur)。
-- 使用 [@Call](./core/annotation/call) 执行存储过程。
+- 使用 [@Call](./core/mapper/annotation_call) 执行存储过程。
 
 ### 执行 SQL
 - SQL 语句的 [批量化](./core/jdbc/batch)。
 - 加载一个 [SQL 脚本](./core/jdbc/execute) 文件。
-- 通过 [@Execute](./core/annotation/execute) 注释执行任何类型的语句。
-- 在 Mapper File 中使用 [&lt;execute&gt; 标签](./core/file/sql_element#execute) 执行任意的 SQL 语句。
+- 通过 [@Execute](./core/mapper/annotation_execute) 注释执行任何类型的语句。
+- 在 Mapper File 中使用 [&lt;execute&gt; 标签](./core/file/statements#execute) 执行任意的 SQL 语句。
 
 ### 结果集
 - 在不同的 API 上使用 [List/Map](./result/for_map) 接收查询结果数据。
@@ -93,7 +92,7 @@ description: 本文会略过 API 概述部分并以更加直观的形式按照�
 
 ### 类型处理
 - 在 SQL 语句的参数中通过 [typeHandler 选项](./args/options#normal) 指定类型处理器。
-- 在对象映射中通过 @Column 注解的 [typeHandler 选项](./core/mapping/type) 处理类型，如：抽象类型、枚举类型、JSON 序列化。
+- 在对象映射中通过 @Column 注解的 [typeHandler 选项](./core/mapping/type_mapping) 处理类型，如：抽象类型、枚举类型、JSON 序列化。
 - dbVisitor 提供了大量实用的类型处理器，当遇到类型问题可以先看下已有类型处理器是否已经支持。
   - [布尔](./types/handlers/bool-handler)、[数字](./types/handlers/number-handler)、[字符/字符串](./types/handlers/string-handler)、[时间](./types/handlers/datetime-handler)、[字节数组](./types/handlers/bytes-handler)
 - 枚举可以通过实现 [EnumOfValue](./types/enum-handler#ofvalue) 或者 [EnumOfCode](./types/enum-handler#ofcode) 接口将数据库中的 数值 或 特定 Code 作为和枚举的映射关系。
@@ -103,27 +102,27 @@ description: 本文会略过 API 概述部分并以更加直观的形式按照�
 
 ### Redis 支持
 - 了解 dbVisitor 对 Redis [支持的 140+ 命令](../drivers/redis/commands)。
-- 简单了解 dbVisitor 如何操作 Redis 不同类型的数据（[字符串](./api/differences/redis#string)、[哈希](./api/differences/redis#hash)、
-  [列表](./api/differences/redis#list)、[集合](./api/differences/redis#set)、[有序集合](./api/differences/redis#sorted_set)）
-- 使用 JdbcTemplate [执行命令方式](./api/differences/redis#exec-command) 读写 Redis 数据。
-- 在 Mapper 接口上使用 @Insert、@Update、@Delete 注解，以 [注解方式](./api/differences/redis#exec-annotation) 操作 Redis 数据。
-- 在 [Mapper 文件](./api/differences/redis#exec-file) 中通过标签配置执行命令。
+- 简单了解 dbVisitor 如何操作 Redis 不同类型的数据（[字符串](../features/redis/usage#string)、[哈希](../features/redis/usage#hash)、
+  [列表](../features/redis/usage#list)、[集合](../features/redis/usage#set)、[有序集合](../features/redis/usage#sorted_set)）
+- 使用 JdbcTemplate [执行命令方式](../features/redis/usage#exec-command) 读写 Redis 数据。
+- 在 Mapper 接口上使用 @Insert、@Update、@Delete 注解，以 [注解方式](../features/redis/usage#exec-annotation) 操作 Redis 数据。
+- 在 [Mapper 文件](../features/redis/usage#exec-file) 中通过标签配置执行命令。
 
 ### MongoDB 支持
 - 了解 dbVisitor 对 MongoDB [支持的命令](../drivers/mongo/commands)。
-- 使用 JdbcTemplate [执行命令方式](./api/differences/mongo#exec-command) 读写 MongoDB 数据。
-- 使用 [构造器方式](./api/differences/mongo#exec-lambda) 读写 MongoDB 数据。
-- 使用 [通用 Mapper 方式](./api/differences/mongo#exec-mapper) 读写 MongoDB 数据。
-- 在 Mapper 接口上使用 @Insert、@Update、@Delete 注解，以 [注解方式](./api/differences/mongo#exec-annotation) 操作 MongoDB 数据。
-- 在 [Mapper 文件](./api/differences/mongo#exec-file) 中通过标签配置执行命令。
+- 使用 JdbcTemplate [执行命令方式](../features/mongo/usage#exec-command) 读写 MongoDB 数据。
+- 使用 [构造器方式](../features/mongo/usage#exec-lambda) 读写 MongoDB 数据。
+- 使用 [通用 Mapper 方式](../features/mongo/usage#exec-mapper) 读写 MongoDB 数据。
+- 在 Mapper 接口上使用 @Insert、@Update、@Delete 注解，以 [注解方式](../features/mongo/usage#exec-annotation) 操作 MongoDB 数据。
+- 在 [Mapper 文件](../features/mongo/usage#exec-file) 中通过标签配置执行命令。
 
 ### ElasticSearch 支持
 - 了解 dbVisitor 对 ElasticSearch [支持的命令](../drivers/elastic/commands)。
-- 使用 JdbcTemplate [执行命令方式](./api/differences/elastic#exec-command) 读写 ElasticSearch 数据。
-- 使用 [构造器方式](./api/differences/elastic#exec-lambda) 读写 ElasticSearch 数据。
-- 使用 [通用 Mapper 方式](./api/differences/elastic#exec-mapper) 读写 ElasticSearch 数据。
-- 在 Mapper 接口上使用 @Insert、@Update、@Delete 注解，以 [注解方式](./api/differences/elastic#exec-annotation) 操作 ElasticSearch 数据。
-- 在 [Mapper 文件](./api/differences/elastic#exec-file) 中通过标签配置执行命令。
+- 使用 JdbcTemplate [执行命令方式](../features/elastic/usage#exec-command) 读写 ElasticSearch 数据。
+- 使用 [构造器方式](../features/elastic/usage#exec-lambda) 读写 ElasticSearch 数据。
+- 使用 [通用 Mapper 方式](../features/elastic/usage#exec-mapper) 读写 ElasticSearch 数据。
+- 在 Mapper 接口上使用 @Insert、@Update、@Delete 注解，以 [注解方式](../features/elastic/usage#exec-annotation) 操作 ElasticSearch 数据。
+- 在 [Mapper 文件](../features/elastic/usage#exec-file) 中通过标签配置执行命令。
 
 
 ### 数据库事务

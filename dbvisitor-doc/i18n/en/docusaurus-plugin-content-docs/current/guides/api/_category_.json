@@ -1,8 +1,11 @@
 {
-  "label": "4. API Overview",
+  "label": "4. API Selection Guide",
   "position": 4,
   "className": "red",
   "collapsible": true,
   "collapsed": false,
-  "link": null
+  "link": {
+    "type": "doc",
+    "id": "about"
+  }
 }

@@ -1,0 +1,137 @@
+---
+id: generated-keys
+sidebar_position: 1
+hide_table_of_contents: true
+title: Auto-generated Key Backfill
+description: How to handle auto-increment columns, generated keys, and selectKey in Dameng with dbVisitor.
+---
+
+# Dameng Auto-generated Key Backfill
+
+Dameng database's auto-increment columns are well-suited for backfilling via JDBC generated keys. Under the Dameng dialect, dbVisitor does not optimize INSERTs requiring primary key backfill into batch generated keys; instead, it conservatively executes row by row.
+
+## Lambda / BaseMapper
+
+```java title='Dameng auto-increment column mapping'
+@Table("user_info")
+public class UserInfo {
+    @Column(value = "id", primary = true, keyType = KeyType.Auto)
+    private Long id;
+
+    @Column("name")
+    private String name;
+}
+```
+
+```java title='Read backfilled primary key after Lambda insert'
+UserInfo user = new UserInfo();
+user.setName("mali");
+
+LambdaTemplate lambda = ...
+lambda.insert(UserInfo.class)
+      .applyEntity(user)
+      .executeSumResult();
+
+Long id = user.getId();
+```
+
+## Mapper XML
+
+```xml title='Dameng generated keys'
+<insert id="insertUser"
+        useGeneratedKeys="true"
+        keyProperty="id"
+        keyColumn="id">
+    INSERT INTO user_info (name)
+    VALUES (#{name})
+</insert>
+```
+
+Recommend explicitly writing `keyColumn` to keep the backfill column consistent with the business primary key column.
+
+## Annotation Mapper
+
+```java
+@Insert(
+    value = "INSERT INTO user_info (name) VALUES (#{name})",
+    useGeneratedKeys = true,
+    keyProperty = "id",
+    keyColumn = "id"
+)
+int insertUser(UserInfo user);
+```
+
+## Sequence
+
+Dameng supports sequences. The Dameng official FAQ describes using `schema.sequence.NEXTVAL` to get the next value and `schema.sequence.CURRVAL` to get the current value. dbVisitor's Dameng dialect generates:
+
+```sql
+SELECT user_info_seq.NEXTVAL
+```
+
+Mapper XML can use `selectKey`:
+
+```xml
+<insert id="insertUser">
+    <selectKey keyProperty="id" keyColumn="id" order="BEFORE">
+        SELECT user_info_seq.NEXTVAL AS id
+    </selectKey>
+    INSERT INTO user_info (id, name)
+    VALUES (#{id}, #{name})
+</insert>
+```
+
+Annotations:
+
+```java
+@SelectKeySql(
+    value = "SELECT user_info_seq.NEXTVAL AS id",
+    keyProperty = "id",
+    keyColumn = "id",
+    order = Order.Before
+)
+@Insert("INSERT INTO user_info (id, name) VALUES (#{id}, #{name})")
+int insertUser(UserInfo user);
+```
+
+Lambda / BaseMapper can use `KeyType.Sequence`:
+
+```java
+@KeySeq("user_info_seq")
+@Column(value = "id", primary = true, keyType = KeyType.Sequence)
+private Long id;
+```
+
+## Conflict Strategies
+
+The Dameng dialect's `Ignore` strategy uses the `IGNORE_ROW_ON_DUPKEY_INDEX` hint, requiring primary key columns. The `Update` strategy is implemented via `MERGE INTO`:
+
+```sql
+MERGE INTO user_info TMP
+USING (SELECT ? id, ? name FROM dual) SRC
+ON (TMP.id = SRC.id)
+WHEN MATCHED THEN UPDATE SET name = SRC.name
+WHEN NOT MATCHED THEN INSERT (id, name) VALUES (SRC.id, SRC.name)
+```
+
+These syntaxes primarily affect insert conflict handling and do not change the generated keys reading model.
+
+## Dialect Strategy
+
+Dameng's current strategy is as follows:
+
+| Scenario | GeneratedKeyStrategy |
+| --- | --- |
+| No backfill columns | `JdbcBatch` |
+| `Into` + with backfill columns | `OneByOne` |
+| `Ignore` + with backfill columns | `OneByOne` |
+| `Update` + with backfill columns | `OneByOne` |
+
+`DuplicateKeyStrategy.Ignore` requires primary key columns; `DuplicateKeyStrategy.Update` requires primary key columns and at least one non-primary key column that is updatable.
+
+## Design Principles
+
+- Auto-increment columns: use `KeyType.Auto` or `useGeneratedKeys=true`.
+- sequence: use `selectKey` / `@SelectKeySql` / `KeyType.Sequence` to get value before INSERT.
+- Conservative row-by-row execution when generated keys backfill is needed.
+- General documentation: see [Generated Keys](../../guides/core/mapper/annotation_insert#generated-keys).

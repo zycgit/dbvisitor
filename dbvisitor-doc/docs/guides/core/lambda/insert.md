@@ -1,7 +1,6 @@
 ---
 id: insert
-sidebar_position: 1
-hide_table_of_contents: true
+sidebar_position: 2
 title: 新增操作
 description: 使用 dbVisitor 构造器新增数据时允许使用实体 Bean 或者使用 Map 作为新数据的容器。
 ---
@@ -37,6 +36,75 @@ int result = lambda.insert(User.class)
                    .executeSumResult();
 // 返回 result 为 1
 ```
+
+## 自增主键回填 {#generated-keys}
+
+当实体映射中的主键由数据库生成时，Lambda 新增可以配合对象映射和数据库方言完成主键回填。不同数据库的主键返回方式差异较大，具体用法请阅读 [数据源特性](../../../features/overview)。Generated keys 的通用说明见 [Generated Keys](../mapper/annotation_insert#generated-keys)。
+
+常规使用时只需要确认两件事：实体映射中主键列配置了生成策略，当前数据库方言支持对应的 generated keys 行为。
+
+:::info[深入阅读]
+下面的执行策略说明适合需要理解批量插入、数据库返回主键、自定义 KeyHolder 之间差异的场景。普通单行插入可以先跳过。
+:::
+
+Lambda Insert 会先区分两类后置主键处理：
+
+- 数据库返回型：`onAfter=true` 且 `useGeneratedKeys=true`，例如自增主键、需要通过 `getGeneratedKeys()`、`RETURNING`、`OUTPUT INSERTED` 返回的列。
+- 自定义后置型：`onAfter=true` 但 `useGeneratedKeys=false`，由用户自定义 `KeyHolder` 在插入后处理，不依赖数据库返回的 generated-key 结果集。
+
+只有数据库返回型列会作为 `returnColumns` 交给数据库方言生成 SQL。对于 PostgreSQL 可能生成 `RETURNING`，对于 SQL Server 可能生成 `OUTPUT INSERTED`，其它数据库也可能使用 JDBC `getGeneratedKeys()`。
+
+批量插入时，dbVisitor 会按如下规则选择执行方式：
+
+- 没有主键回填需求时，优先使用普通 JDBC batch。
+- 只有数据库返回型主键回填时，由数据库方言选择更合适的方式，例如 PostgreSQL `VALUES (...), (...) RETURNING id` 或 SQL Server `OUTPUT INSERTED.id`。
+- 如果存在自定义后置 `KeyHolder`，则保守退回逐条执行，保证每一行插入后都能执行用户自定义的后置逻辑。
+
+```text
+Lambda Insert 主键回填策略
+
+ColumnMapping
+    |
+    +-- onBefore=true
+    |       |
+    |       +-- INSERT 前生成值
+    |           例如 UUID32、UUID36、Sequence、自定义 before KeyHolder
+    |
+    +-- onAfter=true
+            |
+            +-- useGeneratedKeys=true
+            |       |
+            |       +-- returnColumns
+            |           |
+            |           +-- 交给数据库方言选择返回方式
+            |               |
+            |               +-- PostgreSQL: RETURNING
+            |               +-- SQL Server: OUTPUT INSERTED
+            |               +-- JDBC: getGeneratedKeys()
+            |
+            +-- useGeneratedKeys=false
+                    |
+                    +-- customAfterProperties
+                        |
+                        +-- 批量插入退回 OneByOne
+                            保证每行 INSERT 后执行自定义 afterApply
+
+执行策略
+    |
+    +-- customAfterProperties 非空
+    |       |
+    |       +-- OneByOne
+    |
+    +-- returnColumns 非空
+    |       |
+    |       +-- 方言选择 MultiValuesResultSet / JdbcBatchGeneratedKeys / OneByOne
+    |
+    +-- returnColumns 为空
+            |
+            +-- 优先 JdbcBatch
+```
+
+因此，`KeyType.UUID32`、`KeyType.UUID36`、`KeyType.Sequence` 这类前置生成策略通常不会触发数据库返回列；`KeyType.Auto` 或 `useGeneratedKeys=true` 的 `KeyHolder` 才会参与 generated keys 回填。
 
 ## 批量化 {#batch}
 
@@ -83,7 +151,7 @@ if (adapter.queryByEntity(User.class)
 - Oracle 数据库可以使用 `MERGE INTO ... WHEN MATCHED THEN ... WHEN NOT MATCHED THEN ...` 语句。
 
 使用这些数据库特性需要有 2 个先决条件。
-- 需要 dbVisitor 的数据库方言能够支持，[了解数据库支持性](../../api/differences/about#dialect)。
+- 需要 dbVisitor 的数据库方言能够支持，[了解数据库支持性](../../../features/support#dialect)。
 - 需要通过 onDuplicateStrategy 方法指定冲突处理策略。
 
 dbVisitor 中对于这种情况可以配置冲突策略，这样就可以避免在写入数据时多余的代码逻辑。可选的冲突策略有三个：

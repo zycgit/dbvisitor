@@ -72,7 +72,13 @@ const config = {
                     type: 'docSidebar',
                     sidebarId: 'guides',
                     position: 'left',
-                    label: '数据库访问',
+                    label: '核心API',
+                },
+                {
+                    type: 'docSidebar',
+                    sidebarId: 'features',
+                    position: 'left',
+                    label: '数据源',
                 },
                 {
                     type: 'docSidebar',

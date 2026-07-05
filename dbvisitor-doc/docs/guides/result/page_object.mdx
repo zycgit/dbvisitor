@@ -1,0 +1,67 @@
+---
+id: page_object
+sidebar_position: 5
+hide_table_of_contents: true
+title: 9.5 分页
+description: PageObject 分页对象的创建方式、PageResult 结果读取，以及在各 API 中的使用入口。
+---
+
+# 分页
+
+dbVisitor 的分页围绕两个核心类型：**入参** `PageObject` 描述分页请求，**出参** `PageResult` 承载分页结果。
+
+## 入：创建分页请求 {#create}
+
+```java title='静态工厂（推荐）'
+Page page = PageObject.of(0, 20);      // 第 0 页，每页 20 条，页码从 0 开始
+Page page = PageObject.of(1, 20, 1);   // 第 1 页，每页 20 条，页码从 1 开始
+```
+
+```java title='构造方法'
+PageObject page = new PageObject();
+page.setPageSize(20);          // 页大小（默认 -1 表示不分页）
+page.setCurrentPage(2);        // 当前页码
+page.setPageNumberOffset(1);   // 页码偏移：设为 1 则第一页页码为 1
+```
+
+核心属性：
+
+| 属性 | 说明 |
+|------|------|
+| `pageSize` | 每页记录数，默认 `-1`（不分页） |
+| `currentPage` | 当前页码 |
+| `pageNumberOffset` | 页码起始偏移。设为 `1` 则第一页页码为 `1`；默认 `0` |
+
+翻页方法：`firstPage()` / `previousPage()` / `nextPage()` / `lastPage()`。
+
+## 出：读取分页结果 {#result}
+
+当 API 返回 `PageResult<T>` 时，可以读取分页统计信息：
+
+```java
+PageResult<User> result = mapper.pageBySample(sample, pageInfo);
+
+List<User> data = result.getData();        // 当前页数据
+long total = result.getTotalCount();       // 总记录数
+long pages = result.getTotalPage();        // 总页数
+long position = result.getFirstRecordPosition(); // 第一条记录位置
+```
+
+`PageResult` 实现了 `Iterable<T>`，可以直接用 for-each 遍历当前页数据。
+
+## 在各 API 中使用 {#usage}
+
+分页对象本身是通用的，但接入方式因 API 而异：
+
+| API | 如何分页 | 返回类型 |
+|-----|---------|---------|
+| 构造器 API | `lambda.query(...).initPage(10, 0)` 或 `.usePage(page)` | `List<T>` |
+| BaseMapper | `mapper.pageBySample(sample, page)` | `PageResult<T>`（含统计） |
+| 注解 Mapper | 方法签名加 `Page` 参数 | `List<T>` |
+| Mapper 文件 | 方法签名加 `Page` 参数 | `List<T>` |
+
+详细用法请参考各 API 的分页章节：
+- [构造器 API 分页](../core/lambda/query#page)
+- [BaseMapper 分页](../core/mapper/about#base-mapper)
+- [注解方式分页](../core/mapper/annotation_query)
+- [Mapper 文件分页](../core/file/paging)

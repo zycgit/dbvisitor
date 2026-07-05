@@ -1,0 +1,80 @@
+---
+id: dialect-details
+sidebar_position: 2
+hide_table_of_contents: true
+title: Dialect Details
+description: Low-level behavioral details of Oracle dialect including pagination, MERGE conflict strategy, ROWNUM, sequences, and batch behavior.
+---
+
+# Oracle Dialect Details
+
+## Pagination SQL
+
+Oracle uses ROWNUM nested queries for pagination:
+
+```sql
+SELECT * FROM (
+  SELECT TMP.*, ROWNUM ROW_ID FROM (
+    original query
+  ) TMP WHERE ROWNUM <= ?
+) WHERE ROW_ID > ?
+```
+
+Parameters: `ROWNUM <= endRow` and `ROW_ID > startRow`.
+
+## Count SQL
+
+```sql
+SELECT COUNT(*) FROM (original query) TEMP_T
+```
+
+Note: Oracle's count subquery does not use the `as` alias keyword — writes `TEMP_T` directly.
+
+## Identifier Quoting
+
+Uses double quotes `"`:
+
+```sql
+SELECT * FROM "users" WHERE "name" = ?
+```
+
+## Write Conflict Strategies
+
+| Strategy | SQL Syntax | PK Required |
+|------|---------|:----------:|
+| Into | `INSERT INTO ... VALUES (...)` | No |
+| Ignore | `MERGE INTO ... USING (SELECT ... FROM dual) SRC ON (...) WHEN NOT MATCHED THEN INSERT ...` | Yes |
+| Update | `MERGE INTO ... USING (SELECT ... FROM dual) SRC ON (...) WHEN MATCHED THEN UPDATE ... WHEN NOT MATCHED THEN INSERT ...` | Yes |
+
+Oracle's MERGE uses `FROM dual` as the virtual source table.
+
+## Generated Key Strategy
+
+Oracle dialect **uniformly uses `OneByOne`** (row-by-row execution), regardless of whether backfill columns exist or what conflict strategy is used. This is the most conservative and safest strategy:
+
+| Scenario | GeneratedKeyStrategy |
+|------|---------------------|
+| All scenarios | `OneByOne` |
+
+Reason: Oracle JDBC's batch generated keys behavior is unstable. If `Statement.RETURN_GENERATED_KEYS` is used without specifying `keyColumn`, it returns the `ROWID` pseudo-column instead of the business primary key.
+
+## Sequences
+
+Oracle does not implement `SeqSqlDialect`. Instead, sequences are read via `selectKey` in Mapper XML or `@KeySeq` + `KeyType.Sequence` in object mapping:
+
+```sql
+SELECT user_info_seq.NEXTVAL AS id FROM dual
+```
+
+## Caveats
+
+- `RETURNING INTO` is an OUT parameter model, not equivalent to PostgreSQL `RETURNING`; do not use `generatedKeySource="resultSet"`
+- Always explicitly specify `keyColumn` on INSERT to correctly backfill business primary keys
+- Dameng's MERGE is highly consistent with Oracle syntax (also uses `FROM dual`)
+
+## Key Differences Summary
+
+- The only database where all scenarios use the `OneByOne` strategy
+- Pagination uses ROWNUM nesting (poor performance; recommend 12c+ `OFFSET FETCH`)
+- MERGE uses `FROM dual` to construct a virtual source table
+- Does not implement `SeqSqlDialect`; sequences go through the `selectKey` channel

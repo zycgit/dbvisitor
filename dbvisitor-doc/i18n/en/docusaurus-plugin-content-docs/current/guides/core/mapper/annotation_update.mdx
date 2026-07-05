@@ -1,0 +1,38 @@
+---
+id: annotation_update
+sidebar_position: 5
+title: "@Update"
+description: The Update annotation marks an interface method to execute an UPDATE statement.
+---
+
+import TagRed from '@site/src/components/tags/TagRed';
+import TagGray from '@site/src/components/tags/TagGray';
+
+# @Update Annotation
+
+Marks an interface method to execute an UPDATE statement.
+
+:::info
+`value` supports string arrays. Elements are joined with spaces, convenient for multi-line writing.
+:::
+
+```java title='Example: update name by id'
+@SimpleMapper
+public interface UserMapper {
+    @Update({"update users",
+             "set name = #{newName}",
+             "where id = #{userId}"})
+    int updateUserName(
+            @Param("userId") int userId,
+            @Param("newName") String newName
+    );
+}
+```
+
+## Properties
+
+| Property | Description |
+|---|---|
+| value | <TagRed/> The UPDATE statement to be executed. |
+| statementType | <TagGray/> JDBC execution mode. Default `Prepared`<br/> - `Statement` → `java.sql.Statement`<br/> - `Prepared` → `java.sql.PreparedStatement`<br/> - `Callable` → `java.sql.CallableStatement` |
+| timeout | <TagGray/> Execution timeout in seconds. Default `-1` |

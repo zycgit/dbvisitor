@@ -13,7 +13,7 @@ import TabItem from '@theme/TabItem';
 
 # 结果处理规则
 
-本章介绍如何通过规则对查询结果进行后置处理，以及在存储过程等复杂场景下使用的辅助规则。
+结果规则用于对查询结果进行后置处理，也可用于存储过程等复杂场景下的结果辅助处理。
 这些规则本身**不影响 SQL 生成**，仅用于指导 dbVisitor 如何映射返回的数据。
 
 | 规则 | 描述 |
@@ -33,7 +33,7 @@ import TabItem from '@theme/TabItem';
 
 **支持场景**：
 - [存储过程调用](../core/jdbc/procedure)
-- [多结果集查询](../core/jdbc/multi)
+- [多结果集查询](../core/jdbc/multiple_results)
 
 **属性说明**：
 

@@ -1,0 +1,8 @@
+{
+  "label": "MySQL",
+  "position": 15,
+  "link": {
+    "type": "doc",
+    "id": "features/mysql/about"
+  }
+}

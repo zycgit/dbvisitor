@@ -133,6 +133,7 @@
         statementType (STATEMENT|PREPARED|CALLABLE) #IMPLIED
         timeout CDATA #IMPLIED
         useGeneratedKeys CDATA #IMPLIED
+        generatedKeySource CDATA #IMPLIED
         keyProperty CDATA #IMPLIED
         keyColumn CDATA #IMPLIED
         >

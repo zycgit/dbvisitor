@@ -1,0 +1,88 @@
+---
+id: dialect-details
+sidebar_position: 2
+hide_table_of_contents: true
+title: 方言细节
+description: DB2 方言的分页、MERGE 冲突策略、序列和 batch 限制等底层行为细节。
+---
+
+# DB2 方言细节
+
+## 分页 SQL
+
+DB2 使用 `ROWNUMBER() OVER()` 嵌套查询实现分页：
+
+```sql
+SELECT * FROM (
+  SELECT TMP_PAGE.*, ROWNUMBER() OVER() AS ROW_ID FROM (
+    原始查询
+  ) AS TMP_PAGE
+) TMP_PAGE WHERE ROW_ID BETWEEN ? AND ?
+```
+
+参数：`ROW_ID BETWEEN startRow+1 AND endRow`（从 1 开始）。
+
+## Count SQL
+
+```sql
+SELECT COUNT(*) FROM (原始查询) as TEMP_T
+```
+
+## 标识符引用
+
+使用双引号 `"`：
+
+```sql
+SELECT * FROM "users" WHERE "name" = ?
+```
+
+## LIKE 语法
+
+使用 `CONCAT` 函数（与 MySQL 相同）：
+
+| LIKE 类型 | 生成的 SQL |
+|-----------|-----------|
+| 全模糊 | `CONCAT(CONCAT('%', ?), '%')` |
+| 左模糊 | `CONCAT('%', ?)` |
+| 右模糊 | `CONCAT(?, '%')` |
+
+## 写入冲突策略
+
+| 策略 | SQL 语法 | 主键是否必须 |
+|------|---------|:----------:|
+| Into | `INSERT INTO ... VALUES (...)` | 否 |
+| Ignore | `MERGE INTO ... WHEN NOT MATCHED THEN INSERT ...` | 是 |
+| Update | `MERGE INTO ... WHEN MATCHED THEN UPDATE ... WHEN NOT MATCHED THEN INSERT ...` | 是 |
+
+## Generated Key 策略
+
+| 场景 | GeneratedKeyStrategy | 说明 |
+|------|---------------------|------|
+| 无回填列 | `JdbcBatch` | 普通 batch |
+| 有回填列（任何策略） | `OneByOne` | 保守逐条执行 |
+
+有回填列时统一使用 `OneByOne`。原因：IBM 文档说明 DB2 的部分配置下，准备为 generated keys 返回的 `PreparedStatement` 不能用于 batch updates。
+
+## 序列
+
+DB2 实现了 `SeqSqlDialect`：
+
+```sql
+VALUES NEXT VALUE FOR user_seq
+```
+
+带 schema 时：
+
+```sql
+VALUES NEXT VALUE FOR "app"."user_seq"
+```
+
+对象映射中通过 `@KeySeq("user_seq")` + `KeyType.Sequence` 使用。
+
+## 关键差异总结
+
+- 分页与 Oracle 类似（ROWNUMBER 嵌套），但语法为 `BETWEEN ? AND ?`
+- 有主键回填需求时统一逐条执行（不信任 batch generated keys）
+- 支持序列：`VALUES NEXT VALUE FOR seq`
+- LIKE 使用 `CONCAT` 函数
+- MERGE 冲突策略需要有主键列

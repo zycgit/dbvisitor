@@ -1,0 +1,99 @@
+---
+id: generated-keys
+sidebar_position: 1
+hide_table_of_contents: true
+title: Primary Keys and Return Keys
+description: How to handle primary keys, application-side IDs, and generated keys in ClickHouse with dbVisitor.
+---
+
+# ClickHouse Primary Keys and Return Keys
+
+ClickHouse's primary keys, sort keys, and partition keys primarily serve data organization and query performance, not equivalent to traditional relational database auto-increment primary keys. ClickHouse's common write model also does not rely on INSERT backfilling of database-generated IDs.
+
+Therefore, in dbVisitor, ClickHouse recommends generating primary keys before INSERT rather than using JDBC generated keys.
+
+## Recommended: Application-Side ID Generation
+
+If the business requires a unique ID, generating it on the Java side is recommended — for example, UUID, Snowflake ID, or business numbers.
+
+```java title='ClickHouse application-side ID mapping'
+@Table("event_log")
+public class EventLog {
+    @Column(value = "id", primary = true, keyType = KeyType.UUID32)
+    private String id;
+
+    @Column("event_name")
+    private String eventName;
+}
+```
+
+```java title='Lambda insert'
+EventLog event = new EventLog();
+event.setEventName("login");
+
+LambdaTemplate lambda = ...
+lambda.insert(EventLog.class)
+      .applyEntity(event)
+      .executeSumResult();
+
+String id = event.getId();
+```
+
+`KeyType.UUID32` / `KeyType.UUID36` generates IDs before insert and does not depend on ClickHouse returning generated keys.
+
+## Not Recommended: JDBC generated keys
+
+The ClickHouse dialect does not generate return key syntax like PostgreSQL `RETURNING` or SQL Server `OUTPUT INSERTED` for INSERTs. Even if `KeyType.Auto` is configured in object mapping, ClickHouse should not be treated as an OLTP database supporting auto-increment backfill.
+
+It is also not recommended to write the following in Mapper XML:
+
+```xml title='Not recommended'
+<insert id="insertEvent"
+        useGeneratedKeys="true"
+        keyProperty="id"
+        keyColumn="id">
+    INSERT INTO event_log (event_name)
+    VALUES (#{eventName})
+</insert>
+```
+
+Explicitly passing the ID is more recommended:
+
+```xml title='Recommended'
+<insert id="insertEvent">
+    INSERT INTO event_log (id, event_name)
+    VALUES (#{id}, #{eventName})
+</insert>
+```
+
+## Batch Writes
+
+ClickHouse is better suited for batch writes. When no generated keys backfill is required, dbVisitor can use regular JDBC batch.
+
+```java
+lambda.insert(EventLog.class)
+      .applyEntity(event1, event2, event3)
+      .executeSumResult();
+```
+
+If per-row backfill of database-generated values is needed, it would break the batch write model; such designs should be avoided under ClickHouse.
+
+## Dialect Strategy
+
+ClickHouse's current strategy is as follows:
+
+| Scenario | GeneratedKeyStrategy |
+| --- | --- |
+| No backfill columns | `JdbcBatch` |
+| `Into` + with backfill columns | `OneByOne` |
+| `Ignore` + with backfill columns | `OneByOne` |
+| `Update` + with backfill columns | `OneByOne` |
+
+The ClickHouse dialect only supports `DuplicateKeyStrategy.Into`. `Ignore` / `Update` are not part of the current ClickHouse dialect's goals and should not be used as traditional OLTP duplicate key strategies.
+
+## Design Principles
+
+- Primary key values should preferably be generated application-side and written together with the INSERT.
+- Do not use `KeyType.Auto` expecting ClickHouse to return generated keys.
+- Do not use `KeyType.Sequence`; the ClickHouse dialect does not provide sequence capabilities.
+- General documentation: see [Generated Keys](../../guides/core/mapper/annotation_insert#generated-keys).

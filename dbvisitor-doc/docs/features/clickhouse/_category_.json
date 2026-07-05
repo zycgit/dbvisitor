@@ -1,0 +1,8 @@
+{
+  "label": "ClickHouse",
+  "position": 70,
+  "link": {
+    "type": "doc",
+    "id": "features/clickhouse/about"
+  }
+}

@@ -217,7 +217,7 @@ function ApiStylesSection() {
             icon: '⌨️',
             name: 'JdbcTemplate',
             desc: translate({id: 'dbv.api.jdbc.desc', message: '原生 SQL 操作，最直接的数据库访问方式'}),
-            docLink: '/docs/guides/api/program_api',
+            docLink: '/docs/guides/api/jdbc',
             codeTitle: 'JdbcTemplate.java',
             code: (s) => (<>
                 <span className={s.codeType}>{'JdbcTemplate'}</span>{' jdbc = '}<span className={s.codeKeyword}>{'new'}</span>{' '}<span className={s.codeType}>{'JdbcTemplate'}</span>{'(dataSource);\n\n'}
@@ -236,7 +236,7 @@ function ApiStylesSection() {
             icon: '📝',
             name: translate({id: 'dbv.api.annotation.name', message: '声明式接口'}),
             desc: translate({id: 'dbv.api.annotation.desc', message: '声明式接口 + 注解，类似 MyBatis Mapper'}),
-            docLink: '/docs/guides/api/declarative_api',
+            docLink: '/docs/guides/api/mapper',
             codeTitle: 'UserMapper.java',
             code: (s) => (<>
                 <span className={s.codeKeyword}>{'@SimpleMapper'}</span>{'\n'}
@@ -271,7 +271,7 @@ function ApiStylesSection() {
             icon: '🔮',
             name: translate({id: 'dbv.api.lambda.name', message: '条件构造器'}),
             desc: translate({id: 'dbv.api.lambda.desc', message: 'Lambda 表达式构建查询，类型安全'}),
-            docLink: '/docs/guides/api/lambda_api',
+            docLink: '/docs/guides/api/lambda',
             codeTitle: 'LambdaTemplate.java',
             code: (s) => (<>
                 <span className={s.codeType}>{'LambdaTemplate'}</span>{' lambda = '}<span className={s.codeKeyword}>{'new'}</span>{' '}<span className={s.codeType}>{'LambdaTemplate'}</span>{'(dataSource);\n\n'}

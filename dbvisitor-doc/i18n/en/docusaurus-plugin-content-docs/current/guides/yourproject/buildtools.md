@@ -1,8 +1,8 @@
 ---
 id: buildtools
-sidebar_position: 0
+sidebar_position: 1
 hide_table_of_contents: true
-title: Add Dependency
+title: 3.1 Add Dependency
 description: Introduce dbVisitor in your familiar build tools.
 ---
 import Vars from '@site/plugins/projectVars';
@@ -11,12 +11,22 @@ export const Highlight = ({children, color}) => (
   <span style={{ backgroundColor: color, borderRadius: '2px', color: '#fff', padding: '0.2rem', }}>{children}</span>
 );
 
-# Add Dependency
+# 3.1 Add Dependency
 
 All dbVisitor modules and dependencies are available via [Maven Central](https://central.sonatype.com/search?q=dbvisitor).
 Therefore, any project using dependency management tools (Apache Maven, Gradle, sbt, leiningen, Apache Ivy, etc.) can access these modules.
 
 As of now, the latest version of dbVisitor is: **<Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>**
+
+## Choose an Integration
+
+| Project type | Recommended module | Entry |
+| --- | --- | --- |
+| Plain Java project | `dbvisitor` | [Plain Java Projects](./with_java) |
+| Spring / Spring Boot project | `dbvisitor-spring` / `dbvisitor-spring-starter` | [Spring Integration](./with_spring) |
+| Solon project | `dbvisitor-solon-plugin` | [Solon Integration](./with_solon) |
+| Hasor project | `dbvisitor-hasor` | [Hasor Integration](./with_hasor) |
+| Guice project | `dbvisitor-guice` | [Guice Integration](./with_guice) |
 
 ## Apache Maven
 
@@ -45,7 +55,8 @@ dbVisitor cannot guarantee that different versions will work together (e.g., dbV
 All dbVisitor components used in a project or service should use the same version.
 
 ## Framework Integration {#integration}
-- Use dbVisitor in a Java program via [the plain way](./with_java).
+
+- Use dbVisitor in a Java program through [Plain Java Projects](./with_java).
 - Use [dbvisitor-guice](./with_guice) to use dbVisitor in Google Guice.
 - Use [dbvisitor-spring](./with_spring) to use dbVisitor in Spring, SpringBoot.
 - Use [dbvisitor-solon](./with_solon) to use dbVisitor in Solon.

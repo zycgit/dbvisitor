@@ -5,7 +5,7 @@ title: 实现指南
 description: 以接入 NewDB 为例，手把手实现一个 dbVisitor 适配器。
 ---
 
-本文以一个假想数据源 **NewDB** 为例，介绍从零开始实现一个 dbVisitor 适配器的完整步骤。
+以下内容以假想数据源 **NewDB** 为例，说明从零实现 dbVisitor 适配器的完整步骤。
 
 开始之前，建议先阅读 [架构设计](./about) 了解核心组件和执行模型。
 

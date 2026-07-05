@@ -1,7 +1,6 @@
 ---
 id: delete
-sidebar_position: 2
-hide_table_of_contents: true
+sidebar_position: 4
 title: 删除操作
 description: 在 dbVisitor 中使用 LambdaTemplate 删除数据。
 ---
@@ -11,7 +10,7 @@ description: 在 dbVisitor 中使用 LambdaTemplate 删除数据。
 在 dbVisitor 中使用 LambdaTemplate 删除数据如下所示：
 
 :::info[提示]
-删除操作中涉及查询条件相关内容请参考 **[条件构造器](./where-builder)**。
+删除操作中涉及查询条件相关内容请参考 **[条件构造器](./where_builder)**。
 :::
 
 ```java

@@ -1,0 +1,78 @@
+---
+id: dialect-details
+sidebar_position: 2
+hide_table_of_contents: true
+title: 方言细节
+description: 达梦数据库方言的分页、MERGE、IGNORE_ROW_ON_DUPKEY_INDEX 和序列等底层行为细节。
+---
+
+# 达梦方言细节
+
+## 分页 SQL
+
+达梦使用 `LIMIT` 语法（与 MySQL 相同），offset 为 0 时省略参数：
+
+```sql
+-- offset=1, limit=3
+SELECT ... LIMIT ?, ?
+
+-- offset=0, limit=3
+SELECT ... LIMIT ?
+```
+
+## Count SQL
+
+```sql
+SELECT COUNT(*) FROM (原始查询) as TEMP_T
+```
+
+## 标识符引用
+
+使用双引号 `"`：
+
+```sql
+SELECT * FROM "users" WHERE "name" = ?
+```
+
+## 写入冲突策略
+
+| 策略 | SQL 语法 | 主键是否必须 |
+|------|---------|:----------:|
+| Into | `INSERT INTO ... VALUES (...)` | 否 |
+| Ignore | `INSERT /*+ IGNORE_ROW_ON_DUPKEY_INDEX */ INTO ...` | 是 |
+| Update | `MERGE INTO ... WHEN MATCHED THEN UPDATE ... WHEN NOT MATCHED THEN INSERT ...` | 是，且至少一个非主键列 |
+
+**达梦独有特性**：Ignore 策略使用数据库 HINT `IGNORE_ROW_ON_DUPKEY_INDEX` 实现，而非 SQL Server/Oracle 的 `MERGE`。这是达梦特有的语法。
+
+Update 策略使用 `MERGE`（与 Oracle 语法高度一致，也使用 `FROM dual`）。
+
+## Generated Key 策略
+
+| 场景 | GeneratedKeyStrategy |
+|------|---------------------|
+| 无回填列 | `JdbcBatch` |
+| 有回填列（任何策略） | `OneByOne` |
+
+## 序列
+
+达梦实现了 `SeqSqlDialect`：
+
+```sql
+SELECT user_seq.NEXTVAL
+```
+
+带 schema 时：
+
+```sql
+SELECT "app"."user_seq".NEXTVAL
+```
+
+对象映射中通过 `@KeySeq("user_seq")` + `KeyType.Sequence` 使用。
+
+## 关键差异总结
+
+- Ignore 策略使用独有的 `IGNORE_ROW_ON_DUPKEY_INDEX` HINT（非 `MERGE`）
+- Update 策略要求至少一个非主键列可更新（纯主键列表时不可用）
+- 分页与 MySQL 相同（`LIMIT ?, ?`）
+- MERGE 语法与 Oracle 一致（`FROM dual`）
+- 支持序列：`SELECT seq.NEXTVAL`

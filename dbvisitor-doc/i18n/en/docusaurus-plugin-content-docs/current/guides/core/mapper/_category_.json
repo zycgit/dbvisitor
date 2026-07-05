@@ -1,6 +1,6 @@
 {
-  "label": "5.3 Mapper Interface",
-  "position": 3,
+  "label": "5.2 Mapper API",
+  "position": 2,
   "className": "red",
   "link": {
     "type": "doc",

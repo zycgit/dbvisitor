@@ -13,8 +13,11 @@ export const Highlight = ({children, color}) => (
   <span style={{ backgroundColor: color, borderRadius: '2px', color: '#fff', padding: '0.2rem', }}>{children}</span>
 );
 
+# 3.6 Guice 整合
+
 ## 什么是 Guice
-Guice 是 Google 开源的一个轻量化依赖注入工具，Spring 包含依赖注入能力之外含有很多其它能里。若只想在项目中使用依赖注入那么可以考虑使用 Guice。
+
+Guice 是 Google 开源的轻量级依赖注入框架，适合只需要 DI 容器而不需要完整应用框架的项目。
 
 - Guice 项目地址：https://github.com/google/guice
 
@@ -123,4 +126,4 @@ ServiceTest service = injector.getInstance(ServiceTest.class);
 | dbvisitor.use-delimited             | <TagGray/> 强制在生成 表名/列名/索引名 时候增加标识符限定，例如：通过设置该属性来解决列名为关键字的问题。默认是 false 不设置。 |
 | dbvisitor.case-insensitive          | <TagGray/> 是否对表名列名敏感，默认 true 不敏感。 |
 | dbvisitor.ignore-nonexist-statement | <TagGray/> 在 Mapper 接口方法映射到 XML 过程中是否忽略缺失的映射。默认是 false，遇到缺失会报错。 |
-| dbvisitor.dialect                   | <TagGray/> 默认使用的 **[数据库方言](../api/differences/about#dialect)** |
+| dbvisitor.dialect                   | <TagGray/> 默认使用的 **[数据库方言](../../features/support#dialect)** |

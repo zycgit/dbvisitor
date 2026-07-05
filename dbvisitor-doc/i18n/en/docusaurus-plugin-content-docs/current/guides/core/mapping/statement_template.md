@@ -1,0 +1,82 @@
+---
+id: statement_template
+sidebar_position: 7
+title: Statement Templates
+description: Statement templates control how SQL fragments are generated when using the Fluent API.
+---
+
+# Statement Templates
+
+:::warning[Note]
+- Templates are injected directly into generated SQL. Evaluate injection risk or choose another approach such as [JdbcTemplate](../jdbc/about).
+:::
+
+When using the [Fluent API](../../core/lambda/about), statement templates shape the generated SQL fragments.
+
+Example: for MySQL tables with `point` columns, templates let you wrap reads/writes with `PointFromText` and `AsText`.
+
+```mysql title='Example: table'
+create table user_points
+(
+    id    int auto_increment primary key,
+    point point,
+    text  varchar(50)
+);
+```
+
+```java title='Example: mapping'
+@Table("user_points")
+public class UserPoints {
+    private Integer id;
+
+    @Column(selectTemplate   = "AsText(point)",  // Generates select AsText(point) as point
+            insertTemplate   = "GeomFromText(?)",// Generates insert ... values (GeomFromText(?))
+            setValueTemplate = "GeomFromText(?)",// Generates update ... set point = GeomFromText(?)
+            whereColTemplate = "AsText(point)"   // Generates ... where AsText(point) = ?
+    )
+    private String point;
+}
+```
+
+```java title='Example: INSERT and generated SQL'
+UserPoints point = new UserPoints();
+point.setId(1);
+point.setPoint("point(1,2)");
+
+LambdaTemplate lambda = ...
+int result = lambda.insert(UserPoints.class)
+                   .applyEntity(point)
+                   .executeSumResult();
+
+// SQL: INSERT INTO user_points (id, point) VALUES (?, GeomFromText(?))
+```
+
+```java title='Example: UPDATE and generated SQL'
+LambdaTemplate lambda = ...
+int result = lambda.update(UserPoints.class)
+                   .eq(UserPoints::getId, 1)                     // Matching condition
+                   .updateTo(UserPoints::getPoint, "point(1,2)") // Update field
+                   .doUpdate();
+
+// SQL: UPDATE user_points SET point = GeomFromText(?) WHERE ( id = ? )
+```
+
+```java title='Example: DELETE and generated SQL'
+LambdaTemplate lambda = ...
+int result = lambda.delete(UserPoints.class)
+                   .eq(UserPoints::getPoint, "point(1,2)") // Matching condition
+                   .doDelete();
+
+// SQL: DELETE FROM user_points WHERE ( AsText(point) = ? )
+```
+
+### Template attributes
+
+| Attribute          | Description                                               |
+|--------------------|-----------------------------------------------------------|
+| selectTemplate     | Column expression in SELECT. Empty = column name.         |
+| insertTemplate     | Argument expression in INSERT. Default `?`.              |
+| setValueTemplate   | Argument expression in UPDATE SET. Default `?`.          |
+| whereColTemplate   | Column expression in WHERE (update/delete). Empty = name. |
+| whereValueTemplate | Argument expression in WHERE (update/delete). Default `?`.| 
+| orderByColTemplate | Column expression in ORDER BY. Empty = column name.        |

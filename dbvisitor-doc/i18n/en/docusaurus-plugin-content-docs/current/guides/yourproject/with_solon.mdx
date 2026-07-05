@@ -13,8 +13,11 @@ export const Highlight = ({children, color}) => (
   <span style={{ backgroundColor: color, borderRadius: '2px', color: '#fff', padding: '0.2rem', }}>{children}</span>
 );
 
+# 3.4 Solon Integration
+
 ## What is Solon
-A full-scenario Java enterprise application development framework: restrained, efficient, open, ecological! Concurrency increased by 300%; memory usage reduced by 50%; startup time faster by 10 times; package size smaller by 90%; compatible with java8 ~ java23 at the same time. (Can replace Spring)
+
+Solon is a lightweight Java application framework that provides dependency injection, configuration, web, transaction, and plugin extension capabilities.
 
 - Solon Project URL: https://solon.noear.org/
 
@@ -128,4 +131,4 @@ public class TxExample {
 | useDelimited | <TagGray/> Force adding identifier delimiters when generating table names/column names/index names. For example: set this property to solve the problem of column names being keywords. Default is `false` (not set). |
 | caseInsensitive | <TagGray/> Whether table/column names are case-sensitive. Default `true` (insensitive). |
 | ignoreNonExistStatement | <TagGray/> Whether to ignore missing mappings during the mapping of Mapper interface methods to XML. Default is `false`. Missing mappings will report an error. |
-| dialect | <TagGray/> **[Database Dialect](../api/differences/about#dialect)** used by default. |
+| dialect | <TagGray/> **[Database Dialect](../../optionss/support#dialect)** used by default. |

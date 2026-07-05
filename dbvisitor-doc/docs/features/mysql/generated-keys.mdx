@@ -1,0 +1,65 @@
+---
+id: generated-keys
+sidebar_position: 1
+hide_table_of_contents: true
+title: 自增主键回填
+description: MySQL 下使用 dbVisitor 处理 AUTO_INCREMENT、generated keys 和重复键策略的方式。
+---
+
+# MySQL 自增主键回填
+
+MySQL 的 `AUTO_INCREMENT` 列适合通过 JDBC generated keys 回填。dbVisitor 在 MySQL 下会根据是否需要回填列、是否使用重复键策略选择不同执行方式。
+
+## 方言策略
+
+| 场景 | GeneratedKeyStrategy | 说明 |
+|------|---------------------|------|
+| 无回填列 | `JdbcBatch` | 普通 JDBC batch，性能最优 |
+| `Into` + 有回填列 | `JdbcBatchGeneratedKeys` | batch + `getGeneratedKeys()` 回填 |
+| `Ignore` + 有回填列 | `OneByOne` | 保守逐条执行，保证回填语义 |
+| `Update` + 有回填列 | `OneByOne` | 同上，避免 `ON DUPLICATE KEY UPDATE` 与 batch generated keys 的不稳定组合 |
+
+## Lambda / BaseMapper
+
+```java
+@Table("user_info")
+public class UserInfo {
+    @Column(value = "id", primary = true, keyType = KeyType.Auto)
+    private Integer id;
+    @Column("name")
+    private String name;
+}
+```
+
+```java
+UserInfo user = new UserInfo();
+user.setName("mali");
+
+LambdaTemplate lambda = ...;
+lambda.insert(UserInfo.class).applyEntity(user).executeSumResult();
+
+Integer id = user.getId(); // 自动回填
+```
+
+## 写入冲突策略
+
+| 策略 | MySQL 实现 | 主键要求 |
+|------|-----------|---------|
+| Ignore | `INSERT IGNORE INTO ...` | 不要求（即使无主键也支持） |
+| Update | `INSERT INTO ... ON DUPLICATE KEY UPDATE ...` | 不要求（无主键时更新所有列） |
+
+MySQL 是唯一**不强制要求主键**就能使用 Ignore/Update 策略的数据库。策略由数据库唯一键或主键触发。
+
+## Mapper XML / Annotation
+
+```xml title='Mapper XML'
+<insert id="insertUser" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+    INSERT INTO user_info (name) VALUES (#{name})
+</insert>
+```
+
+```java title='Annotation'
+@Insert(value = "INSERT INTO user_info (name) VALUES (#{name})",
+        useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
+int insertUser(UserInfo user);
+```

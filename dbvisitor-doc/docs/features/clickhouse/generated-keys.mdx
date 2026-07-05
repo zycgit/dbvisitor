@@ -1,0 +1,99 @@
+---
+id: generated-keys
+sidebar_position: 1
+hide_table_of_contents: true
+title: 主键与返回键
+description: ClickHouse 下使用 dbVisitor 处理主键、应用侧 ID 和 generated keys 的方式。
+---
+
+# ClickHouse 主键与返回键
+
+ClickHouse 的主键、排序键和分区键主要服务于数据组织与查询性能，不等同于传统关系型数据库的自增主键。ClickHouse 常见写入模型也不依赖 INSERT 后回填数据库生成 ID。
+
+因此在 dbVisitor 中，ClickHouse 推荐使用插入前生成主键的方式，而不是使用 JDBC generated keys。
+
+## 推荐：应用侧生成 ID
+
+如果业务需要唯一 ID，建议在 Java 侧生成，例如 UUID、雪花 ID 或业务号。
+
+```java title='ClickHouse 应用侧 ID 映射'
+@Table("event_log")
+public class EventLog {
+    @Column(value = "id", primary = true, keyType = KeyType.UUID32)
+    private String id;
+
+    @Column("event_name")
+    private String eventName;
+}
+```
+
+```java title='Lambda 插入'
+EventLog event = new EventLog();
+event.setEventName("login");
+
+LambdaTemplate lambda = ...
+lambda.insert(EventLog.class)
+      .applyEntity(event)
+      .executeSumResult();
+
+String id = event.getId();
+```
+
+`KeyType.UUID32` / `KeyType.UUID36` 属于插入前生成，不依赖 ClickHouse 返回 generated keys。
+
+## 不推荐：JDBC generated keys
+
+ClickHouse 方言不会为 INSERT 生成类似 PostgreSQL `RETURNING` 或 SQL Server `OUTPUT INSERTED` 的返回键语法。即使对象映射中配置了 `KeyType.Auto`，也不建议把 ClickHouse 当作支持自增回填的 OLTP 数据库使用。
+
+Mapper XML 中也不建议写：
+
+```xml title='不推荐'
+<insert id="insertEvent"
+        useGeneratedKeys="true"
+        keyProperty="id"
+        keyColumn="id">
+    INSERT INTO event_log (event_name)
+    VALUES (#{eventName})
+</insert>
+```
+
+更推荐明确传入 ID：
+
+```xml title='推荐'
+<insert id="insertEvent">
+    INSERT INTO event_log (id, event_name)
+    VALUES (#{id}, #{eventName})
+</insert>
+```
+
+## 批量写入
+
+ClickHouse 更适合批量写入。没有 generated keys 回填需求时，dbVisitor 可以使用普通 JDBC batch。
+
+```java
+lambda.insert(EventLog.class)
+      .applyEntity(event1, event2, event3)
+      .executeSumResult();
+```
+
+如果需要每行回填数据库生成值，就会破坏批量写入模型；ClickHouse 下应避免这种设计。
+
+## 方言策略
+
+ClickHouse 当前策略如下：
+
+| 场景 | GeneratedKeyStrategy |
+| --- | --- |
+| 无回填列 | `JdbcBatch` |
+| `Into` + 有回填列 | `OneByOne` |
+| `Ignore` + 有回填列 | `OneByOne` |
+| `Update` + 有回填列 | `OneByOne` |
+
+ClickHouse 方言只支持 `DuplicateKeyStrategy.Into`。`Ignore` / `Update` 不属于当前 ClickHouse 方言目标，不应按传统 OLTP 数据库的重复键策略使用。
+
+## 设计原则
+
+- 主键值优先由应用侧生成并随 INSERT 一起写入。
+- 不使用 `KeyType.Auto` 期待 ClickHouse 返回 generated keys。
+- 不使用 `KeyType.Sequence`，ClickHouse 方言不提供 sequence 能力。
+- 通用说明见 [Generated Keys](../../guides/core/mapper/annotation_insert#generated-keys)。

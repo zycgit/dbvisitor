@@ -1,0 +1,54 @@
+---
+id: annotation_query
+sidebar_position: 3
+title: "@Query"
+description: The Query annotation marks an interface method to execute a query that can return a result set.
+---
+
+import TagRed from '@site/src/components/tags/TagRed';
+import TagGray from '@site/src/components/tags/TagGray';
+
+# @Query Annotation
+
+Marks an interface method to execute a query that can return a result set.
+
+:::info
+`value` supports string arrays. Elements are joined with spaces, convenient for multi-line writing.
+:::
+
+```java title='Example: query a user list'
+@SimpleMapper
+public interface UserMapper {
+    @Query("select * from users where id > #{id}")
+    List<User> listUsers(@Param("id") long searchId);
+}
+```
+
+## Pagination Query
+
+Add a `Page` parameter to the method arguments for pagination:
+
+```java
+// Return List
+@Query("select * from users where id > #{id}")
+List<User> listUsers(@Param("id") long searchId, Page page);
+
+// Return PageResult (includes total count and total pages)
+@Query("select * from users where id > #{id}")
+PageResult<User> listUsers(@Param("id") long searchId, Page page);
+```
+
+## Properties
+
+| Property | Description |
+|---|---|
+| value | <TagRed/> The query statement to be executed. |
+| statementType | <TagGray/> JDBC query mode. Default `Prepared`<br/> - `Statement` → `java.sql.Statement`<br/> - `Prepared` → `java.sql.PreparedStatement`<br/> - `Callable` → `java.sql.CallableStatement` |
+| timeout | <TagGray/> Query timeout in seconds, calls `Statement.setQueryTimeout(int)`. Default `-1` |
+| fetchSize | <TagGray/> Rows to fetch at a time, calls `Statement.setFetchSize(int)`. Default `256` |
+| resultSetType | <TagGray/> Result set type: `FORWARD_ONLY`, `SCROLL_INSENSITIVE`, `SCROLL_SENSITIVE`, `DEFAULT` (default) |
+| resultSetExtractor | <TagGray/> Configure a [ResultSetExtractor](../../result/for_extractor) for result set processing (ignored when `bindOut` is set) |
+| resultRowCallback | <TagGray/> Configure a [RowCallbackHandler](../../result/row_callback) for result set processing (ignored when `bindOut` is set) |
+| resultRowMapper | <TagGray/> Configure a [RowMapper](../../result/for_mapper) for result set processing (ignored when `bindOut` is set) |
+| resultTypeHandler | <TagGray/> Configure a [TypeHandler](../../types/about) for result set processing (ignored when `bindOut` is set) |
+| bindOut | <TagGray/> Bind output parameters, for use with stored procedures or multiple result sets. When set, the return type must be `Map<String,Object>` |

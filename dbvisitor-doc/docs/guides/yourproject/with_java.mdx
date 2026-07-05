@@ -11,6 +11,8 @@ export const Highlight = ({children, color}) => (
   <span style={{ backgroundColor: color, borderRadius: '2px', color: '#fff', padding: '0.2rem', }}>{children}</span>
 );
 
+# 3.2 普通项目
+
 普通 Java 项目是指不使用任何框架或容器的 Java 项目，它通常是一个简单的 Java 应用程序。
 
 :::tip[提示]
@@ -33,9 +35,20 @@ dbvisitor 也可以很好的和任何 Java 项目整合使用，包括 Spring Bo
 
 在普通项目中使用 dbVisitor 只需要项目中可以提供 DataSource 或者 Connection 即可开始使用。
 
+```java title='创建常用入口'
+DataSource dataSource = ...;
+
+JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+
+Configuration config = new Configuration();
+Session session = config.newSession(dataSource);
+
+LambdaTemplate lambda = new LambdaTemplate(dataSource);
+```
+
 dbVisitor 的 API 提供分为以下几种：
-- dbVisitor 支持通过原始 SQL 方式利用 [编程式 API](../api/program_api) 来访问数据库。
-- dbVisitor 支持在接口上通过注解标记以 [声明式 API](../api/declarative_api) 方式来访问数据库。
-- dbVisitor 支持通过 [构造器](../api/lambda_api) 方式用同一种 API 来访问所有框架支持的数据库。
-- dbVisitor 支持通过 [BaseMapper](../api/base_mapper) 中预定的方法对数据库进行常规操作，从而简化应用。
-- dbVisitor 支持使用 [使用 Mapper XML](../api/file_mapper) 文件配置统一管理 SQL 语句。
+- dbVisitor 支持通过原始 SQL 方式利用 [编程式 API](../api/jdbc) 来访问数据库。
+- dbVisitor 支持通过 [Mapper API](../api/mapper) 用 Java 接口组织数据访问层。
+- dbVisitor 支持通过 [构造器 API](../api/lambda) 方式用同一种 API 来访问所有框架支持的数据库。
+- dbVisitor 支持通过 [Mapper API](../api/mapper) 用 Java 接口组织数据访问层（含 BaseMapper 通用 CRUD）。
+- dbVisitor 支持使用 [文件 Mapper](../api/file_mapper) 统一管理 SQL 语句。

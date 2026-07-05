@@ -1,0 +1,38 @@
+---
+id: annotation_update
+sidebar_position: 5
+title: "@Update"
+description: Update 注解用来标记在接口方法上，执行 UPDATE 语句。
+---
+
+import TagRed from '@site/src/components/tags/TagRed';
+import TagGray from '@site/src/components/tags/TagGray';
+
+# @Update 注解
+
+用来标记在接口方法上，执行 UPDATE 语句。
+
+:::info
+`value` 支持字符串数组，元素以空格连接，方便多行书写。
+:::
+
+```java title='示例：根据 id 更新 name'
+@SimpleMapper
+public interface UserMapper {
+    @Update({"update users",
+             "set name = #{newName}",
+             "where id = #{userId}"})
+    int updateUserName(
+            @Param("userId") int userId,
+            @Param("newName") String newName
+    );
+}
+```
+
+## 属性清单
+
+| 属性名 | 描述 |
+|---|---|
+| value | <TagRed/> 将要被执行的 UPDATE 语句。 |
+| statementType | <TagGray/> JDBC 执行方式。默认 `Prepared`<br/> - `Statement` → `java.sql.Statement`<br/> - `Prepared` → `java.sql.PreparedStatement`<br/> - `Callable` → `java.sql.CallableStatement` |
+| timeout | <TagGray/> 执行超时秒数。默认 `-1` |

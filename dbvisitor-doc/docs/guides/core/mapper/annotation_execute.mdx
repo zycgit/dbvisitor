@@ -1,0 +1,39 @@
+---
+id: annotation_execute
+sidebar_position: 7
+title: "@Execute"
+description: Execute 注解用来标记在接口方法上，执行任意 SQL 语句（DML/DDL 均可）。
+---
+
+import TagRed from '@site/src/components/tags/TagRed';
+import TagGray from '@site/src/components/tags/TagGray';
+
+# @Execute 注解
+
+用来标记在接口方法上，执行任意 SQL 语句（DML/DDL 均可）。
+
+:::info
+`value` 支持字符串数组，元素以空格连接，方便多行书写。
+:::
+
+```java title='示例：创建分表'
+@SimpleMapper
+public interface UserMapper {
+    @Execute({"create table users_${part} (",
+              "   id   int primary key,",
+              "   name varchar(50)",
+              ")"})
+    int newPartTable(@Param("part") int partId);
+}
+```
+
+`${part}` 采用字符串替换（注意 SQL 注入风险）。
+
+## 属性清单
+
+| 属性名 | 描述 |
+|---|---|
+| value | <TagRed/> 将要被执行的 SQL 语句。 |
+| statementType | <TagGray/> JDBC 执行方式。默认 `Prepared`<br/> - `Statement` → `java.sql.Statement`<br/> - `Prepared` → `java.sql.PreparedStatement`<br/> - `Callable` → `java.sql.CallableStatement` |
+| timeout | <TagGray/> 执行超时秒数。默认 `-1` |
+| bindOut | <TagGray/> 绑定输出参数，配合存储过程或多结果集。此时返回值须为 `Map<String,Object>` |

@@ -6,6 +6,8 @@ title: 类型处理器
 description: 类型处理器用于在 Java 类型与数据库字段类型之间进行转换读写，例如使用 String 读写 VARCHAR 类型数据。
 ---
 
+# 类型处理器
+
 类型处理器（TypeHandler）用于在 Java 类型与数据库字段类型之间进行转换读写，例如：使用 `String` 读写数据库 `VARCHAR` 类型数据。
 
 通过类型处理器可以有效解决数据库一些特殊类型的读写处理，如：[地理信息类型](./gis-handler)、货币类型、时区时间、[枚举](./enum-handler)、[序列化](./json-serialization)。

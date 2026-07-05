@@ -48,3 +48,24 @@ List<Map<String, Object>> result = lambda.query(User.class)
 | `linkedmap` | LinkedHashMap | 保持插入顺序，列名大小写敏感 |
 | `caseinsensitivemap` | LinkedCaseInsensitiveMap | 列名大小写不敏感 |
 :::
+
+## 列名大小写敏感
+
+不同数据库返回的列名大小写可能不同。例如 Oracle 常见返回大写列名，MySQL 常见返回小写列名。为了让 `row.get("id")`、`row.get("ID")` 都能工作，dbVisitor 默认使用大小写不敏感的 Map。
+
+```java title='默认：列名大小写不敏感'
+List<Map<String, Object>> rows = jdbc.queryForList("select * from users");
+Object id = rows.get(0).get("id");
+Object sameId = rows.get(0).get("ID");
+```
+
+如果希望严格保留数据库返回的列名大小写，可以关闭该行为。
+
+```java title='严格区分大小写'
+JdbcTemplate jdbc = ...;
+jdbc.setResultsCaseInsensitive(false);
+
+List<Map<String, Object>> rows = jdbc.queryForList("select * from users");
+```
+
+关闭后会使用 `LinkedHashMap` 保存结果，列名 key 将严格区分大小写。

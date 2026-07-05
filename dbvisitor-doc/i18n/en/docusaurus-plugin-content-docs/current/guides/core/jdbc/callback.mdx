@@ -1,0 +1,83 @@
+---
+id: callback
+sidebar_position: 8
+title: Template Methods
+description: Learn the template-style APIs provided by JdbcTemplate.
+---
+import TOCInline from '@theme/TOCInline';
+
+# Template Methods
+
+dbVisitor supports the following template method usage patterns:
+
+<TOCInline toc={toc} />
+
+## Get a Connection {#conn}
+
+`ConnectionCallback` gives you direct access to `java.sql.Connection`. JdbcTemplate acquires/releases the connection and handles exceptions.
+
+```java
+T resultList = jdbcTemplate.execute((ConnectionCallback<T>) con -> {
+    return ...;
+});
+```
+
+## Get a Statement {#stmt}
+
+`StatementCallback` exposes `java.sql.Statement`. JdbcTemplate manages connection acquisition, statement creation/closure, and exception handling.
+
+```java
+T resultList = jdbcTemplate.execute((StatementCallback<T>) stmt -> {
+    return ...;
+});
+```
+
+## Custom PreparedStatement Setup {#psset}
+
+Template methods let you customize `PreparedStatement` creation.
+
+- Set arguments, read results via _**[ResultSetExtractor](../../result/for_extractor)**_
+    ```java
+    T result = jdbc.executeCreator(con -> {
+        PreparedStatement ps = con.prepareStatement("select * from users where id > ?");
+        ps.setString(1, "Bob");
+        return ps;
+    }, (ResultSetExtractor) rs -> {
+        return ...;
+    });
+    ```
+- Set arguments, read results via _**[RowMapper](../../result/for_mapper)**_
+    ```java
+    List<User> result = jdbc.executeCreator(con -> {
+        PreparedStatement ps = con.prepareStatement("select * from users where id > ?");
+        ps.setString(1, "Bob");
+        return ps;
+    }, (RowMapper<User>) (rs, rowNum) -> {
+        return ...;
+    });
+    ```
+- Set arguments, process rows via _**[RowCallbackHandler](../../result/row_callback)**_
+    ```java
+    jdbc.executeCreator(con -> {
+        PreparedStatement ps = con.prepareStatement("select * from users where id > ?");
+        ps.setString(1, "Bob");
+        return ps;
+    }, (RowCallbackHandler) (rs, rowNum) -> {
+        // process one row
+    });
+    ```
+
+## Call Stored Procedures {#call}
+
+```java
+List<Object> objectMap = new JdbcTemplate(conn).call("{call proc_select_table(?,?)}", cs -> {
+    cs.setString(1, "dative");
+    cs.registerOutParameter(2, Types.VARCHAR);
+}, cs -> {
+    // Receive all results using MultipleResultSetExtractor
+    List<Object> objects = new MultipleResultSetExtractor().doInCallableStatement(cs);
+    // Get output parameter
+    objects.add(cs.getString(2));
+    return objects;
+});
+```

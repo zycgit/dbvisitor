@@ -1,0 +1,34 @@
+---
+id: annotation_delete
+sidebar_position: 6
+title: "@Delete"
+description: Delete 注解用来标记在接口方法上，执行 DELETE 语句。
+---
+
+import TagRed from '@site/src/components/tags/TagRed';
+import TagGray from '@site/src/components/tags/TagGray';
+
+# @Delete 注解
+
+用来标记在接口方法上，执行 DELETE 语句。
+
+:::info
+`value` 支持字符串数组，元素以空格连接，方便多行书写。
+:::
+
+```java title='示例：根据 id 删除用户'
+@SimpleMapper
+public interface UserMapper {
+    @Delete({"delete from users ",
+             "where id = #{userId}"})
+    int deleteUserById(@Param("userId") int userId);
+}
+```
+
+## 属性清单
+
+| 属性名 | 描述 |
+|---|---|
+| value | <TagRed/> 将要被执行的 DELETE 语句。 |
+| statementType | <TagGray/> JDBC 执行方式。默认 `Prepared`<br/> - `Statement` → `java.sql.Statement`<br/> - `Prepared` → `java.sql.PreparedStatement`<br/> - `Callable` → `java.sql.CallableStatement` |
+| timeout | <TagGray/> 执行超时秒数。默认 `-1` |

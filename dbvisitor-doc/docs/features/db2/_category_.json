@@ -1,0 +1,8 @@
+{
+  "label": "DB2",
+  "position": 50,
+  "link": {
+    "type": "doc",
+    "id": "features/db2/about"
+  }
+}

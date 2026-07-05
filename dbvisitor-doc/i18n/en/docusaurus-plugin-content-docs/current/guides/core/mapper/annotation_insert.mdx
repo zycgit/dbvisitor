@@ -1,0 +1,78 @@
+---
+id: annotation_insert
+sidebar_position: 4
+title: "@Insert"
+description: The Insert annotation marks an interface method to execute an INSERT statement, with support for auto-generated key write-back.
+---
+
+import TagRed from '@site/src/components/tags/TagRed';
+import TagGray from '@site/src/components/tags/TagGray';
+
+# @Insert Annotation
+
+Marks an interface method to execute an INSERT statement.
+
+:::info
+`value` supports string arrays. Elements are joined with spaces, convenient for multi-line writing.
+:::
+
+```java title='Example: insert a user record'
+@SimpleMapper
+public interface UserMapper {
+    @Insert({"insert into users (",
+             "    id, name, age, create_time",
+             ") values (",
+             "    #{id}, #{name}, #{age}, #{createTime}",
+             ")"})
+    int saveUser(UserDTO user);
+}
+```
+
+## Properties
+
+| Property | Description |
+|---|---|
+| value | <TagRed/> The INSERT statement to be executed. |
+| statementType | <TagGray/> JDBC execution mode. Default `Prepared`<br/> - `Statement` → `java.sql.Statement`<br/> - `Prepared` → `java.sql.PreparedStatement`<br/> - `Callable` → `java.sql.CallableStatement` |
+| timeout | <TagGray/> Execution timeout in seconds. Default `-1` |
+| useGeneratedKeys | <TagGray/> Whether to use auto-generated keys. If `@SelectKeySql` is also configured, this is ignored. |
+| keyProperty | <TagGray/> When `useGeneratedKeys=true`, the Bean property name to receive the generated key. Ignored if `@SelectKeySql` is configured. |
+| keyColumn | <TagGray/> When `useGeneratedKeys=true`, the column name to read from the returned results. Defaults to the first column. Ignored if `@SelectKeySql` is configured. |
+
+## Generated Keys {#generated-keys}
+
+After inserting data, you often need to write the database-generated primary key back into the parameter object. dbVisitor exposes three configuration categories:
+
+- `useGeneratedKeys`: use JDBC generated keys.
+- `keyProperty` / `keyColumn`: declare which Bean property to write back to, and which column to read from the returned results.
+- `selectKey` / `@SelectKeySql`: execute additional SQL before or after INSERT to obtain the primary key.
+
+The most common approach is `useGeneratedKeys`, which reads the primary key returned by the database or driver via JDBC's `Statement#getGeneratedKeys()`. Driver support for `keyColumn` is not fully consistent across databases: some drivers return by business column name, while others only reliably support reading by column index.
+
+When database generated key behavior is unreliable, or when business logic requires generating the primary key before INSERT, use `@SelectKeySql`. Primary key return mechanisms vary significantly across databases; see [Database Features](../../../features/overview) for details.
+
+## @SelectKeySql Annotation {#selectkey}
+
+Executes additional SQL before or after INSERT to obtain the primary key and **write it back to the parameter object**. Must be used together with `@Insert`.
+
+```java title='Example: get auto-increment ID via last_insert_id() after INSERT'
+@Insert({"insert into users (name, age, create_time)",
+         "values (#{name}, #{age}, #{createTime})"})
+@SelectKeySql(value = "select last_insert_id()", keyProperty = "id", order = Order.After)
+int saveUser(UserDTO user);
+
+UserDTO user = ...;
+mapper.saveUser(user);
+long newId = user.getId(); // Auto-increment ID has been written back
+```
+
+| Property | Description |
+|---|---|
+| value | <TagRed/> The SQL query to obtain the primary key. |
+| keyProperty | <TagRed/> The Bean property name to receive the primary key value. |
+| order | <TagRed/> Execution timing: `Before` (before INSERT, suitable for sequences) or `After` (after INSERT, suitable for auto-increment IDs). |
+| keyColumn | <TagGray/> The column name to read from the query result. Defaults to the first column. |
+| statementType | <TagGray/> JDBC execution mode. Default `Prepared` |
+| timeout | <TagGray/> Execution timeout in seconds. Default `-1` |
+| fetchSize | <TagGray/> Rows to fetch at a time. Default `256` |
+| resultSetType | <TagGray/> Result set type: `FORWARD_ONLY`, `SCROLL_INSENSITIVE`, `SCROLL_SENSITIVE`, `DEFAULT` |

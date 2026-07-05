@@ -1,7 +1,6 @@
 ---
 id: execute
 sidebar_position: 7
-hide_table_of_contents: true
 title: 脚本
 description: 利用 JdbcTemplate 的 execute 方法，可以执行任意 SQL 语句。
 ---
@@ -11,7 +10,7 @@ description: 利用 JdbcTemplate 的 execute 方法，可以执行任意 SQL 语
 利用 JdbcTemplate 的 execute 方法，可以执行任意 SQL 语句。
 
 :::warning
-本文所涉及的方法均不支持任何形式的传参。
+脚本执行方法不支持任何形式的传参。
 :::
 
 ## 用法

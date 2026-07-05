@@ -1,0 +1,49 @@
+---
+id: annotation_call
+sidebar_position: 8
+title: "@Call"
+description: Call 注解用来标记在接口方法上，执行存储过程调用。
+---
+
+import TagRed from '@site/src/components/tags/TagRed';
+import TagGray from '@site/src/components/tags/TagGray';
+
+# @Call 注解
+
+用来标记在接口方法上，执行存储过程调用。
+
+:::info
+`@Call` 隐含使用 `CallableStatement`，无 `statementType` 属性。`value` 支持字符串数组。
+:::
+
+```java title='示例'
+@SimpleMapper
+public interface UserMapper {
+    // 输入输出参数
+    @Call("{call proc_select_user(#{abc, mode=inout, jdbcType=decimal})}")
+    Map<String, Object> callSelectUser1(@Param("abc") int argAbc);
+
+    // 仅输出参数
+    @Call("{call proc_select_user(#{abc, mode=out, jdbcType=decimal})}")
+    Map<String, Object> callSelectUser2();
+}
+
+UserMapper mapper = ...;
+Map<String, Object> res1 = mapper.callSelectUser1(23);
+res1.get("abc"); // 获取 inout 参数
+
+Map<String, Object> res2 = mapper.callSelectUser2();
+res2.get("abc"); // 获取 out 参数
+```
+
+- 入参通过方法参数传递，出参和结果集通过返回值 `Map` 接收
+- 返回值须为 `Map<String, Object>`
+- SQL 写法详见 [存储过程调用](../jdbc/procedure)
+
+## 属性清单
+
+| 属性名 | 描述 |
+|---|---|
+| value | <TagRed/> 存储过程调用语句。 |
+| timeout | <TagGray/> 执行超时秒数。默认 `-1` |
+| bindOut | <TagGray/> 过滤输出参数，只接收指定名称的参数。不指定则接收全部 |

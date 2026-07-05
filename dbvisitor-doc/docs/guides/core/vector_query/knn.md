@@ -1,0 +1,126 @@
+---
+id: knn
+sidebar_position: 3
+title: KNN 近邻排序
+description: 使用 orderByL2、orderByCosine、orderByIP 和 orderByMetric 查询最相似的 N 条记录。
+---
+
+# KNN 近邻排序
+
+KNN 近邻排序用于“找最相似的 N 条记录”。dbVisitor 使用 `orderBy*` 生成向量距离排序，通常配合 `initPage` 限制返回数量。
+
+## 适合场景
+
+- 搜索语义最接近的 N 篇文章、商品、图片或知识片段。
+- 返回数量固定，例如 Top 5、Top 10。
+- 需要普通字段先过滤候选集，再按向量距离排序。
+
+## 不适合场景
+
+- 需要返回所有距离小于阈值的记录；应使用 [距离范围过滤](./range)。
+- 需要按多个检索分数进行复杂重排；可使用 [编程式 API](../jdbc/about) 编写完整 SQL。
+- 数据源不支持向量排序 SQL。
+
+## KNN 查询模式
+
+```text title='KNN 查询'
+全部记录或候选记录
+        |
+        | 计算 embedding 与查询向量的距离
+        v
+按距离升序排序
+        |
+        | initPage(N, 0)
+        v
+返回最相似的 N 条
+```
+
+`orderBy*` 位于 SQL 的 `ORDER BY` 部分。它不决定候选记录范围，候选范围由普通 `WHERE` 条件决定。
+
+## 构造查询向量
+
+`orderBy*` 的向量参数直接进入 SQL 参数绑定，需要传入数据库能识别的向量类型。pgvector 可使用 `PGobject`。
+
+```java title='pgvector 查询参数'
+PGobject target = new PGobject();
+target.setType("vector");
+target.setValue("[0.1,0.2,0.3]");
+```
+
+## 查询最近的 N 条
+
+```java title='Top-K 查询'
+List<ProductVector> rows = lambda.query(ProductVector.class)
+        .orderByL2(ProductVector::getEmbedding, target)
+        .initPage(5, 0)
+        .queryForList();
+```
+
+pgvector 下生成的 SQL 形态类似：
+
+```sql
+SELECT * FROM product_vector
+ORDER BY embedding <-> ? ASC
+LIMIT 5
+```
+
+`initPage(5, 0)` 表示只取前 5 条结果。没有分页限制时，数据库会按向量距离排序全部匹配记录。
+
+## 选择距离度量
+
+| 目标 | 方法 | 说明 |
+| --- | --- | --- |
+| L2 欧氏距离 | `orderByL2` | 通用近邻搜索。 |
+| Cosine 余弦距离 | `orderByCosine` | 常用于文本语义向量。 |
+| IP 内积距离 | `orderByIP` | 常用于推荐和排序场景。 |
+| 动态选择度量 | `orderByMetric` | 度量方式来自配置或运行时参数。 |
+
+```java title='按配置选择度量'
+MetricType metric = MetricType.COSINE;
+
+List<ProductVector> rows = lambda.query(ProductVector.class)
+        .orderByMetric(metric, ProductVector::getEmbedding, target)
+        .initPage(10, 0)
+        .queryForList();
+```
+
+:::info[内积距离]
+pgvector 的 `<#>` 运算符返回负内积。使用 `orderByIP` 升序排序时，内积更大的记录会排在前面。
+:::
+
+## 和普通条件组合
+
+KNN 查询经常先用业务字段缩小候选集，再进行向量排序。
+
+```java title='分类内 Top-K'
+List<ProductVector> rows = lambda.query(ProductVector.class)
+        .eq(ProductVector::getCategory, "book")
+        .orderByCosine(ProductVector::getEmbedding, target)
+        .initPage(10, 0)
+        .queryForList();
+```
+
+SQL 形态类似：
+
+```sql
+SELECT * FROM product_vector
+WHERE category = ?
+ORDER BY embedding <=> ? ASC
+LIMIT 10
+```
+
+## 常见问题
+
+### 为什么 orderBy 参数不能直接传 List
+
+`orderBy*` 的向量参数直接作为排序表达式的参数进入 SQL。部分驱动无法从 `List<Float>` 推断数据库向量类型，因此 PostgreSQL pgvector 场景中推荐传入 `PGobject` 或驱动支持的向量对象。
+
+### 什么时候需要 initPage
+
+KNN 的目标通常是固定数量的近邻结果。没有 `initPage` 时，查询会返回所有匹配记录并按距离排序，这通常不是语义检索期望的结果。
+
+## 深入阅读
+
+- [向量类型映射](./mapping) — 向量字段和 TypeHandler 准备。
+- [组合查询](./combined) — 普通字段条件与向量排序组合。
+- [构造器 API 查询](../lambda/query) — LambdaTemplate 查询基础。

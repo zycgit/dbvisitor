@@ -1,14 +1,24 @@
 ---
 id: about
 sidebar_position: 1
-hide_table_of_contents: true
-title: JdbcTemplate 类
+title: 5.1 编程式 API
 description: 基于 SQL 字符串的数据库操作封装，自动处理连接管理和异常处理。
 ---
 
-# JdbcTemplate
+# 5.1 编程式 API
 
 `JdbcTemplate` 是 dbVisitor 专门为 **SQL 字符串** 场景设计的数据库操作封装。它是无状态的，可随时创建和销毁。
+
+## 先看场景
+
+| 你的目标 | 推荐入口 |
+| --- | --- |
+| 已经有 SQL，直接执行查询 | [查询](./query) |
+| 执行 INSERT、UPDATE、DELETE 或 DDL | [更新](./update) |
+| 一次提交多组参数或多条 SQL | [批量化](./batch) |
+| 调用存储过程/函数 | [存储过程调用](./procedure) |
+| SQL 会产生多个结果集 | [多结果](./multiple_results) |
+| 想直接控制 Connection/Statement | [回调方法](./callback) |
 
 ```java title='创建和使用'
 JdbcTemplate jdbc = new JdbcTemplate(dataSource);
@@ -41,9 +51,9 @@ T result = jdbc.execute((ConnectionCallback<T>) con -> {
 - [批量化](./batch)，执行批量操作。
 - [存储过程](./procedure)，调用存储过程/存储函数。
 - [规则](../../rules/about)，通过规则赋予 SQL 动态能力。
-- [多值](./multi)，执行多条语句的 SQL 并获取所有结果。
+- [多值](./multiple_results)，执行多条语句的 SQL 并获取所有结果。
 - [脚本](./execute)，执行 SQL 脚本文件或多条语句。
-- [使用模板](./template)，通过模板方法直接操作 Connection。
-- [高级特性](./feature)，JdbcTemplate 特有属性与功能。
+- [使用模板](./callback)，通过模板方法直接操作 Connection。
+- [高级特性](./options)，JdbcTemplate 特有属性与功能。
 - [参数传递](../../args/about)，了解不同的参数传递方式。
 - [接收结果](../../result/about)，了解不同的结果接收方式。

@@ -1,0 +1,78 @@
+---
+id: annotation_insert
+sidebar_position: 4
+title: "@Insert"
+description: Insert 注解用来标记在接口方法上，执行 INSERT 语句，支持自增主键回填。
+---
+
+import TagRed from '@site/src/components/tags/TagRed';
+import TagGray from '@site/src/components/tags/TagGray';
+
+# @Insert 注解
+
+用来标记在接口方法上，执行 INSERT 语句。
+
+:::info
+`value` 支持字符串数组，元素以空格连接，方便多行书写。
+:::
+
+```java title='示例：新增一条用户记录'
+@SimpleMapper
+public interface UserMapper {
+    @Insert({"insert into users (",
+             "    id, name, age, create_time",
+             ") values (",
+             "    #{id}, #{name}, #{age}, #{createTime}",
+             ")"})
+    int saveUser(UserDTO user);
+}
+```
+
+## 属性清单
+
+| 属性名 | 描述 |
+|---|---|
+| value | <TagRed/> 将要被执行的 INSERT 语句。 |
+| statementType | <TagGray/> JDBC 执行方式。默认 `Prepared`<br/> - `Statement` → `java.sql.Statement`<br/> - `Prepared` → `java.sql.PreparedStatement`<br/> - `Callable` → `java.sql.CallableStatement` |
+| timeout | <TagGray/> 执行超时秒数。默认 `-1` |
+| useGeneratedKeys | <TagGray/> 是否使用自增主键。若同时配置 `@SelectKeySql` 则失效 |
+| keyProperty | <TagGray/> `useGeneratedKeys=true` 时，回填主键的 Bean 属性名。同时配置 `@SelectKeySql` 则失效 |
+| keyColumn | <TagGray/> `useGeneratedKeys=true` 时，从返回结果中选择的列名。默认第一列。同时配置 `@SelectKeySql` 则失效 |
+
+## 自增主键回填 {#generated-keys}
+
+新增数据后经常需要把数据库生成的主键回填到参数对象中。dbVisitor 主要暴露三类配置：
+
+- `useGeneratedKeys`：使用 JDBC generated keys。
+- `keyProperty` / `keyColumn`：声明回填到哪个 Bean 属性，以及从返回结果中读取哪一列。
+- `selectKey` / `@SelectKeySql`：在 INSERT 前后执行额外 SQL 获取主键。
+
+最常见的方式是 `useGeneratedKeys`，通过 JDBC 的 `Statement#getGeneratedKeys()` 读取数据库或驱动返回的主键。不同数据库和驱动对 `keyColumn` 的支持并不完全一致：有些驱动会按业务列名返回，有些驱动只稳定支持按列序号读取。
+
+当数据库 generated keys 行为不稳定，或业务希望在 INSERT 前生成主键时，可以使用 `@SelectKeySql`。不同数据库的主键返回方式差异较大，详见 [数据源特性](../../../features/overview)。
+
+## @SelectKeySql 注解 {#selectkey}
+
+在 INSERT 前后执行额外 SQL 获取主键，**回填到参数对象**中。需与 `@Insert` 配合使用。
+
+```java title='示例：INSERT 后通过 last_insert_id() 获取自增 ID'
+@Insert({"insert into users (name, age, create_time)",
+         "values (#{name}, #{age}, #{createTime})"})
+@SelectKeySql(value = "select last_insert_id()", keyProperty = "id", order = Order.After)
+int saveUser(UserDTO user);
+
+UserDTO user = ...;
+mapper.saveUser(user);
+long newId = user.getId(); // 自增 ID 已回填
+```
+
+| 属性名 | 描述 |
+|---|---|
+| value | <TagRed/> 获取主键的 SQL 查询语句。 |
+| keyProperty | <TagRed/> 回填主键值的 Bean 属性名。 |
+| order | <TagRed/> 执行时机：`Before`（INSERT 前，适合 sequence）或 `After`（INSERT 后，适合自增 ID）。 |
+| keyColumn | <TagGray/> 从查询结果中选择的列名。默认第一列。 |
+| statementType | <TagGray/> JDBC 执行方式。默认 `Prepared` |
+| timeout | <TagGray/> 执行超时秒数。默认 `-1` |
+| fetchSize | <TagGray/> 每次获取行数。默认 `256` |
+| resultSetType | <TagGray/> 结果集类型：`FORWARD_ONLY`、`SCROLL_INSENSITIVE`、`SCROLL_SENSITIVE`、`DEFAULT` |

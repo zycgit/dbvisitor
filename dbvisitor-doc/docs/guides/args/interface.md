@@ -75,7 +75,7 @@ jdbcTemplate.queryForList(sql, new PreparedStatementSetter() {
 
 ## @Param 注解 {#param}
 
-在声明式 API（[方法注解](../core/annotation/about)）中，通过 `@Param` 注解为方法参数指定名称，使其可以在 SQL 中通过名称引用。
+在声明式 API（[方法注解](../core/mapper/about)）中，通过 `@Param` 注解为方法参数指定名称，使其可以在 SQL 中通过名称引用。
 
 ```java title='例1：使用 @Param 命名参数'
 @Query("select * from users where id > #{id} and name = #{name}")

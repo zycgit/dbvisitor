@@ -1,0 +1,34 @@
+---
+id: annotation_delete
+sidebar_position: 6
+title: "@Delete"
+description: The Delete annotation marks an interface method to execute a DELETE statement.
+---
+
+import TagRed from '@site/src/components/tags/TagRed';
+import TagGray from '@site/src/components/tags/TagGray';
+
+# @Delete Annotation
+
+Marks an interface method to execute a DELETE statement.
+
+:::info
+`value` supports string arrays. Elements are joined with spaces, convenient for multi-line writing.
+:::
+
+```java title='Example: delete a user by id'
+@SimpleMapper
+public interface UserMapper {
+    @Delete({"delete from users ",
+             "where id = #{userId}"})
+    int deleteUserById(@Param("userId") int userId);
+}
+```
+
+## Properties
+
+| Property | Description |
+|---|---|
+| value | <TagRed/> The DELETE statement to be executed. |
+| statementType | <TagGray/> JDBC execution mode. Default `Prepared`<br/> - `Statement` → `java.sql.Statement`<br/> - `Prepared` → `java.sql.PreparedStatement`<br/> - `Callable` → `java.sql.CallableStatement` |
+| timeout | <TagGray/> Execution timeout in seconds. Default `-1` |

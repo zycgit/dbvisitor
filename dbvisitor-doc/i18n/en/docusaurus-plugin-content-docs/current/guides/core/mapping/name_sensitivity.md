@@ -1,0 +1,54 @@
+---
+id: name_sensitivity
+sidebar_position: 4
+title: Name Sensitivity
+description: Handle case sensitivity and reserved identifiers when mapping with dbVisitor ORM.
+---
+
+# Name Sensitivity
+
+Some databases treat `users` and `USERS` as different tables. Use `caseInsensitive` or `useDelimited` to handle these cases in dbVisitor.
+
+## Case sensitivity
+
+If your database allows multiple columns that differ only by case, enable case sensitivity on result sets; otherwise they collapse into one.
+
+```sql
+select 
+    AGE, -- col 1, uppercase name
+    age  -- col 2, lowercase name
+from Users;
+```
+
+```java
+@Table(caseInsensitive = false)
+public class Users {
+    @Column("age")
+    private Integer age1; // Maps to column age
+    @Column("AGE")
+    private String  age2; // Maps to column AGE
+    ...
+}
+```
+
+## Reserved words
+
+Set `useDelimited` to add delimiters when the [Fluent API](../../core/lambda/about) generates SQL, avoiding conflicts with reserved words.
+
+```java
+@Table(useDelimited = true)
+public class Users {
+    ...
+    private Integer index;// Maps to column index; reserved in MySQL
+    ...
+}
+```
+
+dbVisitor already handles many database keywords automatically and will add delimiters when detected.
+
+You can extend the keyword list by adding `/META-INF/custom.keywords` to the classpath, one keyword per line. dbVisitor loads them at startup.
+
+:::tip[Supported databases]
+- IBM DB2, Derby, DM, H2, Hive, HSQL, Impala, Informix, MySQL, Oracle, PostgreSQL, SQLite, SQL Server, Xugu
+- Keywords live in `META-INF/db-keywords/*.keywords`.
+:::

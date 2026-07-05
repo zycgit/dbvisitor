@@ -1,7 +1,6 @@
 ---
 id: query
-sidebar_position: 4
-hide_table_of_contents: true
+sidebar_position: 5
 title: 查询操作
 description: 在 dbVisitor 中使用 LambdaTemplate 查询数据可以有多种方式获取返回结果。
 ---
@@ -16,7 +15,7 @@ description: 在 dbVisitor 中使用 LambdaTemplate 查询数据可以有多种�
 - [分页查询](./query#page)，使用分页查询机制进行分页查询。
 
 :::info[提示]
-查询操作中涉及查询条件相关内容请参考 **[条件构造器](./where-builder)**。
+查询操作中涉及查询条件相关内容请参考 **[条件构造器](./where_builder)**。
 :::
 
 ## 查询列表 {#list}
@@ -186,7 +185,7 @@ result = lambda.query(User.class)
 ## 分页查询 {#page}
 
 :::info[提示]
-分页查询需要依赖数据库方言的支持，在 **[数据库支持性](../../api/differences/about#dialect)** 中已列出 dbVisitor 所支持的数据库。
+分页查询需要依赖数据库方言的支持，在 **[数据库支持性](../../../features/support#dialect)** 中已列出 dbVisitor 所支持的数据库。
 :::
 
 dbVisitor 内置了分页查询机制，使用方便且无需任何配置。具体工作方式为：
@@ -218,5 +217,5 @@ result = lambda.query(User.class)
                .queryForList();      // 分页查询
 ```
 
-- 分页对象提供了诸多方法可用，详细请参考 [分页对象](../../api/page_object) 了解更多内容。
-- 本页前面 [查询列表](./query#list) 和 [处理查询结果](./query#process) 内容中所提到的结果集获取方式，可以和分页相互配合使用。
+- 分页对象提供了诸多方法可用，详细请参考 [分页对象](../../result/page_object) 了解更多内容。
+- [查询列表](./query#list) 和 [处理查询结果](./query#process) 中的结果集获取方式，可以和分页相互配合使用。

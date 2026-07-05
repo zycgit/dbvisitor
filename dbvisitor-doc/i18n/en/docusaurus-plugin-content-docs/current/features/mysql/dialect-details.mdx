@@ -1,0 +1,70 @@
+---
+id: dialect-details
+sidebar_position: 2
+hide_table_of_contents: true
+title: Dialect Details
+description: Low-level behavioral details of MySQL dialect including pagination, conflict strategies, and identifier quoting.
+---
+
+# MySQL Dialect Details
+
+## Pagination SQL
+
+MySQL dialect uses `LIMIT` / `OFFSET` syntax, omitting `OFFSET` when offset is 0:
+
+```sql
+-- offset=1, limit=3
+SELECT ... LIMIT ?, ?
+
+-- offset=0, limit=3 (OFFSET omitted)
+SELECT ... LIMIT ?
+```
+
+Parameter order: `LIMIT offset, limit` (note: MySQL's LIMIT syntax is `LIMIT offset, count`, not `LIMIT count OFFSET offset`).
+
+## Count SQL
+
+```sql
+SELECT COUNT(*) FROM (original query) as TEMP_T
+```
+
+## Identifier Quoting
+
+Uses backticks `` ` ``:
+
+```sql
+SELECT * FROM `users` WHERE `name` = ?
+```
+
+Multi-level references automatically add schema prefix: `` \`db\`.\`users\` ``
+
+## LIKE Syntax
+
+| LIKE Type | Generated SQL |
+|-----------|-----------|
+| Full fuzzy | `LIKE CONCAT('%', ?, '%')` |
+| Left fuzzy | `LIKE CONCAT('%', ?)` |
+| Right fuzzy | `LIKE CONCAT(?, '%')` |
+
+## Write Conflict Strategies
+
+| Strategy | SQL Syntax | PK Required |
+|------|---------|:----------:|
+| Into | `INSERT INTO ... VALUES (...)` | No |
+| Ignore | `INSERT IGNORE INTO ... VALUES (...)` | No |
+| Update | `INSERT INTO ... ON DUPLICATE KEY UPDATE col=VALUES(col), ...` | No |
+
+MySQL does not require a configured primary key column to use Ignore/Update strategies. Conflict detection is based on the table's unique key constraints.
+
+## Null Ordering
+
+Supports `ORDER BY ... NULLS FIRST` / `NULLS LAST`.
+
+## Key Differences Summary
+
+- The only database that uses backticks for identifier quoting
+- The only database that does not require a primary key to use Ignore/Update
+- `LIMIT offset, count` semantics (offset first, count second)
+- Sequences not supported
+- Vector search not supported
+- Stored procedures supported

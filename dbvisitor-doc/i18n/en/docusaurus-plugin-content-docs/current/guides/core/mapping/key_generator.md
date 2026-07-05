@@ -1,0 +1,143 @@
+---
+id: key_generator
+sidebar_position: 8
+title: Key Generators
+description: Key generators decide how to produce unique primary keys in dbVisitor.
+---
+
+# Key Generators
+
+Key generators decide how primary keys are produced. Below are the strategies and configuration options.
+
+## Via annotations {#anno}
+
+```java title='Example 1: Auto, use database auto-increment'
+@Table("admin_users")
+public class AdminUsers {
+    @Column(primary = true, keyType = KeyType.Auto)
+    private Integer id;
+
+    ...
+}
+```
+
+```java title='Example 2: Fill from sequence id_seq'
+@Table("admin_users")
+public class AdminUsers {
+    @KeySeq("id_seq")
+    @Column(primary = true, keyType = KeyType.Sequence)
+    private Integer id;
+
+    ...
+}
+```
+
+```java title='Example 3: Use custom generator'
+@Table("admin_users")
+public class AdminUsers {
+    @KeyHolder(MyKeySeqHolder.class)
+    @Column(primary = true, keyType = KeyType.Holder)
+    private Integer id;
+
+    ...
+}
+```
+
+:::info[Tip]
+- `primary` and `keyType` are independent—you can attach a generator to a non-PK column too.
+:::
+
+### keyType options
+
+| Option   | Description                                                                                                                 |
+|----------|-----------------------------------------------------------------------------------------------------------------------------|
+| None     | Do nothing.                                                                                                                 |
+| Auto     | Use `java.sql.Statement.RETURN_GENERATED_KEYS` to receive DB auto-generated keys.                                           |
+| UUID32   | Pre-fill with a 32-char UUID, e.g., `4d68040901d24b70bd10c1c8119001e2`.                                                 |
+| UUID36   | Pre-fill with a 36-char UUID, e.g., `4d680409-01d2-4b70-bd10-c1c8119001e2`.                                                 |
+| Sequence | Fetch next value from a DB sequence, assign, then insert. See [Dialect support](../../../features/support#dialect).<br/>Requires @KeySeq to name the sequence. |
+| Holder   | Custom generation logic: implement `GeneratedKeyHandlerFactory` and declare via @KeyHolder.                                 |
+
+## Via mapper file {#xml}
+
+```xml title='Example 1: Auto, use database auto-increment'
+<entity table="admin_users" type="net.example.dto.AdminUsers">
+    <id column="id" property="id" keyType="auto" />
+    ...
+</entity>
+```
+
+```xml title='Example 2: Fill from sequence id_seq'
+<entity table="admin_users" type="net.example.dto.AdminUsers">
+    <id column="id" property="id" keyType="Sequence::id_seq" />
+    ...
+</entity>
+```
+
+```xml title='Example 3: Use custom generator'
+<entity table="admin_users" type="net.example.dto.AdminUsers">
+    <id column="id" property="id" keyType="net.example.dto.handler.MyKeySeqHolder" />
+    ...
+</entity>
+```
+
+:::info[Tip]
+Both &lt;id&gt; and &lt;mapping&gt; tags can set `keyType`.
+:::
+
+### keyType options
+
+| Option          | Description                                                                                  |
+|-----------------|----------------------------------------------------------------------------------------------|
+| (empty)         | Do nothing.                                                                                  |
+| auto            | Use `java.sql.Statement.RETURN_GENERATED_KEYS` to receive DB auto-generated keys.            |
+| uuid32          | Pre-fill with a 32-char UUID, e.g., `4d68040901d24b70bd10c1c8119001e2`.                  |
+| uuid36          | Pre-fill with a 36-char UUID, e.g., `4d680409-01d2-4b70-bd10-c1c8119001e2`.                  |
+| Sequence::xxxx  | Fetch next value from sequence `xxxx`, assign, then insert. See [Dialect support](../../../features/support#dialect). |
+| (class name)    | Custom generator: fully qualified class implementing `GeneratedKeyHandlerFactory`.          |
+
+## Custom generator
+
+```java title='Example 1: generate key before insert'
+public class MyKeySeqHolder implements GeneratedKeyHandlerFactory {
+    @Override
+    public GeneratedKeyHandler createHolder(GeneratedKeyHandlerContext context) {
+        return new GeneratedKeyHandler() {
+            @Override
+            public boolean onBefore() {
+                return true;
+            }
+
+            @Override
+            public Object beforeApply(Connection conn, Object entity, ColumnMapping mapping) {
+                Object keyValue = ...
+
+                mapping.getHandler().set(entity, keyValue); // Write generated value back to the bean
+                return keyValue; // Return generated value
+            }
+        };
+    }
+}
+```
+
+```java title='Example 2: get key after insert'
+public class MyKeySeqHolder implements GeneratedKeyHandlerFactory {
+    @Override
+    public GeneratedKeyHandler createHolder(GeneratedKeyHandlerContext context) {
+        return new GeneratedKeyHandler() {
+            @Override
+            public boolean onAfter() {
+                return true;
+            }
+
+            @Override
+            public Object afterApply(ResultSet generatedKeys, Object entity, int argsIndex, ColumnMapping mapping) {
+                Object keyValue = ...
+
+                mapping.getHandler().set(entity, keyValue); // Write generated value back to the bean
+                return keyValue; // Return generated value
+            }
+        };
+    }
+}
+```

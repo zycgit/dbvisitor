@@ -1,0 +1,225 @@
+---
+id: dynamic_sql
+sidebar_position: 4
+title: Dynamic SQL
+description: dbVisitor offers MyBatis-style Dynamic SQL via XML.
+---
+import TagRed from '@site/src/components/tags/TagRed';
+import TagGray from '@site/src/components/tags/TagGray';
+
+# Dynamic SQL
+
+Mapper XML supports Dynamic SQL via `if`, `choose`, `foreach`, etc., using the familiar MyBatis style.
+- [&lt;if&gt;](./dynamic#if): conditional fragments.
+- [&lt;choose&gt; / &lt;when&gt; / &lt;otherwise&gt;](./dynamic#choose): multi-branch condition selection.
+- [&lt;trim&gt; / &lt;where&gt; / &lt;set&gt;](./dynamic#trim): help avoid malformed SQL when generating specific statements.
+- [&lt;foreach&gt;](./dynamic#foreach): iterate collections.
+- [&lt;bind&gt;](./dynamic#bind): create variables via OGNL expressions and bind them to the context.
+
+## if tag {#if}
+
+`<if>` conditionally appends SQL.
+
+```xml
+<select id="queryUser">
+    select * from users
+    where state = 'ACTIVE'
+    <if test="age != null">
+        and age = #{age}
+    </if>
+</select>
+```
+
+:::info[Simple if can be replaced by rules]
+```xml
+<select id="queryUser">
+    select * from users
+    where state = 'ACTIVE' 
+</select>
+```
+- See [AND rule](../../rules/dynamic_rule#and)
+:::
+
+### Attributes
+
+| Property | Description                                                                                       |
+|----------|---------------------------------------------------------------------------------------------------|
+| test     | Required OGNL expression returning boolean; when true the SQL inside is rendered.                 |
+
+## choose (when, otherwise) tags {#choose}
+
+Renders the first matching `<when>` branch; if none match, `<otherwise>` is used.
+
+```xml
+<select id="queryUser">
+    select * from users
+    where state = 'ACTIVE'
+    <choose>
+        <when test="title != null">and title = #{title}</when>
+        <when test="content != null">and content = #{content}</when>
+        <otherwise>and owner = "owner1"</otherwise>
+    </choose>
+</select>
+```
+
+### Attributes
+
+`<choose>` and `<otherwise>` have no attributes. `<when>` attributes:
+
+| Property | Description                                                                                       |
+|----------|---------------------------------------------------------------------------------------------------|
+| test     | Required OGNL expression returning boolean; when true the SQL inside is rendered.                 |
+
+## trim (where, set) tags {#trim}
+
+`<trim>`, `<where>`, and `<set>` help avoid malformed SQL. Consider this example:
+
+```xml
+<select id="queryUser">
+    select * from users
+    where
+    <if test="age != null">
+        and age = #{age}
+    </if>
+</select>
+```
+
+If `age` is null, the generated SQL becomes:
+
+```sql
+select * from users
+where
+```
+
+That is invalid SQL; `<where>` fixes this.
+
+### where tag (example 1)
+
+When `<if>` produces content, `<where>` automatically adds the `where` keyword.
+
+```xml
+<select id="queryUser">
+    select * from users
+    <where>
+        <if test="age != null">
+            age = #{age}
+        </if>
+    </where>
+</select>
+```
+
+```sql title='Depending on the value of age, the generated statement will be one of the following:'
+select * from users;
+select * from users where age = ?
+```
+
+### where tag (example 2)
+
+With multiple conditions, `<where>` also trims leading `and`/`or`.
+
+```xml
+<select id="queryUser">
+    select * from users
+    <where>
+        <if test="age != null">
+            age = #{age}
+        </if>
+        <if test="name != null">
+            and name = #{name}
+        </if>
+    </where>
+</select>
+```
+
+### set tag
+
+Use `<set>` for dynamic UPDATE columns:
+
+```xml
+<update id="queryUser">
+    update users
+    <set>
+        <if test="age != null">age=#{age},</if>
+        <if test="name != null">name=#{name},</if>
+    </set>
+    where id=#{id}
+</update>
+```
+
+### trim tag
+
+`<trim>` can replace `<where>` or `<set>` for special cases.
+
+```xml title='Use trim tag to replace where tag'
+<trim prefix="where" prefixOverrides="and | or">
+    ...
+</trim>
+```
+
+```xml title='Use trim tag to replace set tag'
+<trim prefix="set" suffixOverrides=",">
+    ...
+</trim>
+```
+
+**trim attributes**
+
+| Property         | Description                                                                                   |
+|------------------|-----------------------------------------------------------------------------------------------|
+| prefix           | <TagGray/> Prefix to add when rendering SQL.                                                   |
+| suffix           | <TagGray/> Suffix to add when rendering SQL.                                                   |
+| prefixOverrides  | <TagGray/> Trim these prefixes from the generated SQL (use `|` to separate multiple values).   |
+| suffixOverrides  | <TagGray/> Trim these suffixes from the generated SQL (use `|` to separate multiple values).   |
+
+## foreach tag {#foreach}
+
+`<foreach>` is commonly used for `IN` clauses or value lists.
+
+```xml
+<select id="queryByIds">
+  select * from users
+  where id in
+  <foreach item="item" index="index" collection="list"
+           open="(" separator="," close=")">
+    #{item}
+  </foreach>
+</select>
+```
+
+:::info[Simple foreach can be replaced by rules]
+```xml
+<select id="queryByIds">
+    select * from users where @{in,id in :list}
+</select>
+```
+- See [IN rule](../../rules/dynamic_rule#in)
+:::
+
+**foreach attributes**
+
+| Property    | Description                                                                                           |
+|-------------|-------------------------------------------------------------------------------------------------------|
+| collection  | <TagRed/> Data to iterate (array, collection, etc.).                                                  |
+| item        | <TagRed/> Variable name for the current element; accessible inside the tag.                           |
+| open        | <TagGray/> Text prepended before iteration output.                                                    |
+| close       | <TagGray/> Text appended after iteration output.                                                      |
+| separator   | <TagGray/> Separator between items.                                                                   |
+
+## bind tag {#bind}
+
+`<bind>` creates a variable via OGNL and binds it to the context.
+
+```xml
+<select id="queryByLike">
+    <bind name="pattern" value="'%' + _parameter.getTitle() + '%'" />
+    select * from users
+    where title like #{pattern}
+</select>
+```
+
+**bind attributes**
+
+| Property | Description                                                                           |
+|----------|---------------------------------------------------------------------------------------|
+| name     | <TagRed/> Name of the variable to create.                                             |
+| value    | <TagRed/> OGNL expression whose result is bound to `name`.                            |

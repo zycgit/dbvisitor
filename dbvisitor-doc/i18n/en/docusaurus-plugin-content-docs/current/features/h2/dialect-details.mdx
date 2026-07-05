@@ -1,0 +1,71 @@
+---
+id: dialect-details
+sidebar_position: 2
+hide_table_of_contents: true
+title: Dialect Details
+description: H2 dialect pagination, MERGE conflict strategy, sequences, and testing scenario recommendations.
+---
+
+# H2 Dialect Details
+
+## Pagination SQL
+
+H2 uses `LIMIT ? OFFSET ?` (same as PostgreSQL):
+
+```sql
+SELECT ... LIMIT ? OFFSET ?
+```
+
+## Count SQL
+
+```sql
+SELECT COUNT(*) FROM (original query) as TEMP_T
+```
+
+## Identifier Quoting
+
+Uses double quotes `"`:
+
+```sql
+SELECT * FROM "users" WHERE "name" = ?
+```
+
+## Write Conflict Strategies
+
+| Strategy | SQL Syntax | PK Required |
+|------|---------|:----------:|
+| Into | `INSERT INTO ... VALUES (...)` | No |
+| Ignore | `MERGE INTO ...` | Yes |
+| Update | `MERGE INTO ...` | Yes |
+
+H2's MERGE syntax differs from Oracle/DB2: it uses H2's own `MERGE INTO` syntax.
+
+## Generated Key Strategy
+
+| Scenario | GeneratedKeyStrategy |
+|------|---------------------|
+| No backfill columns | `JdbcBatch` |
+| With backfill columns (any strategy) | `OneByOne` |
+
+## Sequences
+
+H2 implements `SeqSqlDialect`, using the same syntax as DB2:
+
+```sql
+VALUES NEXT VALUE FOR user_seq
+```
+
+## Testing Scenario Recommendations
+
+- For local development, recommend `-Dnxn.env=h2` (no Docker needed)
+- H2 compatibility mode can simulate MySQL/PostgreSQL behavior
+- But note that pagination syntax may differ from real databases
+- H2's `IDENTITY` behaves basically the same as MySQL `AUTO_INCREMENT`
+
+## Key Differences Summary
+
+- Pagination syntax same as PostgreSQL (`LIMIT ? OFFSET ?`)
+- MERGE syntax is H2's own, different from Oracle/DB2
+- Supports sequences (same syntax as DB2: `VALUES NEXT VALUE FOR`)
+- Uniform row-by-row execution when backfill is needed
+- The most recommended local testing database

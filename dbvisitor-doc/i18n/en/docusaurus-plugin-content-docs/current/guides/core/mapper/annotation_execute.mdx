@@ -1,0 +1,39 @@
+---
+id: annotation_execute
+sidebar_position: 7
+title: "@Execute"
+description: The Execute annotation marks an interface method to execute any SQL statement (DML/DDL).
+---
+
+import TagRed from '@site/src/components/tags/TagRed';
+import TagGray from '@site/src/components/tags/TagGray';
+
+# @Execute Annotation
+
+Marks an interface method to execute any SQL statement (both DML and DDL).
+
+:::info
+`value` supports string arrays. Elements are joined with spaces, convenient for multi-line writing.
+:::
+
+```java title='Example: create a sharded table'
+@SimpleMapper
+public interface UserMapper {
+    @Execute({"create table users_${part} (",
+              "   id   int primary key,",
+              "   name varchar(50)",
+              ")"})
+    int newPartTable(@Param("part") int partId);
+}
+```
+
+`${part}` uses string substitution (be aware of SQL injection risks).
+
+## Properties
+
+| Property | Description |
+|---|---|
+| value | <TagRed/> The SQL statement to be executed. |
+| statementType | <TagGray/> JDBC execution mode. Default `Prepared`<br/> - `Statement` → `java.sql.Statement`<br/> - `Prepared` → `java.sql.PreparedStatement`<br/> - `Callable` → `java.sql.CallableStatement` |
+| timeout | <TagGray/> Execution timeout in seconds. Default `-1` |
+| bindOut | <TagGray/> Bind output parameters, for use with stored procedures or multiple result sets. When set, the return type must be `Map<String,Object>` |

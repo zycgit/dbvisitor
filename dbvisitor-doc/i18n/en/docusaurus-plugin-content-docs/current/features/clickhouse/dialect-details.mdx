@@ -1,0 +1,70 @@
+---
+id: dialect-details
+sidebar_position: 2
+hide_table_of_contents: true
+title: Dialect Details
+description: ClickHouse dialect pagination, write model, application-side ID, and batch behavior details.
+---
+
+# ClickHouse Dialect Details
+
+## Pagination SQL
+
+ClickHouse uses `LIMIT ? OFFSET ?` (same as PostgreSQL):
+
+```sql
+SELECT ... LIMIT ? OFFSET ?
+```
+
+## Count SQL
+
+```sql
+SELECT COUNT(*) FROM (original query) as TEMP_T
+```
+
+## Identifier Quoting
+
+Uses double quotes `"`:
+
+```sql
+SELECT * FROM "users" WHERE "name" = ?
+```
+
+## Write Conflict Strategies
+
+ClickHouse **does not support** Ignore / Update conflict strategies:
+
+| Strategy | Supported | Notes |
+|------|:------:|------|
+| Into | ✓ | Regular INSERT |
+| Ignore | ✗ | Not supported |
+| Update | ✗ | Not supported |
+
+ClickHouse is an analytical database; there is no traditional OLTP primary key conflict concept.
+
+## Generated Key Strategy
+
+| Scenario | GeneratedKeyStrategy |
+|------|---------------------|
+| No backfill columns | `JdbcBatch` |
+| With backfill columns | `OneByOne` |
+
+**Relying on JDBC generated keys is not recommended**. ClickHouse does not use the database auto-increment primary key model; business identifiers should be generated application-side (UUID, Snowflake ID, etc.).
+
+## Sequences
+
+Not supported. ClickHouse does not implement `SeqSqlDialect`.
+
+## Write Recommendations
+
+- ClickHouse recommends batch writes over row-by-row inserts
+- `JdbcBatch` can be used for throughput when no backfill is needed
+- Note asynchronous write characteristics: writes may not be immediately visible
+- Recommended primary key generation: `KeyType.UUID32` or `KeyType.UUID36`
+
+## Key Differences Summary
+
+- The only relational data source that does not support any conflict strategies
+- Relying on JDBC generated keys is not recommended
+- Sequences not supported
+- Analytical write model (batch-first, async visibility)

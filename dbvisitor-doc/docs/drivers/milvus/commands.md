@@ -6,7 +6,7 @@ title: 语法手册
 description: jdbc-milvus 支持的 SQL 风格语法手册，涵盖数据库管理、表管理、索引管理、分区管理、数据操作、查询搜索、用户权限等。
 ---
 
-jdbc-milvus 通过 ANTLR4 解析 SQL 风格命令，将其转换为 Milvus SDK API 调用。本文档详细介绍所有支持的 SQL 语法。
+jdbc-milvus 通过 ANTLR4 解析 SQL 风格命令，并将其转换为 Milvus SDK API 调用。以下内容列出所有支持的 SQL 语法。
 
 :::tip[版本要求]
 部分高级特性（如 `COUNT`、BulkInsert）依赖 Milvus 2.2+ 版本。建议使用 Milvus 2.3.x 或更高版本。

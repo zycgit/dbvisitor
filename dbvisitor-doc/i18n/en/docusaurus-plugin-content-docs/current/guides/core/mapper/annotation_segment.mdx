@@ -1,0 +1,35 @@
+---
+id: annotation_segment
+sidebar_position: 9
+title: "@Segment"
+description: The Segment annotation marks an interface method to define a reusable SQL fragment.
+---
+
+import TagRed from '@site/src/components/tags/TagRed';
+import TagGray from '@site/src/components/tags/TagGray';
+
+# @Segment Annotation
+
+Marks an interface method to define a reusable SQL fragment. The method name is the fragment name, referenced in other SQL via the `@{macro,fragmentName}` rule.
+
+```java title='Example: reuse a column list via SQL fragment'
+@SimpleMapper
+public interface UserMapper {
+    @Segment("user_uuid, user_name, login_name, email, register_time")
+    void userColumns(); // Method name = fragment name
+
+    @Insert({"insert into user_info (@{macro,userColumns})",
+             "values (#{userUuid}, #{name}, #{loginName}, #{email}, #{registerTime})"})
+    int createUser(UserInfo info);
+}
+```
+
+:::tip
+`@Segment` methods return `void` — they are never actually called; they only serve as SQL fragment carriers. `value` supports string arrays.
+:::
+
+## Properties
+
+| Property | Description |
+|---|---|
+| value | <TagRed/> SQL fragment content (supports string arrays, joined with spaces). |

@@ -1,0 +1,49 @@
+---
+id: annotation_call
+sidebar_position: 8
+title: "@Call"
+description: The Call annotation marks an interface method to execute a stored procedure call.
+---
+
+import TagRed from '@site/src/components/tags/TagRed';
+import TagGray from '@site/src/components/tags/TagGray';
+
+# @Call Annotation
+
+Marks an interface method to execute a stored procedure call.
+
+:::info
+`@Call` implicitly uses `CallableStatement` and has no `statementType` attribute. `value` supports string arrays.
+:::
+
+```java title='Example'
+@SimpleMapper
+public interface UserMapper {
+    // Input and output parameters
+    @Call("{call proc_select_user(#{abc, mode=inout, jdbcType=decimal})}")
+    Map<String, Object> callSelectUser1(@Param("abc") int argAbc);
+
+    // Output-only parameter
+    @Call("{call proc_select_user(#{abc, mode=out, jdbcType=decimal})}")
+    Map<String, Object> callSelectUser2();
+}
+
+UserMapper mapper = ...;
+Map<String, Object> res1 = mapper.callSelectUser1(23);
+res1.get("abc"); // Get the INOUT parameter
+
+Map<String, Object> res2 = mapper.callSelectUser2();
+res2.get("abc"); // Get the OUT parameter
+```
+
+- Input parameters are passed through method arguments; output parameters and result sets are received through the returned `Map`
+- Return type must be `Map<String, Object>`
+- For SQL syntax, see [Stored Procedure Call](../jdbc/procedure)
+
+## Properties
+
+| Property | Description |
+|---|---|
+| value | <TagRed/> Stored procedure call statement. |
+| timeout | <TagGray/> Execution timeout in seconds. Default `-1` |
+| bindOut | <TagGray/> Filter output parameters; only receive arguments with the specified names. If not set, all output parameters are received. |

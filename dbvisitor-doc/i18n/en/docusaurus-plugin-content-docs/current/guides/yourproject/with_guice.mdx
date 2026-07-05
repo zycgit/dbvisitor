@@ -13,8 +13,11 @@ export const Highlight = ({children, color}) => (
   <span style={{ backgroundColor: color, borderRadius: '2px', color: '#fff', padding: '0.2rem', }}>{children}</span>
 );
 
+# 3.6 Guice Integration
+
 ## What is Guice
-Guice is a lightweight dependency injection tool open-sourced by Google. Unlike Spring, which contains many other capabilities besides dependency injection, if you only want to use dependency injection in your project, consider using Guice.
+
+Guice is Google's lightweight dependency injection framework, suitable for projects that need a DI container without a full application framework.
 
 - Guice Project URL: https://github.com/google/guice
 
@@ -123,4 +126,4 @@ ServiceTest service = injector.getInstance(ServiceTest.class);
 | dbvisitor.use-delimited | <TagGray/> Force adding identifier delimiters when generating table names/column names/index names. For example: set this property to solve the problem of column names being keywords. Default is `false` (not set). |
 | dbvisitor.case-insensitive | <TagGray/> Whether table/column names are case-sensitive. Default `true` (insensitive). |
 | dbvisitor.ignore-nonexist-statement | <TagGray/> Whether to ignore missing mappings during the mapping of Mapper interface methods to XML. Default is `false`. Missing mappings will report an error. |
-| dbvisitor.dialect | <TagGray/> **[Database Dialect](../api/differences/about#dialect)** used by default. |
+| dbvisitor.dialect | <TagGray/> **[Database Dialect](../../optionss/support#dialect)** used by default. |

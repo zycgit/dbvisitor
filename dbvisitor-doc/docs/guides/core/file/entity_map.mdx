@@ -1,7 +1,6 @@
 ---
 id: entity_map
 sidebar_position: 6
-hide_table_of_contents: true
 title: 映射表
 description: 在 Mapper 文件中通过 entity 和 resultMap 标签映射结果和表。
 ---
@@ -13,6 +12,15 @@ import TagGray from '@site/src/components/tags/TagGray';
 在 Mapper 文件中映射查询结果可以使用 &lt;resultMap&gt; 或 &lt;entity&gt;，区别是：
 - [&lt;resultMap&gt;](./result_map)，标签适用于对 SQL 查询结果的映射。
 - [&lt;entity&gt;](./entity_map)，适用于对一个具体表的映射。
+
+## 什么时候使用 entity
+
+| 场景 | 是否推荐 entity |
+| --- | --- |
+| Java 类型和数据库表基本一一对应 | 推荐 |
+| 需要给 BaseMapper 或 LambdaTemplate 提供表映射 | 推荐 |
+| 希望在 XML 中维护映射而不是写注解 | 推荐 |
+| 查询结果来自多表 JOIN 或函数列 | 优先使用 resultMap |
 
 :::tip[resultMap 和 entity 如何选择？]
 - 在有些时候 resultMap、entity 区分并不明显，例如：针对同一个表的不同条件查询或者查询这个表的不同列。
@@ -53,14 +61,14 @@ import TagGray from '@site/src/components/tags/TagGray';
 | table                    | <TagGray/> 映射的表。                                                                                                   |
 | type                     | <TagRed/> 类型全名，用于决定映射到的具体类型。                                                                                       |
 | caseInsensitive          | <TagGray/> 在处理映射列名和属性名时是否对大小写不敏感，默认是 true 不敏感。对于某些数据库查询结果始终返回大写，利用这个功能可以方便的映射到属性上。                                 |
-| autoMapping              | <TagGray/> 用于决定是否进行 [自动映射](./automapping)。默认是 true 自动映射。                                                           |
+| autoMapping              | <TagGray/> 用于决定是否进行 [自动映射](./auto_mapping)。默认是 true 自动映射。                                                           |
 | mapUnderscoreToCamelCase | <TagGray/> 配合 autoMapping 使用，用于决定属性名在映射到列名时，是否按照驼峰命名法转换为下划线命名法，例如：属性名 `createTime` 被转换为 `create_time`。默认 false 不转换 |
 | useDelimited             | <TagGray/> 用于决定在生成 SQL 语句时，表名/列名 是否强制使用限定符。默认：false 不使用。                                                           |
 | character-set            | <TagGray/> 用于描述表使用的字符集（在 TableDescription 接口中可获取）                                                                  |
 | collation                | <TagGray/> 用于描述表使用的排序规则（在 TableDescription 接口中可获取）                                                                 |
 | comment                  | <TagGray/> 用于描述表的备注（在 TableDescription 接口中可获取）                                                                     |
 | other                    | <TagGray/> 用于描述表的其它参数（在 TableDescription 接口中可获取）                                                                   |
-| ddlAuto                  | <TagGray/> 自动建表方式，可选值范围：`none、create、add、update、create-drop`，（目前还不支持自动建表）                                          |
+| ddlAuto                  | <TagGray/> 自动建表方式，可选值范围：`none、create、add、update、create-drop`（当前版本不支持自动建表）                                          |
 
 **id 标签** 和 **mapping 标签**
 
@@ -71,15 +79,15 @@ import TagGray from '@site/src/components/tags/TagGray';
 | javaType           | <TagGray/> 通常会自动识别类型，除非属性是一个抽象类或者接口，则需要配置具体的实现类。                                                                              |
 | jdbcType           | <TagGray/> 默认按照 [Java 和 JDBC 类型关系](../../types/java-jdbc) 进行映射，可通过该属性来强制指定 jdbcType。                                          |
 | typeHandler        | <TagGray/> 根据 [类型处理器](../../types/about) 所描述的优先级进行查找，可通过该属性强制指定一个具体的 typeHandler。                                             |
-| keyType            | <TagGray/> 仅对 [构造器 API](../lambda/about) 有效。表示当属性值为 null 时所采用的数据生成算法。详细请了解 [主键生成器](../mapping/keytype#xml)。                   |
+| keyType            | <TagGray/> 仅对 [构造器 API](../lambda/about) 有效。表示当属性值为 null 时所采用的数据生成算法。详细请了解 [主键生成器](../mapping/key_generator#xml)。                   |
 | insert             | <TagGray/> 仅对 [构造器 API](../lambda/about) 有效。表示当在 insert 操作时是否参与新增。详细请了解 [写入策略](../mapping/write_policy)。                      |
 | update             | <TagGray/> 仅对 [构造器 API](../lambda/about) 有效。表示当在 update 操作时是否参与新增。详细请了解 [写入策略](../mapping/write_policy)。                      |
-| selectTemplate     | <TagGray/> 仅对 [构造器 API](../lambda/about) 有效。当用作 select 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/template)。                |
-| insertTemplate     | <TagGray/> 仅对 [构造器 API](../lambda/about) 有效。当用作 insert 语句时参数写法，默认是 ?。详细请了解 [语句模版](../mapping/template)。                       |
-| setValueTemplate   | <TagGray/> 仅对 [构造器 API](../lambda/about) 有效。当用作 update set 语句时参数写法，默认是 ?。详细请了解 [语句模版](../mapping/template)。                   |
-| whereColTemplate   | <TagGray/> 仅对 [构造器 API](../lambda/about) 有效。当用作 update/delete 的 where 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/template)。 |
-| whereValueTemplate | <TagGray/> 仅对 [构造器 API](../lambda/about) 有效。当用作 update/delete 的 where 语句时参数写法，默认是 ?。详细请了解 [语句模版](../mapping/template)。        |
-| orderByColTemplate | <TagGray/> 仅对 [构造器 API](../lambda/about) 有效。当用作 order by 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/template)。              |
+| selectTemplate     | <TagGray/> 仅对 [构造器 API](../lambda/about) 有效。当用作 select 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/statement_template)。                |
+| insertTemplate     | <TagGray/> 仅对 [构造器 API](../lambda/about) 有效。当用作 insert 语句时参数写法，默认是 ?。详细请了解 [语句模版](../mapping/statement_template)。                       |
+| setValueTemplate   | <TagGray/> 仅对 [构造器 API](../lambda/about) 有效。当用作 update set 语句时参数写法，默认是 ?。详细请了解 [语句模版](../mapping/statement_template)。                   |
+| whereColTemplate   | <TagGray/> 仅对 [构造器 API](../lambda/about) 有效。当用作 update/delete 的 where 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/statement_template)。 |
+| whereValueTemplate | <TagGray/> 仅对 [构造器 API](../lambda/about) 有效。当用作 update/delete 的 where 语句时参数写法，默认是 ?。详细请了解 [语句模版](../mapping/statement_template)。        |
+| orderByColTemplate | <TagGray/> 仅对 [构造器 API](../lambda/about) 有效。当用作 order by 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/statement_template)。              |
 | sqlType            | <TagGray/> 用于描述列的数据类型（在 TableDescription 接口中可获取）                                                                              |  
 | length             | <TagGray/> 用于描述列的数据类型长度（在 TableDescription 接口中可获取）                                                                            |  
 | precision          | <TagGray/> 用于描述列的数值精度（在 TableDescription 接口中可获取）                                                                              |  

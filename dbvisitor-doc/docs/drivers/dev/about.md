@@ -7,7 +7,7 @@ description: dbvisitor-driver 适配器层的核心架构、组件职责和执�
 
 dbVisitor 的协议适配层（dbvisitor-driver）允许开发者将非关系型数据库封装为类 JDBC 接口，从而复用 dbVisitor 的全部上层 API（JdbcTemplate、LambdaTemplate、BaseMapper 等）。
 
-本文介绍适配器层的核心组件和执行模型。动手实现请参考 [实现指南](./guide)。
+适配器层包含核心组件和执行模型。适配器实现步骤见 [实现指南](./guide)。
 
 ## 核心组件
 
@@ -159,7 +159,7 @@ public interface AdapterReceive {
 
 ## 现有适配器
 
-目前已实现 4 个适配器，均遵循相同模式：
+已实现的适配器均遵循相同模式：
 
 | 适配器 | 底层 SDK | URL 前缀 | 解析方式 |
 | -------- | --------- | --------- | --------- |
@@ -187,4 +187,3 @@ jdbc-xxx/
     └── META-INF/services/
         └── net.hasor.dbvisitor.driver.AdapterFactory  # SPI 注册
 ```
-

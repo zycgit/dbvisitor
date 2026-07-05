@@ -4,10 +4,6 @@ sidebar_position: 2
 title: 查询
 description: 查询是执行带有结果的SQL语句并获取结果集的操作。
 ---
-:::tip[提示]
-本文内容结构参考了英文版文档，便于中英文对照。
-:::
-
 import TagRed from '@site/src/components/tags/TagRed';
 import TagGray from '@site/src/components/tags/TagGray';
 import Tabs from '@theme/Tabs';
@@ -16,6 +12,19 @@ import TabItem from '@theme/TabItem';
 # 查询
 
 JdbcTemplate 提供多种只读查询 API。大多数接口接受 SQL 字符串和参数（对象或数组），返回由结果集构建的对象；部分接口支持回调/映射器以自定义处理过程。
+
+## 先选方法
+
+| 你的目标 | 推荐方法 |
+| --- | --- |
+| 查询多行 Bean 或 Map | `queryForList` |
+| 查询单行 Bean | `queryForObject` |
+| 查询单行 Map | `queryForMap` |
+| 查询单个值，例如 count、sum | `queryForLong`、`queryForObject` |
+| 查询两列并转成 Map | `queryForPairs` |
+| 自定义每行如何映射 | `RowMapper` |
+| 自定义整个 ResultSet 如何处理 | `ResultSetExtractor` |
+| 大结果集逐行处理 | `RowCallbackHandler` 或流式查询 |
 
 ## 查询结果集 {#list}
 
@@ -258,114 +267,50 @@ JdbcTemplate 提供多种只读查询 API。大多数接口接受 SQL 字符串�
 </Tabs>
 
 
-## 使用 ResultSetExtractor {#extractor}
+## 结果接收方式 {#result}
 
-使用 `ResultSetExtractor` 接口是最灵活处理结果集的方式，用户需要自行实现执行从 ResultSet 中提取结果的实际工作，同时无需担心异常处理。
+这些示例覆盖最常见的返回形态。需要控制结果映射过程时，可以按下表选择；详细机制见 [接收结果](../../result/about)。
 
-<Tabs>
-    <TabItem value="demo1" label="示例">
+| 目标 | 推荐方式 | 详细说明 |
+| --- | --- | --- |
+| 每行转成一个对象 | `RowMapper` | [RowMapper](../../result/for_mapper) |
+| 不定义实体类，直接接收列名和值 | `List<Map<String,Object>>` | [List/Map](../../result/for_map) |
+| 大结果集逐行消费，不在内存中收集 | `RowCallbackHandler` | [RowCallbackHandler](../../result/row_callback) |
+| 自己接管整个 `ResultSet` 遍历过程 | `ResultSetExtractor` | [ResultSetExtractor](../../result/for_extractor) |
+| 单列值的序列化/反序列化 | `TypeHandler` | [类型处理](../../types/about) |
 
-        ```java
-        // 使用 ResultSetExtractor 自定义结果提取
-        User user = jdbc.query(
-            "select * from users where id = ?",
-            new Object[]{ 1 },
-            (ResultSetExtractor<User>) rs -> {
-                if (rs.next()) {
-                    User u = new User();
-                    u.setId(rs.getLong("id"));
-                    u.setName(rs.getString("name"));
-                    return u;
-                }
-                return null;
-            }
-        );
-        ```
-
-    </TabItem>
-    <TabItem value="sig" label="函数签名">
-
-        ```java
-        // 使用 ResultSetExtractor
-        T query(String sql, ResultSetExtractor<T> rse);
-        T query(String sql, Object args, ResultSetExtractor<T> rse);
-        T query(String sql, PreparedStatementSetter args, ResultSetExtractor<T> rse);
-        ```
-
-    </TabItem>
-</Tabs>
-
-## 流式查询 {#stream}
-
-针对超大结果集，逐行流式处理以节省内存；每行在回调中即时处理。
-
-<Tabs>
-    <TabItem value="demo1" label="示例">
-
-        ```java
-        // 流式消费数据
-        RowCallbackHandler handler = (rs, rowNum) -> {
-            // 处理一行
-        };
-
-        // 原始 SQL
-        jdbc.query("select * from user where age > 2", handler);
-
-        // 位置参数
-        Object[] args = new Object[]{ 2 };
-        jdbc.query("select * from user where age > ?", args, handler);
-
-        // 名称参数
-        Map<String, Object> args = CollectionUtils.asMap("age", 2);
-        jdbc.query("select * from user where age > :age", args, handler);
-        ```
-
-    </TabItem>
-    <TabItem value="sig" label="函数签名">
-
-        ```java
-        void query(String sql, RowCallbackHandler rch);
-        void query(String sql, Object args, RowCallbackHandler rch);
-        void query(String sql, PreparedStatementSetter args, RowCallbackHandler rch);
-        ```
-
-    </TabItem>
-</Tabs>
-
-## Map 大小写敏感性 {#case}
-
-默认情况下以 Map 为数据存储结构时查询返回的 key 对于大小写不敏感。
-
-```java title='有如下查询'
-List<Map<String, Object>> result = jdbc.queryForList("select * from users");
-```
-
-users 表在相同表结构和数据在不同数据库中执行结果会有不同，例如：
-- 在 Oracle 返回的列名默认：大写
-- 在 MySQL 返回的列名默认：小写
-
-dbVisitor 默认会采用 `LinkedCaseInsensitiveMap` 工具类以不区分大小写的方式存储查询结果的列名。
-- 即 `resultsCaseInsensitive` 参数默认值为 `true`
-
-如果希望使用大小写敏感的方式存储查询结果，需要将其设置为 `false`。
+### 使用 ResultSetExtractor {#extractor}
 
 ```java
-JdbcTemplate jdbc = ...
-jdbc.setResultsCaseInsensitive(false);
+User user = jdbc.query(
+    "select * from users where id = ?",
+    new Object[]{ 1 },
+    (ResultSetExtractor<User>) rs -> {
+        if (!rs.next()) {
+            return null;
+        }
 
-List<Map<String, Object>> result = jdbc.queryForList("select * from users");
+        User u = new User();
+        u.setId(rs.getLong("id"));
+        u.setName(rs.getString("name"));
+        return u;
+    }
+);
 ```
 
-通过设置 `jdbc.setResultsCaseInsensitive(false);` 可以决定结果集列名的大小写敏感性。
-- 默认情况下，属性值为 `true` 表示结果集列名是大小写不敏感。
-- 当设置为 `false` 时，会使用 `LinkedHashMap` 存放数据，结果集中列名会严格区分大小写。
+### 流式查询 {#stream}
 
-## 结果处理器 {#result}
+```java
+RowCallbackHandler handler = (rs, rowNum) -> {
+    // 逐行处理，不收集为 List
+};
 
-- [ResultSetExtractor](../../result/for_extractor)，使用 ResultSetExtractor 接口，自定义 ResultSet 结果集的处理。
-- [RowMapper](../../result/for_mapper)，使用 RowMapper 的好处是无需关心 ResultSet 的处理过程，只需要将编程工作专注在每一行数据的处理上。
-- [RowCallbackHandler](../../result/row_callback)，通常可以用来流式的处理大规模数据。数据在处理过程中不会遗留在内存中。
-- [TypeHandler](../../types/about)，通过 @BindTypeHandler 注解关联一个 TypeHandler，可在一行一列或单列多行的查询中处理字段的序列化/反序列化。
+jdbc.query("select * from users where age > ?", new Object[]{ 18 }, handler);
+```
+
+### Map 大小写敏感性 {#case}
+
+默认情况下，Map 结果的列名 key 大小写不敏感。不同数据库返回列名大小写可能不同，例如 Oracle 常见大写、MySQL 常见小写。需要严格区分大小写时，参考 [List/Map 接收数据](../../result/for_map)。
 
 ## 查询参数说明 {#arguments}
 
