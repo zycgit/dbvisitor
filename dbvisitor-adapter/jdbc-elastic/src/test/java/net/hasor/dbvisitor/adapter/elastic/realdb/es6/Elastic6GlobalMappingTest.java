@@ -12,7 +12,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 
 public class Elastic6GlobalMappingTest {
-    private static final String ES_URL       = "jdbc:dbvisitor:elastic://localhost:19200?indexRefresh=true";
+    private static final String ES_URL       = "jdbc:dbvisitor:elastic://localhost:2920?indexRefresh=true";
     private static final String INDEX_NAME_1 = "dbv_global_mapping_test_idx_1";
     private static final String INDEX_NAME_2 = "dbv_global_mapping_test_idx_2";
 

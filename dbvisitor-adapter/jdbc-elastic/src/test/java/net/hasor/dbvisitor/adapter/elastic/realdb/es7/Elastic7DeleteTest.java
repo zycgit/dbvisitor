@@ -10,7 +10,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class Elastic7DeleteTest {
-    private static final String ES_URL     = "jdbc:dbvisitor:elastic://127.0.0.1:19201?indexRefresh=true";
+    private static final String ES_URL     = "jdbc:dbvisitor:elastic://127.0.0.1:2921?indexRefresh=true";
     private static final String INDEX_NAME = "dbv_delete_test_idx";
 
     @Before

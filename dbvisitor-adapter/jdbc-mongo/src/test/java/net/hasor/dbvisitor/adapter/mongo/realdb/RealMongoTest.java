@@ -8,7 +8,7 @@ import java.util.Properties;
 import org.junit.Test;
 
 public class RealMongoTest {
-    private static final String MONGO_URL = "jdbc:dbvisitor:mongo://127.0.0.1:17017/admin";
+    private static final String MONGO_URL = "jdbc:dbvisitor:mongo://127.0.0.1:2701/admin";
 
     @Test
     public void test_01() throws Exception {

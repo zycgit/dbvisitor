@@ -10,7 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class Elastic6RefreshAndReindexTest {
-    private static final String ES_URL       = "jdbc:dbvisitor:elastic://localhost:19200?indexRefresh=true";
+    private static final String ES_URL       = "jdbc:dbvisitor:elastic://localhost:2920?indexRefresh=true";
     private static final String INDEX_SOURCE = "dbv_reindex_source";
     private static final String INDEX_DEST   = "dbv_reindex_dest";
 

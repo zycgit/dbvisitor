@@ -9,7 +9,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 public class Elastic6HintPageTest {
-    private static final String ES_URL = "jdbc:dbvisitor:elastic://127.0.0.1:19200?indexRefresh=true";
+    private static final String ES_URL = "jdbc:dbvisitor:elastic://127.0.0.1:2920?indexRefresh=true";
 
     @Before
     public void before() throws Exception {

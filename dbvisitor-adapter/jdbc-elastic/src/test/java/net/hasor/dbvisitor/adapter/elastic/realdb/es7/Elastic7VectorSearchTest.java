@@ -13,7 +13,7 @@ import static org.junit.Assert.*;
  * 测试向量相似度搜索和范围过滤功能
  */
 public class Elastic7VectorSearchTest {
-    private static final String ES_URL     = "jdbc:dbvisitor:elastic://127.0.0.1:19201?indexRefresh=true";
+    private static final String ES_URL     = "jdbc:dbvisitor:elastic://127.0.0.1:2921?indexRefresh=true";
     private static final String INDEX_NAME = "test_vector_search";
 
     @Before

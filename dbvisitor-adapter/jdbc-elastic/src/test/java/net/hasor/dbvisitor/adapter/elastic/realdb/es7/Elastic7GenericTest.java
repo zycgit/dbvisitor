@@ -8,7 +8,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class Elastic7GenericTest {
-    private static final String ES_URL = "jdbc:dbvisitor:elastic://127.0.0.1:19201?indexRefresh=true";
+    private static final String ES_URL = "jdbc:dbvisitor:elastic://127.0.0.1:2921?indexRefresh=true";
 
     @Test
     public void testGenericGet() throws Exception {

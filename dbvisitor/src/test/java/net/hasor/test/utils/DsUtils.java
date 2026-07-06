@@ -18,7 +18,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.Collections;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import static net.hasor.test.utils.TestUtils.*;
 
@@ -31,9 +30,9 @@ public class DsUtils {
     //    public static String TEST_SERVER       = "192.168.0.176";
     public static String TEST_SERVER       = "127.0.0.1";
     public static String MYSQL_SCHEMA_NAME = "devtester";
-    public static String MYSQL_JDBC_URL    = "jdbc:mysql://" + TEST_SERVER + ":13306/?allowMultiQueries=true&noAccessToProcedureBodies=true";
-    public static String PG_JDBC_URL       = "jdbc:postgresql://" + TEST_SERVER + ":15432/postgres";
-    public static String ORACLE_JDBC_URL   = "jdbc:oracle:thin:@" + TEST_SERVER + ":11521/DEVTESTDB";
+    public static String MYSQL_JDBC_URL    = "jdbc:mysql://" + TEST_SERVER + ":2330/?allowMultiQueries=true&noAccessToProcedureBodies=true";
+    public static String PG_JDBC_URL       = "jdbc:postgresql://" + TEST_SERVER + ":2543/postgres";
+    public static String ORACLE_JDBC_URL   = "jdbc:oracle:thin:@" + TEST_SERVER + ":2521/DEVTESTDB";
 
     private static void initH2(JdbcTemplate jdbcTemplate) {
         try {

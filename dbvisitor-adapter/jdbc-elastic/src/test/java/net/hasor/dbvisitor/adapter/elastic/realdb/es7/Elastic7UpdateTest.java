@@ -11,7 +11,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class Elastic7UpdateTest {
-    private static final String ES_URL     = "jdbc:dbvisitor:elastic://127.0.0.1:19201?indexRefresh=true";
+    private static final String ES_URL     = "jdbc:dbvisitor:elastic://127.0.0.1:2921?indexRefresh=true";
     private static final String INDEX_NAME = "dbv_crud_test_idx";
 
     @Before

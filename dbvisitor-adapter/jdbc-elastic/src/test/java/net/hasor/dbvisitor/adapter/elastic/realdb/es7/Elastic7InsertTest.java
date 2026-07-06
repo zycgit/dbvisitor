@@ -9,7 +9,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class Elastic7InsertTest {
-    private static final String ES_URL = "jdbc:dbvisitor:elastic://127.0.0.1:19201?indexRefresh=true";
+    private static final String ES_URL = "jdbc:dbvisitor:elastic://127.0.0.1:2921?indexRefresh=true";
 
     @Before
     public void before() throws Exception {

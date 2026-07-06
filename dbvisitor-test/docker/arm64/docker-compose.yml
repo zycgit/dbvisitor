@@ -6,10 +6,17 @@ services:
       - MYSQL_ROOT_PASSWORD=123456
       - TZ=Asia/Shanghai
     ports:
-      - 13306:3306
+      - 2330:3306
+    volumes:
+      - ../certs:/certs
+      - ../mysql/init:/docker-entrypoint-initdb.d:ro
+      - ../mysql/init-ssl.sh:/usr/local/bin/init-ssl.sh:ro
+    entrypoint:
+      - bash
+      - /usr/local/bin/init-ssl.sh
     restart: always
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-time_zone='+8:00'
-    # User/Password：root/123456
+    # User/Password: root/123456
 
   oracle:
     image: gvenzl/oracle-free:23-slim
@@ -19,19 +26,14 @@ services:
       - APP_USER=devtester
       - APP_USER_PASSWORD=123456
     ports:
-      - 11521:1521
+      - 2521:1521
+      - 2484:2484
+      - 2485:2485
+    volumes:
+      - ../oracle/init:/container-entrypoint-initdb.d:ro
+      - ../oracle/startdb:/container-entrypoint-startdb.d:ro
+      - ../oracle/wallet:/wallet:ro
     restart: always
-    entrypoint:
-      - bash
-      - -c
-      - |
-        cat > /container-entrypoint-initdb.d/01-init.sql <<'SQL'
-        GRANT CREATE MATERIALIZED VIEW TO devtester;
-        GRANT CREATE SYNONYM TO devtester;
-        GRANT CREATE TYPE TO devtester;
-        GRANT CREATE DATABASE LINK TO devtester;
-        SQL
-        exec container-entrypoint.sh
     healthcheck:
       test: ["CMD", "healthcheck.sh"]
       interval: 30s
@@ -42,10 +44,10 @@ services:
       resources:
         limits:
           memory: 2g
-    # SYS/SYSTEM Password：123456
-    # App User/Password：devtester/123456
-    # PDB Service：DEVTESTDB
-    # JDBC URL：jdbc:oracle:thin:@localhost:11521/DEVTESTDB
+    # SYS/SYSTEM Password: 123456
+    # App User/Password: devtester/123456
+    # PDB Service: DEVTESTDB
+    # JDBC URL: jdbc:oracle:thin:@localhost:2521/DEVTESTDB
 
   postgres:
     image: pgvector/pgvector:pg16
@@ -53,194 +55,153 @@ services:
       - POSTGRES_DB=postgres
       - POSTGRES_PASSWORD=123456
     ports:
-      - 15432:5432
-    restart: always
+      - 2543:5432
+    volumes:
+      - ../certs:/certs
+      - ../postgres/init:/docker-entrypoint-initdb.d:ro
+      - ../postgres/init-ssl.sh:/usr/local/bin/init-ssl.sh:ro
     entrypoint:
       - bash
-      - -c
-      - |
-        echo 'CREATE EXTENSION IF NOT EXISTS vector;' > /docker-entrypoint-initdb.d/01-init-vector.sql
-        exec docker-entrypoint.sh postgres
-    # User/Password：postgres/123456
+      - /usr/local/bin/init-ssl.sh
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    restart: always
+    # User/Password: postgres/123456
 
-  redis_7_2_3:
+  redis:
     image: redis:7.2.3
     privileged: true
     ports:
-      - 16379:6379
-    # - /apps/redis/datadir:/data
-    # - /apps/redis/conf/redis.conf:/usr/local/etc/redis/redis.conf
-    # - /apps/redis/logs:/logs
+      - 2637:6379
     restart: always
     command: redis-server --requirepass 123456
+    # Password: 123456
 
-  mongo_6_0:
+  mongo:
     image: mongo:6.0
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=123456
     ports:
-      - 17017:27017
+      - 2701:27017
     restart: always
-    # User/Password：root/123456
+    # User/Password: root/123456
 
-  # 注：elasticsearch:6.8.3 / kibana:6.8.3 无官方 ARM64 镜像，ARM64 平台不可用
-  # es_6_8_3:
-  #   image: elasticsearch:6.8.3
-  #   privileged: true
-  #   ports:
-  #     - 19300:9300
-  #     - 19200:9200
-  #   environment:
-  #     - discovery.type=single-node
-  # kibana_6_8_3:
-  #   image: kibana:6.8.3
-  #   privileged: true
-  #   ports:
-  #     - 15601:5601
-  #   environment:
-  #     - ELASTICSEARCH_URL=http://es_6_8_3:9200
-  #   depends_on:
-  #     - es_6_8_3
-
-  es_7_17_27:
-    image: elasticsearch:7.17.27
-    privileged: true
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2017-latest
+    platform: linux/amd64
+    environment:
+      - SA_PASSWORD=Share123456!
+      - ACCEPT_EULA=Y
     ports:
-      - 19301:9300
-      - 19201:9200
+      - 2143:1433
+    volumes:
+      - ../mssql/entrypoint.sh:/entrypoint.sh:ro
+    entrypoint: ["bash", "/entrypoint.sh"]
+    # User/Password: sa/Share123456!
+
+  db2:
+    image: ibmcom/db2
+    platform: linux/amd64
+    environment:
+      - DB2INST1_PASSWORD=123456
+      - DBNAME=devtesterdb
+      - LICENSE=accept
+    ports:
+      - 2500:50000
+    privileged: true
+    # User/Password: db2inst1/123456
+
+  clickhouse:
+    image: clickhouse/clickhouse-server
+    environment:
+      - CLICKHOUSE_DB=default
+      - CLICKHOUSE_USER=root
+      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
+      - TZ=Asia/Shanghai
+      - CLICKHOUSE_PASSWORD=password123
+    ports:
+      - 2812:8123
+      - 2900:9000
+    restart: always
+    # User/Password: root/password123
+
+  elasticsearch6:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.8.23
     environment:
       - discovery.type=single-node
+      - xpack.security.enabled=false
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    deploy:
-      resources:
-        limits:
-          memory: 2g
-  kibana_7_17_27:
-    image: kibana:7.17.27
-    privileged: true
     ports:
-      - 15602:5601
-    environment:
-      ELASTICSEARCH_HOSTS: '["http://es_7_17_27:9200"]'
-    depends_on:
-      - es_7_17_27
+      - 2920:9200
+      - 2930:9300
+    restart: always
 
-  opensearch_2_11_1:
-    image: opensearchproject/opensearch:2.11.1
-    privileged: true
-    ports:
-      - 19302:9300
-      - 19202:9200
+  elasticsearch7:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.18
     environment:
       - discovery.type=single-node
-      - plugins.security.disabled=true
-  opensearch_dashboards_2_11_1:
-    image: opensearchproject/opensearch-dashboards:2.11.1
-    privileged: true
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ports:
-      - 15603:5601
-    environment:
-      OPENSEARCH_HOSTS: '["http://opensearch_2_11_1:9200"]'
-      DISABLE_SECURITY_DASHBOARDS_PLUGIN: "true"
-    depends_on:
-      - opensearch_2_11_1
+      - 2921:9200
+      - 2931:9300
+    restart: always
 
-  # ==================== Milvus
-
-  milvus-etcd:
-    image: quay.io/coreos/etcd:v3.5.18
-    environment:
-      - ETCD_AUTO_COMPACTION_MODE=revision
-      - ETCD_AUTO_COMPACTION_RETENTION=1000
-      - ETCD_QUOTA_BACKEND_BYTES=4294967296
-      - ETCD_SNAPSHOT_COUNT=50000
-    command: etcd -advertise-client-urls=http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
-    healthcheck:
-      test: ["CMD", "etcdctl", "endpoint", "health"]
-      interval: 30s
-      timeout: 20s
-      retries: 3
-  milvus-minio:
-    image: minio/minio:RELEASE.2023-03-20T20-16-18Z
-    environment:
-      MINIO_ACCESS_KEY: minioadmin
-      MINIO_SECRET_KEY: minioadmin
-    ports:
-      - "19002:9001"
-      - "19001:9000"
-    command: minio server /minio_data --console-address ":9001"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 30s
-      timeout: 20s
-      retries: 3
   milvus:
-    image: milvusdb/milvus:v2.5.5
+    image: milvusdb/milvus:v2.3.4
+    platform: linux/amd64
     command: ["milvus", "run", "standalone"]
-    security_opt:
-      - seccomp:unconfined
     environment:
-      ETCD_ENDPOINTS: milvus-etcd:2379
-      MINIO_ADDRESS: milvus-minio:9000
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
-      interval: 30s
-      start_period: 90s
-      timeout: 20s
-      retries: 3
+      - ETCD_USE_EMBED=true
+      - ETCD_DATA_DIR=/var/lib/milvus/etcd
+      - COMMON_STORAGETYPE=local
     ports:
-      - "19530:19530"
-      - "19091:9091"
-    depends_on:
-      - milvus-etcd
-      - milvus-minio
+      - 2953:19530
+      - 2909:9091
+    restart: always
 
-  # ==================== kafka
-  kafka:
-    image: apache/kafka:3.8.0
-    container_name: cc-kafka
-    ports:
-      - "9092:9092"
+  ssh_server:
+    image: lscr.io/linuxserver/openssh-server:latest
     environment:
-      KAFKA_NODE_ID: 1
-      KAFKA_PROCESS_ROLES: broker,controller
-      # INTERNAL: 容器间通信（kafka-ui -> kafka），EXTERNAL: 宿主机访问
-      KAFKA_LISTENERS: INTERNAL://:29092,EXTERNAL://:9092,CONTROLLER://:9093
-      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://192.168.0.5:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
-      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-      KAFKA_NUM_PARTITIONS: 3
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
-  kafka-ui:
-    image: provectuslabs/kafka-ui:latest
-    container_name: cc-kafka-ui
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Shanghai
+      - USER_NAME=sshuser
+      - USER_PASSWORD=123456
+      - PASSWORD_ACCESS=true
+      - PUBLIC_KEY_FILE=/ssh-keys/authorized_keys
+    volumes:
+      - ../ssh:/ssh-keys:ro
+      - ../ssh/10-enable-tcp-forwarding.sh:/custom-cont-init.d/10-enable-tcp-forwarding.sh:ro
     ports:
-      - "8080:8080"
-    environment:
-      KAFKA_CLUSTERS_0_NAME: local
-      # 使用内部 listener 地址连接 kafka
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
-    depends_on:
-      - kafka
+      - "2022:22"
+    restart: always
 
-  # ==================== Dynamodb
-  dynamodb:
-    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
-    image: "amazon/dynamodb-local:latest"
-    container_name: dynamodb-local
+  proxy:
+    image: 3proxy/3proxy:latest
+    platform: linux/amd64
+    volumes:
+      - ../proxy:/etc/3proxy:ro
+    extra_hosts:
+      - host.docker.internal:host-gateway
     ports:
-      - "8000:8000"
-    #volumes:
-    #  - "./docker/dynamodb:/home/dynamodblocal/data"
-    #working_dir: /home/dynamodblocal
+      - 2312:3128
+      - 2108:1080
+    restart: always
 
-    #endpoint: http://localhost:8000
-    #ak: DUMMYIDEXAMPLE
-    #sk: DUMMYEXAMPLEKEY
+  proxy_auth:
+    image: 3proxy/3proxy:latest
+    platform: linux/amd64
+    volumes:
+      - ../proxy-auth:/etc/3proxy:ro
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    ports:
+      - 2313:3128
+      - 2109:1080
+    restart: always

@@ -19,7 +19,7 @@ import org.junit.Before;
 
 public class AbstractMilvusCmdForTest {
     protected static final String  MILVUS_HOST         = "127.0.0.1";
-    protected static final int     MILVUS_PORT         = 19530;
+    protected static final int     MILVUS_PORT         = 2953;
     protected static final String  MILVUS_URL          = "jdbc:dbvisitor:milvus://" + MILVUS_HOST + ":" + MILVUS_PORT + "?consistencylevel=strong";
     protected              boolean milvusReady         = false;
     protected static final String  TEST_COLLECTION     = "dbv_table_col";
@@ -106,8 +106,7 @@ public class AbstractMilvusCmdForTest {
                 }
                 // Also try to release any loaded partitions
                 try {
-                    R<io.milvus.grpc.ShowPartitionsResponse> partResp = client.showPartitions(
-                            ShowPartitionsParam.newBuilder().withCollectionName(collectionName).build());
+                    R<io.milvus.grpc.ShowPartitionsResponse> partResp = client.showPartitions(ShowPartitionsParam.newBuilder().withCollectionName(collectionName).build());
                     if (partResp.getStatus() == R.Status.Success.getCode() && partResp.getData() != null) {
                         // Releasing collection already handles partitions, but just in case
                     }
