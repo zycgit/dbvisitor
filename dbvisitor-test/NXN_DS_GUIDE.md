@@ -128,7 +128,7 @@ src/test/resources/
 
 规则：
 
-- `jdbc-{env}.properties` 只描述一个数据源的连接参数。
+- `jdbc-{env}.properties` 只描述一个数据源的连接参数，不再承载 feature gate。
 - `sql/{env}/init.sql` 是该数据源的初始化入口，必须幂等。
 - `mapper/`、`mapping/`、`session/` 只放可跨数据源复用的通用物料。
 - 数据源专有 XML、DSL、DTO、脚本、向量/索引/集合物料必须放在 `realdb/{env}` 对应目录。
@@ -436,7 +436,7 @@ mvn -Pnxn -Dnxn.env={env} -Dtest=net.hasor.dbvisitor.test.nxn.report.metadata.{E
 1. 阅读 feature 对应的 contract 断言。
 2. 判断目标数据源是否能提供等价语义。
 3. 能支持的，将 SQL、DDL、XML mapper、fixture 下沉到 `realdb/{env}` 或 `sql/{env}`。
-4. 移除 `{Env}Profile` 和 `jdbc-{env}.properties` 中的 skip。
+4. 移除 `{Env}Profile` 中的 feature。
 5. 跑目标数据源代表类。
 6. 跑目标数据源全量。
 7. 更新 `NXN_DS_CAPABILITY.md` 的矩阵、跳过清单和下一步方向。

@@ -29,8 +29,6 @@ public abstract class AbstractOneApiTest {
 
     @Before
     public void setup() throws IOException, SQLException {
-        checkTestSkip();
-
         if (dataSource == null) {
             dataSource = OneApiDataSourceManager.createDataSource();
         }
@@ -47,31 +45,6 @@ public abstract class AbstractOneApiTest {
         // Database initialization (schema + baseline data) is handled by OneApiDataSourceManager
         // Tests can override initData() to load additional test-specific data
         initData();
-    }
-
-    private void checkTestSkip() {
-        String skipList = OneApiDataSourceManager.getProperty("test.skip.cases");
-        if (skipList != null && !skipList.isEmpty()) {
-            Set<String> skippedTests = Arrays.stream(skipList.split(",")).map(String::trim).collect(Collectors.toSet());
-            String currentTest = testName.getMethodName();
-            if (skippedTests.contains(currentTest)) {
-                System.out.println("Skipping test " + currentTest + " as configured in test.skip.cases");
-                Assume.assumeTrue("Skipping test " + currentTest + " as configured", false);
-            }
-        }
-    }
-
-    protected void requiresFeature(String feature) {
-        String skipFeatures = OneApiDataSourceManager.getProperty("test.skip.features");
-        if (skipFeatures == null || skipFeatures.trim().isEmpty()) {
-            return; // 未配置黑名单，默认所有特性都启用
-        }
-
-        Set<String> disabledFeatures = Arrays.stream(skipFeatures.split(",")).map(String::trim).collect(Collectors.toSet());
-        if (disabledFeatures.contains(feature)) {
-            System.out.println("Skipping test " + testName.getMethodName() + " because feature '" + feature + "' is disabled.");
-            Assume.assumeTrue("Feature '" + feature + "' is disabled (in test.skip.features)", false);
-        }
     }
 
     protected boolean isDataSource(String dataSourceName) {

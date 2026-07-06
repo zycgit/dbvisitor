@@ -165,10 +165,10 @@ public abstract class AbstractDataSourceProfile implements DataSourceProfile {
         }
         switch (capabilityId) {
             case CapabilityId.LAMBDA_DUPLICATE_STRATEGY_IGNORE_BASIC,   //
-                    CapabilityId.LAMBDA_DUPLICATE_STRATEGY_IGNORE_MIXED,//
-                    CapabilityId.LAMBDA_DUPLICATE_STRATEGY_UPDATE_BASIC,//
-                    CapabilityId.LAMBDA_DUPLICATE_STRATEGY_UPDATE_MIXED,//
-                    CapabilityId.LAMBDA_DUPLICATE_STRATEGY_TRANSITION -> {
+                 CapabilityId.LAMBDA_DUPLICATE_STRATEGY_IGNORE_MIXED,//
+                 CapabilityId.LAMBDA_DUPLICATE_STRATEGY_UPDATE_BASIC,//
+                 CapabilityId.LAMBDA_DUPLICATE_STRATEGY_UPDATE_MIXED,//
+                 CapabilityId.LAMBDA_DUPLICATE_STRATEGY_TRANSITION -> {
                 return FeatureId.DUPLICATE_KEY_STRATEGY;
             }
             case CapabilityId.TYPE_TIME_LOCAL_DATE -> {
@@ -181,12 +181,12 @@ public abstract class AbstractDataSourceProfile implements DataSourceProfile {
                 return FeatureId.DELIMITED_LOWERCASE_STANDARD_TABLE;
             }
             case CapabilityId.NAMING_CASE_INSENSITIVE_MIXED_CASE_CRUD,  //
-                    CapabilityId.NAMING_CASE_SENSITIVE_FIELD_MISMATCH,  //
-                    CapabilityId.NAMING_CASE_SENSITIVE_TABLE_ISOLATION, //
-                    CapabilityId.NAMING_CASE_INSENSITIVE_FREEDOM_MAP,   //
-                    CapabilityId.NAMING_CASE_SENSITIVE_FREEDOM_MAP,//
-                    CapabilityId.NAMING_CASE_SENSITIVE_FREEDOM_MIXED_CASE,//
-                    CapabilityId.NAMING_CASE_INSENSITIVE_BATCH_MAPPING -> {
+                 CapabilityId.NAMING_CASE_SENSITIVE_FIELD_MISMATCH,  //
+                 CapabilityId.NAMING_CASE_SENSITIVE_TABLE_ISOLATION, //
+                 CapabilityId.NAMING_CASE_INSENSITIVE_FREEDOM_MAP,   //
+                 CapabilityId.NAMING_CASE_SENSITIVE_FREEDOM_MAP,//
+                 CapabilityId.NAMING_CASE_SENSITIVE_FREEDOM_MIXED_CASE,//
+                 CapabilityId.NAMING_CASE_INSENSITIVE_BATCH_MAPPING -> {
                 return FeatureId.CASE_SENSITIVE_IDENTIFIERS;
             }
             case CapabilityId.JDBC_CRUD_UPSERT_ON_CONFLICT -> {
