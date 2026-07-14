@@ -91,7 +91,7 @@ public class DbVisitorModule implements net.hasor.core.Module {
             dataSource = new DefaultDataSource();
         } else {
             Class<?> dsClass = apiBinder.getEnvironment().getClassLoader().loadClass(dataSourceType);
-            dataSource = ClassUtils.newInstance(dsClass);
+            dataSource = ClassUtils.newInstance(dsClass.asSubclass(DataSource.class));
         }
 
         applySettingsByPropertyName(settings, configKey, dataSource);

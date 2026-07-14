@@ -58,10 +58,11 @@ public abstract class AbstractMapping<T> {
         this.tableMapping = Objects.requireNonNull(tableMapping, "tableMapping is null.");
     }
 
+    @SuppressWarnings("unchecked")
     protected T extractRow(List<String> columns, ResultSet rs, int rowNum) throws SQLException {
         T target;
         try {
-            target = ClassUtils.newInstance(this.tableMapping.entityType());
+            target = (T) ClassUtils.newInstance(this.tableMapping.entityType());
         } catch (Exception e) {
             throw new SQLException("newInstance " + this.tableMapping.entityType().getName() + " failed.", e);
         }

@@ -213,7 +213,7 @@ if [[ "$mode" == "release" ]]; then
     exit 0
 fi
 
-tasks=(clean build)
+tasks=(build)
 if [[ "$mode" == "install" || "$mode" == "deploy" ]]; then
     tasks+=(publishToMavenLocal)
 fi
@@ -272,6 +272,7 @@ if [[ "$has_max_workers_option" == "false" ]]; then
     gradle_defaults+=(--max-workers 8)
 fi
 
+./gradlew clean "${gradle_defaults[@]}" "${gradle_args[@]}"
 ./gradlew "${tasks[@]}" "${gradle_defaults[@]}" "${gradle_args[@]}"
 
 if [[ "$mode" == "deploy" && "$dry_run" != "true" ]]; then

@@ -12,11 +12,11 @@ import org.bson.codecs.Codec;
 import org.bson.codecs.DecoderContext;
 
 /**
- * 通用的 BSON -> List<POJO> TypeHandler。
- * <p/>
+ * 通用的 {@code BSON -> List<POJO>} TypeHandler。
+ * <p>
  * 用法：
- * - 单对象：new BsonTypeHandler<>(Address.class)
- * - 列表对象：new BsonTypeHandler<>(List.class, OrderItem.class)
+ * - 单对象：{@code new BsonTypeHandler<>(Address.class)}
+ * - 列表对象：{@code new BsonTypeHandler<>(List.class, OrderItem.class)}
  */
 @NoCache
 public class BsonListTypeHandler extends AbstractBsonTypeHandler {

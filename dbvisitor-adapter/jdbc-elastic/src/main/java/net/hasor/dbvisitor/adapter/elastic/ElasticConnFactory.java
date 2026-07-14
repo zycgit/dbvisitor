@@ -130,7 +130,7 @@ public class ElasticConnFactory implements AdapterFactory {
             if (StringUtils.isNotBlank(customElastic)) {
                 try {
                     Class<?> customMongoClass = ElasticConnFactory.class.getClassLoader().loadClass(customElastic);
-                    CustomElastic customCmd = ClassUtils.newInstance(customMongoClass);
+                    CustomElastic customCmd = ClassUtils.newInstance(customMongoClass.asSubclass(CustomElastic.class));
                     elasticClient = customCmd.createElasticClient(jdbcUrl, caseProps);
                     if (elasticClient == null) {
                         throw new SQLException("create Elastic connection failed, custom Elastic return null.");

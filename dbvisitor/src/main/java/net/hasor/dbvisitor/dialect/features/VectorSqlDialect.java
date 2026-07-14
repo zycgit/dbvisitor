@@ -24,7 +24,7 @@ import net.hasor.dbvisitor.lambda.core.MetricType;
  * @version 2020-10-31
  */
 public interface VectorSqlDialect extends SqlDialect {
-    /** 添加向量范围查询条件 (col <-> vector) < threshold */
+    /** 添加向量范围查询条件 {@code (col <-> vector) < threshold} */
     void addConditionForVectorRange(ConditionLogic logic, String col, String colTerm, //
             Object vector, String vectorTerm, Object threshold, String thresholdTerm, MetricType metricType);
 

@@ -50,7 +50,7 @@ public class HolderKeySeqHolderFactory implements GeneratedKeyHandlerFactory {
         }
 
         if (!HolderCache.containsKey(keyHolderType)) {
-            HolderCache.put(keyHolderType, ClassUtils.newInstance(keyHolderType));
+            HolderCache.put(keyHolderType, ClassUtils.newInstance(keyHolderType.asSubclass(GeneratedKeyHandlerFactory.class)));
         }
 
         return HolderCache.get(keyHolderType).createHolder(context);

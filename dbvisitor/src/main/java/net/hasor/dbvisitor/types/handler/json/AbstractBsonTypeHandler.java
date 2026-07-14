@@ -14,11 +14,11 @@ import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
 
 /**
- * 通用的 BSON -> POJO TypeHandler。
- * <p/>
+ * 通用的 {@code BSON -> POJO} TypeHandler。
+ * <p>
  * 用法：
- * - 单对象：new BsonTypeHandler<>(Address.class)
- * - 列表对象：new BsonTypeHandler<>(List.class, OrderItem.class)
+ * - 单对象：{@code new BsonTypeHandler<>(Address.class)}
+ * - 列表对象：{@code new BsonTypeHandler<>(List.class, OrderItem.class)}
  */
 public abstract class AbstractBsonTypeHandler implements TypeHandler<Object> {
     private final static   Logger        logger = Logger.getLogger(AbstractBsonTypeHandler.class);

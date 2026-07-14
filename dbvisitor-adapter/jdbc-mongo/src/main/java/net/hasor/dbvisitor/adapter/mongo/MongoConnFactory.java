@@ -166,7 +166,7 @@ public class MongoConnFactory implements AdapterFactory {
             if (StringUtils.isNotBlank(customMongo)) {
                 try {
                     Class<?> customMongoClass = MongoConnFactory.class.getClassLoader().loadClass(customMongo);
-                    CustomMongo customCmd = ClassUtils.newInstance(customMongoClass);
+                    CustomMongo customCmd = ClassUtils.newInstance(customMongoClass.asSubclass(CustomMongo.class));
                     mongoObject = customCmd.createMongoClient(jdbcUrl, caseProps);
                     if (mongoObject == null) {
                         throw new SQLException("create Mongo connection failed, custom Mongo return null.");

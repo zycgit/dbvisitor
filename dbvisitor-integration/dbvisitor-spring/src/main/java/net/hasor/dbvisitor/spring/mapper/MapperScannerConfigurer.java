@@ -89,7 +89,7 @@ public class MapperScannerConfigurer extends AbstractConfigurer implements BeanD
             Class<?> nameGeneratorClass = tryToClass(this.nameGeneratorName);
             if (nameGeneratorClass != null) {
                 try {
-                    this.nameGenerator = ClassUtils.newInstance(nameGeneratorClass);
+                    this.nameGenerator = ClassUtils.newInstance(nameGeneratorClass.asSubclass(BeanNameGenerator.class));
                 } catch (Exception e) {
                     throw ExceptionUtils.toRuntime(e, ee -> new BeanCreationException(ee.getMessage(), ee));
                 }

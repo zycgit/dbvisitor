@@ -429,7 +429,7 @@ public class MapperRegistry {
             if (!ResultSetExtractor.class.isAssignableFrom(loadType)) {
                 throw new ClassCastException("the type '" + loadType.getName() + "' cannot be as ResultSetExtractor, at mapperId '" + def.toConfigId() + "'.");
             } else {
-                def.setResultExtractor(ClassUtils.newInstance(loadType));
+                def.setResultExtractor(ClassUtils.newInstance(loadType.asSubclass(ResultSetExtractor.class)));
             }
         }
 
@@ -439,7 +439,7 @@ public class MapperRegistry {
             if (!RowCallbackHandler.class.isAssignableFrom(loadType)) {
                 throw new ClassCastException("the type '" + loadType.getName() + "' cannot be as RowCallbackHandler, at mapperId '" + def.toConfigId() + "'.");
             } else {
-                def.setResultRowCallback(ClassUtils.newInstance(loadType));
+                def.setResultRowCallback(ClassUtils.newInstance(loadType.asSubclass(RowCallbackHandler.class)));
             }
         }
 
@@ -449,7 +449,7 @@ public class MapperRegistry {
             if (!RowMapper.class.isAssignableFrom(loadType)) {
                 throw new ClassCastException("the type '" + loadType.getName() + "' cannot be as RowMapper, at mapperId '" + def.toConfigId() + "'.");
             } else {
-                def.setResultRowMapper(ClassUtils.newInstance(loadType));
+                def.setResultRowMapper(ClassUtils.newInstance(loadType.asSubclass(RowMapper.class)));
             }
         }
 
@@ -564,7 +564,7 @@ public class MapperRegistry {
                     if (requiredType == Map.class) {
                         return super.createColumnMap(columnCount);
                     } else {
-                        return ClassUtils.newInstance(requiredType);
+                        return ClassUtils.newInstance(requiredType.asSubclass(Map.class));
                     }
                 }
             };

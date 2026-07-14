@@ -327,7 +327,7 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
             return KeyType.Sequence.createHolder(new GeneratedKeyHandlerContext(registry, tableDef, colDef, mockAnno));
         } else {
             Class<?> aClass = registry.getClassLoader().loadClass(keyType);
-            GeneratedKeyHandlerFactory holderFactory = ClassUtils.newInstance(aClass);
+            GeneratedKeyHandlerFactory holderFactory = ClassUtils.newInstance(aClass.asSubclass(GeneratedKeyHandlerFactory.class));
             return holderFactory.createHolder(new GeneratedKeyHandlerContext(registry, tableDef, colDef, Annotations.empty()));
         }
     }

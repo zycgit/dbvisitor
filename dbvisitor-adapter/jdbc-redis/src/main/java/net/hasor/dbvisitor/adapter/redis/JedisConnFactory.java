@@ -178,7 +178,7 @@ public class JedisConnFactory implements AdapterFactory {
         if (StringUtils.isNotBlank(customJedis)) {
             try {
                 Class<?> customJedisClass = JedisConnFactory.class.getClassLoader().loadClass(customJedis);
-                CustomJedis customJedisCmd = ClassUtils.newInstance(customJedisClass);
+                CustomJedis customJedisCmd = ClassUtils.newInstance(customJedisClass.asSubclass(CustomJedis.class));
                 jedisObject = customJedisCmd.createJedisCmd(jdbcUrl, caseProps);
                 database = StringUtils.isNotBlank(defaultDataBase) ? Integer.parseInt(defaultDataBase) : Protocol.DEFAULT_DATABASE;
                 if (jedisObject == null) {

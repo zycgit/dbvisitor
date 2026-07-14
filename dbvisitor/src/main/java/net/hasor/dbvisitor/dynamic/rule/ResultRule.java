@@ -21,6 +21,8 @@ import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.dbvisitor.dynamic.*;
 import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
+import net.hasor.dbvisitor.jdbc.RowCallbackHandler;
+import net.hasor.dbvisitor.jdbc.RowMapper;
 import net.hasor.dbvisitor.jdbc.extractor.ColumnMapResultSetExtractor;
 import net.hasor.dbvisitor.mapping.MappingHelper;
 
@@ -131,19 +133,19 @@ public final class ResultRule implements SqlRule {
 
         Class<?> mapperType = convertJavaType(registry, config.get(ResultArg.CFG_KEY_ROW_MAPPER));
         if (mapperType != null) {
-            arg.setRowMapper(ClassUtils.newInstance(mapperType));
+            arg.setRowMapper(ClassUtils.newInstance(mapperType.asSubclass(RowMapper.class)));
             return arg;
         }
 
         Class<?> handlerType = convertJavaType(registry, config.get(ResultArg.CFG_KEY_ROW_HANDLER));
         if (handlerType != null) {
-            arg.setRowHandler(ClassUtils.newInstance(handlerType));
+            arg.setRowHandler(ClassUtils.newInstance(handlerType.asSubclass(RowCallbackHandler.class)));
             return arg;
         }
 
         Class<?> extractorType = convertJavaType(registry, config.get(ResultArg.CFG_KEY_EXTRACTOR));
         if (extractorType != null) {
-            arg.setExtractor(ClassUtils.newInstance(extractorType));
+            arg.setExtractor(ClassUtils.newInstance(extractorType.asSubclass(ResultSetExtractor.class)));
             return arg;
         }
 

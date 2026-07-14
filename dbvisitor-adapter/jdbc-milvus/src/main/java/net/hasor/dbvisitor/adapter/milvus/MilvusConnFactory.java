@@ -145,7 +145,7 @@ public class MilvusConnFactory implements AdapterFactory {
             if (StringUtils.isNotBlank(customMilvus)) {
                 try {
                     Class<?> customMongoClass = MilvusConnFactory.class.getClassLoader().loadClass(customMilvus);
-                    CustomMilvus customCmd = ClassUtils.newInstance(customMongoClass);
+                    CustomMilvus customCmd = ClassUtils.newInstance(customMongoClass.asSubclass(CustomMilvus.class));
                     milvusClient = customCmd.createMilvusClient(jdbcUrl, caseProps);
                     if (milvusClient == null) {
                         throw new SQLException("create Milvus connection failed, custom Milvus return null.");
