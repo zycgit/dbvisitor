@@ -1,0 +1,35 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+}
+
+dependencies {
+    api project(':dbvisitor')
+    api project(':dbvisitor-driver')
+
+    testImplementation project(':jdbc-redis')
+    testImplementation project(':jdbc-mongo')
+    testImplementation project(':jdbc-elastic')
+    testImplementation project(':jdbc-milvus')
+    testImplementation 'ch.qos.logback:logback-classic:1.2.11'
+    testImplementation 'com.h2database:h2:2.2.224'
+    testImplementation 'mysql:mysql-connector-java:8.0.33'
+    testImplementation 'org.postgresql:postgresql:42.6.0'
+    testImplementation 'com.microsoft.sqlserver:mssql-jdbc:12.6.1.jre11'
+    testImplementation 'com.oracle.database.jdbc:ojdbc11:23.4.0.24.05'
+    testImplementation 'com.ibm.db2:jcc:11.5.9.0'
+    testImplementation 'com.clickhouse:clickhouse-jdbc:0.6.3'
+    testImplementation 'org.apache.httpcomponents.client5:httpclient5:5.2.1'
+    testImplementation 'org.lz4:lz4-java:1.8.0'
+    testImplementation 'com.zaxxer:HikariCP:4.0.3'
+    testImplementation 'ognl:ognl:3.4.2'
+    testImplementation 'com.google.protobuf:protobuf-java:3.25.5'
+    testImplementation "org.antlr:antlr4-runtime:${property('lib.antlr')}"
+}
+
+test {
+    if (findProperty('nxn.env')) {
+        systemProperty 'nxn.env', findProperty('nxn.env')
+        include "**/realdb/${findProperty('nxn.env')}/**/*Test.class"
+    }
+}

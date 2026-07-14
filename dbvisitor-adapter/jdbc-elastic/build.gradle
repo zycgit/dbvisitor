@@ -1,0 +1,69 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'com.gradleup.shadow'
+}
+
+configurations {
+    shaded
+    antlrTool
+}
+
+def grammarPackage = 'net.hasor.dbvisitor.adapter.elastic.parser'
+def grammarDir = file("src/main/antlr4/${grammarPackage.replace('.', '/')}")
+def generatedAntlrDir = file("$buildDir/generated-src/antlr/main")
+
+dependencies {
+    api project(':dbvisitor-driver')
+    api 'org.elasticsearch.client:elasticsearch-rest-client:7.17.10'
+    api 'com.fasterxml.jackson.core:jackson-databind:2.18.0'
+
+    antlrTool "org.antlr:antlr4:${property('lib.antlr')}"
+    compileOnly "org.antlr:antlr4-runtime:${property('lib.antlr')}"
+    shaded "org.antlr:antlr4-runtime:${property('lib.antlr')}"
+
+    testImplementation "org.antlr:antlr4-runtime:${property('lib.antlr')}"
+    testImplementation 'org.powermock:powermock-module-junit4:2.0.9'
+    testImplementation 'org.powermock:powermock-api-mockito2:2.0.9'
+}
+
+sourceSets.main.java.srcDir generatedAntlrDir
+
+def lexerGrammars = fileTree(grammarDir).matching { include '*Lexer.g4' }
+def parserGrammars = fileTree(grammarDir).matching { include '*Parser.g4' }
+
+tasks.register('generateLexerGrammar', JavaExec) {
+    inputs.files lexerGrammars
+    outputs.dir generatedAntlrDir
+    classpath = configurations.antlrTool
+    mainClass = 'org.antlr.v4.Tool'
+    args '-visitor', '-package', grammarPackage, '-o', generatedAntlrDir.absolutePath
+    args lexerGrammars.files.sort().collect { it.absolutePath }
+}
+
+tasks.register('generateParserGrammar', JavaExec) {
+    dependsOn 'generateLexerGrammar'
+    inputs.files parserGrammars
+    outputs.dir generatedAntlrDir
+    classpath = configurations.antlrTool
+    mainClass = 'org.antlr.v4.Tool'
+    args '-visitor', '-package', grammarPackage, '-lib', generatedAntlrDir.absolutePath, '-o', generatedAntlrDir.absolutePath
+    args parserGrammars.files.sort().collect { it.absolutePath }
+}
+
+tasks.named('shadowJar') {
+    configurations = [project.configurations.shaded]
+    relocate 'org.antlr', 'net.hasor.dbvisitor.adapter.elastic.internal.jars.antlr'
+    exclude 'META-INF/maven/ognl/**'
+    exclude 'META-INF/maven/org.javassist/**'
+}
+
+tasks.register('copyRuntimeLibs', Copy) {
+    from configurations.runtimeClasspath
+    into layout.buildDirectory.dir('lib')
+    exclude { it.file.name.startsWith('antlr4-runtime-') }
+}
+
+compileJava.dependsOn 'generateParserGrammar'
+sourcesJar.dependsOn 'generateParserGrammar'
+assemble.dependsOn copyRuntimeLibs

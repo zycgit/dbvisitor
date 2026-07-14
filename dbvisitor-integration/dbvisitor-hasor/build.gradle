@@ -1,0 +1,14 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+}
+
+dependencies {
+    api project(':dbvisitor')
+    api 'net.hasor:hasor-core:5.0.1'
+    api 'javax.annotation:javax.annotation-api:1.3.2'
+
+    testImplementation 'com.zaxxer:HikariCP:4.0.3'
+    testImplementation 'mysql:mysql-connector-java:8.0.33'
+    testImplementation 'ch.qos.logback:logback-classic:1.4.7'
+}

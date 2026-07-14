@@ -1,0 +1,13 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+}
+
+dependencies {
+    api project(':dbvisitor')
+    api 'com.google.inject:guice:5.1.0'
+
+    testImplementation 'com.zaxxer:HikariCP:4.0.3'
+    testImplementation 'mysql:mysql-connector-java:8.0.33'
+    testImplementation 'ch.qos.logback:logback-classic:1.4.7'
+}

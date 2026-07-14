@@ -2,6 +2,7 @@
 test-work
 bin
 /out/
+build/
 .DS_Store
 _book
 dependency-reduced-pom.xml

@@ -1,0 +1,12 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+}
+
+dependencies {
+    api project(':dbvisitor-spring')
+
+    compileOnly 'org.springframework.boot:spring-boot-autoconfigure:2.7.3'
+    compileOnly 'org.springframework.boot:spring-boot-starter-jdbc:2.7.3'
+    compileOnly 'org.springframework:spring-beans:5.3.23'
+}

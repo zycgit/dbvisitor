@@ -1,0 +1,39 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+}
+
+rootProject.name = 'dbvisitor-parent'
+
+include 'dbvisitor'
+include 'dbvisitor-driver'
+include 'dbvisitor-spring'
+include 'dbvisitor-spring-starter'
+include 'dbvisitor-hasor'
+include 'dbvisitor-guice'
+include 'dbvisitor-solon-plugin'
+include 'jdbc-redis'
+include 'jdbc-mongo'
+include 'jdbc-milvus'
+include 'jdbc-elastic'
+include 'dbvisitor-test'
+
+project(':dbvisitor-spring').projectDir = file('dbvisitor-integration/dbvisitor-spring')
+project(':dbvisitor-spring-starter').projectDir = file('dbvisitor-integration/dbvisitor-spring-starter')
+project(':dbvisitor-hasor').projectDir = file('dbvisitor-integration/dbvisitor-hasor')
+project(':dbvisitor-guice').projectDir = file('dbvisitor-integration/dbvisitor-guice')
+project(':dbvisitor-solon-plugin').projectDir = file('dbvisitor-integration/dbvisitor-solon-plugin')
+project(':jdbc-redis').projectDir = file('dbvisitor-adapter/jdbc-redis')
+project(':jdbc-mongo').projectDir = file('dbvisitor-adapter/jdbc-mongo')
+project(':jdbc-milvus').projectDir = file('dbvisitor-adapter/jdbc-milvus')
+project(':jdbc-elastic').projectDir = file('dbvisitor-adapter/jdbc-elastic')

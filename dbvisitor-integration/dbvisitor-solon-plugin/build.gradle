@@ -1,0 +1,14 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+}
+
+dependencies {
+    api project(':dbvisitor')
+    api 'org.noear:solon-data:3.0.7'
+
+    testImplementation 'com.zaxxer:HikariCP:4.0.3'
+    testImplementation 'mysql:mysql-connector-java:8.0.33'
+    testImplementation 'ch.qos.logback:logback-classic:1.4.7'
+    testImplementation 'org.noear:solon-test-junit4:3.0.7'
+}

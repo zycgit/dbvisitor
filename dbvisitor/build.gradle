@@ -1,0 +1,50 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'com.gradleup.shadow'
+}
+
+configurations {
+    shaded
+}
+
+dependencies {
+    api "net.hasor:cobble-all:${property('lib.cobble')}"
+
+    compileOnly 'ognl:ognl:3.4.3'
+    compileOnly 'org.mongodb:mongodb-driver-sync:5.6.2'
+    compileOnly 'org.locationtech.jts:jts-core:1.19.0'
+    compileOnly 'com.alibaba:fastjson:2.0.53'
+    compileOnly 'com.alibaba.fastjson2:fastjson2:2.0.53'
+    compileOnly 'com.google.code.gson:gson:2.11.0'
+    compileOnly 'com.fasterxml.jackson.core:jackson-databind:2.18.0'
+
+    shaded 'ognl:ognl:3.4.3'
+
+    testImplementation 'ognl:ognl:3.4.3'
+    testImplementation 'org.mongodb:mongodb-driver-sync:5.6.2'
+    testImplementation 'org.locationtech.jts:jts-core:1.19.0'
+    testImplementation 'com.alibaba:fastjson:2.0.53'
+    testImplementation 'com.alibaba.fastjson2:fastjson2:2.0.53'
+    testImplementation 'com.google.code.gson:gson:2.11.0'
+    testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.18.0'
+    testImplementation 'org.powermock:powermock-module-junit4:2.0.9'
+    testImplementation 'org.powermock:powermock-api-mockito2:2.0.9'
+    testImplementation 'ch.qos.logback:logback-classic:1.2.11'
+    testImplementation 'xerces:xercesImpl:2.12.2'
+    testImplementation 'com.h2database:h2:2.2.220'
+    testImplementation 'mysql:mysql-connector-java:8.0.33'
+    testImplementation 'org.postgresql:postgresql:42.5.4'
+    testImplementation 'com.oracle.database.jdbc:ojdbc8:19.8.0.0'
+    testImplementation 'com.oracle.database.xml:xdb:19.8.0.0'
+    testImplementation 'com.oracle.database.xml:xmlparserv2:19.8.0.0'
+    testImplementation 'com.microsoft.sqlserver:mssql-jdbc:11.2.0.jre8'
+}
+
+tasks.named('shadowJar') {
+    configurations = [project.configurations.shaded]
+    relocate 'ognl', 'net.hasor.dbvisitor.internal.jars.ognl'
+    relocate 'javassist', 'net.hasor.dbvisitor.internal.jars.javassist'
+    exclude 'META-INF/maven/ognl/**'
+    exclude 'META-INF/maven/org.javassist/**'
+}
