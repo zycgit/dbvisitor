@@ -64,7 +64,7 @@
             <dependency>
                 <groupId>net.hasor</groupId>
                 <artifactId>cobble-all</artifactId>
-                <version>5.0.0</version>
+                <version>5.0.1</version>
             </dependency>
             <dependency>
                 <groupId>net.hasor</groupId>
@@ -261,9 +261,6 @@
         </profile>
         <profile>
             <id>release</id>
-            <properties>
-                <gpg.passphrase>fubing220106</gpg.passphrase>
-            </properties>
             <build>
                 <plugins>
                     <!-- GPG -->
@@ -285,7 +282,7 @@
                     <plugin>
                         <groupId>org.sonatype.central</groupId>
                         <artifactId>central-publishing-maven-plugin</artifactId>
-                        <version>0.5.0</version>
+                        <version>0.8.0</version>
                         <extensions>true</extensions>
                         <configuration>
                             <publishingServerId>central</publishingServerId>
@@ -294,7 +291,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-release-plugin</artifactId>
-                        <version>3.0.1</version>
+                        <version>3.1.1</version>
                         <configuration>
                             <autoVersionSubmodules>true</autoVersionSubmodules>
                             <useReleaseProfile>false</useReleaseProfile>

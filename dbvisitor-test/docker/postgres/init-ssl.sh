@@ -103,6 +103,13 @@ chmod 600 "${RUNTIME_SSL_DIR}/server.key"
 chmod 644 "${RUNTIME_SSL_DIR}/ca.crt" "${RUNTIME_SSL_DIR}/server.crt" "${RUNTIME_SSL_DIR}/pg_hba.conf"
 
 exec docker-entrypoint.sh postgres \
+  -c wal_level=logical \
+  -c max_wal_senders=4 \
+  -c max_replication_slots=4 \
+  -c wal_keep_size=64MB \
+  -c max_slot_wal_keep_size=256MB \
+  -c max_wal_size=512MB \
+  -c checkpoint_timeout=5min \
   -c ssl=on \
   -c ssl_ca_file="${RUNTIME_SSL_DIR}/ca.crt" \
   -c ssl_cert_file="${RUNTIME_SSL_DIR}/server.crt" \

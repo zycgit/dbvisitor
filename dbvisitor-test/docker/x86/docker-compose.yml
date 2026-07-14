@@ -107,7 +107,7 @@ services:
     image: ibmcom/db2
     environment:
       - DB2INST1_PASSWORD=123456
-      - DBNAME=devtesterdb
+      - DBNAME=DEVTEST
       - LICENSE=accept
     ports:
       - 2500:50000
