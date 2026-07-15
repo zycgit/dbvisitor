@@ -1,6 +1,7 @@
 package net.hasor.dbvisitor.test.realdb.milvus;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
@@ -18,7 +19,6 @@ import net.hasor.dbvisitor.test.realdb.milvus.material.user.UserInfoMilvus5;
 import net.hasor.dbvisitor.test.realdb.milvus.material.user.UserInfoMilvus5Mapper;
 import net.hasor.dbvisitor.test.realdb.milvus.material.user.UserInfoMilvus6;
 import net.hasor.dbvisitor.test.realdb.milvus.material.user.UserInfoMilvus6Mapper;
-import org.junit.Assume;
 import org.junit.Before;
 
 import static org.junit.Assert.*;
@@ -57,7 +57,7 @@ public class MilvusMapperContractTest extends AdapterContractTest {
     }
 
     @Before
-    public void before() {
+    public void before() throws SQLException {
         try (Connection c = newAdapterConnection()) {
             JdbcTemplate jdbc = new JdbcTemplate(c);
 
@@ -65,8 +65,6 @@ public class MilvusMapperContractTest extends AdapterContractTest {
             initTable(jdbc, "tb_mapper_user_milvus", "CREATE TABLE IF NOT EXISTS tb_mapper_user_milvus (uid VARCHAR(64) PRIMARY KEY, name VARCHAR(64), loginName VARCHAR(64), loginPassword VARCHAR(64), v FLOAT_VECTOR(2)) WITH (consistency_level = 'Strong')");
             initIndex(jdbc, "idx_mapper_user_v", "tb_mapper_user_milvus", "CREATE INDEX idx_mapper_user_v ON TABLE tb_mapper_user_milvus (v) USING \"IVF_FLAT\" WITH (nlist = 128, metric_type = 'L2')");
             jdbc.execute("LOAD TABLE tb_mapper_user_milvus");
-        } catch (Exception e) {
-            Assume.assumeNoException(e);
         }
     }
 

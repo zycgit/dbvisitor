@@ -7,7 +7,6 @@ import java.util.Map;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.test.contract.api.adapter.AdapterContractTest;
 import org.junit.After;
-import org.junit.Assume;
 import org.junit.Before;
 import static org.junit.Assert.*;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
@@ -26,18 +25,14 @@ public class MilvusJdbcDslContractTest extends AdapterContractTest {
     private JdbcTemplate jdbcTemplate;
 
     @Before
-    public void before() {
+    public void before() throws SQLException {
+        this.connection = newAdapterConnection();
+        this.jdbcTemplate = new JdbcTemplate(this.connection);
         try {
-            this.connection = newAdapterConnection();
-            this.jdbcTemplate = new JdbcTemplate(this.connection);
-            try {
-                this.jdbcTemplate.execute("DROP TABLE IF EXISTS tb_crud_user");
-                this.jdbcTemplate.execute("DROP TABLE IF EXISTS tb_vector_type");
-            } catch (Exception e) {
-                // ignore
-            }
-        } catch (Throwable e) {
-            Assume.assumeNoException("Milvus connection failed, skipping test", e);
+            this.jdbcTemplate.execute("DROP TABLE IF EXISTS tb_crud_user");
+            this.jdbcTemplate.execute("DROP TABLE IF EXISTS tb_vector_type");
+        } catch (Exception e) {
+            // ignore
         }
     }
 

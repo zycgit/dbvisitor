@@ -128,7 +128,7 @@ public abstract class AbstractOneApiTest {
 
     private void deleteAll(String tableName) throws SQLException {
         if (isDataSource("clickhouse")) {
-            jdbcTemplate.executeUpdate("ALTER TABLE " + tableName + " DELETE WHERE 1=1");
+            jdbcTemplate.executeUpdate("TRUNCATE TABLE " + tableName);
         } else {
             jdbcTemplate.executeUpdate("DELETE FROM " + tableName);
         }

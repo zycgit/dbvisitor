@@ -12,7 +12,7 @@ public class ComplexOrderMilvus {
     @Column(value = "address", typeHandler = JsonTypeHandler.class)
     private Address         address;
     @Column(value = "items", typeHandler = JsonTypeHandler.class)
-    private List<OrderItem> items;
+    private OrderItems      items;
     @Column("v")
     private List<Float>     v;
 
@@ -32,11 +32,11 @@ public class ComplexOrderMilvus {
         this.address = address;
     }
 
-    public List<OrderItem> getItems() {
+    public OrderItems getItems() {
         return items;
     }
 
-    public void setItems(List<OrderItem> items) {
+    public void setItems(OrderItems items) {
         this.items = items;
     }
 

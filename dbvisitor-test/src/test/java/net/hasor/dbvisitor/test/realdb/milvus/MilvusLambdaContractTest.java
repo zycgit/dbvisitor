@@ -14,7 +14,7 @@ import net.hasor.dbvisitor.test.realdb.milvus.material.user.UserInfoMilvusBaseMa
 import net.hasor.dbvisitor.test.realdb.milvus.material.complex.Address;
 import net.hasor.dbvisitor.test.realdb.milvus.material.complex.ComplexOrderMilvus;
 import net.hasor.dbvisitor.test.realdb.milvus.material.complex.OrderItem;
-import org.junit.Assume;
+import net.hasor.dbvisitor.test.realdb.milvus.material.complex.OrderItems;
 import org.junit.Before;
 
 import static org.junit.Assert.*;
@@ -31,7 +31,7 @@ public class MilvusLambdaContractTest extends AdapterContractTest {
     }
 
     @Before
-    public void before() {
+    public void before() throws SQLException {
         try (Connection c = newAdapterConnection()) {
             JdbcTemplate jdbc = new JdbcTemplate(c);
 
@@ -55,8 +55,6 @@ public class MilvusLambdaContractTest extends AdapterContractTest {
             initIndex(jdbc, "idx_sum_v", "lambda_sum", "CREATE INDEX idx_sum_v ON TABLE lambda_sum (v) USING \"IVF_FLAT\" WITH (nlist = 128, metric_type = 'L2')");
             loadTable(jdbc, "lambda_sum");
 
-        } catch (Throwable e) {
-            Assume.assumeNoException("Milvus setup failed or timed out - skipping tests", e);
         }
     }
 
@@ -213,7 +211,9 @@ public class MilvusLambdaContractTest extends AdapterContractTest {
             item2.setQuantity(20);
             items.add(item2);
 
-            order.setItems(items);
+            OrderItems orderItems = new OrderItems();
+            orderItems.setItems(items);
+            order.setItems(orderItems);
 
             // Insert
             int r1 = lambda.insert(ComplexOrderMilvus.class)//
@@ -236,7 +236,7 @@ public class MilvusLambdaContractTest extends AdapterContractTest {
 
             // Check Items
             assertNotNull(loadedOrder.getItems());
-            assertEquals(2, loadedOrder.getItems().size());
+            assertEquals(2, loadedOrder.getItems().getItems().size());
         }
     }
 

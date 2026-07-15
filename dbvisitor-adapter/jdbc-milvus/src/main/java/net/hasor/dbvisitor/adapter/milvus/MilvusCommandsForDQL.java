@@ -129,14 +129,7 @@ class MilvusCommandsForDQL extends MilvusCommands {
         }
 
         QueryResultsWrapper wrapper = new QueryResultsWrapper(callback.getData());
-        long count = 0;
-        if (!wrapper.getRowRecords().isEmpty()) {
-            Map<String, Object> row = wrapper.getRowRecords().get(0).getFieldValues();
-            Object val = row.get("count(*)");
-            if (val instanceof Number) {
-                count = ((Number) val).longValue();
-            }
-        }
+        long count = readCountValue(wrapper);
 
         receive.responseResult(request, singleResult(request, COL_COUNT_LONG, count));
         return completed(future);
@@ -407,18 +400,17 @@ class MilvusCommandsForDQL extends MilvusCommands {
         }
 
         QueryResultsWrapper wrapper = new QueryResultsWrapper(callback.getData());
-
-        long count = 0;
-        // Milvus 2.2+ returns a single row with field "count(*)"
-        if (!wrapper.getRowRecords().isEmpty()) {
-            Map<String, Object> row = wrapper.getRowRecords().get(0).getFieldValues();
-            Object val = row.get("count(*)");
-            if (val instanceof Number) {
-                count = ((Number) val).longValue();
-            }
-        }
+        long count = readCountValue(wrapper);
 
         receive.responseResult(request, singleResult(request, COL_COUNT_LONG, count));
         return completed(future);
+    }
+
+    private static long readCountValue(QueryResultsWrapper wrapper) {
+        List<?> countData = wrapper.getFieldWrapper("count(*)").getFieldData();
+        if (!countData.isEmpty() && countData.get(0) instanceof Number) {
+            return ((Number) countData.get(0)).longValue();
+        }
+        return 0;
     }
 }

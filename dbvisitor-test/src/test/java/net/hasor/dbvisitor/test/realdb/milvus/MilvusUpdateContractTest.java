@@ -10,7 +10,6 @@ import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.test.contract.api.adapter.AdapterContractTest;
 import net.hasor.dbvisitor.test.realdb.milvus.material.user.UserInfoMilvus;
-import org.junit.Assume;
 import org.junit.Before;
 
 import static org.junit.Assert.*;
@@ -27,15 +26,13 @@ public class MilvusUpdateContractTest extends AdapterContractTest {
     }
 
     @Before
-    public void before() {
+    public void before() throws SQLException {
         try (Connection c = newAdapterConnection()) {
             JdbcTemplate jdbc = new JdbcTemplate(c);
             jdbc.execute("DROP TABLE IF EXISTS tb_user_info_milvus");
             jdbc.execute("CREATE TABLE tb_user_info_milvus (uid VARCHAR(64) PRIMARY KEY, name VARCHAR(64), loginName VARCHAR(64), loginPassword VARCHAR(64), v FLOAT_VECTOR(2))");
             jdbc.execute("CREATE INDEX idx_user_v ON TABLE tb_user_info_milvus (v) USING \"IVF_FLAT\" WITH (nlist = 128, metric_type = 'L2')");
             jdbc.execute("LOAD TABLE tb_user_info_milvus");
-        } catch (Throwable e) {
-            Assume.assumeNoException("Milvus setup failed - skipping tests", e);
         }
     }
 

@@ -35,7 +35,9 @@ test {
         findProperty('nxn.env')
     }
     if (findProperty('nxn.env')) {
-        systemProperty 'nxn.env', findProperty('nxn.env')
-        include "**/realdb/${findProperty('nxn.env')}/**/*Test.class"
+        def nxnEnv = findProperty('nxn.env')
+        def realdbPackage = nxnEnv == 'es6' ? 'elastic6' : nxnEnv == 'es7' ? 'elastic7' : nxnEnv
+        systemProperty 'nxn.env', nxnEnv
+        include "**/realdb/${realdbPackage}/**/*Test.class"
     }
 }

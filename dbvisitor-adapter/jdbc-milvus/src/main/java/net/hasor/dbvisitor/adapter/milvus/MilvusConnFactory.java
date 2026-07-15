@@ -20,6 +20,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import io.milvus.client.MilvusClient;
+import io.milvus.client.MilvusMultiServiceClient;
 import io.milvus.client.MilvusServiceClient;
 import io.milvus.param.ConnectParam;
 import io.milvus.param.MultiConnectParam;
@@ -52,8 +53,7 @@ public class MilvusConnFactory implements AdapterFactory {
         return ServerAddress.newBuilder().withHost(host).withPort(port).withHealthPort(health).build();
     }
 
-    private static ConnectParam.Builder passerSettings(String defaultDB, Map<String, String> caseProps, List<ServerAddress> clusterHosts) {
-        ConnectParam.Builder builder = MultiConnectParam.newBuilder().withHosts(clusterHosts);
+    private static ConnectParam.Builder passerSettings(String defaultDB, Map<String, String> caseProps, ConnectParam.Builder builder) {
         if (StringUtils.isNotBlank(defaultDB)) {
             builder.withDatabaseName(defaultDB);
         }
@@ -159,12 +159,16 @@ public class MilvusConnFactory implements AdapterFactory {
                     clusterHosts.add(passerIpPort(h, 19530, 9091));
                 }
 
-                ConnectParam.Builder builder = passerSettings(defaultDB, caseProps, clusterHosts);
-                milvusClient = new MilvusServiceClient(builder.build());
+                MultiConnectParam.Builder builder = MultiConnectParam.newBuilder().withHosts(clusterHosts);
+                passerSettings(defaultDB, caseProps, builder);
+                milvusClient = new MilvusMultiServiceClient(builder.build());
             } else {
                 ServerAddress hostAndPort = passerIpPort(host, 19530, 9091);
 
-                ConnectParam.Builder builder = passerSettings(defaultDB, caseProps, Collections.singletonList(hostAndPort));
+                ConnectParam.Builder builder = ConnectParam.newBuilder()//
+                        .withHost(hostAndPort.getHost())//
+                        .withPort(hostAndPort.getPort());
+                passerSettings(defaultDB, caseProps, builder);
                 milvusClient = new MilvusServiceClient(builder.build());
             }
 
