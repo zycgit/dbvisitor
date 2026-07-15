@@ -17,7 +17,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 
+@NxnContract
 public abstract class VecTypeTest extends VectorQuerySupport {
     @Test
     @Capability(CapabilityId.VECTOR_CRUD_ROUND_TRIP)

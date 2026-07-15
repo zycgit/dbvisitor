@@ -77,4 +77,7 @@ public class Elastic7RefreshAndReindexTest {
             Assert.assertEquals("Expected 2 reindexed docs, source count was " + sourceCount, 2, count);
         }
     }
+    public static void main(String[] args) {
+        net.hasor.dbvisitor.adapter.elastic.realdb.RealDbTestRunner.run(Elastic7RefreshAndReindexTest.class);
+    }
 }

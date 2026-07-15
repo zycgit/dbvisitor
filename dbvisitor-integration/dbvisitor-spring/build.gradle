@@ -3,6 +3,9 @@ plugins {
     id 'maven-publish'
 }
 
+ext.pomName = 'dbVisitor-spring'
+description = 'Integrate dbVisitor and Spring.'
+
 dependencies {
     api project(':dbvisitor')
     api 'org.springframework:spring-context:4.0.0.RELEASE'
@@ -10,6 +13,6 @@ dependencies {
     api 'javax.annotation:javax.annotation-api:1.3.2'
 
     testImplementation 'org.springframework:spring-test:4.0.0.RELEASE'
-    testImplementation 'mysql:mysql-connector-java:8.0.33'
+    testImplementation 'com.h2database:h2:2.2.224'
     testImplementation 'com.zaxxer:HikariCP:4.0.3'
 }

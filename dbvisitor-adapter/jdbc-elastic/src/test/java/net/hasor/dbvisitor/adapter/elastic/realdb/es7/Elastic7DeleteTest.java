@@ -89,4 +89,7 @@ public class Elastic7DeleteTest {
             }
         }
     }
+    public static void main(String[] args) {
+        net.hasor.dbvisitor.adapter.elastic.realdb.RealDbTestRunner.run(Elastic7DeleteTest.class);
+    }
 }

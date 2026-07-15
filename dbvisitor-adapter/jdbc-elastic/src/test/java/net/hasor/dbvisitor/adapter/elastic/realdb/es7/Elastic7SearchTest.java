@@ -314,4 +314,7 @@ public class Elastic7SearchTest {
             }
         }
     }
+    public static void main(String[] args) {
+        net.hasor.dbvisitor.adapter.elastic.realdb.RealDbTestRunner.run(Elastic7SearchTest.class);
+    }
 }

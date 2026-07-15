@@ -4,12 +4,16 @@ plugins {
     id 'com.gradleup.shadow'
 }
 
+ext.pomName = 'dbVisitor'
+description = 'dbVisitor is a full-featured database access tool.'
+
 configurations {
     shaded
 }
 
 dependencies {
     api "net.hasor:cobble-all:${property('lib.cobble')}"
+    shaded 'ognl:ognl:3.4.3'
 
     compileOnly 'ognl:ognl:3.4.3'
     compileOnly 'org.mongodb:mongodb-driver-sync:5.6.2'
@@ -18,8 +22,6 @@ dependencies {
     compileOnly 'com.alibaba.fastjson2:fastjson2:2.0.53'
     compileOnly 'com.google.code.gson:gson:2.11.0'
     compileOnly 'com.fasterxml.jackson.core:jackson-databind:2.18.0'
-
-    shaded 'ognl:ognl:3.4.3'
 
     testImplementation 'ognl:ognl:3.4.3'
     testImplementation 'org.mongodb:mongodb-driver-sync:5.6.2'

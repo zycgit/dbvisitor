@@ -19,6 +19,7 @@ import net.hasor.dbvisitor.test.nxn.env.DataSourceId;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfileRegistry;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
+import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 
 public final class CapabilityMatrixReport {
     private CapabilityMatrixReport() {
@@ -130,10 +131,9 @@ public final class CapabilityMatrixReport {
     }
 
     private static List<Class<?>> contractClasses() throws Exception {
-        List<Class<?>> contracts = classNamesUnder("net/hasor/dbvisitor/test/contract", "Abstract", "ContractTest.java").stream()//
+        List<Class<?>> contracts = classNamesUnder("net/hasor/dbvisitor/test/contract", "", ".java").stream()//
                 .map(CapabilityMatrixReport::loadClass)//
-                .filter(clazz -> Modifier.isAbstract(clazz.getModifiers()))//
-                .filter(clazz -> AbstractNxnContractTest.class.isAssignableFrom(clazz))//
+                .filter(CapabilityMatrixReport::isNxnContractClass)//
                 .collect(Collectors.toList());
         contracts.add(NxnMetadataContractTest.class);
         return contracts;
@@ -192,7 +192,7 @@ public final class CapabilityMatrixReport {
     private static Class<?> nearestContractSuperclass(Class<?> realdbClass) {
         Class<?> cursor = realdbClass.getSuperclass();
         while (cursor != null && cursor != Object.class) {
-            if (isContractBaseClass(cursor)) {
+            if (isNxnContractClass(cursor)) {
                 return cursor;
             }
             cursor = cursor.getSuperclass();
@@ -200,8 +200,8 @@ public final class CapabilityMatrixReport {
         return null;
     }
 
-    private static boolean isContractBaseClass(Class<?> clazz) {
-        return clazz.getName().startsWith("net.hasor.dbvisitor.test.contract.") || clazz == NxnMetadataContractTest.class;
+    private static boolean isNxnContractClass(Class<?> clazz) {
+        return clazz.getDeclaredAnnotation(NxnContract.class) != null;
     }
 
     private static String realdbPackage(DataSourceProfile profile) {

@@ -17,9 +17,11 @@ import org.junit.Test;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
+import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 
 import static org.junit.Assert.assertTrue;
 
+@NxnContract
 public abstract class SchemaTest extends AbstractNxnContractTest {
     private static final Map<String, List<String>> STANDARD_SCHEMA = new LinkedHashMap<>();
 

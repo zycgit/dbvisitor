@@ -119,4 +119,7 @@ public class MilvusCmdForOtherTest extends AbstractMilvusCmdForTest {
             }
         }
     }
+    public static void main(String[] args) {
+        net.hasor.dbvisitor.adapter.milvus.realdb.RealDbTestRunner.run(MilvusCmdForOtherTest.class);
+    }
 }

@@ -127,7 +127,7 @@ public class PostgreSqlDialect extends AbstractSqlDialect implements PageSqlDial
         insertRows = generatedStrategy == GeneratedKeyStrategy.MultiValuesResultSet ? insertRows : 1;
         return switch (duplicateStrategy == null ? DuplicateKeyStrategy.Into : duplicateStrategy) {
             case Into -> this.insertInto(useQualifier, catalog, schema, table, columns, returnColumns, insertRows, columnValueTerms);
-            case Ignore -> this.insertIgnore(useQualifier, catalog, schema, table, columns, columnValueTerms);
+            case Ignore -> this.insertIgnore(useQualifier, catalog, schema, table, columns, insertRows, columnValueTerms);
             case Update -> this.insertReplace(useQualifier, catalog, schema, table, columns, columnValueTerms, primaryKey, returnColumns, insertRows);
         };
     }
@@ -137,8 +137,8 @@ public class PostgreSqlDialect extends AbstractSqlDialect implements PageSqlDial
         return appendReturning(sqlString, useQualifier, returnColumns);
     }
 
-    private String insertIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> columns, Map<String, String> columnValueTerms) {
-        return buildSql("INSERT INTO ", useQualifier, catalog, schema, table, columns, 1, columnValueTerms, " ON CONFLICT DO NOTHING");
+    private String insertIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> columns, int insertRows, Map<String, String> columnValueTerms) {
+        return buildSql("INSERT INTO ", useQualifier, catalog, schema, table, columns, insertRows, columnValueTerms, " ON CONFLICT DO NOTHING");
     }
 
     // 主键冲突更新非主键列

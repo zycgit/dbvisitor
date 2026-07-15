@@ -3,6 +3,8 @@ plugins {
     id 'maven-publish'
 }
 
+ext.pomName = 'dbVisitor-spring-starter'
+description = 'Integrate dbVisitor and Spring Boot.'
 dependencies {
     api project(':dbvisitor-spring')
 

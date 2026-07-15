@@ -3,11 +3,14 @@ plugins {
     id 'maven-publish'
 }
 
+ext.pomName = 'dbVisitor-guice'
+description = 'Integrate dbVisitor and Guice.'
+
 dependencies {
     api project(':dbvisitor')
     api 'com.google.inject:guice:5.1.0'
 
     testImplementation 'com.zaxxer:HikariCP:4.0.3'
-    testImplementation 'mysql:mysql-connector-java:8.0.33'
+    testImplementation 'com.h2database:h2:2.2.224'
     testImplementation 'ch.qos.logback:logback-classic:1.4.7'
 }

@@ -88,4 +88,7 @@ public class Elastic7HintPageTest {
             }
         }
     }
+    public static void main(String[] args) {
+        net.hasor.dbvisitor.adapter.elastic.realdb.RealDbTestRunner.run(Elastic7HintPageTest.class);
+    }
 }

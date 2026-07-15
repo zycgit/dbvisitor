@@ -57,7 +57,7 @@ dbVisitor 的 Adapter 机制允许开发者将非关系型数据库（NoSQL）�
 如果 NewDB 有复杂的 SDK 操作，建议定义一个 `NewDBCmd` 接口来隔离 Adapter 逻辑与 SDK 调用。
 
 ### 步骤 3: 实现 Parser (推荐)
-为了支持复杂查询，建议在 `src/main/antlr4` 下定义 `.g4` 文件。
+为了支持复杂查询，建议在 `src/main/antlr` 下定义 `.g4` 文件。
 *   **Lexer**: 定义关键字和 Token。
 *   **Parser**: 定义语法规则。
 *   目标是让用户能直接粘贴 NewDB 的控制台命令或 JSON 查询到 dbVisitor 中执行。

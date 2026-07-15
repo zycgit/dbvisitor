@@ -39,6 +39,7 @@ import net.hasor.dbvisitor.test.contract.material.model.registry.SameTableEntity
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
+import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -48,6 +49,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+@NxnContract
 public abstract class MapRegistryTest extends AbstractNxnContractTest {
     @Test
     @Capability(CapabilityId.MAPPING_REGISTRY_OPTIONS_OBJECT)

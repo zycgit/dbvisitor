@@ -368,4 +368,7 @@ public class Elastic7VectorSearchTest {
             }
         }
     }
+    public static void main(String[] args) {
+        net.hasor.dbvisitor.adapter.elastic.realdb.RealDbTestRunner.run(Elastic7VectorSearchTest.class);
+    }
 }

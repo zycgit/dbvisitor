@@ -52,4 +52,7 @@ public class RealMongoTest {
             }
         }
     }
+    public static void main(String[] args) {
+        net.hasor.dbvisitor.adapter.mongo.realdb.RealDbTestRunner.run(RealMongoTest.class);
+    }
 }

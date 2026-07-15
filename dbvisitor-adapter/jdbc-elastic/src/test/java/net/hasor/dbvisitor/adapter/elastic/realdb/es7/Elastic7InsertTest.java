@@ -223,4 +223,7 @@ public class Elastic7InsertTest {
             }
         }
     }
+    public static void main(String[] args) {
+        net.hasor.dbvisitor.adapter.elastic.realdb.RealDbTestRunner.run(Elastic7InsertTest.class);
+    }
 }

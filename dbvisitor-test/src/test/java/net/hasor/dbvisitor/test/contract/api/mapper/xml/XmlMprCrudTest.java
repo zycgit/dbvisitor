@@ -17,12 +17,14 @@ import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
+import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+@NxnContract
 public abstract class XmlMprCrudTest extends AbstractNxnContractTest {
     private Session session;
 

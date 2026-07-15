@@ -18,6 +18,7 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
+import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -25,6 +26,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+@NxnContract
 public abstract class BaseMapperCrudContractTest extends AbstractNxnContractTest {
     private BaseMapper<UserInfo> mapper;
 

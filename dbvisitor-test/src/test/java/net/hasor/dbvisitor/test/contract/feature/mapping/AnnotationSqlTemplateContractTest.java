@@ -24,12 +24,14 @@ import net.hasor.dbvisitor.test.contract.material.model.annotation.WhereValueTem
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
+import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 import net.hasor.dbvisitor.types.SqlArg;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+@NxnContract
 public abstract class AnnotationSqlTemplateContractTest extends AbstractNxnContractTest {
     private static final Set<String> INITIALIZED_ENVS = new HashSet<>();
     private LambdaTemplate lambdaTemplate;

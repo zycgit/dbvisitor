@@ -3,6 +3,9 @@ plugins {
     id 'maven-publish'
 }
 
+ext.pomName = 'dbVisitor JDBC Driver Adapter'
+description = 'JDBC Driver adapter module for non-relational databases.'
+
 dependencies {
     api "net.hasor:cobble-all:${property('lib.cobble')}"
 }

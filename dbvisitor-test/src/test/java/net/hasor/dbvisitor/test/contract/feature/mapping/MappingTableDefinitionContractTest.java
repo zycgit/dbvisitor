@@ -24,6 +24,7 @@ import net.hasor.dbvisitor.test.contract.material.model.tabledef.SimpleDdlEntity
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
+import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 import static org.junit.Assert.assertEquals;
@@ -33,6 +34,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+@NxnContract
 public abstract class MappingTableDefinitionContractTest extends AbstractNxnContractTest {
     @Test
     @Capability(CapabilityId.MAPPING_TABLEDEF_DDL_AUTO_METADATA)

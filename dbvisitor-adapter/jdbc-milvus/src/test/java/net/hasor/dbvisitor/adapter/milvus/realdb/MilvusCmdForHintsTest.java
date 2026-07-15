@@ -124,4 +124,7 @@ public class MilvusCmdForHintsTest extends AbstractMilvusCmdForTest {
             dropCollection(TEST_COLLECTION);
         }
     }
+    public static void main(String[] args) {
+        net.hasor.dbvisitor.adapter.milvus.realdb.RealDbTestRunner.run(MilvusCmdForHintsTest.class);
+    }
 }

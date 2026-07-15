@@ -17,11 +17,9 @@ package net.hasor.dbvisitor.test;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.sql.DataSource;
 import net.hasor.core.AppContext;
 import net.hasor.core.Hasor;
 import net.hasor.dbvisitor.DbVisitorModule;
-import net.hasor.dbvisitor.DefaultDataSource;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.dao.role.RoleMapper;
 import net.hasor.dbvisitor.test.dao.user.UserMapper;
@@ -36,16 +34,6 @@ public class MultiDsTest {
     @Test
     public void getListTest() throws Exception {
         AppContext injector = Hasor.create().mainSettingWith("multi-ds.properties").build(new DbVisitorModule());
-        List<DataSource> dataSources = injector.findBindingBean(DataSource.class);
-        for (DataSource dataSource : dataSources) {
-            if (dataSource instanceof DefaultDataSource) {
-                DefaultDataSource defaultDataSource = (DefaultDataSource) dataSource;
-                defaultDataSource.setJdbcUrl("jdbc:mysql://127.0.0.1:13306/devtester?allowMultiQueries=true");
-                defaultDataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
-                defaultDataSource.setUsername("root");
-                defaultDataSource.setPassword("123456");
-            }
-        }
         this.dalSession = injector.findBindingBean("three", Session.class);
         if (this.dalSession == null) {
             List<Session> sessions = injector.findBindingBean(Session.class);

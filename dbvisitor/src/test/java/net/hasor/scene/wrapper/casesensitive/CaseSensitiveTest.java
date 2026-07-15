@@ -25,7 +25,7 @@ public class CaseSensitiveTest {
             userData.put("CREATE_TIME", "2022-01-01 12:12:12");
 
             Insert<Map<String, Object>> insert = wrapper.insertFreedom("USER_TABLE").applyMap(userData);
-            assert insert.getBoundSql().getSqlString().equals("INSERT INTO USER_TABLE ( AGE, NAME, CREATE_TIME ) VALUES ( ?, ?, ? )");
+            assert insert.getBoundSql().getSqlString().equals("INSERT INTO USER_TABLE (AGE, NAME, CREATE_TIME) VALUES (?, ?, ?)");
             assert insert.executeSumResult() == 1;
 
             // 校验结果
@@ -43,12 +43,12 @@ public class CaseSensitiveTest {
             wrapper.deleteFreedom("USER_TABLE").allowEmptyWhere().doDelete();
 
             Map<String, Object> userData = new LinkedHashMap<>();
-            userData.put("AGE", 120);
-            userData.put("NAME", "default user");
-            userData.put("CREATE_TIME", "2022-01-01 12:12:12");
+            userData.put("age", 120);
+            userData.put("name", "default user");
+            userData.put("create_time", "2022-01-01 12:12:12");
 
             Insert<Map<String, Object>> insert = wrapper.insertFreedom("USER_TABLE").applyMap(userData);
-            assert insert.getBoundSql().getSqlString().equals("INSERT INTO USER_TABLE ( AGE, NAME, CREATE_TIME ) VALUES ( ?, ?, ? )");
+            assert insert.getBoundSql().getSqlString().equals("INSERT INTO USER_TABLE (age, name, create_time) VALUES (?, ?, ?)");
             assert insert.executeSumResult() == 1;
 
             // 校验结果

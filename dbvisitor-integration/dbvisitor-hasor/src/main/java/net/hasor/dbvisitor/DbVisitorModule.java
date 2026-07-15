@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor;
-import static net.hasor.dbvisitor.ConfigKeys.*;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -30,12 +29,17 @@ import net.hasor.cobble.BeanUtils;
 import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.MatchUtils;
 import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.dynamic.MethodInterceptor;
+import net.hasor.cobble.dynamic.MethodInvocation;
 import net.hasor.cobble.loader.ClassMatcher;
 import net.hasor.cobble.loader.CobbleClassScanner;
 import net.hasor.cobble.loader.MatchType;
 import net.hasor.cobble.loader.ScanEvent;
 import net.hasor.cobble.loader.providers.ClassPathResourceLoader;
-import net.hasor.core.*;
+import net.hasor.cobble.setting.Settings;
+import net.hasor.core.ApiBinder;
+import net.hasor.core.BindInfo;
+import net.hasor.core.HasorUtils;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
 import net.hasor.dbvisitor.jdbc.JdbcOperations;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
@@ -50,6 +54,7 @@ import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.transaction.*;
 import net.hasor.dbvisitor.transaction.support.TransactionHelper;
+import static net.hasor.dbvisitor.ConfigKeys.*;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
@@ -58,7 +63,7 @@ import net.hasor.dbvisitor.transaction.support.TransactionHelper;
 public class DbVisitorModule implements net.hasor.core.Module {
     @Override
     public void loadModule(ApiBinder apiBinder) throws Exception {
-        String multipleDs = configString(apiBinder.getEnvironment().getSettings(), MultipleDataSource.getConfigKey(), null);
+        String multipleDs = configString(apiBinder.getSettings(), MultipleDataSource.getConfigKey(), null);
         if (StringUtils.isNotBlank(multipleDs)) {
             String[] dsNames = multipleDs.split(",");
             for (String dbName : dsNames) {
@@ -83,14 +88,14 @@ public class DbVisitorModule implements net.hasor.core.Module {
     }
 
     private BindInfo<DataSource> configDataSource(String dbName, ApiBinder apiBinder) throws Exception {
-        Settings settings = apiBinder.getEnvironment().getSettings();
+        Settings settings = apiBinder.getSettings();
         String configKey = DataSourceType.buildConfigKey(dbName);
         String dataSourceType = configString(settings, configKey, DataSourceType.getDefaultValue());
         DataSource dataSource;
         if (StringUtils.isBlank(dataSourceType)) {
             dataSource = new DefaultDataSource();
         } else {
-            Class<?> dsClass = apiBinder.getEnvironment().getClassLoader().loadClass(dataSourceType);
+            Class<?> dsClass = apiBinder.getClassLoader().loadClass(dataSourceType);
             dataSource = ClassUtils.newInstance(dsClass.asSubclass(DataSource.class));
         }
 
@@ -138,7 +143,7 @@ public class DbVisitorModule implements net.hasor.core.Module {
 
     private BindInfo<Configuration> configureBySettings(String dbName, ApiBinder apiBinder) {
         Options options = Options.of();
-        Settings settings = apiBinder.getEnvironment().getSettings();
+        Settings settings = apiBinder.getSettings();
         String optAutoMapping = this.configValueOrDefault(dbName, OptAutoMapping, settings);
         String optCamelCase = this.configValueOrDefault(dbName, OptCamelCase, settings);
         String optCaseInsensitive = this.configValueOrDefault(dbName, OptCaseInsensitive, settings);
@@ -162,7 +167,7 @@ public class DbVisitorModule implements net.hasor.core.Module {
             options.setIgnoreNonExistStatement(Boolean.parseBoolean(optIgnoreNonExistStatement));
         }
         if (StringUtils.isNotBlank(optSqlDialect)) {
-            ClassLoader classLoader = apiBinder.getEnvironment().getClassLoader();
+            ClassLoader classLoader = apiBinder.getClassLoader();
             options.setDialect(SqlDialectRegister.findOrCreate(optSqlDialect, classLoader));
         }
 
@@ -179,13 +184,13 @@ public class DbVisitorModule implements net.hasor.core.Module {
 
     private BindInfo<Session> configSession(String dbName, ApiBinder apiBinder,//
             BindInfo<DataSource> dsInfo, BindInfo<Configuration> configInfo) throws IOException {
-        Settings settings = apiBinder.getEnvironment().getSettings();
+        Settings settings = apiBinder.getSettings();
         String configKey = MapperLocations.buildConfigKey(dbName);
         String resources = configString(settings, configKey, MapperLocations.getDefaultValue());
         Set<URI> mappers = new HashSet<>();
 
         if (StringUtils.isNotBlank(resources)) {
-            ClassPathResourceLoader classScannerLoader = new ClassPathResourceLoader(apiBinder.getEnvironment().getClassLoader());
+            ClassPathResourceLoader classScannerLoader = new ClassPathResourceLoader(apiBinder.getClassLoader());
 
             for (String resourceURL : resources.split(",")) {
                 String resMapper = resourceURL.trim();
@@ -199,7 +204,7 @@ public class DbVisitorModule implements net.hasor.core.Module {
             }
         }
 
-        SessionSupplier sessionSupplier = HasorUtils.autoAware(apiBinder.getEnvironment(), new SessionSupplier(configInfo, dsInfo, mappers));
+        SessionSupplier sessionSupplier = HasorUtils.autoAware(apiBinder.getEventContext(), new SessionSupplier(configInfo, dsInfo, mappers));
         if (StringUtils.isBlank(dbName)) {
             return apiBinder.bindType(Session.class).toProvider(sessionSupplier).toInfo();
         } else {
@@ -208,7 +213,7 @@ public class DbVisitorModule implements net.hasor.core.Module {
     }
 
     private void loadMapper(String dbName, ApiBinder apiBinder, BindInfo<Session> dalInfo) throws ClassNotFoundException {
-        Settings settings = apiBinder.getEnvironment().getSettings();
+        Settings settings = apiBinder.getSettings();
         String configMapperDisabled = MapperDisabled.buildConfigKey(dbName);
         String configMapperPackages = MapperPackages.buildConfigKey(dbName);
         String configScanMarkerAnnotation = ScanMarkerAnnotation.buildConfigKey(dbName);
@@ -225,17 +230,17 @@ public class DbVisitorModule implements net.hasor.core.Module {
 
         String[] mapperPackages = mapperPackageConfig.split(",");
         Set<Class<?>> finalResult = new HashSet<>();
-        CobbleClassScanner scanner = new CobbleClassScanner(apiBinder.getEnvironment().getClassLoader());
+        CobbleClassScanner scanner = new CobbleClassScanner(apiBinder.getClassLoader());
 
         if (StringUtils.isNotBlank(scanMarkerAnnotation)) {
-            Class<?> scanAnnotationType = apiBinder.getEnvironment().getClassLoader().loadClass(scanMarkerAnnotation);
+            Class<?> scanAnnotationType = apiBinder.getClassLoader().loadClass(scanMarkerAnnotation);
             Set<Class<?>> result1 = scanner.getClassSet(mapperPackages, c -> testClass(c, scanAnnotationType));
             finalResult.addAll(result1);
             finalResult.remove(scanAnnotationType);
         }
 
         if (StringUtils.isNotBlank(scanMarkerInterface)) {
-            Class<?> scanInterfaceType = apiBinder.getEnvironment().getClassLoader().loadClass(scanMarkerInterface);
+            Class<?> scanInterfaceType = apiBinder.getClassLoader().loadClass(scanMarkerInterface);
             Set<Class<?>> result2 = scanner.getClassSet(mapperPackages, c -> testClass(c, scanInterfaceType));
             finalResult.addAll(result2);
             finalResult.remove(scanInterfaceType);
@@ -245,7 +250,7 @@ public class DbVisitorModule implements net.hasor.core.Module {
             Class<Object> mapperCast = (Class<Object>) mapper;
 
             MapperSupplier dalMapper = new MapperSupplier(mapperCast, dalInfo);
-            HasorUtils.pushStartListener(apiBinder.getEnvironment(), dalMapper);
+            HasorUtils.pushStartListener(apiBinder.getEventContext(), dalMapper);
 
             if (StringUtils.isBlank(dbName)) {
                 apiBinder.bindType(mapperCast).toProvider(dalMapper).asEagerSingleton();

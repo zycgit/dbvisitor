@@ -7,9 +7,9 @@
 
     <!-- 数据源 -->
     <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
-        <property name="jdbcUrl" value="jdbc:mysql://127.0.0.1:13306/devtester?allowMultiQueries=true"/>
-        <property name="username" value="root"/>
-        <property name="password" value="123456"/>
+        <property name="jdbcUrl" value="jdbc:h2:mem:spring_xml_1;MODE=MySQL;DB_CLOSE_DELAY=-1"/>
+        <property name="username" value="sa"/>
+        <property name="password" value=""/>
         <property name="minimumIdle" value="5"/>
         <property name="maximumPoolSize" value="12"/>
         <property name="maxLifetime" value="1200000"/>
@@ -28,7 +28,7 @@
     <!-- dbVisitor -->
     <bean id="ormConf" class="net.hasor.dbvisitor.spring.support.ConfigurationBean">
         <property name="mapperResources" value="classpath*:dbvisitor/mapper/*Mapper.xml"/>
-        <property name="dialectName" value="mysql"/>
+        <property name="dialectName" value="h2"/>
     </bean>
     <bean id="ormSession" class="net.hasor.dbvisitor.spring.support.SessionBean">
         <property name="configuration" ref="ormConf"/>

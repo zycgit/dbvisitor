@@ -70,6 +70,7 @@ public class JsonColumnXmlTestCase {
             Project1 project1 = newProject("abc1", Arrays.asList("CN", "EN"));
             Project1 project2 = newProject("abc2", Arrays.asList("CN", "EN"));
             Project1 project3 = newProject("abc3", Arrays.asList("JP", "EN"));
+            project2.getFeature().setTimePoint(project1.getFeature().getTimePoint());
             assert template.insert(Project1.class).applyEntity(project1, project2, project3).executeSumResult() == 3;
 
             List<Object> list = session.queryStatement("resultMap_test.selectByJSON", project1);
@@ -130,6 +131,7 @@ public class JsonColumnXmlTestCase {
             Project1 project1 = newProject("abc1", Arrays.asList("CN", "EN"));
             Project1 project2 = newProject("abc2", Arrays.asList("CN", "EN"));
             Project1 project3 = newProject("abc3", Arrays.asList("JP", "EN"));
+            project2.getFeature().setTimePoint(project1.getFeature().getTimePoint());
             assert template.insert(Project1.class).applyEntity(project1, project2, project3).executeSumResult() == 3;
 
             List<Object> list = session.queryStatement("resultMap_test.selectByJSON", project1);

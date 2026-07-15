@@ -83,4 +83,7 @@ public class Elastic6RefreshAndReindexTest {
             stmt.executeUpdate("POST /" + INDEX_DEST + "/_refresh");
         }
     }
+    public static void main(String[] args) {
+        net.hasor.dbvisitor.adapter.elastic.realdb.RealDbTestRunner.run(Elastic6RefreshAndReindexTest.class);
+    }
 }

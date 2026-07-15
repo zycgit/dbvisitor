@@ -105,4 +105,7 @@ public class MilvusCmdForDBTest extends AbstractMilvusCmdForTest {
             assertTrue("Should find the test database in SHOW DATABASES", found);
         }
     }
+    public static void main(String[] args) {
+        net.hasor.dbvisitor.adapter.milvus.realdb.RealDbTestRunner.run(MilvusCmdForDBTest.class);
+    }
 }

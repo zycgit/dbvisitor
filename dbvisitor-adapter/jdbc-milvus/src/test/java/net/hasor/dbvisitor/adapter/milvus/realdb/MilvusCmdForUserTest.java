@@ -218,4 +218,7 @@ public class MilvusCmdForUserTest extends AbstractMilvusCmdForTest {
             assertTrue("Role should have global privilege (SDK)", roleHasPrivilegeSdk(TEST_ROLE, "Global", "*", "CreateCollection"));
         }
     }
+    public static void main(String[] args) {
+        net.hasor.dbvisitor.adapter.milvus.realdb.RealDbTestRunner.run(MilvusCmdForUserTest.class);
+    }
 }

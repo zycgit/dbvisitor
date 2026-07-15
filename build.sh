@@ -6,17 +6,24 @@ cd "$(dirname "$0")"
 usage() {
     cat <<'EOF'
 Usage:
-  ./build.sh package [test] [gradle options...]
-  ./build.sh install [test] [gradle options...]
-  ./build.sh deploy  [test] [gradle options...]
-  ./build.sh release [deploy] [test] [gradle options...]
+  ./build.sh package [test] [nxn] [gradle options...]
+  ./build.sh install [test] [nxn] [gradle options...]
+  ./build.sh deploy  [test] [nxn] [gradle options...]
+  ./build.sh release [deploy] [test] [nxn] [gradle options...]
 
 Commands:
   package    Build packages. Equivalent to Maven package.
   install    Build packages and publish to Maven Local.
   deploy     Build packages, publish to Maven Local, then upload to Maven Central.
   release    Prepare a release commit and tag. With test, verify before deploy. With deploy, upload before next snapshot.
-  test       Run tests. Tests are skipped unless this argument is present.
+  test       Run unit tests only. The entire dbvisitor-test module is excluded.
+  nxn        Run only the dbvisitor-test datasource matrix against real databases.
+
+Examples:
+  ./build.sh package
+  ./build.sh package test
+  ./build.sh nxn
+  ./build.sh test nxn
 
 Deploy properties:
   Read from ~/.gradle/gradle.properties
@@ -93,10 +100,13 @@ ensure_clean_worktree() {
 prepare_release() {
     local release_deploy="$1"
     local run_tests="$2"
+    local run_nxn="$3"
+    shift
     shift
     shift
     local gradle_options=("$@")
     local current_version release_default release_version next_default next_version confirm
+    local build_args
 
     ensure_clean_worktree
     current_version="$(project_version)"
@@ -126,8 +136,15 @@ prepare_release() {
     fi
 
     set_project_version "$release_version"
-    if [[ "$run_tests" == "true" ]]; then
-        if ! ./build.sh package test "${gradle_options[@]}"; then
+    if [[ "$run_tests" == "true" || "$run_nxn" == "true" ]]; then
+        build_args=(package)
+        if [[ "$run_tests" == "true" ]]; then
+            build_args+=(test)
+        fi
+        if [[ "$run_nxn" == "true" ]]; then
+            build_args+=(nxn)
+        fi
+        if ! ./build.sh "${build_args[@]}" "${gradle_options[@]}"; then
             set_project_version "$current_version"
             echo "Release build failed. Version restored to ${current_version}." >&2
             exit 1
@@ -161,7 +178,9 @@ if [[ "$#" -eq 0 ]]; then
 fi
 
 mode="package"
+mode_explicit="false"
 run_tests="false"
+run_nxn="false"
 dry_run="false"
 release_deploy="false"
 gradle_args=()
@@ -174,9 +193,11 @@ for arg in "$@"; do
             ;;
         package)
             mode="package"
+            mode_explicit="true"
             ;;
         install)
             mode="install"
+            mode_explicit="true"
             ;;
         deploy)
             if [[ "$mode" == "release" ]]; then
@@ -184,15 +205,20 @@ for arg in "$@"; do
             else
                 mode="deploy"
             fi
+            mode_explicit="true"
             ;;
         release)
             if [[ "$mode" == "deploy" ]]; then
                 release_deploy="true"
             fi
             mode="release"
+            mode_explicit="true"
             ;;
         test)
             run_tests="true"
+            ;;
+        nxn)
+            run_nxn="true"
             ;;
         --dry-run)
             dry_run="true"
@@ -204,21 +230,23 @@ for arg in "$@"; do
     esac
 done
 
+if [[ "$run_nxn" == "true" && "$run_tests" != "true" && "$mode_explicit" != "true" ]]; then
+    ./runnxn.sh all "${gradle_args[@]}"
+    exit 0
+fi
+
 if [[ "$mode" == "release" ]]; then
     if [[ "$dry_run" == "true" ]]; then
         echo "Release does not support --dry-run because it creates commits and tags." >&2
         exit 1
     fi
-    prepare_release "$release_deploy" "$run_tests" "${gradle_args[@]}"
+    prepare_release "$release_deploy" "$run_tests" "$run_nxn" "${gradle_args[@]}"
     exit 0
 fi
 
 tasks=(build)
 if [[ "$mode" == "install" || "$mode" == "deploy" ]]; then
     tasks+=(publishToMavenLocal)
-fi
-if [[ "$run_tests" != "true" ]]; then
-    gradle_args+=("-x" "test")
 fi
 if [[ "$mode" == "deploy" ]]; then
     version="$(sed -n 's/^version=//p' gradle.properties)"
@@ -251,6 +279,11 @@ if [[ "$mode" == "deploy" ]]; then
     gradle_args+=("-PcentralBundleDir=${central_dir}")
 fi
 
+build_gradle_args=("${gradle_args[@]}")
+if [[ "$run_tests" != "true" ]]; then
+    build_gradle_args+=("-x" "test")
+fi
+
 has_parallel_option="false"
 has_max_workers_option="false"
 for arg in "${gradle_args[@]}"; do
@@ -272,8 +305,12 @@ if [[ "$has_max_workers_option" == "false" ]]; then
     gradle_defaults+=(--max-workers 8)
 fi
 
-./gradlew clean "${gradle_defaults[@]}" "${gradle_args[@]}"
-./gradlew "${tasks[@]}" "${gradle_defaults[@]}" "${gradle_args[@]}"
+./gradlew clean "${gradle_defaults[@]}" "${build_gradle_args[@]}"
+./gradlew "${tasks[@]}" "${gradle_defaults[@]}" "${build_gradle_args[@]}"
+
+if [[ "$run_nxn" == "true" ]]; then
+    ./runnxn.sh all "${gradle_args[@]}"
+fi
 
 if [[ "$mode" == "deploy" && "$dry_run" != "true" ]]; then
     find "$central_dir" -type f \

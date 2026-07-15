@@ -1,7 +1,7 @@
 solon.dataSources:
   default!:
     class: "com.zaxxer.hikari.HikariDataSource"
-    jdbcUrl: "jdbc:mysql://127.0.0.1:13306/devtester?allowMultiQueries=true&user=root&password=123456"
+    jdbcUrl: "jdbc:h2:mem:solon_single;MODE=MySQL;DB_CLOSE_DELAY=-1;USER=sa"
 dbvisitor:
   default:
     mapperLocations: classpath:dbvisitor/mapper/*.xml

@@ -22,12 +22,14 @@ import net.hasor.dbvisitor.test.nxn.env.DataSourceId;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfileRegistry;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
+import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
+@NxnContract
 public abstract class NxnMetaTest extends AbstractNxnContractTest {
     @Test
     @Capability(CapabilityId.NXN_METADATA_CAPABILITY_ANNOTATIONS)
@@ -112,17 +114,16 @@ public abstract class NxnMetaTest extends AbstractNxnContractTest {
     }
 
     private List<Class<?>> contractClasses() throws Exception {
-        List<Class<?>> contracts = classNamesUnder("net/hasor/dbvisitor/test/contract", "Abstract", "ContractTest.java").stream()//
+        List<Class<?>> contracts = classNamesUnder("net/hasor/dbvisitor/test/contract", "", ".java").stream()//
                 .map(this::loadClass)//
-                .filter(clazz -> Modifier.isAbstract(clazz.getModifiers()))//
-                .filter(clazz -> AbstractNxnContractTest.class.isAssignableFrom(clazz))//
+                .filter(this::isNxnContractClass)//
                 .collect(Collectors.toList());
         contracts.add(NxnMetaTest.class);
         return contracts;
     }
 
     private List<Class<?>> realdbClassesForCurrentProfile() throws Exception {
-        List<Class<?>> realdbClasses = classNamesUnder("net/hasor/dbvisitor/test/realdb/" + realdbPackage(), "", "ContractTest.java").stream()//
+        List<Class<?>> realdbClasses = classNamesUnder("net/hasor/dbvisitor/test/realdb/" + realdbPackage(), "", "Test.java").stream()//
                 .map(this::loadClass)//
                 .filter(clazz -> !Modifier.isAbstract(clazz.getModifiers()))//
                 .filter(clazz -> AbstractNxnContractTest.class.isAssignableFrom(clazz))//
@@ -175,7 +176,7 @@ public abstract class NxnMetaTest extends AbstractNxnContractTest {
     private Class<?> nearestContractSuperclass(Class<?> realdbClass) {
         Class<?> cursor = realdbClass.getSuperclass();
         while (cursor != null && cursor != Object.class) {
-            if (isContractBaseClass(cursor)) {
+            if (isNxnContractClass(cursor)) {
                 return cursor;
             }
             cursor = cursor.getSuperclass();
@@ -183,8 +184,8 @@ public abstract class NxnMetaTest extends AbstractNxnContractTest {
         return null;
     }
 
-    private boolean isContractBaseClass(Class<?> clazz) {
-        return clazz.getName().startsWith("net.hasor.dbvisitor.test.contract.") || clazz == NxnMetaTest.class;
+    private boolean isNxnContractClass(Class<?> clazz) {
+        return clazz.getDeclaredAnnotation(NxnContract.class) != null;
     }
 
     private boolean hasOwnerSpecificCapability(Class<?> realdbClass) {

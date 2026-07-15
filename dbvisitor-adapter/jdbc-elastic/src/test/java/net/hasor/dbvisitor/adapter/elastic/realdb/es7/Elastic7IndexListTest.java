@@ -166,4 +166,7 @@ public class Elastic7IndexListTest {
             }
         }
     }
+    public static void main(String[] args) {
+        net.hasor.dbvisitor.adapter.elastic.realdb.RealDbTestRunner.run(Elastic7IndexListTest.class);
+    }
 }

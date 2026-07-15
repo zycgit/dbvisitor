@@ -11,7 +11,9 @@ import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 
+@NxnContract
 public abstract class VectorKnnOrderingContractTest extends VectorQuerySupport {
     @Test
     @Capability(CapabilityId.VECTOR_KNN_ORDER_L2)
