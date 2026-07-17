@@ -13,32 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.provider;
-import java.sql.SQLException;
+package net.hasor.dbvisitor.hasor.session;
 import java.util.function.Supplier;
 import javax.sql.DataSource;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.cobble.provider.SingleProvider;
+import net.hasor.dbvisitor.transaction.TransactionManager;
+import net.hasor.dbvisitor.transaction.support.TransactionHelper;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
- * @version 2025-02-09
+ * @version 2017-07-12
  */
-public class LambdaTemplateProvider implements Supplier<LambdaTemplate> {
+public class TransactionManagerProvider implements Supplier<TransactionManager> {
     private final Supplier<DataSource> dataSource;
 
-    public LambdaTemplateProvider(DataSource dataSource) {
-        this(() -> dataSource);
+    public TransactionManagerProvider(Supplier<DataSource> dataSource) {
+        this.dataSource = new SingleProvider<>(dataSource);
     }
 
-    public LambdaTemplateProvider(Supplier<DataSource> dataSource) {
-        this.dataSource = dataSource;
-    }
-
-    public LambdaTemplate get() {
-        try {
-            return new LambdaTemplate(this.dataSource.get());
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+    public TransactionManager get() {
+        return TransactionHelper.txManager(this.dataSource.get());
     }
 }

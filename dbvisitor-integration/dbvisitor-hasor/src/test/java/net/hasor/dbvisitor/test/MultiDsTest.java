@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import net.hasor.core.AppContext;
 import net.hasor.core.Hasor;
-import net.hasor.dbvisitor.DbVisitorModule;
+import net.hasor.dbvisitor.hasor.autoconfig.AutoConfigModule;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.dao.role.RoleMapper;
 import net.hasor.dbvisitor.test.dao.user.UserMapper;
@@ -33,7 +33,7 @@ public class MultiDsTest {
 
     @Test
     public void getListTest() throws Exception {
-        AppContext injector = Hasor.create().mainSettingWith("multi-ds.properties").build(new DbVisitorModule());
+        AppContext injector = Hasor.create().mainSettingWith("multi-ds.properties").build(new AutoConfigModule());
         this.dalSession = injector.findBindingBean("three", Session.class);
         if (this.dalSession == null) {
             List<Session> sessions = injector.findBindingBean(Session.class);

@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import net.hasor.core.AppContext;
 import net.hasor.core.Hasor;
-import net.hasor.dbvisitor.DbVisitorModule;
+import net.hasor.dbvisitor.hasor.autoconfig.AutoConfigModule;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.dao.role.RoleMapper;
 import net.hasor.dbvisitor.test.dao.user.UserMapper;
@@ -32,7 +32,7 @@ public class SingleDsTest {
 
     @Test
     public void getListTest() throws Exception {
-        AppContext injector = Hasor.create().mainSettingWith("single-ds.properties").build(new DbVisitorModule());
+        AppContext injector = Hasor.create().mainSettingWith("single-ds.properties").build(new AutoConfigModule());
         this.dalSession = injector.getInstance(Session.class);
         this.dalSession.jdbc().loadSQL("CreateDB.sql");
         this.userMapper = this.dalSession.createMapper(UserMapper.class);

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor;
+package net.hasor.dbvisitor.hasor.autoconfig;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import javax.sql.DataSource;

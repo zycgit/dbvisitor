@@ -75,9 +75,9 @@ public interface UserMapper extends BaseMapper<UserDTO> {
 ```
 
 ```java title='Start Hasor'
-// Initialize Hasor and load DbVisitorModule plugin
+// Create the data source, configure dbVisitor, and register mappers
 AppContext appContext = Hasor.create().mainSettingWith("jdbc.properties").build(binder -> {
-    binder.installModule(new DbVisitorModule());
+    binder.installModule(new AutoConfigModule());
 });
 
 // Enjoy

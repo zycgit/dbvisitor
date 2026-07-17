@@ -5,7 +5,7 @@ import com.example.demo.service.TestService;
 import net.hasor.core.AppContext;
 import net.hasor.core.Hasor;
 import net.hasor.core.Inject;
-import net.hasor.dbvisitor.DbVisitorModule;
+import net.hasor.dbvisitor.hasor.autoconfig.AutoConfigModule;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -19,7 +19,7 @@ public class Demo1ApplicationTests {
     @Before
     public void beforeTest() {
         AppContext injector = Hasor.create().mainSettingWith("single-ds.properties").build(binder -> {
-            binder.installModule(new DbVisitorModule());
+            binder.installModule(new AutoConfigModule());
         });
 
         injector.justInject(this);

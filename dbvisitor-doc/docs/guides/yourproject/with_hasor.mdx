@@ -75,9 +75,9 @@ public interface UserMapper extends BaseMapper<UserDTO> {
 ```
 
 ```java title='启动 Hasor'
-// 初始化 Hasor 并加载 DbVisitorModule 插件
+// 根据配置创建数据源、装配 dbVisitor，并注册 Mapper
 AppContext appContext = Hasor.create().mainSettingWith("jdbc.properties").build(binder -> {
-    binder.installModule(new DbVisitorModule());
+    binder.installModule(new AutoConfigModule());
 });
 
 // 尽情享受

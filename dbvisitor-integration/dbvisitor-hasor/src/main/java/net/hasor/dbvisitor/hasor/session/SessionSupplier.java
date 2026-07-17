@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor;
+package net.hasor.dbvisitor.hasor.session;
 import java.net.URI;
 import java.util.Set;
 import java.util.function.Supplier;

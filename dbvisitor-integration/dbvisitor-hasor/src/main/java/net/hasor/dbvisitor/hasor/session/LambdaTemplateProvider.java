@@ -13,27 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.provider;
+package net.hasor.dbvisitor.hasor.session;
+import java.sql.SQLException;
 import java.util.function.Supplier;
 import javax.sql.DataSource;
-import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.lambda.LambdaTemplate;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
- * @version 2017-07-12
+ * @version 2025-02-09
  */
-public class JdbcTemplateProvider implements Supplier<JdbcTemplate> {
+public class LambdaTemplateProvider implements Supplier<LambdaTemplate> {
     private final Supplier<DataSource> dataSource;
 
-    public JdbcTemplateProvider(DataSource dataSource) {
+    public LambdaTemplateProvider(DataSource dataSource) {
         this(() -> dataSource);
     }
 
-    public JdbcTemplateProvider(Supplier<DataSource> dataSource) {
+    public LambdaTemplateProvider(Supplier<DataSource> dataSource) {
         this.dataSource = dataSource;
     }
 
-    public JdbcTemplate get() {
-        return new JdbcTemplate(this.dataSource.get());
+    public LambdaTemplate get() {
+        try {
+            return new LambdaTemplate(this.dataSource.get());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
