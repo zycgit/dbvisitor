@@ -27,7 +27,11 @@ import net.hasor.cobble.concurrent.future.BasicFuture;
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
-import net.hasor.dbvisitor.adapter.redis.parser.*;
+import net.hasor.dbvisitor.adapter.redis.parser.JedisArgVisitor;
+import net.hasor.dbvisitor.adapter.redis.parser.RedisLexer;
+import net.hasor.dbvisitor.adapter.redis.parser.RedisParser;
+import net.hasor.dbvisitor.adapter.redis.parser.QueryParseException;
+import net.hasor.dbvisitor.adapter.redis.parser.ThrowingListener;
 import net.hasor.dbvisitor.driver.*;
 import org.antlr.v4.runtime.BufferedTokenStream;
 import org.antlr.v4.runtime.CharStreams;
@@ -199,10 +203,10 @@ public class JedisConn extends AdapterConnection {
         }
         this.cancelled = false;
         RedisParser.RootContext root = parserRequest(request);
-        JedisArgVisitor argVisitor = new JedisArgVisitor();
-        root.accept(argVisitor);
-        int argCount = argVisitor.getArgCount();
-        List<RedisParser.CommandContext> commandList = argVisitor.getCommandList();
+        JedisArgVisitor commandVisitor = new JedisArgVisitor();
+        root.accept(commandVisitor);
+        int argCount = commandVisitor.getArgCount();
+        List<RedisParser.CommandContext> commandList = commandVisitor.getCommandList();
 
         if (commandList.isEmpty()) {
             throw new SQLException("query command is empty.", JdbcErrorCode.SQL_STATE_QUERY_EMPTY);
@@ -220,7 +224,7 @@ public class JedisConn extends AdapterConnection {
             }
             Future<Object> sync = new BasicFuture<>();
             if (argCount > 0) {
-                argVisitor.reset();
+                JedisArgVisitor argVisitor = new JedisArgVisitor();
                 redisCmd.accept(argVisitor);
                 JedisDistributeCall.execRedisCmd(sync, this.jedisCmd, redisCmd, request, receive, startArgIdx, this);
                 startArgIdx += argVisitor.getArgCount();

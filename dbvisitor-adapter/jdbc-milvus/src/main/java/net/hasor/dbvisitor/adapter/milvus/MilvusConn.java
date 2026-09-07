@@ -150,10 +150,10 @@ public class MilvusConn extends AdapterConnection {
         }
         this.cancelled = false;
         MilvusParser.RootContext root = parserRequest(request);
-        MilvusArgVisitor argVisitor = new MilvusArgVisitor();
-        root.accept(argVisitor);
-        int argCount = argVisitor.getArgCount();
-        List<MilvusParser.HintCommandContext> commandList = argVisitor.getCommandList();
+        MilvusArgVisitor commandVisitor = new MilvusArgVisitor();
+        root.accept(commandVisitor);
+        int argCount = commandVisitor.getArgCount();
+        List<MilvusParser.HintCommandContext> commandList = commandVisitor.getCommandList();
 
         if (commandList.isEmpty()) {
             throw new SQLException("query command is empty.", JdbcErrorCode.SQL_STATE_QUERY_EMPTY);
@@ -171,7 +171,7 @@ public class MilvusConn extends AdapterConnection {
             }
             Future<Object> sync = new BasicFuture<>();
             if (argCount > 0) {
-                argVisitor.reset();
+                MilvusArgVisitor argVisitor = new MilvusArgVisitor();
                 milvusCmd.accept(argVisitor);
                 MilvusDistributeCall.execMilvusCmd(sync, this.milvusCmd, milvusCmd, request, receive, startArgIdx, this);
                 startArgIdx += argVisitor.getArgCount();

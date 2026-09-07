@@ -27,7 +27,11 @@ import net.hasor.cobble.concurrent.future.BasicFuture;
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
-import net.hasor.dbvisitor.adapter.mongo.parser.*;
+import net.hasor.dbvisitor.adapter.mongo.parser.MongoArgVisitor;
+import net.hasor.dbvisitor.adapter.mongo.parser.MongoLexer;
+import net.hasor.dbvisitor.adapter.mongo.parser.MongoParser;
+import net.hasor.dbvisitor.adapter.mongo.parser.QueryParseException;
+import net.hasor.dbvisitor.adapter.mongo.parser.ThrowingListener;
 import net.hasor.dbvisitor.driver.*;
 import org.antlr.v4.runtime.BufferedTokenStream;
 import org.antlr.v4.runtime.CharStreams;
@@ -209,10 +213,10 @@ public class MongoConn extends AdapterConnection {
         }
         this.cancelled = false;
         MongoParser.MongoCommandsContext root = parserRequest(request);
-        MongoArgVisitor argVisitor = new MongoArgVisitor();
-        root.accept(argVisitor);
-        int argCount = argVisitor.getArgCount();
-        List<MongoParser.HintCommandContext> commandList = argVisitor.getCommandList();
+        MongoArgVisitor commandVisitor = new MongoArgVisitor();
+        root.accept(commandVisitor);
+        int argCount = commandVisitor.getArgCount();
+        List<MongoParser.HintCommandContext> commandList = commandVisitor.getCommandList();
 
         if (commandList.isEmpty()) {
             throw new SQLException("query command is empty.", JdbcErrorCode.SQL_STATE_QUERY_EMPTY);
@@ -230,7 +234,7 @@ public class MongoConn extends AdapterConnection {
             }
             Future<Object> sync = new BasicFuture<>();
             if (argCount > 0) {
-                argVisitor.reset();
+                MongoArgVisitor argVisitor = new MongoArgVisitor();
                 mongoCmd.accept(argVisitor);
                 MongoDistributeCall.execMongoCmd(sync, this.mongoCmd, mongoCmd, request, receive, startArgIdx, this);
                 startArgIdx += argVisitor.getArgCount();
