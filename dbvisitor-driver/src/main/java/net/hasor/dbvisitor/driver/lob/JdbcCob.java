@@ -21,14 +21,22 @@ import java.sql.SQLException;
 import net.hasor.dbvisitor.driver.JdbcErrorCode;
 
 public class JdbcCob implements Clob, NClob, JdbcOutputStreamWatcher, JdbcWriterWatcher {
-    protected String charData;
+    protected String  charData;
+    private   boolean freed;
+
+    private void checkOpen() throws SQLException {
+        if (this.freed) {
+            throw new SQLException("Clob has been freed.", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
+        }
+    }
 
     public JdbcCob(String charDataInit) {
         this.charData = charDataInit;
     }
 
     @Override
-    public InputStream getAsciiStream() {
+    public InputStream getAsciiStream() throws SQLException {
+        this.checkOpen();
         if (this.charData != null) {
             return new ByteArrayInputStream(this.charData.getBytes());
         }
@@ -37,7 +45,8 @@ public class JdbcCob implements Clob, NClob, JdbcOutputStreamWatcher, JdbcWriter
     }
 
     @Override
-    public Reader getCharacterStream() {
+    public Reader getCharacterStream() throws SQLException {
+        this.checkOpen();
         if (this.charData != null) {
             return new StringReader(this.charData);
         }
@@ -47,16 +56,11 @@ public class JdbcCob implements Clob, NClob, JdbcOutputStreamWatcher, JdbcWriter
 
     @Override
     public String getSubString(long startPos, int length) throws SQLException {
-        if (startPos < 1) {
-            throw new SQLException("CLOB start position can not be < 1", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
-        }
+        this.checkRange(startPos, length);
 
         int adjustedStartPos = (int) startPos - 1;
         int adjustedEndIndex = adjustedStartPos + length;
         if (this.charData != null) {
-            if (adjustedEndIndex > this.charData.length()) {
-                throw new SQLException("CLOB start position + length can not be > length of CLOB", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
-            }
             return this.charData.substring(adjustedStartPos, adjustedEndIndex);
         } else {
             return null;
@@ -64,7 +68,8 @@ public class JdbcCob implements Clob, NClob, JdbcOutputStreamWatcher, JdbcWriter
     }
 
     @Override
-    public long length() {
+    public long length() throws SQLException {
+        this.checkOpen();
         if (this.charData != null) {
             return this.charData.length();
         } else {
@@ -74,11 +79,13 @@ public class JdbcCob implements Clob, NClob, JdbcOutputStreamWatcher, JdbcWriter
 
     @Override
     public long position(java.sql.Clob arg0, long arg1) throws SQLException {
+        this.checkOpen();
         return position(arg0.getSubString(1L, (int) arg0.length()), arg1);
     }
 
     @Override
     public long position(String stringToFind, long startPos) throws SQLException {
+        this.checkOpen();
         if (startPos < 1) {
             throw new SQLException("Illegal starting position for search, '" + startPos + "'", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
         }
@@ -96,9 +103,7 @@ public class JdbcCob implements Clob, NClob, JdbcOutputStreamWatcher, JdbcWriter
 
     @Override
     public OutputStream setAsciiStream(long indexToWriteAt) throws SQLException {
-        if (indexToWriteAt < 1) {
-            throw new SQLException("indexToWriteAt must be >= 1", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
-        }
+        this.checkRange(indexToWriteAt, 0);
 
         JdbcWatchableOutputStream bytesOut = new JdbcWatchableOutputStream();
         bytesOut.setWatcher(this);
@@ -108,9 +113,7 @@ public class JdbcCob implements Clob, NClob, JdbcOutputStreamWatcher, JdbcWriter
 
     @Override
     public Writer setCharacterStream(long indexToWriteAt) throws SQLException {
-        if (indexToWriteAt < 1) {
-            throw new SQLException("indexToWriteAt must be >= 1", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
-        }
+        this.checkRange(indexToWriteAt, 0);
 
         JdbcWatchableWriter writer = new JdbcWatchableWriter();
         writer.setWatcher(this);
@@ -125,35 +128,34 @@ public class JdbcCob implements Clob, NClob, JdbcOutputStreamWatcher, JdbcWriter
 
     @Override
     public int setString(long pos, String str) throws SQLException {
-        if (pos < 1) {
-            throw new SQLException("Starting position can not be < 1", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
-        }
+        this.checkOpen();
         if (str == null) {
             throw new SQLException("String to set can not be NULL", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
         }
 
-        StringBuilder charBuf = new StringBuilder(this.charData);
-        pos--;
-        int strLength = str.length();
-        charBuf.replace((int) pos, (int) (pos + strLength), str);
-        this.charData = charBuf.toString();
-        return strLength;
+        return this.setString(pos, str, 0, str.length());
     }
 
     @Override
     public int setString(long pos, String str, int offset, int len) throws SQLException {
-        if (pos < 1) {
-            throw new SQLException("Starting position can not be < 1", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
-        }
+        this.checkRange(pos, 0);
         if (str == null) {
-            throw new SQLException("String to set can not be NULL", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
+            throw new SQLException("Invalid CLOB write range.", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
+        }
+
+        long sourceEnd = (long) offset + len;
+        long writeStart = pos - 1;
+        long writeEnd = writeStart + len;
+        boolean invalidSourceRange = offset < 0 || len < 0 || sourceEnd > str.length();
+        boolean writeOverflow = writeEnd > Integer.MAX_VALUE;
+        if (invalidSourceRange || writeOverflow) {
+            throw new SQLException("Invalid CLOB write range.", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
         }
 
         StringBuilder charBuf = new StringBuilder(this.charData);
-        pos--;
         try {
-            String replaceString = str.substring(offset, offset + len);
-            charBuf.replace((int) pos, (int) (pos + replaceString.length()), replaceString);
+            String replaceString = str.substring(offset, (int) sourceEnd);
+            charBuf.replace((int) writeStart, (int) writeEnd, replaceString);
         } catch (StringIndexOutOfBoundsException e) {
             throw new SQLException(e.getMessage(), JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT, e);
         }
@@ -164,7 +166,8 @@ public class JdbcCob implements Clob, NClob, JdbcOutputStreamWatcher, JdbcWriter
 
     @Override
     public void truncate(long length) throws SQLException {
-        if (length > this.charData.length()) {
+        this.checkOpen();
+        if (length < 0 || length > this.charData.length()) {
             throw new SQLException("Cannot truncate CLOB of length " + this.charData.length() + " to length of " + length);
         }
 
@@ -173,6 +176,10 @@ public class JdbcCob implements Clob, NClob, JdbcOutputStreamWatcher, JdbcWriter
 
     @Override
     public void writerClosed(JdbcWatchableWriter out) {
+        if (this.freed) {
+            return;
+        }
+
         int dataLength = out.size();
         if (dataLength < this.charData.length()) {
             out.write(this.charData, dataLength, this.charData.length() - dataLength);
@@ -183,6 +190,10 @@ public class JdbcCob implements Clob, NClob, JdbcOutputStreamWatcher, JdbcWriter
 
     @Override
     public void streamClosed(JdbcWatchableStream out) {
+        if (this.freed) {
+            return;
+        }
+
         int streamSize = out.size();
         if (streamSize < this.charData.length()) {
             out.write(this.charData.getBytes(), streamSize, this.charData.length() - streamSize);
@@ -202,11 +213,21 @@ public class JdbcCob implements Clob, NClob, JdbcOutputStreamWatcher, JdbcWriter
 
     @Override
     public void free() {
+        this.freed = true;
         this.charData = null;
     }
 
     @Override
     public Reader getCharacterStream(long pos, long length) throws SQLException {
-        return new StringReader(getSubString(pos, (int) length));
+        this.checkRange(pos, length);
+        String value = getSubString(pos, (int) length);
+        return value == null ? null : new StringReader(value);
+    }
+
+    private void checkRange(long pos, long length) throws SQLException {
+        long size = this.length();
+        if (pos < 1 || length < 0 || pos - 1 > size || length > size - (pos - 1)) {
+            throw new SQLException("Invalid CLOB range.", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
+        }
     }
 }

@@ -42,7 +42,7 @@ class JdbcParameterMetaData implements ParameterMetaData {
     @Override
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
         this.statement.checkOpen();
-        return this.statement.jdbcConn.adapterConnection().unwrap(iface, this) != null;
+        return this.statement.jdbcConn.adapterConnection().isWrapperFor(iface, this);
     }
 
     @Override

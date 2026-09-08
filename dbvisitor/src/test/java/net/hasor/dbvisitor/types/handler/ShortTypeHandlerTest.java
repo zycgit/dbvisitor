@@ -83,7 +83,7 @@ public class ShortTypeHandlerTest {
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Short;
-            assert objectMap.get("out").equals(new Short("123"));
+            assert objectMap.get("out").equals(Short.decode("123"));
             assert objectMap.get("#update-count-1").equals(0);
         }
     }

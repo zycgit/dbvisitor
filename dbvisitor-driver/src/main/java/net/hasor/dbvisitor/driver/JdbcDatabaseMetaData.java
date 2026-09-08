@@ -42,7 +42,7 @@ class JdbcDatabaseMetaData implements DatabaseMetaData {
     @Override
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
         this.jdbcConnection.checkOpen();
-        return this.adapterConnection.unwrap(iface, this) != null;
+        return this.adapterConnection.isWrapperFor(iface, this);
     }
 
     @Override

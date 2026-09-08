@@ -61,18 +61,8 @@ public class JdbcBob implements Blob, JdbcOutputStreamWatcher {
 
     @Override
     public synchronized byte[] getBytes(long pos, int length) throws SQLException {
-        checkClosed();
-        if (pos < 1) {
-            throw new SQLException("pos argument can not be < 1", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
-        }
-
+        checkRange(pos, length);
         pos--;
-        if (pos > this.binaryData.length) {
-            throw new SQLException("pos argument can not be larger than the BLOB's length", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
-        }
-        if (pos + length > this.binaryData.length) {
-            throw new SQLException("pos + length arguments can not be larger than the BLOB's length", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
-        }
 
         byte[] newData = new byte[length];
         System.arraycopy(getBinaryData(), (int) (pos), newData, 0, length);
@@ -102,10 +92,7 @@ public class JdbcBob implements Blob, JdbcOutputStreamWatcher {
 
     @Override
     public synchronized OutputStream setBinaryStream(long indexToWriteAt) throws SQLException {
-        checkClosed();
-        if (indexToWriteAt < 1) {
-            throw new SQLException("indexToWriteAt must be >= 1", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
-        }
+        checkRange(indexToWriteAt, 0);
 
         JdbcWatchableOutputStream bytesOut = new JdbcWatchableOutputStream();
         bytesOut.setWatcher(this);
@@ -117,13 +104,19 @@ public class JdbcBob implements Blob, JdbcOutputStreamWatcher {
     @Override
     public synchronized int setBytes(long writeAt, byte[] bytes) throws SQLException {
         checkClosed();
-
+        if (bytes == null) {
+            throw new SQLException("Bytes must not be null.", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
+        }
         return setBytes(writeAt, bytes, 0, bytes.length);
     }
 
     @Override
     public synchronized int setBytes(long writeAt, byte[] bytes, int offset, int length) throws SQLException {
-        checkClosed();
+        checkRange(writeAt, 0);
+        if (bytes == null || offset < 0 || length < 0 || offset > bytes.length || length > bytes.length - offset || //
+                length > Integer.MAX_VALUE - (writeAt - 1)) {
+            throw new SQLException("Invalid BLOB write range.", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
+        }
         OutputStream bytesOut = setBinaryStream(writeAt);
 
         try {
@@ -145,6 +138,9 @@ public class JdbcBob implements Blob, JdbcOutputStreamWatcher {
 
     @Override
     public synchronized void streamClosed(JdbcWatchableStream out) {
+        if (this.isClosed) {
+            return;
+        }
         int streamSize = out.size();
 
         if (streamSize < this.binaryData.length) {
@@ -179,22 +175,15 @@ public class JdbcBob implements Blob, JdbcOutputStreamWatcher {
 
     @Override
     public synchronized InputStream getBinaryStream(long pos, long length) throws SQLException {
+        checkRange(pos, length);
+        return new ByteArrayInputStream(getBinaryData(), (int) (pos - 1), (int) length);
+    }
+
+    private void checkRange(long pos, long length) throws SQLException {
         checkClosed();
-
-        if (pos < 1) {
-            throw new SQLException("pos argument can not be < 1", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
-        } else {
-            pos--;
+        if (pos < 1 || length < 0 || pos - 1 > this.binaryData.length || length > this.binaryData.length - (pos - 1)) {
+            throw new SQLException("Invalid BLOB range.", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
         }
-
-        if (pos > this.binaryData.length) {
-            throw new SQLException("len argument can not be larger than the BLOB's length", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
-        }
-        if (pos + length > this.binaryData.length) {
-            throw new SQLException("pos + length arguments can not be larger than the BLOB's length", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
-        }
-
-        return new ByteArrayInputStream(getBinaryData(), (int) pos, (int) length);
     }
 
     private synchronized void checkClosed() throws SQLException {

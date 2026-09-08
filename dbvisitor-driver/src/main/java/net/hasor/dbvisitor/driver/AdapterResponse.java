@@ -18,6 +18,7 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 import net.hasor.cobble.concurrent.future.BasicFuture;
+import net.hasor.cobble.io.IOUtils;
 
 public class AdapterResponse extends BasicFuture<AdapterResponse> {
 
@@ -26,8 +27,51 @@ public class AdapterResponse extends BasicFuture<AdapterResponse> {
     private List<JdbcColumn> columns;
     private AdapterCursor    resultSet;
     private long             updateCount;
+    private boolean          updateCountRead;
     private Throwable        exception;
     private AdapterCursor    generatedKeysResultSet;
+    private JdbcResultSet    jdbcResultSet;
+    private JdbcResultSet    jdbcGeneratedKeys;
+
+    JdbcResultSet resultSet(JdbcStatement statement) {
+        if (this.jdbcResultSet == null) {
+            this.jdbcResultSet = new JdbcResultSet(statement, this.resultSet);
+        }
+        return this.jdbcResultSet;
+    }
+
+    JdbcResultSet generatedKeys(JdbcStatement statement) {
+        if (this.jdbcGeneratedKeys == null) {
+            AdapterCursor cursor = this.generatedKeysResultSet;
+            if (cursor == null) {
+                cursor = new AdapterMemoryCursor(Collections.emptyList(), new Object[0][]);
+            }
+            this.jdbcGeneratedKeys = new JdbcResultSet(statement, cursor);
+        }
+        return this.jdbcGeneratedKeys;
+    }
+
+    boolean resultsClosed() {
+        return (this.resultSet == null || this.resultSet.isClose()) && //
+                (this.generatedKeysResultSet == null || this.generatedKeysResultSet.isClose());
+    }
+
+    boolean currentResultComplete() {
+        return !this.resultIsError && (this.resultIsResult || this.updateCountRead) && this.resultsClosed();
+    }
+
+    public void closeResult() {
+        if (this.jdbcResultSet != null) {
+            this.jdbcResultSet.close();
+        } else {
+            IOUtils.closeQuietly(this.resultSet);
+        }
+        if (this.jdbcGeneratedKeys != null) {
+            this.jdbcGeneratedKeys.close();
+        } else {
+            IOUtils.closeQuietly(this.generatedKeysResultSet);
+        }
+    }
 
     public List<JdbcColumn> getColumnList() {
         return this.columns;
@@ -41,18 +85,6 @@ public class AdapterResponse extends BasicFuture<AdapterResponse> {
         return this.resultIsError;
     }
 
-    public boolean isPending() {
-        return this.resultIsResult && this.resultSet.isPending();
-    }
-
-    public AdapterCursor toCursor() {
-        return this.resultSet;
-    }
-
-    public AdapterCursor toGeneratedKeys() {
-        return this.generatedKeysResultSet;
-    }
-
     public SQLException toError() {
         if (this.exception instanceof SQLException) {
             return (SQLException) this.exception;
@@ -62,6 +94,7 @@ public class AdapterResponse extends BasicFuture<AdapterResponse> {
     }
 
     public long getUpdateCount() {
+        this.updateCountRead = true;
         return this.updateCount;
     }
 

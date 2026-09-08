@@ -81,7 +81,7 @@ public class AdapterResultCursorTest {
     public void isPending_test() throws Exception {
         AdapterResultCursor cursor = new AdapterResultCursor(new MockAdapterRequest("SELECT 1"), cols());
         cursor.pushFinish();
-        // After pushFinish, check state
+        assertFalse(cursor.isPending());
         cursor.close();
     }
 

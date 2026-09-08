@@ -18,6 +18,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.*;
@@ -121,7 +122,7 @@ public final class ConvertUtils {
             } else if (v instanceof Double doubleVal) {
                 return doubleVal != 0;
             } else if (v instanceof BigDecimal bigDecimal) {
-                return !bigDecimal.equals(BigDecimal.ZERO);
+                return bigDecimal.signum() != 0;
             } else if (v instanceof BigInteger bigInt) {
                 return !bigInt.equals(BigInteger.ZERO);
             }
@@ -623,7 +624,11 @@ public final class ConvertUtils {
         } else if (v instanceof BigInteger) {
             return ((BigInteger) v).toString(10);
         } else if (v instanceof JdbcArray) {
-            return StringUtils.join(((JdbcArray) v).getArray().toArray(), ", ");
+            try {
+                return StringUtils.join(((JdbcArray) v).getArray(), ", ");
+            } catch (SQLException e) {
+                throw new IllegalArgumentException("Cannot read Array.", e);
+            }
         } else {
             return v.toString();
         }
@@ -867,21 +872,21 @@ public final class ConvertUtils {
             } else if (v instanceof YearMonth) {
                 return Year.of(((YearMonth) v).getYear());
             } else if (v instanceof Instant) {
-                return calendarField(((Instant) v).toEpochMilli(), c -> Year.of(c.get(Calendar.YEAR) - 1900));
+                return calendarField(((Instant) v).toEpochMilli(), c -> Year.of(c.get(Calendar.YEAR)));
             }
         } else if (v instanceof java.util.Date) {
             if (v instanceof java.sql.Timestamp) {
-                return calendarField((java.sql.Timestamp) v, c -> Year.of(c.get(Calendar.YEAR) - 1900));
+                return calendarField((java.sql.Timestamp) v, c -> Year.of(c.get(Calendar.YEAR)));
             } else if (v instanceof java.sql.Date) {
-                return calendarField((java.sql.Date) v, c -> Year.of(c.get(Calendar.YEAR) - 1900));
+                return calendarField((java.sql.Date) v, c -> Year.of(c.get(Calendar.YEAR)));
             } else if (v instanceof java.sql.Time) {
                 // skip
             } else {
-                return calendarField((java.util.Date) v, c -> Year.of(c.get(Calendar.YEAR) - 1900));
+                return calendarField((java.util.Date) v, c -> Year.of(c.get(Calendar.YEAR)));
             }
         } else if (v instanceof String) {
             if (NumberUtils.isNumber((String) v)) {
-                return calendarField(NumberUtils.createNumber((String) v).longValue(), c -> Year.of(c.get(Calendar.YEAR) - 1900));
+                return calendarField(NumberUtils.createNumber((String) v).longValue(), c -> Year.of(c.get(Calendar.YEAR)));
             } else {
                 LocalDateTime ldt = stringToLocalDateTime((String) v);
                 if (ldt != null) {
@@ -891,7 +896,7 @@ public final class ConvertUtils {
         } else if (v instanceof Calendar) {
             return Year.of(((Calendar) v).get(Calendar.YEAR));
         } else if (v instanceof Number) {
-            return calendarField(((Number) v).longValue(), c -> Year.of(c.get(Calendar.YEAR) - 1900));
+            return calendarField(((Number) v).longValue(), c -> Year.of(c.get(Calendar.YEAR)));
         }
 
         throw new ConversionException("Can't convert value '" + v + "' to a Year, type is " + v.getClass().getName());
@@ -958,7 +963,7 @@ public final class ConvertUtils {
                 }
             }
         } else if (v instanceof Calendar) {
-            return Month.of(((Calendar) v).get(Calendar.MONTH));
+            return Month.of(((Calendar) v).get(Calendar.MONTH) + 1);
         } else if (v instanceof Number) {
             return calendarField(((Number) v).longValue(), c -> Month.of(c.get(Calendar.MONTH) + 1));
         }
@@ -987,33 +992,33 @@ public final class ConvertUtils {
                 return YearMonth.of(localDate.getYear(), localDate.getMonth());
             } else if (v instanceof Instant) {
                 return calendarField(((Instant) v).toEpochMilli(), c -> {
-                    return YearMonth.of(c.get(Calendar.YEAR) - 1900, c.get(Calendar.MONTH) + 1);
+                    return YearMonth.of(c.get(Calendar.YEAR), c.get(Calendar.MONTH) + 1);
                 });
             }
         }
         if (v instanceof java.util.Date) {
             if (v instanceof java.sql.Timestamp) {
                 return calendarField((java.sql.Timestamp) v, c -> {
-                    return YearMonth.of(c.get(Calendar.YEAR) - 1900, c.get(Calendar.MONTH) + 1);
+                    return YearMonth.of(c.get(Calendar.YEAR), c.get(Calendar.MONTH) + 1);
                 });
             } else if (v instanceof java.sql.Date) {
                 return calendarField((java.sql.Date) v, c -> {
-                    return YearMonth.of(c.get(Calendar.YEAR) - 1900, c.get(Calendar.MONTH) + 1);
+                    return YearMonth.of(c.get(Calendar.YEAR), c.get(Calendar.MONTH) + 1);
                 });
             } else if (v instanceof java.sql.Time) {
                 // skip
             } else {
                 return calendarField((java.util.Date) v, c -> {
-                    return YearMonth.of(c.get(Calendar.YEAR) - 1900, c.get(Calendar.MONTH) + 1);
+                    return YearMonth.of(c.get(Calendar.YEAR), c.get(Calendar.MONTH) + 1);
                 });
             }
         } else if (v instanceof Calendar) {
             Calendar calendar = (Calendar) v;
-            return YearMonth.of(calendar.get(Calendar.YEAR) - 1900, calendar.get(Calendar.MONTH) + 1);
+            return YearMonth.of(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1);
         } else if (v instanceof String) {
             if (NumberUtils.isNumber((String) v)) {
                 return calendarField(NumberUtils.createNumber((String) v).longValue(), c -> {
-                    return YearMonth.of(c.get(Calendar.YEAR) - 1900, c.get(Calendar.MONTH) + 1);
+                    return YearMonth.of(c.get(Calendar.YEAR), c.get(Calendar.MONTH) + 1);
                 });
             } else {
                 try {

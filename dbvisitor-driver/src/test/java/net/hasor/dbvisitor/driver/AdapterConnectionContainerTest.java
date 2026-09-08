@@ -1,5 +1,4 @@
 package net.hasor.dbvisitor.driver;
-import static org.junit.Assert.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +8,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.*;
+
 /** Tests targeting AdapterConnection (unwrap, timer, features) and AdapterContainer (package-private). */
 public class AdapterConnectionContainerTest {
 
@@ -162,16 +163,14 @@ public class AdapterConnectionContainerTest {
 
     @Test
     public void unwrap_unknown_target() throws Exception {
-        // target is not a JDBC type — falls through to `unwrap(iface)` which returns null
-        Object result = mockConn.unwrap(Runnable.class, "some string");
-        assertNull(result);
+        assertFalse(mockConn.isWrapperFor(Runnable.class, "some string"));
+        assertThrows(SQLException.class, () -> mockConn.unwrap(Runnable.class, "some string"));
     }
 
     @Test
     public void unwrap_unknown_iface() throws Exception {
-        // iface not matching any branch → falls through to `unwrap(iface)` which returns null
-        Object result = mockConn.unwrap(Runnable.class, conn);
-        assertNull(result);
+        assertFalse(conn.isWrapperFor(Runnable.class));
+        assertThrows(SQLException.class, () -> conn.unwrap(Runnable.class));
     }
 
     // ==================== AdapterContainer — direct tests (package-private class) ====================
@@ -335,7 +334,7 @@ public class AdapterConnectionContainerTest {
         assertNotNull(first);
         assertTrue(first.isResult());
 
-        boolean hasMore = container.nextResult(0, TimeUnit.MILLISECONDS);
+        boolean hasMore = container.nextResult(Statement.CLOSE_CURRENT_RESULT, 0, TimeUnit.MILLISECONDS);
         assertFalse(hasMore);
     }
 
@@ -345,7 +344,7 @@ public class AdapterConnectionContainerTest {
         MockAdapterRequest req = new MockAdapterRequest("SELECT 1");
         container.prepareReceive(req);
         // State is Pending — should throw
-        container.nextResult(0, TimeUnit.MILLISECONDS);
+        container.nextResult(Statement.CLOSE_CURRENT_RESULT, 0, TimeUnit.MILLISECONDS);
     }
 
     @Test(expected = SQLException.class)
@@ -382,7 +381,7 @@ public class AdapterConnectionContainerTest {
             container.waitFor(50, TimeUnit.MILLISECONDS);
             fail("expected SQLException");
         } catch (SQLException e) {
-            assertTrue(e.getMessage().contains("no data received"));
+            assertTrue(e instanceof SQLTimeoutException);
         }
     }
 
@@ -419,53 +418,77 @@ public class AdapterConnectionContainerTest {
     // ==================== AdapterResponse coverage ====================
     @Test
     public void adapterResponse_ofError() throws Exception {
-        AdapterContainer container = new AdapterContainer(conn);
-        MockAdapterRequest req = new MockAdapterRequest("SELECT 1");
-        container.prepareReceive(req);
-        container.responseFailed(req, new SQLException("boom"));
-        container.responseFinish(req);
+        try (JdbcStatement statement = (JdbcStatement) conn.createStatement()) {
+            AdapterContainer container = statement.container;
+            MockAdapterRequest req = new MockAdapterRequest("SELECT 1");
+            container.prepareReceive(req);
+            container.responseFailed(req, new SQLException("boom"));
+            container.responseFinish(req);
 
-        AdapterResponse first = container.firstResult();
-        assertNotNull(first);
-        assertTrue(first.isError());
-        assertFalse(first.isResult());
-        assertFalse(first.isPending());
-        assertNotNull(first.toError());
+            AdapterResponse first = container.firstResult();
+            assertNotNull(first);
+            assertTrue(first.isError());
+            assertFalse(first.isResult());
+            assertEquals("boom", first.toError().getMessage());
+            assertEquals("boom", assertThrows(SQLException.class, statement::getResultSet).getMessage());
+            assertEquals("boom", assertThrows(SQLException.class, statement::getGeneratedKeys).getMessage());
+        }
     }
 
     @Test
     public void adapterResponse_ofUpdateCount() throws Exception {
-        AdapterContainer container = new AdapterContainer(conn);
-        MockAdapterRequest req = new MockAdapterRequest("INSERT INTO t");
-        container.prepareReceive(req);
-        container.responseUpdateCount(req, 7);
-        container.responseFinish(req);
+        try (JdbcStatement statement = (JdbcStatement) conn.createStatement()) {
+            AdapterContainer container = statement.container;
+            MockAdapterRequest req = new MockAdapterRequest("INSERT INTO t");
+            container.prepareReceive(req);
+            container.responseUpdateCount(req, 7);
+            container.responseFinish(req);
 
-        AdapterResponse first = container.firstResult();
-        assertNotNull(first);
-        assertFalse(first.isResult());
-        assertFalse(first.isError());
-        assertEquals(7, first.getUpdateCount());
-        assertNull(first.toGeneratedKeys());
+            AdapterResponse first = container.firstResult();
+            assertNotNull(first);
+            assertFalse(first.isResult());
+            assertFalse(first.isError());
+            assertEquals(7, statement.getUpdateCount());
+            assertNull(statement.getResultSet());
+            try (ResultSet keys = statement.getGeneratedKeys()) {
+                assertNotNull(keys);
+                assertFalse(keys.next());
+            }
+        }
     }
 
     @Test
     public void adapterResponse_ofCursor_withGenKeys() throws Exception {
-        AdapterContainer container = new AdapterContainer(conn);
-        MockAdapterRequest req = new MockAdapterRequest("INSERT INTO t");
-        container.prepareReceive(req);
+        try (JdbcStatement statement = (JdbcStatement) conn.createStatement()) {
+            AdapterContainer container = statement.container;
+            MockAdapterRequest req = new MockAdapterRequest("INSERT INTO t");
+            container.prepareReceive(req);
 
-        List<JdbcColumn> cols = new ArrayList<>();
-        cols.add(new JdbcColumn("id", "int", "t", "c", ""));
-        AdapterMemoryCursor cursor = new AdapterMemoryCursor(cols, new Object[][] { { 1 } });
-        AdapterMemoryCursor keys = new AdapterMemoryCursor(cols, new Object[][] { { 99 } });
-        container.responseResult(req, cursor, keys);
-        container.responseFinish(req);
+            List<JdbcColumn> cols = new ArrayList<>();
+            cols.add(new JdbcColumn("id", "int", "t", "c", ""));
+            AdapterMemoryCursor cursor = new AdapterMemoryCursor(cols, new Object[][] { { 1 } });
+            AdapterMemoryCursor keys = new AdapterMemoryCursor(cols, new Object[][] { { 99 } });
+            container.responseResult(req, cursor, keys);
+            container.responseFinish(req);
 
-        AdapterResponse first = container.firstResult();
-        assertNotNull(first);
-        assertTrue(first.isResult());
-        assertNotNull(first.toCursor());
-        assertNotNull(first.toGeneratedKeys());
+            AdapterResponse first = container.firstResult();
+            assertNotNull(first);
+            assertTrue(first.isResult());
+            ResultSet result = statement.getResultSet();
+            ResultSet generatedKeys = statement.getGeneratedKeys();
+            assertSame(result, statement.getResultSet());
+            assertSame(generatedKeys, statement.getGeneratedKeys());
+            assertTrue(result.next());
+            assertEquals(1, result.getInt("id"));
+            assertFalse(result.next());
+            assertTrue(generatedKeys.next());
+            assertEquals(99, generatedKeys.getInt("id"));
+            assertFalse(generatedKeys.next());
+            assertFalse(statement.getMoreResults());
+            assertTrue(result.isClosed());
+            assertTrue(generatedKeys.isClosed());
+            assertTrue(cursor.isClose());
+            assertTrue(keys.isClose());
+        }
     }
 }

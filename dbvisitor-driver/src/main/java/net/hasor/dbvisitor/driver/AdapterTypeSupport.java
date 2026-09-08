@@ -286,7 +286,7 @@ public class AdapterTypeSupport implements TypeSupport {
             return type;
         }
 
-        if (classType.getClass().isArray()) {
+        if (classType.isArray()) {
             return AdapterType.Array;
         } else {
             return AdapterType.Unknown;

@@ -163,14 +163,11 @@ public class JdbcCallableStatementTest {
 
     @Test
     public void getLong_byIndex() throws Exception {
-        CallableStatement cs = conn.prepareCall("{call myproc}");
-        cs.registerOutParameter(1, Types.INTEGER);
-        cs.execute();
-        try {
-            cs.getLong(1);
-        } catch (SQLException ignore) {
+        try (CallableStatement cs = conn.prepareCall("{call myproc}")) {
+            cs.registerOutParameter(1, Types.INTEGER);
+            cs.execute();
+            assertEquals(42L, cs.getLong(1));
         }
-        cs.close();
     }
 
     @Test
@@ -966,14 +963,14 @@ public class JdbcCallableStatementTest {
 
     @Test
     public void setTime_byName_calendar() throws Exception {
-        CallableStatement cs = conn.prepareCall("{call myproc}");
-        try {
-            cs.setTime("arg1", java.sql.Time.valueOf("12:30:00"), Calendar.getInstance());
-        } catch (UnsupportedOperationException ignore) {
-            /* Time.toInstant() unsupported in Java 8 */
+        try (JdbcCallableStatement cs = (JdbcCallableStatement) conn.prepareCall("{call myproc}")) {
+            java.sql.Time value = java.sql.Time.valueOf("12:30:00");
+            Calendar calendar = Calendar.getInstance();
+            cs.setTime("arg1", value, calendar);
+            cs.execute();
+            assertEquals(java.time.OffsetTime.ofInstant(java.time.Instant.ofEpochMilli(value.getTime()), calendar.getTimeZone().toZoneId()),
+                    cs.container.getRequest().getArgMap().get("arg1").getValue());
         }
-        cs.execute();
-        cs.close();
     }
 
     @Test

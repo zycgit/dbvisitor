@@ -17,16 +17,18 @@ package net.hasor.dbvisitor.driver;
 import java.io.Closeable;
 import java.sql.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import net.hasor.cobble.io.IOUtils;
 import net.hasor.dbvisitor.driver.lob.JdbcBob;
 import net.hasor.dbvisitor.driver.lob.JdbcCob;
 
 class JdbcConnection implements Connection, Closeable {
-    private boolean                  closed = false;
-    private final AdapterConnection  connection;
-    private final TypeSupport        typeSupport;
-    private final TransactionSupport txSupport;
+    private volatile boolean            closed     = false;
+    private final    Set<JdbcStatement> statements = ConcurrentHashMap.newKeySet();
+    private final    AdapterConnection  connection;
+    private final    TypeSupport        typeSupport;
+    private final    TransactionSupport txSupport;
 
     JdbcConnection(String jdbcUrl, Properties properties) throws SQLException {
         Objects.requireNonNull(properties, "parameter properties is null.");
@@ -58,11 +60,27 @@ class JdbcConnection implements Connection, Closeable {
         if (!this.isClosed()) {
             try {
                 this.closed = true;
+                for (JdbcStatement statement : this.statements) {
+                    statement.close();
+                }
+
+                this.statements.clear();
                 AdapterConnManager.removeConnection(this.connection);
             } finally {
                 IOUtils.closeQuietly(this.connection);
             }
         }
+    }
+
+    void registerStatement(JdbcStatement statement) {
+        this.statements.add(statement);
+        if (this.closed) {
+            statement.close();
+        }
+    }
+
+    void unregisterStatement(JdbcStatement statement) {
+        this.statements.remove(statement);
     }
 
     @Override
@@ -435,7 +453,7 @@ class JdbcConnection implements Connection, Closeable {
     @Override
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
         this.checkOpen();
-        return this.connection.unwrap(iface, this) != null;
+        return this.connection.isWrapperFor(iface, this);
     }
 
     @Override

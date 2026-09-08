@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.driver;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
+import java.io.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.sql.*;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.OffsetTime;
 import java.time.ZonedDateTime;
@@ -41,6 +40,10 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
 
     private ResultSet getOutParameter() throws SQLException {
         this.checkOpen();
+        if (this.lastResultOut == null) {
+            throw new SQLException("OUT parameters are not available before execution.");
+        }
+
         return this.lastResultOut;
     }
 
@@ -51,7 +54,24 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
         if (outParameters == null) {
             outParameters = new AdapterMemoryCursor(Collections.emptyList(), EMPTY);
         }
-        this.lastResultOut = new JdbcResultSet(this, outParameters);
+
+        IOUtils.closeQuietly(this.lastResultOut);
+        this.lastResultOut = new JdbcResultSet(this, outParameters, false);
+        this.lastResultOut.next();
+    }
+
+    @Override
+    protected void beforeExecute(AdapterRequest request, AdapterContainer container) throws SQLException {
+        IOUtils.closeQuietly(this.lastResultOut);
+        this.lastResultOut = null;
+        super.beforeExecute(request, container);
+    }
+
+    @Override
+    public void close() {
+        IOUtils.closeQuietly(this.lastResultOut);
+        this.lastResultOut = null;
+        super.close();
     }
 
     @Override
@@ -73,13 +93,18 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
         if (sqlType != null) {
             if (StringUtils.isNotBlank(sqlType.getName())) {
                 this.setParameter(JdbcArgMode.Out, parameterName, sqlType.getName(), null);
+                if (sqlType.getVendorTypeNumber() == null) {
+                    return;
+                }
             }
+
             if (sqlType.getVendorTypeNumber() != null) {
                 this.setParameter(JdbcArgMode.Out, parameterName, this.getTypeName(sqlType.getVendorTypeNumber()), null);
+                return;
             }
         }
 
-        throw new IllegalArgumentException("registerOutParameter need typeName.");
+        throw new SQLException("registerOutParameter needs sqlType.", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
     }
 
     @Override
@@ -104,7 +129,7 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
     @Override
     public void registerOutParameter(int parameterIndex, SQLType sqlType, String typeName) throws SQLException {
         this.checkParameterIndex(parameterIndex);
-        this.registerOutParameter("arg" + parameterIndex, sqlType);
+        this.registerOutParameter("arg" + parameterIndex, sqlType, typeName);
     }
 
     @Override
@@ -203,7 +228,7 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
     public long getLong(int parameterIndex) throws SQLException {
         this.checkOpen();
         this.checkParameterIndex(parameterIndex);
-        return this.getOutParameter().getInt("arg" + parameterIndex);
+        return this.getOutParameter().getLong("arg" + parameterIndex);
     }
 
     @Override
@@ -727,17 +752,17 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
 
     @Override
     public void setAsciiStream(String parameterName, InputStream x) throws SQLException {
-        this.setBinaryStream(parameterName, x);
+        this.setStringReader(parameterName, x == null ? null : new InputStreamReader(x, StandardCharsets.US_ASCII));
     }
 
     @Override
     public void setAsciiStream(String parameterName, InputStream x, int length) throws SQLException {
-        this.setBinaryStream(parameterName, x, length);
+        this.setAsciiStream(parameterName, x, (long) length);
     }
 
     @Override
     public void setAsciiStream(String parameterName, InputStream x, long length) throws SQLException {
-        this.setBinaryStream(parameterName, x, length);
+        this.setStringReader(parameterName, x == null ? null : new InputStreamReader(x, StandardCharsets.US_ASCII), length);
     }
 
     @Override
@@ -788,7 +813,7 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
             if (cal == null) {
                 this.setParameter(JdbcArgMode.In, parameterName, AdapterType.SqlTime, x);
             } else {
-                ZonedDateTime zonedTime = x.toInstant().atZone(cal.getTimeZone().toZoneId());
+                ZonedDateTime zonedTime = Instant.ofEpochMilli(x.getTime()).atZone(cal.getTimeZone().toZoneId());
                 OffsetTime offsetTime = OffsetTime.of(zonedTime.toLocalTime(), zonedTime.getOffset());
                 this.setParameter(JdbcArgMode.In, parameterName, AdapterType.OffsetTime, offsetTime);
             }
@@ -844,25 +869,16 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
 
     @Override
     public void setObject(String parameterName, Object x, int targetSqlType, int scale) throws SQLException {
-        this.setParameter(JdbcArgMode.In, parameterName, this.getTypeName(targetSqlType), x);
+        this.setScaledParameter(parameterName, x, this.getTypeName(targetSqlType), scale);
     }
 
     @Override
     public void setObject(String parameterName, Object x, SQLType targetSqlType) throws SQLException {
-        if (targetSqlType != null) {
-            if (StringUtils.isNotBlank(targetSqlType.getName())) {
-                this.setParameter(JdbcArgMode.In, parameterName, targetSqlType.getName(), x);
-            }
-            if (targetSqlType.getVendorTypeNumber() != null) {
-                this.setParameter(JdbcArgMode.In, parameterName, this.getTypeName(targetSqlType.getVendorTypeNumber()), x);
-            }
-        }
-
-        throw new IllegalArgumentException("setObject need targetSqlType.");
+        this.setParameter(JdbcArgMode.In, parameterName, this.getTypeName(targetSqlType), x);
     }
 
     @Override
     public void setObject(String parameterName, Object x, SQLType targetSqlType, int scaleOrLength) throws SQLException {
-        this.setObject(parameterName, x, targetSqlType);
+        this.setScaledParameter(parameterName, x, this.getTypeName(targetSqlType), scaleOrLength);
     }
 }

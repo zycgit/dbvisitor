@@ -476,9 +476,9 @@ public class JdbcResultSetComprehensiveTest {
         assertTrue(rs.isFirst());
         rs.next();
         rs.next();
-        assertFalse(rs.isLast()); // wasLast only true after next() returns false
-        rs.next(); // returns false, sets wasLast
         assertTrue(rs.isLast());
+        rs.next(); // returns false, sets wasLast
+        assertFalse(rs.isLast());
         assertTrue(rs.isAfterLast());
         rs.close();
         stmt.close();
@@ -550,7 +550,7 @@ public class JdbcResultSetComprehensiveTest {
         assertFalse(rsmd.isCaseSensitive(1));
         assertFalse(rsmd.isSearchable(1));
         assertFalse(rsmd.isCurrency(1));
-        assertEquals(0, rsmd.isNullable(1));
+        assertEquals(java.sql.ResultSetMetaData.columnNullableUnknown, rsmd.isNullable(1));
         assertFalse(rsmd.isSigned(1));
         assertEquals(0, rsmd.getColumnDisplaySize(1));
         assertFalse(rsmd.isReadOnly(1));

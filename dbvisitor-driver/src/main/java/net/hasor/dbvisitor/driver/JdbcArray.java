@@ -24,7 +24,13 @@ import java.util.Map;
 public class JdbcArray implements Array {
     private final JdbcConnection connection;
     private final String         baseType;
-    private final List<?>        resultValue;
+    private       List<?>        resultValue;
+
+    private void checkOpen() throws SQLException {
+        if (this.resultValue == null) {
+            throw new SQLException("Array has been freed.");
+        }
+    }
 
     JdbcArray(JdbcConnection connection, String baseType, List<?> resultValue) {
         this.connection = connection;
@@ -33,25 +39,32 @@ public class JdbcArray implements Array {
     }
 
     @Override
-    public String getBaseTypeName() {
+    public String getBaseTypeName() throws SQLException {
+        this.checkOpen();
         return this.baseType;
     }
 
     @Override
-    public int getBaseType() {
+    public int getBaseType() throws SQLException {
+        this.checkOpen();
         return this.connection.typeSupport().getTypeNumber(this.baseType);
     }
 
     @Override
-    public List<?> getArray() {
-        return this.resultValue;
+    public Object[] getArray() throws SQLException {
+        this.checkOpen();
+        return this.resultValue.toArray();
     }
 
     @Override
-    public List<?> getArray(long index, int count) {
-        int fromIndex = Math.toIntExact(index);
-        int toIndex = Math.toIntExact(index + count);
-        return this.resultValue.subList(fromIndex, toIndex);
+    public Object[] getArray(long index, int count) throws SQLException {
+        this.checkOpen();
+        if (index < 1 || count < 0 || index - 1 > this.resultValue.size() || count > this.resultValue.size() - (index - 1)) {
+            throw new SQLException("Invalid Array slice.", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
+        }
+
+        int fromIndex = (int) (index - 1);
+        return this.resultValue.subList(fromIndex, fromIndex + count).toArray();
     }
 
     @Override
@@ -86,6 +99,6 @@ public class JdbcArray implements Array {
 
     @Override
     public void free() {
-
+        this.resultValue = null;
     }
 }

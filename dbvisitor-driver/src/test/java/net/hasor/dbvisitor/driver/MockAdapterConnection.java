@@ -95,6 +95,7 @@ public class MockAdapterConnection extends AdapterConnection implements Transact
         } else {
             receive.responseUpdateCount(req, 1);
         }
+        receive.responseFinish(req);
     }
 
     @Override

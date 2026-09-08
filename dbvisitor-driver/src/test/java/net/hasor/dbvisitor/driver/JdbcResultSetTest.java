@@ -57,8 +57,8 @@ public class JdbcResultSetTest {
         assertTrue(array instanceof JdbcArray);
 
         Object arrayData = array.getArray();
-        assertTrue(arrayData instanceof List);
-        Object[] actual = ((List<?>) arrayData).toArray();
+        assertTrue(arrayData instanceof Object[]);
+        Object[] actual = (Object[]) arrayData;
 
         assertEquals(3, actual.length);
         assertEquals("a", actual[0]);
@@ -77,8 +77,8 @@ public class JdbcResultSetTest {
         assertNotNull(array);
 
         Object arrayData = array.getArray();
-        assertTrue(arrayData instanceof List);
-        Object[] actual = ((List<?>) arrayData).toArray();
+        assertTrue(arrayData instanceof Object[]);
+        Object[] actual = (Object[]) arrayData;
 
         assertEquals(2, actual.length);
         assertEquals("x", actual[0]);
@@ -95,8 +95,8 @@ public class JdbcResultSetTest {
         assertNotNull(array);
 
         Object arrayData = array.getArray();
-        assertTrue(arrayData instanceof List);
-        Object[] actual = ((List<?>) arrayData).toArray();
+        assertTrue(arrayData instanceof Object[]);
+        Object[] actual = (Object[]) arrayData;
 
         assertEquals(2, actual.length);
         assertEquals("x", actual[0]);
@@ -113,8 +113,8 @@ public class JdbcResultSetTest {
         assertNotNull(array);
 
         Object arrayData = array.getArray();
-        assertTrue(arrayData instanceof List);
-        Object[] actual = ((List<?>) arrayData).toArray();
+        assertTrue(arrayData instanceof Object[]);
+        Object[] actual = (Object[]) arrayData;
 
         // Note: primitives are wrapped
         assertEquals(3, actual.length);

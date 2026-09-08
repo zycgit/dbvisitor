@@ -40,7 +40,7 @@ class JdbcResultSetMetaData implements ResultSetMetaData {
     }
 
     protected JdbcColumn column(int index) throws SQLException {
-        if (index < 0 || index > columns.size()) {
+        if (index < 1 || index > columns.size()) {
             throw new SQLException("Invalid column index [" + index + "]");
         } else {
             return this.columns.get(index - 1);
@@ -56,7 +56,7 @@ class JdbcResultSetMetaData implements ResultSetMetaData {
     @Override
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
         this.statement.checkOpen();
-        return statement.jdbcConn.adapterConnection().unwrap(iface, this) != null;
+        return statement.jdbcConn.adapterConnection().isWrapperFor(iface, this);
     }
 
     @Override
@@ -86,7 +86,7 @@ class JdbcResultSetMetaData implements ResultSetMetaData {
 
     @Override
     public int isNullable(int column) {
-        return 0;
+        return ResultSetMetaData.columnNullableUnknown;
     }
 
     @Override

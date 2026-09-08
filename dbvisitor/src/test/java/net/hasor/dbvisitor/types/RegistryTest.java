@@ -47,17 +47,17 @@ public class RegistryTest {
     @Test
     public void ruleTest_1() throws Exception {
         assert TypeHandlerRegistry.DEFAULT.getTypeHandler(Boolean.TRUE.getClass()) instanceof BooleanTypeHandler;
-        assert TypeHandlerRegistry.DEFAULT.getTypeHandler(new Byte((byte) 123).getClass()) instanceof ByteTypeHandler;
-        assert TypeHandlerRegistry.DEFAULT.getTypeHandler(new Short((short) 123).getClass()) instanceof ShortTypeHandler;
-        assert TypeHandlerRegistry.DEFAULT.getTypeHandler(new Integer(123).getClass()) instanceof IntegerTypeHandler;
-        assert TypeHandlerRegistry.DEFAULT.getTypeHandler(new Long(123).getClass()) instanceof LongTypeHandler;
-        assert TypeHandlerRegistry.DEFAULT.getTypeHandler(new Float(123.123f).getClass()) instanceof FloatTypeHandler;
-        assert TypeHandlerRegistry.DEFAULT.getTypeHandler(new Double(123.123f).getClass()) instanceof DoubleTypeHandler;
-        assert TypeHandlerRegistry.DEFAULT.getTypeHandler(new Character('a').getClass()) instanceof StringAsCharTypeHandler;
-        assert TypeHandlerRegistry.DEFAULT.getTypeHandler(new java.util.Date().getClass()) instanceof SqlTimestampAsDateTypeHandler;
-        assert TypeHandlerRegistry.DEFAULT.getTypeHandler(new java.sql.Date(11).getClass()) instanceof SqlDateTypeHandler;
-        assert TypeHandlerRegistry.DEFAULT.getTypeHandler(new java.sql.Timestamp(11).getClass()) instanceof SqlTimestampTypeHandler;
-        assert TypeHandlerRegistry.DEFAULT.getTypeHandler(new java.sql.Time(11).getClass()) instanceof SqlTimeTypeHandler;
+        assert TypeHandlerRegistry.DEFAULT.getTypeHandler(Byte.class) instanceof ByteTypeHandler;
+        assert TypeHandlerRegistry.DEFAULT.getTypeHandler(Short.class) instanceof ShortTypeHandler;
+        assert TypeHandlerRegistry.DEFAULT.getTypeHandler(Integer.class) instanceof IntegerTypeHandler;
+        assert TypeHandlerRegistry.DEFAULT.getTypeHandler(Long.class) instanceof LongTypeHandler;
+        assert TypeHandlerRegistry.DEFAULT.getTypeHandler(Float.class) instanceof FloatTypeHandler;
+        assert TypeHandlerRegistry.DEFAULT.getTypeHandler(Double.class) instanceof DoubleTypeHandler;
+        assert TypeHandlerRegistry.DEFAULT.getTypeHandler(Character.class) instanceof StringAsCharTypeHandler;
+        assert TypeHandlerRegistry.DEFAULT.getTypeHandler(java.util.Date.class) instanceof SqlTimestampAsDateTypeHandler;
+        assert TypeHandlerRegistry.DEFAULT.getTypeHandler(java.sql.Date.class) instanceof SqlDateTypeHandler;
+        assert TypeHandlerRegistry.DEFAULT.getTypeHandler(java.sql.Timestamp.class) instanceof SqlTimestampTypeHandler;
+        assert TypeHandlerRegistry.DEFAULT.getTypeHandler(java.sql.Time.class) instanceof SqlTimeTypeHandler;
         assert TypeHandlerRegistry.DEFAULT.getTypeHandler(Instant.now().getClass()) instanceof SqlTimestampAsInstantTypeHandler;
         assert TypeHandlerRegistry.DEFAULT.getTypeHandler(JapaneseDate.now().getClass()) instanceof JapaneseDateAsSqlDateTypeHandler;
         assert TypeHandlerRegistry.DEFAULT.getTypeHandler(Year.of(2022).getClass()) instanceof SqlTimestampAsYearTypeHandler;

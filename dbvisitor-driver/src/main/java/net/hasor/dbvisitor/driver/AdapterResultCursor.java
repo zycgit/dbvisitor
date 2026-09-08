@@ -16,8 +16,10 @@
 package net.hasor.dbvisitor.driver;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.sql.SQLTimeoutException;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
 
 public class AdapterResultCursor implements AdapterCursor {
     private final    AdapterRequest             request;
@@ -51,7 +53,27 @@ public class AdapterResultCursor implements AdapterCursor {
     }
 
     @Override
-    public boolean next() throws SQLException {
+    public synchronized boolean next() throws SQLException {
+        long remaining = TimeUnit.SECONDS.toNanos(this.request.getTimeoutSec());
+        long deadline = System.nanoTime() + remaining;
+        while (!this.closed && this.pending && this.rowSet.isEmpty()) {
+            try {
+                if (this.request.getTimeoutSec() == 0) {
+                    this.wait();
+                } else {
+                    if (remaining <= 0) {
+                        throw new SQLTimeoutException("cursor wait timeout.");
+                    }
+
+                    TimeUnit.NANOSECONDS.timedWait(this, remaining);
+                    remaining = deadline - System.nanoTime();
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new SQLException("Interrupted while waiting for cursor data.", e);
+            }
+        }
+
         if (this.closed) {
             throw new SQLException("cursor is closed.");
         }
@@ -71,12 +93,15 @@ public class AdapterResultCursor implements AdapterCursor {
     }
 
     @Override
-    public void close() throws IOException {
+    public synchronized void close() throws IOException {
         this.closed = true;
+        this.pending = false;
         this.rowSet.clear();
+        this.currentRow = null;
+        this.notifyAll();
     }
 
-    public void pushData(Map<String, Object> row) throws SQLException {
+    public synchronized void pushData(Map<String, Object> row) throws SQLException {
         if (this.closed) {
             throw new SQLException("cursor is closed.");
         }
@@ -85,10 +110,12 @@ public class AdapterResultCursor implements AdapterCursor {
         }
 
         this.rowSet.offer(Objects.requireNonNull(row, "row is null."));
+        this.notifyAll();
     }
 
-    public void pushFinish() {
-        this.pending = true;
+    public synchronized void pushFinish() {
+        this.pending = false;
+        this.notifyAll();
     }
 
     @Override

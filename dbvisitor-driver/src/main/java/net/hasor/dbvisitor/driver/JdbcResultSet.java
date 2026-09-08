@@ -31,18 +31,23 @@ import net.hasor.dbvisitor.driver.lob.JdbcBob;
 import net.hasor.dbvisitor.driver.lob.JdbcCob;
 
 class JdbcResultSet implements ResultSet, Closeable {
-    private final AdapterCursor            cursor;
-    private final JdbcStatement            statement;
-    private       boolean                  closed        = false;
-    private       boolean                  wasNull       = false;
-    private       boolean                  wasLast       = false;
-    private       int                      rowNumber;
-    private final Map<Integer, String>     indexToName   = new LinkedHashMap<>();
-    private final Map<String, Integer>     nameToIndex   = new LinkedHashMap<>();
-    private final Map<String, String>      nameToType    = new LinkedHashMap<>();
-    private final Map<String, TypeConvert> nameToConvert = new LinkedHashMap<>();
+    private final AdapterCursor        cursor;
+    private final JdbcStatement        statement;
+    private       boolean              closed      = false;
+    private       boolean              wasNull     = false;
+    private       boolean              wasLast     = false;
+    private       int                  rowNumber;
+    private final Map<Integer, String> indexToName = new LinkedHashMap<>();
+    private final Map<String, Integer> nameToIndex = new LinkedHashMap<>();
+    private final Map<Integer, String> indexToType = new LinkedHashMap<>();
+    private       Boolean              nextAvailable;
+    private       Object[]             savedRow;
 
     JdbcResultSet(JdbcStatement statement, AdapterCursor cursor) {
+        this(statement, cursor, true);
+    }
+
+    JdbcResultSet(JdbcStatement statement, AdapterCursor cursor, boolean dependent) {
         this.statement = statement;
         this.cursor = cursor;
         List<JdbcColumn> columns = cursor.columns();
@@ -51,15 +56,19 @@ class JdbcResultSet implements ResultSet, Closeable {
             String type = columns.get(i).type;
             int index = i + 1;
 
-            this.nameToIndex.put(label, index);
+            this.nameToIndex.putIfAbsent(label.toLowerCase(Locale.ROOT), index);
             this.indexToName.put(index, label);
-            this.nameToType.put(label, type);
+            this.indexToType.put(index, type);
+        }
+
+        if (dependent) {
+            statement.trackResultSet(this);
         }
     }
 
     private Object columnValue(String name) throws SQLException {
         this.checkOpen();
-        Integer columnIndex = this.nameToIndex.get(name);
+        Integer columnIndex = this.nameToIndex.get(name == null ? null : name.toLowerCase(Locale.ROOT));
         if (columnIndex == null) {
             throw new SQLException("Invalid column " + name);
         } else {
@@ -87,7 +96,7 @@ class JdbcResultSet implements ResultSet, Closeable {
 
         Object object;
         try {
-            object = this.cursor.column(columnIndex);
+            object = this.savedRow == null ? this.cursor.column(columnIndex) : this.savedRow[columnIndex - 1];
         } catch (Exception iae) {
             throw new SQLException(iae.getMessage());
         }
@@ -95,31 +104,33 @@ class JdbcResultSet implements ResultSet, Closeable {
         return object;
     }
 
-    private <T> T convertTo(String columnLabel, Object value, Class<?> toType) {
+    private <T> T convertTo(String columnLabel, Object value, Class<?> toType) throws SQLException {
+        return this.convertTo(this.findColumn(columnLabel), value, toType);
+    }
+
+    private <T> T convertTo(int columnIndex, Object value, Class<?> toType) throws SQLException {
         if (value == null) {
             return null;
         }
 
-        TypeConvert convert = this.nameToConvert.computeIfAbsent(columnLabel, c -> {
-            String typeName = this.nameToType.getOrDefault(c, AdapterType.Unknown);
-            TypeSupport typeSupport = this.statement.jdbcConn.typeSupport();
-            return typeSupport.findConvert(typeName, toType);
-        });
-        if (convert != null) {
-            return (T) convert.convert(toType, value);
-        } else {
+        TypeConvert convert = this.statement.jdbcConn.typeSupport().findConvert(this.indexToType.get(columnIndex), toType);
+        try {
+            if (convert != null) {
+                return (T) convert.convert(toType, value);
+            }
             throw new ClassCastException("the type " + value.getClass().getName() + " cannot be as " + toType.getName());
+        } catch (RuntimeException e) {
+            throw new SQLException("Cannot convert column " + columnIndex + " to " + toType.getName(), e);
         }
     }
 
     private Object convertTimeZone(Object value, Calendar cal) {
         if (cal != null) {
             if (value instanceof OffsetTime) {
-                ZoneOffset zoneOffset = ZoneOffset.of(cal.getTimeZone().getID());
+                ZoneOffset zoneOffset = cal.getTimeZone().toZoneId().getRules().getOffset(cal.toInstant());
                 value = ((OffsetTime) value).withOffsetSameInstant(zoneOffset);
             } else if (value instanceof OffsetDateTime) {
-                ZoneOffset zoneOffset = ZoneOffset.of(cal.getTimeZone().getID());
-                value = ((OffsetDateTime) value).withOffsetSameInstant(zoneOffset);
+                value = ((OffsetDateTime) value).atZoneSameInstant(cal.getTimeZone().toZoneId()).toOffsetDateTime();
             }
         }
         return value;
@@ -134,7 +145,7 @@ class JdbcResultSet implements ResultSet, Closeable {
     @Override
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
         this.checkOpen();
-        return this.statement.jdbcConn.adapterConnection().unwrap(iface, this) != null;
+        return this.statement.jdbcConn.adapterConnection().isWrapperFor(iface, this);
     }
 
     @Override
@@ -160,7 +171,7 @@ class JdbcResultSet implements ResultSet, Closeable {
 
     @Override
     public boolean isClosed() {
-        return this.closed || this.statement.isClosed();
+        return this.closed || this.statement.isClosed() || this.cursor.isClose();
     }
 
     @Override
@@ -168,6 +179,8 @@ class JdbcResultSet implements ResultSet, Closeable {
         if (!this.closed) {
             this.closed = true;
             IOUtils.closeQuietly(this.cursor);
+            this.savedRow = null;
+            this.statement.resultSetClosed(this);
         }
     }
 
@@ -198,7 +211,7 @@ class JdbcResultSet implements ResultSet, Closeable {
     @Override
     public int findColumn(String columnLabel) throws SQLException {
         checkOpen();
-        Integer index = this.nameToIndex.get(columnLabel);
+        Integer index = this.nameToIndex.get(columnLabel == null ? null : columnLabel.toLowerCase(Locale.ROOT));
         if (index == null) {
             throw new SQLException("invalid column label [" + columnLabel + "]");
         } else {
@@ -209,7 +222,14 @@ class JdbcResultSet implements ResultSet, Closeable {
     @Override
     public boolean next() throws SQLException {
         checkOpen();
-        if (this.cursor.next()) {
+        if (this.wasLast) {
+            return false;
+        }
+
+        boolean available = this.nextAvailable == null ? this.cursor.next() : this.nextAvailable;
+        this.nextAvailable = null;
+        this.savedRow = null;
+        if (available) {
             this.rowNumber++;
             return true;
         }
@@ -238,28 +258,51 @@ class JdbcResultSet implements ResultSet, Closeable {
     }
 
     @Override
-    public int getRow() {
-        return this.rowNumber;
+    public int getRow() throws SQLException {
+        checkOpen();
+        return this.wasLast ? 0 : this.rowNumber;
     }
 
     @Override
-    public boolean isBeforeFirst() {
-        return (this.rowNumber == 0);
+    public boolean isBeforeFirst() throws SQLException {
+        checkOpen();
+        return this.rowNumber == 0 && !this.wasLast && this.peekNext();
     }
 
     @Override
-    public boolean isAfterLast() {
+    public boolean isAfterLast() throws SQLException {
+        checkOpen();
         return (this.rowNumber > 0 && this.wasLast);
     }
 
     @Override
-    public boolean isFirst() {
-        return (this.rowNumber == 1);
+    public boolean isFirst() throws SQLException {
+        checkOpen();
+        return this.rowNumber == 1 && !this.wasLast;
     }
 
     @Override
-    public boolean isLast() {
-        return this.wasLast;
+    public boolean isLast() throws SQLException {
+        checkOpen();
+        return this.rowNumber > 0 && !this.wasLast && !this.peekNext();
+    }
+
+    private boolean peekNext() throws SQLException {
+        if (this.nextAvailable == null) {
+            if (this.rowNumber > 0 && this.savedRow == null) {
+                this.savedRow = new Object[this.indexToName.size()];
+                for (int i = 0; i < this.savedRow.length; i++) {
+                    try {
+                        this.savedRow[i] = this.cursor.column(i + 1);
+                    } catch (IOException e) {
+                        throw new SQLException("Cannot buffer current row.", e);
+                    }
+                }
+            }
+
+            this.nextAvailable = this.cursor.next();
+        }
+        return this.nextAvailable;
     }
 
     @Override
@@ -427,7 +470,7 @@ class JdbcResultSet implements ResultSet, Closeable {
         if (value == null) {
             return null;
         } else {
-            return this.convertTo(label, this.convertTimeZone(value, cal), Date.class);
+            return this.convertTo(columnIndex, this.convertTimeZone(value, cal), Date.class);
         }
     }
 
@@ -460,7 +503,7 @@ class JdbcResultSet implements ResultSet, Closeable {
         if (value == null) {
             return null;
         } else {
-            return this.convertTo(label, this.convertTimeZone(value, cal), Time.class);
+            return this.convertTo(columnIndex, this.convertTimeZone(value, cal), Time.class);
         }
     }
 
@@ -493,7 +536,7 @@ class JdbcResultSet implements ResultSet, Closeable {
         if (value == null) {
             return null;
         } else {
-            return this.convertTo(label, this.convertTimeZone(value, cal), Timestamp.class);
+            return this.convertTo(columnIndex, this.convertTimeZone(value, cal), Timestamp.class);
         }
     }
 
@@ -673,7 +716,7 @@ class JdbcResultSet implements ResultSet, Closeable {
         this.checkOpen();
         String label = this.columnLabel(columnIndex);
         Object value = this.columnValue(columnIndex);
-        return this.convertTo(label, value, Objects.requireNonNull(type, "the to type is null."));
+        return this.convertTo(columnIndex, value, Objects.requireNonNull(type, "the to type is null."));
     }
 
     @Override

@@ -15,6 +15,84 @@ import static org.junit.Assert.*;
 /** Comprehensive tests for JdbcBob (Blob) and JdbcCob (Clob/NClob). */
 public class LobTest {
 
+    @Test
+    public void blobFreeDoesNotBreakLateWriterCloseOrRestoreData() throws Exception {
+        JdbcBob blob = new JdbcBob(new byte[] { 1, 2, 3 });
+        OutputStream writer = blob.setBinaryStream(2);
+        blob.free();
+        writer.write(9);
+        writer.close();
+        writer.close();
+        blob.free();
+        assertThrows(SQLException.class, blob::length);
+        assertThrows(SQLException.class, blob::getBinaryStream);
+        assertThrows(SQLException.class, () -> blob.setBytes(1, new byte[] { 4 }));
+    }
+
+    @Test
+    public void blobRangesRejectNegativeAndOverflowWithoutChangingData() throws Exception {
+        JdbcBob blob = new JdbcBob(new byte[] { 1, 2, 3 });
+        assertThrows(SQLException.class, () -> blob.getBytes(1, -1));
+        assertThrows(SQLException.class, () -> blob.getBinaryStream(1, -1));
+        assertThrows(SQLException.class, () -> blob.getBinaryStream(2, Long.MAX_VALUE));
+        assertThrows(SQLException.class, () -> blob.getBinaryStream(1, 4294967296L));
+        for (long pos : new long[] { 0, -1, 5, 4294967297L, Long.MAX_VALUE }) {
+            assertThrows(SQLException.class, () -> blob.getBytes(pos, 0));
+            assertThrows(SQLException.class, () -> blob.getBinaryStream(pos, 0));
+            assertThrows(SQLException.class, () -> blob.setBinaryStream(pos));
+            assertThrows(SQLException.class, () -> blob.setBytes(pos, new byte[] { 8 }));
+        }
+        assertThrows(SQLException.class, () -> blob.setBytes(1, null));
+        assertThrows(SQLException.class, () -> blob.setBytes(1, null, 0, 0));
+        assertThrows(SQLException.class, () -> blob.setBytes(1, new byte[2], -1, 1));
+        assertThrows(SQLException.class, () -> blob.setBytes(1, new byte[2], 0, -1));
+        assertThrows(SQLException.class, () -> blob.setBytes(1, new byte[2], 1, Integer.MAX_VALUE));
+        assertArrayEquals(new byte[] { 1, 2, 3 }, blob.getBytes(1, 3));
+        assertArrayEquals(new byte[0], blob.getBytes(4, 0));
+        try (InputStream empty = blob.getBinaryStream(4, 0)) {
+            assertEquals(-1, empty.read());
+        }
+        assertEquals(2, blob.setBytes(4, new byte[] { 4, 5 }));
+        assertArrayEquals(new byte[] { 1, 2, 3, 4, 5 }, blob.getBytes(1, 5));
+    }
+
+    @Test
+    public void clobRangesRejectNegativeAndOverflowWithoutChangingData() throws Exception {
+        JdbcCob clob = new JdbcCob("abc");
+        assertThrows(SQLException.class, () -> clob.getSubString(1, -1));
+        assertThrows(SQLException.class, () -> clob.getCharacterStream(1, -1));
+        assertThrows(SQLException.class, () -> clob.getCharacterStream(2, Long.MAX_VALUE));
+        assertThrows(SQLException.class, () -> clob.getCharacterStream(1, 4294967296L));
+        assertThrows(SQLException.class, () -> clob.truncate(-1));
+        assertThrows(SQLException.class, () -> clob.truncate(Long.MAX_VALUE));
+        for (long pos : new long[] { 0, -1, 5, 4294967297L, Long.MAX_VALUE }) {
+            assertThrows(SQLException.class, () -> clob.getSubString(pos, 0));
+            assertThrows(SQLException.class, () -> clob.getCharacterStream(pos, 0));
+            assertThrows(SQLException.class, () -> clob.setCharacterStream(pos));
+            assertThrows(SQLException.class, () -> clob.setAsciiStream(pos));
+            assertThrows(SQLException.class, () -> clob.setString(pos, "z"));
+            assertThrows(SQLException.class, () -> clob.setString(pos, "z", 0, 1));
+        }
+        assertThrows(SQLException.class, () -> clob.setString(1, null));
+        assertThrows(SQLException.class, () -> clob.setString(1, null, 0, 0));
+        assertThrows(SQLException.class, () -> clob.setString(1, "xy", -1, 1));
+        assertThrows(SQLException.class, () -> clob.setString(1, "xy", 0, -1));
+        assertThrows(SQLException.class, () -> clob.setString(1, "xy", 2, 1));
+        assertThrows(SQLException.class, () -> clob.setString(1, "xy", 3, 0));
+        assertThrows(SQLException.class, () -> clob.setString(1, "xy", 1, Integer.MAX_VALUE));
+        assertThrows(SQLException.class, () -> clob.setString(1, "xy", Integer.MAX_VALUE, Integer.MAX_VALUE));
+        assertEquals(0, clob.setString(1, "xy", 2, 0));
+        assertEquals("abc", clob.getSubString(1, 3));
+        assertEquals("", clob.getSubString(4, 0));
+        try (Reader empty = clob.getCharacterStream(4, 0)) {
+            assertEquals(-1, empty.read());
+        }
+        assertEquals(2, clob.setString(4, "de"));
+        assertEquals("abcde", clob.getSubString(1, 5));
+        clob.truncate(0);
+        assertEquals(0, clob.length());
+    }
+
     // ==================== JdbcBob ====================
     @Test
     public void bob_length() throws Exception {
@@ -226,7 +304,7 @@ public class LobTest {
     public void cob_free() throws Exception {
         JdbcCob c = new JdbcCob("hello");
         c.free();
-        assertEquals(0, c.length()); // after free, charData is null, length returns 0
+        assertThrows(SQLException.class, c::length);
     }
 
     // Test NClob interface

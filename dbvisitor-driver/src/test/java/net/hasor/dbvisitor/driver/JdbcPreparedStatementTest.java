@@ -215,13 +215,14 @@ public class JdbcPreparedStatementTest {
 
     @Test
     public void setTime_calendar_test() throws Exception {
-        PreparedStatement ps = conn.prepareStatement("INSERT INTO test VALUES (?)");
-        try {
-            ps.setTime(1, java.sql.Time.valueOf("12:30:00"), Calendar.getInstance());
-        } catch (UnsupportedOperationException ignore) {
-            /* Time.toInstant() unsupported in Java 8 */
+        try (JdbcPreparedStatement ps = (JdbcPreparedStatement) conn.prepareStatement("INSERT INTO test VALUES (?)")) {
+            java.sql.Time value = java.sql.Time.valueOf("12:30:00");
+            Calendar calendar = Calendar.getInstance();
+            ps.setTime(1, value, calendar);
+            assertEquals(1, ps.executeUpdate());
+            assertEquals(java.time.OffsetTime.ofInstant(java.time.Instant.ofEpochMilli(value.getTime()), calendar.getTimeZone().toZoneId()),
+                    ps.container.getRequest().getArgMap().get("arg1").getValue());
         }
-        ps.close();
     }
 
     @Test

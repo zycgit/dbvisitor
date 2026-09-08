@@ -95,8 +95,23 @@ public abstract class AdapterConnection implements Closeable {
     public abstract String getSchema() throws SQLException;
 
     public final <T> T unwrap(Class<T> iface, Object target) throws SQLException {
+        T value = this.findWrapper(iface, target);
+        if (value == null) {
+            throw new SQLException("Not a wrapper for " + iface.getName(), JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
+        }
+        return value;
+    }
+
+    public final boolean isWrapperFor(Class<?> iface, Object target) throws SQLException {
+        return this.findWrapper(iface, target) != null;
+    }
+
+    private <T> T findWrapper(Class<T> iface, Object target) throws SQLException {
+        if (iface == null) {
+            throw new SQLException("Wrapper type must not be null.", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
+        }
         if (iface.isInstance(target)) {
-            return (T) target;
+            return iface.cast(target);
         }
 
         // find JdbcConnection.
@@ -134,19 +149,24 @@ public abstract class AdapterConnection implements Closeable {
         }
 
         //
-        if (TransactionSupport.class.isAssignableFrom(iface)) {
-            return (T) jdbcConn.txSupport();
-        } else if (TypeSupport.class.isAssignableFrom(iface)) {
-            return (T) jdbcConn.typeSupport();
+        Object candidate = null;
+        if (jdbcConn != null && TransactionSupport.class.isAssignableFrom(iface)) {
+            candidate = jdbcConn.txSupport();
+        } else if (jdbcConn != null && TypeSupport.class.isAssignableFrom(iface)) {
+            candidate = jdbcConn.typeSupport();
         } else if (Connection.class.isAssignableFrom(iface)) {
-            return (T) jdbcConn;
+            candidate = jdbcConn;
         } else if (Statement.class.isAssignableFrom(iface)) {
-            return (T) jdbcStatement;
+            candidate = jdbcStatement;
         } else if (ResultSet.class.isAssignableFrom(iface)) {
-            return (T) jdbcResultSet;
-        } else {
-            return this.unwrap(iface);
+            candidate = jdbcResultSet;
         }
+        if (iface.isInstance(candidate)) {
+            return iface.cast(candidate);
+        }
+
+        Object unwrapped = this.unwrap(iface);
+        return iface.isInstance(unwrapped) ? iface.cast(unwrapped) : null;
     }
 
     //

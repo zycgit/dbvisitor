@@ -19,6 +19,7 @@ import java.util.List;
 import net.hasor.cobble.ArrayUtils;
 
 class AdapterMemoryCursor implements AdapterCursor {
+    private boolean          closed;
     private List<JdbcColumn> columns;
     private Object[][]       data;
     private int              row = -1;
@@ -66,6 +67,7 @@ class AdapterMemoryCursor implements AdapterCursor {
 
     @Override
     public void close() {
+        this.closed = true;
         this.data = null;
         this.columns = Collections.emptyList();
     }
@@ -86,6 +88,6 @@ class AdapterMemoryCursor implements AdapterCursor {
 
     @Override
     public boolean isClose() {
-        return this.data == null;
+        return this.closed;
     }
 }
