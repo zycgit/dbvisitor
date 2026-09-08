@@ -65,8 +65,8 @@ class JdbcResultSetMetaData implements ResultSetMetaData {
     }
 
     @Override
-    public boolean isAutoIncrement(int column) {
-        return false;
+    public boolean isAutoIncrement(int column) throws SQLException {
+        return this.column(column).autoIncrement;
     }
 
     @Override
@@ -85,8 +85,8 @@ class JdbcResultSetMetaData implements ResultSetMetaData {
     }
 
     @Override
-    public int isNullable(int column) {
-        return ResultSetMetaData.columnNullableUnknown;
+    public int isNullable(int column) throws SQLException {
+        return this.column(column).nullable;
     }
 
     @Override

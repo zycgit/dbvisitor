@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.driver;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.SQLTimeoutException;
 import java.sql.Statement;
@@ -71,6 +72,10 @@ class AdapterContainer implements AdapterReceive {
 
     public AdapterRequest getRequest() {
         return this.request;
+    }
+
+    synchronized boolean hasPendingCursor() {
+        return this.response.stream().anyMatch(AdapterResponse::hasPendingCursor) || this.retained.stream().anyMatch(AdapterResponse::hasPendingCursor);
     }
 
     public synchronized AdapterCursor getOutParameters() throws SQLException {
@@ -162,7 +167,7 @@ class AdapterContainer implements AdapterReceive {
             throw new NullPointerException("received an unrelated data, paramName or paramType is blank.");
         }
 
-        this.parameterDefs.put(paramName, new JdbcColumn(paramName, paramType, "", "", ""));
+        this.parameterDefs.put(paramName, new JdbcColumn(paramName, paramType, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array));
         this.parameterValues.put(paramName, value);
         return true;
     }

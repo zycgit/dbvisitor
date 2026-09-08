@@ -56,6 +56,10 @@ public class AdapterResponse extends BasicFuture<AdapterResponse> {
                 (this.generatedKeysResultSet == null || this.generatedKeysResultSet.isClose());
     }
 
+    boolean hasPendingCursor() {
+        return this.resultSet != null && this.resultSet.isPending();
+    }
+
     boolean currentResultComplete() {
         return !this.resultIsError && (this.resultIsResult || this.updateCountRead) && this.resultsClosed();
     }

@@ -766,16 +766,17 @@ class JdbcResultSet implements ResultSet, Closeable {
     @Override
     public Array getArray(int columnIndex) throws SQLException {
         this.checkOpen();
-        return this.toJdbcArray(this.columnValue(columnIndex));
+        Object value = this.columnValue(columnIndex);
+        return this.toJdbcArray(value, this.cursor.columns().get(columnIndex - 1).elementType);
     }
 
     @Override
     public Array getArray(String columnLabel) throws SQLException {
         this.checkOpen();
-        return this.toJdbcArray(this.columnValue(columnLabel));
+        return this.getArray(this.findColumn(columnLabel));
     }
 
-    private Array toJdbcArray(Object value) throws SQLException {
+    private Array toJdbcArray(Object value, String elementType) throws SQLException {
         if (value == null) {
             return null;
         }
@@ -783,9 +784,9 @@ class JdbcResultSet implements ResultSet, Closeable {
             return (Array) value;
         } else if (value instanceof Collection) {
             if (value instanceof List) {
-                return new JdbcArray(this.statement.jdbcConn, AdapterType.Array, (List<?>) value);
+                return new JdbcArray(this.statement.jdbcConn, elementType, (List<?>) value);
             } else {
-                return new JdbcArray(this.statement.jdbcConn, AdapterType.Array, new ArrayList<>((Collection<?>) value));
+                return new JdbcArray(this.statement.jdbcConn, elementType, new ArrayList<>((Collection<?>) value));
             }
         } else if (value.getClass().isArray()) {
             List<Object> list = new ArrayList<>();
@@ -793,7 +794,7 @@ class JdbcResultSet implements ResultSet, Closeable {
             for (int i = 0; i < length; i++) {
                 list.add(java.lang.reflect.Array.get(value, i));
             }
-            return new JdbcArray(this.statement.jdbcConn, AdapterType.Array, list);
+            return new JdbcArray(this.statement.jdbcConn, elementType, list);
         } else {
             throw new SQLFeatureNotSupportedException("column value is not java.sql.Array");
         }

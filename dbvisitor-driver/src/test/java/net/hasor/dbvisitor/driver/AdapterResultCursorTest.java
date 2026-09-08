@@ -1,4 +1,5 @@
 package net.hasor.dbvisitor.driver;
+import java.sql.ResultSetMetaData;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -13,8 +14,8 @@ public class AdapterResultCursorTest {
 
     private List<JdbcColumn> cols() {
         List<JdbcColumn> c = new ArrayList<>();
-        c.add(new JdbcColumn("id", "int", "test", "default", ""));
-        c.add(new JdbcColumn("name", "varchar", "test", "default", ""));
+        c.add(new JdbcColumn("id", "int", "test", "default", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array));
+        c.add(new JdbcColumn("name", "varchar", "test", "default", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array));
         return c;
     }
 

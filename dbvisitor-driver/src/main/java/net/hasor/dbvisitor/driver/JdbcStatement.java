@@ -341,7 +341,7 @@ class JdbcStatement implements Statement, Closeable {
                 this.jdbcConn.adapterConnection().startTimer(req.getTraceId(), this.timeoutSec * 1000, timeout -> {
                     if (this.container.getRequest() == req && this.container.getState() != AdapterReceiveState.Ready && !this.closed) {
                         try {
-                            this.jdbcConn.adapterConnection().cancelRequest();
+                            this.jdbcConn.adapterConnection().cancelRequest(req);
                         } catch (Exception e) {
                             logger.error("cancel request failed, traceId: " + req.getTraceId() + ", " + e.getMessage(), e); // TODO 取消请求失败
                         } finally {
@@ -502,7 +502,7 @@ class JdbcStatement implements Statement, Closeable {
     public void cancel() throws SQLException {
         this.checkOpen();
 
-        if (this.container.getState() == AdapterReceiveState.Ready) {
+        if (this.container.getState() == AdapterReceiveState.Ready && !this.container.hasPendingCursor()) {
             return;
         }
 
@@ -510,7 +510,7 @@ class JdbcStatement implements Statement, Closeable {
 
         try {
             this.jdbcConn.adapterConnection().stopTimer(req.getTraceId());
-            this.jdbcConn.adapterConnection().cancelRequest();
+            this.jdbcConn.adapterConnection().cancelRequest(req);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         } finally {

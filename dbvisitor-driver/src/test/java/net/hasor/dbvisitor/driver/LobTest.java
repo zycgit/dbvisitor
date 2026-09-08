@@ -33,10 +33,13 @@ public class LobTest {
     public void blobRangesRejectNegativeAndOverflowWithoutChangingData() throws Exception {
         JdbcBob blob = new JdbcBob(new byte[] { 1, 2, 3 });
         assertThrows(SQLException.class, () -> blob.getBytes(1, -1));
+        assertThrows(SQLException.class, () -> blob.getBytes(3, 2));
         assertThrows(SQLException.class, () -> blob.getBinaryStream(1, -1));
+        assertThrows(SQLException.class, () -> blob.getBinaryStream(1, Long.MIN_VALUE));
+        assertThrows(SQLException.class, () -> blob.getBinaryStream(4, 1));
         assertThrows(SQLException.class, () -> blob.getBinaryStream(2, Long.MAX_VALUE));
         assertThrows(SQLException.class, () -> blob.getBinaryStream(1, 4294967296L));
-        for (long pos : new long[] { 0, -1, 5, 4294967297L, Long.MAX_VALUE }) {
+        for (long pos : new long[] { 0, -1, 5, 4294967297L, Long.MIN_VALUE, Long.MAX_VALUE }) {
             assertThrows(SQLException.class, () -> blob.getBytes(pos, 0));
             assertThrows(SQLException.class, () -> blob.getBinaryStream(pos, 0));
             assertThrows(SQLException.class, () -> blob.setBinaryStream(pos));
@@ -46,7 +49,12 @@ public class LobTest {
         assertThrows(SQLException.class, () -> blob.setBytes(1, null, 0, 0));
         assertThrows(SQLException.class, () -> blob.setBytes(1, new byte[2], -1, 1));
         assertThrows(SQLException.class, () -> blob.setBytes(1, new byte[2], 0, -1));
+        assertThrows(SQLException.class, () -> blob.setBytes(1, new byte[2], 2, 1));
+        assertThrows(SQLException.class, () -> blob.setBytes(1, new byte[2], 3, 0));
         assertThrows(SQLException.class, () -> blob.setBytes(1, new byte[2], 1, Integer.MAX_VALUE));
+        assertThrows(SQLException.class, () -> blob.setBytes(1, new byte[2], Integer.MAX_VALUE, Integer.MAX_VALUE));
+        assertEquals(0, blob.setBytes(1, new byte[2], 2, 0));
+        assertEquals(0, blob.setBytes(4, new byte[2], 2, 0));
         assertArrayEquals(new byte[] { 1, 2, 3 }, blob.getBytes(1, 3));
         assertArrayEquals(new byte[0], blob.getBytes(4, 0));
         try (InputStream empty = blob.getBinaryStream(4, 0)) {

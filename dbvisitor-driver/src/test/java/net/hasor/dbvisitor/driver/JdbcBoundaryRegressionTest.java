@@ -50,7 +50,7 @@ public class JdbcBoundaryRegressionTest {
     }
 
     private AdapterMemoryCursor cursor(Object value, String type) {
-        return new AdapterMemoryCursor(Collections.singletonList(new JdbcColumn("v", type, "", "", "")), new Object[][] { { value } });
+        return new AdapterMemoryCursor(Collections.singletonList(new JdbcColumn("v", type, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array)), new Object[][] { { value } });
     }
 
     private void assertBound(String name, String type, Object value) {
@@ -132,7 +132,7 @@ public class JdbcBoundaryRegressionTest {
             statement.setObject("value", 12, JDBCType.INTEGER);
             statement.execute();
             assertBound("value", AdapterType.Int, 12);
-            assertThrows(SQLException.class, () -> statement.setObject("value", 99, (SQLType) null));
+            assertThrows(SQLException.class, () -> statement.setObject("value", 99, null));
             assertThrows(SQLException.class, () -> statement.setObject("value", 99, namedType("")));
             statement.execute();
             assertBound("value", AdapterType.Int, 12);

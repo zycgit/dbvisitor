@@ -113,8 +113,16 @@ public class JdbcBob implements Blob, JdbcOutputStreamWatcher {
     @Override
     public synchronized int setBytes(long writeAt, byte[] bytes, int offset, int length) throws SQLException {
         checkRange(writeAt, 0);
-        if (bytes == null || offset < 0 || length < 0 || offset > bytes.length || length > bytes.length - offset || //
-                length > Integer.MAX_VALUE - (writeAt - 1)) {
+        if (bytes == null) {
+            throw new SQLException("Invalid BLOB write range.", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
+        }
+
+        long sourceEnd = (long) offset + length;
+        long writeStart = writeAt - 1;
+        long writeEnd = writeStart + length;
+        boolean invalidSourceRange = offset < 0 || length < 0 || sourceEnd > bytes.length;
+        boolean writeOverflow = writeEnd > Integer.MAX_VALUE;
+        if (invalidSourceRange || writeOverflow) {
             throw new SQLException("Invalid BLOB write range.", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
         }
         OutputStream bytesOut = setBinaryStream(writeAt);
@@ -181,7 +189,15 @@ public class JdbcBob implements Blob, JdbcOutputStreamWatcher {
 
     private void checkRange(long pos, long length) throws SQLException {
         checkClosed();
-        if (pos < 1 || length < 0 || pos - 1 > this.binaryData.length || length > this.binaryData.length - (pos - 1)) {
+        if (pos < 1 || length < 0) {
+            throw new SQLException("Invalid BLOB range.", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
+        }
+
+        long startIndex = pos - 1;
+        long dataLength = this.binaryData.length;
+        boolean startsPastEnd = startIndex > dataLength;
+        boolean extendsPastEnd = length > dataLength - startIndex;
+        if (startsPastEnd || extendsPastEnd) {
             throw new SQLException("Invalid BLOB range.", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
         }
     }

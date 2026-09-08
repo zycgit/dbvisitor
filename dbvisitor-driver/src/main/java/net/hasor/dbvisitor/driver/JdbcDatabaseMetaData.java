@@ -1220,7 +1220,7 @@ class JdbcDatabaseMetaData implements DatabaseMetaData {
                     }
                 }
 
-                columns.add(new JdbcColumn(name, type, "ROUTINES", "INFORMATION_SCHEMA", ""));
+                columns.add(new JdbcColumn(name, type, "ROUTINES", "INFORMATION_SCHEMA", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array));
             }
         }
         return columns;

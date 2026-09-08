@@ -201,6 +201,11 @@ public abstract class AdapterConnection implements Closeable {
 
     public abstract void cancelRequest();
 
+    /** Cancel one execution, including lazy cursors; legacy adapters retain their existing cancellation behavior. */
+    public void cancelRequest(AdapterRequest request) {
+        this.cancelRequest();
+    }
+
     @Override
     public final void close() throws IOException {
         try {

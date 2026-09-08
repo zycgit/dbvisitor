@@ -1,6 +1,6 @@
 package net.hasor.dbvisitor.driver;
-
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collections;
@@ -16,7 +16,7 @@ public class JdbcMultipleResultsTest {
     }
 
     private AdapterMemoryCursor cursor() {
-        return new AdapterMemoryCursor(Collections.singletonList(new JdbcColumn("id", "int", "", "", "")), new Object[][] { { 1 } });
+        return new AdapterMemoryCursor(Collections.singletonList(new JdbcColumn("id", "int", "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array)), new Object[][] { { 1 } });
     }
 
     private void results(JdbcStatement stmt) throws Exception {

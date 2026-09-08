@@ -1,6 +1,6 @@
 package net.hasor.dbvisitor.driver;
-
 import java.io.IOException;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,43 +47,43 @@ public class MockAdapterConnection extends AdapterConnection implements Transact
         if (sql.startsWith("SELECT") || sql.startsWith("select")) {
             if (sql.contains("FROM types") || sql.contains("from types")) {
                 List<JdbcColumn> columns = new ArrayList<>();
-                columns.add(new JdbcColumn("c_int", "int", "types", "default", ""));
-                columns.add(new JdbcColumn("c_string", "varchar", "types", "default", ""));
-                columns.add(new JdbcColumn("c_bool", "boolean", "types", "default", ""));
-                columns.add(new JdbcColumn("c_float", "float", "types", "default", ""));
-                columns.add(new JdbcColumn("c_double", "double", "types", "default", ""));
-                columns.add(new JdbcColumn("c_date", "date", "types", "default", ""));
-                columns.add(new JdbcColumn("c_timestamp", "timestamp", "types", "default", ""));
-                columns.add(new JdbcColumn("c_blob", "blob", "types", "default", ""));
-                columns.add(new JdbcColumn("c_clob", "clob", "types", "default", ""));
-                columns.add(new JdbcColumn("c_null", "varchar", "types", "default", ""));
+                columns.add(new JdbcColumn("c_int", "int", "types", "default", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array));
+                columns.add(new JdbcColumn("c_string", "varchar", "types", "default", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array));
+                columns.add(new JdbcColumn("c_bool", "boolean", "types", "default", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array));
+                columns.add(new JdbcColumn("c_float", "float", "types", "default", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array));
+                columns.add(new JdbcColumn("c_double", "double", "types", "default", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array));
+                columns.add(new JdbcColumn("c_date", "date", "types", "default", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array));
+                columns.add(new JdbcColumn("c_timestamp", "timestamp", "types", "default", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array));
+                columns.add(new JdbcColumn("c_blob", "blob", "types", "default", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array));
+                columns.add(new JdbcColumn("c_clob", "clob", "types", "default", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array));
+                columns.add(new JdbcColumn("c_null", "varchar", "types", "default", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array));
 
                 Object[][] data = new Object[][] { { 100, "str", true, 1.1f, 2.2d, java.sql.Date.valueOf("2023-01-01"), java.sql.Timestamp.valueOf("2023-01-01 12:00:00"), new byte[] { 1, 2, 3 }, "clob content", null } };
                 AdapterMemoryCursor cursor = new AdapterMemoryCursor(columns, data);
                 receive.responseResult(req, cursor);
             } else if (sql.contains("FROM empty") || sql.contains("from empty")) {
                 List<JdbcColumn> columns = new ArrayList<>();
-                columns.add(new JdbcColumn("id", "int", "empty", "default", ""));
+                columns.add(new JdbcColumn("id", "int", "empty", "default", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array));
                 AdapterMemoryCursor cursor = new AdapterMemoryCursor(columns, new Object[0][]);
                 receive.responseResult(req, cursor);
             } else if (sql.contains("FROM multi") || sql.contains("from multi")) {
                 List<JdbcColumn> columns = new ArrayList<>();
-                columns.add(new JdbcColumn("id", "int", "multi", "default", ""));
-                columns.add(new JdbcColumn("val", "varchar", "multi", "default", ""));
+                columns.add(new JdbcColumn("id", "int", "multi", "default", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array));
+                columns.add(new JdbcColumn("val", "varchar", "multi", "default", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array));
                 Object[][] data = new Object[][] { { 1, "a" }, { 2, "b" }, { 3, "c" } };
                 AdapterMemoryCursor cursor = new AdapterMemoryCursor(columns, data);
                 receive.responseResult(req, cursor);
             } else if (sql.contains("FROM nullrow") || sql.contains("from nullrow")) {
                 List<JdbcColumn> columns = new ArrayList<>();
-                columns.add(new JdbcColumn("c1", "int", "nullrow", "default", ""));
-                columns.add(new JdbcColumn("c2", "varchar", "nullrow", "default", ""));
+                columns.add(new JdbcColumn("c1", "int", "nullrow", "default", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array));
+                columns.add(new JdbcColumn("c2", "varchar", "nullrow", "default", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array));
                 Object[][] data = new Object[][] { { null, null } };
                 AdapterMemoryCursor cursor = new AdapterMemoryCursor(columns, data);
                 receive.responseResult(req, cursor);
             } else {
                 List<JdbcColumn> columns = new ArrayList<>();
-                columns.add(new JdbcColumn("id", "int", "test", "default", ""));
-                columns.add(new JdbcColumn("name", "varchar", "test", "default", ""));
+                columns.add(new JdbcColumn("id", "int", "test", "default", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array));
+                columns.add(new JdbcColumn("name", "varchar", "test", "default", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array));
                 Object[][] data = new Object[][] { { 1, "test user 1" }, { 2, "test user 2" } };
                 AdapterMemoryCursor cursor = new AdapterMemoryCursor(columns, data);
                 receive.responseResult(req, cursor);

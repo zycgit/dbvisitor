@@ -17,13 +17,16 @@ package net.hasor.dbvisitor.driver;
 import java.util.Objects;
 
 public class JdbcColumn {
-    public final String catalog;
-    public final String schema;
-    public final String table;
-    public final String name;
-    public final String type;
+    public final String  catalog;
+    public final String  schema;
+    public final String  table;
+    public final String  name;
+    public final String  type;
+    public final int     nullable;
+    public final boolean autoIncrement;
+    public final String  elementType;
 
-    public JdbcColumn(String name, String type, String table, String catalog, String schema) {
+    public JdbcColumn(String name, String type, String table, String catalog, String schema, int nullable, boolean autoIncrement, String elementType) {
         if (name == null) {
             throw new IllegalArgumentException("[name] must not be null");
         }
@@ -39,11 +42,18 @@ public class JdbcColumn {
         if (schema == null) {
             throw new IllegalArgumentException("[schema] must not be null");
         }
+        if (nullable < java.sql.ResultSetMetaData.columnNoNulls || nullable > java.sql.ResultSetMetaData.columnNullableUnknown) {
+            throw new IllegalArgumentException("Invalid nullable metadata: " + nullable);
+        }
+
         this.name = name;
         this.type = type;
         this.table = table;
         this.catalog = catalog;
         this.schema = schema;
+        this.nullable = nullable;
+        this.autoIncrement = autoIncrement;
+        this.elementType = Objects.requireNonNull(elementType, "elementType");
     }
 
     public String toString() {
@@ -71,10 +81,10 @@ public class JdbcColumn {
                 this.type.equals(other.type) &&      //
                 this.table.equals(other.table) &&    //
                 this.catalog.equals(other.catalog) &&//
-                this.schema.equals(other.schema));
+                this.schema.equals(other.schema) && this.nullable == other.nullable && this.autoIncrement == other.autoIncrement && this.elementType.equals(other.elementType));
     }
 
     public int hashCode() {
-        return Objects.hash(this.name, this.type, this.table, this.catalog, this.schema);
+        return Objects.hash(this.name, this.type, this.table, this.catalog, this.schema, this.nullable, this.autoIncrement, this.elementType);
     }
 }

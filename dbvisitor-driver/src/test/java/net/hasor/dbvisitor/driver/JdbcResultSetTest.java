@@ -1,15 +1,12 @@
 package net.hasor.dbvisitor.driver;
-import static org.junit.Assert.*;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.sql.Array;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Types;
+import java.sql.*;
 import java.util.*;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import static org.junit.Assert.*;
 
 public class JdbcResultSetTest {
 
@@ -144,56 +141,51 @@ public class JdbcResultSetTest {
         assertNull(rs.getArray(1));
     }
 
-    private static class MockAdapterCursor implements AdapterCursor {
-        private final Object returnValue;
-
-        public MockAdapterCursor(Object returnValue) {
-            this.returnValue = returnValue;
-        }
+    private record MockAdapterCursor(Object returnValue) implements AdapterCursor {
 
         @Override
-        public List<JdbcColumn> columns() {
-            return Collections.singletonList(new JdbcColumn("col", "ARRAY", "", "", ""));
-        }
+            public List<JdbcColumn> columns() {
+                return Collections.singletonList(new JdbcColumn("col", "ARRAY", "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array));
+            }
 
-        @Override
-        public boolean next() throws SQLException {
-            return true;
-        }
+            @Override
+            public boolean next() throws SQLException {
+                return true;
+            }
 
-        @Override
-        public Object column(int column) throws IOException, SQLException {
-            return returnValue;
-        }
+            @Override
+            public Object column(int column) throws IOException, SQLException {
+                return returnValue;
+            }
 
-        @Override
-        public int batchSize() {
-            return 0;
-        }
+            @Override
+            public int batchSize() {
+                return 0;
+            }
 
-        @Override
-        public void close() throws IOException {
-        }
+            @Override
+            public void close() throws IOException {
+            }
 
-        @Override
-        public List<String> warnings() {
-            return Collections.emptyList();
-        }
+            @Override
+            public List<String> warnings() {
+                return Collections.emptyList();
+            }
 
-        @Override
-        public void clearWarnings() {
-        }
+            @Override
+            public void clearWarnings() {
+            }
 
-        @Override
-        public boolean isPending() {
-            return false;
-        }
+            @Override
+            public boolean isPending() {
+                return false;
+            }
 
-        @Override
-        public boolean isClose() {
-            return false;
+            @Override
+            public boolean isClose() {
+                return false;
+            }
         }
-    }
 
     // Mock AdapterFactory, AdapterConnection, TypeSupport
     private static class MockAdapterFactory implements AdapterFactory {

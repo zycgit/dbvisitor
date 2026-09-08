@@ -201,7 +201,7 @@ public class AdapterConnectionContainerTest {
         container.prepareReceive(req);
 
         List<JdbcColumn> cols = new ArrayList<>();
-        cols.add(new JdbcColumn("id", "int", "t", "c", ""));
+        cols.add(new JdbcColumn("id", "int", "t", "c", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array));
         AdapterMemoryCursor cursor = new AdapterMemoryCursor(cols, new Object[][] { { 1 } });
         boolean ok = container.responseResult(req, cursor);
         assertTrue(ok);
@@ -215,7 +215,7 @@ public class AdapterConnectionContainerTest {
         container.prepareReceive(req);
 
         List<JdbcColumn> cols = new ArrayList<>();
-        cols.add(new JdbcColumn("id", "int", "t", "c", ""));
+        cols.add(new JdbcColumn("id", "int", "t", "c", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array));
         AdapterMemoryCursor cursor = new AdapterMemoryCursor(cols, new Object[][] { { 1 } });
         AdapterMemoryCursor keys = new AdapterMemoryCursor(cols, new Object[][] { { 99 } });
         boolean ok = container.responseResult(req, cursor, keys);
@@ -237,7 +237,7 @@ public class AdapterConnectionContainerTest {
         MockAdapterRequest req = new MockAdapterRequest("INSERT INTO t");
         container.prepareReceive(req);
         List<JdbcColumn> cols = new ArrayList<>();
-        cols.add(new JdbcColumn("id", "int", "t", "c", ""));
+        cols.add(new JdbcColumn("id", "int", "t", "c", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array));
         AdapterMemoryCursor keys = new AdapterMemoryCursor(cols, new Object[][] { { 99 } });
         boolean ok = container.responseUpdateCount(req, 1, keys);
         assertTrue(ok);
@@ -273,7 +273,7 @@ public class AdapterConnectionContainerTest {
         container.prepareReceive(req);
 
         List<JdbcColumn> cols = new ArrayList<>();
-        cols.add(new JdbcColumn("id", "int", "t", "c", ""));
+        cols.add(new JdbcColumn("id", "int", "t", "c", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array));
         AdapterMemoryCursor cursor = new AdapterMemoryCursor(cols, new Object[][] { { 1 } });
         container.responseResult(req, cursor);
         boolean ok = container.responseFinish(req);
@@ -326,7 +326,7 @@ public class AdapterConnectionContainerTest {
         container.prepareReceive(req);
 
         List<JdbcColumn> cols = new ArrayList<>();
-        cols.add(new JdbcColumn("id", "int", "t", "c", ""));
+        cols.add(new JdbcColumn("id", "int", "t", "c", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array));
         container.responseResult(req, new AdapterMemoryCursor(cols, new Object[][] { { 1 } }));
         container.responseFinish(req);
 
@@ -465,7 +465,7 @@ public class AdapterConnectionContainerTest {
             container.prepareReceive(req);
 
             List<JdbcColumn> cols = new ArrayList<>();
-            cols.add(new JdbcColumn("id", "int", "t", "c", ""));
+            cols.add(new JdbcColumn("id", "int", "t", "c", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array));
             AdapterMemoryCursor cursor = new AdapterMemoryCursor(cols, new Object[][] { { 1 } });
             AdapterMemoryCursor keys = new AdapterMemoryCursor(cols, new Object[][] { { 99 } });
             container.responseResult(req, cursor, keys);
