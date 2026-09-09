@@ -1,15 +1,15 @@
 package net.hasor.dbvisitor.adapter.elastic.commands;
 
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import net.hasor.dbvisitor.adapter.elastic.AbstractJdbcTest;
-import net.hasor.dbvisitor.adapter.elastic.ElasticCommandInterceptor;
+
 import org.apache.http.HttpHost;
 import org.apache.http.HttpVersion;
 import org.apache.http.entity.ContentType;
@@ -23,14 +23,18 @@ import org.elasticsearch.client.RestClient;
 import org.junit.After;
 import org.junit.Before;
 import org.powermock.api.mockito.PowerMockito;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.when;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import net.hasor.dbvisitor.adapter.elastic.AbstractJdbcTest;
+import net.hasor.dbvisitor.adapter.elastic.ElasticCommandInterceptor;
 
 /** Runs the real JDBC and command pipeline; only the SDK's HTTP boundary is mocked. */
 public abstract class AbstractElasticCommandTest extends AbstractJdbcTest {
-    protected final ObjectMapper json = new ObjectMapper();
-    protected final List<Request> requests = new ArrayList<>();
-    private final Deque<Object> responses = new ArrayDeque<>();
+    protected final ObjectMapper  json      = new ObjectMapper();
+    protected final List<Request> requests  = new ArrayList<>();
+    private final Deque<Object>   responses = new ArrayDeque<>();
 
     @Before
     public void installCommandInterceptor() {

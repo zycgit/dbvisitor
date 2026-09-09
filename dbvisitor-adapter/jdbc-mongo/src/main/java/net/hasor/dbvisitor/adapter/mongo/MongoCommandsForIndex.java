@@ -21,9 +21,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.bson.Document;
+import org.bson.conversions.Bson;
+
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.IndexOptions;
+
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.dbvisitor.adapter.mongo.parser.MongoBsonVisitor;
 import net.hasor.dbvisitor.adapter.mongo.parser.MongoParser.*;
@@ -31,8 +36,6 @@ import net.hasor.dbvisitor.driver.AdapterReceive;
 import net.hasor.dbvisitor.driver.AdapterRequest;
 import net.hasor.dbvisitor.driver.AdapterResultCursor;
 import net.hasor.dbvisitor.driver.JdbcColumn;
-import org.bson.Document;
-import org.bson.conversions.Bson;
 
 @SuppressWarnings("unchecked")
 class MongoCommandsForIndex extends MongoCommands {
@@ -47,7 +50,7 @@ class MongoCommandsForIndex extends MongoCommands {
         Bson keys = (Bson) toObjBson(args.get(0));
         IndexOptions options = new IndexOptions();
         if (args.size() > 1) {
-            Map<String, Object> opts = (Map<String, Object>) toObjBson(args.get(1));
+            Map<String, Object> opts = toObjBson(args.get(1));
             if (!opts.containsKey("name")) {
                 throw new SQLException("The index name must be specified.");
             }
@@ -185,8 +188,20 @@ class MongoCommandsForIndex extends MongoCommands {
         MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
         MongoCollection<Document> mongoColl = mongoDB.getCollection(collName);
 
-        List<JdbcColumn> columns = Arrays.asList(COL_ID_STRING, COL_JSON_STRING, COL_IDX_V_INT, COL_IDX_KEY_STRING, COL_IDX_NAME_STRING, COL_IDX_NS_STRING, //
-                COL_IDX_UNIQUE_BOOLEAN, COL_IDX_SPARSE_BOOLEAN, COL_IDX_BACKGROUND_BOOLEAN, COL_IDX_HIDDEN_BOOLEAN);
+        // @formatter:off
+        List<JdbcColumn> columns = Arrays.asList(
+            COL_ID_STRING,
+            COL_JSON_STRING,
+            COL_IDX_V_INT,
+            COL_IDX_KEY_STRING,
+            COL_IDX_NAME_STRING,
+            COL_IDX_NS_STRING,
+            COL_IDX_UNIQUE_BOOLEAN,
+            COL_IDX_SPARSE_BOOLEAN,
+            COL_IDX_BACKGROUND_BOOLEAN,
+            COL_IDX_HIDDEN_BOOLEAN
+        );
+        // @formatter:on
 
         AdapterResultCursor result = new AdapterResultCursor(request, columns);
         long maxRows = request.getMaxRows();

@@ -1,25 +1,30 @@
 package net.hasor.dbvisitor.adapter.elastic.commands;
 
+import static org.junit.Assert.*;
+
 import java.sql.*;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Properties;
-import net.hasor.dbvisitor.adapter.elastic.ElasticKeys;
+
 import org.apache.http.util.EntityUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import static org.junit.Assert.*;
+
+import net.hasor.dbvisitor.adapter.elastic.ElasticKeys;
 
 @RunWith(Parameterized.class)
 public class ElasticQueryCommandTest extends AbstractElasticCommandTest {
-    private static final String HITS = "{\"took\":1,\"hits\":{\"total\":{\"value\":2,\"relation\":\"eq\"},\"hits\":["
-            + "{\"_id\":\"1\",\"_source\":{\"title\":\"Java\",\"year\":2026,\"tags\":[\"jdbc\"],\"author\":{\"name\":\"Alice\"}}},"
-            + "{\"_id\":\"2\",\"_source\":{\"title\":\"SQL\",\"active\":true}}]}}";
-    private final boolean preRead;
+    private static final String HITS = """
+            {"took":1,"hits":{"total":{"value":2,"relation":"eq"},"hits":[\
+            {"_id":"1","_source":{"title":"Java","year":2026,"tags":["jdbc"],"author":{"name":"Alice"}}},\
+            {"_id":"2","_source":{"title":"SQL","active":true}}]}}\
+            """;
+    private final boolean       preRead;
 
     @Rule
     public TemporaryFolder cache = new TemporaryFolder();

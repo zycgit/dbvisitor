@@ -17,6 +17,7 @@ package net.hasor.dbvisitor.adapter.elastic;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
+
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -24,6 +25,7 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
+
 import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.io.IOUtils;
@@ -97,10 +99,14 @@ public class ElasticConnFactory implements AdapterFactory {
 
     @Override
     public String[] getPropertyNames() {
-        return new String[] { ElasticKeys.ADAPTER_NAME, ElasticKeys.CUSTOM_ELASTIC, ElasticKeys.SERVER, ElasticKeys.TIME_ZONE,//
-                ElasticKeys.USERNAME, ElasticKeys.PASSWORD, ElasticKeys.CLIENT_NAME, ElasticKeys.CONN_TIMEOUT, ElasticKeys.SO_TIMEOUT,//
-                ElasticKeys.PREREAD_ENABLED, ElasticKeys.PREREAD_THRESHOLD, ElasticKeys.PREREAD_MAX_FILE_SIZE, ElasticKeys.PREREAD_CACHE_DIR,//
-                ElasticKeys.INDEX_REFRESH };
+        // @formatter:off
+        return new String[] {
+            ElasticKeys.ADAPTER_NAME, ElasticKeys.CUSTOM_ELASTIC, ElasticKeys.SERVER, ElasticKeys.TIME_ZONE,
+            ElasticKeys.USERNAME, ElasticKeys.PASSWORD, ElasticKeys.CLIENT_NAME, ElasticKeys.CONN_TIMEOUT, ElasticKeys.SO_TIMEOUT,
+            ElasticKeys.PREREAD_ENABLED, ElasticKeys.PREREAD_THRESHOLD, ElasticKeys.PREREAD_MAX_FILE_SIZE, ElasticKeys.PREREAD_CACHE_DIR,
+            ElasticKeys.INDEX_REFRESH
+        };
+        // @formatter:on
     }
 
     @Override

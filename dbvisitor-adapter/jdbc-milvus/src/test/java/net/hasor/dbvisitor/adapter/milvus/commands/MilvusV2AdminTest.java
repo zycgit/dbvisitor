@@ -1,10 +1,17 @@
 package net.hasor.dbvisitor.adapter.milvus.commands;
 
+import static org.junit.Assert.*;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 import io.milvus.grpc.LoadState;
 import io.milvus.v2.client.MilvusClientV2;
 import io.milvus.v2.common.IndexParam;
@@ -30,10 +37,6 @@ import net.hasor.dbvisitor.adapter.milvus.MilvusCommandInterceptor;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
 
 public class MilvusV2AdminTest {
     private final List<Object> requests = new ArrayList<>();
@@ -235,12 +238,14 @@ public class MilvusV2AdminTest {
 
     @Test
     public void administrativeListsHonorJdbcMaxRows() throws Exception {
+        // @formatter:off
         String[][] commands = {
-                { "SHOW DATABASES", "DATABASE", "default" },
-                { "SHOW TABLES", "TABLE", "t" },
-                { "SHOW PARTITIONS FROM t", "PARTITION", "p" },
-                { "SHOW USERS", "USER", "root" }
+            { "SHOW DATABASES", "DATABASE", "default" },
+            { "SHOW TABLES", "TABLE", "t" },
+            { "SHOW PARTITIONS FROM t", "PARTITION", "p" },
+            { "SHOW USERS", "USER", "root" }
         };
+        // @formatter:on
         try (Connection connection = connect(); Statement statement = connection.createStatement()) {
             statement.setMaxRows(1);
             for (String[] command : commands) {

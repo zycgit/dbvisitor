@@ -1,7 +1,14 @@
 package net.hasor.dbvisitor.adapter.milvus.commands;
 
+import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
+import static org.junit.Assert.*;
+
 import java.sql.*;
 import java.util.*;
+
+import org.junit.After;
+import org.junit.Test;
+
 import io.milvus.grpc.*;
 import io.milvus.v2.client.MilvusClientV2;
 import io.milvus.v2.service.collection.request.CreateCollectionReq;
@@ -18,18 +25,17 @@ import net.hasor.dbvisitor.adapter.milvus.MilvusCommandInterceptor;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
-import org.junit.After;
-import org.junit.Test;
-import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
-import static org.junit.Assert.*;
 
 public class MilvusHybridTest extends AbstractJdbcTest {
-    private              CreateCollectionReq.CollectionSchema schema;
-    private              HybridSearchRequest                  hybrid;
-    private              SearchRequest                        search;
-    private              InsertRequest                        insert;
-    private              CreateIndexReq                       index;
-    private static final String                               DDL = "CREATE TABLE docs (id INT64 PRIMARY KEY, body VARCHAR(1000) WITH (enable_analyzer=true, analyzer_params='{\"type\":\"standard\"}')," + "dense FLOAT_VECTOR(2), sparse SPARSE_FLOAT_VECTOR, FUNCTION bm25_fn USING BM25 (body) INTO (sparse))";
+    private CreateCollectionReq.CollectionSchema schema;
+    private HybridSearchRequest                  hybrid;
+    private SearchRequest                        search;
+    private InsertRequest                        insert;
+    private CreateIndexReq                       index;
+    private static final String                  DDL = """
+            CREATE TABLE docs (id INT64 PRIMARY KEY, body VARCHAR(1000) WITH (enable_analyzer=true, analyzer_params='{"type":"standard"}'),\
+            dense FLOAT_VECTOR(2), sparse SPARSE_FLOAT_VECTOR, FUNCTION bm25_fn USING BM25 (body) INTO (sparse))\
+            """;
 
     private Connection connect() throws SQLException {
         MilvusCommandInterceptor.resetInterceptor();
@@ -100,7 +106,10 @@ public class MilvusHybridTest extends AbstractJdbcTest {
         try (Connection conn = connect(); Statement stmt = conn.createStatement()) {
             stmt.executeUpdate(DDL);
             for (String rerank : Arrays.asList("reranker='rrf',k=20", "reranker='weighted',weights='[0.7,0.3]'")) {
-                try (PreparedStatement ps = conn.prepareStatement("SELECT id,score FROM docs PARTITION p WHERE body = ? ORDER BY HYBRID " + "(dense <-> ? LIMIT ? WITH (nprobe=10), sparse <?> ? LIMIT ?) LIMIT ? OFFSET ? WITH (" + rerank + ")")) {
+                try (PreparedStatement ps = conn.prepareStatement("""
+                        SELECT id,score FROM docs PARTITION p WHERE body = ? ORDER BY HYBRID \
+                        (dense <-> ? LIMIT ? WITH (nprobe=10), sparse <?> ? LIMIT ?) LIMIT ? OFFSET ? WITH (\
+                        """ + rerank + ")")) {
                     ps.setFetchSize(1);
                     ps.setString(1, "a\" or id > 0");
                     ps.setObject(2, new float[] { 1, 2 });
@@ -144,7 +153,15 @@ public class MilvusHybridTest extends AbstractJdbcTest {
         try (Connection conn = connect(); Statement stmt = conn.createStatement()) {
             stmt.executeUpdate(DDL);
             String base = "SELECT id FROM docs ORDER BY HYBRID (dense <-> [1,2] LIMIT 10, sparse <?> 'text' LIMIT 10)";
-            for (String sql : Arrays.asList(base + " WITH (reranker='rrf')", base + " LIMIT 2", base + " LIMIT 2 WITH (reranker='weighted',weights='[1]')", DDL.replace("enable_analyzer=true", "enable_analyzer=false"), DDL.replace("(body) INTO (sparse)", "(missing) INTO (sparse)"))) {
+            // @formatter:off
+            for (String sql : Arrays.asList(
+                base + " WITH (reranker='rrf')",
+                base + " LIMIT 2",
+                base + " LIMIT 2 WITH (reranker='weighted',weights='[1]')",
+                DDL.replace("enable_analyzer=true", "enable_analyzer=false"),
+                DDL.replace("(body) INTO (sparse)", "(missing) INTO (sparse)")
+            )) {
+                // @formatter:on
                 try {
                     stmt.execute(sql);
                     fail(sql);
@@ -159,7 +176,10 @@ public class MilvusHybridTest extends AbstractJdbcTest {
     @Test
     public void textEmbeddingFunctionAndTextQueryUseOfficialProtocol() throws Exception {
         try (Connection conn = connect(); Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate("CREATE TABLE docs (id INT64 PRIMARY KEY, body VARCHAR(1000), dense FLOAT_VECTOR(2), " + "FUNCTION embed USING TEXTEMBEDDING (body) INTO (dense) WITH (provider='openai',model_name='example-model'))");
+            stmt.executeUpdate("""
+                    CREATE TABLE docs (id INT64 PRIMARY KEY, body VARCHAR(1000), dense FLOAT_VECTOR(2), \
+                    FUNCTION embed USING TEXTEMBEDDING (body) INTO (dense) WITH (provider='openai',model_name='example-model'))\
+                    """);
             FunctionSchema function = SchemaUtils.convertToGrpcFunction(schema.getFunctionList().get(0));
             assertEquals(io.milvus.grpc.FunctionType.TextEmbedding, function.getType());
             assertEquals(Collections.singletonList("dense"), function.getOutputFieldNamesList());

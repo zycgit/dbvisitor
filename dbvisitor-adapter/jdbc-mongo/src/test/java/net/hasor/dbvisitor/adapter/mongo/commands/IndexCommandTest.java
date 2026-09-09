@@ -1,23 +1,27 @@
 package net.hasor.dbvisitor.adapter.mongo.commands;
+import static org.mockito.ArgumentMatchers.any;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
-import com.mongodb.client.ListIndexesIterable;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.IndexOptions;
-import net.hasor.dbvisitor.adapter.mongo.AbstractJdbcTest;
-import net.hasor.dbvisitor.adapter.mongo.MongoCommandInterceptor;
+
 import org.bson.BsonDocument;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.junit.Test;
 import org.powermock.api.mockito.PowerMockito;
-import static org.mockito.ArgumentMatchers.any;
+
+import com.mongodb.client.ListIndexesIterable;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.IndexOptions;
+
+import net.hasor.dbvisitor.adapter.mongo.AbstractJdbcTest;
+import net.hasor.dbvisitor.adapter.mongo.MongoCommandInterceptor;
 
 public class IndexCommandTest extends AbstractJdbcTest {
     @Test
@@ -180,7 +184,12 @@ public class IndexCommandTest extends AbstractJdbcTest {
 
         try (Connection conn = redisConnection(); Statement stmt = conn.createStatement()) {
             stmt.execute("use mydb");
-            int res = stmt.executeUpdate("db.mycol.createIndex({name: 1}, {name: 'idx_5', partialFilterExpression: {rating: {$gt: 5}}, collation: {locale: 'en'}, storageEngine: {wiredTiger: {configString: 'block_compressor=zlib'}}})");
+            int res = stmt.executeUpdate("""
+                    db.mycol.createIndex({name: 1}, {name: 'idx_5', \
+                    partialFilterExpression: {rating: {$gt: 5}}, \
+                    collation: {locale: 'en'}, \
+                    storageEngine: {wiredTiger: {configString: 'block_compressor=zlib'}}})\
+                    """);
             assert res == 0;
         } catch (SQLException e) {
             e.printStackTrace();

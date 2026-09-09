@@ -18,14 +18,17 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
+
 import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
+
 import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.io.IOUtils;
@@ -130,10 +133,15 @@ public class MongoConnFactory implements AdapterFactory {
 
     @Override
     public String[] getPropertyNames() {
-        return new String[] { MongoKeys.ADAPTER_NAME, MongoKeys.CUSTOM_MONGO, MongoKeys.SERVER, MongoKeys.DATABASE, MongoKeys.TIME_ZONE,//
-                MongoKeys.USERNAME, MongoKeys.PASSWORD, MongoKeys.MECHANISM, MongoKeys.CLIENT_NAME, MongoKeys.CONN_TIMEOUT,//
-                MongoKeys.SO_TIMEOUT, MongoKeys.SO_SND_BUFF, MongoKeys.SO_RCV_BUFF, MongoKeys.RETRY_WRITES, MongoKeys.RETRY_READS,//
-                MongoKeys.PREREAD_ENABLED, MongoKeys.PREREAD_THRESHOLD, MongoKeys.PREREAD_MAX_FILE_SIZE, MongoKeys.PREREAD_CACHE_DIR };
+        // @formatter:off
+        return new String[] {
+            MongoKeys.ADAPTER_NAME, MongoKeys.CUSTOM_MONGO, MongoKeys.SERVER, MongoKeys.DATABASE, MongoKeys.TIME_ZONE,
+            MongoKeys.USERNAME, MongoKeys.PASSWORD, MongoKeys.MECHANISM, MongoKeys.CLIENT_NAME, MongoKeys.CONN_TIMEOUT,
+            MongoKeys.SO_TIMEOUT, MongoKeys.SO_SND_BUFF, MongoKeys.SO_RCV_BUFF,
+            MongoKeys.RETRY_WRITES, MongoKeys.RETRY_READS,
+            MongoKeys.PREREAD_ENABLED, MongoKeys.PREREAD_THRESHOLD, MongoKeys.PREREAD_MAX_FILE_SIZE, MongoKeys.PREREAD_CACHE_DIR
+        };
+        // @formatter:on
     }
 
     @Override

@@ -18,9 +18,15 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.bson.BsonValue;
+import org.bson.Document;
+import org.bson.types.ObjectId;
+
 import com.mongodb.client.DistinctIterable;
 import com.mongodb.client.ListCollectionNamesIterable;
 import com.mongodb.client.model.*;
+
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.concurrent.future.Future;
@@ -29,22 +35,19 @@ import net.hasor.dbvisitor.adapter.mongo.parser.MongoParser;
 import net.hasor.dbvisitor.adapter.mongo.parser.MongoParser.CollectionContext;
 import net.hasor.dbvisitor.adapter.mongo.parser.MongoParser.DatabaseNameContext;
 import net.hasor.dbvisitor.driver.*;
-import org.bson.BsonValue;
-import org.bson.Document;
-import org.bson.types.ObjectId;
 
 abstract class MongoCommands {
     // for db and collections
-    protected static final JdbcColumn COL_ID_STRING              = new JdbcColumn("_ID", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
-    protected static final JdbcColumn COL_JSON_STRING            = new JdbcColumn("_JSON", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
-    protected static final JdbcColumn COL_DATABASE_STRING        = new JdbcColumn("DATABASE", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
-    protected static final JdbcColumn COL_COLLECTION_STRING      = new JdbcColumn("COLLECTION", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
-    protected static final JdbcColumn COL_VALUE_STRING           = new JdbcColumn("VALUE", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
-    protected static final JdbcColumn COL_COUNT_LONG             = new JdbcColumn("COUNT", AdapterType.Long, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
-    protected static final JdbcColumn COL_NAME_STRING            = new JdbcColumn("NAME", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
-    protected static final JdbcColumn COL_TYPE_STRING            = new JdbcColumn("TYPE", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
-    protected static final JdbcColumn COL_OPTIONS_STRING         = new JdbcColumn("OPTIONS", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
-    protected static final JdbcColumn COL_INFO_STRING            = new JdbcColumn("INFO", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_ID_STRING         = new JdbcColumn("_ID", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_JSON_STRING       = new JdbcColumn("_JSON", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_DATABASE_STRING   = new JdbcColumn("DATABASE", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_COLLECTION_STRING = new JdbcColumn("COLLECTION", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_VALUE_STRING      = new JdbcColumn("VALUE", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_COUNT_LONG        = new JdbcColumn("COUNT", AdapterType.Long, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_NAME_STRING       = new JdbcColumn("NAME", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_TYPE_STRING       = new JdbcColumn("TYPE", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_OPTIONS_STRING    = new JdbcColumn("OPTIONS", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_INFO_STRING       = new JdbcColumn("INFO", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
     // for index
     protected static final JdbcColumn COL_IDX_V_INT              = new JdbcColumn("V", AdapterType.Int, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
     protected static final JdbcColumn COL_IDX_KEY_STRING         = new JdbcColumn("KEY", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
@@ -535,8 +538,7 @@ abstract class MongoCommands {
                 throw new SQLException("Parse JSON failed: " + e.getMessage(), e);
             }
         }
-        if (docOrList instanceof List) {
-            List<?> list = (List<?>) docOrList;
+        if (docOrList instanceof List<?> list) {
             if (list.size() == 1 && list.get(0) instanceof Map) {
                 return (Map<String, Object>) list.get(0);
             }

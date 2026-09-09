@@ -14,12 +14,17 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.adapter.mongo;
-import java.sql.ResultSetMetaData;
 import java.io.IOException;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.bson.BsonValue;
+import org.bson.Document;
+import org.bson.conversions.Bson;
+
 import com.mongodb.MongoNamespace;
 import com.mongodb.client.*;
 import com.mongodb.client.model.*;
@@ -27,14 +32,12 @@ import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.InsertManyResult;
 import com.mongodb.client.result.InsertOneResult;
 import com.mongodb.client.result.UpdateResult;
+
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.dbvisitor.adapter.mongo.parser.MongoBsonVisitor;
 import net.hasor.dbvisitor.adapter.mongo.parser.MongoParser.*;
 import net.hasor.dbvisitor.driver.*;
-import org.bson.BsonValue;
-import org.bson.Document;
-import org.bson.conversions.Bson;
 
 @SuppressWarnings("unchecked")
 class MongoCommandsForCollection extends MongoCommands {
@@ -129,7 +132,7 @@ class MongoCommandsForCollection extends MongoCommands {
                     keyDoc = key.toBsonDocument(org.bson.BsonDocument.class, com.mongodb.MongoClientSettings.getDefaultCodecRegistry());
                 }
 
-                ClusteredIndexOptions ciOptions = new ClusteredIndexOptions(keyDoc, unique != null ? unique : false);
+                ClusteredIndexOptions ciOptions = new ClusteredIndexOptions(keyDoc, unique != null && unique);
                 String name = getOptionString(ciMap, "name");
                 if (name != null) {
                     ciOptions.name(name);
@@ -140,7 +143,7 @@ class MongoCommandsForCollection extends MongoCommands {
             Map<String, Object> csMap = getOptionMap(bson, "changeStreamPreAndPostImages");
             if (csMap != null) {
                 Boolean enabled = getOptionBoolean(csMap, "enabled");
-                options.changeStreamPreAndPostImagesOptions(new ChangeStreamPreAndPostImagesOptions(enabled != null ? enabled : false));
+                options.changeStreamPreAndPostImagesOptions(new ChangeStreamPreAndPostImagesOptions(enabled != null && enabled));
             }
 
             Map<String, Object> iodMap = getOptionMap(bson, "indexOptionDefaults");

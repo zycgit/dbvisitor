@@ -1,32 +1,40 @@
 package net.hasor.dbvisitor.adapter.milvus.commands;
 
+import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
+import static org.junit.Assert.*;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.*;
 import java.util.*;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+
 import io.milvus.grpc.*;
 import io.milvus.orm.iterator.QueryIterator;
 import io.milvus.orm.iterator.SearchIteratorV2;
 import io.milvus.response.QueryResultsWrapper.RowRecord;
 import io.milvus.v2.client.MilvusClientV2;
 import io.milvus.v2.service.vector.request.*;
-import io.milvus.v2.service.vector.response.*;
+import io.milvus.v2.service.vector.response.DeleteResp;
+import io.milvus.v2.service.vector.response.QueryResp;
+import io.milvus.v2.service.vector.response.SearchResp;
+import io.milvus.v2.service.vector.response.UpsertResp;
 import io.milvus.v2.utils.DataUtils;
 import io.milvus.v2.utils.VectorUtils;
-import net.hasor.dbvisitor.adapter.milvus.*;
+import net.hasor.dbvisitor.adapter.milvus.MilvusCommandInterceptor;
+import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
+import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
-import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
-import static org.junit.Assert.*;
 
 /** Public JDBC binding -> intercepted official SDK requests -> typed wire values. */
 public class MilvusParameterBindingTest {
-    private static final String PAYLOAD = "\"x\" || id > 0 \\ \n\t\u0000 {arg2} 中文";
-    private final List<Object> requests = new ArrayList<>();
-    private QueryIterator queryIterator;
+    private static final String PAYLOAD  = "\"x\" || id > 0 \\ \n\t\u0000 {arg2} 中文";
+    private final List<Object>  requests = new ArrayList<>();
+    private QueryIterator       queryIterator;
 
     @Before
     public void install() {
@@ -35,12 +43,7 @@ public class MilvusParameterBindingTest {
         Mockito.when(queryIterator.next()).thenReturn(Collections.emptyList());
         SearchIteratorV2 searchIterator = Mockito.mock(SearchIteratorV2.class);
         Mockito.when(searchIterator.next()).thenReturn(Collections.emptyList());
-        CollectionSchema schema = CollectionSchema.newBuilder().setName("t")
-                .addFields(FieldSchema.newBuilder().setName("id").setDataType(DataType.VarChar).setIsPrimaryKey(true))
-                .addFields(FieldSchema.newBuilder().setName("title").setDataType(DataType.VarChar))
-                .addFields(FieldSchema.newBuilder().setName("n").setDataType(DataType.Int64))
-                .addFields(FieldSchema.newBuilder().setName("v").setDataType(DataType.FloatVector))
-                .build();
+        CollectionSchema schema = CollectionSchema.newBuilder().setName("t").addFields(FieldSchema.newBuilder().setName("id").setDataType(DataType.VarChar).setIsPrimaryKey(true)).addFields(FieldSchema.newBuilder().setName("title").setDataType(DataType.VarChar)).addFields(FieldSchema.newBuilder().setName("n").setDataType(DataType.Int64)).addFields(FieldSchema.newBuilder().setName("v").setDataType(DataType.FloatVector)).build();
         MilvusCommandInterceptor.addInterceptor(MilvusClientV2.class, (proxy, method, args) -> {
             switch (method.getName()) {
                 case "describeCollection":
@@ -109,22 +112,25 @@ public class MilvusParameterBindingTest {
 
     @Test
     public void allSelectionAndNativeDeletePathsUseTemplates() throws Exception {
+        // @formatter:off
         List<String> commands = Arrays.asList(
-                "SELECT id FROM t WHERE title = ? LIMIT 1",
-                "SELECT id FROM t WHERE title = ?",
-                "COUNT FROM t WHERE title = ?",
-                "/*+ overwrite_find_as_count */ SELECT id FROM t WHERE title = ?",
-                "DELETE FROM t WHERE title = ?",
-                "DELETE FROM t WHERE title = ? LIMIT 1",
-                "UPDATE t SET n = 1 WHERE title = ?",
-                "SELECT id FROM t WHERE title = ? ORDER BY v <-> [1,2] LIMIT 1",
-                "SELECT id FROM t WHERE title = ? ORDER BY v <-> [1,2]",
-                "SELECT id FROM t WHERE title = ? AND v <-> [1,2] < 3 LIMIT 1",
-                "SELECT id FROM t WHERE title = ? AND v <-> [1,2] < 3",
-                "DELETE FROM t WHERE title = ? ORDER BY v <-> [1,2] LIMIT 1",
-                "DELETE FROM t WHERE title = ? AND v <-> [1,2] < 3",
-                "UPDATE t SET n = 1 WHERE title = ? ORDER BY v <-> [1,2] LIMIT 1",
-                "UPDATE t SET n = 1 WHERE title = ? AND v <-> [1,2] < 3");
+            "SELECT id FROM t WHERE title = ? LIMIT 1",
+            "SELECT id FROM t WHERE title = ?",
+            "COUNT FROM t WHERE title = ?",
+            "/*+ overwrite_find_as_count */ SELECT id FROM t WHERE title = ?",
+            "DELETE FROM t WHERE title = ?",
+            "DELETE FROM t WHERE title = ? LIMIT 1",
+            "UPDATE t SET n = 1 WHERE title = ?",
+            "SELECT id FROM t WHERE title = ? ORDER BY v <-> [1,2] LIMIT 1",
+            "SELECT id FROM t WHERE title = ? ORDER BY v <-> [1,2]",
+            "SELECT id FROM t WHERE title = ? AND v <-> [1,2] < 3 LIMIT 1",
+            "SELECT id FROM t WHERE title = ? AND v <-> [1,2] < 3",
+            "DELETE FROM t WHERE title = ? ORDER BY v <-> [1,2] LIMIT 1",
+            "DELETE FROM t WHERE title = ? AND v <-> [1,2] < 3",
+            "UPDATE t SET n = 1 WHERE title = ? ORDER BY v <-> [1,2] LIMIT 1",
+            "UPDATE t SET n = 1 WHERE title = ? AND v <-> [1,2] < 3"
+        );
+        // @formatter:on
         for (String sql : commands) {
             requests.clear();
             execute(sql, PAYLOAD);
@@ -178,8 +184,7 @@ public class MilvusParameterBindingTest {
 
     @Test
     public void updateSetAndRangeArgumentsStayInSqlOrder() throws Exception {
-        execute("UPDATE t SET title = ? WHERE n > ? AND (v <-> ? < ? AND n < ?) LIMIT ?",
-                PAYLOAD, 10, new float[] { 1, 2 }, 3, 20, 2);
+        execute("UPDATE t SET title = ? WHERE n > ? AND (v <-> ? < ? AND n < ?) LIMIT ?", PAYLOAD, 10, new float[] { 1, 2 }, 3, 20, 2);
         SearchIteratorReqV2 query = (SearchIteratorReqV2) requests.get(0);
         assertEquals(Map.of("arg2", 10, "arg5", 20), query.getFilterTemplateValues());
         assertEquals("(n < {arg5}) && (n > {arg2})", query.getFilter());
@@ -189,8 +194,7 @@ public class MilvusParameterBindingTest {
 
     @Test
     public void hybridCandidatesCarryTheSameBoundFilterToTheWire() throws Exception {
-        execute("SELECT id FROM t WHERE title = ? ORDER BY HYBRID (v <-> ? LIMIT 4, v <-> ? LIMIT 4) LIMIT 2 WITH (reranker='rrf')",
-                PAYLOAD, new float[] { 1, 2 }, new float[] { 3, 4 });
+        execute("SELECT id FROM t WHERE title = ? ORDER BY HYBRID (v <-> ? LIMIT 4, v <-> ? LIMIT 4) LIMIT 2 WITH (reranker='rrf')", PAYLOAD, new float[] { 1, 2 }, new float[] { 3, 4 });
         HybridSearchReq query = (HybridSearchReq) requests.get(0);
         assertEquals(2, query.getSearchRequests().size());
         for (AnnSearchReq candidate : query.getSearchRequests()) {
@@ -243,15 +247,23 @@ public class MilvusParameterBindingTest {
 
     @Test
     public void scalarAndArrayValuesAreNormalizedForSdkTemplates() throws Exception {
+        // @formatter:off
         Object[][] cases = {
-                { (byte) 1, 1L }, { (short) 2, 2L }, { 3, 3 }, { 4L, 4L }, { 1.5F, 1.5D },
-                { new BigInteger("5"), 5L }, { new BigDecimal("1.25"), 1.25D },
-                { new int[] { 1, 2 }, Arrays.asList(1, 2) }, { new float[] { 1, 2 }, Arrays.asList(1D, 2D) },
-                { new boolean[] { true, false }, Arrays.asList(true, false) },
-                { new char[] { 'a', '"' }, Arrays.asList("a", "\"") },
-                { new String[] { PAYLOAD }, Collections.singletonList(PAYLOAD) },
-                { Collections.emptyList(), Collections.emptyList() }
+            { (byte) 1, 1L },
+            { (short) 2, 2L },
+            { 3, 3 },
+            { 4L, 4L },
+            { 1.5F, 1.5D },
+            { new BigInteger("5"), 5L },
+            { new BigDecimal("1.25"), 1.25D },
+            { new int[] { 1, 2 }, Arrays.asList(1, 2) },
+            { new float[] { 1, 2 }, Arrays.asList(1D, 2D) },
+            { new boolean[] { true, false }, Arrays.asList(true, false) },
+            { new char[] { 'a', '"' }, Arrays.asList("a", "\"") },
+            { new String[] { PAYLOAD }, Collections.singletonList(PAYLOAD) },
+            { Collections.emptyList(), Collections.emptyList() }
         };
+        // @formatter:on
         for (Object[] item : cases) {
             requests.clear();
             execute("DELETE FROM t WHERE n = ?", item[0]);
@@ -271,10 +283,23 @@ public class MilvusParameterBindingTest {
 
     @Test
     public void invalidValuesFailBeforeSendingAnySelectionOrMutation() throws Exception {
-        for (Object value : Arrays.asList(null, Double.NaN, Float.POSITIVE_INFINITY, new BigInteger("9223372036854775808"),
-                Map.of("x", PAYLOAD), Arrays.asList("text", 1), Collections.singletonList(null), new Object() {
-                    @Override public String toString() { return PAYLOAD; }
-                })) {
+        // @formatter:off
+        for (Object value : Arrays.asList(
+            null,
+            Double.NaN,
+            Float.POSITIVE_INFINITY,
+            new BigInteger("9223372036854775808"),
+            Map.of("x", PAYLOAD),
+            Arrays.asList("text", 1),
+            Collections.singletonList(null),
+            new Object() {
+                @Override
+                public String toString() {
+                    return PAYLOAD;
+                }
+            }
+        )) {
+            // @formatter:on
             requests.clear();
             try {
                 execute("DELETE FROM t WHERE title = ?", value);

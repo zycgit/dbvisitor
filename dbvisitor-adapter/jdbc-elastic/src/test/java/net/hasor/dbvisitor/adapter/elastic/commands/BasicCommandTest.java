@@ -1,14 +1,18 @@
 package net.hasor.dbvisitor.adapter.elastic.commands;
 
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import java.io.IOException;
 import java.sql.*;
 import java.util.Collections;
-import net.hasor.dbvisitor.driver.JdbcErrorCode;
+
 import org.elasticsearch.client.ResponseException;
 import org.elasticsearch.client.RestClient;
 import org.junit.Test;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+
+import net.hasor.dbvisitor.driver.JdbcErrorCode;
 
 public class BasicCommandTest extends AbstractElasticCommandTest {
     @Test

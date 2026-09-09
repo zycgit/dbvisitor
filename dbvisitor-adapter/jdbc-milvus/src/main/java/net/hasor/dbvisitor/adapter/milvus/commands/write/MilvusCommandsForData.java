@@ -14,13 +14,25 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.adapter.milvus.commands.write;
+import static net.hasor.dbvisitor.adapter.milvus.MilvusRequest.checkActive;
+import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandUtils.*;
+import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusExpression.parseTerm;
+import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusExpression.parseWhere;
+import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusVector.*;
+import static net.hasor.dbvisitor.adapter.milvus.mapping.MilvusSchema.collectionFields;
+import static net.hasor.dbvisitor.adapter.milvus.mapping.MilvusSchema.convertFieldValue;
+
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
+import org.antlr.v4.runtime.Token;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+
 import io.milvus.grpc.FieldSchema;
 import io.milvus.orm.iterator.QueryIterator;
 import io.milvus.orm.iterator.SearchIteratorV2;
@@ -40,20 +52,13 @@ import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCmd;
 import net.hasor.dbvisitor.adapter.milvus.MilvusRequest;
 import net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandKeys;
-import net.hasor.dbvisitor.adapter.milvus.commands.MilvusExpression.Filter;
 import net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommands;
+import net.hasor.dbvisitor.adapter.milvus.commands.MilvusExpression.Filter;
 import net.hasor.dbvisitor.adapter.milvus.commands.MilvusRetry;
 import net.hasor.dbvisitor.adapter.milvus.mapping.MilvusVectorCodec;
 import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser.*;
 import net.hasor.dbvisitor.driver.AdapterReceive;
 import net.hasor.dbvisitor.driver.AdapterRequest;
-import org.antlr.v4.runtime.Token;
-import static net.hasor.dbvisitor.adapter.milvus.MilvusRequest.checkActive;
-import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandUtils.*;
-import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusExpression.*;
-import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusVector.*;
-import static net.hasor.dbvisitor.adapter.milvus.mapping.MilvusSchema.collectionFields;
-import static net.hasor.dbvisitor.adapter.milvus.mapping.MilvusSchema.convertFieldValue;
 
 public final class MilvusCommandsForData extends MilvusCommands {
     private MilvusCommandsForData() {
@@ -341,8 +346,7 @@ public final class MilvusCommandsForData extends MilvusCommands {
             return 0;
         }
 
-        DeleteReq.DeleteReqBuilder deleteBuilder = DeleteReq.builder().databaseName(cmd.getCatalog()).collectionName(collectionName)
-                .filter(pkName + " in {ids}").filterTemplateValues(Collections.singletonMap("ids", idsToDelete));
+        DeleteReq.DeleteReqBuilder deleteBuilder = DeleteReq.builder().databaseName(cmd.getCatalog()).collectionName(collectionName).filter(pkName + " in {ids}").filterTemplateValues(Collections.singletonMap("ids", idsToDelete));
 
         if (partitionName != null) {
             deleteBuilder.partitionName(partitionName);
@@ -469,7 +473,15 @@ public final class MilvusCommandsForData extends MilvusCommands {
 
     private static SQLException pageFailure(String operation, String iteratorType, String phase, long pageNumber, long confirmedPages, long confirmedRows, int currentPageRows, Exception cause) {
         SQLException error = MilvusRetry.sqlException(cause);
-        String message = "Milvus " + operation + " failed during paged execution: phase=" + phase + ", iterator=" + iteratorType + ", page=" + pageNumber + ", confirmedPages=" + confirmedPages + ", confirmedRows=" + confirmedRows + ", currentPageRows=" + currentPageRows + ", cause=" + error.getMessage();
+        // @formatter:off
+        String message = "Milvus " + operation + " failed during paged execution: phase=" + phase
+                + ", iterator=" + iteratorType
+                + ", page=" + pageNumber
+                + ", confirmedPages=" + confirmedPages
+                + ", confirmedRows=" + confirmedRows
+                + ", currentPageRows=" + currentPageRows
+                + ", cause=" + error.getMessage();
+        // @formatter:on
         if (error instanceof java.sql.SQLTimeoutException) {
             return new java.sql.SQLTimeoutException(message, error.getSQLState(), error.getErrorCode(), error);
         }

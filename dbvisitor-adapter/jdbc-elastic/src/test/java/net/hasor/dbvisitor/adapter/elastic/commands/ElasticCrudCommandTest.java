@@ -1,10 +1,16 @@
 package net.hasor.dbvisitor.adapter.elastic.commands;
 
-import java.sql.*;
-import java.util.Properties;
-import net.hasor.dbvisitor.adapter.elastic.ElasticKeys;
-import org.junit.Test;
 import static org.junit.Assert.*;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.Properties;
+
+import org.junit.Test;
+
+import net.hasor.dbvisitor.adapter.elastic.ElasticKeys;
 
 public class ElasticCrudCommandTest extends AbstractElasticCommandTest {
     @Test
@@ -38,12 +44,14 @@ public class ElasticCrudCommandTest extends AbstractElasticCommandTest {
     public void refreshIsAddedForDocumentsButNotIndexCreation() throws Exception {
         Properties settings = new Properties();
         settings.setProperty(ElasticKeys.INDEX_REFRESH, "true");
+        // @formatter:off
         String[] commands = {
-                "POST /books/_doc {\"name\":\"new\"}",
-                "PUT /books/_create/42?refresh=false {\"name\":\"explicit\"}",
-                "PUT /books {\"settings\":{\"number_of_shards\":1}}",
-                "PUT /books/book/43 {\"name\":\"typed\"}"
+            "POST /books/_doc {\"name\":\"new\"}",
+            "PUT /books/_create/42?refresh=false {\"name\":\"explicit\"}",
+            "PUT /books {\"settings\":{\"number_of_shards\":1}}",
+            "PUT /books/book/43 {\"name\":\"typed\"}"
         };
+        // @formatter:on
         try (Connection connection = elasticConnection(settings); Statement statement = connection.createStatement()) {
             for (String command : commands) {
                 respondWith("{\"_id\":\"42\",\"acknowledged\":true}");
@@ -97,12 +105,14 @@ public class ElasticCrudCommandTest extends AbstractElasticCommandTest {
 
     @Test
     public void writesWithoutRefreshKeepUnknownCountContract() throws Exception {
+        // @formatter:off
         String[] commands = {
-                "POST /books/_update/42 {\"doc\":{\"active\":true}}",
-                "POST /books/_update_by_query {\"query\":{\"match_all\":{}}}",
-                "POST /books/_delete_by_query {\"query\":{\"match_all\":{}}}",
-                "DELETE /books/_doc/42"
+            "POST /books/_update/42 {\"doc\":{\"active\":true}}",
+            "POST /books/_update_by_query {\"query\":{\"match_all\":{}}}",
+            "POST /books/_delete_by_query {\"query\":{\"match_all\":{}}}",
+            "DELETE /books/_doc/42"
         };
+        // @formatter:on
         try (Connection connection = elasticConnection(); Statement statement = connection.createStatement()) {
             for (String command : commands) {
                 respondWith("{\"result\":\"updated\",\"updated\":4,\"deleted\":2}");

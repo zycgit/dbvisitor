@@ -1,10 +1,15 @@
 package net.hasor.dbvisitor.adapter.milvus.commands.imports;
+import static net.hasor.dbvisitor.adapter.milvus.MilvusRequest.checkActive;
+import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandUtils.*;
+
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCmd;
 import net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandKeys;
@@ -18,24 +23,26 @@ import net.hasor.dbvisitor.driver.AdapterReceive;
 import net.hasor.dbvisitor.driver.AdapterRequest;
 import net.hasor.dbvisitor.driver.AdapterType;
 import net.hasor.dbvisitor.driver.JdbcColumn;
-import static net.hasor.dbvisitor.adapter.milvus.MilvusRequest.checkActive;
-import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandUtils.*;
 
 /** Server-side file imports: submission, bounded waiting and JDBC job inspection. */
 public final class MilvusCommandsForImport extends MilvusCommands {
     private MilvusCommandsForImport() {
     }
 
-    private static final long             DEFAULT_WAIT_TIMEOUT_MS = 60_000;
-    private static final long             POLL_INTERVAL_MS        = 100;
-    private static final JdbcColumn       JOB_ID                  = new JdbcColumn("JOB_ID", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
-    private static final List<JdbcColumn> JOB_COLUMNS             = Arrays.asList(JOB_ID,
-            new JdbcColumn("STATE", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array),
-            new JdbcColumn("PROGRESS", AdapterType.Long, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array),
-            new JdbcColumn("TOTAL_ROWS", AdapterType.Long, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array),
-            new JdbcColumn("IMPORTED_ROWS", AdapterType.Long, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array),
-            new JdbcColumn("REASON", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array),
-            new JdbcColumn("DETAILS", "JSON", "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array));
+    private static final long       DEFAULT_WAIT_TIMEOUT_MS = 60_000;
+    private static final long       POLL_INTERVAL_MS        = 100;
+    private static final JdbcColumn JOB_ID                  = new JdbcColumn("JOB_ID", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    // @formatter:off
+    private static final List<JdbcColumn> JOB_COLUMNS             = Arrays.asList(
+        JOB_ID,
+        new JdbcColumn("STATE", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array),
+        new JdbcColumn("PROGRESS", AdapterType.Long, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array),
+        new JdbcColumn("TOTAL_ROWS", AdapterType.Long, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array),
+        new JdbcColumn("IMPORTED_ROWS", AdapterType.Long, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array),
+        new JdbcColumn("REASON", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array),
+        new JdbcColumn("DETAILS", "JSON", "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array)
+    );
+    // @formatter:on
 
     public static Future<?> execImportCmd(Future<Object> future, MilvusCmd cmd, HintCommandContext hint, ImportCmdContext c, AdapterRequest request, AdapterReceive receive, int start) throws SQLException {
         AtomicInteger args = new AtomicInteger(start);
@@ -137,7 +144,14 @@ public final class MilvusCommandsForImport extends MilvusCommands {
             }
         } catch (SQLException | RuntimeException failure) {
             SQLException cause = MilvusRetry.sqlException(failure);
-            String message = cause.getMessage() + ", " + MilvusCommandKeys.REST_JOB_ID + "=" + jobId + ", " + MilvusCommandKeys.REST_STATE + "=" + text(last, MilvusCommandKeys.REST_STATE) + ", " + MilvusCommandKeys.REST_IMPORTED_ROWS + "=" + number(last, MilvusCommandKeys.REST_IMPORTED_ROWS) + ", " + MilvusCommandKeys.REST_REASON + "=" + reason(last) + "; the server job is not cancelled or resubmitted. Inspect it with SHOW IMPORT.";
+            // @formatter:off
+            String message = cause.getMessage()
+                    + ", " + MilvusCommandKeys.REST_JOB_ID + "=" + jobId
+                    + ", " + MilvusCommandKeys.REST_STATE + "=" + text(last, MilvusCommandKeys.REST_STATE)
+                    + ", " + MilvusCommandKeys.REST_IMPORTED_ROWS + "=" + number(last, MilvusCommandKeys.REST_IMPORTED_ROWS)
+                    + ", " + MilvusCommandKeys.REST_REASON + "=" + reason(last)
+                    + "; the server job is not cancelled or resubmitted. Inspect it with SHOW IMPORT.";
+            // @formatter:on
             if (cause instanceof java.sql.SQLTimeoutException) {
                 throw new java.sql.SQLTimeoutException(message, cause.getSQLState(), cause.getErrorCode(), cause);
             }

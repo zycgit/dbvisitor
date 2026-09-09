@@ -116,11 +116,16 @@ public class JedisConnFactory implements AdapterFactory {
 
     @Override
     public String[] getPropertyNames() {
-        return new String[] { JedisKeys.ADAPTER_NAME, JedisKeys.INTERCEPTOR, JedisKeys.CUSTOM_JEDIS, //
-                JedisKeys.UNCHECK_NUM_KEYS, JedisKeys.SEPARATOR_CHAR, JedisKeys.SERVER, JedisKeys.TIME_ZONE, //
-                JedisKeys.CONN_TIMEOUT, JedisKeys.SO_TIMEOUT, JedisKeys.USERNAME, JedisKeys.PASSWORD,//
-                JedisKeys.DATABASE, JedisKeys.CLIENT_NAME, JedisKeys.MAX_TOTAL, JedisKeys.MAX_IDLE, //
-                JedisKeys.MIN_IDLE, JedisKeys.TEST_WHILE_IDLE, JedisKeys.MAX_ATTEMPTS };
+        // @formatter:off
+        return new String[] {
+            JedisKeys.ADAPTER_NAME, JedisKeys.INTERCEPTOR, JedisKeys.CUSTOM_JEDIS,
+            JedisKeys.UNCHECK_NUM_KEYS, JedisKeys.SEPARATOR_CHAR, JedisKeys.SERVER, JedisKeys.TIME_ZONE,
+            JedisKeys.CONN_TIMEOUT, JedisKeys.SO_TIMEOUT, JedisKeys.USERNAME, JedisKeys.PASSWORD,
+            JedisKeys.DATABASE, JedisKeys.CLIENT_NAME,
+            JedisKeys.MAX_TOTAL, JedisKeys.MAX_IDLE, JedisKeys.MIN_IDLE,
+            JedisKeys.TEST_WHILE_IDLE, JedisKeys.MAX_ATTEMPTS
+        };
+        // @formatter:on
     }
 
     @Override

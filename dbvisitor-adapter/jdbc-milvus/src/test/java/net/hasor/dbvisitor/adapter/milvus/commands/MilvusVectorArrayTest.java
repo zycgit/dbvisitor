@@ -1,7 +1,15 @@
 package net.hasor.dbvisitor.adapter.milvus.commands;
 
+import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
+import static org.junit.Assert.*;
+
 import java.sql.*;
 import java.util.*;
+
+import org.junit.After;
+import org.junit.Test;
+import org.powermock.api.mockito.PowerMockito;
+
 import io.milvus.grpc.*;
 import io.milvus.orm.iterator.SearchIteratorV2;
 import io.milvus.v2.client.MilvusClientV2;
@@ -13,17 +21,23 @@ import net.hasor.dbvisitor.adapter.milvus.MilvusCommandInterceptor;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
-import org.junit.After;
-import org.junit.Test;
-import org.powermock.api.mockito.PowerMockito;
-import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
-import static org.junit.Assert.*;
 
 public class MilvusVectorArrayTest extends AbstractJdbcTest {
     private final List<Object> captured = new ArrayList<>();
 
     private Object[] vectors() {
-        return new Object[] { new byte[] { -2, 3 }, new short[] { -2, 3 }, new int[] { -2, 3 }, new long[] { -2, 3 }, new float[] { -2, 3 }, new double[] { -2, 3 }, Arrays.asList(-2, 3), Arrays.asList(-2D, 3D) };
+        // @formatter:off
+        return new Object[] {
+            new byte[] { -2, 3 },
+            new short[] { -2, 3 },
+            new int[] { -2, 3 },
+            new long[] { -2, 3 },
+            new float[] { -2, 3 },
+            new double[] { -2, 3 },
+            Arrays.asList(-2, 3),
+            Arrays.asList(-2D, 3D)
+        };
+        // @formatter:on
     }
 
     private Connection connect() throws SQLException {
@@ -128,7 +142,14 @@ public class MilvusVectorArrayTest extends AbstractJdbcTest {
         for (String command : Arrays.asList("SELECT * FROM t", "UPDATE t SET val = 7", "DELETE FROM t")) {
             for (String limit : Arrays.asList(" LIMIT 2", "")) {
                 try (Connection conn = connect(); PreparedStatement ps = conn.prepareStatement(command + " ORDER BY v <-> ?" + limit)) {
-                    for (Object vector : new Object[] { Arrays.asList(Arrays.asList(1F, 1F), Arrays.asList(99F, 99F)), Collections.singletonList(Arrays.asList(1F, 1F)), Arrays.asList(1F, List.of(2F)), Arrays.asList(new float[] { 1, 1 }, new float[] { 99, 99 }) }) {
+                    // @formatter:off
+                    for (Object vector : new Object[] {
+                        Arrays.asList(Arrays.asList(1F, 1F), Arrays.asList(99F, 99F)),
+                        Collections.singletonList(Arrays.asList(1F, 1F)),
+                        Arrays.asList(1F, List.of(2F)),
+                        Arrays.asList(new float[] { 1, 1 }, new float[] { 99, 99 })
+                    }) {
+                    // @formatter:on
                         ps.setObject(1, vector);
                         try {
                             ps.execute();

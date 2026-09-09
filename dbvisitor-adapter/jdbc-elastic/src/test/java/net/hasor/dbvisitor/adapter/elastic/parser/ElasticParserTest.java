@@ -1,14 +1,16 @@
 package net.hasor.dbvisitor.adapter.elastic.parser;
+import static org.junit.Assert.fail;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
+
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.Test;
-import static org.junit.Assert.fail;
 
 public class ElasticParserTest {
 
@@ -58,7 +60,7 @@ public class ElasticParserTest {
             }
 
             StringBuilder content = new StringBuilder();
-            try (Scanner scanner = new Scanner(inputStream, StandardCharsets.UTF_8.name())) {
+            try (Scanner scanner = new Scanner(inputStream, StandardCharsets.UTF_8)) {
                 while (scanner.hasNextLine()) {
                     content.append(scanner.nextLine()).append("\n");
                 }

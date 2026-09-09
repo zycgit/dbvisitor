@@ -19,8 +19,16 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.TerminalNode;
+import org.apache.http.StatusLine;
+import org.elasticsearch.client.Response;
+import org.elasticsearch.client.ResponseException;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
@@ -31,11 +39,6 @@ import net.hasor.dbvisitor.adapter.elastic.parser.ElasticParser.HintCommandConte
 import net.hasor.dbvisitor.adapter.elastic.parser.ElasticParser.HintContext;
 import net.hasor.dbvisitor.driver.AdapterReceive;
 import net.hasor.dbvisitor.driver.AdapterRequest;
-import org.antlr.v4.runtime.tree.ParseTree;
-import org.antlr.v4.runtime.tree.TerminalNode;
-import org.apache.http.StatusLine;
-import org.elasticsearch.client.Response;
-import org.elasticsearch.client.ResponseException;
 
 class ElasticDistributeCall {
     public static Future<?> execElasticCmd(Future<Object> sync, ElasticCmd elasticCmd, HintCommandContext c, AdapterRequest request, AdapterReceive receive, int startArgIdx, ElasticConn conn) throws SQLException {
@@ -224,7 +227,7 @@ class ElasticDistributeCall {
             if (errorMsg == null) {
                 errorMsg = statusLine.getStatusCode() + " " + statusLine.getReasonPhrase();
             }
-            return new SQLException(errorMsg, String.valueOf("E" + statusLine.getStatusCode()), e);
+            return new SQLException(errorMsg, "E" + statusLine.getStatusCode(), e);
         } else {
             return new SQLException(e.getMessage(), e);
         }
@@ -315,8 +318,7 @@ class ElasticDistributeCall {
     }
 
     private static void buildEndpoint(ParseTree tree, StringBuilder builder, AtomicInteger argIndex, AdapterRequest request) throws SQLException {
-        if (tree instanceof TerminalNode) {
-            TerminalNode node = (TerminalNode) tree;
+        if (tree instanceof TerminalNode node) {
             String text = node.getText();
             if ("{?}".equals(text)) {
                 Object arg = ElasticCommands.getArg(argIndex, request);

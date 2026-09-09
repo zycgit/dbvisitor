@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.adapter.milvus.commands.schema;
+import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandUtils.*;
+import static net.hasor.dbvisitor.adapter.milvus.mapping.MilvusSchema.collectionFields;
+
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import io.milvus.grpc.DataType;
 import io.milvus.grpc.FieldSchema;
 import io.milvus.param.ParamUtils;
@@ -36,22 +40,20 @@ import net.hasor.dbvisitor.driver.AdapterReceive;
 import net.hasor.dbvisitor.driver.AdapterRequest;
 import net.hasor.dbvisitor.driver.AdapterType;
 import net.hasor.dbvisitor.driver.JdbcColumn;
-import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandUtils.*;
-import static net.hasor.dbvisitor.adapter.milvus.mapping.MilvusSchema.collectionFields;
 
 public final class MilvusCommandsForTable extends MilvusCommands {
     private MilvusCommandsForTable() {
     }
 
-    private static final JdbcColumn COL_CREATE_STRING     = new JdbcColumn("CREATE SCRIPT", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
-    private static final JdbcColumn COL_DIMENSION_INTEGER = new JdbcColumn("DIMENSION", AdapterType.Int, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
-    private static final   JdbcColumn COL_PRIMARY_BOOL      = new JdbcColumn("PRIMARY", AdapterType.Boolean, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
-    private static final   JdbcColumn COL_AUTO_ID_BOOL      = new JdbcColumn("AUTO_ID", AdapterType.Boolean, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
-    private static final   JdbcColumn COL_DESCRIPTION_STRING = new JdbcColumn("DESCRIPTION", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
-    private static final   JdbcColumn COL_NULLABLE_BOOL      = new JdbcColumn("NULLABLE", AdapterType.Boolean, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
-    private static final   JdbcColumn COL_ELEMENT_STRING     = new JdbcColumn("ELEMENT_TYPE", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
-    private static final   JdbcColumn COL_CAPACITY_INT       = new JdbcColumn("MAX_CAPACITY", AdapterType.Int, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
-    private static final   JdbcColumn COL_LENGTH_INT         = new JdbcColumn("MAX_LENGTH", AdapterType.Int, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    private static final JdbcColumn COL_CREATE_STRING      = new JdbcColumn("CREATE SCRIPT", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    private static final JdbcColumn COL_DIMENSION_INTEGER  = new JdbcColumn("DIMENSION", AdapterType.Int, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    private static final JdbcColumn COL_PRIMARY_BOOL       = new JdbcColumn("PRIMARY", AdapterType.Boolean, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    private static final JdbcColumn COL_AUTO_ID_BOOL       = new JdbcColumn("AUTO_ID", AdapterType.Boolean, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    private static final JdbcColumn COL_DESCRIPTION_STRING = new JdbcColumn("DESCRIPTION", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    private static final JdbcColumn COL_NULLABLE_BOOL      = new JdbcColumn("NULLABLE", AdapterType.Boolean, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    private static final JdbcColumn COL_ELEMENT_STRING     = new JdbcColumn("ELEMENT_TYPE", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    private static final JdbcColumn COL_CAPACITY_INT       = new JdbcColumn("MAX_CAPACITY", AdapterType.Int, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    private static final JdbcColumn COL_LENGTH_INT         = new JdbcColumn("MAX_LENGTH", AdapterType.Int, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
 
     // Collection creation and lifecycle
 
@@ -210,13 +212,20 @@ public final class MilvusCommandsForTable extends MilvusCommands {
             result.add(row);
         }
 
-        receive.responseResult(request, listResult(request, Arrays.asList(//
-                COL_FIELD_STRING,     //
-                COL_TYPE_STRING,      //
-                COL_DIMENSION_INTEGER,//
-                COL_PRIMARY_BOOL,     //
-                COL_AUTO_ID_BOOL,     //
-                COL_DESCRIPTION_STRING, COL_NULLABLE_BOOL, COL_ELEMENT_STRING, COL_CAPACITY_INT, COL_LENGTH_INT), result));
+        // @formatter:off
+        receive.responseResult(request, listResult(request, Arrays.asList(
+            COL_FIELD_STRING,
+            COL_TYPE_STRING,
+            COL_DIMENSION_INTEGER,
+            COL_PRIMARY_BOOL,
+            COL_AUTO_ID_BOOL,
+            COL_DESCRIPTION_STRING,
+            COL_NULLABLE_BOOL,
+            COL_ELEMENT_STRING,
+            COL_CAPACITY_INT,
+            COL_LENGTH_INT
+        ), result));
+        // @formatter:on
         return completed(future);
     }
 

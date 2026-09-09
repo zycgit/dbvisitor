@@ -20,32 +20,31 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
+
+import org.antlr.v4.runtime.BufferedTokenStream;
+import org.antlr.v4.runtime.CharStreams;
+import org.bson.Document;
+
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
+
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.concurrent.future.BasicFuture;
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
-import net.hasor.dbvisitor.adapter.mongo.parser.MongoArgVisitor;
-import net.hasor.dbvisitor.adapter.mongo.parser.MongoLexer;
-import net.hasor.dbvisitor.adapter.mongo.parser.MongoParser;
-import net.hasor.dbvisitor.adapter.mongo.parser.QueryParseException;
-import net.hasor.dbvisitor.adapter.mongo.parser.ThrowingListener;
+import net.hasor.dbvisitor.adapter.mongo.parser.*;
 import net.hasor.dbvisitor.driver.*;
-import org.antlr.v4.runtime.BufferedTokenStream;
-import org.antlr.v4.runtime.CharStreams;
-import org.bson.Document;
 
 public class MongoConn extends AdapterConnection {
-    private static final Logger       logger    = LoggerFactory.getLogger(MongoConn.class);
-    private final        Connection   owner;
-    private final        MongoCmd     mongoCmd;
-    private final        boolean      preRead;
-    private final        long         preReadThreshold;
-    private final        long         preReadMaxFileSize;
-    private final        java.io.File preReadCacheDir;
-    private volatile     boolean      cancelled = false;
+    private static final Logger logger    = LoggerFactory.getLogger(MongoConn.class);
+    private final Connection    owner;
+    private final MongoCmd      mongoCmd;
+    private final boolean       preRead;
+    private final long          preReadThreshold;
+    private final long          preReadMaxFileSize;
+    private final java.io.File  preReadCacheDir;
+    private volatile boolean    cancelled = false;
 
     public MongoConn(Connection owner, MongoCmd mongoCmd, String jdbcUrl, Map<String, String> prop) {
         super(jdbcUrl, prop.get(MongoKeys.USERNAME));

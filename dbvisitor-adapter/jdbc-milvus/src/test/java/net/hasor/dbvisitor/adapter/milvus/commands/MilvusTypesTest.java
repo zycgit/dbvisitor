@@ -1,8 +1,15 @@
 package net.hasor.dbvisitor.adapter.milvus.commands;
 
+import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
+import static org.junit.Assert.*;
+
 import java.nio.ByteBuffer;
 import java.sql.*;
 import java.util.*;
+
+import org.junit.After;
+import org.junit.Test;
+
 import io.milvus.grpc.*;
 import io.milvus.v2.client.MilvusClientV2;
 import io.milvus.v2.service.collection.request.CreateCollectionReq;
@@ -19,17 +26,13 @@ import net.hasor.dbvisitor.adapter.milvus.MilvusCommandInterceptor;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
-import org.junit.After;
-import org.junit.Test;
-import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
-import static org.junit.Assert.*;
 
 /** JDBC -> official SDK -> protobuf -> SDK -> JDBC, without a running server. */
 public class MilvusTypesTest extends AbstractJdbcTest {
     private DescribeCollectionResp schema;
     private List<FieldData>        stored = Collections.emptyList();
     private SearchRequest          searched;
-    private SearchIteratorReqV2      iterated;
+    private SearchIteratorReqV2    iterated;
 
     private Connection connect() throws SQLException {
         MilvusCommandInterceptor.resetInterceptor();
@@ -214,7 +217,14 @@ public class MilvusTypesTest extends AbstractJdbcTest {
         try (Connection conn = connect(); Statement stmt = conn.createStatement()) {
             stmt.executeUpdate("CREATE TABLE t (id INT64 PRIMARY KEY, v FLOAT16_VECTOR(2), a ARRAY<INT8>(2))");
             try (PreparedStatement ps = conn.prepareStatement("INSERT INTO t (id,v,a) VALUES (1,?,?)")) {
-                Object[][] invalid = { { new byte[] { 1 }, new byte[] { 1 } }, { new float[] { Float.NaN, 2 }, new byte[] { 1 } }, { new float[] { 1, 2 }, new int[] { 128 } }, { new float[] { 1, 2 }, new byte[] { 1, 2, 3 } } };
+                // @formatter:off
+                Object[][] invalid = {
+                    { new byte[] { 1 }, new byte[] { 1 } },
+                    { new float[] { Float.NaN, 2 }, new byte[] { 1 } },
+                    { new float[] { 1, 2 }, new int[] { 128 } },
+                    { new float[] { 1, 2 }, new byte[] { 1, 2, 3 } }
+                };
+                // @formatter:on
                 for (Object[] row : invalid) {
                     ps.setObject(1, row[0]);
                     ps.setObject(2, row[1]);
@@ -318,7 +328,18 @@ public class MilvusTypesTest extends AbstractJdbcTest {
     @Test
     public void everyArrayElementTypeUsesItsJdbcType() throws Exception {
         String[] types = { "BOOL", "INT8", "INT16", "INT32", "INT64", "FLOAT", "DOUBLE", "VARCHAR(12)" };
-        Object[] inputs = { new boolean[] { true }, new byte[] { -2 }, new short[] { -2 }, new int[] { -2 }, new long[] { -2 }, new float[] { 0.5F }, new double[] { 0.5D }, new String[] { "中文" } };
+        // @formatter:off
+        Object[] inputs = {
+            new boolean[] { true },
+            new byte[] { -2 },
+            new short[] { -2 },
+            new int[] { -2 },
+            new long[] { -2 },
+            new float[] { 0.5F },
+            new double[] { 0.5D },
+            new String[] { "中文" }
+        };
+        // @formatter:on
         Object[] expected = { true, (byte) -2, (short) -2, -2, -2L, 0.5F, 0.5D, "中文" };
         int[] jdbc = { Types.BOOLEAN, Types.TINYINT, Types.SMALLINT, Types.INTEGER, Types.BIGINT, Types.FLOAT, Types.DOUBLE, Types.VARCHAR };
         for (int i = 0; i < types.length; i++) {

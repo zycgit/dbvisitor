@@ -1,17 +1,21 @@
 package net.hasor.dbvisitor.adapter.elastic.commands;
 
-import java.sql.*;
-import org.junit.Test;
 import static org.junit.Assert.*;
+
+import java.sql.*;
+
+import org.junit.Test;
 
 public class ElasticCatAndGenericCommandTest extends AbstractElasticCommandTest {
     @Test
     public void catCommandsAddJsonFormatAndMapTheirColumns() throws Exception {
+        // @formatter:off
         String[][] cases = {
-                { "/_cat/indices", "[{\"index\":\"books\",\"docs.count\":\"12\",\"health\":\"green\"}]", "INDEX", "books", "STORE.SIZE" },
-                { "/_cat/nodes?v", "[{\"ip\":\"127.0.0.1\",\"name\":\"node-1\",\"master\":\"*\"}]", "NAME", "node-1", "VERSION" },
-                { "/_cat/health?format=json", "[{\"cluster\":\"test\",\"status\":\"green\"}]", "CLUSTER", "test", "NODE.TOTAL" }
+            { "/_cat/indices", "[{\"index\":\"books\",\"docs.count\":\"12\",\"health\":\"green\"}]", "INDEX", "books", "STORE.SIZE" },
+            { "/_cat/nodes?v", "[{\"ip\":\"127.0.0.1\",\"name\":\"node-1\",\"master\":\"*\"}]", "NAME", "node-1", "VERSION" },
+            { "/_cat/health?format=json", "[{\"cluster\":\"test\",\"status\":\"green\"}]", "CLUSTER", "test", "NODE.TOTAL" }
         };
+        // @formatter:on
         try (Connection connection = elasticConnection(); Statement statement = connection.createStatement()) {
             for (String[] item : cases) {
                 respondWith(item[1]);

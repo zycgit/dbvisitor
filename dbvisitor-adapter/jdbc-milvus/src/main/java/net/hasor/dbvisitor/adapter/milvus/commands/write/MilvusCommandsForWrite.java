@@ -1,9 +1,15 @@
 package net.hasor.dbvisitor.adapter.milvus.commands.write;
+import static net.hasor.dbvisitor.adapter.milvus.MilvusRequest.checkActive;
+import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandUtils.*;
+import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusExpression.parseTerm;
+
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+
 import io.milvus.grpc.FieldSchema;
 import io.milvus.param.Constant;
 import io.milvus.v2.service.vector.request.InsertReq;
@@ -20,9 +26,6 @@ import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser.*;
 import net.hasor.dbvisitor.driver.AdapterReceive;
 import net.hasor.dbvisitor.driver.AdapterRequest;
 import net.hasor.dbvisitor.driver.AdapterResultCursor;
-import static net.hasor.dbvisitor.adapter.milvus.MilvusRequest.checkActive;
-import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandUtils.*;
-import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusExpression.parseTerm;
 
 /** Row encoding and bounded INSERT/UPSERT batches; UPDATE selection belongs to Data. */
 public final class MilvusCommandsForWrite extends MilvusCommands {
@@ -126,7 +129,13 @@ public final class MilvusCommandsForWrite extends MilvusCommands {
                 }
             }
             SQLException cause = MilvusRetry.sqlException(failure);
-            String message = "Milvus " + (upsert ? "UPSERT" : "INSERT") + " failed: phase=" + phase + ", confirmedPages=" + confirmedPages + ", confirmedRows=" + confirmedRows + ", currentPageRows=" + page.size() + "; failed write outcome may be unknown; not retried. " + cause.getMessage();
+            // @formatter:off
+            String message = "Milvus " + (upsert ? "UPSERT" : "INSERT") + " failed: phase=" + phase
+                    + ", confirmedPages=" + confirmedPages
+                    + ", confirmedRows=" + confirmedRows
+                    + ", currentPageRows=" + page.size()
+                    + "; failed write outcome may be unknown; not retried. " + cause.getMessage();
+            // @formatter:on
             if (cause instanceof java.sql.SQLTimeoutException) {
                 throw new java.sql.SQLTimeoutException(message, cause.getSQLState(), cause.getErrorCode(), cause);
             }

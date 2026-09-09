@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.adapter.mongo.parser;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import net.hasor.dbvisitor.driver.AdapterRequest;
-import net.hasor.dbvisitor.driver.JdbcArg;
+
 import org.bson.BsonValue;
 import org.bson.Document;
 import org.bson.types.*;
+
+import net.hasor.dbvisitor.driver.AdapterRequest;
+import net.hasor.dbvisitor.driver.JdbcArg;
 
 public class MongoBsonVisitor extends MongoParserBaseVisitor<Object> {
     private final AdapterRequest request;
@@ -256,8 +254,7 @@ public class MongoBsonVisitor extends MongoParserBaseVisitor<Object> {
         if (arg0 instanceof ObjectId) {
             return arg0;
         }
-        if (arg0 instanceof BsonValue) {
-            BsonValue bsonVal = (BsonValue) arg0;
+        if (arg0 instanceof BsonValue bsonVal) {
             if (bsonVal.isObjectId()) {
                 return bsonVal.asObjectId().getValue();
             }
@@ -266,8 +263,7 @@ public class MongoBsonVisitor extends MongoParserBaseVisitor<Object> {
             }
         }
 
-        if (arg0 instanceof byte[]) {
-            byte[] bytes = (byte[]) arg0;
+        if (arg0 instanceof byte[] bytes) {
             if (bytes.length == 12) {
                 return new ObjectId(bytes);
             }

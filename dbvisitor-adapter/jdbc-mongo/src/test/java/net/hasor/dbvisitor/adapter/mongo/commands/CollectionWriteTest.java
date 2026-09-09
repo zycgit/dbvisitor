@@ -1,10 +1,20 @@
 package net.hasor.dbvisitor.adapter.mongo.commands;
+import static org.mockito.ArgumentMatchers.any;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.bson.BsonInt32;
+import org.bson.BsonValue;
+import org.bson.Document;
+import org.bson.conversions.Bson;
+import org.junit.Test;
+import org.powermock.api.mockito.PowerMockito;
+
 import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
@@ -13,15 +23,9 @@ import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.InsertManyResult;
 import com.mongodb.client.result.UpdateResult;
+
 import net.hasor.dbvisitor.adapter.mongo.AbstractJdbcTest;
 import net.hasor.dbvisitor.adapter.mongo.MongoCommandInterceptor;
-import org.bson.BsonInt32;
-import org.bson.BsonValue;
-import org.bson.Document;
-import org.bson.conversions.Bson;
-import org.junit.Test;
-import org.powermock.api.mockito.PowerMockito;
-import static org.mockito.ArgumentMatchers.any;
 
 public class CollectionWriteTest extends AbstractJdbcTest {
     @Test
@@ -195,12 +199,14 @@ public class CollectionWriteTest extends AbstractJdbcTest {
         });
 
         try (Connection conn = redisConnection("mydb"); Statement stmt = conn.createStatement()) {
-            int count = stmt.executeUpdate("db.mycol.bulkWrite([\n" + //
-                    "   { insertOne: { \"document\": { \"_id\": 1, \"char\": \"Brisbane\", \"class\": \"mammal\", \"water\": false } } },\n" + //
-                    "   { updateOne: { \"filter\": { \"char\": \"Eldon\" }, \"update\": { $set: { \"status\": \"Critical\" } } } },\n" + //
-                    "   { deleteOne: { \"filter\": { \"char\": \"Manor\" } } },\n" + //
-                    "   { replaceOne: { \"filter\": { \"char\": \"Mardon\" }, \"replacement\": { \"char\": \"Mardon\", \"class\": \"mammal\", \"water\": false } } }\n" + //
-                    "])");
+            int count = stmt.executeUpdate("""
+                    db.mycol.bulkWrite([
+                       { insertOne: { "document": { "_id": 1, "char": "Brisbane", "class": "mammal", "water": false } } },
+                       { updateOne: { "filter": { "char": "Eldon" }, "update": { $set: { "status": "Critical" } } } },
+                       { deleteOne: { "filter": { "char": "Manor" } } },
+                       { replaceOne: { "filter": { "char": "Mardon" }, "replacement": { "char": "Mardon", "class": "mammal", "water": false } } }
+                    ])\
+                    """);
             assert count == 3;
         } catch (SQLException e) {
             e.printStackTrace();

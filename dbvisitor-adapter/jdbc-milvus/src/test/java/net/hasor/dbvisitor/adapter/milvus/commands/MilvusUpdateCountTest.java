@@ -1,5 +1,9 @@
 package net.hasor.dbvisitor.adapter.milvus.commands;
 
+import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.sql.Connection;
@@ -11,6 +15,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+
 import io.milvus.grpc.CollectionSchema;
 import io.milvus.grpc.DataType;
 import io.milvus.grpc.DescribeCollectionResponse;
@@ -27,17 +37,10 @@ import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.AdapterRequest;
 import net.hasor.dbvisitor.driver.JdbcDriver;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
-import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 public class MilvusUpdateCountTest {
-    private long           deleteCount;
-    private QueryIterator  queryIterator;
+    private long             deleteCount;
+    private QueryIterator    queryIterator;
     private SearchIteratorV2 searchIterator;
 
     @Before
@@ -134,7 +137,16 @@ public class MilvusUpdateCountTest {
 
     @Test
     public void everyPagedDmlPathAccumulatesCountsAndClosesItsIterator() throws Exception {
-        List<String> statements = Arrays.asList("UPDATE t SET a = 7 WHERE id > 0", "UPDATE t SET a = 7 ORDER BY v <-> [1,2]", "UPDATE t SET a = 7 WHERE v <-> [1,2] < 2", "DELETE FROM t WHERE id > 0 LIMIT 3", "DELETE FROM t ORDER BY v <-> [1,2]", "DELETE FROM t WHERE v <-> [1,2] < 2");
+        // @formatter:off
+        List<String> statements = Arrays.asList(
+            "UPDATE t SET a = 7 WHERE id > 0",
+            "UPDATE t SET a = 7 ORDER BY v <-> [1,2]",
+            "UPDATE t SET a = 7 WHERE v <-> [1,2] < 2",
+            "DELETE FROM t WHERE id > 0 LIMIT 3",
+            "DELETE FROM t ORDER BY v <-> [1,2]",
+            "DELETE FROM t WHERE v <-> [1,2] < 2"
+        );
+        // @formatter:on
         try (Connection connection = connect(); Statement statement = connection.createStatement()) {
             for (String sql : statements) {
                 Mockito.reset(queryIterator, searchIterator);

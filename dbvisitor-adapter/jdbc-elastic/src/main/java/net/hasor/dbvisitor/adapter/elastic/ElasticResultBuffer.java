@@ -29,10 +29,10 @@ class ElasticResultBuffer implements Closeable, Iterable<Map<String, Object>> {
     private final File                      cacheDir;
     private final List<Map<String, Object>> memoryBuffer;
     private final List<InputStream>         openStreams;
-    private       File                      tempFile;
-    private       ObjectOutputStream        fileOutput;
-    private       long                      currentSize;
-    private       boolean                   switchedToDisk;
+    private File                            tempFile;
+    private ObjectOutputStream              fileOutput;
+    private long                            currentSize;
+    private boolean                         switchedToDisk;
 
     ElasticResultBuffer(long thresholdBytes, long maxFileSizeBytes, File cacheDir) {
         this.thresholdBytes = thresholdBytes;
@@ -99,8 +99,8 @@ class ElasticResultBuffer implements Closeable, Iterable<Map<String, Object>> {
         }
 
         return new Iterator<Map<String, Object>>() {
-            private ObjectInputStream   input;
-            private Map<String, Object> nextDoc;
+            private final ObjectInputStream input;
+            private Map<String, Object>     nextDoc;
 
             {
                 try {

@@ -21,6 +21,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.antlr.v4.runtime.BufferedTokenStream;
+import org.antlr.v4.runtime.CharStreams;
+
 import io.milvus.common.clientenum.ConsistencyLevelEnum;
 import io.milvus.v2.client.MilvusClientV2;
 import net.hasor.cobble.StringUtils;
@@ -28,25 +32,19 @@ import net.hasor.cobble.concurrent.future.BasicFuture;
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
-import net.hasor.dbvisitor.adapter.milvus.parser.MilvusArgVisitor;
-import net.hasor.dbvisitor.adapter.milvus.parser.MilvusLexer;
-import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser;
-import net.hasor.dbvisitor.adapter.milvus.parser.QueryParseException;
-import net.hasor.dbvisitor.adapter.milvus.parser.ThrowingListener;
+import net.hasor.dbvisitor.adapter.milvus.parser.*;
 import net.hasor.dbvisitor.driver.*;
-import org.antlr.v4.runtime.BufferedTokenStream;
-import org.antlr.v4.runtime.CharStreams;
 
 public class MilvusConn extends AdapterConnection {
     private static final String DEFAULT_CLIENT_NAME = "Milvus-JDBC-Client";
     private static final int    DEFAULT_MAX_RETRY   = 3;
 
-    private static final Logger               logger         = LoggerFactory.getLogger(MilvusConn.class);
-    private final        Connection           owner;
-    private final        MilvusCmd            milvusCmd;
-    private final        ConsistencyLevelEnum consistencyLevel;
-    private final        int                  maxRetry;
-    private final        Set<MilvusRequest>   activeRequests = ConcurrentHashMap.newKeySet();
+    private static final Logger        logger         = LoggerFactory.getLogger(MilvusConn.class);
+    private final Connection           owner;
+    private final MilvusCmd            milvusCmd;
+    private final ConsistencyLevelEnum consistencyLevel;
+    private final int                  maxRetry;
+    private final Set<MilvusRequest>   activeRequests = ConcurrentHashMap.newKeySet();
 
     public MilvusConn(Connection owner, MilvusCmd milvusCmd, String jdbcUrl, Map<String, String> prop) throws SQLException {
         super(jdbcUrl, prop.get(MilvusKeys.USERNAME));

@@ -1,9 +1,18 @@
 package net.hasor.dbvisitor.adapter.milvus.commands;
 
+import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
+import static org.junit.Assert.*;
+
 import java.sql.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+
 import io.milvus.grpc.CollectionSchema;
 import io.milvus.grpc.DataType;
 import io.milvus.grpc.DescribeCollectionResponse;
@@ -21,20 +30,14 @@ import net.hasor.dbvisitor.adapter.milvus.MilvusCommandInterceptor;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
-import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
-import static org.junit.Assert.*;
 
 public class MilvusRetryTest {
-    private final AtomicInteger  writes   = new AtomicInteger();
-    private final List<Long>     attempts = new ArrayList<>();
-    private       QueryIterator  iterator;
-    private       Exception      writeFailure;
-    private       int            failuresRemaining;
-    private       CountDownLatch firstAttempt;
+    private final AtomicInteger writes   = new AtomicInteger();
+    private final List<Long>    attempts = new ArrayList<>();
+    private QueryIterator       iterator;
+    private Exception           writeFailure;
+    private int                 failuresRemaining;
+    private CountDownLatch      firstAttempt;
 
     @Before
     public void install() {
@@ -88,8 +91,21 @@ public class MilvusRetryTest {
 
     @Test
     public void permanentAndUnknownErrorsAreNotRetried() throws Exception {
-        List<Exception> errors = Arrays.asList(new SQLSyntaxErrorException("syntax", "42000", 17), new SQLInvalidAuthorizationSpecException("denied", "28000"), new IllegalArgumentException("bad parameter"), new SQLException("unknown error"), new SQLTransientConnectionException("rejected", "08004"), new NullPointerException("programming error"), new MilvusClientException(ErrorCode.INVALID_PARAMS, "invalid"), new MilvusClientException(ErrorCode.COLLECTION_NOT_FOUND, "missing"), Status.PERMISSION_DENIED.asRuntimeException(), Status.INVALID_ARGUMENT.asRuntimeException(),
-                new MilvusClientException(ErrorCode.RPC_ERROR, Status.PERMISSION_DENIED.asRuntimeException()));
+        // @formatter:off
+        List<Exception> errors = Arrays.asList(
+            new SQLSyntaxErrorException("syntax", "42000", 17),
+            new SQLInvalidAuthorizationSpecException("denied", "28000"),
+            new IllegalArgumentException("bad parameter"),
+            new SQLException("unknown error"),
+            new SQLTransientConnectionException("rejected", "08004"),
+            new NullPointerException("programming error"),
+            new MilvusClientException(ErrorCode.INVALID_PARAMS, "invalid"),
+            new MilvusClientException(ErrorCode.COLLECTION_NOT_FOUND, "missing"),
+            Status.PERMISSION_DENIED.asRuntimeException(),
+            Status.INVALID_ARGUMENT.asRuntimeException(),
+            new MilvusClientException(ErrorCode.RPC_ERROR, Status.PERMISSION_DENIED.asRuntimeException())
+        );
+        // @formatter:on
         try (Connection connection = connect(5); Statement statement = connection.createStatement()) {
             for (Exception error : errors) {
                 writes.set(0);

@@ -14,17 +14,20 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.adapter.milvus.commands;
+import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandUtils.*;
+import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusExpression.parseTerm;
+import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusExpression.parseWhere;
+
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.antlr.v4.runtime.tree.ParseTree;
+
 import io.milvus.v2.common.IndexParam.MetricType;
 import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser.*;
 import net.hasor.dbvisitor.driver.AdapterRequest;
-import org.antlr.v4.runtime.tree.ParseTree;
-import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandUtils.*;
-import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusExpression.parseTerm;
-import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusExpression.parseWhere;
 
 /** Single-vector values, distance operators and supported range predicates. */
 public final class MilvusVector {
@@ -45,10 +48,10 @@ public final class MilvusVector {
     // Vector range expressions
 
     public static class VectorRangeExpr {
-        public String     fieldName;
-        public Object     vectorValue;
-        public double     radius;
-        public MetricType metricType;
+        public String                  fieldName;
+        public Object                  vectorValue;
+        public double                  radius;
+        public MetricType              metricType;
         public MilvusExpression.Filter scalarFilter = new MilvusExpression.Filter("", java.util.Collections.emptyMap());
     }
 

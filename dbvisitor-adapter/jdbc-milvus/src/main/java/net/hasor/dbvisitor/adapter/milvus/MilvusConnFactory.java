@@ -41,12 +41,17 @@ public class MilvusConnFactory implements AdapterFactory {
 
     @Override
     public String[] getPropertyNames() {
-        return new String[] { MilvusKeys.ADAPTER_NAME, MilvusKeys.INTERCEPTOR, MilvusKeys.CUSTOM_MILVUS, MilvusKeys.SERVER,//
-                MilvusKeys.TIME_ZONE, MilvusKeys.DATABASE, MilvusKeys.TOKEN, MilvusKeys.USERNAME, MilvusKeys.PASSWORD,     //
-                MilvusKeys.CONNECT_TIMEOUT, MilvusKeys.KEEP_ALIVE_TIME, MilvusKeys.KEEP_ALIVE_TIMEOUT,                  //
-                MilvusKeys.KEEP_ALIVE_WITHOUT_CALLS, MilvusKeys.IDLE_TIMEOUT, MilvusKeys.RPC_DEADLINE,                     //
-                MilvusKeys.MAX_RETRY, MilvusKeys.CONSISTENCY_LEVEL, MilvusKeys.SECURE, MilvusKeys.CA_PEM_PATH,           //
-                MilvusKeys.SERVER_PEM_PATH, MilvusKeys.CLIENT_PEM_PATH, MilvusKeys.CLIENT_KEY_PATH, MilvusKeys.SERVER_NAME };
+        // @formatter:off
+        return new String[] {
+            MilvusKeys.ADAPTER_NAME, MilvusKeys.INTERCEPTOR, MilvusKeys.CUSTOM_MILVUS, MilvusKeys.SERVER,
+            MilvusKeys.TIME_ZONE, MilvusKeys.DATABASE, MilvusKeys.TOKEN, MilvusKeys.USERNAME, MilvusKeys.PASSWORD,
+            MilvusKeys.CONNECT_TIMEOUT, MilvusKeys.KEEP_ALIVE_TIME, MilvusKeys.KEEP_ALIVE_TIMEOUT,
+            MilvusKeys.KEEP_ALIVE_WITHOUT_CALLS, MilvusKeys.IDLE_TIMEOUT, MilvusKeys.RPC_DEADLINE,
+            MilvusKeys.MAX_RETRY, MilvusKeys.CONSISTENCY_LEVEL,
+            MilvusKeys.SECURE, MilvusKeys.CA_PEM_PATH,
+            MilvusKeys.SERVER_PEM_PATH, MilvusKeys.CLIENT_PEM_PATH, MilvusKeys.CLIENT_KEY_PATH, MilvusKeys.SERVER_NAME
+        };
+        // @formatter:on
     }
 
     @Override

@@ -14,10 +14,16 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.adapter.milvus.commands.query;
+import static net.hasor.dbvisitor.adapter.milvus.MilvusRequest.checkActive;
+import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandUtils.*;
+import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusExpression.parseWhere;
+import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusVector.*;
+
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+
 import io.milvus.grpc.DataType;
 import io.milvus.grpc.FieldSchema;
 import io.milvus.orm.iterator.QueryIterator;
@@ -33,18 +39,14 @@ import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCmd;
 import net.hasor.dbvisitor.adapter.milvus.MilvusRequest;
 import net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandKeys;
-import net.hasor.dbvisitor.adapter.milvus.commands.MilvusExpression.Filter;
 import net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommands;
+import net.hasor.dbvisitor.adapter.milvus.commands.MilvusExpression.Filter;
 import net.hasor.dbvisitor.adapter.milvus.mapping.MilvusSchema;
 import net.hasor.dbvisitor.adapter.milvus.mapping.MilvusVectorCodec;
 import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser.*;
 import net.hasor.dbvisitor.driver.AdapterReceive;
 import net.hasor.dbvisitor.driver.AdapterRequest;
 import net.hasor.dbvisitor.driver.JdbcColumn;
-import static net.hasor.dbvisitor.adapter.milvus.MilvusRequest.checkActive;
-import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandUtils.*;
-import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusExpression.parseWhere;
-import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusVector.*;
 
 public final class MilvusCommandsForDQL extends MilvusCommands {
     private MilvusCommandsForDQL() {
@@ -141,10 +143,7 @@ public final class MilvusCommandsForDQL extends MilvusCommands {
 
     private static MilvusResultCursor.SourceFactory searchSource(MilvusCmd cmd, String collectionName, String partitionName, Filter filter, List<String> outFields, String field, BaseVector vector, MetricType metric, Map<String, Object> properties, QueryWindow window, AdapterRequest request) throws SQLException {
         if (window.useIterator) {
-            SearchIteratorReqV2.SearchIteratorReqV2Builder builder = SearchIteratorReqV2.builder().databaseName(cmd.getCatalog()).collectionName(collectionName)
-                    .filter(filter.expression()).filterTemplateValues(filter.parameters())
-                    .vectorFieldName(field).vectors(Collections.singletonList(vector)).metricType(metric).outputFields(outFields)
-                    .searchParams(new LinkedHashMap<>(properties)).batchSize(window.batchSize);
+            SearchIteratorReqV2.SearchIteratorReqV2Builder builder = SearchIteratorReqV2.builder().databaseName(cmd.getCatalog()).collectionName(collectionName).filter(filter.expression()).filterTemplateValues(filter.parameters()).vectorFieldName(field).vectors(Collections.singletonList(vector)).metricType(metric).outputFields(outFields).searchParams(new LinkedHashMap<>(properties)).batchSize(window.batchSize);
             if (StringUtils.isNotBlank(partitionName))
                 builder.partitionNames(Collections.singletonList(partitionName));
             applyConsistencyLevel(((MilvusRequest) request).getConsistencyLevel(), builder);

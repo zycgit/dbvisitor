@@ -1,15 +1,25 @@
 package net.hasor.dbvisitor.adapter.milvus.commands;
 
+import static org.junit.Assert.*;
+
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.sun.net.httpserver.HttpServer;
+
 import io.milvus.grpc.CollectionSchema;
 import io.milvus.grpc.DataType;
 import io.milvus.grpc.DescribeCollectionResponse;
@@ -27,34 +37,24 @@ import io.milvus.v2.service.vector.request.UpsertReq;
 import io.milvus.v2.service.vector.response.DeleteResp;
 import io.milvus.v2.service.vector.response.InsertResp;
 import io.milvus.v2.service.vector.response.UpsertResp;
-import net.hasor.dbvisitor.adapter.milvus.CustomMilvus;
-import net.hasor.dbvisitor.adapter.milvus.MilvusCmd;
-import net.hasor.dbvisitor.adapter.milvus.MilvusCommandInterceptor;
-import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
-import net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses;
+import net.hasor.dbvisitor.adapter.milvus.*;
 import net.hasor.dbvisitor.driver.JdbcDriver;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
-import static org.junit.Assert.*;
 
 public class MilvusV2ConnectionTest {
-    private          HttpServer       server;
-    private          ExecutorService  executor;
-    private final    List<String>     paths          = new CopyOnWriteArrayList<>();
-    private final    List<JsonObject> bodies         = new CopyOnWriteArrayList<>();
-    private final    List<String>     authorizations = new CopyOnWriteArrayList<>();
-    private volatile String           state          = "Completed";
-    private volatile int              apiCode;
-    private volatile int              httpStatus     = 200;
-    private volatile boolean          delay;
-    private          CountDownLatch   entered;
+    private HttpServer             server;
+    private ExecutorService        executor;
+    private final List<String>     paths          = new CopyOnWriteArrayList<>();
+    private final List<JsonObject> bodies         = new CopyOnWriteArrayList<>();
+    private final List<String>     authorizations = new CopyOnWriteArrayList<>();
+    private volatile String        state          = "Completed";
+    private volatile int           apiCode;
+    private volatile int           httpStatus     = 200;
+    private volatile boolean       delay;
+    private CountDownLatch         entered;
 
     public static class ClientFactory implements CustomMilvus {
-        static       MilvusClientV2 client;
-        static final AtomicInteger  calls = new AtomicInteger();
+        static MilvusClientV2      client;
+        static final AtomicInteger calls = new AtomicInteger();
 
         @Override
         public MilvusClientV2 createMilvusClient(String jdbcUrl, Map<String, String> props) {
@@ -167,12 +167,9 @@ public class MilvusV2ConnectionTest {
 
     @Test
     public void customClientAndInterceptorAreSharedByInsertUpdateAndDelete() throws Exception {
-        CollectionSchema schema = CollectionSchema.newBuilder().setName("t")
-                .addFields(FieldSchema.newBuilder().setName("id").setDataType(DataType.Int64).setIsPrimaryKey(true).setAutoID(true))
-                .addFields(FieldSchema.newBuilder().setName("val").setDataType(DataType.Int32)).build();
+        CollectionSchema schema = CollectionSchema.newBuilder().setName("t").addFields(FieldSchema.newBuilder().setName("id").setDataType(DataType.Int64).setIsPrimaryKey(true).setAutoID(true)).addFields(FieldSchema.newBuilder().setName("val").setDataType(DataType.Int32)).build();
         DescribeCollectionResponse description = DescribeCollectionResponse.newBuilder().setSchema(schema).build();
-        Mockito.when(ClientFactory.client.describeCollection(Mockito.any(DescribeCollectionReq.class)))
-                .thenReturn((DescribeCollectionResp) MilvusTestResponses.v2Response("describeCollection", description));
+        Mockito.when(ClientFactory.client.describeCollection(Mockito.any(DescribeCollectionReq.class))).thenReturn((DescribeCollectionResp) MilvusTestResponses.v2Response("describeCollection", description));
         QueryIterator iterator = Mockito.mock(QueryIterator.class);
         QueryResultsWrapper.RowRecord row = new QueryResultsWrapper.RowRecord();
         row.put("id", 42L);
@@ -350,7 +347,14 @@ public class MilvusV2ConnectionTest {
     @Test
     public void invalidFileGroupsDoNotStartJobs() throws Exception {
         try (Connection conn = connect(new Properties()); PreparedStatement ps = conn.prepareStatement("IMPORT FROM ? INTO t")) {
-            for (Object value : Arrays.asList(Collections.emptyList(), Arrays.asList("a.parquet", "b.parquet"), Collections.singletonList(Collections.emptyList()), Collections.singletonList(Arrays.asList("a.npy", "")))) {
+            // @formatter:off
+            for (Object value : Arrays.asList(
+                Collections.emptyList(),
+                Arrays.asList("a.parquet", "b.parquet"),
+                Collections.singletonList(Collections.emptyList()),
+                Collections.singletonList(Arrays.asList("a.npy", ""))
+            )) {
+                // @formatter:on
                 ps.setObject(1, value);
                 try {
                     ps.executeUpdate();

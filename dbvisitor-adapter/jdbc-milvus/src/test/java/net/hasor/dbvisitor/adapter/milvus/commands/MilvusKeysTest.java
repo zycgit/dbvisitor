@@ -1,5 +1,7 @@
 package net.hasor.dbvisitor.adapter.milvus.commands;
 
+import static org.junit.Assert.*;
+
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -8,23 +10,52 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import javax.tools.JavaCompiler;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
+
+import org.junit.Test;
+
 import com.sun.source.tree.*;
 import com.sun.source.util.JavacTask;
 import com.sun.source.util.TreeScanner;
+
 import net.hasor.dbvisitor.adapter.milvus.MilvusConnFactory;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
-import org.junit.Test;
-import static org.junit.Assert.*;
 
 /** Keep parameter spelling stable and prevent new string-based key references in production code. */
 public class MilvusKeysTest {
     @Test
     public void jdbcKeysContainOnlyRegisteredConnectionParameters() throws Exception {
         // Literal expected values deliberately freeze the JDBC contract independently of the constants.
-        Set<String> expected = new HashSet<>(Arrays.asList("adapterName", "interceptor", "customMilvus", "server", "timeZone", "database", "token", "user", "password", "connectTimeout", "keepAliveTime", "keepAliveTimeout", "keepAliveWithoutCalls", "idleTimeout", "rpcDeadline", "maxRetry", "consistencyLevel", "secure", "caPemPath", "serverPemPath", "clientPemPath", "clientKeyPath", "serverName"));
+        // @formatter:off
+        Set<String> expected = new HashSet<>(Arrays.asList(
+            "adapterName",
+            "interceptor",
+            "customMilvus",
+            "server",
+            "timeZone",
+            "database",
+            "token",
+            "user",
+            "password",
+            "connectTimeout",
+            "keepAliveTime",
+            "keepAliveTimeout",
+            "keepAliveWithoutCalls",
+            "idleTimeout",
+            "rpcDeadline",
+            "maxRetry",
+            "consistencyLevel",
+            "secure",
+            "caPemPath",
+            "serverPemPath",
+            "clientPemPath",
+            "clientKeyPath",
+            "serverName"
+        ));
+        // @formatter:on
         String[] properties = new MilvusConnFactory().getPropertyNames();
         Set<String> actual = new HashSet<>(Arrays.asList(properties));
         assertEquals(expected, actual);
@@ -47,7 +78,24 @@ public class MilvusKeysTest {
                     keys.put((String) field.get(null), owner.getSimpleName() + "." + field.getName());
             }
         }
-        Set<String> keyMethods = new HashSet<>(Arrays.asList("get", "put", "remove", "containsKey", "getOrDefault", "getProperty", "setProperty", "has", "add", "addProperty", "getAsJsonObject", "getAsJsonArray", "setKey", "singletonMap"));
+        // @formatter:off
+        Set<String> keyMethods = new HashSet<>(Arrays.asList(
+            "get",
+            "put",
+            "remove",
+            "containsKey",
+            "getOrDefault",
+            "getProperty",
+            "setProperty",
+            "has",
+            "add",
+            "addProperty",
+            "getAsJsonObject",
+            "getAsJsonArray",
+            "setKey",
+            "singletonMap"
+        ));
+        // @formatter:on
         Set<String> secondArgumentKeys = new HashSet<>(Arrays.asList("hintAsBoolean", "hintAsLong", "property", "text", "number", "integerBound"));
         Path root = Paths.get("src/main/java/net/hasor/dbvisitor/adapter/milvus");
         if (!Files.isDirectory(root))

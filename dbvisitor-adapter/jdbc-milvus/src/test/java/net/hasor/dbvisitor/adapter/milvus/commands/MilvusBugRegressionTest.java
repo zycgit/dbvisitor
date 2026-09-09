@@ -1,14 +1,24 @@
 package net.hasor.dbvisitor.adapter.milvus.commands;
 
+import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
+import static org.junit.Assert.*;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.*;
 import java.util.*;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.protobuf.ByteString;
+
 import io.milvus.grpc.*;
 import io.milvus.orm.iterator.QueryIterator;
 import io.milvus.orm.iterator.SearchIteratorV2;
@@ -29,24 +39,18 @@ import net.hasor.dbvisitor.adapter.milvus.MilvusCommandInterceptor;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
-import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
-import static org.junit.Assert.*;
 
 public class MilvusBugRegressionTest {
-    private final List<Object>     requests = new ArrayList<>();
-    private       QueryIterator    queryIterator;
-    private       SearchIteratorV2   searchIterator;
-    private       QueryResults     queryResult;
-    private       SearchResults    searchResult;
-    private       CollectionSchema schema;
-    private       Statement        cancelOnWrite;
-    private       Statement        cancelOnRead;
-    private       boolean          failWrite;
-    private       boolean          delayRead;
+    private final List<Object> requests = new ArrayList<>();
+    private QueryIterator      queryIterator;
+    private SearchIteratorV2   searchIterator;
+    private QueryResults       queryResult;
+    private SearchResults      searchResult;
+    private CollectionSchema   schema;
+    private Statement          cancelOnWrite;
+    private Statement          cancelOnRead;
+    private boolean            failWrite;
+    private boolean            delayRead;
 
     @Before
     public void install() {
@@ -133,7 +137,8 @@ public class MilvusBugRegressionTest {
                 statement.setObject(i + 1, arguments[i]);
             if (statement.execute()) {
                 try (ResultSet result = statement.getResultSet()) {
-                    while (result.next()) { /* Exercise the full query in these binding regressions. */ }
+                    while (result.next()) {
+                        /* Exercise the full query in these binding regressions. */ }
                 }
             }
         }
@@ -178,7 +183,18 @@ public class MilvusBugRegressionTest {
 
     @Test
     public void unsupportedRangeShapesFailClosed() throws Exception {
-        for (String expression : Arrays.asList("v <-> [1,2] > 1", "v <-> [1,2] <= 1", "v <=> [1,2] < 0.5", "v <#> [1,2] >= 1", "a = 1 OR v <-> [1,2] < 2", "NOT (v <-> [1,2] < 2)", "v <-> [1,2] < 1 AND v <-> [1,2] < 2", "vector_range(v, [1,2])")) {
+        // @formatter:off
+        for (String expression : Arrays.asList(
+            "v <-> [1,2] > 1",
+            "v <-> [1,2] <= 1",
+            "v <=> [1,2] < 0.5",
+            "v <#> [1,2] >= 1",
+            "a = 1 OR v <-> [1,2] < 2",
+            "NOT (v <-> [1,2] < 2)",
+            "v <-> [1,2] < 1 AND v <-> [1,2] < 2",
+            "vector_range(v, [1,2])"
+        )) {
+            // @formatter:on
             reject("DELETE FROM t WHERE " + expression + " LIMIT 2");
         }
         reject("DELETE FROM t WHERE v <=> [1,2] > ?", 1.1);
@@ -439,7 +455,16 @@ public class MilvusBugRegressionTest {
 
     @Test
     public void jsonListsAreNotConvertedToFloatVectors() throws Exception {
-        Object[] values = { Arrays.asList(16777217L, Long.MAX_VALUE), Collections.emptyList(), Arrays.asList(List.of(16777217L), Arrays.asList(1, 2)), Collections.singletonMap("numbers", List.of(16777217L)), new long[] { 16777217L }, "[16777217]" };
+        // @formatter:off
+        Object[] values = {
+            Arrays.asList(16777217L, Long.MAX_VALUE),
+            Collections.emptyList(),
+            Arrays.asList(List.of(16777217L), Arrays.asList(1, 2)),
+            Collections.singletonMap("numbers", List.of(16777217L)),
+            new long[] { 16777217L },
+            "[16777217]"
+        };
+        // @formatter:on
         for (String command : Arrays.asList("INSERT", "UPSERT")) {
             for (Object value : values) {
                 requests.clear();
@@ -459,7 +484,11 @@ public class MilvusBugRegressionTest {
 
     @Test
     public void scalarDefaultsAreTypedAndSerializedBySdk() throws Exception {
-        execute("CREATE TABLE t (id INT64 PRIMARY KEY, b BOOL DEFAULT true, i8 INT8 DEFAULT -128, i16 INT16 DEFAULT 32767," + " i32 INT32 DEFAULT 7, i64 INT64 DEFAULT 9223372036854775807, f FLOAT DEFAULT -1.5, d DOUBLE DEFAULT 2.5," + " s VARCHAR(20) DEFAULT 'a''b', v FLOAT_VECTOR(2))");
+        execute("""
+                CREATE TABLE t (id INT64 PRIMARY KEY, b BOOL DEFAULT true, i8 INT8 DEFAULT -128, i16 INT16 DEFAULT 32767,\
+                 i32 INT32 DEFAULT 7, i64 INT64 DEFAULT 9223372036854775807, f FLOAT DEFAULT -1.5, d DOUBLE DEFAULT 2.5,\
+                 s VARCHAR(20) DEFAULT 'a''b', v FLOAT_VECTOR(2))\
+                """);
         List<CreateCollectionReq.FieldSchema> fields = ((CreateCollectionReq) requests.get(0)).getCollectionSchema().getFieldSchemaList();
         Object[] expected = { true, (short) -128, (short) 32767, 7, Long.MAX_VALUE, -1.5F, 2.5D, "a'b" };
         for (int i = 0; i < expected.length; i++) {
@@ -472,7 +501,22 @@ public class MilvusBugRegressionTest {
 
     @Test
     public void invalidOrUnsupportedDefaultsFailBeforeCreate() throws Exception {
-        for (String definition : Arrays.asList("a INT8 DEFAULT 128", "a INT16 DEFAULT 32768", "a INT32 DEFAULT 1.5", "a INT64 DEFAULT 9223372036854775808", "a FLOAT DEFAULT 'NaN'", "a DOUBLE DEFAULT 'Infinity'", "a BOOL DEFAULT bad", "a VARCHAR(2) DEFAULT 'abc'", "a VARCHAR(2) DEFAULT '中'", "a INT32 DEFAULT 1 DEFAULT 2", "a JSON DEFAULT '{}'", "v FLOAT_VECTOR(2) DEFAULT 1")) {
+        // @formatter:off
+        for (String definition : Arrays.asList(
+            "a INT8 DEFAULT 128",
+            "a INT16 DEFAULT 32768",
+            "a INT32 DEFAULT 1.5",
+            "a INT64 DEFAULT 9223372036854775808",
+            "a FLOAT DEFAULT 'NaN'",
+            "a DOUBLE DEFAULT 'Infinity'",
+            "a BOOL DEFAULT bad",
+            "a VARCHAR(2) DEFAULT 'abc'",
+            "a VARCHAR(2) DEFAULT '中'",
+            "a INT32 DEFAULT 1 DEFAULT 2",
+            "a JSON DEFAULT '{}'",
+            "v FLOAT_VECTOR(2) DEFAULT 1"
+        )) {
+            // @formatter:on
             reject("CREATE TABLE t (id INT64 PRIMARY KEY, " + definition + ")");
         }
         reject("CREATE TABLE t (id INT64 PRIMARY KEY DEFAULT 1, v FLOAT_VECTOR(2))");
@@ -599,9 +643,7 @@ public class MilvusBugRegressionTest {
 
     @Test
     public void resultMetadataUsesSdkTypesAndSelectOrder() throws Exception {
-        queryResult = QueryResults.newBuilder().addFieldsData(longField("id", 9)).addFieldsData(FieldData.newBuilder().setFieldName("b").setType(DataType.Bool).setScalars(ScalarField.newBuilder().setBoolData(BoolArray.newBuilder().addData(true)))).addFieldsData(FieldData.newBuilder().setFieldName("f").setType(DataType.Float).setScalars(ScalarField.newBuilder().setFloatData(FloatArray.newBuilder().addData(1.5F)))).addFieldsData(FieldData.newBuilder().setFieldName("d").setType(DataType.Double).setScalars(ScalarField.newBuilder().setDoubleData(DoubleArray.newBuilder().addData(2.5))))
-                .addFieldsData(FieldData.newBuilder().setFieldName("s").setType(DataType.VarChar).setScalars(ScalarField.newBuilder().setStringData(StringArray.newBuilder().addData("hello")))).addFieldsData(FieldData.newBuilder().setFieldName("j").setType(DataType.JSON).setScalars(ScalarField.newBuilder().setJsonData(JSONArray.newBuilder().addData(ByteString.copyFromUtf8("{\"n\":16777217}"))))).addFieldsData(FieldData.newBuilder().setFieldName("v").setType(DataType.FloatVector).setVectors(VectorField.newBuilder().setDim(2).setFloatVector(FloatArray.newBuilder().addData(1).addData(2))))
-                .build();
+        queryResult = QueryResults.newBuilder().addFieldsData(longField("id", 9)).addFieldsData(FieldData.newBuilder().setFieldName("b").setType(DataType.Bool).setScalars(ScalarField.newBuilder().setBoolData(BoolArray.newBuilder().addData(true)))).addFieldsData(FieldData.newBuilder().setFieldName("f").setType(DataType.Float).setScalars(ScalarField.newBuilder().setFloatData(FloatArray.newBuilder().addData(1.5F)))).addFieldsData(FieldData.newBuilder().setFieldName("d").setType(DataType.Double).setScalars(ScalarField.newBuilder().setDoubleData(DoubleArray.newBuilder().addData(2.5)))).addFieldsData(FieldData.newBuilder().setFieldName("s").setType(DataType.VarChar).setScalars(ScalarField.newBuilder().setStringData(StringArray.newBuilder().addData("hello")))).addFieldsData(FieldData.newBuilder().setFieldName("j").setType(DataType.JSON).setScalars(ScalarField.newBuilder().setJsonData(JSONArray.newBuilder().addData(ByteString.copyFromUtf8("{\"n\":16777217}"))))).addFieldsData(FieldData.newBuilder().setFieldName("v").setType(DataType.FloatVector).setVectors(VectorField.newBuilder().setDim(2).setFloatVector(FloatArray.newBuilder().addData(1).addData(2)))).build();
         schema = schema.toBuilder().addFields(FieldSchema.newBuilder().setName("b").setDataType(DataType.Bool)).addFields(FieldSchema.newBuilder().setName("f").setDataType(DataType.Float)).addFields(FieldSchema.newBuilder().setName("d").setDataType(DataType.Double)).addFields(FieldSchema.newBuilder().setName("s").setDataType(DataType.VarChar).addTypeParams(KeyValuePair.newBuilder().setKey(MilvusCommandKeys.MAX_LENGTH).setValue("100"))).build();
         try (Connection conn = connect(); Statement statement = conn.createStatement(); ResultSet result = statement.executeQuery("SELECT s,id,b,f,d,j,v FROM t LIMIT 1")) {
             int[] jdbcTypes = { Types.VARCHAR, Types.BIGINT, Types.BOOLEAN, Types.FLOAT, Types.DOUBLE, Types.OTHER, Types.ARRAY };

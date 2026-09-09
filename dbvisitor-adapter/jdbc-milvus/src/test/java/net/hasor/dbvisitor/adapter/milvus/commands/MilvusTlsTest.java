@@ -1,5 +1,7 @@
 package net.hasor.dbvisitor.adapter.milvus.commands;
 
+import static org.junit.Assert.*;
+
 import java.io.File;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
@@ -15,12 +17,19 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
+
+import org.junit.After;
+import org.junit.Test;
+import org.mockito.Mockito;
+
 import com.sun.net.httpserver.HttpsConfigurator;
 import com.sun.net.httpserver.HttpsExchange;
 import com.sun.net.httpserver.HttpsParameters;
 import com.sun.net.httpserver.HttpsServer;
+
 import io.milvus.grpc.*;
 import io.milvus.shaded.io.grpc.*;
 import io.milvus.shaded.io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
@@ -31,10 +40,6 @@ import io.milvus.v2.client.MilvusClientV2;
 import net.hasor.dbvisitor.adapter.milvus.CustomMilvus;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
-import org.junit.After;
-import org.junit.Test;
-import org.mockito.Mockito;
-import static org.junit.Assert.*;
 
 /** Exercises each TLS protocol independently; realdb tests cover both through a single ingress. */
 public class MilvusTlsTest {
@@ -322,7 +327,19 @@ public class MilvusTlsTest {
     @Test
     public void invalidTlsConfigurationFailsBeforeNetworkAccess() throws Exception {
         Node node = node("127.0.0.1", false);
-        String[][] invalid = { { MilvusKeys.SECURE, "yes" }, { MilvusKeys.SECURE, "false" }, { MilvusKeys.SECURE, "" }, { MilvusKeys.SERVER_PEM_PATH, certificate("server.crt").getPath() }, { MilvusKeys.CLIENT_PEM_PATH, certificate("client.crt").getPath() }, { MilvusKeys.CLIENT_KEY_PATH, certificate("client.key").getPath() }, { MilvusKeys.CA_PEM_PATH, certificate("does-not-exist.pem").getPath() }, { MilvusKeys.CA_PEM_PATH, certificate("client.key").getPath() }, { MilvusKeys.SERVER_NAME, "https://localhost:443" } };
+        // @formatter:off
+        String[][] invalid = {
+            { MilvusKeys.SECURE, "yes" },
+            { MilvusKeys.SECURE, "false" },
+            { MilvusKeys.SECURE, "" },
+            { MilvusKeys.SERVER_PEM_PATH, certificate("server.crt").getPath() },
+            { MilvusKeys.CLIENT_PEM_PATH, certificate("client.crt").getPath() },
+            { MilvusKeys.CLIENT_KEY_PATH, certificate("client.key").getPath() },
+            { MilvusKeys.CA_PEM_PATH, certificate("does-not-exist.pem").getPath() },
+            { MilvusKeys.CA_PEM_PATH, certificate("client.key").getPath() },
+            { MilvusKeys.SERVER_NAME, "https://localhost:443" }
+        };
+        // @formatter:on
         for (String[] setting : invalid) {
             Properties properties = properties(node);
             properties.setProperty(setting[0], setting[1]);

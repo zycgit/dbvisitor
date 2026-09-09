@@ -1,9 +1,16 @@
 package net.hasor.dbvisitor.adapter.milvus.commands;
 
+import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
+import static org.junit.Assert.*;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.*;
+
+import org.junit.After;
+import org.junit.Test;
+
 import io.milvus.grpc.*;
 import io.milvus.v2.client.MilvusClientV2;
 import io.milvus.v2.service.partition.request.LoadPartitionsReq;
@@ -19,10 +26,6 @@ import net.hasor.dbvisitor.adapter.milvus.MilvusCommandInterceptor;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
-import org.junit.After;
-import org.junit.Test;
-import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
-import static org.junit.Assert.*;
 
 /** Verify package regrouping through JDBC and the existing SDK interceptor, not helper-only APIs. */
 public class MilvusCommandGroupsTest {
@@ -59,7 +62,16 @@ public class MilvusCommandGroupsTest {
         Properties properties = new Properties();
         properties.setProperty(MilvusKeys.CUSTOM_MILVUS, MilvusCustomClient.class.getName());
         properties.setProperty(MilvusKeys.INTERCEPTOR, MilvusCommandInterceptor.class.getName());
-        String sql = "CREATE ALIAS books_alias FOR books;" + "INSERT INTO books (id) VALUES (?);" + "SELECT id FROM books WHERE id = ? LIMIT ?;" + "DELETE FROM books WHERE id = ?;" + "/*+ sync=? */ LOAD TABLE books PARTITION p;" + "/*+ sync=? */ RELEASE TABLE books PARTITION p;" + "FLUSH books;" + "DROP ALIAS books_alias;";
+        String sql = """
+                CREATE ALIAS books_alias FOR books;\
+                INSERT INTO books (id) VALUES (?);\
+                SELECT id FROM books WHERE id = ? LIMIT ?;\
+                DELETE FROM books WHERE id = ?;\
+                /*+ sync=? */ LOAD TABLE books PARTITION p;\
+                /*+ sync=? */ RELEASE TABLE books PARTITION p;\
+                FLUSH books;\
+                DROP ALIAS books_alias;\
+                """;
         try (Connection connection = new JdbcDriver().connect("jdbc:dbvisitor:milvus://test:19530/db1", properties); PreparedStatement statement = connection.prepareStatement(sql)) {
             for (int repeat = 0; repeat < 2; repeat++) {
                 calls.clear();

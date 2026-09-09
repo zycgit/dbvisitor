@@ -6,11 +6,14 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import com.mongodb.client.MongoDatabase;
-import net.hasor.dbvisitor.adapter.mongo.AbstractJdbcTest;
-import net.hasor.dbvisitor.adapter.mongo.MongoCommandInterceptor;
+
 import org.bson.Document;
 import org.junit.Test;
+
+import com.mongodb.client.MongoDatabase;
+
+import net.hasor.dbvisitor.adapter.mongo.AbstractJdbcTest;
+import net.hasor.dbvisitor.adapter.mongo.MongoCommandInterceptor;
 
 public class CollectionCommandTest extends AbstractJdbcTest {
     @Test
@@ -217,11 +220,13 @@ public class CollectionCommandTest extends AbstractJdbcTest {
 
         try (Connection conn = redisConnection(); Statement stmt = conn.createStatement()) {
             stmt.execute("use mydb");
-            stmt.executeUpdate("db.createCollection('complex_col', { " +                                                //
-                    "storageEngine: { wiredTiger: { configString: 'block_compressor=zlib' } }, " +                          //
-                    "changeStreamPreAndPostImages: { enabled: true }, " +                                                   //
-                    "indexOptionDefaults: { storageEngine: { wiredTiger: { configString: 'block_compressor=zlib' } } } " +  //
-                    "})");
+            stmt.executeUpdate("""
+                    db.createCollection('complex_col', { \
+                    storageEngine: { wiredTiger: { configString: 'block_compressor=zlib' } }, \
+                    changeStreamPreAndPostImages: { enabled: true }, \
+                    indexOptionDefaults: { storageEngine: { wiredTiger: { configString: 'block_compressor=zlib' } } } \
+                    })\
+                    """);
         } catch (SQLException e) {
             e.printStackTrace();
             assert false;

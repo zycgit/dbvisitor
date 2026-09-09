@@ -1,8 +1,12 @@
 package net.hasor.dbvisitor.adapter.elastic.commands;
 
-import java.sql.*;
-import org.junit.Test;
 import static org.junit.Assert.*;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
+
+import org.junit.Test;
 
 public class ElasticIndexCommandTest extends AbstractElasticCommandTest {
     @Test
@@ -69,16 +73,18 @@ public class ElasticIndexCommandTest extends AbstractElasticCommandTest {
 
     @Test
     public void schemaWritesDispatchMethodEndpointAndBody() throws Exception {
+        // @formatter:off
         String[][] commands = {
-                { "PUT", "/books/_mapping", "{\"properties\":{\"year\":{\"type\":\"integer\"}}}" },
-                { "POST", "/books/_mapping", "{\"properties\":{\"tag\":{\"type\":\"keyword\"}}}" },
-                { "PUT", "/books/_settings", "{\"index\":{\"number_of_replicas\":0}}" },
-                { "POST", "/_aliases", "{\"actions\":[{\"add\":{\"index\":\"books\",\"alias\":\"current\"}}]}" },
-                { "POST", "/books/_open", null },
-                { "POST", "/books/_close", null },
-                { "POST", "/books/_refresh", null },
-                { "GET", "/books/_refresh", null }
+            { "PUT", "/books/_mapping", "{\"properties\":{\"year\":{\"type\":\"integer\"}}}" },
+            { "POST", "/books/_mapping", "{\"properties\":{\"tag\":{\"type\":\"keyword\"}}}" },
+            { "PUT", "/books/_settings", "{\"index\":{\"number_of_replicas\":0}}" },
+            { "POST", "/_aliases", "{\"actions\":[{\"add\":{\"index\":\"books\",\"alias\":\"current\"}}]}" },
+            { "POST", "/books/_open", null },
+            { "POST", "/books/_close", null },
+            { "POST", "/books/_refresh", null },
+            { "GET", "/books/_refresh", null }
         };
+        // @formatter:on
         try (Connection connection = elasticConnection(); Statement statement = connection.createStatement()) {
             for (int i = 0; i < commands.length; i++) {
                 String[] command = commands[i];
