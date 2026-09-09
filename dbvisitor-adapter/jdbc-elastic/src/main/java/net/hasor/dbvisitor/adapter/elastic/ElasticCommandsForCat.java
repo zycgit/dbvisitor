@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.adapter.elastic;
+import java.sql.ResultSetMetaData;
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.*;
@@ -28,39 +29,39 @@ import org.elasticsearch.client.Response;
 
 class ElasticCommandsForCat extends ElasticCommands {
     // for /_cat/indices
-    protected static final JdbcColumn COL_INDEX_STRING                 = new JdbcColumn("INDEX", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_HEALTH_STRING                = new JdbcColumn("HEALTH", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_STATUS_STRING                = new JdbcColumn("STATUS", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_UUID_STRING                  = new JdbcColumn("UUID", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_PRI_STRING                   = new JdbcColumn("PRI", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_PRI_STORE_SIZE_STRING        = new JdbcColumn("PRI.STORE.SIZE", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_REP_STRING                   = new JdbcColumn("REP", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_DOCS_COUNT_STRING            = new JdbcColumn("DOCS.COUNT", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_DOCS_DELETED_STRING          = new JdbcColumn("DOCS.DELETED", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_STORE_SIZE_STRING            = new JdbcColumn("STORE.SIZE", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_INDEX_STRING                 = new JdbcColumn("INDEX", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_HEALTH_STRING                = new JdbcColumn("HEALTH", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_STATUS_STRING                = new JdbcColumn("STATUS", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_UUID_STRING                  = new JdbcColumn("UUID", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_PRI_STRING                   = new JdbcColumn("PRI", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_PRI_STORE_SIZE_STRING        = new JdbcColumn("PRI.STORE.SIZE", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_REP_STRING                   = new JdbcColumn("REP", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_DOCS_COUNT_STRING            = new JdbcColumn("DOCS.COUNT", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_DOCS_DELETED_STRING          = new JdbcColumn("DOCS.DELETED", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_STORE_SIZE_STRING            = new JdbcColumn("STORE.SIZE", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
     // for /_cat/nodes
-    protected static final JdbcColumn COL_IP_STRING                    = new JdbcColumn("IP", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_NAME_STRING                  = new JdbcColumn("NAME", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_MASTER_STRING                = new JdbcColumn("MASTER", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_HEAP_PERCENT_STRING          = new JdbcColumn("HEAP.PERCENT", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_RAM_PERCENT_STRING           = new JdbcColumn("RAM.PERCENT", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_CPU_STRING                   = new JdbcColumn("CPU", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_LOAD_1M_STRING               = new JdbcColumn("LOAD_1M", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_LOAD_5M_STRING               = new JdbcColumn("LOAD_5M", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_LOAD_15M_STRING              = new JdbcColumn("LOAD_15M", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_NODE_ROLE_STRING             = new JdbcColumn("NODE.ROLE", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_VERSION_STRING               = new JdbcColumn("VERSION", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_IP_STRING                    = new JdbcColumn("IP", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_NAME_STRING                  = new JdbcColumn("NAME", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_MASTER_STRING                = new JdbcColumn("MASTER", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_HEAP_PERCENT_STRING          = new JdbcColumn("HEAP.PERCENT", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_RAM_PERCENT_STRING           = new JdbcColumn("RAM.PERCENT", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_CPU_STRING                   = new JdbcColumn("CPU", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_LOAD_1M_STRING               = new JdbcColumn("LOAD_1M", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_LOAD_5M_STRING               = new JdbcColumn("LOAD_5M", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_LOAD_15M_STRING              = new JdbcColumn("LOAD_15M", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_NODE_ROLE_STRING             = new JdbcColumn("NODE.ROLE", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_VERSION_STRING               = new JdbcColumn("VERSION", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
     // for /_cat/health
-    protected static final JdbcColumn COL_CLUSTER_STRING               = new JdbcColumn("CLUSTER", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_NODE_TOTAL_STRING            = new JdbcColumn("NODE.TOTAL", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_NODE_DATA_STRING             = new JdbcColumn("NODE.DATA", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_SHARDS_STRING                = new JdbcColumn("SHARDS", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_RELO_STRING                  = new JdbcColumn("RELO", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_INIT_STRING                  = new JdbcColumn("INIT", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_UNASSIGN_STRING              = new JdbcColumn("UNASSIGN", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_PENDING_TASKS_STRING         = new JdbcColumn("PENDING_TASKS", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_MAX_TASK_WAIT_TIME_STRING    = new JdbcColumn("MAX_TASK_WAIT_TIME", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_ACTIVE_SHARDS_PERCENT_STRING = new JdbcColumn("ACTIVE_SHARDS_PERCENT", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_CLUSTER_STRING               = new JdbcColumn("CLUSTER", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_NODE_TOTAL_STRING            = new JdbcColumn("NODE.TOTAL", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_NODE_DATA_STRING             = new JdbcColumn("NODE.DATA", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_SHARDS_STRING                = new JdbcColumn("SHARDS", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_RELO_STRING                  = new JdbcColumn("RELO", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_INIT_STRING                  = new JdbcColumn("INIT", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_UNASSIGN_STRING              = new JdbcColumn("UNASSIGN", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_PENDING_TASKS_STRING         = new JdbcColumn("PENDING_TASKS", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_MAX_TASK_WAIT_TIME_STRING    = new JdbcColumn("MAX_TASK_WAIT_TIME", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_ACTIVE_SHARDS_PERCENT_STRING = new JdbcColumn("ACTIVE_SHARDS_PERCENT", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
 
     public static Future<?> execCatIndices(Future<Object> sync, ElasticCmd cmd, ElasticOperation o, AdapterReceive receive) throws Exception {
         return execRequest(sync, cmd, o, receive, Arrays.asList(//

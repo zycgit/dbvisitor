@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.adapter.elastic;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -22,10 +23,10 @@ import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.dbvisitor.driver.*;
 
 abstract class ElasticCommands {
-    protected static final JdbcColumn COL_ID_STRING  = new JdbcColumn("_ID", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_DOC_JSON   = new JdbcColumn("_DOC", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_COUNT_LONG = new JdbcColumn("COUNT", AdapterType.Long, "", "", "");
-    protected static final JdbcColumn COL_STATUS_INT = new JdbcColumn("STATUS", AdapterType.Int, "", "", "");
+    protected static final JdbcColumn COL_ID_STRING  = new JdbcColumn("_ID", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_DOC_JSON   = new JdbcColumn("_DOC", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_COUNT_LONG = new JdbcColumn("COUNT", AdapterType.Long, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    protected static final JdbcColumn COL_STATUS_INT = new JdbcColumn("STATUS", AdapterType.Int, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
 
     protected static Object getArg(AtomicInteger argIndex, AdapterRequest request) throws SQLException {
         int argIdx = argIndex.getAndIncrement();

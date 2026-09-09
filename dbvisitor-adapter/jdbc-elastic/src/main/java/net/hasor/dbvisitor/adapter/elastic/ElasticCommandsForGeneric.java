@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.adapter.elastic;
+import java.sql.ResultSetMetaData;
 import java.io.InputStream;
 import java.util.*;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -67,7 +68,7 @@ class ElasticCommandsForGeneric extends ElasticCommands {
 
             List<JdbcColumn> columns = new ArrayList<>();
             for (String key : keys) {
-                columns.add(new JdbcColumn(key, AdapterType.String, "", "", ""));
+                columns.add(new JdbcColumn(key, AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array));
             }
 
             AdapterResultCursor cursor = listResult(o.getRequest(), columns, dataList);

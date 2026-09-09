@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.adapter.mongo;
+import java.sql.ResultSetMetaData;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
@@ -603,7 +604,7 @@ class MongoCommandsForCollection extends MongoCommands {
 
         List<JdbcColumn> columns = new ArrayList<>();
         for (String key : keySet) {
-            columns.add(new JdbcColumn(key, AdapterType.String, "", "", ""));
+            columns.add(new JdbcColumn(key, AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array));
         }
 
         AdapterResultCursor cursor = new AdapterResultCursor(request, columns);

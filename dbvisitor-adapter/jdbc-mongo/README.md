@@ -1,9 +1,8 @@
+# jdbc-mongo
 
-<p align="center">
-About this repository:
-    [<a target="_blank" href='./README_en.md'>English</a>]
-    [<a target="_blank" href='./README_cn.md'>中文</a>]
-</p>
+通过 JDBC 接口和 MongoDB 命令访问 MongoDB。完整文档统一维护在 `dbvisitor-doc`。
 
-- English: JDBC adapter for MongoDB with native-command style commands and standard JDBC interfaces. See [README_en.md](README_en.md).
-- 中文：MongoDB 的 JDBC 驱动适配器，支持标准 JDBC 接口与原生命令风格命令。参见 [README_cn.md](README_cn.md)。
+Access MongoDB through JDBC and MongoDB commands. Full documentation is maintained in `dbvisitor-doc`.
+
+- [中文文档](../../dbvisitor-doc/docs/drivers/mongo/about.md)
+- [English documentation](../../dbvisitor-doc/i18n/en/docusaurus-plugin-content-docs/current/drivers/mongo/about.md)

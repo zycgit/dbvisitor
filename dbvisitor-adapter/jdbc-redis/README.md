@@ -1,9 +1,8 @@
+# jdbc-redis
 
-<p align="center">
-About this repository:
-    [<a target="_blank" href='./README_en.md'>English</a>]
-    [<a target="_blank" href='./README_cn.md'>中文</a>]
-</p>
+通过 JDBC 接口和 Redis 命令访问 Redis，连接 URL 使用 `jedis` 前缀。完整文档统一维护在 `dbvisitor-doc`。
 
-- English: JDBC adapter for Redis with standard JDBC interfaces and native commands. See [README_en.md](README_en.md).
-- 中文：Redis JDBC 适配器，支持标准 JDBC 接口与原生命令。参见 [README_cn.md](README_cn.md)。
+Access Redis through JDBC and Redis commands, using the `jedis` URL prefix. Full documentation is maintained in `dbvisitor-doc`.
+
+- [中文文档](../../dbvisitor-doc/docs/drivers/redis/about.md)
+- [English documentation](../../dbvisitor-doc/i18n/en/docusaurus-plugin-content-docs/current/drivers/redis/about.md)
