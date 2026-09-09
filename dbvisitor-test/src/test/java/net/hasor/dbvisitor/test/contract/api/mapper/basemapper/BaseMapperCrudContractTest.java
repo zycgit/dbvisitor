@@ -56,10 +56,13 @@ public abstract class BaseMapperCrudContractTest extends AbstractNxnContractTest
     @Test
     @Capability(CapabilityId.BASEMAPPER_BATCH_INSERT)
     public void baseMapperBatchInsert_shouldInsertEntityList() {
-        List<UserInfo> users = Arrays.asList(//
-                user(baseId() + 11, "BaseBatch1", 21, "batch1@basemapper.com"), //
-                user(baseId() + 12, "BaseBatch2", 22, "batch2@basemapper.com"), //
-                user(baseId() + 13, "BaseBatch3", 23, "batch3@basemapper.com"));
+        // @formatter:off
+        List<UserInfo> users = Arrays.asList(
+            user(baseId() + 11, "BaseBatch1", 21, "batch1@basemapper.com"),
+            user(baseId() + 12, "BaseBatch2", 22, "batch2@basemapper.com"),
+            user(baseId() + 13, "BaseBatch3", 23, "batch3@basemapper.com")
+        );
+        // @formatter:on
 
         int result = this.mapper.insert(users);
         List<UserInfo> loaded = this.mapper.selectByIds(Arrays.asList(baseId() + 11, baseId() + 12, baseId() + 13));
@@ -243,10 +246,13 @@ public abstract class BaseMapperCrudContractTest extends AbstractNxnContractTest
     @Test
     @Capability(CapabilityId.BASEMAPPER_RESULT_BATCH)
     public void baseMapperBatchResults_shouldReportAffectedRowsAndMapLargeSelections() {
-        List<UserInfo> users = Arrays.asList(//
-                user(baseId() + 401, "BaseResultBatch1", 31, null), //
-                user(baseId() + 402, "BaseResultBatch2", 32, null), //
-                user(baseId() + 403, "BaseResultBatch3", 33, null));
+        // @formatter:off
+        List<UserInfo> users = Arrays.asList(
+            user(baseId() + 401, "BaseResultBatch1", 31, null),
+            user(baseId() + 402, "BaseResultBatch2", 32, null),
+            user(baseId() + 403, "BaseResultBatch3", 33, null)
+        );
+        // @formatter:on
         assertEquals(3, this.mapper.insert(users));
 
         UserInfo update1 = user(baseId() + 401, "BaseResultBatch1", 36, null);
@@ -628,11 +634,14 @@ public abstract class BaseMapperCrudContractTest extends AbstractNxnContractTest
     @Test
     @Capability(CapabilityId.BASEMAPPER_DELETE_LIST)
     public void baseMapperDeleteList_shouldDeleteEntityList() {
-        List<UserInfo> users = Arrays.asList(//
-                user(baseId() + 311, "BaseDeleteList1", 31, null), //
-                user(baseId() + 312, "BaseDeleteList2", 32, null), //
-                user(baseId() + 313, "BaseDeleteList3", 33, null), //
-                user(baseId() + 314, "BaseDeleteList4", 34, null));
+        // @formatter:off
+        List<UserInfo> users = Arrays.asList(
+            user(baseId() + 311, "BaseDeleteList1", 31, null),
+            user(baseId() + 312, "BaseDeleteList2", 32, null),
+            user(baseId() + 313, "BaseDeleteList3", 33, null),
+            user(baseId() + 314, "BaseDeleteList4", 34, null)
+        );
+        // @formatter:on
         this.mapper.insert(users);
 
         int result = this.mapper.deleteList(users.subList(0, 3));

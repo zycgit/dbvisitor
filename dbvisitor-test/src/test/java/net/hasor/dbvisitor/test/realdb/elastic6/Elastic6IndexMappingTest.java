@@ -38,39 +38,43 @@ public class Elastic6IndexMappingTest {
             }
 
             try (Statement stmt = conn.createStatement()) {
-                String putIndex1 = "PUT /" + INDEX_NAME_1 + " {" + //
-                        "\"mappings\": {" + //
-                        "  \"_doc\": {" + //
-                        "    \"properties\": {" + //
-                        "      \"name\": {" + //
-                        "        \"type\": \"text\"," + //
-                        "        \"fields\": {" + //
-                        "          \"raw\": { \"type\": \"keyword\" }," + //
-                        "          \"count\": { \"type\": \"token_count\", \"analyzer\": \"standard\" }" + //
-                        "        }" + //
-                        "      }," + //
-                        "      \"age\": { \"type\": \"integer\" }," + //
-                        "      \"address\": {" + //
-                        "        \"properties\": {" + //
-                        "          \"city\": { \"type\": \"keyword\" }," + //
-                        "          \"zip\": { \"type\": \"keyword\" }" + //
-                        "        }" + //
-                        "      }" + //
-                        "    }" + //
-                        "  }" + //
-                        "}" + //
-                        "}"; //
+                String putIndex1 = "PUT /" + INDEX_NAME_1 + """
+                     {
+                    "mappings": {
+                      "_doc": {
+                        "properties": {
+                          "name": {
+                            "type": "text",
+                            "fields": {
+                              "raw": { "type": "keyword" },
+                              "count": { "type": "token_count", "analyzer": "standard" }
+                            }
+                          },
+                          "age": { "type": "integer" },
+                          "address": {
+                            "properties": {
+                              "city": { "type": "keyword" },
+                              "zip": { "type": "keyword" }
+                            }
+                          }
+                        }
+                      }
+                    }
+                    }
+                    """; //
                 stmt.executeUpdate(putIndex1);
 
-                String putIndex2 = "PUT /" + INDEX_NAME_2 + " {" + //
-                        "\"mappings\": {" + //
-                        "  \"_doc\": {" + //
-                        "    \"properties\": {" + //
-                        "      \"title\": { \"type\": \"text\" }" + //
-                        "    }" + //
-                        "  }" + //
-                        "}" + //
-                        "}";
+                String putIndex2 = "PUT /" + INDEX_NAME_2 + """
+                     {
+                    "mappings": {
+                      "_doc": {
+                        "properties": {
+                          "title": { "type": "text" }
+                        }
+                      }
+                    }
+                    }
+                    """;
                 stmt.executeUpdate(putIndex2);
             }
         }
@@ -179,12 +183,14 @@ public class Elastic6IndexMappingTest {
     public void testPostMapping() throws Exception {
         try (Connection conn = DriverManager.getConnection(ES_URL); Statement stmt = conn.createStatement()) {
             // Add new fields to existing mapping
-            String postMapping = "POST /" + INDEX_NAME_1 + "/_mapping/_doc {" + //
-                    "\"properties\": {" + //
-                    "  \"email\": { \"type\": \"keyword\" }," + //
-                    "  \"order_date\": { \"type\": \"date\", \"format\": \"yyyy-MM-dd HH:mm:ss\" }" + //
-                    "}" + //
-                    "}";
+            String postMapping = "POST /" + INDEX_NAME_1 + """
+                /_mapping/_doc {
+                "properties": {
+                  "email": { "type": "keyword" },
+                  "order_date": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss" }
+                }
+                }
+                """;
             stmt.executeUpdate(postMapping);
 
             try (ResultSet rs = stmt.executeQuery("GET /" + INDEX_NAME_1 + "/_mapping")) {
@@ -220,11 +226,13 @@ public class Elastic6IndexMappingTest {
     public void testPutMapping() throws Exception {
         try (Connection conn = DriverManager.getConnection(ES_URL); Statement stmt = conn.createStatement()) {
             // Add new fields to existing mapping using PUT
-            String putMapping = "PUT /" + INDEX_NAME_1 + "/_mapping/_doc {" + //
-                    "\"properties\": {" + //
-                    "  \"phone\": { \"type\": \"keyword\" }" + //
-                    "}" + //
-                    "}";
+            String putMapping = "PUT /" + INDEX_NAME_1 + """
+                /_mapping/_doc {
+                "properties": {
+                  "phone": { "type": "keyword" }
+                }
+                }
+                """;
             stmt.executeUpdate(putMapping);
 
             try (ResultSet rs = stmt.executeQuery("GET /" + INDEX_NAME_1 + "/_mapping")) {

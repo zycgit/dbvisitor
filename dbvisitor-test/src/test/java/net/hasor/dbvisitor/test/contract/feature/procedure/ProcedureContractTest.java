@@ -88,13 +88,16 @@ public abstract class ProcedureContractTest extends AbstractNxnContractTest {
     @Capability(CapabilityId.PROCEDURE_CALL_MULTIPLE_INOUT)
     public void callProcedure_shouldReturnMultipleInOutParameters() throws SQLException {
         requiresNxnFeature(FeatureId.PROCEDURE);
-        Object[] params = new Object[] { //
-                50, //
-                10, //
-                SqlArg.asInOut("sum_result", 0, java.sql.Types.INTEGER), //
-                SqlArg.asInOut("diff_result", 0, java.sql.Types.INTEGER), //
-                SqlArg.asInOut("mult_result", 0, java.sql.Types.INTEGER), //
-                SqlArg.asInOut("div_result", BigDecimal.ZERO, java.sql.Types.DECIMAL) };
+        // @formatter:off
+        Object[] params = new Object[] {
+            50,
+            10,
+            SqlArg.asInOut("sum_result", 0, java.sql.Types.INTEGER),
+            SqlArg.asInOut("diff_result", 0, java.sql.Types.INTEGER),
+            SqlArg.asInOut("mult_result", 0, java.sql.Types.INTEGER),
+            SqlArg.asInOut("div_result", BigDecimal.ZERO, java.sql.Types.DECIMAL)
+        };
+        // @formatter:on
 
         Map<String, Object> result = jdbcTemplate.call(calcNumbersCallSql(), params);
 

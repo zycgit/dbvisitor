@@ -82,10 +82,12 @@ public class JsonAnnotatedBean {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         JsonAnnotatedBean that = (JsonAnnotatedBean) o;
         return Objects.equals(productName, that.productName) && Objects.equals(price, that.price) && Objects.equals(quantity, that.quantity) && Objects.equals(category, that.category);
     }

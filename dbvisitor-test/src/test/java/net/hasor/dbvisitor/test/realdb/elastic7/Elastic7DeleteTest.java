@@ -23,14 +23,16 @@ public class Elastic7DeleteTest {
             }
 
             // Create index
-            String putIndex = "PUT /" + INDEX_NAME + " {" +       //
-                    "\"mappings\": {" +                           //
-                    "    \"properties\": {" +                     //
-                    "      \"name\": { \"type\": \"keyword\" }," +//
-                    "      \"age\": { \"type\": \"integer\" }" +  //
-                    "    }" +                                     //
-                    "}" +                                         //
-                    "}";
+            String putIndex = "PUT /" + INDEX_NAME + """
+                 {
+                "mappings": {
+                    "properties": {
+                      "name": { "type": "keyword" },
+                      "age": { "type": "integer" }
+                    }
+                }
+                }
+                """;
             stmt.executeUpdate(putIndex);
         }
     }

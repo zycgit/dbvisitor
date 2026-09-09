@@ -59,8 +59,10 @@ public interface ParameterBindingMapper {
 
     // ========== Mixed: @Param + Bean ==========
 
-    @Insert("INSERT INTO user_info (id, name, age, email, create_time) " +//
-            "VALUES (#{user.id}, #{user.name}, #{user.age}, #{email}, @{macro, currentTimestamp})")
+    @Insert("""
+        INSERT INTO user_info (id, name, age, email, create_time)
+        VALUES (#{user.id}, #{user.name}, #{user.age}, #{email}, @{macro, currentTimestamp})
+        """)
     int insertMixed(@Param("user") UserInfo user, @Param("email") String email);
 
     // ========== Parameter reuse (same param used twice) ==========

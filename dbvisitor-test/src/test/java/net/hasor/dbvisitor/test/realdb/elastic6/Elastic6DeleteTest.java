@@ -23,16 +23,18 @@ public class Elastic6DeleteTest {
             }
 
             // Create index
-            String putIndex = "PUT /" + INDEX_NAME + " {" + //
-                    "\"mappings\": {" + //
-                    "  \"_doc\": {" + //
-                    "    \"properties\": {" + //
-                    "      \"name\": { \"type\": \"keyword\" }," + //
-                    "      \"age\": { \"type\": \"integer\" }" + //
-                    "    }" + //
-                    "  }" + //
-                    "}" + //
-                    "}";
+            String putIndex = "PUT /" + INDEX_NAME + """
+                 {
+                "mappings": {
+                  "_doc": {
+                    "properties": {
+                      "name": { "type": "keyword" },
+                      "age": { "type": "integer" }
+                    }
+                  }
+                }
+                }
+                """;
             stmt.executeUpdate(putIndex);
         }
     }

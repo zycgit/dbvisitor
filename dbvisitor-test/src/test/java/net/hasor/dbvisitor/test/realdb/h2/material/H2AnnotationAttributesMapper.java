@@ -18,13 +18,14 @@ public interface H2AnnotationAttributesMapper extends AnnotationAttributesMapper
 
     @Override
     @SelectKeySql(value = "SELECT CURRVAL('user_info_id_seq')", keyProperty = "id", order = Order.After)
-    @Insert("INSERT INTO user_info (id, name, age, email, create_time) " + //
-            "VALUES (NEXT VALUE FOR user_info_id_seq, #{name}, #{age}, #{email}, #{createTime})")
+    @Insert("""
+            INSERT INTO user_info (id, name, age, email, create_time)
+            VALUES (NEXT VALUE FOR user_info_id_seq, #{name}, #{age}, #{email}, #{createTime})
+            """)
     int insertWithSelectKeyAfter(UserInfo user);
 
     @Override
-    @SelectKeySql(value = "VALUES NEXT VALUE FOR user_info_id_seq", //
-            keyProperty = "id", order = Order.Before)
+    @SelectKeySql(value = "VALUES NEXT VALUE FOR user_info_id_seq", keyProperty = "id", order = Order.Before)
     @Insert("INSERT INTO user_info (id, name, age, email, create_time) " + //
             "VALUES (#{id}, #{name}, #{age}, #{email}, #{createTime})")
     int insertWithSelectKeyFullAttrs(UserInfo user);

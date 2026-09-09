@@ -24,10 +24,14 @@ public interface AnnotationTestMapper {
     int insertUserWithParams(@Param("id") Integer id, @Param("name") String name, @Param("age") Integer age, @Param("email") String email);
 
     /** Multi-line SQL via value[] array */
-    @Insert({ "INSERT INTO user_info",//
-            "(id, name, age, email, create_time)",//
-            "VALUES",//
-            "(#{id}, #{name}, #{age}, #{email}, #{createTime})" })
+    // @formatter:off
+    @Insert({
+        "INSERT INTO user_info",
+        "   (id, name, age, email, create_time)",
+        "VALUES",
+        "   (#{id}, #{name}, #{age}, #{email}, #{createTime})"
+    })
+    // @formatter:on
     int insertUserMultiLine(UserInfo user);
 
     // ========== @Update ==========

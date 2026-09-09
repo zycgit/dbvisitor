@@ -35,13 +35,15 @@ public final class MilvusVector {
     }
 
     public static Object readVectorValue(VectorValueContext ctx, AtomicInteger argIndex, AdapterRequest request) throws SQLException {
-        if (ctx == null)
+        if (ctx == null) {
             throw new SQLException("ORDER BY requires a vector distance expression.");
+        }
         if (ctx.ARG() != null) {
             return getArg(argIndex, request);
         }
-        if (ctx.STRING_LITERAL() != null)
+        if (ctx.STRING_LITERAL() != null) {
             return getIdentifier(ctx.STRING_LITERAL().getText());
+        }
         return parseListLiteral(ctx.listLiteral(), argIndex, request);
     }
 
@@ -65,12 +67,15 @@ public final class MilvusVector {
         if (operator.LT_HASH_GT() != null) {
             return MetricType.IP;
         }
-        if (operator.TILDE_EQ() != null)
+        if (operator.TILDE_EQ() != null) {
             return MetricType.HAMMING;
-        if (operator.LT_PCT_GT() != null)
+        }
+        if (operator.LT_PCT_GT() != null) {
             return MetricType.JACCARD;
-        if (operator.LT_Q_GT() != null)
+        }
+        if (operator.LT_Q_GT() != null) {
             return MetricType.BM25;
+        }
         throw new SQLFeatureNotSupportedException("Unsupported vector distance operator: " + operator.getText());
     }
 

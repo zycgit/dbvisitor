@@ -124,10 +124,14 @@ public interface AnnotationAttributesMapper {
 
     // ========== Multi-line SQL ==========
 
-    @Insert({ "INSERT INTO user_info",//
-            "(id, name, age, email, create_time)",//
-            "VALUES",//
-            "(#{id}, #{name}, #{age}, #{email}, #{createTime})" })
+    // @formatter:off
+    @Insert({
+        "INSERT INTO user_info",
+        "   (id, name, age, email, create_time)",
+        "VALUES",
+        "   (#{id}, #{name}, #{age}, #{email}, #{createTime})"
+    })
+    // @formatter:on
     int insertMultiLine(UserInfo user);
 
     // ========== Combined attributes ==========

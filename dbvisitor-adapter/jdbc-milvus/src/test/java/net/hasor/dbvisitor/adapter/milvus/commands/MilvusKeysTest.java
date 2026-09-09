@@ -74,8 +74,9 @@ public class MilvusKeysTest {
         Map<String, String> keys = new HashMap<>();
         for (Class<?> owner : Arrays.asList(MilvusKeys.class, MilvusCommandKeys.class)) {
             for (Field field : owner.getFields()) {
-                if (field.getType() == String.class)
+                if (field.getType() == String.class) {
                     keys.put((String) field.get(null), owner.getSimpleName() + "." + field.getName());
+                }
             }
         }
         // @formatter:off
@@ -98,8 +99,9 @@ public class MilvusKeysTest {
         // @formatter:on
         Set<String> secondArgumentKeys = new HashSet<>(Arrays.asList("hintAsBoolean", "hintAsLong", "property", "text", "number", "integerBound"));
         Path root = Paths.get("src/main/java/net/hasor/dbvisitor/adapter/milvus");
-        if (!Files.isDirectory(root))
+        if (!Files.isDirectory(root)) {
             root = Paths.get("dbvisitor-adapter/jdbc-milvus").resolve(root);
+        }
         List<Path> sources;
         try (Stream<Path> paths = Files.walk(root)) {
             sources = paths.filter(path -> path.toString().endsWith(".java")).filter(path -> !path.getFileName().toString().equals("MilvusKeys.java")).filter(path -> !path.getFileName().toString().equals("MilvusCommandKeys.java")).collect(Collectors.toList());

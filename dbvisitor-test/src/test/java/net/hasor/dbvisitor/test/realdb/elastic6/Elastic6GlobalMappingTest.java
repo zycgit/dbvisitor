@@ -33,26 +33,30 @@ public class Elastic6GlobalMappingTest {
             }
 
             try (Statement stmt = conn.createStatement()) {
-                String putIndex1 = "PUT /" + INDEX_NAME_1 + " {" + //
-                        "\"mappings\": {" + //
-                        "  \"_doc\": {" + //
-                        "    \"properties\": {" + //
-                        "      \"name\": { \"type\": \"text\" }" + //
-                        "    }" + //
-                        "  }" + //
-                        "}" + //
-                        "}"; //
+                String putIndex1 = "PUT /" + INDEX_NAME_1 + """
+                     {
+                    "mappings": {
+                      "_doc": {
+                        "properties": {
+                          "name": { "type": "text" }
+                        }
+                      }
+                    }
+                    }
+                    """; //
                 stmt.executeUpdate(putIndex1);
 
-                String putIndex2 = "PUT /" + INDEX_NAME_2 + " {" + //
-                        "\"mappings\": {" + //
-                        "  \"_doc\": {" + //
-                        "    \"properties\": {" + //
-                        "      \"title\": { \"type\": \"text\" }" + //
-                        "    }" + //
-                        "  }" + //
-                        "}" + //
-                        "}";
+                String putIndex2 = "PUT /" + INDEX_NAME_2 + """
+                     {
+                    "mappings": {
+                      "_doc": {
+                        "properties": {
+                          "title": { "type": "text" }
+                        }
+                      }
+                    }
+                    }
+                    """;
                 stmt.executeUpdate(putIndex2);
             }
         }

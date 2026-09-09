@@ -185,10 +185,10 @@ public class IndexCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection(); Statement stmt = conn.createStatement()) {
             stmt.execute("use mydb");
             int res = stmt.executeUpdate("""
-                    db.mycol.createIndex({name: 1}, {name: 'idx_5', \
-                    partialFilterExpression: {rating: {$gt: 5}}, \
-                    collation: {locale: 'en'}, \
-                    storageEngine: {wiredTiger: {configString: 'block_compressor=zlib'}}})\
+                    db.mycol.createIndex({name: 1}, {name: 'idx_5',
+                    partialFilterExpression: {rating: {$gt: 5}},
+                    collation: {locale: 'en'},
+                    storageEngine: {wiredTiger: {configString: 'block_compressor=zlib'}}})
                     """);
             assert res == 0;
         } catch (SQLException e) {

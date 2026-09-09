@@ -321,8 +321,9 @@ public class MilvusDocumentationTest {
         for (ClassLoader loader = getClass().getClassLoader(); loader != null; loader = loader.getParent()) {
             if (loader instanceof URLClassLoader) {
                 for (URL url : ((URLClassLoader) loader).getURLs()) {
-                    if ("file".equals(url.getProtocol()))
+                    if ("file".equals(url.getProtocol())) {
                         classpath.add(Paths.get(url.toURI()).toString());
+                    }
                 }
             }
         }

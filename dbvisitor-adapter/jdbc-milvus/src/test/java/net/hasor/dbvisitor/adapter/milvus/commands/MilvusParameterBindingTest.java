@@ -87,8 +87,9 @@ public class MilvusParameterBindingTest {
 
     private void execute(String sql, Object... values) throws Exception {
         try (Connection conn = connect(); PreparedStatement statement = conn.prepareStatement(sql)) {
-            for (int i = 0; i < values.length; i++)
+            for (int i = 0; i < values.length; i++) {
                 statement.setObject(i + 1, values[i]);
+            }
             statement.execute();
         }
     }
@@ -97,16 +98,21 @@ public class MilvusParameterBindingTest {
     }
 
     private BoundFilter filter(Object request) {
-        if (request instanceof QueryReq query)
+        if (request instanceof QueryReq query) {
             return new BoundFilter(query.getFilter(), query.getFilterTemplateValues());
-        if (request instanceof QueryIteratorReq query)
+        }
+        if (request instanceof QueryIteratorReq query) {
             return new BoundFilter(query.getExpr(), query.getFilterTemplateValues());
-        if (request instanceof SearchReq search)
+        }
+        if (request instanceof SearchReq search) {
             return new BoundFilter(search.getFilter(), search.getFilterTemplateValues());
-        if (request instanceof SearchIteratorReqV2 search)
+        }
+        if (request instanceof SearchIteratorReqV2 search) {
             return new BoundFilter(search.getFilter(), search.getFilterTemplateValues());
-        if (request instanceof DeleteReq delete)
+        }
+        if (request instanceof DeleteReq delete) {
             return new BoundFilter(delete.getFilter(), delete.getFilterTemplateValues());
+        }
         throw new AssertionError("Unexpected request " + request.getClass());
     }
 

@@ -94,7 +94,11 @@ public abstract class JdbcJoinQueryContractTest extends AbstractNxnContractTest 
         seedSelfJoinUsers();
 
         List<Map<String, Object>> rows = jdbcTemplate.queryForList(//
-                "SELECT u1.id AS user1_id, u1.name AS user1_name, u2.id AS user2_id, u2.name AS user2_name FROM user_info u1 INNER JOIN user_info u2 ON u1.email = u2.email WHERE u1.id < u2.id AND u1.id = ?", //
+                """
+                    SELECT u1.id AS user1_id, u1.name AS user1_name, u2.id AS user2_id, u2.name AS user2_name
+                    FROM user_info u1 INNER JOIN user_info u2 ON u1.email = u2.email
+                    WHERE u1.id < u2.id AND u1.id = ?
+                    """, //
                 new Object[] { baseId() + 20 });
 
         assertEquals(1, rows.size());

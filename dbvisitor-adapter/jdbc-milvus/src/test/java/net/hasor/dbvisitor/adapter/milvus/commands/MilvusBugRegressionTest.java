@@ -85,10 +85,12 @@ public class MilvusBugRegressionTest {
             }
             if ("delete".equals(name)) {
                 requests.add(args[0]);
-                if (cancelOnWrite != null)
+                if (cancelOnWrite != null) {
                     cancelOnWrite.cancel();
-                if (failWrite)
+                }
+                if (failWrite) {
                     throw new java.sql.SQLException("write failed");
+                }
                 return v2Response(method.getName(), MutationResult.newBuilder().setDeleteCnt(1).build());
             }
             if ("insert".equals(name)) {
@@ -101,10 +103,12 @@ public class MilvusBugRegressionTest {
             }
             if ("upsert".equals(method.getName())) {
                 requests.add(args[0]);
-                if (cancelOnWrite != null)
+                if (cancelOnWrite != null) {
                     cancelOnWrite.cancel();
-                if (failWrite)
+                }
+                if (failWrite) {
                     throw new IllegalStateException("write failed");
+                }
                 return UpsertResp.builder().upsertCnt(((UpsertReq) args[0]).getData().size()).build();
             }
             return null;
@@ -112,10 +116,12 @@ public class MilvusBugRegressionTest {
     }
 
     private List<QueryResultsWrapper.RowRecord> nextPage() throws Exception {
-        if (delayRead)
+        if (delayRead) {
             Thread.sleep(1100);
-        if (cancelOnRead != null)
+        }
+        if (cancelOnRead != null) {
             cancelOnRead.cancel();
+        }
         return Collections.emptyList();
     }
 
@@ -133,8 +139,9 @@ public class MilvusBugRegressionTest {
 
     private void execute(String sql, Object... arguments) throws Exception {
         try (Connection connection = connect(); PreparedStatement statement = connection.prepareStatement(sql)) {
-            for (int i = 0; i < arguments.length; i++)
+            for (int i = 0; i < arguments.length; i++) {
                 statement.setObject(i + 1, arguments[i]);
+            }
             if (statement.execute()) {
                 try (ResultSet result = statement.getResultSet()) {
                     while (result.next()) {
@@ -157,8 +164,9 @@ public class MilvusBugRegressionTest {
 
     private static FieldData longField(String name, long... values) {
         LongArray.Builder data = LongArray.newBuilder();
-        for (long value : values)
+        for (long value : values) {
             data.addData(value);
+        }
         return FieldData.newBuilder().setFieldName(name).setType(DataType.Int64).setScalars(ScalarField.newBuilder().setLongData(data)).build();
     }
 
@@ -406,10 +414,11 @@ public class MilvusBugRegressionTest {
                         }
                         assertEquals(2, requests.size()); // one selection request and exactly one write
                         boolean scalar = selection.startsWith(" WHERE a");
-                        if (scalar)
+                        if (scalar) {
                             Mockito.verify(queryIterator).close();
-                        else
+                        } else {
                             Mockito.verify(searchIterator).close();
+                        }
                         cancelOnWrite = null;
                         failWrite = false;
                         // Cancellation belongs to the old execution, not the next JDBC request.
@@ -485,9 +494,9 @@ public class MilvusBugRegressionTest {
     @Test
     public void scalarDefaultsAreTypedAndSerializedBySdk() throws Exception {
         execute("""
-                CREATE TABLE t (id INT64 PRIMARY KEY, b BOOL DEFAULT true, i8 INT8 DEFAULT -128, i16 INT16 DEFAULT 32767,\
-                 i32 INT32 DEFAULT 7, i64 INT64 DEFAULT 9223372036854775807, f FLOAT DEFAULT -1.5, d DOUBLE DEFAULT 2.5,\
-                 s VARCHAR(20) DEFAULT 'a''b', v FLOAT_VECTOR(2))\
+                CREATE TABLE t (id INT64 PRIMARY KEY, b BOOL DEFAULT true, i8 INT8 DEFAULT -128, i16 INT16 DEFAULT 32767,
+                 i32 INT32 DEFAULT 7, i64 INT64 DEFAULT 9223372036854775807, f FLOAT DEFAULT -1.5, d DOUBLE DEFAULT 2.5,
+                 s VARCHAR(20) DEFAULT 'a''b', v FLOAT_VECTOR(2))
                 """);
         List<CreateCollectionReq.FieldSchema> fields = ((CreateCollectionReq) requests.get(0)).getCollectionSchema().getFieldSchemaList();
         Object[] expected = { true, (short) -128, (short) 32767, 7, Long.MAX_VALUE, -1.5F, 2.5D, "a'b" };

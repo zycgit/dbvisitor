@@ -49,30 +49,36 @@ public final class MilvusCommandsForWrite extends MilvusCommands {
         String part = partition == null ? "" : readName(partition);
         Map<String, FieldSchema> fields = cmd.describeFields(collection, request);
         List<String> names = new ArrayList<>();
-        if (columns != null)
+        if (columns != null) {
             for (IdentifierContext column : columns.identifier()) {
                 String name = readName(column);
-                if (!fields.containsKey(name))
+                if (!fields.containsKey(name)) {
                     throw new SQLException("Unknown field: " + name);
-                if (names.contains(name))
+                }
+                if (names.contains(name)) {
                     throw new SQLException("Duplicate write column: " + name);
+                }
                 names.add(name);
             }
+        }
         Iterator<?> rows;
         if (values.ARG() != null) {
             Object bound = getArg(args, request);
-            if (bound instanceof Iterable<?>)
+            if (bound instanceof Iterable<?>) {
                 rows = ((Iterable<?>) bound).iterator();
-            else if (bound instanceof Iterator<?>)
+            } else if (bound instanceof Iterator<?>) {
                 rows = (Iterator<?>) bound;
-            else
+            } else {
                 throw new SQLException("VALUES ? requires an Iterable or Iterator of rows.");
+            }
         } else {
-            if (names.isEmpty())
+            if (names.isEmpty()) {
                 throw new SQLException("VALUES tuples require an explicit column list.");
+            }
             for (ValueRowContext row : values.valueRow()) {
-                if (row.terms().term().size() != names.size())
+                if (row.terms().term().size() != names.size()) {
                     throw new SQLException("Column count doesn't match value count.");
+                }
             }
             rows = values.valueRow().iterator();
         }
@@ -93,8 +99,9 @@ public final class MilvusCommandsForWrite extends MilvusCommands {
                     checkActive(request);
                     page.add(encode(rows.next(), names, fields, args, request));
                 }
-                if (page.isEmpty())
+                if (page.isEmpty()) {
                     break;
+                }
                 checkActive(request); // An input iterator or row encoder may take time or cancel the statement.
                 phase = "write";
                 // INSERT/AutoID UPSERT are not idempotent. Never automatically replay an ambiguous write.
@@ -111,13 +118,16 @@ public final class MilvusCommandsForWrite extends MilvusCommands {
                 }
                 confirmedRows = Math.addExact(confirmedRows, count);
                 confirmedPages++;
-                if (keys != null && ids != null)
-                    for (Object id : ids)
+                if (keys != null && ids != null) {
+                    for (Object id : ids) {
                         keys.pushData(Collections.singletonMap(primary.getName(), id));
+                    }
+                }
                 checkActive(request);
             }
-            if (keys != null)
+            if (keys != null) {
                 keys.pushFinish();
+            }
             receive.responseUpdateCount(request, confirmedRows, keys);
             return completed(future);
         } catch (SQLException | RuntimeException failure) {
@@ -147,35 +157,42 @@ public final class MilvusCommandsForWrite extends MilvusCommands {
         Map<String, Object> values = new LinkedHashMap<>();
         if (row instanceof Map<?, ?> map) {
             for (Map.Entry<?, ?> entry : map.entrySet()) {
-                if (!(entry.getKey() instanceof String))
+                if (!(entry.getKey() instanceof String)) {
                     throw new SQLException("Row map keys must be field names.");
+                }
                 values.put((String) entry.getKey(), entry.getValue());
             }
-            if (!names.isEmpty() && !values.keySet().equals(new HashSet<>(names)))
+            if (!names.isEmpty() && !values.keySet().equals(new HashSet<>(names))) {
                 throw new SQLException("Row map keys do not match the column list.");
+            }
         } else {
             List<?> items;
             if (row instanceof ValueRowContext tuple) {
                 List<Object> parsed = new ArrayList<>();
-                for (TermContext term : tuple.terms().term())
+                for (TermContext term : tuple.terms().term()) {
                     parsed.add(parseTerm(term, args, request));
+                }
                 items = parsed;
-            } else if (row instanceof List<?>)
+            } else if (row instanceof List<?>) {
                 items = (List<?>) row;
-            else if (row instanceof Object[])
+            } else if (row instanceof Object[]) {
                 items = Arrays.asList((Object[]) row);
-            else
+            } else {
                 throw new SQLException("Each VALUES row must be a Map, List or Object[].");
-            if (names.isEmpty() || names.size() != items.size())
+            }
+            if (names.isEmpty() || names.size() != items.size()) {
                 throw new SQLException("Column count doesn't match value count.");
-            for (int i = 0; i < names.size(); i++)
+            }
+            for (int i = 0; i < names.size(); i++) {
                 values.put(names.get(i), items.get(i));
+            }
         }
         JsonObject result = new JsonObject();
         for (Map.Entry<String, Object> entry : values.entrySet()) {
             FieldSchema field = fields.get(entry.getKey());
-            if (field == null)
+            if (field == null) {
                 throw new SQLException("Unknown field: " + entry.getKey());
+            }
             result.add(entry.getKey(), GSON.toJsonTree(MilvusSchema.convertFieldValue(field, entry.getValue())));
         }
         return result;

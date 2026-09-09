@@ -34,16 +34,18 @@ final class MilvusHybridSearch {
 
     static List<Candidate> bind(HybridClauseContext clause, AtomicInteger args, AdapterRequest request) throws SQLException {
         List<Candidate> candidates = new ArrayList<>();
-        if (clause == null)
+        if (clause == null) {
             return candidates;
+        }
         for (AnnClauseContext ann : clause.annClause()) {
             String field = readName(ann.fieldName);
             Object vector = readVectorValue(ann.vectorValue(), args, request);
             long limit = readLimit(ann.limit, args, request);
             MetricType metric = vectorMetric(ann.distanceOperator());
             Map<String, Object> params = readProperties(args, request, ann.propertiesList());
-            if (params.containsKey(MilvusCommandKeys.OFFSET))
+            if (params.containsKey(MilvusCommandKeys.OFFSET)) {
                 throw new SQLException("Hybrid candidates do not support OFFSET.");
+            }
             if (params.containsKey(MilvusCommandKeys.METRIC_TYPE) && !metric.name().equalsIgnoreCase(String.valueOf(params.get(MilvusCommandKeys.METRIC_TYPE)))) {
                 throw new SQLException("Candidate " + MilvusCommandKeys.METRIC_TYPE + " must agree with its distance operator.");
             }
@@ -59,10 +61,12 @@ final class MilvusHybridSearch {
             searches.add(AnnSearchReq.builder().vectorFieldName(candidate.field()).filter(filter.expression()).filterTemplateValues(filter.parameters()).limit(candidate.limit()).vectors(Collections.singletonList(MilvusVectorCodec.searchValue(fields.get(candidate.field()), candidate.vector(), candidate.metric()))).metricType(candidate.metric()).params(propertiesToJson(candidate.params())).build());
         }
         HybridSearchReq.HybridSearchReqBuilder builder = HybridSearchReq.builder().databaseName(cmd.getCatalog()).collectionName(collection).searchRequests(searches).limit(limit).offset(offset).outFields(outputs).ranker(ranker(properties, searches.size()));
-        if (partition != null)
+        if (partition != null) {
             builder.partitionNames(Collections.singletonList(partition));
-        if (request.getConsistencyLevel() != null)
+        }
+        if (request.getConsistencyLevel() != null) {
             builder.consistencyLevel(ConsistencyLevel.valueOf(request.getConsistencyLevel().name()));
+        }
         return builder.build();
     }
 
@@ -74,21 +78,24 @@ final class MilvusHybridSearch {
             RRFRanker.RRFRankerBuilder builder = RRFRanker.builder();
             if (options.containsKey(MilvusCommandKeys.RRF_K)) {
                 long k = integerBound(options.remove(MilvusCommandKeys.RRF_K), "RRF " + MilvusCommandKeys.RRF_K, 1);
-                if (k > Integer.MAX_VALUE)
+                if (k > Integer.MAX_VALUE) {
                     throw new SQLException("RRF " + MilvusCommandKeys.RRF_K + " exceeds integer range.");
+                }
                 builder.k((int) k);
             }
             result = builder.build();
         } else if ("weighted".equalsIgnoreCase(name)) {
             try {
                 JsonArray input = JsonParser.parseString(String.valueOf(options.remove(MilvusCommandKeys.WEIGHTS))).getAsJsonArray();
-                if (input.size() != candidates)
+                if (input.size() != candidates) {
                     throw new IllegalArgumentException("one weight required per candidate");
+                }
                 List<Float> weights = new ArrayList<>();
                 for (com.google.gson.JsonElement item : input) {
                     float weight = item.getAsFloat();
-                    if (!Float.isFinite(weight) || weight < 0 || weight > 1)
+                    if (!Float.isFinite(weight) || weight < 0 || weight > 1) {
                         throw new IllegalArgumentException(MilvusCommandKeys.WEIGHTS + " must be in [0,1]");
+                    }
                     weights.add(weight);
                 }
                 result = WeightedRanker.builder().weights(weights).build();
@@ -98,8 +105,9 @@ final class MilvusHybridSearch {
         } else {
             throw new SQLException("Hybrid Search requires WITH (" + MilvusCommandKeys.RERANKER + "='rrf'|'weighted', ...).");
         }
-        if (!options.isEmpty())
+        if (!options.isEmpty()) {
             throw new SQLException("Unknown hybrid rerank options: " + options.keySet());
+        }
         return result;
     }
 }

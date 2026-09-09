@@ -13,7 +13,20 @@ public final class MySqlProfile extends AbstractDataSourceProfile {
 
     @NotNull
     private static String[] features() {
-        return new String[] { FeatureId.ARRAY, FeatureId.SEQUENCE, FeatureId.KNN, FeatureId.PROCEDURE_CURSOR_RESULT, FeatureId.FUNCTION_RECORD_RESULT, FeatureId.FUNCTION_TABLE_RESULT, FeatureId.VECTOR, FeatureId.GENERATED_KEY_RESULT_SET, FeatureId.XML_SELECT_KEY_USER_INFO_SEQUENCE, FeatureId.POSTGRES_ON_CONFLICT };
+        // @formatter:off
+        return new String[] {
+            FeatureId.ARRAY,
+            FeatureId.SEQUENCE,
+            FeatureId.KNN,
+            FeatureId.PROCEDURE_CURSOR_RESULT,
+            FeatureId.FUNCTION_RECORD_RESULT,
+            FeatureId.FUNCTION_TABLE_RESULT,
+            FeatureId.VECTOR,
+            FeatureId.GENERATED_KEY_RESULT_SET,
+            FeatureId.XML_SELECT_KEY_USER_INFO_SEQUENCE,
+            FeatureId.POSTGRES_ON_CONFLICT
+        };
+        // @formatter:on
     }
 
     @Override

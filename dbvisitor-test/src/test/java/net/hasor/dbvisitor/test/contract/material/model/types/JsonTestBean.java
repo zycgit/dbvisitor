@@ -65,10 +65,12 @@ public class JsonTestBean {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         JsonTestBean that = (JsonTestBean) o;
         return Objects.equals(name, that.name) && Objects.equals(age, that.age) && Objects.equals(active, that.active) && Objects.equals(tags, that.tags) && Objects.equals(address, that.address);
     }
@@ -121,10 +123,12 @@ public class JsonTestBean {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o)
+            if (this == o) {
                 return true;
-            if (o == null || getClass() != o.getClass())
+            }
+            if (o == null || getClass() != o.getClass()) {
                 return false;
+            }
             Address address = (Address) o;
             return Objects.equals(city, address.city) && Objects.equals(street, address.street) && Objects.equals(zipCode, address.zipCode);
         }

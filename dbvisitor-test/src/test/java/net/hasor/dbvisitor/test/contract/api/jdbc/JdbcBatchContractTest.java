@@ -88,11 +88,14 @@ public abstract class JdbcBatchContractTest extends AbstractNxnContractTest {
     public void jdbcBatchPartialFailure_shouldPropagateDuplicateKeyError() throws SQLException {
         requiresNxnFeature(FeatureId.BATCH_DUPLICATE_FAILURE_PROPAGATED);
 
-        Object[][] args = new Object[][] { //
-                new Object[] { baseId() + 31, "NXN-Batch-Valid-1" }, //
-                new Object[] { baseId() + 32, "NXN-Batch-Valid-2" }, //
-                new Object[] { baseId() + 31, "NXN-Batch-Duplicate" }, //
-                new Object[] { baseId() + 33, "NXN-Batch-Valid-3" } };
+        // @formatter:off
+        Object[][] args = new Object[][] {
+            new Object[] { baseId() + 31, "NXN-Batch-Valid-1" },
+            new Object[] { baseId() + 32, "NXN-Batch-Valid-2" },
+            new Object[] { baseId() + 31, "NXN-Batch-Duplicate" },
+            new Object[] { baseId() + 33, "NXN-Batch-Valid-3" }
+        };
+        // @formatter:on
 
         boolean caught = false;
         try {

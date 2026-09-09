@@ -47,8 +47,9 @@ public class RedisMultiStatementTest extends AbstractJdbcTest {
                 for (int repeat = 0; repeat < 2; repeat++) {
                     calls.clear();
                     int index = 1;
-                    if (!literalFirst)
+                    if (!literalFirst) {
                         ps.setString(index++, "first");
+                    }
                     ps.setString(index++, "key" + repeat);
                     ps.setString(index, "value" + repeat);
                     assertTrue(ps.execute());

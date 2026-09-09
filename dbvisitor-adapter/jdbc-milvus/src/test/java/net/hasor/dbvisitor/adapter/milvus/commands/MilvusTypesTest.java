@@ -57,15 +57,17 @@ public class MilvusTypesTest extends AbstractJdbcTest {
                         if (field.getType() == DataType.JSON && field.getValidDataCount() > field.getScalars().getJsonData().getDataCount()) {
                             JSONArray.Builder json = JSONArray.newBuilder();
                             int source = 0;
-                            for (boolean valid : field.getValidDataList())
+                            for (boolean valid : field.getValidDataList()) {
                                 json.addData(valid ? field.getScalars().getJsonData().getData(source++) : com.google.protobuf.ByteString.copyFromUtf8("null"));
+                            }
                             field = field.toBuilder().setScalars(field.getScalars().toBuilder().setJsonData(json)).build();
                         }
                         if (field.getType() == DataType.Bool && field.getValidDataCount() > field.getScalars().getBoolData().getDataCount()) {
                             BoolArray.Builder bools = BoolArray.newBuilder();
                             int source = 0;
-                            for (boolean valid : field.getValidDataList())
+                            for (boolean valid : field.getValidDataList()) {
                                 bools.addData(valid && field.getScalars().getBoolData().getData(source++));
+                            }
                             field = field.toBuilder().setScalars(field.getScalars().toBuilder().setBoolData(bools)).build();
                         }
                         // INSERT omits ArrayArray.element_type; the server supplies it on reads.
@@ -77,8 +79,9 @@ public class MilvusTypesTest extends AbstractJdbcTest {
                             if (field.getValidDataCount() > field.getScalars().getArrayData().getDataCount()) {
                                 ArrayArray.Builder array = field.getScalars().getArrayData().toBuilder().clearData();
                                 int source = 0;
-                                for (boolean valid : field.getValidDataList())
+                                for (boolean valid : field.getValidDataList()) {
                                     array.addData(valid ? field.getScalars().getArrayData().getData(source++) : ScalarField.getDefaultInstance());
+                                }
                                 field = field.toBuilder().setScalars(field.getScalars().toBuilder().setArrayData(array)).build();
                             }
                         }
@@ -131,12 +134,15 @@ public class MilvusTypesTest extends AbstractJdbcTest {
                             } else {
                                 byte[] bytes = rs.getBytes("v");
                                 assertEquals(i == 0 ? 2 : 4, bytes.length);
-                                if (i == 0)
+                                if (i == 0) {
                                     assertArrayEquals(new byte[] { 1, -1 }, bytes);
-                                if (i == 1)
+                                }
+                                if (i == 1) {
                                     assertArrayEquals(new byte[] { 0, 60, 0, -64 }, bytes);
-                                if (i == 2)
+                                }
+                                if (i == 2) {
                                     assertArrayEquals(new byte[] { -128, 63, 0, -64 }, bytes);
+                                }
                                 // Packed bytes are accepted unchanged by both write and search paths.
                                 values[i] = ByteBuffer.wrap(bytes);
                             }
@@ -155,15 +161,17 @@ public class MilvusTypesTest extends AbstractJdbcTest {
                         for (String predicate : Arrays.asList(" ORDER BY v " + distance + " ?", " WHERE v " + distance + " ? " + (i == 3 ? "> 0" : "< 10"))) {
                             try (PreparedStatement ps = conn.prepareStatement(command + predicate)) {
                                 int arg = 1;
-                                if (command.startsWith("UPDATE"))
+                                if (command.startsWith("UPDATE")) {
                                     ps.setObject(arg++, values[i]);
+                                }
                                 ps.setObject(arg, values[i]);
-                                if (command.startsWith("SELECT"))
+                                if (command.startsWith("SELECT")) {
                                     try (ResultSet rs = ps.executeQuery()) {
                                         assertFalse(rs.next());
                                     }
-                                else
+                                } else {
                                     assertEquals(0, ps.executeUpdate());
+                                }
                                 SearchReq query = SearchReq.builder().collectionName("t").annsField("v").topK(1).data(iterated.getVectors()).build();
                                 assertEquals(placeholders[i], PlaceholderGroup.parseFrom(new VectorUtils().ConvertToGrpcSearchRequest(query).getPlaceholderGroup()).getPlaceholders(0).getType());
                             }
@@ -186,8 +194,9 @@ public class MilvusTypesTest extends AbstractJdbcTest {
             List<io.milvus.grpc.FieldSchema> original = new ArrayList<>();
             schema.getCollectionSchema().getFieldSchemaList().forEach(f -> original.add(SchemaUtils.convertToGrpcFieldSchema(f)));
             stmt.executeUpdate(script);
-            for (int i = 0; i < original.size(); i++)
+            for (int i = 0; i < original.size(); i++) {
                 assertEquals(original.get(i), SchemaUtils.convertToGrpcFieldSchema(schema.getCollectionSchema().getFieldSchemaList().get(i)));
+            }
             try (PreparedStatement ps = conn.prepareStatement("INSERT INTO t (id,enabled,tags,nums,v) VALUES (1,NULL,?,?,[1,2])")) {
                 ps.setArray(1, conn.createArrayOf("STRING", new String[] { "a", "b" }));
                 ps.setObject(2, new short[] { 1, -2 });
@@ -355,12 +364,13 @@ public class MilvusTypesTest extends AbstractJdbcTest {
                     assertArrayEquals(types[i], new Object[] { expected[i] }, (Object[]) rs.getArray(1).getArray());
                 }
                 try (ResultSet rs = stmt.executeQuery("SHOW TABLE t")) {
-                    while (rs.next())
+                    while (rs.next()) {
                         if ("a".equals(rs.getString("FIELD"))) {
                             assertEquals(2, rs.getInt("MAX_CAPACITY"));
                             assertFalse(rs.getBoolean("NULLABLE"));
                             assertFalse(rs.getString("ELEMENT_TYPE").isEmpty());
                         }
+                    }
                 }
             }
         }

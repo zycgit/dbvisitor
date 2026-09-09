@@ -79,8 +79,9 @@ public final class MilvusCommandsForDQL extends MilvusCommands {
             rawVector = readVectorValue(sort.vectorValue(), argIndex, request);
         }
         List<MilvusHybridSearch.Candidate> candidates = MilvusHybridSearch.bind(c.hybridClause(), argIndex, request);
-        if (!candidates.isEmpty() && range != null)
+        if (!candidates.isEmpty() && range != null) {
             throw new SQLException("Hybrid Search requires a scalar WHERE filter.");
+        }
         Long sqlLimit = readLimit(c.limit, argIndex, request);
         Long sqlOffset = readBound(c.offset, argIndex, request, "OFFSET", 0);
         Map<String, Object> properties = readProperties(argIndex, request, c.propertiesList());
@@ -99,8 +100,9 @@ public final class MilvusCommandsForDQL extends MilvusCommands {
         Map<String, FieldSchema> fields = cmd.describeFields(collectionName, request);
         MilvusResultCursor.SourceFactory source;
         if (!candidates.isEmpty()) {
-            if (sqlLimit == null)
+            if (sqlLimit == null) {
                 throw new SQLException("Hybrid Search requires an explicit LIMIT; the SDK has no hybrid iterator.");
+            }
             List<String> storedFields = outFields.stream().filter(name -> !"score".equals(name)).collect(Collectors.toList());
             HybridSearchReq query = MilvusHybridSearch.build(cmd, collectionName, partitionName, filter, storedFields, fields, candidates, window.limit, window.offset, properties, (MilvusRequest) request);
             source = () -> singlePage(searchRows(cmd.hybridSearch(query)));
@@ -144,25 +146,29 @@ public final class MilvusCommandsForDQL extends MilvusCommands {
     private static MilvusResultCursor.SourceFactory searchSource(MilvusCmd cmd, String collectionName, String partitionName, Filter filter, List<String> outFields, String field, BaseVector vector, MetricType metric, Map<String, Object> properties, QueryWindow window, AdapterRequest request) throws SQLException {
         if (window.useIterator) {
             SearchIteratorReqV2.SearchIteratorReqV2Builder builder = SearchIteratorReqV2.builder().databaseName(cmd.getCatalog()).collectionName(collectionName).filter(filter.expression()).filterTemplateValues(filter.parameters()).vectorFieldName(field).vectors(Collections.singletonList(vector)).metricType(metric).outputFields(outFields).searchParams(new LinkedHashMap<>(properties)).batchSize(window.batchSize);
-            if (StringUtils.isNotBlank(partitionName))
+            if (StringUtils.isNotBlank(partitionName)) {
                 builder.partitionNames(Collections.singletonList(partitionName));
+            }
             applyConsistencyLevel(((MilvusRequest) request).getConsistencyLevel(), builder);
             // SDK 2.6.22 narrows the V2 iterator limit to int; larger windows are bounded by the JDBC cursor.
-            if (window.limit != null && window.selectionLimit() <= Integer.MAX_VALUE)
+            if (window.limit != null && window.selectionLimit() <= Integer.MAX_VALUE) {
                 builder.limit(window.selectionLimit());
+            }
             SearchIteratorReqV2 query = builder.build();
             return () -> {
                 SearchIteratorV2 iterator = cmd.searchIteratorV2(query);
-                if (iterator == null)
+                if (iterator == null) {
                     throw new SQLException("Milvus returned no search iterator.");
+                }
                 return new MilvusResultCursor.PageSource(() -> rowMaps(searchRecords(iterator.next())), iterator::close);
             };
         }
 
         SearchReq.SearchReqBuilder builder = SearchReq.builder().databaseName(cmd.getCatalog()).collectionName(collectionName).filter(filter.expression()).filterTemplateValues(filter.parameters()).annsField(field).data(Collections.singletonList(vector)).metricType(metric).topK(window.limit.intValue()).outputFields(outFields).searchParams(properties).offset(window.offset);
         applyConsistencyLevel(((MilvusRequest) request).getConsistencyLevel(), builder);
-        if (StringUtils.isNotBlank(partitionName))
+        if (StringUtils.isNotBlank(partitionName)) {
             builder.partitionNames(Collections.singletonList(partitionName));
+        }
         SearchReq query = builder.build();
         return () -> {
             SearchResp response = cmd.search(query);
@@ -171,40 +177,46 @@ public final class MilvusCommandsForDQL extends MilvusCommands {
     }
 
     private static List<Map<String, Object>> searchRows(SearchResp response) throws SQLException {
-        if (response.getSearchResults().size() > 1)
+        if (response.getSearchResults().size() > 1) {
             throw new SQLException("Expected one query result group, received multiple groups.");
+        }
         return response.getSearchResults().isEmpty() ? Collections.emptyList() : rowMaps(searchRecords(response.getSearchResults().get(0)));
     }
 
     private static MilvusResultCursor.SourceFactory querySource(MilvusCmd cmd, String collectionName, String partitionName, Filter filter, List<String> outFields, QueryWindow window, AdapterRequest request) throws SQLException {
         if (window.useIterator) {
             QueryIteratorReq.QueryIteratorReqBuilder builder = QueryIteratorReq.builder().databaseName(cmd.getCatalog()).collectionName(collectionName).expr(filter.expression()).filterTemplateValues(filter.parameters()).outputFields(outFields).batchSize(window.batchSize);
-            if (StringUtils.isNotBlank(partitionName))
+            if (StringUtils.isNotBlank(partitionName)) {
                 builder.partitionNames(Collections.singletonList(partitionName));
+            }
             applyConsistencyLevel(((MilvusRequest) request).getConsistencyLevel(), builder);
             // Skip in the JDBC cursor so cancellation and fetchSize also apply while seeking OFFSET.
-            if (window.limit != null)
+            if (window.limit != null) {
                 builder.limit(window.selectionLimit());
+            }
             QueryIteratorReq query = builder.build();
             return () -> {
                 QueryIterator iterator = cmd.queryIterator(query);
-                if (iterator == null)
+                if (iterator == null) {
                     throw new SQLException("Milvus returned no query iterator.");
+                }
                 return new MilvusResultCursor.PageSource(() -> rowMaps(iterator.next()), iterator::close);
             };
         }
 
         QueryReq.QueryReqBuilder builder = QueryReq.builder().databaseName(cmd.getCatalog()).collectionName(collectionName).filter(filter.expression()).filterTemplateValues(filter.parameters()).outputFields(outFields).limit(window.limit).offset(window.offset);
         applyConsistencyLevel(((MilvusRequest) request).getConsistencyLevel(), builder);
-        if (StringUtils.isNotBlank(partitionName))
+        if (StringUtils.isNotBlank(partitionName)) {
             builder.partitionNames(Collections.singletonList(partitionName));
+        }
         QueryReq query = builder.build();
         return () -> singlePage(cmd.query(query).getQueryResults().stream().map(QueryResp.QueryResult::getEntity).collect(Collectors.toList()));
     }
 
     private static List<Map<String, Object>> rowMaps(List<QueryResultsWrapper.RowRecord> rows) {
-        if (rows == null)
+        if (rows == null) {
             return Collections.emptyList();
+        }
         return rows.stream().map(QueryResultsWrapper.RowRecord::getFieldValues).collect(Collectors.toList());
     }
 
@@ -218,14 +230,16 @@ public final class MilvusCommandsForDQL extends MilvusCommands {
 
     private static List<JdbcColumn> resultColumns(Map<String, FieldSchema> fields, String collectionName, String catalog, List<String> outFields, boolean vectorSearch) throws SQLException {
         Map<String, FieldSchema> types = new LinkedHashMap<>(fields);
-        if (vectorSearch)
+        if (vectorSearch) {
             types.put("score", FieldSchema.newBuilder().setName("score").setDataType(DataType.Float).build());
+        }
         List<String> names = outFields.contains("*") ? new ArrayList<>(types.keySet()) : outFields;
         List<JdbcColumn> columns = new ArrayList<>();
         for (String name : names) {
             FieldSchema field = types.get(name);
-            if (field == null)
+            if (field == null) {
                 throw new SQLException("Unknown output field: " + name);
+            }
             columns.add(MilvusSchema.column(field, collectionName, catalog));
         }
         return columns;

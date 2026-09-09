@@ -426,11 +426,13 @@ public class MilvusCmd implements AutoCloseable {
         MilvusRequest.checkActive(request);
         DescribeCollectionResp description = this.describeCollection(DescribeCollectionReq.builder().databaseName(this.getCatalog()).collectionName(collection).build());
         MilvusRequest.checkActive(request);
-        if (description == null || description.getCollectionSchema() == null)
+        if (description == null || description.getCollectionSchema() == null) {
             throw new SQLException("Milvus returned no schema for collection '" + collection + "'.");
+        }
         Map<String, FieldSchema> fields = new LinkedHashMap<>();
-        for (FieldSchema field : MilvusSchema.collectionFields(description))
+        for (FieldSchema field : MilvusSchema.collectionFields(description)) {
             fields.put(field.getName(), field);
+        }
         return fields;
     }
 }

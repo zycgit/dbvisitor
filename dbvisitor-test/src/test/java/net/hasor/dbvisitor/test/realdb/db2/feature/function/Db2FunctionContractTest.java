@@ -27,29 +27,41 @@ public class Db2FunctionContractTest extends FunctionContractTest {
                 "RETURNS INT LANGUAGE SQL DETERMINISTIC NO EXTERNAL ACTION RETURN a + b");
         jdbcTemplate.execute("CREATE FUNCTION nxn_fn_multiply(x INT, y INT) " + //
                 "RETURNS INT LANGUAGE SQL DETERMINISTIC NO EXTERNAL ACTION RETURN x * y");
-        jdbcTemplate.execute("CREATE FUNCTION nxn_fn_get_username(user_id INT) " + //
-                "RETURNS VARCHAR(255) LANGUAGE SQL READS SQL DATA NO EXTERNAL ACTION " + //
-                "RETURN SELECT name FROM user_info WHERE id = user_id");
-        jdbcTemplate.execute("CREATE FUNCTION nxn_fn_transform_string(text_value VARCHAR(255), suffix VARCHAR(255)) " + //
-                "RETURNS VARCHAR(255) LANGUAGE SQL DETERMINISTIC NO EXTERNAL ACTION RETURN UPPER(text_value) || suffix");
-        jdbcTemplate.execute("CREATE FUNCTION nxn_fn_calc_numbers(a INT, b INT) " + //
-                "RETURNS TABLE(sum_result INT, diff_result INT, mult_result INT, div_result DECIMAL(10, 2)) " + //
-                "LANGUAGE SQL DETERMINISTIC NO EXTERNAL ACTION RETURN " + //
-                "SELECT a + b, a - b, a * b, DECIMAL(a, 10, 2) / DECIMAL(b, 10, 2) FROM SYSIBM.SYSDUMMY1");
-        jdbcTemplate.execute("CREATE FUNCTION nxn_fn_multi_resultsets() " + //
-                "RETURNS TABLE(result_set INT, name VARCHAR(255), value INT) " + //
-                "LANGUAGE SQL READS SQL DATA NO EXTERNAL ACTION RETURN " + //
-                "SELECT 1, CAST(name AS VARCHAR(255)), age FROM user_info WHERE id BETWEEN 918101 AND 918103 " + //
-                "UNION ALL SELECT 2, CAST(string_value AS VARCHAR(255)), int_value FROM basic_types_test WHERE id BETWEEN 918101 AND 918102");
-        jdbcTemplate.execute("CREATE FUNCTION nxn_fn_filter_users(min_age INT) " + //
-                "RETURNS TABLE(id INT, name VARCHAR(255), age INT) " + //
-                "LANGUAGE SQL READS SQL DATA NO EXTERNAL ACTION RETURN " + //
-                "SELECT id, CAST(name AS VARCHAR(255)), age FROM user_info WHERE id BETWEEN 918101 AND 918103 AND age >= min_age");
-        jdbcTemplate.execute("CREATE FUNCTION nxn_fn_complex_params(input_id INT, counter INT) " + //
-                "RETURNS TABLE(counter INT, user_name VARCHAR(255), user_age INT) " + //
-                "LANGUAGE SQL READS SQL DATA NO EXTERNAL ACTION RETURN " + //
-                "SELECT counter + 1, COALESCE((SELECT name FROM user_info WHERE id = input_id), 'Unknown'), "
-                + "COALESCE((SELECT age FROM user_info WHERE id = input_id), 0) FROM SYSIBM.SYSDUMMY1");
+        jdbcTemplate.execute("""
+            CREATE FUNCTION nxn_fn_get_username(user_id INT)
+            RETURNS VARCHAR(255) LANGUAGE SQL READS SQL DATA NO EXTERNAL ACTION
+            RETURN SELECT name FROM user_info WHERE id = user_id
+            """);
+        jdbcTemplate.execute("""
+            CREATE FUNCTION nxn_fn_transform_string(text_value VARCHAR(255), suffix VARCHAR(255))
+            RETURNS VARCHAR(255) LANGUAGE SQL DETERMINISTIC NO EXTERNAL ACTION RETURN UPPER(text_value) || suffix
+            """);
+        jdbcTemplate.execute("""
+            CREATE FUNCTION nxn_fn_calc_numbers(a INT, b INT)
+            RETURNS TABLE(sum_result INT, diff_result INT, mult_result INT, div_result DECIMAL(10, 2))
+            LANGUAGE SQL DETERMINISTIC NO EXTERNAL ACTION RETURN
+            SELECT a + b, a - b, a * b, DECIMAL(a, 10, 2) / DECIMAL(b, 10, 2) FROM SYSIBM.SYSDUMMY1
+            """);
+        jdbcTemplate.execute("""
+            CREATE FUNCTION nxn_fn_multi_resultsets()
+            RETURNS TABLE(result_set INT, name VARCHAR(255), value INT)
+            LANGUAGE SQL READS SQL DATA NO EXTERNAL ACTION RETURN
+            SELECT 1, CAST(name AS VARCHAR(255)), age FROM user_info WHERE id BETWEEN 918101 AND 918103
+            UNION ALL SELECT 2, CAST(string_value AS VARCHAR(255)), int_value FROM basic_types_test WHERE id BETWEEN 918101 AND 918102
+            """);
+        jdbcTemplate.execute("""
+            CREATE FUNCTION nxn_fn_filter_users(min_age INT)
+            RETURNS TABLE(id INT, name VARCHAR(255), age INT)
+            LANGUAGE SQL READS SQL DATA NO EXTERNAL ACTION RETURN
+            SELECT id, CAST(name AS VARCHAR(255)), age FROM user_info WHERE id BETWEEN 918101 AND 918103 AND age >= min_age
+            """);
+        jdbcTemplate.execute("""
+            CREATE FUNCTION nxn_fn_complex_params(input_id INT, counter INT)
+            RETURNS TABLE(counter INT, user_name VARCHAR(255), user_age INT)
+            LANGUAGE SQL READS SQL DATA NO EXTERNAL ACTION RETURN
+            SELECT counter + 1, COALESCE((SELECT name FROM user_info WHERE id = input_id), 'Unknown'),
+            COALESCE((SELECT age FROM user_info WHERE id = input_id), 0) FROM SYSIBM.SYSDUMMY1
+            """);
     }
 
     @Override

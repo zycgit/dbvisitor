@@ -336,8 +336,9 @@ public class MilvusExhaustiveArgsTest extends AbstractJdbcTest {
         // Handle "in[1,2]" format
         if (!a.equals(e)) {
             // Try lenient match for list content
-            if (a.contains(e))
+            if (a.contains(e)) {
                 return;
+            }
             throw new RuntimeException("Expression mismatch! Expected similar to: " + expected + ", Got: " + actual);
         }
     }

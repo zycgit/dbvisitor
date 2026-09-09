@@ -56,10 +56,12 @@ public class MilvusRetryTest {
                 case "insert":
                     writes.incrementAndGet();
                     attempts.add(System.nanoTime());
-                    if (firstAttempt != null)
+                    if (firstAttempt != null) {
                         firstAttempt.countDown();
-                    if (failuresRemaining-- > 0)
+                    }
+                    if (failuresRemaining-- > 0) {
                         throw writeFailure;
+                    }
                     return DeleteResp.builder().deleteCnt(1).build();
                 default:
                     return null;

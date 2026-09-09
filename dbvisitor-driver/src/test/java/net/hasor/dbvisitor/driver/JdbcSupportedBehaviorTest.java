@@ -31,18 +31,20 @@ public class JdbcSupportedBehaviorTest {
         JdbcStatement s = (JdbcStatement) conn.createStatement();
         MockAdapterRequest req = new MockAdapterRequest("results");
         s.container.prepareReceive(req);
-        if (cursor != null)
+        if (cursor != null) {
             s.container.responseResult(req, cursor, keys);
-        else
+        } else {
             s.container.responseUpdateCount(req, 1, keys);
+        }
         s.container.responseFinish(req);
         return s;
     }
 
     private AdapterMemoryCursor cursor(Object... values) {
         Object[][] rows = new Object[values.length][];
-        for (int i = 0; i < values.length; i++)
+        for (int i = 0; i < values.length; i++) {
             rows[i] = new Object[] { values[i] };
+        }
         return new AdapterMemoryCursor(Collections.singletonList(new JdbcColumn("id", "int", "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array)), rows);
     }
 
@@ -183,11 +185,13 @@ public class JdbcSupportedBehaviorTest {
     public void closeOnCompletionBeforeAndAfterExecute() throws Exception {
         for (boolean before : new boolean[] { true, false }) {
             Statement s = conn.createStatement();
-            if (before)
+            if (before) {
                 s.closeOnCompletion();
+            }
             ResultSet r = s.executeQuery("SELECT id FROM test");
-            if (!before)
+            if (!before) {
                 s.closeOnCompletion();
+            }
             assertFalse(s.isClosed());
             assertTrue(r.next());
             r.close();

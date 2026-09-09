@@ -12,23 +12,26 @@ public final class OracleProfile extends AbstractDataSourceProfile {
 
     @NotNull
     private static String[] features() {
-        return new String[] { //
-                FeatureId.ARRAY,                 //
-                FeatureId.SEQUENCE,              //
-                FeatureId.KNN,                   //
-                FeatureId.PROCEDURE_RESULT_SET,  //
-                FeatureId.XML_MAPPER_CALLABLE,   //
-                FeatureId.VECTOR,                //
-                FeatureId.GENERATED_KEY_RESULT_SET, //
-                FeatureId.POSTGRES_ON_CONFLICT,  //
-                FeatureId.TRANSACTION_RELEASE_SAVEPOINT, //
-                FeatureId.DELIMITED_LOWERCASE_STANDARD_TABLE, //
-                FeatureId.DISTINCT_EMPTY_STRING, //
-                FeatureId.LARGE_IN_LIST,         //
-                FeatureId.XML_FOREACH_BATCH_INSERT_VALUES, //
-                FeatureId.LOWERCASE_STANDARD_RESULT_COLUMNS, //
-                FeatureId.TRANSACTION_REPEATABLE_READ, //
-                FeatureId.MULTIPLE_RESULT_SETS };
+        // @formatter:off
+        return new String[] {
+            FeatureId.ARRAY,
+            FeatureId.SEQUENCE,
+            FeatureId.KNN,
+            FeatureId.PROCEDURE_RESULT_SET,
+            FeatureId.XML_MAPPER_CALLABLE,
+            FeatureId.VECTOR,
+            FeatureId.GENERATED_KEY_RESULT_SET,
+            FeatureId.POSTGRES_ON_CONFLICT,
+            FeatureId.TRANSACTION_RELEASE_SAVEPOINT,
+            FeatureId.DELIMITED_LOWERCASE_STANDARD_TABLE,
+            FeatureId.DISTINCT_EMPTY_STRING,
+            FeatureId.LARGE_IN_LIST,
+            FeatureId.XML_FOREACH_BATCH_INSERT_VALUES,
+            FeatureId.LOWERCASE_STANDARD_RESULT_COLUMNS,
+            FeatureId.TRANSACTION_REPEATABLE_READ,
+            FeatureId.MULTIPLE_RESULT_SETS
+        };
+        // @formatter:on
     }
 
     @Override

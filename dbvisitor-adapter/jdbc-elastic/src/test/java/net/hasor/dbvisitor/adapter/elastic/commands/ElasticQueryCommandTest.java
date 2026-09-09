@@ -20,9 +20,9 @@ import net.hasor.dbvisitor.adapter.elastic.ElasticKeys;
 @RunWith(Parameterized.class)
 public class ElasticQueryCommandTest extends AbstractElasticCommandTest {
     private static final String HITS = """
-            {"took":1,"hits":{"total":{"value":2,"relation":"eq"},"hits":[\
-            {"_id":"1","_source":{"title":"Java","year":2026,"tags":["jdbc"],"author":{"name":"Alice"}}},\
-            {"_id":"2","_source":{"title":"SQL","active":true}}]}}\
+            {"took":1,"hits":{"total":{"value":2,"relation":"eq"},"hits":[
+            {"_id":"1","_source":{"title":"Java","year":2026,"tags":["jdbc"],"author":{"name":"Alice"}}},
+            {"_id":"2","_source":{"title":"SQL","active":true}}]}}
             """;
     private final boolean       preRead;
 

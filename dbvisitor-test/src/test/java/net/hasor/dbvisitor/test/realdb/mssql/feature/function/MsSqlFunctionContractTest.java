@@ -27,25 +27,37 @@ public class MsSqlFunctionContractTest extends FunctionContractTest {
                 "RETURNS INT AS BEGIN RETURN @a + @b END");
         jdbcTemplate.execute("CREATE FUNCTION nxn_fn_multiply(@x INT, @y INT) " + //
                 "RETURNS INT AS BEGIN RETURN @x * @y END");
-        jdbcTemplate.execute("CREATE FUNCTION nxn_fn_get_username(@user_id INT) " + //
-                "RETURNS VARCHAR(255) AS BEGIN " + //
-                "DECLARE @username VARCHAR(255); " + //
-                "SELECT @username = name FROM user_info WHERE id = @user_id; " + //
-                "RETURN @username; " + //
-                "END");
-        jdbcTemplate.execute("CREATE FUNCTION nxn_fn_transform_string(@text_value VARCHAR(255), @suffix VARCHAR(255)) " + //
-                "RETURNS VARCHAR(255) AS BEGIN RETURN UPPER(@text_value) + @suffix END");
-        jdbcTemplate.execute("CREATE FUNCTION nxn_fn_calc_numbers(@a INT, @b INT) RETURNS TABLE AS RETURN " + //
-                "SELECT @a + @b AS sum_result, @a - @b AS diff_result, @a * @b AS mult_result, "
-                + "CAST(@a AS DECIMAL(10, 2)) / CAST(@b AS DECIMAL(10, 2)) AS div_result");
-        jdbcTemplate.execute("CREATE FUNCTION nxn_fn_multi_resultsets() RETURNS TABLE AS RETURN " + //
-                "SELECT 1 AS result_set, CAST(name AS VARCHAR(255)) AS name, age AS value FROM user_info WHERE id BETWEEN 918101 AND 918103 " + //
-                "UNION ALL SELECT 2 AS result_set, CAST(string_value AS VARCHAR(255)) AS name, int_value AS value FROM basic_types_test WHERE id BETWEEN 918101 AND 918102");
-        jdbcTemplate.execute("CREATE FUNCTION nxn_fn_filter_users(@min_age INT) RETURNS TABLE AS RETURN " + //
-                "SELECT id, CAST(name AS VARCHAR(255)) AS name, age FROM user_info WHERE id BETWEEN 918101 AND 918103 AND age >= @min_age");
-        jdbcTemplate.execute("CREATE FUNCTION nxn_fn_complex_params(@input_id INT, @counter INT) RETURNS TABLE AS RETURN " + //
-                "SELECT @counter + 1 AS counter, COALESCE((SELECT name FROM user_info WHERE id = @input_id), 'Unknown') AS user_name, "
-                + "COALESCE((SELECT age FROM user_info WHERE id = @input_id), 0) AS user_age");
+        jdbcTemplate.execute("""
+            CREATE FUNCTION nxn_fn_get_username(@user_id INT)
+            RETURNS VARCHAR(255) AS BEGIN
+            DECLARE @username VARCHAR(255);
+            SELECT @username = name FROM user_info WHERE id = @user_id;
+            RETURN @username;
+            END
+            """);
+        jdbcTemplate.execute("""
+            CREATE FUNCTION nxn_fn_transform_string(@text_value VARCHAR(255), @suffix VARCHAR(255))
+            RETURNS VARCHAR(255) AS BEGIN RETURN UPPER(@text_value) + @suffix END
+            """);
+        jdbcTemplate.execute("""
+            CREATE FUNCTION nxn_fn_calc_numbers(@a INT, @b INT) RETURNS TABLE AS RETURN
+            SELECT @a + @b AS sum_result, @a - @b AS diff_result, @a * @b AS mult_result,
+            CAST(@a AS DECIMAL(10, 2)) / CAST(@b AS DECIMAL(10, 2)) AS div_result
+            """);
+        jdbcTemplate.execute("""
+            CREATE FUNCTION nxn_fn_multi_resultsets() RETURNS TABLE AS RETURN
+            SELECT 1 AS result_set, CAST(name AS VARCHAR(255)) AS name, age AS value FROM user_info WHERE id BETWEEN 918101 AND 918103
+            UNION ALL SELECT 2 AS result_set, CAST(string_value AS VARCHAR(255)) AS name, int_value AS value FROM basic_types_test WHERE id BETWEEN 918101 AND 918102
+            """);
+        jdbcTemplate.execute("""
+            CREATE FUNCTION nxn_fn_filter_users(@min_age INT) RETURNS TABLE AS RETURN
+            SELECT id, CAST(name AS VARCHAR(255)) AS name, age FROM user_info WHERE id BETWEEN 918101 AND 918103 AND age >= @min_age
+            """);
+        jdbcTemplate.execute("""
+            CREATE FUNCTION nxn_fn_complex_params(@input_id INT, @counter INT) RETURNS TABLE AS RETURN
+            SELECT @counter + 1 AS counter, COALESCE((SELECT name FROM user_info WHERE id = @input_id), 'Unknown') AS user_name,
+            COALESCE((SELECT age FROM user_info WHERE id = @input_id), 0) AS user_age
+            """);
     }
 
     @Override

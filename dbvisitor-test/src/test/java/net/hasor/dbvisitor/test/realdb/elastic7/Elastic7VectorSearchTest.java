@@ -1,12 +1,14 @@
 package net.hasor.dbvisitor.test.realdb.elastic7;
 
+import static org.junit.Assert.*;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  * Elasticsearch 7 向量搜索测试
@@ -27,20 +29,22 @@ public class Elastic7VectorSearchTest {
             }
 
             // 创建索引并定义 mapping（包含 dense_vector 类型）
-            String createIndexMapping = "PUT /" + INDEX_NAME + " {" + //
-                    "  \"mappings\": {" +                             //
-                    "    \"properties\": {" +                         //
-                    "      \"name\": { \"type\": \"keyword\" }," +    //
-                    "      \"category\": { \"type\": \"keyword\" }," +//
-                    "      \"embedding\": {" +                        //
-                    "        \"type\": \"dense_vector\"," +           //
-                    "        \"dims\": 3," +                          //
-                    "        \"index\": true," +                      //
-                    "        \"similarity\": \"cosine\"" +            //
-                    "      }" +                                       //
-                    "    }" +                                         //
-                    "  }" +                                           //
-                    "}";
+            String createIndexMapping = "PUT /" + INDEX_NAME + """
+                     {
+                      "mappings": {
+                        "properties": {
+                          "name": { "type": "keyword" },
+                          "category": { "type": "keyword" },
+                          "embedding": {
+                            "type": "dense_vector",
+                            "dims": 3,
+                            "index": true,
+                            "similarity": "cosine"
+                          }
+                        }
+                      }
+                    }
+                    """;
             s.execute(createIndexMapping);
 
             // 插入测试数据（带向量）
@@ -72,17 +76,21 @@ public class Elastic7VectorSearchTest {
     @Test
     public void testNativeKnnQuery() throws Exception {
         // ES 7.x 不支持 knn 参数查询，跳过测试
-        if (true) return;
+        if (true) {
+            return;
+        }
 
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
-            String knnQuery = "POST /" + INDEX_NAME + "/_search {" +//
-                    "  \"knn\": {" +                          //
-                    "    \"field\": \"embedding\"," +         //
-                    "    \"query_vector\": [1.0, 0.0, 0.0]," +//
-                    "    \"k\": 2," +                         //
-                    "    \"num_candidates\": 10" +            //
-                    "  }" +                                   //
-                    "}";
+            String knnQuery = "POST /" + INDEX_NAME + """
+                    /_search {
+                      "knn": {
+                        "field": "embedding",
+                        "query_vector": [1.0, 0.0, 0.0],
+                        "k": 2,
+                        "num_candidates": 10
+                      }
+                    }
+                    """;
 
             try (ResultSet rs = s.executeQuery(knnQuery)) {
                 int count = 0;
@@ -106,19 +114,21 @@ public class Elastic7VectorSearchTest {
     public void testScriptScoreQuery() throws Exception {
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
             String scriptQuery = "POST /" + INDEX_NAME + "/_search {" +///
-                    "  \"query\": {" +                                 //
-                    "    \"script_score\": {" +                        //
-                    "      \"query\": { \"match_all\": {} }," +        //
-                    "      \"script\": {" +                            //
-                    "        \"source\": \"cosineSimilarity(params.query_vector, doc['embedding']) + 1.0\"," + //
-                    "        \"params\": {" +                          //
-                    "          \"query_vector\": [1.0, 0.0, 0.0]" +    //
-                    "        }" +                                      //
-                    "      }" +                                        //
-                    "    }" +                                          //
-                    "  }," +                                           //
-                    "  \"size\": 2" +                                  //
-                    "}";
+                    """
+                              "query": {
+                                "script_score": {
+                                  "query": { "match_all": {} },
+                                  "script": {
+                                    "source": "cosineSimilarity(params.query_vector, doc['embedding']) + 1.0",
+                                    "params": {
+                                      "query_vector": [1.0, 0.0, 0.0]
+                                    }
+                                  }
+                                }
+                              },
+                              "size": 2
+                            }
+                            """;
 
             try (ResultSet rs = s.executeQuery(scriptQuery)) {
                 int count = 0;
@@ -138,26 +148,28 @@ public class Elastic7VectorSearchTest {
     @Test
     public void testHybridVectorQuery() throws Exception {
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
-            String hybridQuery = "POST /" + INDEX_NAME + "/_search {" +  //
-                    "  \"query\": {" +                                   //
-                    "    \"script_score\": {" +                          //
-                    "      \"query\": {" +                               //
-                    "        \"bool\": {" +                              //
-                    "          \"must\": [" +                            //
-                    "            { \"term\": { \"category\": \"A\" } }" +//
-                    "          ]" +                                      //
-                    "        }" +                                        //
-                    "      }," +                                         //
-                    "      \"script\": {" +                              //
-                    "        \"source\": \"cosineSimilarity(params.query_vector, 'embedding') + 1.0\"," + //
-                    "        \"params\": {" +                            //
-                    "          \"query_vector\": [1.0, 0.0, 0.0]" +      //
-                    "        }" +                                        //
-                    "      }" +                                          //
-                    "    }" +                                            //
-                    "  }," +                                             //
-                    "  \"size\": 10" +                                   //
-                    "}";
+            String hybridQuery = "POST /" + INDEX_NAME + """
+                    /_search {
+                      "query": {
+                        "script_score": {
+                          "query": {
+                            "bool": {
+                              "must": [
+                                { "term": { "category": "A" } }
+                              ]
+                            }
+                          },
+                          "script": {
+                            "source": "cosineSimilarity(params.query_vector, 'embedding') + 1.0",
+                            "params": {
+                              "query_vector": [1.0, 0.0, 0.0]
+                            }
+                          }
+                        }
+                      },
+                      "size": 10
+                    }
+                    """;
 
             try (ResultSet rs = s.executeQuery(hybridQuery)) {
                 int count = 0;
@@ -178,20 +190,22 @@ public class Elastic7VectorSearchTest {
     @Test
     public void testL2NormVectorQuery() throws Exception {
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
-            String l2Query = "POST /" + INDEX_NAME + "/_search {" +//
-                    "  \"query\": {" +                             //
-                    "    \"script_score\": {" +                    //
-                    "      \"query\": { \"match_all\": {} }," +    //
-                    "      \"script\": {" +                        //
-                    "        \"source\": \"1 / (1 + l2norm(params.query_vector, doc['embedding']))\"," + //
-                    "        \"params\": {" +                      //
-                    "          \"query_vector\": [1.0, 0.0, 0.0]" +//
-                    "        }" +                                  //
-                    "      }" +                                    //
-                    "    }" +                                      //
-                    "  }," +                                       //
-                    "  \"size\": 3" +                              //
-                    "}";
+            String l2Query = "POST /" + INDEX_NAME + """
+                    /_search {
+                      "query": {
+                        "script_score": {
+                          "query": { "match_all": {} },
+                          "script": {
+                            "source": "1 / (1 + l2norm(params.query_vector, doc['embedding']))",
+                            "params": {
+                              "query_vector": [1.0, 0.0, 0.0]
+                            }
+                          }
+                        }
+                      },
+                      "size": 3
+                    }
+                    """;
 
             try (ResultSet rs = s.executeQuery(l2Query)) {
                 int count = 0;
@@ -215,20 +229,22 @@ public class Elastic7VectorSearchTest {
     public void testVectorRangeFilter() throws Exception {
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
             // 使用 min_score 配合 script_score 过滤出相似度大于阈值的文档
-            String rangeQuery = "POST /" + INDEX_NAME + "/_search {" + //
-                    "  \"min_score\": 1.8," +                          //
-                    "  \"query\": {" +                                 //
-                    "    \"script_score\": {" +                        //
-                    "      \"query\": { \"match_all\": {} }," +        //
-                    "      \"script\": {" +                            //
-                    "        \"source\": \"cosineSimilarity(params.query_vector, 'embedding') + 1.0\"," +//
-                    "        \"params\": {" +                           //
-                    "          \"query_vector\": [1.0, 0.0, 0.0]" +     //
-                    "        }" +                                       //
-                    "      }" +                                         //
-                    "    }" +                                           //
-                    "  }" +                                             //
-                    "}";
+            String rangeQuery = "POST /" + INDEX_NAME + """
+                    /_search {
+                      "min_score": 1.8,
+                      "query": {
+                        "script_score": {
+                          "query": { "match_all": {} },
+                          "script": {
+                            "source": "cosineSimilarity(params.query_vector, 'embedding') + 1.0",
+                            "params": {
+                              "query_vector": [1.0, 0.0, 0.0]
+                            }
+                          }
+                        }
+                      }
+                    }
+                    """;
 
             try (ResultSet rs = s.executeQuery(rangeQuery)) {
                 int count = 0;
@@ -250,20 +266,22 @@ public class Elastic7VectorSearchTest {
     @Test
     public void testVectorSortWithScriptScore() throws Exception {
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
-            String sortQuery = "POST /" + INDEX_NAME + "/_search {" +//
-                    "  \"query\": {" +                              //
-                    "    \"script_score\": {" +                     //
-                    "      \"query\": { \"match_all\": {} }," +   //
-                    "      \"script\": {" +                         //
-                    "        \"source\": \"cosineSimilarity(params.query_vector, doc['embedding']) + 1.0\"," +//
-                    "        \"params\": {" +                       //
-                    "          \"query_vector\": [1.0, 0.0, 0.0]" + //
-                    "        }" +                                    //
-                    "      }" +                                      //
-                    "    }" +                                        //
-                    "  }," +                                         //
-                    "  \"size\": 3" +                               //
-                    "}";
+            String sortQuery = "POST /" + INDEX_NAME + """
+                    /_search {
+                      "query": {
+                        "script_score": {
+                          "query": { "match_all": {} },
+                          "script": {
+                            "source": "cosineSimilarity(params.query_vector, doc['embedding']) + 1.0",
+                            "params": {
+                              "query_vector": [1.0, 0.0, 0.0]
+                            }
+                          }
+                        }
+                      },
+                      "size": 3
+                    }
+                    """;
 
             try (ResultSet rs = s.executeQuery(sortQuery)) {
                 int count = 0;
@@ -285,20 +303,22 @@ public class Elastic7VectorSearchTest {
      */
     @Test
     public void testParameterizedVectorQuery() throws Exception {
-        try (Connection c = DriverManager.getConnection(ES_URL); java.sql.PreparedStatement ps = c.prepareStatement("POST /" + INDEX_NAME + "/_search {" +//
-                "  \"query\": {" +                                //
-                "    \"script_score\": {" +                       //
-                "      \"query\": { \"match_all\": {} }," +     //
-                "      \"script\": {" +                           //
-                "        \"source\": \"cosineSimilarity(params.query_vector, doc['embedding']) + 1.0\"," + //
-                "        \"params\": {" +                         //
-                "          \"query_vector\": ?" +                 //
-                "        }" +                                      //
-                "      }" +                                        //
-                "    }" +                                          //
-                "  }," +                                           //
-                "  \"size\": 3" +                                 //
-                "}")) {
+        try (Connection c = DriverManager.getConnection(ES_URL); java.sql.PreparedStatement ps = c.prepareStatement("POST /" + INDEX_NAME + """
+                /_search {
+                  "query": {
+                    "script_score": {
+                      "query": { "match_all": {} },
+                      "script": {
+                        "source": "cosineSimilarity(params.query_vector, doc['embedding']) + 1.0",
+                        "params": {
+                          "query_vector": ?
+                        }
+                      }
+                    }
+                  },
+                  "size": 3
+                }
+                """)) {
 
             Object[] vector = new Object[] { 1.0, 0.0, 0.0 };
             ps.setObject(1, vector);
@@ -340,8 +360,7 @@ public class Elastic7VectorSearchTest {
                     Object embeddingObj = rs.getObject("embedding");
                     assertNotNull("Embedding should not be null", embeddingObj);
 
-                    if (embeddingObj instanceof java.util.List) {
-                        java.util.List<?> list = (java.util.List<?>) embeddingObj;
+                    if (embeddingObj instanceof List<?> list) {
                         assertEquals(3, list.size());
                         assertEquals(1.0, ((Number) list.get(0)).doubleValue(), 0.0001);
                     } else if (embeddingObj.getClass().isArray()) {
@@ -368,6 +387,7 @@ public class Elastic7VectorSearchTest {
             }
         }
     }
+
     public static void main(String[] args) {
         net.hasor.dbvisitor.test.realdb.RealDbTestRunner.run(Elastic7VectorSearchTest.class);
     }

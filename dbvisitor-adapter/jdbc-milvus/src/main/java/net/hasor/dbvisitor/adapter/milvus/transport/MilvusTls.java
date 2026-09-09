@@ -59,8 +59,9 @@ public final class MilvusTls {
 
         String scheme = secure ? "https://" : "http://";
         builder.uri(scheme + address.getHost() + ":" + address.getPort()).secure(secure);
-        if (!secure)
+        if (!secure) {
             return;
+        }
 
         // SDK 2.6.22 uses serverPemPath for one-way trust (a server certificate or CA bundle).
         // Its caPemPath branch is selected only when both client identity files are supplied.
@@ -74,8 +75,9 @@ public final class MilvusTls {
 
     private static boolean secure(Map<String, String> properties, boolean configured) throws SQLException {
         String value = property(properties, MilvusKeys.SECURE);
-        if (value == null && !properties.containsKey(MilvusKeys.SECURE))
+        if (value == null && !properties.containsKey(MilvusKeys.SECURE)) {
             return configured;
+        }
         if (!"true".equalsIgnoreCase(value) && !"false".equalsIgnoreCase(value)) {
             throw new SQLException("Milvus connection property '" + MilvusKeys.SECURE + "' must be true or false.");
         }
@@ -92,8 +94,9 @@ public final class MilvusTls {
     }
 
     public static SSLContext httpContext(ConnectConfig config) throws SQLException {
-        if (!Boolean.TRUE.equals(config.isSecure()))
+        if (!Boolean.TRUE.equals(config.isSecure())) {
             return null;
+        }
         try {
             String trust = StringUtils.isNotBlank(config.getServerPemPath()) ? config.getServerPemPath() : config.getCaPemPath();
             SSLContext context;
@@ -102,8 +105,9 @@ public final class MilvusTls {
             } else {
                 // Reuse the SDK's PEM parser; validate material before opening any network connection.
                 SslContextBuilder builder = SslContextBuilder.forClient().sslProvider(SslProvider.JDK);
-                if (StringUtils.isNotBlank(trust))
+                if (StringUtils.isNotBlank(trust)) {
                     builder.trustManager(new File(trust));
+                }
                 if (StringUtils.isNotBlank(config.getClientPemPath())) {
                     builder.keyManager(new File(config.getClientPemPath()), new File(config.getClientKeyPath()));
                 }

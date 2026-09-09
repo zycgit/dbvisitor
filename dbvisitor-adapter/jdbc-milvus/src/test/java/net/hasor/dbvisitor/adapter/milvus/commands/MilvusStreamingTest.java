@@ -139,25 +139,30 @@ public class MilvusStreamingTest {
 
         private List<RowRecord> read() throws InterruptedException {
             reads.incrementAndGet();
-            if (readDelayMillis > 0)
+            if (readDelayMillis > 0) {
                 Thread.sleep(readDelayMillis);
+            }
             if (entered != null) {
                 entered.countDown();
-                if (!release.await(5, TimeUnit.SECONDS))
+                if (!release.await(5, TimeUnit.SECONDS)) {
                     throw new AssertionError("Blocked read was not released");
+                }
             }
-            if (readFailure != null)
+            if (readFailure != null) {
                 throw readFailure;
+            }
             List<RowRecord> rows = new ArrayList<>();
-            while (rows.size() < batch && position < total)
+            while (rows.size() < batch && position < total) {
                 rows.add(row(++position));
+            }
             return rows;
         }
 
         private void close() {
             closes.incrementAndGet();
-            if (closeFailure != null)
+            if (closeFailure != null) {
                 throw closeFailure;
+            }
         }
     }
 
@@ -325,8 +330,9 @@ public class MilvusStreamingTest {
             assertTrue(third.isClosed());
             assertEquals(1, iterators.get(2).closes.get());
         }
-        for (Pages pages : iterators)
+        for (Pages pages : iterators) {
             assertEquals(0, pages.reads.get());
+        }
     }
 
     @Test
@@ -412,8 +418,9 @@ public class MilvusStreamingTest {
             assertFalse(statement.getMoreResults(Statement.CLOSE_ALL_RESULTS));
             assertTrue(first.isClosed());
             assertTrue(second.isClosed());
-            for (Pages pages : iterators)
+            for (Pages pages : iterators) {
                 assertEquals(1, pages.closes.get());
+            }
         }
     }
 
@@ -449,8 +456,9 @@ public class MilvusStreamingTest {
                 statement.setFetchSize(257);
                 try (ResultSet result = statement.executeQuery(sql)) {
                     long count = 0;
-                    while (result.next())
+                    while (result.next()) {
                         assertEquals(++count, result.getLong(1));
+                    }
                     assertEquals(totalRows, count);
                     Pages pages = iterators.get(iterators.size() - 1);
                     assertEquals((totalRows + 256) / 257 + 1, pages.reads.get());
@@ -528,8 +536,9 @@ public class MilvusStreamingTest {
 
     private static List<Long> ids(ResultSet result) throws SQLException {
         List<Long> ids = new ArrayList<>();
-        while (result.next())
+        while (result.next()) {
             ids.add(result.getLong("id"));
+        }
         return ids;
     }
 }

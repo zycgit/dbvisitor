@@ -3,7 +3,14 @@ import net.hasor.dbvisitor.mapper.*;
 
 @SimpleMapper()
 public interface UserInfo6Mapper {
-    @Insert("test.user_info.insert({" + "\"uid\": #{info.userId}, " + "\"name\": #{info.userName}, " + "\"loginName\": #{info.account}, " + "\"loginPassword\": #{info.password}" + "})")
+    @Insert("""
+        test.user_info.insert({
+            "uid": #{info.userId},
+            "name": #{info.userName},
+            "loginName": #{info.account},
+            "loginPassword": #{info.password}
+        })
+        """)
     int saveUser(@Param("info") UserInfo6 info);
 
     @Query("test.user_info.find({uid: #{uid}})")

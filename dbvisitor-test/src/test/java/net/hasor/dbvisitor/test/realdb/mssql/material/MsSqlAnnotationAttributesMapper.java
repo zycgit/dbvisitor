@@ -32,8 +32,10 @@ public interface MsSqlAnnotationAttributesMapper extends AnnotationAttributesMap
 
     @Override
     @SelectKeySql(value = "SELECT CONVERT(INT, current_value) FROM sys.sequences WHERE name = 'user_info_id_seq'", keyProperty = "id", order = Order.After)
-    @Insert("INSERT INTO user_info (id, name, age, email, create_time) " + //
-            "VALUES (NEXT VALUE FOR user_info_id_seq, #{name}, #{age}, #{email}, #{createTime})")
+    @Insert("""
+        INSERT INTO user_info (id, name, age, email, create_time)
+        VALUES (NEXT VALUE FOR user_info_id_seq, #{name}, #{age}, #{email}, #{createTime})
+        """)
     int insertWithSelectKeyAfter(UserInfo user);
 
     @Override

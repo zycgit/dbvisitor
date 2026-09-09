@@ -104,8 +104,9 @@ public class JdbcAsyncLifecycleTest {
             protected void beforeExecute(AdapterRequest req, AdapterContainer container) throws SQLException {
                 entered.countDown();
                 try {
-                    if (!release.await(3, TimeUnit.SECONDS))
+                    if (!release.await(3, TimeUnit.SECONDS)) {
                         throw new SQLException("test barrier timeout");
+                    }
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     throw new SQLException(e);

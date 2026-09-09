@@ -13,17 +13,20 @@ public final class Db2Profile extends AbstractDataSourceProfile {
 
     @NotNull
     private static String[] features() {
-        return new String[] { //
-                FeatureId.ARRAY,                 //
-                FeatureId.KNN,                   //
-                FeatureId.PROCEDURE_CURSOR_RESULT, //
-                FeatureId.XML_MAPPER_CALLABLE,   //
-                FeatureId.VECTOR,                //
-                                FeatureId.POSTGRES_ON_CONFLICT,  //
-                FeatureId.DELIMITED_LOWERCASE_STANDARD_TABLE, //
-                FeatureId.BIT_CAST_NULL_VALUE,   //
-                                FeatureId.CASE_SENSITIVE_IDENTIFIERS, //
-                FeatureId.MULTIPLE_RESULT_SETS };
+        // @formatter:off
+        return new String[] {
+            FeatureId.ARRAY,
+            FeatureId.KNN,
+            FeatureId.PROCEDURE_CURSOR_RESULT,
+            FeatureId.XML_MAPPER_CALLABLE,
+            FeatureId.VECTOR,
+            FeatureId.POSTGRES_ON_CONFLICT,
+            FeatureId.DELIMITED_LOWERCASE_STANDARD_TABLE,
+            FeatureId.BIT_CAST_NULL_VALUE,
+            FeatureId.CASE_SENSITIVE_IDENTIFIERS,
+            FeatureId.MULTIPLE_RESULT_SETS
+        };
+        // @formatter:on
     }
 
     @Override

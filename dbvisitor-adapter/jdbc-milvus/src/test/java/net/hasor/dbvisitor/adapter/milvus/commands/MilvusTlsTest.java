@@ -56,8 +56,9 @@ public class MilvusTlsTest {
 
     private static File certificate(String name) {
         Path directory = Paths.get("../../dbvisitor-test/docker/certs");
-        if (!Files.isDirectory(directory))
+        if (!Files.isDirectory(directory)) {
             directory = Paths.get("dbvisitor-test/docker/certs");
+        }
         return directory.resolve(name).toAbsolutePath().normalize().toFile();
     }
 
@@ -97,8 +98,9 @@ public class MilvusTlsTest {
             this.rest.createContext("/v2/vectordb/jobs/import/", exchange -> {
                 try {
                     httpTokens.add(String.valueOf(exchange.getRequestHeaders().getFirst("Authorization")));
-                    if (mutual)
+                    if (mutual) {
                         clientIdentities.add(((HttpsExchange) exchange).getSSLSession().getPeerPrincipal().getName());
+                    }
                     bodies.add(new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8));
                     String result = exchange.getRequestURI().getPath().endsWith("create") ? "{\"code\":0,\"data\":{\"jobId\":\"tls-job\"}}" : "{\"code\":0,\"data\":{\"state\":\"Completed\",\"progress\":100}}";
                     byte[] bytes = result.getBytes(StandardCharsets.UTF_8);
@@ -192,8 +194,9 @@ public class MilvusTlsTest {
 
     @After
     public void cleanup() throws Exception {
-        for (Node node : nodes)
+        for (Node node : nodes) {
             node.close();
+        }
     }
 
     @Test
@@ -206,8 +209,9 @@ public class MilvusTlsTest {
         verifyProtocols(node, properties);
         String encoded = Base64.getEncoder().encodeToString("api-key:test".getBytes(StandardCharsets.UTF_8));
         assertFalse(node.grpcTokens.isEmpty());
-        for (String token : node.grpcTokens)
+        for (String token : node.grpcTokens) {
             assertEquals(encoded, token);
+        }
         assertEquals(Arrays.asList("Bearer api-key:test", "Bearer api-key:test"), node.httpTokens);
         assertTrue(node.bodies.get(0), node.bodies.get(0).contains("\"dbName\":\"db1\""));
     }
@@ -238,8 +242,9 @@ public class MilvusTlsTest {
         properties.setProperty(MilvusKeys.CLIENT_KEY_PATH, certificate("client.key").getPath());
         verifyProtocols(node, properties);
         assertEquals(2, node.clientIdentities.size());
-        for (String name : node.clientIdentities)
+        for (String name : node.clientIdentities) {
             assertTrue(name, name.contains("sslclient"));
+        }
     }
 
     @Test

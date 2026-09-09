@@ -23,8 +23,9 @@ public class JdbcResultSetComprehensiveTest {
 
     @After
     public void tearDown() throws Exception {
-        if (conn != null && !conn.isClosed())
+        if (conn != null && !conn.isClosed()) {
             conn.close();
+        }
     }
 
     // ==================== getXxx by index — types data ====================

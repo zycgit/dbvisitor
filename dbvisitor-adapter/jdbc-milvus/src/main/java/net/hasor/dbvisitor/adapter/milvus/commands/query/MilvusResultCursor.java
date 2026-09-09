@@ -135,12 +135,13 @@ public final class MilvusResultCursor implements AdapterCursor {
             if (AdapterType.Array.equals(column.type) && value instanceof List<?> values && (AdapterType.Byte.equals(column.elementType) || AdapterType.Short.equals(column.elementType))) {
                 List<Object> converted = new ArrayList<>(values.size());
                 for (Object item : values) {
-                    if (item == null)
+                    if (item == null) {
                         converted.add(null);
-                    else if (AdapterType.Byte.equals(column.elementType))
+                    } else if (AdapterType.Byte.equals(column.elementType)) {
                         converted.add(((Number) item).byteValue());
-                    else
+                    } else {
                         converted.add(((Number) item).shortValue());
+                    }
                 }
                 value = converted;
             }

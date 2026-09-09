@@ -205,7 +205,7 @@ public class CollectionWriteTest extends AbstractJdbcTest {
                        { updateOne: { "filter": { "char": "Eldon" }, "update": { $set: { "status": "Critical" } } } },
                        { deleteOne: { "filter": { "char": "Manor" } } },
                        { replaceOne: { "filter": { "char": "Mardon" }, "replacement": { "char": "Mardon", "class": "mammal", "water": false } } }
-                    ])\
+                    ])
                     """);
             assert count == 3;
         } catch (SQLException e) {

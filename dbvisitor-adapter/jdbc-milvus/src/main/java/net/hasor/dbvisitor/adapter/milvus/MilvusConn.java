@@ -217,8 +217,9 @@ public class MilvusConn extends AdapterConnection {
 
     @Override
     public void cancelRequest(AdapterRequest request) {
-        if (request instanceof MilvusRequest)
+        if (request instanceof MilvusRequest) {
             ((MilvusRequest) request).cancel();
+        }
     }
 
     @Override

@@ -37,23 +37,27 @@ public abstract class XmlMprJoinQueryTest extends AbstractNxnContractTest {
 
     @Override
     protected void initData() throws SQLException {
-        Object[][] users = { //
-                { baseId() + 1, "JoinQAlice", 25, "alice-j@nxn.test" }, //
-                { baseId() + 2, "JoinQBob", 30, "bob-j@nxn.test" }, //
-                { baseId() + 3, "JoinQCarol", 25, "carol-j@nxn.test" }, //
-                { baseId() + 4, "JoinQDave", 40, "dave-j@nxn.test" } //
+        // @formatter:off
+        Object[][] users = {
+            { baseId() + 1, "JoinQAlice", 25, "alice-j@nxn.test" },
+            { baseId() + 2, "JoinQBob", 30, "bob-j@nxn.test" },
+            { baseId() + 3, "JoinQCarol", 25, "carol-j@nxn.test" },
+            { baseId() + 4, "JoinQDave", 40, "dave-j@nxn.test" }
         };
+        // @formatter:on
         for (Object[] user : users) {
             jdbcTemplate.executeUpdate(//
                     "INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, @{macro, currentTimestamp})", //
                     user);
         }
 
-        Object[][] orders = { //
-                { baseId() + 101, baseId() + 1, "ORD-001", new BigDecimal("100.50") }, //
-                { baseId() + 102, baseId() + 1, "ORD-002", new BigDecimal("200.75") }, //
-                { baseId() + 103, baseId() + 2, "ORD-003", new BigDecimal("50.00") } //
+        // @formatter:off
+        Object[][] orders = {
+            { baseId() + 101, baseId() + 1, "ORD-001", new BigDecimal("100.50") },
+            { baseId() + 102, baseId() + 1, "ORD-002", new BigDecimal("200.75") },
+            { baseId() + 103, baseId() + 2, "ORD-003", new BigDecimal("50.00") }
         };
+        // @formatter:on
         for (Object[] order : orders) {
             jdbcTemplate.executeUpdate(//
                     "INSERT INTO user_order (id, user_id, order_no, amount, create_time) VALUES (?, ?, ?, ?, @{macro, currentTimestamp})", //

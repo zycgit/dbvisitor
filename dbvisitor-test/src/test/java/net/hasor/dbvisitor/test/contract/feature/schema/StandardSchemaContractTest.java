@@ -26,25 +26,23 @@ public abstract class StandardSchemaContractTest extends AbstractNxnContractTest
     private static final Map<String, List<String>> STANDARD_SCHEMA = new LinkedHashMap<>();
 
     static {
+        // @formatter:off
         STANDARD_SCHEMA.put("user_info", Arrays.asList("id", "name", "age", "email", "create_time"));
         STANDARD_SCHEMA.put("user_role", Arrays.asList("user_id", "role_id", "role_name", "create_time"));
         STANDARD_SCHEMA.put("user_order", Arrays.asList("id", "user_id", "order_no", "amount", "create_time"));
         STANDARD_SCHEMA.put("complex_order", Arrays.asList("id", "order_no", "address", "items"));
         STANDARD_SCHEMA.put("product_vector", Arrays.asList("id", "name", "embedding"));
-        STANDARD_SCHEMA.put("basic_types_test", Arrays.asList(//
-                "id", "byte_value", "short_value", "int_value", "long_value", "float_value", "double_value", "decimal_value", "big_int_value", "bool_value", "string_value", "char_value"));
-        STANDARD_SCHEMA.put("basic_types_explicit_test", Arrays.asList(//
-                "id", "byte_value", "short_value", "int_value", "long_value", "float_value", "double_value", "decimal_value", "big_int_value", "bool_bit", "bool_boolean", "char_value", "varchar_value", "nvarchar_value"));
+        STANDARD_SCHEMA.put("basic_types_test", Arrays.asList("id", "byte_value", "short_value", "int_value", "long_value", "float_value", "double_value", "decimal_value", "big_int_value", "bool_value", "string_value", "char_value"));
+        STANDARD_SCHEMA.put("basic_types_explicit_test", Arrays.asList("id", "byte_value", "short_value", "int_value", "long_value", "float_value", "double_value", "decimal_value", "big_int_value", "bool_bit", "bool_boolean", "char_value", "varchar_value", "nvarchar_value"));
         STANDARD_SCHEMA.put("array_types_test", Arrays.asList("id", "int_array", "string_array", "float_array"));
         STANDARD_SCHEMA.put("array_types_explicit_test", Arrays.asList("id", "int_array", "varchar_array"));
-        STANDARD_SCHEMA.put("array_types_annotation_test", Arrays.asList(//
-                "id", "array_no_annotation", "array_jdbc_type", "array_type_handler", "array_number_special", "array_full_annotated"));
+        STANDARD_SCHEMA.put("array_types_annotation_test", Arrays.asList("id", "array_no_annotation", "array_jdbc_type", "array_type_handler", "array_number_special", "array_full_annotated"));
         STANDARD_SCHEMA.put("test_special_types", Arrays.asList("id", "json_map", "json_list", "json_set", "int_array"));
         STANDARD_SCHEMA.put("binary_types_explicit_test", Arrays.asList("id", "binary_value", "varbinary_value", "longvarbinary_value", "blob_value"));
         STANDARD_SCHEMA.put("enum_types_explicit_test", Arrays.asList("id", "status_string", "status_enum_code", "status_ordinal", "status_code"));
         STANDARD_SCHEMA.put("json_types_explicit_test", Arrays.asList("id", "json_varchar", "json_mysql", "nested_json"));
-        STANDARD_SCHEMA.put("time_types_explicit_test", Arrays.asList(//
-                "id", "date_value", "time_value", "timestamp_value", "local_date_ts", "local_time_ts", "local_datetime_ts", "julian_day"));
+        STANDARD_SCHEMA.put("time_types_explicit_test", Arrays.asList("id", "date_value", "time_value", "timestamp_value", "local_date_ts", "local_time_ts", "local_datetime_ts", "julian_day"));
+        // @formatter:on
     }
 
     @Test

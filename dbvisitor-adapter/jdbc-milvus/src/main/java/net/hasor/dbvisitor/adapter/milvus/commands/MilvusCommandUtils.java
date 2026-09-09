@@ -307,13 +307,15 @@ public final class MilvusCommandUtils {
 
     public static List<RowRecord> searchRecords(List<SearchResult> hits) {
         List<RowRecord> records = new ArrayList<>();
-        if (hits == null)
+        if (hits == null) {
             return records;
+        }
         for (SearchResult hit : hits) {
             RowRecord record = new RowRecord();
             hit.getEntity().forEach(record::put);
-            if (StringUtils.isNotBlank(hit.getPrimaryKey()))
+            if (StringUtils.isNotBlank(hit.getPrimaryKey())) {
                 record.put(hit.getPrimaryKey(), hit.getId());
+            }
             record.put("score", hit.getScore());
             records.add(record);
         }

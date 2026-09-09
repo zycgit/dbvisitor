@@ -35,8 +35,9 @@ public final class MilvusSchema {
     }
 
     public static Object convertFieldValue(FieldSchema field, Object value) throws SQLException {
-        if (field == null)
+        if (field == null) {
             throw new SQLException("Field is absent from the collection schema.");
+        }
         String fieldName = field.getName();
         DataType dataType = field.getDataType();
         if (MilvusVectorCodec.isVector(dataType)) {
@@ -123,15 +124,17 @@ public final class MilvusSchema {
     }
 
     private static List<Object> arrayValue(FieldSchema field, Object value) throws SQLException {
-        if (value instanceof java.sql.Array)
+        if (value instanceof java.sql.Array) {
             value = ((java.sql.Array) value).getArray();
+        }
         List<?> values;
         if (value instanceof List<?>) {
             values = (List<?>) value;
         } else if (value.getClass().isArray()) {
             List<Object> array = new ArrayList<>();
-            for (int i = 0; i < java.lang.reflect.Array.getLength(value); i++)
+            for (int i = 0; i < java.lang.reflect.Array.getLength(value); i++) {
                 array.add(java.lang.reflect.Array.get(value, i));
+            }
             values = array;
         } else {
             throw new SQLException("ARRAY field requires java.sql.Array, List or a Java array.");
@@ -139,17 +142,20 @@ public final class MilvusSchema {
         Map<String, String> params = new HashMap<>();
         field.getTypeParamsList().forEach(p -> params.put(p.getKey(), p.getValue()));
         int capacity = Integer.parseInt(params.getOrDefault(MilvusCommandKeys.MAX_CAPACITY, "0"));
-        if (values.size() > capacity)
+        if (values.size() > capacity) {
             throw new SQLException("ARRAY field '" + field.getName() + "' exceeds max_capacity=" + capacity);
+        }
         List<Object> result = new ArrayList<>(values.size());
         for (Object item : values) {
-            if (item == null || item instanceof Collection || item.getClass().isArray())
+            if (item == null || item instanceof Collection || item.getClass().isArray()) {
                 throw new SQLException("ARRAY elements must be non-null scalars.");
+            }
             try {
                 switch (field.getElementType()) {
                     case Bool:
-                        if (!(item instanceof Boolean))
+                        if (!(item instanceof Boolean)) {
                             throw new IllegalArgumentException("Expected boolean");
+                        }
                         result.add(item);
                         break;
                     case VarChar:
@@ -172,14 +178,16 @@ public final class MilvusSchema {
                         break;
                     case Float:
                         float f = Float.parseFloat(item.toString());
-                        if (!Float.isFinite(f))
+                        if (!Float.isFinite(f)) {
                             throw new IllegalArgumentException("Expected finite FLOAT");
+                        }
                         result.add(f);
                         break;
                     case Double:
                         double d = Double.parseDouble(item.toString());
-                        if (!Double.isFinite(d))
+                        if (!Double.isFinite(d)) {
                             throw new IllegalArgumentException("Expected finite DOUBLE");
+                        }
                         result.add(d);
                         break;
                     default:

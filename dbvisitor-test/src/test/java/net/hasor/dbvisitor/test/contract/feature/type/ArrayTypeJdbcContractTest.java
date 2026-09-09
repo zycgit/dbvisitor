@@ -117,11 +117,13 @@ public abstract class ArrayTypeJdbcContractTest extends AbstractNxnContractTest 
     public void arrayBatch_shouldInsertMultipleArrayRows() throws SQLException {
         requiresNxnFeature(FeatureId.ARRAY);
         int firstId = baseId() + 5;
-        Object[][] batchArgs = new Object[][] { //
-                { firstId, new SqlArg(new Integer[] { 1, 2 }, Types.ARRAY, new ArrayTypeHandler()), new SqlArg(new String[] { "A", "B" }, Types.ARRAY, new ArrayTypeHandler()) }, //
-                { firstId + 1, new SqlArg(new Integer[] { 3, 4 }, Types.ARRAY, new ArrayTypeHandler()), new SqlArg(new String[] { "C", "D" }, Types.ARRAY, new ArrayTypeHandler()) }, //
-                { firstId + 2, new SqlArg(new Integer[] { 5, 6 }, Types.ARRAY, new ArrayTypeHandler()), new SqlArg(new String[] { "E", "F" }, Types.ARRAY, new ArrayTypeHandler()) } //
+        // @formatter:off
+        Object[][] batchArgs = new Object[][] {
+            { firstId, new SqlArg(new Integer[] { 1, 2 }, Types.ARRAY, new ArrayTypeHandler()), new SqlArg(new String[] { "A", "B" }, Types.ARRAY, new ArrayTypeHandler()) },
+            { firstId + 1, new SqlArg(new Integer[] { 3, 4 }, Types.ARRAY, new ArrayTypeHandler()), new SqlArg(new String[] { "C", "D" }, Types.ARRAY, new ArrayTypeHandler()) },
+            { firstId + 2, new SqlArg(new Integer[] { 5, 6 }, Types.ARRAY, new ArrayTypeHandler()), new SqlArg(new String[] { "E", "F" }, Types.ARRAY, new ArrayTypeHandler()) }
         };
+        // @formatter:on
 
         int[] rows = jdbcTemplate.executeBatch("INSERT INTO array_types_test (id, int_array, string_array) VALUES (?, ?, ?)", batchArgs);
         Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM array_types_test WHERE id >= ? AND id <= ?", new Object[] { firstId, firstId + 2 }, Integer.class);

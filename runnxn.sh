@@ -25,6 +25,7 @@ Examples:
   ./runnxn.sh all
   ./runnxn.sh pg
   ./runnxn.sh mysql --rerun-tasks
+  ./runnxn.sh milvus
 EOF
 }
 

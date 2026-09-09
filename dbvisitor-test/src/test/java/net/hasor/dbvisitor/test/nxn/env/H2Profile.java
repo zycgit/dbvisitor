@@ -12,18 +12,21 @@ public final class H2Profile extends AbstractDataSourceProfile {
 
     @NotNull
     private static String[] features() {
-        return new String[] {//
-                FeatureId.KNN,                  //
-                FeatureId.PROCEDURE,            //
-                FeatureId.XML_MAPPER_CALLABLE,  //
-                FeatureId.FUNCTION_CALL_CALLBACK, //
-                FeatureId.VECTOR,               //
-                FeatureId.GENERATED_KEY_RESULT_SET, //
-                FeatureId.DELIMITED_LOWERCASE_STANDARD_TABLE,   //
-                FeatureId.POSTGRES_ON_CONFLICT, //
-                FeatureId.TIME_EXTREME_DATE,    //
-                FeatureId.CASE_SENSITIVE_IDENTIFIERS, //
-                FeatureId.MULTIPLE_RESULT_SETS };
+        // @formatter:off
+        return new String[] {
+            FeatureId.KNN,
+            FeatureId.PROCEDURE,
+            FeatureId.XML_MAPPER_CALLABLE,
+            FeatureId.FUNCTION_CALL_CALLBACK,
+            FeatureId.VECTOR,
+            FeatureId.GENERATED_KEY_RESULT_SET,
+            FeatureId.DELIMITED_LOWERCASE_STANDARD_TABLE,
+            FeatureId.POSTGRES_ON_CONFLICT,
+            FeatureId.TIME_EXTREME_DATE,
+            FeatureId.CASE_SENSITIVE_IDENTIFIERS,
+            FeatureId.MULTIPLE_RESULT_SETS
+        };
+        // @formatter:on
     }
 
     @Override

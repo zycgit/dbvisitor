@@ -68,14 +68,17 @@ public class OgnlSqlArgSourceAccessor implements PropertyAccessor {
         Node currentNode = context.getCurrentNode().jjtGetParent();
         boolean indexedAccess = false;
 
-        if (currentNode == null)
+        if (currentNode == null) {
             throw new RuntimeException("node is null for '" + index + "'");
+        }
 
-        if (!(currentNode instanceof ASTProperty))
+        if (!(currentNode instanceof ASTProperty)) {
             currentNode = currentNode.jjtGetParent();
+        }
 
-        if (currentNode instanceof ASTProperty)
+        if (currentNode instanceof ASTProperty) {
             indexedAccess = ((ASTProperty) currentNode).isIndexedAccess();
+        }
 
         String indexStr = index.toString();
 

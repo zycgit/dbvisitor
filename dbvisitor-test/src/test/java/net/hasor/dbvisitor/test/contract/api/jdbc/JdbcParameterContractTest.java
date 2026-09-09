@@ -64,13 +64,15 @@ public abstract class JdbcParameterContractTest extends AbstractNxnContractTest 
     public void sqlArgParameters_shouldUseExplicitTypeHandlers() throws SQLException {
         int id = baseId() + 3;
         jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, ?)", //
-                new SqlArg[] { //
-                        SqlArg.valueOf(id, new IntegerTypeHandler()), //
-                        SqlArg.valueOf("NXN-Param-SqlArg", new StringTypeHandler()), //
-                        SqlArg.valueOf(30, new IntegerTypeHandler()), //
-                        SqlArg.valueOf("nxn-param-sqlarg@test.com"), //
-                        SqlArg.valueOf(new Date()) //
+                // @formatter:off
+                new SqlArg[] {
+                    SqlArg.valueOf(id, new IntegerTypeHandler()),
+                    SqlArg.valueOf("NXN-Param-SqlArg", new StringTypeHandler()),
+                    SqlArg.valueOf(30, new IntegerTypeHandler()),
+                    SqlArg.valueOf("nxn-param-sqlarg@test.com"),
+                    SqlArg.valueOf(new Date())
                 });
+                // @formatter:on
 
         assertEquals("nxn-param-sqlarg@test.com", jdbcTemplate.queryForObject("SELECT email FROM user_info WHERE id = ?", new Object[] { id }, String.class));
     }

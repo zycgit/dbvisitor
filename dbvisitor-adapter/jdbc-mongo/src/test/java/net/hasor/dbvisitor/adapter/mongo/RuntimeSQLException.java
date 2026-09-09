@@ -69,8 +69,9 @@ public class RuntimeSQLException extends RuntimeException implements Iterable<Th
                     throwable = nextException;
                     cause = nextException.getCause();
                     nextException = nextException.getNextException();
-                } else
+                } else {
                     throw new NoSuchElementException();
+                }
                 return throwable;
             }
 

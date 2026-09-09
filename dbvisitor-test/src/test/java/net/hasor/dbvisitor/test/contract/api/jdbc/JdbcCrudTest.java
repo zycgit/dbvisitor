@@ -107,8 +107,10 @@ public abstract class JdbcCrudTest extends AbstractNxnContractTest {
 
         int firstId = baseId() + 20;
         int secondId = baseId() + 21;
-        String upsertSql = "INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, ?) " //
-                + "ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, age = EXCLUDED.age, email = EXCLUDED.email";
+        String upsertSql = """
+            INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, age = EXCLUDED.age, email = EXCLUDED.email
+            """;
         jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, ?)", //
                 new Object[] { firstId, "NXN-JDBC-Upsert-Original", 25, "nxn-upsert-original@test.com", new Date() });
 

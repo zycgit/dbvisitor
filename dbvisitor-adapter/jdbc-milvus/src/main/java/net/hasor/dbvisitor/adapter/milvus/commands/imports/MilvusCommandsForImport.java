@@ -50,20 +50,24 @@ public final class MilvusCommandsForImport extends MilvusCommands {
         List<List<String>> groups = files(parseLiteral(c.files, args, request));
         Map<String, Object> options = readProperties(args, request, c.propertiesList());
         boolean returning = c.resultName != null;
-        if (returning && !"JOB_ID".equalsIgnoreCase(readName(c.resultName)))
+        if (returning && !"JOB_ID".equalsIgnoreCase(readName(c.resultName))) {
             throw new SQLException("IMPORT supports RETURNING JOB_ID.");
+        }
         long timeout = hintAsLong(hints, MilvusCommandKeys.TIMEOUT, DEFAULT_WAIT_TIMEOUT_MS);
-        if (timeout <= 0)
+        if (timeout <= 0) {
             throw new SQLException("Import timeout must be positive.");
+        }
         MilvusImportClient client = cmd.importClient();
         String database = cmd.getCatalog();
         String jobId = client.start(database, readName(c.collectionName), readName(c.partitionName), groups, options, request, timeout);
-        if (hintAsBoolean(hints, MilvusCommandKeys.SYNC, true))
+        if (hintAsBoolean(hints, MilvusCommandKeys.SYNC, true)) {
             await(client, database, jobId, request, timeout);
-        if (returning)
+        }
+        if (returning) {
             receive.responseResult(request, singleResult(request, JOB_ID, jobId));
-        else
+        } else {
             receive.responseUpdateCount(request, 0); // Existing IMPORT remains an update-count command.
+        }
         return completed(future);
     }
 
@@ -71,8 +75,9 @@ public final class MilvusCommandsForImport extends MilvusCommands {
         AtomicInteger args = new AtomicInteger(start);
         Map<String, Object> hints = readHints(args, request, hint.hint());
         long timeout = hintAsLong(hints, MilvusCommandKeys.TIMEOUT, DEFAULT_WAIT_TIMEOUT_MS);
-        if (timeout <= 0)
+        if (timeout <= 0) {
             throw new SQLException("Import timeout must be positive.");
+        }
         MilvusImportClient client = cmd.importClient();
         List<Map<String, Object>> rows = new ArrayList<>();
         if (c.IMPORTS() != null) {
@@ -91,14 +96,17 @@ public final class MilvusCommandsForImport extends MilvusCommands {
             }
             JsonObject response = client.list(cmd.getCatalog(), readName(c.collectionName), pageSize, currentPage, request, timeout);
             JsonElement records = response.get(MilvusCommandKeys.REST_RECORDS);
-            if (records == null || !records.isJsonArray())
+            if (records == null || !records.isJsonArray()) {
                 throw new SQLException("Import list response did not contain " + MilvusCommandKeys.REST_RECORDS + ".");
-            for (JsonElement record : records.getAsJsonArray())
+            }
+            for (JsonElement record : records.getAsJsonArray()) {
                 rows.add(jobRow(record.getAsJsonObject(), null));
+            }
         } else {
             Object value = parseLiteral(c.jobId, args, request);
-            if (!(value instanceof String jobId) || jobId.isBlank())
+            if (!(value instanceof String jobId) || jobId.isBlank()) {
                 throw new SQLException("Import job ID must be a non-empty string.");
+            }
             rows.add(jobRow(client.progress(cmd.getCatalog(), jobId, request, timeout), jobId));
         }
         receive.responseResult(request, listResult(request, JOB_COLUMNS, rows));
@@ -106,18 +114,22 @@ public final class MilvusCommandsForImport extends MilvusCommands {
     }
 
     private static List<List<String>> files(Object value) throws SQLException {
-        if (value instanceof String)
+        if (value instanceof String) {
             value = Collections.singletonList(Collections.singletonList(value));
-        if (!(value instanceof List<?> outer) || outer.isEmpty())
+        }
+        if (!(value instanceof List<?> outer) || outer.isEmpty()) {
             throw new SQLException("IMPORT requires a file path or a non-empty list of file groups.");
+        }
         List<List<String>> groups = new ArrayList<>();
         for (Object item : outer) {
-            if (!(item instanceof List<?> group) || group.isEmpty())
+            if (!(item instanceof List<?> group) || group.isEmpty()) {
                 throw new SQLException("Each import file group must be a non-empty list.");
+            }
             List<String> paths = new ArrayList<>();
             for (Object path : group) {
-                if (!(path instanceof String) || ((String) path).isBlank())
+                if (!(path instanceof String) || ((String) path).isBlank()) {
                     throw new SQLException("Import paths must be non-empty strings in server-accessible object storage.");
+                }
                 paths.add((String) path);
             }
             groups.add(paths);
@@ -132,14 +144,17 @@ public final class MilvusCommandsForImport extends MilvusCommands {
             while (true) {
                 checkActive(request);
                 long remaining = timeout - (System.nanoTime() - started) / 1_000_000;
-                if (remaining <= 0)
+                if (remaining <= 0) {
                     throw new SQLException("Timeout waiting bulk insert");
+                }
                 last = client.progress(database, jobId, request, remaining);
                 String state = text(last, MilvusCommandKeys.REST_STATE);
-                if ("Completed".equals(state))
+                if ("Completed".equals(state)) {
                     return;
-                if ("Failed".equals(state))
+                }
+                if ("Failed".equals(state)) {
                     throw new SQLException("Bulk insert failed");
+                }
                 sleepQuietly(Math.min(POLL_INTERVAL_MS, remaining));
             }
         } catch (SQLException | RuntimeException failure) {

@@ -32,13 +32,15 @@ public class MilvusWriteTest extends AbstractJdbcTest {
         MilvusCommandInterceptor.resetInterceptor();
         pages.clear();
         MilvusCommandInterceptor.addInterceptor(MilvusClientV2.class, (proxy, method, args) -> {
-            if ("describeCollection".equals(method.getName()))
+            if ("describeCollection".equals(method.getName())) {
                 return v2Response(method.getName(), DescribeCollectionResponse.newBuilder().setSchema(CollectionSchema.newBuilder().addFields(FieldSchema.newBuilder().setName("id").setDataType(stringKey ? DataType.VarChar : DataType.Int64).setIsPrimaryKey(true).setAutoID(autoId)).addFields(FieldSchema.newBuilder().setName("val").setDataType(DataType.Int32))).build());
+            }
             if ("insert".equals(method.getName()) || "upsert".equals(method.getName())) {
                 List<JsonObject> data = args[0] instanceof InsertReq ? ((InsertReq) args[0]).getData() : ((UpsertReq) args[0]).getData();
                 pages.add(data);
-                if (pages.size() == failPage)
+                if (pages.size() == failPage) {
                     throw new SQLTransientConnectionException("lost write acknowledgement");
+                }
                 List<Object> ids = new ArrayList<>();
                 for (JsonObject row : data) {
                     long id = 100L + row.get("val").getAsLong();
@@ -62,15 +64,16 @@ public class MilvusWriteTest extends AbstractJdbcTest {
 
     @Test
     public void multipleValuesKeysAndCountsUseSdkResponses() throws Exception {
-        for (String op : Arrays.asList("INSERT", "UPSERT"))
+        for (String op : Arrays.asList("INSERT", "UPSERT")) {
             for (boolean strings : new boolean[] { false, true }) {
                 stringKey = strings;
                 try (Connection conn = connect(); PreparedStatement ps = conn.prepareStatement(op + " INTO t (val) VALUES (?),(?),(?)", Statement.RETURN_GENERATED_KEYS)) {
                     assertTrue(conn.getMetaData().supportsGetGeneratedKeys());
                     ps.setFetchSize(2);
                     ps.setMaxRows(1); // SELECT row limit must not truncate generated keys or writes.
-                    for (int i = 1; i <= 3; i++)
+                    for (int i = 1; i <= 3; i++) {
                         ps.setInt(i, i);
+                    }
                     assertEquals(3, ps.executeUpdate());
                     assertEquals(2, pages.size());
                     try (ResultSet keys = ps.getGeneratedKeys()) {
@@ -84,6 +87,7 @@ public class MilvusWriteTest extends AbstractJdbcTest {
                     }
                 }
             }
+        }
     }
 
     @Test
@@ -204,8 +208,9 @@ public class MilvusWriteTest extends AbstractJdbcTest {
                 int next;
 
                 public boolean hasNext() {
-                    if (next == 2)
+                    if (next == 2) {
                         throw new IllegalStateException("input failed");
+                    }
                     return true;
                 }
 

@@ -58,14 +58,16 @@ final class MilvusFieldDefinition {
         } else if (typeCtx.SPARSE_FLOAT_VECTOR() != null) {
             fieldBuilder.withDataType(DataType.SparseFloatVector);
         } else if (typeCtx.ARRAY() != null) {
-            if (typeCtx.arrayElementType() == null)
+            if (typeCtx.arrayElementType() == null) {
                 throw new SQLException("ARRAY requires ARRAY<element_type>(max_capacity).");
+            }
             fieldBuilder.withDataType(DataType.Array);
             String element = typeCtx.arrayElementType().getStart().getText().toUpperCase(Locale.ROOT);
             fieldBuilder.withElementType(scalarType(element));
             int capacity = Integer.parseInt(typeCtx.capacity.getText());
-            if (capacity < 1 || capacity > 4096)
+            if (capacity < 1 || capacity > 4096) {
                 throw new SQLException("ARRAY max_capacity must be between 1 and 4096.");
+            }
             fieldBuilder.withMaxCapacity(capacity);
             if (typeCtx.arrayElementType().VARCHAR() != null) {
                 fieldBuilder.withMaxLength(Integer.parseInt(typeCtx.arrayElementType().INTEGER().getText()));
@@ -82,8 +84,9 @@ final class MilvusFieldDefinition {
             }
             if (constraint.NULL() != null) {
                 boolean option = constraint.NOT() == null;
-                if (nullable != null && nullable != option)
+                if (nullable != null && nullable != option) {
                     throw new SQLException("Conflicting NULL / NOT NULL on field '" + fieldName + "'.");
+                }
                 nullable = option;
                 fieldBuilder.withNullable(option);
             }
@@ -94,8 +97,9 @@ final class MilvusFieldDefinition {
         }
 
         FieldType fieldType = fieldBuilder.build();
-        if (fieldType.isPrimaryKey() && Boolean.TRUE.equals(nullable))
+        if (fieldType.isPrimaryKey() && Boolean.TRUE.equals(nullable)) {
             throw new SQLException("Primary keys cannot be nullable.");
+        }
         boolean hasDefault = false;
         for (FieldConstraintContext constraint : fieldCtx.fieldConstraint()) {
             if (constraint.DEFAULT() != null) {

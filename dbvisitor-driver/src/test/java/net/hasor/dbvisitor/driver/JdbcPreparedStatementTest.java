@@ -28,8 +28,9 @@ public class JdbcPreparedStatementTest {
 
     @After
     public void tearDown() throws Exception {
-        if (conn != null && !conn.isClosed())
+        if (conn != null && !conn.isClosed()) {
             conn.close();
+        }
     }
 
     // ==================== execute methods ====================

@@ -25,8 +25,9 @@ public class AdditionalCoverageTest {
 
     @After
     public void tearDown() throws Exception {
-        if (conn != null && !conn.isClosed())
+        if (conn != null && !conn.isClosed()) {
             conn.close();
+        }
     }
 
     // ==================== JdbcStatement — columnIndexes/columnNames (throws) ====================

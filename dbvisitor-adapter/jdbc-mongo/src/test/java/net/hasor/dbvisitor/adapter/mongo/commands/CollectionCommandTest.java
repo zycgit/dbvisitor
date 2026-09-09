@@ -221,11 +221,11 @@ public class CollectionCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection(); Statement stmt = conn.createStatement()) {
             stmt.execute("use mydb");
             stmt.executeUpdate("""
-                    db.createCollection('complex_col', { \
-                    storageEngine: { wiredTiger: { configString: 'block_compressor=zlib' } }, \
-                    changeStreamPreAndPostImages: { enabled: true }, \
-                    indexOptionDefaults: { storageEngine: { wiredTiger: { configString: 'block_compressor=zlib' } } } \
-                    })\
+                    db.createCollection('complex_col', {
+                    storageEngine: { wiredTiger: { configString: 'block_compressor=zlib' } },
+                    changeStreamPreAndPostImages: { enabled: true },
+                    indexOptionDefaults: { storageEngine: { wiredTiger: { configString: 'block_compressor=zlib' } } }
+                    })
                     """);
         } catch (SQLException e) {
             e.printStackTrace();

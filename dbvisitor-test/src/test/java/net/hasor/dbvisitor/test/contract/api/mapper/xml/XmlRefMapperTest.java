@@ -35,12 +35,14 @@ public abstract class XmlRefMapperTest extends AbstractNxnContractTest {
 
     @Override
     protected void initData() throws SQLException {
-        Object[][] data = { //
-                { baseId() + 1, "RefMapA", 22, "refa@nxn.test" }, //
-                { baseId() + 2, "RefMapB", 28, "refb@nxn.test" }, //
-                { baseId() + 3, "RefMapC", 35, "refc@nxn.test" }, //
-                { baseId() + 4, "RefMapD", 28, "refd@nxn.test" } //
+        // @formatter:off
+        Object[][] data = {
+            { baseId() + 1, "RefMapA", 22, "refa@nxn.test" },
+            { baseId() + 2, "RefMapB", 28, "refb@nxn.test" },
+            { baseId() + 3, "RefMapC", 35, "refc@nxn.test" },
+            { baseId() + 4, "RefMapD", 28, "refd@nxn.test" }
         };
+        // @formatter:on
         for (Object[] row : data) {
             jdbcTemplate.executeUpdate(//
                     "INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, @{macro, currentTimestamp})", //

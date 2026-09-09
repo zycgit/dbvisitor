@@ -50,8 +50,9 @@ public class MilvusMultiStatementTest extends AbstractJdbcTest {
                 for (int repeat = 0; repeat < 2; repeat++) {
                     calls.clear();
                     int index = 1;
-                    if (!literalFirst)
+                    if (!literalFirst) {
                         ps.setInt(index++, 101);
+                    }
                     ps.setInt(index++, 202 + repeat);
                     ps.setInt(index, 7 + repeat);
                     assertTrue(ps.execute());

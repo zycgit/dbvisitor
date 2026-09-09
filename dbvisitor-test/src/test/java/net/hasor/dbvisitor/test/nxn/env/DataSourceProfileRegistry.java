@@ -8,19 +8,22 @@ public final class DataSourceProfileRegistry {
     }
 
     public static List<DataSourceProfile> all() {
-        return Arrays.asList(//
-                H2Profile.INSTANCE, //
-                MySqlProfile.INSTANCE, //
-                PostgreSqlProfile.INSTANCE, //
-                MsSqlProfile.INSTANCE, //
-                OracleProfile.INSTANCE, //
-                Db2Profile.INSTANCE, //
-                ClickHouseProfile.INSTANCE, //
-                RedisProfile.INSTANCE, //
-                MongoProfile.INSTANCE, //
-                Elastic6Profile.INSTANCE, //
-                Elastic7Profile.INSTANCE, //
-                MilvusProfile.INSTANCE);
+        // @formatter:off
+        return Arrays.asList(
+            H2Profile.INSTANCE,
+            MySqlProfile.INSTANCE,
+            PostgreSqlProfile.INSTANCE,
+            MsSqlProfile.INSTANCE,
+            OracleProfile.INSTANCE,
+            Db2Profile.INSTANCE,
+            ClickHouseProfile.INSTANCE,
+            RedisProfile.INSTANCE,
+            MongoProfile.INSTANCE,
+            Elastic6Profile.INSTANCE,
+            Elastic7Profile.INSTANCE,
+            MilvusProfile.INSTANCE
+        );
+        // @formatter:on
     }
 
     public static DataSourceProfile find(String env) {

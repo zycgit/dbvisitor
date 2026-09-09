@@ -63,14 +63,14 @@ public class MilvusCommandGroupsTest {
         properties.setProperty(MilvusKeys.CUSTOM_MILVUS, MilvusCustomClient.class.getName());
         properties.setProperty(MilvusKeys.INTERCEPTOR, MilvusCommandInterceptor.class.getName());
         String sql = """
-                CREATE ALIAS books_alias FOR books;\
-                INSERT INTO books (id) VALUES (?);\
-                SELECT id FROM books WHERE id = ? LIMIT ?;\
-                DELETE FROM books WHERE id = ?;\
-                /*+ sync=? */ LOAD TABLE books PARTITION p;\
-                /*+ sync=? */ RELEASE TABLE books PARTITION p;\
-                FLUSH books;\
-                DROP ALIAS books_alias;\
+                CREATE ALIAS books_alias FOR books;
+                INSERT INTO books (id) VALUES (?);
+                SELECT id FROM books WHERE id = ? LIMIT ?;
+                DELETE FROM books WHERE id = ?;
+                /*+ sync=? */ LOAD TABLE books PARTITION p;
+                /*+ sync=? */ RELEASE TABLE books PARTITION p;
+                FLUSH books;
+                DROP ALIAS books_alias;
                 """;
         try (Connection connection = new JdbcDriver().connect("jdbc:dbvisitor:milvus://test:19530/db1", properties); PreparedStatement statement = connection.prepareStatement(sql)) {
             for (int repeat = 0; repeat < 2; repeat++) {

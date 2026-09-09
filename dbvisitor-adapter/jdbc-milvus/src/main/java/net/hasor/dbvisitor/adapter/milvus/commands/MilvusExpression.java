@@ -39,10 +39,12 @@ public final class MilvusExpression {
         }
 
         public Filter and(Filter other) {
-            if (expression.isEmpty())
+            if (expression.isEmpty()) {
                 return other;
-            if (other.expression.isEmpty())
+            }
+            if (other.expression.isEmpty()) {
                 return this;
+            }
             Map<String, Object> values = new LinkedHashMap<>(parameters);
             values.putAll(other.parameters);
             return new Filter("(" + expression + ") && (" + other.expression + ")", values);
@@ -181,20 +183,23 @@ public final class MilvusExpression {
 
     // Lists containing JDBC placeholders bind as one array template, including literal members.
     private static Object filterLiteral(LiteralContext ctx, AtomicInteger argIndex, AdapterRequest request) throws SQLException {
-        if (ctx.ARG() != null)
+        if (ctx.ARG() != null) {
             return filterArgument(argIndex, request);
+        }
         if (ctx.listLiteral() != null) {
             List<Object> values = new ArrayList<>();
-            for (LiteralContext item : ctx.listLiteral().literal())
+            for (LiteralContext item : ctx.listLiteral().literal()) {
                 values.add(filterLiteral(item, argIndex, request));
+            }
             return values;
         }
         return parseLiteral(ctx, argIndex, request);
     }
 
     private static String renderValue(Object value, int firstArg, AtomicInteger argIndex, Map<String, Object> parameters) throws SQLException {
-        if (argIndex.get() == firstArg)
+        if (argIndex.get() == firstArg) {
             return literalToString(value);
+        }
         String name = "arg" + (firstArg + 1);
         try {
             // Validate with the SDK serializer before any query or mutation is issued.
@@ -212,8 +217,9 @@ public final class MilvusExpression {
         JdbcArg argument = request.getArgMap().get(name);
         try {
             // Explicit VARCHAR bindings are text even when the supplied Java object is not String.
-            if (value != null && AdapterType.String.equals(argument.getType()))
+            if (value != null && AdapterType.String.equals(argument.getType())) {
                 value = String.valueOf(value);
+            }
             return templateValue(value);
         } catch (IllegalArgumentException | ArithmeticException e) {
             throw new SQLException("Invalid Milvus filter parameter " + name + ": " + e.getMessage(), e);
@@ -221,32 +227,41 @@ public final class MilvusExpression {
     }
 
     private static Object templateValue(Object value) throws SQLException {
-        if (value == null)
+        if (value == null) {
             throw new SQLException("Milvus filter templates do not support null; use IS NULL or IS NOT NULL.");
-        if (value instanceof String || value instanceof Boolean || value instanceof Integer || value instanceof Long)
+        }
+        if (value instanceof String || value instanceof Boolean || value instanceof Integer || value instanceof Long) {
             return value;
-        if (value instanceof CharSequence || value instanceof Character)
+        }
+        if (value instanceof CharSequence || value instanceof Character) {
             return value.toString();
-        if (value instanceof Byte || value instanceof Short)
+        }
+        if (value instanceof Byte || value instanceof Short) {
             return ((Number) value).longValue();
-        if (value instanceof BigInteger integer)
+        }
+        if (value instanceof BigInteger integer) {
             return integer.longValueExact();
+        }
         if (value instanceof Float || value instanceof Double || value instanceof BigDecimal) {
             double number = ((Number) value).doubleValue();
-            if (!Double.isFinite(number))
+            if (!Double.isFinite(number)) {
                 throw new SQLException("Milvus filter parameters require finite numbers.");
+            }
             return number;
         }
-        if (value instanceof java.sql.Array array)
+        if (value instanceof java.sql.Array array) {
             return templateValue(array.getArray());
+        }
         if (value instanceof List<?> || value.getClass().isArray()) {
             List<Object> values = new ArrayList<>();
             if (value instanceof List<?> list) {
-                for (Object item : list)
+                for (Object item : list) {
                     values.add(templateValue(item));
+                }
             } else {
-                for (int i = 0; i < Array.getLength(value); i++)
+                for (int i = 0; i < Array.getLength(value); i++) {
                     values.add(templateValue(Array.get(value, i)));
+                }
             }
             return Collections.unmodifiableList(values);
         }

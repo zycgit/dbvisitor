@@ -23,18 +23,24 @@ public class MsSqlProcedureContractTest extends ProcedureContractTest {
 
         jdbcTemplate.execute("CREATE PROCEDURE nxn_sp_add_numbers @a INT, @b INT, @result INT OUTPUT AS " + //
                 "BEGIN SET @result = @a + @b END");
-        jdbcTemplate.execute("CREATE PROCEDURE nxn_sp_calc_numbers " + //
-                "@a INT, @b INT, @sum_result INT OUTPUT, @diff_result INT OUTPUT, @mult_result INT OUTPUT, @div_result DECIMAL(10, 2) OUTPUT AS " + //
-                "BEGIN " + //
-                "SET @sum_result = @a + @b; " + //
-                "SET @diff_result = @a - @b; " + //
-                "SET @mult_result = @a * @b; " + //
-                "SET @div_result = ROUND(CAST(@a AS DECIMAL(10, 2)) / CAST(@b AS DECIMAL(10, 2)), 2); " + //
-                "END");
-        jdbcTemplate.execute("CREATE PROCEDURE nxn_sp_transform_string @text_value VARCHAR(255) OUTPUT, @suffix VARCHAR(255) AS " + //
-                "BEGIN SET @text_value = UPPER(@text_value) + @suffix END");
-        jdbcTemplate.execute("CREATE PROCEDURE nxn_sp_get_user_info @user_id INT, @user_name VARCHAR(255) OUTPUT, @user_age INT OUTPUT AS " + //
-                "BEGIN SELECT @user_name = name, @user_age = age FROM user_info WHERE id = @user_id END");
+        jdbcTemplate.execute("""
+            CREATE PROCEDURE nxn_sp_calc_numbers
+            @a INT, @b INT, @sum_result INT OUTPUT, @diff_result INT OUTPUT, @mult_result INT OUTPUT, @div_result DECIMAL(10, 2) OUTPUT AS
+            BEGIN
+            SET @sum_result = @a + @b;
+            SET @diff_result = @a - @b;
+            SET @mult_result = @a * @b;
+            SET @div_result = ROUND(CAST(@a AS DECIMAL(10, 2)) / CAST(@b AS DECIMAL(10, 2)), 2);
+            END
+            """);
+        jdbcTemplate.execute("""
+            CREATE PROCEDURE nxn_sp_transform_string @text_value VARCHAR(255) OUTPUT, @suffix VARCHAR(255) AS
+            BEGIN SET @text_value = UPPER(@text_value) + @suffix END
+            """);
+        jdbcTemplate.execute("""
+            CREATE PROCEDURE nxn_sp_get_user_info @user_id INT, @user_name VARCHAR(255) OUTPUT, @user_age INT OUTPUT AS
+            BEGIN SELECT @user_name = name, @user_age = age FROM user_info WHERE id = @user_id END
+            """);
         jdbcTemplate.execute("CREATE PROCEDURE nxn_sp_update_counter @counter INT OUTPUT, @increment INT AS " + //
                 "BEGIN SET @counter = @counter + @increment END");
         jdbcTemplate.execute("CREATE PROCEDURE nxn_sp_result_set_users @p_id INT AS " + //
@@ -73,8 +79,10 @@ public class MsSqlProcedureContractTest extends ProcedureContractTest {
 
     @Override
     protected String addNumbersTypeHandlerHashCallSql() {
-        return "{call nxn_sp_add_numbers(#{a,jdbcType=integer}, #{b,jdbcType=integer}, "
-                + "#{result,mode=inout,jdbcType=integer,typeHandler=net.hasor.dbvisitor.types.handler.number.IntegerTypeHandler})}";
+        return """
+            {call nxn_sp_add_numbers(#{a,jdbcType=integer}, #{b,jdbcType=integer},
+            #{result,mode=inout,jdbcType=integer,typeHandler=net.hasor.dbvisitor.types.handler.number.IntegerTypeHandler})}
+            """;
     }
 
     @Override

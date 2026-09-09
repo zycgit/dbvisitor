@@ -133,14 +133,18 @@ public abstract class JsonTypeTest extends AbstractNxnContractTest {
         requiresNxnFeature(FeatureId.JSON);
         int setId = baseId() + 6;
         int beanListId = baseId() + 7;
-        List<Map<String, Object>> setSource = Arrays.asList(//
-                CollectionUtils.asMap("id", 1, "name", "Alice", "score", 95), //
-                CollectionUtils.asMap("id", 2, "name", "Bob", "score", 88), //
-                CollectionUtils.asMap("id", 3, "name", "Charlie", "score", 92));
-        List<JsonTestBean> beanList = Arrays.asList(//
-                new JsonTestBean("George", 29, true), //
-                new JsonTestBean("Helen", 31, false), //
-                new JsonTestBean("Ivan", 27, true));
+        // @formatter:off
+        List<Map<String, Object>> setSource = Arrays.asList(
+            CollectionUtils.asMap("id", 1, "name", "Alice", "score", 95),
+            CollectionUtils.asMap("id", 2, "name", "Bob", "score", 88),
+            CollectionUtils.asMap("id", 3, "name", "Charlie", "score", 92)
+        );
+        List<JsonTestBean> beanList = Arrays.asList(
+            new JsonTestBean("George", 29, true),
+            new JsonTestBean("Helen", 31, false),
+            new JsonTestBean("Ivan", 27, true)
+        );
+        // @formatter:on
 
         jdbcTemplate.executeUpdate(//
                 "INSERT INTO json_types_explicit_test (id, json_varchar) VALUES (#{id}, #{list, typeHandler=net.hasor.dbvisitor.types.handler.json.JsonTypeHandler})", //

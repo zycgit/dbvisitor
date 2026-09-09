@@ -1,39 +1,30 @@
 package net.hasor.dbvisitor.test.realdb.milvus;
 
+import static org.junit.Assert.*;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.junit.Before;
+import org.junit.Test;
+
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.api.adapter.AdapterContractTest;
-import net.hasor.dbvisitor.test.realdb.milvus.material.user.UserInfoMilvus1;
-import net.hasor.dbvisitor.test.realdb.milvus.material.user.UserInfoMilvus1Mapper;
-import net.hasor.dbvisitor.test.realdb.milvus.material.user.UserInfoMilvus2;
-import net.hasor.dbvisitor.test.realdb.milvus.material.user.UserInfoMilvus2Mapper;
-import net.hasor.dbvisitor.test.realdb.milvus.material.user.UserInfoMilvus3;
-import net.hasor.dbvisitor.test.realdb.milvus.material.user.UserInfoMilvus3Mapper;
-import net.hasor.dbvisitor.test.realdb.milvus.material.user.UserInfoMilvus4Mapper;
-import net.hasor.dbvisitor.test.realdb.milvus.material.user.UserInfoMilvus5;
-import net.hasor.dbvisitor.test.realdb.milvus.material.user.UserInfoMilvus5Mapper;
-import net.hasor.dbvisitor.test.realdb.milvus.material.user.UserInfoMilvus6;
-import net.hasor.dbvisitor.test.realdb.milvus.material.user.UserInfoMilvus6Mapper;
-import org.junit.Before;
-
-import static org.junit.Assert.*;
-import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
-import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import org.junit.Test;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
+import net.hasor.dbvisitor.test.realdb.milvus.material.user.*;
 
 public class MilvusMapperContractTest extends AdapterContractTest {
     @Override
     protected DataSourceProfile profile() {
         return MilvusProfile.INSTANCE;
     }
-
 
     private void initTable(JdbcTemplate jdbc, String tableName, String createSql) {
         try {
@@ -62,7 +53,12 @@ public class MilvusMapperContractTest extends AdapterContractTest {
             JdbcTemplate jdbc = new JdbcTemplate(c);
 
             // Table 1 for Annotations
-            initTable(jdbc, "tb_mapper_user_milvus", "CREATE TABLE IF NOT EXISTS tb_mapper_user_milvus (uid VARCHAR(64) PRIMARY KEY, name VARCHAR(64), loginName VARCHAR(64), loginPassword VARCHAR(64), v FLOAT_VECTOR(2)) WITH (consistency_level = 'Strong')");
+            initTable(jdbc, "tb_mapper_user_milvus", """
+                    CREATE TABLE IF NOT EXISTS tb_mapper_user_milvus (
+                    uid VARCHAR(64) PRIMARY KEY, name VARCHAR(64),
+                    loginName VARCHAR(64), loginPassword VARCHAR(64), v FLOAT_VECTOR(2))
+                    WITH (consistency_level = 'Strong')
+                    """);
             initIndex(jdbc, "idx_mapper_user_v", "tb_mapper_user_milvus", "CREATE INDEX idx_mapper_user_v ON TABLE tb_mapper_user_milvus (v) USING \"IVF_FLAT\" WITH (nlist = 128, metric_type = 'L2')");
             jdbc.execute("LOAD TABLE tb_mapper_user_milvus");
         }

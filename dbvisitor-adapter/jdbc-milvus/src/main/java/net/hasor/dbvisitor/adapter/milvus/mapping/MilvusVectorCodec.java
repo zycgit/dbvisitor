@@ -55,8 +55,9 @@ public final class MilvusVectorCodec {
                 // FP16 conversion can overflow even if the original float was finite.
                 List<Float> decoded = type == DataType.Float16Vector ? Float16Utils.fp16BufferToVector(ByteBuffer.wrap(half)) : Float16Utils.bf16BufferToVector(ByteBuffer.wrap(half));
                 for (Float number : decoded) {
-                    if (!Float.isFinite(number))
+                    if (!Float.isFinite(number)) {
                         throw new SQLException(type + " requires finite values.");
+                    }
                 }
                 encoded = half;
                 dimension = half.length / Short.BYTES;
@@ -74,20 +75,25 @@ public final class MilvusVectorCodec {
     }
 
     public static BaseVector searchValue(FieldSchema field, Object value, MetricType metric) throws SQLException {
-        if (field == null)
+        if (field == null) {
             throw new SQLException("Search field is absent from the collection schema.");
-        if (value == null)
+        }
+        if (value == null) {
             throw new SQLException("Search requires a non-null query vector.");
+        }
         DataType type = field.getDataType();
         boolean binaryMetric = metric == MetricType.HAMMING || metric == MetricType.JACCARD;
         if (type == DataType.BinaryVector) {
-            if (!binaryMetric)
+            if (!binaryMetric) {
                 throw new SQLException("BinaryVector requires HAMMING or JACCARD.");
+            }
         } else if (type == DataType.SparseFloatVector) {
-            if (metric != MetricType.IP && metric != MetricType.BM25)
+            if (metric != MetricType.IP && metric != MetricType.BM25) {
                 throw new SQLException("SparseFloatVector requires IP or BM25.");
-            if (metric == MetricType.BM25 && value instanceof String)
+            }
+            if (metric == MetricType.BM25 && value instanceof String) {
                 return new EmbeddedText((String) value);
+            }
         } else if (binaryMetric || metric == MetricType.BM25) {
             throw new SQLException(metric + " does not match field type " + type + ".");
         }
@@ -115,8 +121,9 @@ public final class MilvusVectorCodec {
     private static List<Float> floats(Object value) throws SQLException {
         List<Float> result = toFloatList(value);
         for (Float number : result) {
-            if (number == null || !Float.isFinite(number))
+            if (number == null || !Float.isFinite(number)) {
                 throw new SQLException("Vector elements must be finite numbers.");
+            }
         }
         return result;
     }
@@ -129,13 +136,15 @@ public final class MilvusVectorCodec {
         try {
             for (Map.Entry<?, ?> entry : values.entrySet()) {
                 long index = new BigDecimal(String.valueOf(entry.getKey())).longValueExact();
-                if (index < 0 || index >= (1L << Integer.SIZE) - 1)
+                if (index < 0 || index >= (1L << Integer.SIZE) - 1) {
                     throw new IllegalArgumentException("Index outside the SDK uint32 range");
+                }
                 if (!(entry.getValue() instanceof Number number) || !Float.isFinite(number.floatValue())) {
                     throw new IllegalArgumentException("Weight must be a finite number");
                 }
-                if (result.put(index, number.floatValue()) != null)
+                if (result.put(index, number.floatValue()) != null) {
                     throw new IllegalArgumentException("Duplicate dimension index");
+                }
             }
         } catch (IllegalArgumentException | ArithmeticException e) {
             throw new SQLException("Invalid SparseFloatVector: " + e.getMessage(), e);
@@ -144,8 +153,9 @@ public final class MilvusVectorCodec {
     }
 
     private static byte[] bytes(Object value) throws SQLException {
-        if (value instanceof byte[])
+        if (value instanceof byte[]) {
             return ((byte[]) value).clone();
+        }
         if (value instanceof ByteBuffer) {
             ByteBuffer view = ((ByteBuffer) value).duplicate();
             byte[] result = new byte[view.remaining()];
@@ -157,8 +167,9 @@ public final class MilvusVectorCodec {
             for (int i = 0; i < list.size(); i++) {
                 try {
                     int number = new BigDecimal(String.valueOf(list.get(i))).intValueExact();
-                    if (number < Byte.MIN_VALUE || number > 255)
+                    if (number < Byte.MIN_VALUE || number > 255) {
                         throw new IllegalArgumentException("Byte outside -128..255");
+                    }
                     result[i] = (byte) number;
                 } catch (IllegalArgumentException | ArithmeticException e) {
                     throw new SQLException("Invalid packed byte at index " + i, e);

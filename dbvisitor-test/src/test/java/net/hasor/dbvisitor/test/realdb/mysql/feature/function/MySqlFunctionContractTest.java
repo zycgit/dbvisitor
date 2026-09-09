@@ -23,14 +23,18 @@ public class MySqlFunctionContractTest extends FunctionContractTest {
                 "RETURNS INT DETERMINISTIC RETURN a + b");
         jdbcTemplate.execute("CREATE FUNCTION nxn_fn_multiply(x INT, y INT) " + //
                 "RETURNS INT DETERMINISTIC RETURN x * y");
-        jdbcTemplate.execute("CREATE FUNCTION nxn_fn_get_username(user_id INT) " + //
-                "RETURNS VARCHAR(255) READS SQL DATA BEGIN " + //
-                "DECLARE username VARCHAR(255); " + //
-                "SELECT name INTO username FROM user_info WHERE id = user_id; " + //
-                "RETURN username; " + //
-                "END");
-        jdbcTemplate.execute("CREATE FUNCTION nxn_fn_transform_string(text_value VARCHAR(255), suffix VARCHAR(255)) " + //
-                "RETURNS VARCHAR(255) DETERMINISTIC RETURN CONCAT(UPPER(text_value), suffix)");
+        jdbcTemplate.execute("""
+            CREATE FUNCTION nxn_fn_get_username(user_id INT)
+            RETURNS VARCHAR(255) READS SQL DATA BEGIN
+            DECLARE username VARCHAR(255);
+            SELECT name INTO username FROM user_info WHERE id = user_id;
+            RETURN username;
+            END
+            """);
+        jdbcTemplate.execute("""
+            CREATE FUNCTION nxn_fn_transform_string(text_value VARCHAR(255), suffix VARCHAR(255))
+            RETURNS VARCHAR(255) DETERMINISTIC RETURN CONCAT(UPPER(text_value), suffix)
+            """);
     }
 
     @Override

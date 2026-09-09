@@ -24,14 +24,16 @@ public class Elastic7UpdateTest {
             }
 
             // Create index with mapping
-            String putIndex = "PUT /" + INDEX_NAME + " {" +    //
-                    "\"mappings\": {" +                           //
-                    "    \"properties\": {" +                     //
-                    "      \"name\": { \"type\": \"keyword\" }," +//
-                    "      \"age\": { \"type\": \"integer\" }" +  //
-                    "    }" +                                     //
-                    "}" +                                         //
-                    "}";
+            String putIndex = "PUT /" + INDEX_NAME + """
+                 {
+                "mappings": {
+                    "properties": {
+                      "name": { "type": "keyword" },
+                      "age": { "type": "integer" }
+                    }
+                }
+                }
+                """;
             stmt.executeUpdate(putIndex);
         }
     }
@@ -83,7 +85,18 @@ public class Elastic7UpdateTest {
             assertEquals(1, stmt.executeUpdate("POST /" + INDEX_NAME + "/_doc/3 { \"name\": \"Bob\", \"age\": 30 }"));
 
             // Update by query
-            String updateByQuery = "POST /" + INDEX_NAME + "/_update_by_query {" + "\"script\": {" + "  \"source\": \"ctx._source.age++\"" + "}," + "\"query\": {" + "  \"term\": {" + "    \"age\": 30" + "  }" + "}" + "}";
+            String updateByQuery = "POST /" + INDEX_NAME + """
+                /_update_by_query {
+                "script": {
+                  "source": "ctx._source.age++"
+                },
+                "query": {
+                  "term": {
+                    "age": 30
+                  }
+                }
+                }
+                """;
 
             int count = stmt.executeUpdate(updateByQuery);
             assertEquals(2, count); // John and Bob should be updated

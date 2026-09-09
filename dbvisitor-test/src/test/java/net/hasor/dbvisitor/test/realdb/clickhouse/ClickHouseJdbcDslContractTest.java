@@ -30,9 +30,11 @@ public class ClickHouseJdbcDslContractTest extends AbstractNxnContractTest {
         jdbcTemplate.execute("INSERT INTO ch_nxn_user_info (id, name) VALUES (790001, 'CH-Join-User')");
 
         Map<String, Object> row = jdbcTemplate.queryForMap(//
-                "SELECT u.id AS user_id, o.id AS order_id " + //
-                        "FROM ch_nxn_user_info u LEFT JOIN ch_nxn_user_order o ON u.id = o.user_id " + //
-                        "WHERE u.id = 790001 SETTINGS join_use_nulls = 1");
+                """
+                    SELECT u.id AS user_id, o.id AS order_id
+                    FROM ch_nxn_user_info u LEFT JOIN ch_nxn_user_order o ON u.id = o.user_id
+                    WHERE u.id = 790001 SETTINGS join_use_nulls = 1
+                    """);
 
         assertEquals(790001, ((Number) value(row, "user_id")).intValue());
         assertNull(value(row, "order_id"));

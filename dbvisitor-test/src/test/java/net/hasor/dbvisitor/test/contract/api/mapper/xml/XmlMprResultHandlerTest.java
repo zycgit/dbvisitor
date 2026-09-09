@@ -33,11 +33,13 @@ public abstract class XmlMprResultHandlerTest extends AbstractNxnContractTest {
 
     @Override
     protected void initData() throws SQLException {
-        Object[][] data = { //
-                { baseId() + 1, "ResHdl1", 25, "hdl1@nxn.test" }, //
-                { baseId() + 2, "ResHdl2", 30, "hdl2@nxn.test" }, //
-                { baseId() + 3, "ResHdl3", 35, "hdl3@nxn.test" } //
+        // @formatter:off
+        Object[][] data = {
+            { baseId() + 1, "ResHdl1", 25, "hdl1@nxn.test" },
+            { baseId() + 2, "ResHdl2", 30, "hdl2@nxn.test" },
+            { baseId() + 3, "ResHdl3", 35, "hdl3@nxn.test" }
         };
+        // @formatter:on
         for (Object[] row : data) {
             jdbcTemplate.executeUpdate(//
                     "INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, @{macro, currentTimestamp})", //

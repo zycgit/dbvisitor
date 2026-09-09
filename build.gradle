@@ -87,7 +87,9 @@ subprojects {
             signing {
                 required { findProperty('centralRelease') == 'true' }
                 def key = findProperty('maven.central.signing_key')
-                if (key) useInMemoryPgpKeys(key.replace('\\n', '\n'), findProperty('maven.central.signing_password'))
+                if (key) {
+                    useInMemoryPgpKeys(key.replace('\\n', '\n'), findProperty('maven.central.signing_password'))
+                }
                 sign publishing.publications.mavenJava
             }
         }

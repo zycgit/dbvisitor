@@ -33,8 +33,8 @@ public class MilvusHybridTest extends AbstractJdbcTest {
     private InsertRequest                        insert;
     private CreateIndexReq                       index;
     private static final String                  DDL = """
-            CREATE TABLE docs (id INT64 PRIMARY KEY, body VARCHAR(1000) WITH (enable_analyzer=true, analyzer_params='{"type":"standard"}'),\
-            dense FLOAT_VECTOR(2), sparse SPARSE_FLOAT_VECTOR, FUNCTION bm25_fn USING BM25 (body) INTO (sparse))\
+            CREATE TABLE docs (id INT64 PRIMARY KEY, body VARCHAR(1000) WITH (enable_analyzer=true, analyzer_params='{"type":"standard"}'),
+            dense FLOAT_VECTOR(2), sparse SPARSE_FLOAT_VECTOR, FUNCTION bm25_fn USING BM25 (body) INTO (sparse))
             """;
 
     private Connection connect() throws SQLException {
@@ -107,8 +107,8 @@ public class MilvusHybridTest extends AbstractJdbcTest {
             stmt.executeUpdate(DDL);
             for (String rerank : Arrays.asList("reranker='rrf',k=20", "reranker='weighted',weights='[0.7,0.3]'")) {
                 try (PreparedStatement ps = conn.prepareStatement("""
-                        SELECT id,score FROM docs PARTITION p WHERE body = ? ORDER BY HYBRID \
-                        (dense <-> ? LIMIT ? WITH (nprobe=10), sparse <?> ? LIMIT ?) LIMIT ? OFFSET ? WITH (\
+                        SELECT id,score FROM docs PARTITION p WHERE body = ? ORDER BY HYBRID
+                        (dense <-> ? LIMIT ? WITH (nprobe=10), sparse <?> ? LIMIT ?) LIMIT ? OFFSET ? WITH (
                         """ + rerank + ")")) {
                     ps.setFetchSize(1);
                     ps.setString(1, "a\" or id > 0");
@@ -177,8 +177,8 @@ public class MilvusHybridTest extends AbstractJdbcTest {
     public void textEmbeddingFunctionAndTextQueryUseOfficialProtocol() throws Exception {
         try (Connection conn = connect(); Statement stmt = conn.createStatement()) {
             stmt.executeUpdate("""
-                    CREATE TABLE docs (id INT64 PRIMARY KEY, body VARCHAR(1000), dense FLOAT_VECTOR(2), \
-                    FUNCTION embed USING TEXTEMBEDDING (body) INTO (dense) WITH (provider='openai',model_name='example-model'))\
+                    CREATE TABLE docs (id INT64 PRIMARY KEY, body VARCHAR(1000), dense FLOAT_VECTOR(2),
+                    FUNCTION embed USING TEXTEMBEDDING (body) INTO (dense) WITH (provider='openai',model_name='example-model'))
                     """);
             FunctionSchema function = SchemaUtils.convertToGrpcFunction(schema.getFunctionList().get(0));
             assertEquals(io.milvus.grpc.FunctionType.TextEmbedding, function.getType());

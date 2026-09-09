@@ -21,8 +21,10 @@ public interface Db2AnnotationAttributesMapper extends AnnotationAttributesMappe
 
     @Override
     @SelectKeySql(value = "VALUES PREVVAL FOR user_info_id_seq", keyProperty = "id", order = Order.After)
-    @Insert("INSERT INTO user_info (id, name, age, email, create_time) " + //
-            "VALUES (NEXT VALUE FOR user_info_id_seq, #{name}, #{age}, #{email}, #{createTime})")
+    @Insert("""
+        INSERT INTO user_info (id, name, age, email, create_time)
+        VALUES (NEXT VALUE FOR user_info_id_seq, #{name}, #{age}, #{email}, #{createTime})
+        """)
     int insertWithSelectKeyAfter(UserInfo user);
 
     @Override

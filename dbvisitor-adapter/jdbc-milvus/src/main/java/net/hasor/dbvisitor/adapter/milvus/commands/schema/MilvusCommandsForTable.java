@@ -204,10 +204,12 @@ public final class MilvusCommandsForTable extends MilvusCommands {
             row.put(COL_NULLABLE_BOOL.name, field.getNullable());
             row.put(COL_ELEMENT_STRING.name, field.getDataType() == DataType.Array ? field.getElementType().name() : null);
             for (io.milvus.grpc.KeyValuePair option : field.getTypeParamsList()) {
-                if (MilvusCommandKeys.MAX_CAPACITY.equals(option.getKey()))
+                if (MilvusCommandKeys.MAX_CAPACITY.equals(option.getKey())) {
                     row.put(COL_CAPACITY_INT.name, Integer.valueOf(option.getValue()));
-                if (MilvusCommandKeys.MAX_LENGTH.equals(option.getKey()))
+                }
+                if (MilvusCommandKeys.MAX_LENGTH.equals(option.getKey())) {
                     row.put(COL_LENGTH_INT.name, Integer.valueOf(option.getValue()));
+                }
             }
             result.add(row);
         }
