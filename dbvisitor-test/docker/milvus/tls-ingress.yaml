@@ -1,0 +1,90 @@
+# One external endpoint per Milvus instance, without terminating TLS.
+# gRPC advertises h2; the driver's Import REST client uses HTTP/1.1.
+# Certificates and mutual authentication remain end-to-end with Milvus.
+static_resources:
+  listeners:
+    - name: milvus_tls
+      address:
+        socket_address: { address: 0.0.0.0, port_value: 19530 }
+      listener_filters:
+        - name: envoy.filters.listener.tls_inspector
+          typed_config:
+            "@type": type.googleapis.com/envoy.extensions.filters.listener.tls_inspector.v3.TlsInspector
+      filter_chains:
+        - filter_chain_match: { transport_protocol: tls, application_protocols: [h2] }
+          filters:
+            - name: envoy.filters.network.tcp_proxy
+              typed_config:
+                "@type": type.googleapis.com/envoy.extensions.filters.network.tcp_proxy.v3.TcpProxy
+                stat_prefix: tls_grpc
+                cluster: tls_grpc
+        - filter_chain_match: { transport_protocol: tls }
+          filters:
+            - name: envoy.filters.network.tcp_proxy
+              typed_config:
+                "@type": type.googleapis.com/envoy.extensions.filters.network.tcp_proxy.v3.TcpProxy
+                stat_prefix: tls_rest
+                cluster: tls_rest
+    - name: milvus_mtls
+      address:
+        socket_address: { address: 0.0.0.0, port_value: 19531 }
+      listener_filters:
+        - name: envoy.filters.listener.tls_inspector
+          typed_config:
+            "@type": type.googleapis.com/envoy.extensions.filters.listener.tls_inspector.v3.TlsInspector
+      filter_chains:
+        - filter_chain_match: { transport_protocol: tls, application_protocols: [h2] }
+          filters:
+            - name: envoy.filters.network.tcp_proxy
+              typed_config:
+                "@type": type.googleapis.com/envoy.extensions.filters.network.tcp_proxy.v3.TcpProxy
+                stat_prefix: mtls_grpc
+                cluster: mtls_grpc
+        - filter_chain_match: { transport_protocol: tls }
+          filters:
+            - name: envoy.filters.network.tcp_proxy
+              typed_config:
+                "@type": type.googleapis.com/envoy.extensions.filters.network.tcp_proxy.v3.TcpProxy
+                stat_prefix: mtls_rest
+                cluster: mtls_rest
+  clusters:
+    - name: tls_grpc
+      type: STRICT_DNS
+      connect_timeout: 3s
+      load_assignment:
+        cluster_name: tls_grpc
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address: { address: milvus_tls, port_value: 19530 }
+    - name: tls_rest
+      type: STRICT_DNS
+      connect_timeout: 3s
+      load_assignment:
+        cluster_name: tls_rest
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address: { address: milvus_tls, port_value: 8080 }
+    - name: mtls_grpc
+      type: STRICT_DNS
+      connect_timeout: 3s
+      load_assignment:
+        cluster_name: mtls_grpc
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address: { address: milvus_mtls, port_value: 19530 }
+    - name: mtls_rest
+      type: STRICT_DNS
+      connect_timeout: 3s
+      load_assignment:
+        cluster_name: mtls_rest
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address: { address: milvus_mtls, port_value: 8080 }

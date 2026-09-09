@@ -1,0 +1,14 @@
+# External TLS only; internal RPCs and the management health endpoint remain unchanged.
+# TLS requires REST and gRPC to listen on separate ports in Milvus 2.6.2.
+# tls-ingress.yaml exposes both through a single TLS passthrough endpoint.
+proxy:
+  http:
+    enabled: true
+    port: 8080
+common:
+  security:
+    tlsMode: 1
+tls:
+  serverPemPath: /milvus/tls/server.crt
+  serverKeyPath: /milvus/tls/server.key
+  caPemPath: /milvus/tls/ca.crt

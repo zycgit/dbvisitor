@@ -162,6 +162,84 @@ services:
       - 2909:9091
     restart: always
 
+  milvus_tls:
+    image: milvusdb/milvus:v2.6.2
+    profiles: ["milvus-tls"]
+    command: ["milvus", "run", "standalone"]
+    environment:
+      - DEPLOY_MODE=STANDALONE
+      - ETCD_USE_EMBED=true
+      - ETCD_DATA_DIR=/var/lib/milvus/etcd
+      - COMMON_STORAGETYPE=local
+    volumes:
+      - ../milvus/tls.yaml:/milvus/configs/user.yaml:ro
+      - ../certs/ca.crt:/milvus/tls/ca.crt:ro
+      - ../certs/server.crt:/milvus/tls/server.crt:ro
+      - ../certs/server.key:/milvus/tls/server.key:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 18
+      start_period: 60s
+    restart: "no"
+
+  milvus_mtls:
+    image: milvusdb/milvus:v2.6.2
+    profiles: ["milvus-tls"]
+    command: ["milvus", "run", "standalone"]
+    environment:
+      - DEPLOY_MODE=STANDALONE
+      - ETCD_USE_EMBED=true
+      - ETCD_DATA_DIR=/var/lib/milvus/etcd
+      - COMMON_STORAGETYPE=local
+    volumes:
+      - ../milvus/mtls.yaml:/milvus/configs/user.yaml:ro
+      - ../certs/ca.crt:/milvus/tls/ca.crt:ro
+      - ../certs/server.crt:/milvus/tls/server.crt:ro
+      - ../certs/server.key:/milvus/tls/server.key:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 18
+      start_period: 60s
+    restart: "no"
+
+  milvus_tls_gateway:
+    image: envoyproxy/envoy:v1.36.4
+    profiles: ["milvus-tls"]
+    command: ["envoy", "-c", "/etc/envoy/envoy.yaml", "--concurrency", "2", "--disable-hot-restart", "--log-level", "warning"]
+    volumes:
+      - ../milvus/tls-ingress.yaml:/etc/envoy/envoy.yaml:ro
+    ports:
+      - "127.0.0.1:2954:19530"
+      - "127.0.0.1:2955:19531"
+    depends_on:
+      milvus_tls: { condition: service_healthy }
+      milvus_mtls: { condition: service_healthy }
+    restart: "no"
+
+  # Isolated plaintext fixture for the same-port tests; leaves the existing milvus service alone.
+  milvus_plain:
+    image: milvusdb/milvus:v2.6.2
+    profiles: ["milvus-tls"]
+    command: ["milvus", "run", "standalone"]
+    environment:
+      - DEPLOY_MODE=STANDALONE
+      - ETCD_USE_EMBED=true
+      - ETCD_DATA_DIR=/var/lib/milvus/etcd
+      - COMMON_STORAGETYPE=local
+    ports:
+      - "127.0.0.1:2956:19530"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 18
+      start_period: 60s
+    restart: "no"
+
   ssh_server:
     image: lscr.io/linuxserver/openssh-server:latest
     environment:
