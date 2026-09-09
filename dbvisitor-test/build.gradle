@@ -14,6 +14,7 @@ dependencies {
     testImplementation project(':jdbc-mongo')
     testImplementation project(':jdbc-elastic')
     testImplementation project(':jdbc-milvus')
+    testImplementation 'io.minio:minio:8.5.7'
     testImplementation 'ch.qos.logback:logback-classic:1.2.11'
     testImplementation 'com.h2database:h2:2.2.224'
     testImplementation 'mysql:mysql-connector-java:8.0.33'

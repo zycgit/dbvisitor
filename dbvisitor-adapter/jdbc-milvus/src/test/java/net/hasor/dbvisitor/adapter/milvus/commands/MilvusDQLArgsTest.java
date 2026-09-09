@@ -8,18 +8,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
-import io.milvus.client.MilvusClient;
 import io.milvus.grpc.QueryResults;
 import io.milvus.grpc.SearchResults;
-import io.milvus.param.R;
-import io.milvus.param.dml.QueryParam;
-import io.milvus.param.dml.SearchParam;
+import io.milvus.v2.client.MilvusClientV2;
+import io.milvus.v2.service.vector.request.QueryIteratorReq;
+import io.milvus.v2.service.vector.request.SearchIteratorReqV2;
 import net.hasor.dbvisitor.adapter.milvus.AbstractJdbcTest;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCommandInterceptor;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
 import org.junit.Test;
+import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
 
 public class MilvusDQLArgsTest extends AbstractJdbcTest {
 
@@ -34,11 +34,15 @@ public class MilvusDQLArgsTest extends AbstractJdbcTest {
     public void testSearchWithArgs() {
         List<Object> argList = new ArrayList<>();
         MilvusCommandInterceptor.resetInterceptor();
-        MilvusCommandInterceptor.addInterceptor(MilvusClient.class, (proxy, method, args) -> {
-            if ("search".equals(method.getName())) {
+        MilvusCommandInterceptor.addInterceptor(MilvusClientV2.class, (proxy, method, args) -> {
+            if ("describeCollection".equals(method.getName())) {
+                return v2Response(method.getName(), io.milvus.grpc.DescribeCollectionResponse.newBuilder()
+                        .setSchema(io.milvus.grpc.CollectionSchema.newBuilder().addFields(io.milvus.grpc.FieldSchema.newBuilder().setName("book_id").setDataType(io.milvus.grpc.DataType.Int64).setIsPrimaryKey(true)).addFields(io.milvus.grpc.FieldSchema.newBuilder().setName("word_count").setDataType(io.milvus.grpc.DataType.Int32)).addFields(io.milvus.grpc.FieldSchema.newBuilder().setName("title").setDataType(io.milvus.grpc.DataType.VarChar)).addFields(io.milvus.grpc.FieldSchema.newBuilder().setName("book_intro").setDataType(io.milvus.grpc.DataType.FloatVector))).build());
+            }
+            if ("searchIteratorV2".equals(method.getName())) {
                 argList.addAll(Arrays.asList(args));
                 SearchResults.Builder resultsBuilder = SearchResults.newBuilder();
-                return R.success(resultsBuilder.build());
+                return v2Response(method.getName(), resultsBuilder.build());
             } else if ("close".equals(method.getName())) {
                 return null;
             }
@@ -55,7 +59,7 @@ public class MilvusDQLArgsTest extends AbstractJdbcTest {
                 // Limit
                 ps.setInt(2, 10);
                 // Offset -> Note: Milvus Scan/Search might handle OFFSET differently (e.g. topK = limit + offset, then slice).
-                // Or Adapter implementation handles it. Let's see what SearchParam gets.
+                // Or Adapter implementation handles it. Let's see what SearchIteratorReqV2 gets.
                 ps.setInt(3, 5);
 
                 try (ResultSet rs = ps.executeQuery()) {
@@ -69,13 +73,13 @@ public class MilvusDQLArgsTest extends AbstractJdbcTest {
         }
 
         assert argList.size() == 1;
-        SearchParam searchParam = (SearchParam) argList.get(0);
+        SearchIteratorReqV2 searchParam = (SearchIteratorReqV2) argList.get(0);
 
-        List<?> vectors = searchParam.getVectors();
+        List<?> vectors = searchParam.getVectors().stream().map(v -> v.getData()).collect(java.util.stream.Collectors.toList());
         assert vectors.size() == 1;
         assert vectors.get(0).equals(Arrays.asList(0.1f, 0.2f));
 
-        // Milvus Adapter usually maps JDBC LIMIT/OFFSET to SearchParam properties.
+        // Milvus Adapter usually maps JDBC LIMIT/OFFSET to SearchIteratorReqV2 properties.
         // Check implementation or behave based on expectation.
         // Assuming adapter handles it.
     }
@@ -84,11 +88,15 @@ public class MilvusDQLArgsTest extends AbstractJdbcTest {
     public void testQueryWithArgs() {
         List<Object> argList = new ArrayList<>();
         MilvusCommandInterceptor.resetInterceptor();
-        MilvusCommandInterceptor.addInterceptor(MilvusClient.class, (proxy, method, args) -> {
-            if ("query".equals(method.getName())) {
+        MilvusCommandInterceptor.addInterceptor(MilvusClientV2.class, (proxy, method, args) -> {
+            if ("describeCollection".equals(method.getName())) {
+                return v2Response(method.getName(), io.milvus.grpc.DescribeCollectionResponse.newBuilder()
+                        .setSchema(io.milvus.grpc.CollectionSchema.newBuilder().addFields(io.milvus.grpc.FieldSchema.newBuilder().setName("book_id").setDataType(io.milvus.grpc.DataType.Int64).setIsPrimaryKey(true)).addFields(io.milvus.grpc.FieldSchema.newBuilder().setName("word_count").setDataType(io.milvus.grpc.DataType.Int32)).addFields(io.milvus.grpc.FieldSchema.newBuilder().setName("title").setDataType(io.milvus.grpc.DataType.VarChar)).addFields(io.milvus.grpc.FieldSchema.newBuilder().setName("book_intro").setDataType(io.milvus.grpc.DataType.FloatVector))).build());
+            }
+            if ("queryIterator".equals(method.getName())) {
                 argList.addAll(Arrays.asList(args));
                 QueryResults.Builder resultsBuilder = QueryResults.newBuilder();
-                return R.success(resultsBuilder.build());
+                return v2Response(method.getName(), resultsBuilder.build());
             } else if ("close".equals(method.getName())) {
                 return null;
             }
@@ -112,25 +120,30 @@ public class MilvusDQLArgsTest extends AbstractJdbcTest {
         }
 
         assert argList.size() == 1;
-        QueryParam queryParam = (QueryParam) argList.get(0);
+        QueryIteratorReq queryParam = (QueryIteratorReq) argList.get(0);
 
         assert queryParam.getCollectionName().equals("book_vectors");
         // Verify expression
-        // Expecting something like "book_id == 1002" or "book_id = 1002"
+        // Expression structure and bound values travel separately.
         String expr = queryParam.getExpr();
         assert expr.contains("book_id");
-        assert expr.contains("1002");
+        assert expr.equals("book_id == {arg1}");
+        assert queryParam.getFilterTemplateValues().get("arg1").equals(1002L);
     }
 
     @Test
     public void testQueryWithInArgs() {
         List<Object> argList = new ArrayList<>();
         MilvusCommandInterceptor.resetInterceptor();
-        MilvusCommandInterceptor.addInterceptor(MilvusClient.class, (proxy, method, args) -> {
-            if ("query".equals(method.getName())) {
+        MilvusCommandInterceptor.addInterceptor(MilvusClientV2.class, (proxy, method, args) -> {
+            if ("describeCollection".equals(method.getName())) {
+                return v2Response(method.getName(), io.milvus.grpc.DescribeCollectionResponse.newBuilder()
+                        .setSchema(io.milvus.grpc.CollectionSchema.newBuilder().addFields(io.milvus.grpc.FieldSchema.newBuilder().setName("book_id").setDataType(io.milvus.grpc.DataType.Int64).setIsPrimaryKey(true)).addFields(io.milvus.grpc.FieldSchema.newBuilder().setName("word_count").setDataType(io.milvus.grpc.DataType.Int32)).addFields(io.milvus.grpc.FieldSchema.newBuilder().setName("title").setDataType(io.milvus.grpc.DataType.VarChar)).addFields(io.milvus.grpc.FieldSchema.newBuilder().setName("book_intro").setDataType(io.milvus.grpc.DataType.FloatVector))).build());
+            }
+            if ("queryIterator".equals(method.getName())) {
                 argList.addAll(Arrays.asList(args));
                 QueryResults.Builder resultsBuilder = QueryResults.newBuilder();
-                return R.success(resultsBuilder.build());
+                return v2Response(method.getName(), resultsBuilder.build());
             } else if ("close".equals(method.getName())) {
                 return null;
             }
@@ -153,10 +166,11 @@ public class MilvusDQLArgsTest extends AbstractJdbcTest {
         }
 
         assert argList.size() == 1;
-        QueryParam queryParam = (QueryParam) argList.get(0);
+        QueryIteratorReq queryParam = (QueryIteratorReq) argList.get(0);
         String expr = queryParam.getExpr();
-        // Expect "book_id in [1, 2, 3]"
+        // IN uses one array template.
         assert expr.contains("book_id in");
-        assert expr.contains("[1, 2, 3]") || expr.contains("1, 2"); // checking actual format might depend on list serialization
+        assert expr.equals("book_id in {arg1}");
+        assert queryParam.getFilterTemplateValues().get("arg1").equals(Arrays.asList(1L, 2L, 3L));
     }
 }

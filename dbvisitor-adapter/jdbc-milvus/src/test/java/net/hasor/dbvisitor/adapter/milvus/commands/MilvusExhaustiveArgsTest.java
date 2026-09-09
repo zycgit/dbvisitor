@@ -8,23 +8,23 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
-import io.milvus.client.MilvusClient;
 import io.milvus.grpc.ErrorCode;
 import io.milvus.grpc.SearchResultData;
 import io.milvus.grpc.SearchResults;
-import io.milvus.param.R;
-import io.milvus.param.dml.DeleteParam;
-import io.milvus.param.dml.InsertParam;
-import io.milvus.param.dml.QueryParam;
-import io.milvus.param.dml.SearchParam;
+import io.milvus.orm.iterator.QueryIterator;
+import io.milvus.orm.iterator.SearchIteratorV2;
+import io.milvus.v2.client.MilvusClientV2;
+import io.milvus.v2.service.vector.request.*;
 import net.hasor.dbvisitor.adapter.milvus.AbstractJdbcTest;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCommandInterceptor;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
 import org.junit.Test;
+import org.powermock.api.mockito.PowerMockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
 
 public class MilvusExhaustiveArgsTest extends AbstractJdbcTest {
     private static final Logger logger = LoggerFactory.getLogger(MilvusExhaustiveArgsTest.class);
@@ -43,25 +43,35 @@ public class MilvusExhaustiveArgsTest extends AbstractJdbcTest {
     private void runTest(String sql, List<Object> params, String expectedMethod, SqlTestVerifier verifier) {
         List<Object> capturedArgs = new ArrayList<>();
         MilvusCommandInterceptor.resetInterceptor();
-        MilvusCommandInterceptor.addInterceptor(MilvusClient.class, (proxy, method, args) -> {
+        MilvusCommandInterceptor.addInterceptor(MilvusClientV2.class, (proxy, method, args) -> {
             if (expectedMethod.equals(method.getName())) {
                 capturedArgs.addAll(Arrays.asList(args));
                 // Mock Responses
                 if ("query".equals(expectedMethod)) {
-                    return R.success(io.milvus.grpc.QueryResults.newBuilder().setStatus(io.milvus.grpc.Status.newBuilder().setErrorCode(ErrorCode.Success)).build());
+                    return v2Response(method.getName(), io.milvus.grpc.QueryResults.newBuilder().setStatus(io.milvus.grpc.Status.newBuilder().setErrorCode(ErrorCode.Success)).build());
                 } else if ("search".equals(expectedMethod)) {
                     SearchResultData resultData = SearchResultData.newBuilder().setNumQueries(1).setTopK(0).build();
-                    return R.success(SearchResults.newBuilder().setStatus(io.milvus.grpc.Status.newBuilder().setErrorCode(ErrorCode.Success)).setResults(resultData).build());
+                    return v2Response(method.getName(), SearchResults.newBuilder().setStatus(io.milvus.grpc.Status.newBuilder().setErrorCode(ErrorCode.Success)).setResults(resultData).build());
                 } else if ("insert".equals(expectedMethod)) {
-                    return R.success(io.milvus.grpc.MutationResult.newBuilder().setInsertCnt(1).build());
+                    return v2Response(method.getName(), io.milvus.grpc.MutationResult.newBuilder().setInsertCnt(1).build());
                 } else if ("delete".equals(expectedMethod)) {
-                    return R.success(io.milvus.grpc.MutationResult.newBuilder().setDeleteCnt(1).build());
+                    return v2Response(method.getName(), io.milvus.grpc.MutationResult.newBuilder().setDeleteCnt(1).build());
                 } else if ("upsert".equals(expectedMethod)) { // For UPDATE
-                    return R.success(io.milvus.grpc.MutationResult.newBuilder().setInsertCnt(1).build());
+                    return v2Response(method.getName(), io.milvus.grpc.MutationResult.newBuilder().setInsertCnt(1).build());
+                } else if ("queryIterator".equals(expectedMethod)) {
+                    QueryIterator iterator = PowerMockito.mock(QueryIterator.class);
+                    PowerMockito.when(iterator.next()).thenReturn(new ArrayList<>());
+                    return v2Response(method.getName(), iterator);
+                } else if ("searchIteratorV2".equals(expectedMethod)) {
+                    SearchIteratorV2 iterator = PowerMockito.mock(SearchIteratorV2.class);
+                    PowerMockito.when(iterator.next()).thenReturn(new ArrayList<>());
+                    return v2Response(method.getName(), iterator);
                 }
             }
             if ("describeCollection".equals(method.getName())) {
-                return R.success(io.milvus.grpc.DescribeCollectionResponse.newBuilder().setStatus(io.milvus.grpc.Status.newBuilder().setErrorCode(ErrorCode.Success).build()).setSchema(io.milvus.grpc.CollectionSchema.newBuilder().setName("t").addFields(io.milvus.grpc.FieldSchema.newBuilder().setName("id").setDataType(io.milvus.grpc.DataType.Int64).build()).addFields(io.milvus.grpc.FieldSchema.newBuilder().setName("val").setDataType(io.milvus.grpc.DataType.VarChar).addTypeParams(io.milvus.grpc.KeyValuePair.newBuilder().setKey("max_length").setValue("100").build()).build()).addFields(io.milvus.grpc.FieldSchema.newBuilder().setName("v").setDataType(io.milvus.grpc.DataType.FloatVector).addTypeParams(io.milvus.grpc.KeyValuePair.newBuilder().setKey("dim").setValue("2").build()).build()).build()).build());
+                return v2Response(method.getName(), io.milvus.grpc.DescribeCollectionResponse.newBuilder().setStatus(io.milvus.grpc.Status.newBuilder().setErrorCode(ErrorCode.Success).build()).setSchema(
+                        io.milvus.grpc.CollectionSchema.newBuilder().setName("t").addFields(io.milvus.grpc.FieldSchema.newBuilder().setName("a").setDataType(io.milvus.grpc.DataType.VarChar)).addFields(io.milvus.grpc.FieldSchema.newBuilder().setName("b").setDataType(io.milvus.grpc.DataType.Int32)).addFields(io.milvus.grpc.FieldSchema.newBuilder().setName("id").setDataType(io.milvus.grpc.DataType.Int64).setIsPrimaryKey(true).build())
+                                .addFields(io.milvus.grpc.FieldSchema.newBuilder().setName("val").setDataType(io.milvus.grpc.DataType.VarChar).addTypeParams(io.milvus.grpc.KeyValuePair.newBuilder().setKey(MilvusCommandKeys.MAX_LENGTH).setValue("100").build()).build()).addFields(io.milvus.grpc.FieldSchema.newBuilder().setName("v").setDataType(io.milvus.grpc.DataType.FloatVector).addTypeParams(io.milvus.grpc.KeyValuePair.newBuilder().setKey(MilvusCommandKeys.DIMENSION).setValue("2").build()).build()).build()).build());
             }
             if ("close".equals(method.getName())) {
                 return null;
@@ -108,65 +118,65 @@ public class MilvusExhaustiveArgsTest extends AbstractJdbcTest {
         // ==========================================
 
         // 1. Simple Where
-        runTest("SELECT * FROM t WHERE a = ?", Arrays.asList(10), "query", args -> {
-            QueryParam p = (QueryParam) args.get(0);
-            assertExpr(p.getExpr(), "a == 10");
+        runTest("SELECT * FROM t WHERE a = ?", List.of(10), "queryIterator", args -> {
+            QueryIteratorReq p = (QueryIteratorReq) args.get(0);
+            assertExpr(p.getExpr(), "a == {arg1}"); org.junit.Assert.assertEquals(java.util.Map.of("arg1", 10), p.getFilterTemplateValues());
         });
         testCount.incrementAndGet();
 
         // 2. Binary Ops
-        runTest("SELECT * FROM t WHERE a > ?", Arrays.asList(10), "query", args -> assertExpr(((QueryParam) args.get(0)).getExpr(), "a > 10"));
-        runTest("SELECT * FROM t WHERE a < ?", Arrays.asList(10), "query", args -> assertExpr(((QueryParam) args.get(0)).getExpr(), "a < 10"));
-        runTest("SELECT * FROM t WHERE a >= ?", Arrays.asList(10), "query", args -> assertExpr(((QueryParam) args.get(0)).getExpr(), "a >= 10"));
-        runTest("SELECT * FROM t WHERE a <= ?", Arrays.asList(10), "query", args -> assertExpr(((QueryParam) args.get(0)).getExpr(), "a <= 10"));
-        runTest("SELECT * FROM t WHERE a != ?", Arrays.asList(10), "query", args -> assertExpr(((QueryParam) args.get(0)).getExpr(), "a != 10"));
-        runTest("SELECT * FROM t WHERE a <> ?", Arrays.asList(10), "query", args -> assertExpr(((QueryParam) args.get(0)).getExpr(), "a <> 10"));
+        runTest("SELECT * FROM t WHERE a > ?", List.of(10), "queryIterator", args -> { assertExpr(((QueryIteratorReq) args.get(0)).getExpr(), "a > {arg1}"); org.junit.Assert.assertEquals(java.util.Map.of("arg1", 10), ((QueryIteratorReq) args.get(0)).getFilterTemplateValues()); });
+        runTest("SELECT * FROM t WHERE a < ?", List.of(10), "queryIterator", args -> { assertExpr(((QueryIteratorReq) args.get(0)).getExpr(), "a < {arg1}"); org.junit.Assert.assertEquals(java.util.Map.of("arg1", 10), ((QueryIteratorReq) args.get(0)).getFilterTemplateValues()); });
+        runTest("SELECT * FROM t WHERE a >= ?", List.of(10), "queryIterator", args -> { assertExpr(((QueryIteratorReq) args.get(0)).getExpr(), "a >= {arg1}"); org.junit.Assert.assertEquals(java.util.Map.of("arg1", 10), ((QueryIteratorReq) args.get(0)).getFilterTemplateValues()); });
+        runTest("SELECT * FROM t WHERE a <= ?", List.of(10), "queryIterator", args -> { assertExpr(((QueryIteratorReq) args.get(0)).getExpr(), "a <= {arg1}"); org.junit.Assert.assertEquals(java.util.Map.of("arg1", 10), ((QueryIteratorReq) args.get(0)).getFilterTemplateValues()); });
+        runTest("SELECT * FROM t WHERE a != ?", List.of(10), "queryIterator", args -> { assertExpr(((QueryIteratorReq) args.get(0)).getExpr(), "a != {arg1}"); org.junit.Assert.assertEquals(java.util.Map.of("arg1", 10), ((QueryIteratorReq) args.get(0)).getFilterTemplateValues()); });
+        runTest("SELECT * FROM t WHERE a <> ?", List.of(10), "queryIterator", args -> { assertExpr(((QueryIteratorReq) args.get(0)).getExpr(), "a <> {arg1}"); org.junit.Assert.assertEquals(java.util.Map.of("arg1", 10), ((QueryIteratorReq) args.get(0)).getFilterTemplateValues()); });
         testCount.addAndGet(6);
 
         // 3. Like
-        runTest("SELECT * FROM t WHERE a LIKE ?", Arrays.asList("pref%"), "query", args -> {
-            assertExpr(((QueryParam) args.get(0)).getExpr(), "a like \"pref%\"");
+        runTest("SELECT * FROM t WHERE a LIKE ?", List.of("pref%"), "queryIterator", args -> {
+            assertExpr(((QueryIteratorReq) args.get(0)).getExpr(), "a like {arg1}"); org.junit.Assert.assertEquals(java.util.Map.of("arg1", "pref%"), ((QueryIteratorReq) args.get(0)).getFilterTemplateValues());
         });
         testCount.incrementAndGet();
 
         // 4. IN (List Object)
-        runTest("SELECT * FROM t WHERE a IN ?", Arrays.asList(Arrays.asList(1, 2)), "query", args -> {
-            assertExpr(((QueryParam) args.get(0)).getExpr(), "a in [1, 2]");
+        runTest("SELECT * FROM t WHERE a IN ?", List.of(Arrays.asList(1, 2)), "queryIterator", args -> {
+            assertExpr(((QueryIteratorReq) args.get(0)).getExpr(), "a in {arg1}"); org.junit.Assert.assertEquals(java.util.Map.of("arg1", Arrays.asList(1, 2)), ((QueryIteratorReq) args.get(0)).getFilterTemplateValues());
         });
         testCount.incrementAndGet();
 
         // 5. IN [?, ?]
-        runTest("SELECT * FROM t WHERE a IN [?, ?]", Arrays.asList(1, 2), "query", args -> {
-            assertExpr(((QueryParam) args.get(0)).getExpr(), "a in [1, 2]");
+        runTest("SELECT * FROM t WHERE a IN [?, ?]", Arrays.asList(1, 2), "queryIterator", args -> {
+            assertExpr(((QueryIteratorReq) args.get(0)).getExpr(), "a in {arg1}"); org.junit.Assert.assertEquals(java.util.Map.of("arg1", Arrays.asList(1, 2)), ((QueryIteratorReq) args.get(0)).getFilterTemplateValues());
         });
         testCount.incrementAndGet();
 
         // 6. Logic
-        runTest("SELECT * FROM t WHERE a = ? AND b = ?", Arrays.asList(1, 2), "query", args -> {
-            assertExpr(((QueryParam) args.get(0)).getExpr(), "a == 1 && b == 2");
+        runTest("SELECT * FROM t WHERE a = ? AND b = ?", Arrays.asList(1, 2), "queryIterator", args -> {
+            assertExpr(((QueryIteratorReq) args.get(0)).getExpr(), "a == {arg1} && b == {arg2}"); org.junit.Assert.assertEquals(java.util.Map.of("arg1", 1, "arg2", 2), ((QueryIteratorReq) args.get(0)).getFilterTemplateValues());
         });
         testCount.incrementAndGet();
 
         // 7. Limit / Offset
-        runTest("SELECT * FROM t LIMIT ?", Arrays.asList(10), "query", args -> {
-            assert ((QueryParam) args.get(0)).getLimit() == 10;
+        runTest("SELECT * FROM t LIMIT ?", List.of(10), "query", args -> {
+            assert ((QueryReq) args.get(0)).getLimit() == 10;
         });
-        runTest("SELECT * FROM t OFFSET ?", Arrays.asList(5), "query", args -> {
-            assert ((QueryParam) args.get(0)).getOffset() == 5;
+        runTest("SELECT * FROM t OFFSET ?", List.of(5), "queryIterator", args -> {
+            assert ((QueryIteratorReq) args.get(0)).getOffset() == 0;
         });
-        runTest("SELECT * FROM t LIMIT ? OFFSET ?", Arrays.asList(10, 5), "query", args -> {
-            QueryParam p = (QueryParam) args.get(0);
-            assert p.getLimit() == 10;
-            assert p.getOffset() == 5;
+        runTest("SELECT * FROM t LIMIT ? OFFSET ?", Arrays.asList(10, 5), "queryIterator", args -> {
+            QueryIteratorReq p = (QueryIteratorReq) args.get(0);
+            assert p.getLimit() == 15;
+            assert p.getOffset() == 0;
         });
         testCount.addAndGet(3);
 
         // 8. Mixed Where + Limit + Offset
-        runTest("SELECT * FROM t WHERE a = ? LIMIT ? OFFSET ?", Arrays.asList(99, 10, 5), "query", args -> {
-            QueryParam p = (QueryParam) args.get(0);
-            assertExpr(p.getExpr(), "a == 99");
-            assert p.getLimit() == 10;
-            assert p.getOffset() == 5;
+        runTest("SELECT * FROM t WHERE a = ? LIMIT ? OFFSET ?", Arrays.asList(99, 10, 5), "queryIterator", args -> {
+            QueryIteratorReq p = (QueryIteratorReq) args.get(0);
+            assertExpr(p.getExpr(), "a == {arg1}"); org.junit.Assert.assertEquals(java.util.Map.of("arg1", 99), p.getFilterTemplateValues());
+            assert p.getLimit() == 15;
+            assert p.getOffset() == 0;
         });
         testCount.incrementAndGet();
 
@@ -174,84 +184,84 @@ public class MilvusExhaustiveArgsTest extends AbstractJdbcTest {
         // SEARCH Scenarios (ORDER BY vector <-> ?)
         // ==========================================
 
-        // 9. Simple Search
+        // 9. Simple Search with literal limit
         List<Float> vec = Arrays.asList(0.1f, 0.2f);
-        runTest("SELECT * FROM t ORDER BY v <-> ?", Arrays.asList(vec), "search", args -> {
-            SearchParam p = (SearchParam) args.get(0);
-            assert p.getVectors().get(0).equals(vec);
+        runTest("SELECT * FROM t ORDER BY v <-> ? LIMIT 10", List.of(vec), "search", args -> {
+            SearchReq p = (SearchReq) args.get(0);
+            assert p.getData().get(0).getData().equals(vec);
         });
         testCount.incrementAndGet();
 
         // 10. Search with TopK (Limit)
         runTest("SELECT * FROM t ORDER BY v <-> ? LIMIT ?", Arrays.asList(vec, 5), "search", args -> {
-            SearchParam p = (SearchParam) args.get(0);
+            SearchReq p = (SearchReq) args.get(0);
             assert p.getTopK() == 5;
         });
         testCount.incrementAndGet();
 
-        // 11. Search with Where
-        // SQL: WHERE a = ? ORDER BY v <-> ?
+        // 11. Search with Where and literal limit
+        // SQL: WHERE a = ? ORDER BY v <-> ? LIMIT 10
         // EXPECTED: Param 1 -> Where, Param 2 -> Vector
-        runTest("SELECT * FROM t WHERE a = ? ORDER BY v <-> ?", Arrays.asList(123, vec), "search", args -> {
-            SearchParam p = (SearchParam) args.get(0);
-            assertExpr(p.getExpr(), "a == 123");
-            assert p.getVectors().get(0).equals(vec);
+        runTest("SELECT * FROM t WHERE a = ? ORDER BY v <-> ? LIMIT 10", Arrays.asList(123, vec), "search", args -> {
+            SearchReq p = (SearchReq) args.get(0);
+            assertExpr(p.getFilter(), "a == {arg1}"); org.junit.Assert.assertEquals(java.util.Map.of("arg1", 123), p.getFilterTemplateValues());
+            assert p.getData().get(0).getData().equals(vec);
         });
         testCount.incrementAndGet();
 
         // 12. Search with Where + Limit
         runTest("SELECT * FROM t WHERE a = ? ORDER BY v <-> ? LIMIT ?", Arrays.asList(123, vec, 10), "search", args -> {
-            SearchParam p = (SearchParam) args.get(0);
-            assertExpr(p.getExpr(), "a == 123");
-            assert p.getVectors().get(0).equals(vec);
+            SearchReq p = (SearchReq) args.get(0);
+            assertExpr(p.getFilter(), "a == {arg1}"); org.junit.Assert.assertEquals(java.util.Map.of("arg1", 123), p.getFilterTemplateValues());
+            assert p.getData().get(0).getData().equals(vec);
             assert p.getTopK() == 10;
         });
         testCount.incrementAndGet();
 
         // 13. Search with Vector Literal [?, ?]
-        runTest("SELECT * FROM t ORDER BY v <-> [?, ?]", Arrays.asList(0.1f, 0.2f), "search", args -> {
-            SearchParam p = (SearchParam) args.get(0);
-            assert p.getVectors().get(0).equals(Arrays.asList(0.1f, 0.2f));
+        runTest("SELECT * FROM t ORDER BY v <-> [?, ?] LIMIT 10", Arrays.asList(0.1f, 0.2f), "search", args -> {
+            SearchReq p = (SearchReq) args.get(0);
+            assert p.getData().get(0).getData().equals(Arrays.asList(0.1f, 0.2f));
         });
         testCount.incrementAndGet();
 
         // 14. Complex Search: WHERE (a=? OR b=?) AND c=? ORDER BY v <-> ? LIMIT ?
         // Params: 1, 2, 3, vec, 10
         runTest("SELECT * FROM t WHERE (a=? OR b=?) AND c=? ORDER BY v <-> ? LIMIT ?", Arrays.asList(1, 2, 3, vec, 10), "search", args -> {
-            SearchParam p = (SearchParam) args.get(0);
-            assertExpr(p.getExpr(), "(a == 1 || b == 2) && c == 3");
-            assert p.getVectors().get(0).equals(vec);
+            SearchReq p = (SearchReq) args.get(0);
+            assertExpr(p.getFilter(), "(a == {arg1} || b == {arg2}) && c == {arg3}"); org.junit.Assert.assertEquals(java.util.Map.of("arg1", 1, "arg2", 2, "arg3", 3), p.getFilterTemplateValues());
+            assert p.getData().get(0).getData().equals(vec);
             assert p.getTopK() == 10;
         });
         testCount.incrementAndGet();
 
         // 15. Vector Range Search: vector_range(v, vec, radius)
-        runTest("SELECT * FROM t WHERE vector_range(v, ?, ?)", Arrays.asList(vec, 1.5), "search", args -> {
-            SearchParam p = (SearchParam) args.get(0);
-            assert p.getVectors().get(0).equals(vec);
-            assert p.getParams().contains("\"radius\":1.5");
+        runTest("SELECT * FROM t WHERE vector_range(v, ?, ?) LIMIT 10", Arrays.asList(vec, 1.5), "search", args -> {
+            SearchReq p = (SearchReq) args.get(0);
+            assert p.getData().get(0).getData().equals(vec);
+            assert new com.google.gson.Gson().toJson(p.getSearchParams()).contains("\"radius\":1.5");
         });
         testCount.incrementAndGet();
 
         // 16. Vector Range + Scalar Filter: vector_range(v, ?, ?) AND a = ?
-        String sqlRangeMixed = "SELECT * FROM t WHERE vector_range(v, ?, ?) AND a = ?";
+        String sqlRangeMixed = "SELECT * FROM t WHERE vector_range(v, ?, ?) AND a = ? LIMIT 10";
         runTest(sqlRangeMixed, Arrays.asList(vec, 1.5, 999), "search", args -> {
-            SearchParam p = (SearchParam) args.get(0);
-            assert p.getVectors().get(0).equals(vec);
+            SearchReq p = (SearchReq) args.get(0);
+            assert p.getData().get(0).getData().equals(vec);
             // JSON construction in Adapter has no spaces: "radius":1.5
-            assert p.getParams().contains("\"radius\":1.5");
-            assertExpr(p.getExpr(), "a == 999");
+            assert new com.google.gson.Gson().toJson(p.getSearchParams()).contains("\"radius\":1.5");
+            assertExpr(p.getFilter(), "a == {arg3}"); org.junit.Assert.assertEquals(java.util.Map.of("arg3", 999), p.getFilterTemplateValues());
         });
         testCount.incrementAndGet();
 
         // 17. Reverse Order: a = ? AND vector_range(v, ?, ?)
         // This fails if parser skipping logic is flawed.
-        String sqlRangeMixed2 = "SELECT * FROM t WHERE a = ? AND vector_range(v, ?, ?)";
+        String sqlRangeMixed2 = "SELECT * FROM t WHERE a = ? AND vector_range(v, ?, ?) LIMIT 10";
         runTest(sqlRangeMixed2, Arrays.asList(999, vec, 1.5), "search", args -> {
-            SearchParam p = (SearchParam) args.get(0);
-            assertExpr(p.getExpr(), "a == 999");
-            assert p.getVectors().get(0).equals(vec);
-            assert p.getParams().contains("\"radius\":1.5");
+            SearchReq p = (SearchReq) args.get(0);
+            assertExpr(p.getFilter(), "a == {arg1}"); org.junit.Assert.assertEquals(java.util.Map.of("arg1", 999), p.getFilterTemplateValues());
+            assert p.getData().get(0).getData().equals(vec);
+            assert new com.google.gson.Gson().toJson(p.getSearchParams()).contains("\"radius\":1.5");
         });
         testCount.incrementAndGet();
 
@@ -260,17 +270,17 @@ public class MilvusExhaustiveArgsTest extends AbstractJdbcTest {
         // ==========================================
         // 18. Insert Simple
         runTest("INSERT INTO t (id, val) VALUES (?, ?)", Arrays.asList(1L, "Test"), "insert", args -> {
-            InsertParam p = (InsertParam) args.get(0);
-            assert p.getFields().get(0).getValues().get(0).equals(1L);
-            assert p.getFields().get(1).getValues().get(0).equals("Test");
+            InsertReq p = (InsertReq) args.get(0);
+            assert p.getData().get(0).get("id").getAsLong() == 1L;
+            assert p.getData().get(0).get("val").getAsString().equals("Test");
         });
         testCount.incrementAndGet();
 
         // 19. Insert Vector
         runTest("INSERT INTO t (id, v) VALUES (?, ?)", Arrays.asList(1L, vec), "insert", args -> {
-            InsertParam p = (InsertParam) args.get(0);
-            assert p.getFields().get(0).getValues().get(0).equals(1L);
-            assert p.getFields().get(1).getValues().get(0).equals(vec);
+            InsertReq p = (InsertReq) args.get(0);
+            assert p.getData().get(0).get("id").getAsLong() == 1L;
+            assert p.getData().get(0).get("v").equals(new com.google.gson.Gson().toJsonTree(vec));
         });
         testCount.incrementAndGet();
 
@@ -279,21 +289,20 @@ public class MilvusExhaustiveArgsTest extends AbstractJdbcTest {
         // ==========================================
         // Milvus Update usually involves Search -> Delete -> Insert or simple Upsert.
         // The adapter might map it to QUERY first. 
-        // Standard "UPDATE t SET a=? WHERE b=?" -> Query(b=?) -> Upsert(a=?)
+        // Standard "UPDATE t SET a=? WHERE b=? LIMIT n" -> Query(b=?) -> Upsert(a=?)
 
         // 20. Update Simple
-        runTest("UPDATE t SET a=? WHERE b=?", Arrays.asList("newVal", 10), "query", args -> {
-            QueryParam p = (QueryParam) args.get(0);
-            assertExpr(p.getExpr(), "b == 10");
-            // Upsert is called after query returns. But since we mock empty query results, upsert won't be called.
-            // Verification of "query" args proves the WHERE clause parsed correctly.
+        runTest("UPDATE t SET a=? WHERE b=? LIMIT 5", Arrays.asList("newVal", 10), "queryIterator", args -> {
+            QueryIteratorReq p = (QueryIteratorReq) args.get(0);
+            assertExpr(p.getExpr(), "b == {arg2}"); org.junit.Assert.assertEquals(java.util.Map.of("arg2", 10), p.getFilterTemplateValues());
+            assert p.getLimit() == 5;
         });
         testCount.incrementAndGet();
 
         // 21. Update with Limit
-        runTest("UPDATE t SET a=? WHERE b=? LIMIT ?", Arrays.asList("newVal", 10, 5), "query", args -> {
-            QueryParam p = (QueryParam) args.get(0);
-            assertExpr(p.getExpr(), "b == 10");
+        runTest("UPDATE t SET a=? WHERE b=? LIMIT ?", Arrays.asList("newVal", 10, 5), "queryIterator", args -> {
+            QueryIteratorReq p = (QueryIteratorReq) args.get(0);
+            assertExpr(p.getExpr(), "b == {arg2}"); org.junit.Assert.assertEquals(java.util.Map.of("arg2", 10), p.getFilterTemplateValues());
             assert p.getLimit() == 5;
         });
         testCount.incrementAndGet();
@@ -302,17 +311,18 @@ public class MilvusExhaustiveArgsTest extends AbstractJdbcTest {
         // DELETE Scenarios
         // ==========================================
 
-        // 22. Delete Simple (Maps to DeleteParam directly? No, Milvus delete is "delete by expr".
-        runTest("DELETE FROM t WHERE a=?", Arrays.asList(10), "delete", args -> {
-            DeleteParam p = (DeleteParam) args.get(0);
-            assertExpr(p.getExpr(), "a == 10");
+        // 22. Delete Simple (Maps to DeleteReq directly? No, Milvus delete is "delete by expr".
+        runTest("DELETE FROM t WHERE a=?", List.of(10), "delete", args -> {
+            DeleteReq p = (DeleteReq) args.get(0);
+            assertExpr(p.getFilter(), "a == {arg1}"); org.junit.Assert.assertEquals(java.util.Map.of("arg1", 10), p.getFilterTemplateValues());
         });
         testCount.incrementAndGet();
 
         // 23. Delete by Range (Special case) -> Maps to SEARCH first!
-        runTest("DELETE FROM t WHERE vector_range(v, ?, ?)", Arrays.asList(vec, 1.0), "search", args -> {
-            SearchParam p = (SearchParam) args.get(0);
-            assert p.getVectors().get(0).equals(vec);
+        runTest("DELETE FROM t WHERE vector_range(v, ?, ?) LIMIT 10", Arrays.asList(vec, 1.0), "searchIteratorV2", args -> {
+            SearchIteratorReqV2 p = (SearchIteratorReqV2) args.get(0);
+            assert p.getVectors().stream().map(v -> v.getData()).collect(java.util.stream.Collectors.toList()).get(0).equals(vec);
+            assert p.getTopK() == 10;
         });
         testCount.incrementAndGet();
 

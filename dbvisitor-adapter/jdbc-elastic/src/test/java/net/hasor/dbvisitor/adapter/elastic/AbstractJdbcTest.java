@@ -9,7 +9,12 @@ import net.hasor.dbvisitor.driver.JdbcDriver;
 public class AbstractJdbcTest {
 
     public Connection elasticConnection() throws SQLException {
+        return elasticConnection(new Properties());
+    }
+
+    public Connection elasticConnection(Properties settings) throws SQLException {
         Properties prop = new Properties();
+        prop.putAll(settings);
         prop.setProperty(ElasticKeys.CUSTOM_ELASTIC, ElasticCustomClient.class.getName());
         return new JdbcDriver().connect("jdbc:dbvisitor:elastic://xxxxxx:9200", prop);
     }
