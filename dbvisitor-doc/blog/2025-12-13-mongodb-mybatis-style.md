@@ -35,8 +35,8 @@ dbVisitor 通过提供一个 JDBC 驱动层（`dbvisitor-driver`）和适配器�
 ```java
 @Table("user_info")
 public class UserInfo {
-    // 映射 _id 字段，并自动处理 ObjectId
-    @Column(value = "_id", primary = true, keyType = KeyType.Auto, whereValueTemplate = "ObjectId(?)")
+    // 示例使用应用生成的字符串 _id，不依赖 Lambda 自动主键回填
+    @Column(value = "_id", primary = true)
     private String id;
 
     @Column("name")
@@ -49,6 +49,8 @@ public class UserInfo {
 }
 ```
 
+插入前为 id 赋值，例如 `UUID.randomUUID().toString()`；同一集合不要混用字符串与 ObjectId 主键示例。原生 ObjectId 和 JDBC 生成键用法见 [MongoDB 使用指南](../docs/features/mongo/usage)。
+
 ### 2.2 使用 Mapper 接口 (注解方式)
 
 你可以定义一个 Mapper 接口，使用注解来编写 MongoDB 的命令。
@@ -57,15 +59,15 @@ public class UserInfo {
 @SimpleMapper
 public interface UserInfoMapper {
     // 插入数据
-    @Insert("test.user_info.insert(#{info})")
+    @Insert("db.user_info.insertOne({_id: #{info.id}, name: #{info.name}, age: #{info.age}})")
     int saveUser(@Param("info") UserInfo info);
 
     // 根据 ID 查询
-    @Query("test.user_info.find({_id: ObjectId(#{id})})")
+    @Query("db.user_info.find({_id: #{id}})")
     UserInfo loadById(@Param("id") String id);
 
     // 删除数据
-    @Delete("test.user_info.remove({_id: ObjectId(#{id})})")
+    @Delete("db.user_info.remove({_id: #{id}})")
     int deleteUser(@Param("id") String id);
 }
 ```
@@ -128,7 +130,8 @@ public interface UserInfoXmlMapper {
     </resultMap>
 
     <insert id="saveUser">
-        test.user_info.insert({
+        db.user_info.insert({
+            _id: #{info.id},
             name: #{info.name},
             age: #{info.age}
         })
@@ -136,7 +139,7 @@ public interface UserInfoXmlMapper {
 
     <!-- 支持自动分页 -->
     <select id="listByUserName" resultMap="userResultMap">
-        test.user_info.find({name: #{userName}})
+        db.user_info.find({name: #{userName}})
     </select>
 </mapper>
 ```
@@ -149,7 +152,7 @@ public interface UserInfoXmlMapper {
 // 创建分页对象
 Page page = new PageObject();
 page.setPageSize(10);
-page.setPageNumber(0); // 第一页
+page.setCurrentPage(0); // 第一页
 
 // 执行查询，dbVisitor 会自动拦截并重写为分页查询
 // 对于 MongoDB，会自动转换为 .skip(0).limit(10)

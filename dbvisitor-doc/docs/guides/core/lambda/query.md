@@ -106,7 +106,7 @@ RowMapper<UserVO> rowMapper = new BeanMappingRowMapper(UserVO.class);
 
 UserVO result = null;
 result = lambda.query(User.class)
-               .le(User::getId, 100)    // 匹配 ID 小于等于 100
+               .eq(User::getId, 100)    // 匹配 ID 等于 100
                .queryForObject(rowMapper);// 使用 RowMapper 处理结果集
 ```
 
@@ -120,14 +120,14 @@ result = lambda.query(User.class)
 -- 原始查询语句
 select id, name from users where id <= 100;
 -- 转化为 count 查询
-select count(*) from (select id, name from users where id <= 100;) as TEMP_T;
+select count(*) from (select id, name from users where id <= 100) as TEMP_T;
 ```
 
 ```java
 LambdaTemplate lambda = ...
 RowMapper<UserVO> rowMapper = new BeanMappingRowMapper(UserVO.class);
 
-int count = null;
+int count = 0;
 count = lambda.query(User.class)
               .le(User::getId, 100)  // 匹配 ID 小于等于 100
               .queryForCount();      // 查询总数，使用 int 类型
@@ -159,7 +159,7 @@ lambda.query(User.class)
 使用 [ResultSetExtractor](../../result/for_extractor) 自定义 `java.sql.ResultSet` 整个结果集的处理。
 
 ```java
-ResultSetExtractor extractor = new ResultSetExtractor<Map<Integer, String>>() {
+ResultSetExtractor<Map<Integer, String>> extractor = new ResultSetExtractor<Map<Integer, String>>() {
     public Map<Integer, String> extractData(ResultSet rs) throws SQLException {
         Map<Integer, String> hashMap = new HashMap<>();
 

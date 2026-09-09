@@ -57,11 +57,11 @@ description: jdbc-redis 支持 140+ 常用命令，涵盖 DB、Server、Keys、L
 | [OBJECT FREQ](https://redis.io/docs/latest/commands/object-freq/)         | 结果集 | 1        | RESULT 字段，LONG 类型                               |
 | [OBJECT IDLETIME](https://redis.io/docs/latest/commands/object-idletime/) | 结果集 | 1        | RESULT 字段，LONG 类型                               |
 | [OBJECT REFCOUNT](https://redis.io/docs/latest/commands/object-refcount/) | 结果集 | 1        | RESULT 字段，LONG 类型                               |
-| [PERSIST](https://redis.io/docs/latest/commands/persist/)                 | 值   | --       | 如果该键当前已生效则为 1，否则为 0（仅在该键未设置的情况下出现）              |
+| [PERSIST](https://redis.io/docs/latest/commands/persist/)                 | 值   | --       | 成功移除键的过期时间返回 1；键不存在或没有过期时间返回 0              |
 | [TTL](https://redis.io/docs/latest/commands/ttl/)                         | 结果集 | 1        | RESULT 字段，LONG 类型                               |
 | [PTTL](https://redis.io/docs/latest/commands/pttl/)                       | 结果集 | 1        | RESULT 字段，LONG 类型                               |
 | [RANDOMKEY](https://redis.io/docs/latest/commands/randomkey/)             | 结果集 | 1        | KEY 字段，STRING 类型                                |
-| [RENAME](https://redis.io/docs/latest/commands/rename/)                   | 值   | --       | 1 表示键已重命名，0 表示目标键已存在.（使用 OK 状态码判断）              |
+| [RENAME](https://redis.io/docs/latest/commands/rename/)                   | 值   | --       | 成功返回 1；目标键已存在时会被覆盖，源键不存在时报错              |
 | [RENAMENX](https://redis.io/docs/latest/commands/renamenx/)               | 值   | --       | 1 表示键已重命名，0 表示目标键已存在.                           |
 | [SCAN](https://redis.io/docs/latest/commands/scan/)                       | 结果集 | multiple | CURSOR 字段，STRING 类型<br/>KEY 字段，STRING 类型        |
 | [TOUCH](https://redis.io/docs/latest/commands/touch/)                     | 值   | --       | 被 TOUCH 的键的数量。                                  |
@@ -154,8 +154,8 @@ description: jdbc-redis 支持 140+ 常用命令，涵盖 DB、Server、Keys、L
 | [ZRANGEBYLEX](https://redis.io/docs/latest/commands/zrangebylex/)           | 结果集 | multiple | ELEMENT 字段，STRING 类型                                                |
 | [ZRANGEBYSCORE](https://redis.io/docs/latest/commands/zrangebyscore/)       | 结果集 | multiple | ELEMENT 字段，STRING 类型<br/>SCORE 字段，DOUBLE 类型（当使用 WITHSCORES 时）       |
 | [ZRANGESTORE](https://redis.io/docs/latest/commands/zrangestore/)           | 值   | --       | 结果有序集合中的元素数量。                                                       |
-| [ZRANK](https://redis.io/docs/latest/commands/zrank/)                       | 结果集 | 1        | SCORE 字段，DOUBLE 类型（当使用 WITHSCORES 时）<br/> RANK 字段，LONG 类型           |
-| [ZREVRANK](https://redis.io/docs/latest/commands/zrevrank/)                 | 结果集 | 1        | SCORE 字段，DOUBLE 类型（当使用 WITHSCORES 时）<br/> RANK 字段，LONG 类型           |
+| [ZRANK](https://redis.io/docs/latest/commands/zrank/)                       | 结果集 | 1        | SCORE 字段，DOUBLE 类型（当使用 WITHSCORE 时）<br/> RANK 字段，LONG 类型           |
+| [ZREVRANK](https://redis.io/docs/latest/commands/zrevrank/)                 | 结果集 | 1        | SCORE 字段，DOUBLE 类型（当使用 WITHSCORE 时）<br/> RANK 字段，LONG 类型           |
 | [ZREM](https://redis.io/docs/latest/commands/zrem/)                         | 值   | --       | 从有序集合中移除的成员数量，不包括不存在的成员。                                            |
 | [ZREMRANGEBYLEX](https://redis.io/docs/latest/commands/zremrangebylex/)     | 值   | --       | 从有序集合中移除的成员数量，不包括不存在的成员。                                            |
 | [ZREMRANGEBYRANK](https://redis.io/docs/latest/commands/zremrangebyrank/)   | 值   | --       | 从有序集合中移除的成员数量，不包括不存在的成员。                                            |

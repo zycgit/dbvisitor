@@ -29,7 +29,7 @@ description: 按使用场景组织常用手册入口，便于快速定位对应�
 - 在 Mapper File 中使用 [&lt;select&gt;](./core/file/statements#select) 标签查询数据、使用 [&lt;sql&gt;](./core/file/statements#sql) 标签定义 SQL 片段。
 
 ### 参数传递
-- 在动态 SQL 中利用 [SQL 注入](./args/inject) 进行参数传递（需要自行评估 SQL 注入安全风险）
+- 在动态 SQL 中利用 [SQL 文本替换](./args/inject) 进行参数传递（需要自行评估 SQL 注入安全风险）
 - 使用 [位置编号](./args/position) 进行参数传递，还可以通过 [位置编号名称化](./args/position#pos_named) 传递参数。
 - 使用 [名称化](./args/named) 方式参数传递，使用 [OGNL](./args/named#ognl) 对名称参数进一步取值。
 - 使用 [SqlArgSource 接口](./args/interface#source) 或 [PreparedStatement 接口](./args/interface#pset) 传参。
@@ -45,7 +45,7 @@ description: 按使用场景组织常用手册入口，便于快速定位对应�
 ### 动态 SQL
 - 规则手册：[动态 SQL 规则](./rules/dynamic_rule) 、[嵌套规则](./rules/nested_rule) 、[结果处理](./rules/result_rule) 等。
 - 在 SQL 语句中通过 [MACRO 规则](./rules/dynamic_rule#macro) 注入预先定义的 SQL 片段（需要自行评估 SQL 注入安全风险）
-- 在 SQL 语句中通过 [IFTEXT 规则](./rules/dynamic_rule#macro) 或 [`${...}`](./args/inject) 语法实现 SQL 注入（需要自行评估 SQL 注入安全风险）
+- 在 SQL 语句中通过 [IFTEXT 规则](./rules/dynamic_rule#if) 或 [`${...}`](./args/inject) 语法拼接 SQL 文本（需要自行评估 SQL 注入安全风险）
 - 通过 [AND](./rules/dynamic_rule#and)、[OR](./rules/dynamic_rule#or)、[SET](./rules/dynamic_rule#set)、[CASE](./rules/dynamic_rule#case) 规则增强 SQL 语句。
 - 利用 [IN](./rules/dynamic_rule#in) 规则，可以自动根据集合参数的数量为 SQL 语句中生成对应的 `(?,?,?,?)`。
 - 利用 [IFAND](./rules/dynamic_rule#and)、[IFOR](./rules/dynamic_rule#or)、[IFSET](./rules/dynamic_rule#set)、[IFIN](./rules/dynamic_rule#in) 规则，允许通过一个条件参数来控制规则是否有效。
@@ -96,7 +96,7 @@ description: 按使用场景组织常用手册入口，便于快速定位对应�
 - dbVisitor 提供了大量实用的类型处理器，当遇到类型问题可以先看下已有类型处理器是否已经支持。
   - [布尔](./types/handlers/bool-handler)、[数字](./types/handlers/number-handler)、[字符/字符串](./types/handlers/string-handler)、[时间](./types/handlers/datetime-handler)、[字节数组](./types/handlers/bytes-handler)
 - 枚举可以通过实现 [EnumOfValue](./types/enum-handler#ofvalue) 或者 [EnumOfCode](./types/enum-handler#ofcode) 接口将数据库中的 数值 或 特定 Code 作为和枚举的映射关系。
-- 使用 [序列化处理器](./types/json-serialization) 可以自动识别您依赖中的 Fastjso2、Fastjson、Jackson、Gson 库，并按照这个顺序自动选择它们。
+- 使用 [序列化处理器](./types/json-serialization) 可以自动识别您依赖中的 Jackson、Gson、Fastjson、Fastjson2 库，并按照这个顺序自动选择它们。
 - 在依赖 JTS 后 dbVisitor 可以处理 [WKB 或 WKT](./types/gis-handler) 格式的地理信息数据。
 - 对于 [InputStream/Reader 类型](./types/stream-handler) 或 [数组类型](./types/array-handler) dbVisitor 也有一定的支持。
 

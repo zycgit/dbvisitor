@@ -12,7 +12,7 @@ dbVisitor 提供一套轻量的本地事务能力，用来把多次数据库操�
 事务由 `TransactionManager` 管理，一个事务管理器绑定一个 `DataSource`。在事务中，dbVisitor 会把当前线程上的数据库连接交给 `JdbcTemplate`、Mapper、BaseMapper、LambdaTemplate 等 API 复用；事务结束时再统一提交或回滚。
 
 :::info
-dbVisitor 管理的是本地事务，不是分布式事务。多个 `DataSource` 可以分别绑定事务拦截器，但不同数据库之间不会自动具备两阶段提交能力。
+事务需要 JDBC 驱动和数据库支持，不能用于不支持事务的适配器。dbVisitor 管理的是本地事务，不是分布式事务。多个 `DataSource` 可以分别绑定事务拦截器，但不同数据库之间不会自动具备两阶段提交能力。
 :::
 
 ## 先选使用方式
@@ -30,7 +30,7 @@ dbVisitor 管理的是本地事务，不是分布式事务。多个 `DataSource`
 
 ## 一个完整效果
 
-下面的例子希望达成一个效果：创建订单和订单明细必须同时成功；任意一步失败，都要一起回滚。
+下面以支持序列及本地事务的数据库（例如 H2）为例，表和序列需预先创建，并通过 [事务代理](./annotation) 调用方法。示例希望达成一个效果：创建订单和订单明细必须同时成功；任意一步失败，都要一起回滚。
 
 ```java title='OrderService.java'
 import net.hasor.dbvisitor.jdbc.JdbcTemplate;
@@ -44,7 +44,7 @@ public class OrderService {
     }
 
     @Transactional
-    public long createOrder(long userId, long skuId, int quantity) {
+    public long createOrder(long userId, long skuId, int quantity) throws java.sql.SQLException {
         Long orderId = jdbcTemplate.queryForObject(
                 "select next value for seq_order",
                 Long.class
@@ -52,15 +52,15 @@ public class OrderService {
 
         jdbcTemplate.executeUpdate(
                 "insert into orders(id, user_id) values(?, ?)",
-                orderId, userId
+                new Object[] { orderId, userId }
         );
         jdbcTemplate.executeUpdate(
                 "insert into order_item(order_id, sku_id, quantity) values(?, ?, ?)",
-                orderId, skuId, quantity
+                new Object[] { orderId, skuId, quantity }
         );
         jdbcTemplate.executeUpdate(
                 "update sku_stock set quantity = quantity - ? where sku_id = ?",
-                quantity, skuId
+                new Object[] { quantity, skuId }
         );
         return orderId;
     }

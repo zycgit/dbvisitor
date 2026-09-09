@@ -7,12 +7,12 @@ description: jdbc-milvus 的依赖、可运行 JDBC 示例、分页、类型绑�
 
 ## 1. 版本与依赖
 
-本文对应当前 `6.7.1-SNAPSHOT` 工作区：
+本文适用于 `6.7.1-SNAPSHOT` 开发版：
 
 - Java：**17 及以上**，当前构建按 Java 17 编译。
 - Java SDK：`io.milvus:milvus-sdk-java:2.6.22`。
-- Milvus 服务端最低基线：**2.6.2**，不支持 2.5.x 及更早版本；不代表所有后续版本（例如 3.0）都已通过真集群验证。
-- 工作区修复不等于已发布版本行为。使用发布版时应选择与其源码对应的文档。
+- Milvus 服务端最低基线：**2.6.2**，不支持 2.5.x 及更早版本；3.0 不在本文支持范围内。
+- 本文适用于 `6.7.1-SNAPSHOT`；使用其他版本时，请阅读对应版本文档。
 
 当前 Gradle 发布配置使用带 `all` classifier 的适配器 JAR（内含重定位的 ANTLR，其他依赖仍需传递引入），Maven 用法：
 
@@ -32,7 +32,7 @@ repositories { mavenLocal(); mavenCentral() }
 dependencies { implementation 'net.hasor:jdbc-milvus:6.7.1-SNAPSHOT:all' }
 ```
 
-以上 SNAPSHOT 不是已发布到 Central 的承诺。使用当前源码时，先在仓库根目录本地安装，再运行自己的 Java 工程：
+使用上述 SNAPSHOT 依赖前，先在仓库根目录将源码构建并安装到本地 Maven 仓库，再运行自己的 Java 工程：
 
 ```bash
 ./gradlew :dbvisitor-driver:publishToMavenLocal :jdbc-milvus:publishToMavenLocal
@@ -232,7 +232,9 @@ try (PreparedStatement ps = conn.prepareStatement(insert, Statement.RETURN_GENER
     ps.setObject(1, rows.iterator());
     System.out.println(ps.executeLargeUpdate());
     try (ResultSet keys = ps.getGeneratedKeys()) {
-        while (keys.next()) System.out.println(keys.getObject("id"));
+        while (keys.next()) {
+            System.out.println(keys.getObject("id"));
+        }
     }
 }
 ```
@@ -277,7 +279,9 @@ try (PreparedStatement ps = conn.prepareStatement(submitSql)) {
 try (PreparedStatement ps = conn.prepareStatement("SHOW IMPORT ?")) {
     ps.setString(1, jobId);
     try (ResultSet rs = ps.executeQuery()) {
-        while (rs.next()) System.out.println(rs.getString("STATE") + " " + rs.getString("REASON"));
+        while (rs.next()) {
+            System.out.println(rs.getString("STATE") + " " + rs.getString("REASON"));
+        }
     }
 }
 ```

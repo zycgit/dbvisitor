@@ -15,7 +15,7 @@ description: 达梦数据库在 dbVisitor 中的方言能力、主键回填、ID
 | 关注点 | 达梦行为 |
 |--------|---------|
 | 主键生成 | 自增列，通过 JDBC generated keys 回填 |
-| 分页 | `LIMIT ? OFFSET ?` |
+| 分页 | `LIMIT ?` / `LIMIT offset, count` |
 | 写入冲突 | `IGNORE_ROW_ON_DUPKEY_INDEX`（忽略）/ `MERGE`（更新） |
 | 批量写入 | 支持 JDBC batch（无回填时） |
 | 存储过程 | 支持 |

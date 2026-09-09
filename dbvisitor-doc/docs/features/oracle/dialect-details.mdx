@@ -50,7 +50,7 @@ Oracle 的 MERGE 使用 `FROM dual` 作为虚拟源表。
 
 ## Generated Key 策略
 
-Oracle 方言**统一使用 `OneByOne`**（逐条执行），无论是否有回填列、无论什么冲突策略。这是最保守也最安全的策略：
+Oracle 方言**统一使用 `OneByOne`**（逐条执行），无论是否有回填列、无论什么冲突策略。该选择不等于 Oracle JDBC 本身不支持 batch：
 
 | 场景 | GeneratedKeyStrategy |
 |------|---------------------|
@@ -60,7 +60,7 @@ Oracle 方言**统一使用 `OneByOne`**（逐条执行），无论是否有回�
 
 ## 序列
 
-Oracle 不实现 `SeqSqlDialect`，而是通过在 Mapper XML 中使用 `selectKey` 或对象映射中使用 `@KeySeq` + `KeyType.Sequence` 来读取序列：
+Oracle 内置方言不实现 `SeqSqlDialect`，因此不能直接使用 `@KeySeq` + `KeyType.Sequence`。可在 Mapper XML 中使用 `selectKey`，或用 `@SelectKeySql` 执行以下语句：
 
 ```sql
 SELECT user_info_seq.NEXTVAL AS id FROM dual
@@ -74,7 +74,7 @@ SELECT user_info_seq.NEXTVAL AS id FROM dual
 
 ## 关键差异总结
 
-- 唯一所有场景都使用 `OneByOne` 策略的数据库
-- 分页使用 ROWNUM 嵌套（性能较差，推荐用 12c+ 的 `OFFSET FETCH`）
+- 方言的插入执行策略均为 `OneByOne`
+- 方言分页使用 ROWNUM 嵌套；如需其他分页 SQL，可自行编写 SQL 或提供自定义方言
 - MERGE 使用 `FROM dual` 构造虚拟源表
 - 不实现 `SeqSqlDialect`，序列走 `selectKey` 通道

@@ -10,7 +10,7 @@ description: 利用 JdbcTemplate 的 execute 方法，可以执行任意 SQL 语
 利用 JdbcTemplate 的 execute 方法，可以执行任意 SQL 语句。
 
 :::warning
-脚本执行方法不支持任何形式的传参。
+`loadSQL`、`loadSplitSQL` 不提供绑定参数。执行需要参数的单条语句时，可使用 `execute(sql, args)`。`loadSplitSQL` 按分隔符切分，不应直接用于包含同样分隔符的字符串或存储过程正文。
 :::
 
 ## 用法

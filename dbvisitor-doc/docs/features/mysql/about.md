@@ -15,7 +15,7 @@ MySQL 可以使用 dbVisitor 的 JDBC、Mapper、Lambda、BaseMapper、事务和
 | 关注点 | MySQL 行为 |
 |--------|----------|
 | 主键生成 | `AUTO_INCREMENT`，通过 JDBC generated keys 回填 |
-| 分页 | `LIMIT ? OFFSET ?` |
+| 分页 | `LIMIT ?` / `LIMIT offset, count` |
 | 写入冲突 | `INSERT IGNORE`（忽略）/ `ON DUPLICATE KEY UPDATE`（更新） |
 | 批量写入 | 支持 JDBC batch |
 | 存储过程 | 支持 |

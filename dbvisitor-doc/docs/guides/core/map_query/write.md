@@ -66,7 +66,7 @@ int rows = lambda.insertFreedom("users")
 
 ## 更新 Map
 
-`updateToSample` 适合样本式更新，只更新样本中非空且可更新的字段。
+映射模式下，`updateToSample` 只更新样本中非空且可更新的字段。自由模式会处理传入的 key，包括 null 值；需要跳过 null 时应先过滤 Map。
 
 ```java title='样本式更新'
 Map<String, Object> sample = new HashMap<>();
@@ -80,7 +80,7 @@ int rows = lambda.update(User.class)
         .doUpdate();
 ```
 
-`updateRow` 适合整行式更新，Map 中参与更新的字段按行数据处理。
+`updateRow` 适合整行式更新。映射模式下，缺少的可更新属性会按 null 处理；自由模式只处理传入的 key。自由模式没有主键元数据，调用前需显式 `allowUpdateKey()`，并自行保证 Map 不包含不应修改的主键。
 
 ```java title='整行式更新'
 Map<String, Object> row = new HashMap<>();
@@ -89,6 +89,7 @@ row.put("email", "alice_new@example.com");
 
 int rows = lambda.updateFreedom("users")
         .eq("id", 1001)
+        .allowUpdateKey()
         .updateRow(row)
         .doUpdate();
 ```

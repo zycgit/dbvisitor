@@ -52,10 +52,10 @@ public class AdminUsers {
 | Option   | Description                                                                                                                 |
 |----------|-----------------------------------------------------------------------------------------------------------------------------|
 | None     | Do nothing.                                                                                                                 |
-| Auto     | Use `java.sql.Statement.RETURN_GENERATED_KEYS` to receive DB auto-generated keys.                                           |
+| Auto     | Read database-generated values through JDBC generated keys or the INSERT ResultSet, depending on the entry point and dialect.                                           |
 | UUID32   | Pre-fill with a 32-char UUID, e.g., `4d68040901d24b70bd10c1c8119001e2`.                                                 |
 | UUID36   | Pre-fill with a 36-char UUID, e.g., `4d680409-01d2-4b70-bd10-c1c8119001e2`.                                                 |
-| Sequence | Fetch next value from a DB sequence, assign, then insert. See [Dialect support](../../../features/support#dialect).<br/>Requires @KeySeq to name the sequence. |
+| Sequence | Fetch the next sequence value, assign it, then insert. Requires SeqSqlDialect; built-in Oracle/SQL Server dialects need selectKey instead. See [Dialect support](../../../features/support#dialect).<br/>Requires @KeySeq to name the sequence. |
 | Holder   | Custom generation logic: implement `GeneratedKeyHandlerFactory` and declare via @KeyHolder.                                 |
 
 ## Via mapper file {#xml}
@@ -90,10 +90,10 @@ Both &lt;id&gt; and &lt;mapping&gt; tags can set `keyType`.
 | Option          | Description                                                                                  |
 |-----------------|----------------------------------------------------------------------------------------------|
 | (empty)         | Do nothing.                                                                                  |
-| auto            | Use `java.sql.Statement.RETURN_GENERATED_KEYS` to receive DB auto-generated keys.            |
+| auto            | Read database-generated values through JDBC generated keys or the INSERT ResultSet, depending on the entry point and dialect.            |
 | uuid32          | Pre-fill with a 32-char UUID, e.g., `4d68040901d24b70bd10c1c8119001e2`.                  |
 | uuid36          | Pre-fill with a 36-char UUID, e.g., `4d680409-01d2-4b70-bd10-c1c8119001e2`.                  |
-| Sequence::xxxx  | Fetch next value from sequence `xxxx`, assign, then insert. See [Dialect support](../../../features/support#dialect). |
+| Sequence::xxxx  | Fetch the next value from sequence `xxxx`, assign it, then insert. Requires SeqSqlDialect. See [Dialect support](../../../features/support#dialect). |
 | (class name)    | Custom generator: fully qualified class implementing `GeneratedKeyHandlerFactory`.          |
 
 ## Custom generator

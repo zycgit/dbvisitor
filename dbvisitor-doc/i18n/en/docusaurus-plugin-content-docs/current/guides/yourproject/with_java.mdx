@@ -16,12 +16,14 @@ export const Highlight = ({children, color}) => (
 “Plain Java project” means a project without any framework or container—just a simple Java app.
 
 :::tip[Tip]
-dbVisitor integrates well with any Java project, including Spring Boot and Quarkus, so you can treat those as plain projects too.
+dbVisitor integrates well with any Java project, including Spring Boot and Quarkus, so you can also create dbVisitor entry points manually in those projects.
 :::
 
 ## Dependencies
 
-the dependency, current version: <Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>
+This guide targets a development version. Build SNAPSHOT from source and install it in your local Maven repository. See [Add Dependency](./buildtools) for version selection.
+
+the dependency, guide version: <Highlight color="rgb(227 17 108)">{Vars.docsVersion}</Highlight>
 
 ```xml title='Maven dependencies'
 <dependency>

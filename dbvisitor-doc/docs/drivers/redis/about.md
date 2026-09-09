@@ -49,6 +49,6 @@ jdbc-redis 项目采用了适配器模式，将标准的 JDBC 接口适配到 Re
 
 ## 版本与文档
 
-当前源码要求 Java 17+，依赖 Jedis 6.1.0、ANTLR4 和 dbvisitor-driver。客户端版本不代表所有 Redis 服务端版本或新命令都已验收。
+当前开发版要求 Java 17+，依赖 Jedis 6.1.0、ANTLR4 和 dbvisitor-driver。客户端依赖版本不等于服务端全部新命令的支持承诺；可用命令以本驱动语法手册为准。
 
 [安装与使用](./usecase.mdx) · [连接参数](./params.md) · [149 条命令与返回列](./commands.md) · [dbVisitor API](../../features/redis/usage.mdx)

@@ -7,7 +7,7 @@ description: jdbc-elastic 的依赖、连接、读写示例与 JDBC 结果访问
 
 ## 依赖与版本
 
-本文对应当前 `6.7.1-SNAPSHOT` 源码，构建与运行要求 Java 17+，不是旧发布制品的能力承诺。使用发布版时，以实际 POM、classifier 和对应版本文档为准。
+本文适用于 `6.7.1-SNAPSHOT`，构建与运行要求 Java 17+。使用其他版本时，请参阅对应版本文档。
 
 当前源码使用 `all` classifier（重定位 ANTLR，其他依赖仍需传递引入）。先在仓库根目录安装：
 
@@ -29,7 +29,7 @@ repositories { mavenLocal(); mavenCentral() }
 dependencies { implementation 'net.hasor:jdbc-elastic:6.7.1-SNAPSHOT:all' }
 ```
 
-本地安装示例不表示 SNAPSHOT 已发布到 Maven Central。
+上述 SNAPSHOT 依赖从本地 Maven 仓库读取。
 
 ## JDBC 连接
 ```java
@@ -108,11 +108,15 @@ try (Statement stmt = conn.createStatement()) {
     while (true) {
         if (hasResult) {
             try (ResultSet rs = stmt.getResultSet()) {
-                while (rs.next()) System.out.println(rs.getObject(1));
+                while (rs.next()) {
+                    System.out.println(rs.getObject(1));
+                }
             }
         } else {
             long count = stmt.getLargeUpdateCount();
-            if (count == -1) break;
+            if (count == -1) {
+                break;
+            }
             System.out.println("updated=" + count);
         }
         hasResult = stmt.getMoreResults(Statement.CLOSE_CURRENT_RESULT);

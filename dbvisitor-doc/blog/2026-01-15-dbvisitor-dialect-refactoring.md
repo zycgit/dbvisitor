@@ -35,7 +35,7 @@ dbVisitor 是一个旨在提供统一数据库访问体验的 Java 工具库。�
 
 本次重构的核心理念是：**方言对象本身应该是构建器的工厂**。
 
-如果说 `SqlDialect` 定义了数据库“是什么”（元数据），那么由它生产的 `CommandBuilder` 实例就负责解决“怎么做”（构建查询）。
+如果说 `SqlDialect` 定义了数据库“是什么”（元数据），那么由它生产的 `SqlCommandBuilder` 实例就负责解决“怎么做”（构建查询）。
 
 ### 核心变更
 
@@ -61,7 +61,7 @@ dbVisitor 是一个旨在提供统一数据库访问体验的 Java 工具库。�
     ```
 
 3.  **继承体系重组与简化**：
-    我们彻底移除了独立的 `SqlCommandBuilder` 类文件，将其逻辑下沉到了抽象基类中。新的层级结构如下：
+    原来独立的 `SqlCommandBuilder` 实现改为同名接口，命令构建逻辑下沉到了抽象基类中。新的层级结构如下：
 
     *   `AbstractBuilderDialect`: 顶层基类，定义通用的 Builder 行为。
     *   `AbstractSqlDialect`: **(核心)** 继承自前者，实现了标准 JDBC SQL 的生成逻辑（SELECT/UPDATE/INSERT...）。所有标准 SQL 数据库（MySQL, PG, Oracle 等）均继承此基类。
@@ -85,8 +85,11 @@ if (dialect instanceof MongoDialect) {
 // 需要显式关联，甚至在 build 时还要再次传入，存在不匹配风险
 BoundSql sql = builder.buildSelect(dialect, true); 
 
-// 新方式：统一多态，自包含
-CommandBuilder builder = dialect.newBuilder();
+```
+
+```java
+// 新方式：统一多态，自包含；先通过构建器设置表名、投影和条件
+SqlCommandBuilder builder = dialect.newBuilder();
 // 构建器本身就是 Dialect 的一种形态，无需再传入参数，杜绝了“张冠李戴”
 BoundSql sql = builder.buildSelect(true); 
 ```
@@ -101,7 +104,7 @@ BoundSql sql = builder.buildSelect(true);
 
 ### 4. 代码量减少与维护性提高
 通过这次重构，我们删除了多个冗余的 Builder 类和适配器类。
-测试用例也变得更加通用：我们可以编写一套针对 `dialect.newBuilder()` 的测试，然后用不同的 Dialect 实现去运行它，只需验证生成的 `BoundSql` 字符串即可。
+自定义方言通过 `newBuilder()` 返回独立构建器；不要在多个查询之间共享同一个有状态的构建器。
 
 ## 升级指南
 对于 dbVisitor 的普通使用者，本次重构是完全透明的，API 保持向下兼容。

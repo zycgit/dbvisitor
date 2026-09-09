@@ -14,7 +14,7 @@ MySQL 的 `AUTO_INCREMENT` 列适合通过 JDBC generated keys 回填。dbVisito
 
 | 场景 | GeneratedKeyStrategy | 说明 |
 |------|---------------------|------|
-| 无回填列 | `JdbcBatch` | 普通 JDBC batch，性能最优 |
+| 无回填列 | `JdbcBatch` | 普通 JDBC batch，减少逐条提交开销 |
 | `Into` + 有回填列 | `JdbcBatchGeneratedKeys` | batch + `getGeneratedKeys()` 回填 |
 | `Ignore` + 有回填列 | `OneByOne` | 保守逐条执行，保证回填语义 |
 | `Update` + 有回填列 | `OneByOne` | 同上，避免 `ON DUPLICATE KEY UPDATE` 与 batch generated keys 的不稳定组合 |
@@ -48,7 +48,7 @@ Integer id = user.getId(); // 自动回填
 | Ignore | `INSERT IGNORE INTO ...` | 不要求（即使无主键也支持） |
 | Update | `INSERT INTO ... ON DUPLICATE KEY UPDATE ...` | 不要求（无主键时更新所有列） |
 
-MySQL 是唯一**不强制要求主键**就能使用 Ignore/Update 策略的数据库。策略由数据库唯一键或主键触发。
+MySQL 方言使用 Ignore/Update 策略时，不强制要求实体映射提供主键列。策略由数据库唯一键或主键触发。
 
 ## Mapper XML / Annotation
 

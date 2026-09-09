@@ -67,16 +67,16 @@ For multiple equality checks, repeated `eq` calls work but samples simplify it. 
 
 ```java title='Chaining eq conditions'
 LambdaTemplate lambda = ...;
-User c = ...;
+User u = ...;
 
 List<User> result = null;
 result = lambda.query(User.class)
-               // add condition when name is not blank
-               .eq(StringUtils.isNotBlank(c.getName()), User::getName, c.getName())
-               // add condition when email is not blank
-               .eq(StringUtils.isNotBlank(c.getEmail()), User::getEmail, c.getEmail())
-               // add condition when uid is not blank
-               .eq(StringUtils.isNotBlank(c.getUID()), User::getUID, c.getUID())
+               // add condition when name is not null
+               .eq(u.getName() != null, User::getName, u.getName())
+               // add condition when email is not null
+               .eq(u.getEmail() != null, User::getEmail, u.getEmail())
+               // add condition when uid is not null
+               .eq(u.getUID() != null, User::getUID, u.getUID())
                .queryForList();
 ```
 
@@ -103,8 +103,8 @@ result = lambda.query(User.class)
 :::info[Usage notes]
 - `eqBySample` and `eqBySampleMap` only use non-null sample properties:
   - To match null, explicitly call `isNull`.
-  - Avoid primitive properties (byte, short, int, long, float, double, char) in samples.
-- If `eqBySample` is called multiple times, later samples override overlapping fields.
+  - Avoid primitive properties (boolean, byte, short, int, long, float, double, char) in samples.
+- Each eqBySample/eqBySampleMap call appends a condition group; it does not replace earlier conditions.
 :::
 
 ## Nested {#nested}

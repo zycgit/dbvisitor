@@ -16,13 +16,13 @@ dbVisitor accesses MongoDB data sources via the [JDBC-Mongo](../../drivers/mongo
 - Object mapping, result set mapping, [rules](../../guides/rules/about), [parameter passing](../../guides/args/about), [ResultSetExtractor/RowMapper](../../guides/result/about)
 - [Dynamic SQL](../../guides/core/file/dynamic_sql) tags in Mapper File, `Statement.RETURN_GENERATED_KEYS` (auto-retrieve `_id`)
 
-**Not supported:** executeBatch, Stored Procedures
+**Not supported:** JDBC addBatch/executeBatch, transactions, stored procedures
 
 ## Concept Analogy
 
-Execution results of different MongoDB commands fall into three categories:
+Execution results of different MongoDB commands fall into two categories:
 - **Update count** — analogous to INSERT/UPDATE/DELETE, obtained via `executeUpdate`
-- **Single/Multi-row results** — analogous to SELECT result sets, first column is `_ID`, second is `_JSON` (both strings)
+- **Single/Multi-row results** — analogous to SELECT result sets, document queries normally include `_ID`, `_JSON` (strings), and document fields. See the driver reference for administrative and aggregate results
 
 ---
 
@@ -32,7 +32,7 @@ Use JdbcTemplate to execute MongoDB commands directly. Make sure the MongoDB dat
 
 :::tip[Tip]
 For more usage patterns, see the [JdbcTemplate class](../../guides/core/jdbc/about#guide). The following two features are unavailable due to driver limitations:
-- Batch operations
+- JDBC Batch (use supported multi-document commands instead)
 - Stored procedures
 :::
 
@@ -93,7 +93,7 @@ UserInfo user = lambda.query(UserInfo.class)
 
 // List query
 List<UserInfo> users = lambda.query(UserInfo.class)
-                             .like(UserInfo::getName, "test%")
+                             .like(UserInfo::getName, "test")
                              .queryForList();
 ```
 
@@ -178,14 +178,14 @@ Session session = config.newSession(dataSource);
 UserInfoMapper mapper = session.createMapper(UserInfoMapper.class);
 ```
 
-### Mapping ObjectId
+### Mapping ObjectId {#object-id}
 
 MongoDB's `_id` field is typically of `ObjectId` type, while Java objects usually use `String`.
 
 ```java title='Define object (ObjectId mapping)'
 @Table("user_info")
 public class UserInfo {
-    @Column(value = "_id", primary = true, keyType = KeyType.Auto, whereValueTemplate = "ObjectId(?)")
+    @Column(value = "_id", primary = true, whereValueTemplate = "ObjectId(?)")
     private String id;
 
     @Column("name")
@@ -202,7 +202,7 @@ public interface UserInfoMapper {
 }
 ```
 
-### _id Backfill
+### _id Backfill {#id-fill}
 
 MongoDB returns the inserted document's `_id` when inserting documents. The MongoDB documentation states that `insertOne()` returns a value containing `insertedId`; if the document does not specify an `_id`, MongoDB or the driver generates one. See [MongoDB insertOne documentation](https://www.mongodb.com/docs/manual/reference/method/db.collection.insertone/).
 
@@ -211,8 +211,7 @@ dbVisitor's jdbc-mongo adapter converts MongoDB `insertOne` / `insertMany` inser
 ```xml title='MongoDB Mapper XML _id backfill'
 <insert id="insertUser"
         useGeneratedKeys="true"
-        keyProperty="id"
-        keyColumn="_id">
+        keyProperty="id">
     test.user_info.insertOne({name: #{name}, age: #{age}})
 </insert>
 ```
@@ -221,18 +220,17 @@ dbVisitor's jdbc-mongo adapter converts MongoDB `insertOne` / `insertMany` inser
 @Insert(
     value = "test.user_info.insertOne({name: #{name}, age: #{age}})",
     useGeneratedKeys = true,
-    keyProperty = "id",
-    keyColumn = "_id"
+    keyProperty = "id"
 )
 int insertUser(UserInfo user);
 ```
 
-When Lambda / BaseMapper uses object mapping, `_id` can be declared as the primary key with `KeyType.Auto`:
+The Mapper configuration above omits `keyColumn` and reads the first returned column. The adapter does not support JDBC overloads taking column-name arrays, so Lambda / BaseMapper `KeyType.Auto` backfill cannot be used directly. Map an existing ObjectId as a query primary key:
 
 ```java
 @Table("user_info")
 public class UserInfo {
-    @Column(value = "_id", primary = true, keyType = KeyType.Auto, whereValueTemplate = "ObjectId(?)")
+    @Column(value = "_id", primary = true, whereValueTemplate = "ObjectId(?)")
     private String id;
 
     @Column("name")
@@ -242,7 +240,7 @@ public class UserInfo {
 
 MongoDB's generated keys come from the driver adapter's insert result, not from `MongoDialect` SQL concatenation. `MongoDialect` handles Mongo command construction, conditions, sorting, pagination, and other syntax differences; `_id` backfill is handled by the jdbc-mongo command execution layer.
 
-### Paginated Queries
+### Paginated Queries {#pagination}
 
 Add a `Page` parameter to Mapper methods for paginated queries.
 

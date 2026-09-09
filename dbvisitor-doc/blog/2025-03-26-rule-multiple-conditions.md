@@ -57,11 +57,11 @@ dbVisitor 的设计哲学是 **"让 SQL 回归 SQL"**。它的 `@{and, ...}` 规
 
 我们只需要在一个 `@{and}` 规则中写下完整的逻辑即可：
 
-```xml
-/* SQL 模板 */
+```sql
+/* SQL 模板；ids 在启用组合条件时必须为非空列表 */
 select * from user_info 
 where status = 'ENABLE'
-@{and, (age = :age and sex = '1') or (name = :name and id in (:ids)) }
+@{and, ((age = :age and sex = '1') or (name = :name and id in @{in, :ids})) }
 ```
 
 ### 运行机制
@@ -71,7 +71,8 @@ where status = 'ENABLE'
 1.  **参数扫描**：引擎会扫描规则表达式 `(age = :age ...)` 中引用的所有参数（`:age`, `:name`, `:ids`）。
 2.  **动态决策**：
     *   **情况 A：所有关键参数均为空**。如果 `:age`, `:name`, `:ids` 全部为 `null`，整个 `@{and, ...}` 规则**将被完全忽略**。SQL 退化为 `select * from user_info where status = 'ENABLE'`。
-    *   **情况 B：存在有效参数**。只要其中有任意一个参数不为空（且符合启用条件），整个表达式就会被作为一个整体追加到 SQL 中。
+    *   **情况 B：存在有效参数**。只要其中有任意一个参数不为空，整个表达式就会被作为一个整体追加到 SQL 中。
+   这个规则不会自动删掉组合内部的 NULL 比较。启用查询时应验证所需参数，特别是 `ids`；如果需要两组条件分别可选，应分别使用条件规则。
 3.  **自动修饰**：dbVisitor 会自动处理 `WHERE` 后的连接词。如果这是第一个条件，它会自动填充 `AND`（如果前面已有 `status='ENABLE'`）。
 
 ### 生成结果
@@ -88,7 +89,7 @@ where status = 'ENABLE'
 
 1.  **极高的可读性**：你写的规则就是标准的 SQL 语法，包含了括号和 `OR` 逻辑，任何懂 SQL 的人都能一眼看懂，无需脑补 XML 标签的嵌套逻辑。
 2.  **零胶水代码**：不需要 `<trim>`, `<if>`, `<choose>` 等繁杂的标签来处理 SQL 语法片段的拼接。
-3.  **安全性**：尽管允许写复杂表达式，但所有的变量（`:age` 等）依然通过 JDBC 预编译（PreparedStatement）处理，**完全防止 SQL 注入**。
+3.  **安全性**：尽管允许写复杂表达式，但所有的变量（`:age` 等）依然通过 JDBC 预编译（PreparedStatement）处理，用于绑定数据值。表名、列名和 `${...}` 文本替换不属于该保护范围，必须由程序控制。
 
 ## 总结
 

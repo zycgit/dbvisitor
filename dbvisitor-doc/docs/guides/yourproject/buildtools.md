@@ -13,10 +13,12 @@ export const Highlight = ({children, color}) => (
 
 # 3.1 引入依赖
 
-所有 dbVisitor 模块以及依赖项都可以通过 [Maven Central](https://central.sonatype.com/search?q=dbvisitor) 获得。
+dbVisitor 正式发布的模块可以通过 [Maven Central](https://central.sonatype.com/search?q=dbvisitor) 获得。
 因此任何使用依赖管理工具（Apache Maven、Gradle、sbt、leiningen、Apache Ivy 等）的项目都可以访问这些模块。
 
-dbVisitor 当前最新版本为：**<Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>**
+dbVisitor 最新正式版本为：**<Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>**
+
+当前使用指南对应 **{Vars.docsVersion}**。SNAPSHOT 不在 Maven Central 正式版列表中，使用前需从源码构建并安装到本地 Maven 仓库；不要把开发版能力直接套用到旧版。
 
 ## 选择接入方式
 

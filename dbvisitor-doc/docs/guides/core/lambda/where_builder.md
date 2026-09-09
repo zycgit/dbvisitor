@@ -64,7 +64,7 @@ SELECT * FROM users WHERE age = ?
 ## 条件样本 {#sample}
 
 条件样本方法中 sample 样本参数不为空的属性会以 and 方式拼起来，并作为一组条件。
-- 类似：`('col1 = ?' and 'col2 = ?' and col3 = ?)`
+- 类似：`(col1 = ? and col2 = ? and col3 = ?)`
 
 在一个有多个等值条件的查询中，通过 API 多次调用 eq 方法来拼接查询虽然可以满足需要，但是借助条件样本会简化这一操作。
 - 例如：查询需求 “name、mail、uid 三个属性在有值时才会被设置为查询属性”，使用下面两种方式查询是等价的：
@@ -76,11 +76,11 @@ User u = ...
 List<User> result = null;
 result = lambda.query(User.class)
                // name 参数不为空时，设置为条件
-               .eq(StringUtils.isNotBlank(c.getName()), User::getName, c.getName())
+               .eq(u.getName() != null, User::getName, u.getName())
                // email 参数不为空时，设置为条件
-               .eq(StringUtils.isNotBlank(c.getEmail()), User::getEmail, c.getEmail())
+               .eq(u.getEmail() != null, User::getEmail, u.getEmail())
                // uid 参数不为空时，设置为条件
-               .eq(StringUtils.isNotBlank(c.getUID()), User::getUID, c.getUID())
+               .eq(u.getUID() != null, User::getUID, u.getUID())
                .queryForList();
 ```
 
@@ -108,8 +108,8 @@ result = lambda.query(User.class)
 - 在使用条件样本时需要注意以下几点：
 - eqBySample、eqBySampleMap 方法只会寻找样本中不为空的属性作为条件，因此：
   - 如果要想匹配 NULL 值，需要额外使用 isNull 来特别指定。
-  - 不建议在样本对象中使用 byte、short、int、long、float、double、char 基本类型属性。
-- 如果多次调用 eqBySample 设置样本条件，那么先后两次样本中重叠部分会被覆盖。
+  - 不建议在样本对象中使用 boolean、byte、short、int、long、float、double、char 基本类型属性。
+- 多次调用 eqBySample 会追加条件组，不会覆盖前一次条件。同一属性出现不同值时可能形成无法同时满足的条件。
 :::
 
 ## 条件组 {#nested}
@@ -148,7 +148,7 @@ SELECT * FROM users WHERE ( name = ? AND email = ? ) OR ( name = ? AND email = ?
 
 ## 与关系 {#and}
 
-表达式之间的关系默认采用于关系，因此默认情况下可以不用明确指定表达式之间的关系。例如：
+表达式之间的关系默认采用与关系，因此默认情况下可以不用明确指定表达式之间的关系。例如：
 
 ```java
 LambdaTemplate lambda = ...

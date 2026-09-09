@@ -14,9 +14,9 @@ description: jdbc-elastic 命令示例、完整 REST 方法范围、返回约定
 | `GET .../_search` | 执行搜索查询 | `GET /my_index/_search { "query": { "match_all": {} } }` |
 | `POST .../_search` | 执行搜索查询 | `POST /my_index/_search { "query": { "term": { "user": "kimchy" } } }` |
 | `GET .../_count` | 统计文档数量 | `GET /my_index/_count` |
-| `GET .../_msearch` | 批量搜索 | `GET /_msearch` |
-| `GET .../_mget` | 批量获取文档 | `GET /_mget` |
-| `GET .../_explain` | 获取解释信息 | `GET /my_index/_explain/1` |
+| `GET .../_msearch` | 批量搜索 | `POST /my_index/_msearch [{}, {"query":{"match_all":{}}}]` |
+| `GET .../_mget` | 批量获取文档 | `GET /my_index/_mget {"ids":["1","2"]}` |
+| `GET .../_explain` | 获取解释信息 | `GET /my_index/_explain/1 {"query":{"match_all":{}}}` |
 | `GET .../_source` | 获取文档源数据 | `GET /my_index/_source/1` |
 
 ## 文档操作 (Document Operations)
@@ -89,6 +89,8 @@ description: jdbc-elastic 命令示例、完整 REST 方法范围、返回约定
 - 其他
   - `HEAD /{path}`（返回 `STATUS` 列，参考 [REST APIs](https://www.elastic.co/guide/en/elasticsearch/reference/current/rest-apis.html)）
   - 通用 REST：`GET/POST/PUT/DELETE /{path}`（[REST APIs](https://www.elastic.co/guide/en/elasticsearch/reference/current/rest-apis.html)）
+
+`_msearch` 请求体使用 JSON 数组，按请求头、查询体交替排列；驱动将其转换为 NDJSON。每个子查询返回一个 JDBC 结果集，应通过 `execute()` / `getMoreResults()` 逐个读取。它与 JDBC Batch 不同。
 
 ## Hint 支持
 Hint 必须位于命令开头，格式为 `/*+ name=value */`。

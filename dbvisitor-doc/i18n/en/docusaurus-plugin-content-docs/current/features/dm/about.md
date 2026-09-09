@@ -15,7 +15,7 @@ Dameng database can use dbVisitor's JDBC, Mapper, Lambda, BaseMapper, transactio
 | Concern | Dameng Behavior |
 |--------|---------|
 | Primary Key Generation | Auto-increment columns, backfilled via JDBC generated keys |
-| Pagination | `LIMIT ? OFFSET ?` |
+| Pagination | `LIMIT ?, ?` (offset, count) |
 | Write Conflicts | `IGNORE_ROW_ON_DUPKEY_INDEX` (ignore) / `MERGE` (update) |
 | Batch Writes | JDBC batch supported (when no backfill) |
 | Stored Procedures | Supported |

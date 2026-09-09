@@ -25,7 +25,7 @@ Vector Query requires the database field, Java field, and TypeHandler to match. 
 
 ```text title='Vector field mapping'
 Database field
-embedding vector(128)
+embedding vector(3)
         |
         | TypeHandler
         v
@@ -46,7 +46,7 @@ CREATE TABLE product_vector (
     id        SERIAL PRIMARY KEY,
     name      VARCHAR(100),
     category  VARCHAR(50),
-    embedding vector(128)
+    embedding vector(3)
 );
 ```
 
@@ -57,7 +57,7 @@ The vector field dimension must match the actual embedding dimension. Dimension 
 ```java title='ProductVector.java'
 @Table("product_vector")
 public class ProductVector {
-    @Column(primary = true)
+    @Column(primary = true, keyType = KeyType.Auto)
     private Integer id;
 
     private String name;
@@ -94,7 +94,7 @@ lambda.insert(ProductVector.class)
 List<Float> newVector = Arrays.asList(0.9f, 0.8f, 0.7f);
 
 lambda.update(ProductVector.class)
-      .eq(ProductVector::getId, 1001)
+      .eq(ProductVector::getId, row.getId())
       .updateTo(ProductVector::getEmbedding, newVector)
       .doUpdate();
 ```
@@ -103,7 +103,7 @@ lambda.update(ProductVector.class)
 
 ```java title='Read vector'
 ProductVector loaded = lambda.query(ProductVector.class)
-        .eq(ProductVector::getId, 1001)
+        .eq(ProductVector::getId, row.getId())
         .queryForObject();
 
 List<Float> vector = loaded.getEmbedding();

@@ -44,7 +44,6 @@ The Rules style keeps SQL close to native SQL, with dynamic conditions embedded 
 <mapper namespace="com.example.UserMapper">
     <select id="listUsers" resultType="com.example.User">
         select * from users
-        where
             @{and, status = :status}
             @{and, name like concat(:name, '%')}
     </select>

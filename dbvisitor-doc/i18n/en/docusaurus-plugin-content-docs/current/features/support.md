@@ -20,64 +20,81 @@ If you want to change these differences, you can participate in the project and 
 ## Data Source Support Overview {#dialect}
 
 dbVisitor designs 4 types of API under the unified kernel architecture: [Programmatic API](../guides/api/jdbc), [Declarative API](../guides/api/mapper), [Builder API](../guides/api/lambda), [Mapper File](../guides/api/file_mapper).
-Among them, **JdbcTemplate**, **Annotation-based**, and **Mapper File** are available on all data sources.
+**JdbcTemplate**, **Annotations**, and **Mapper File** execute commands supported by each data source. They do not translate arbitrary relational SQL into non-relational commands.
 
 dbVisitor has intelligent dialect inference capabilities, automatically identifying the target database type from the JDBC URL and configuring the optimal dialect — **manual configuration is usually unnecessary**.
 If explicit specification is needed, **dialect aliases** (e.g., `mysql`) or **fully qualified dialect class names** are supported.
 
 The following table summarizes API support and dialect feature differences across data sources. Column meanings:
-- **Builder API** — includes LambdaTemplate, BaseMapper, object mapping, and result set mapping; all four have consistent support
+
+- **Builder API** — whether LambdaTemplate / BaseMapper has a built-in dialect; individual operations remain subject to that dialect. Object and result-set mapping are independent capabilities
 - **Write Conflicts** — all data sources support standard writes (Into); this column only notes additionally supported conflict strategies ([details](#insert-strategy))
-- **Pagination** — whether the dialect implements the `PageSqlDialect` interface
+- **Pagination** — whether the built-in dialect provides pagination SQL; Hive only has an unusable placeholder implementation
 - **Sequence** — whether the dialect implements the `SeqSqlDialect` interface
 - **Vector** — whether the dialect implements the `VectorSqlDialect` interface ([details](#vector))
-- **Null Ordering** — whether the dialect overrides the `orderByNulls` method
+- **Null Ordering** — whether the builder translates `OrderNullsStrategy`, not whether the database itself supports null ordering
 
-| Data Source | Config Key | Builder API | Batch | Stored Proc | Auto Key Backfill | Pagination | Write Conflict | Sequence | Vector | Null Ordering |
-|-------|--------|:--------:|:-----:|:-----:|:----:|:--:|------|:--:|:--:|:----:|
-| MySQL | mysql  | ✅ | ✅ | ✅ |  ✅   | ✅ | Ignore Update | | | ✅ |
-| MariaDB | mariadb | ✅ | ✅ | ✅ |  ✅   | ✅ | Ignore Update | | | ✅ |
-| PostgreSQL | postgresql | ✅ | ✅ | ✅ |  ✅   | ✅ | Ignore Update¹ | ✅ | ✅ | |
-| KingbaseES | kingbase | ✅ | ✅ | ✅ |  ✅   | ✅ | Ignore Update¹ | ✅ | ✅ | |
-| Oracle | oracle | ✅ | ✅ | ✅ |  ✅   | ✅ | Ignore¹ Update¹ | | | |
-| Dameng | dm     | ✅ | ✅ | ✅ |  ✅   | ✅ | Ignore¹ Update¹ | ✅ | | |
-| SQL Server | sqlserver/ jtds | ✅ | ✅ | ✅ |  ✅   | ✅ | Ignore¹ Update¹ | | | |
-| SQL Server (jTDS) | jtds   | ✅ | ✅ | ✅ |  ✅   | ✅ | Ignore¹ Update¹ | | | |
-| DB2 | db2    | ✅ | ✅ | ✅ |  ✅   | ✅ | Ignore¹ Update¹ | | | |
-| H2 | h2     | ✅ | ✅ | ✅ |  ✅   | ✅ | Ignore¹ Update¹ | ✅ | | |
-| Apache Derby | derby  | ✅ | ✅ | ✅ |  ✅   | ✅ | | | | |
-| HSQL | hsql   | ✅ | ✅ | ✅ |  ✅   | ✅ | | | | |
-| Hive | hive   | ✅ | ✅ | ✅ |  ✅   | ⚠️ | | | | |
-| Apache Impala | impala | ✅ | ✅ | ✅ |  ✅   | ✅ | | | | |
-| IBM Informix | informix | ✅ | ✅ | ✅ |  ✅   | ✅ | | | | |
-| SQLite | sqlite | ✅ | ✅ | ✅ |  ✅   | ✅ | | | | |
-| Xugu | xugu   | ✅ | ✅ | ✅ |  ✅   | ✅ | | | | |
-| Redis | —      | ❌ | ❌ | ❌ |  ❌   | | | | | |
-| MongoDB | mongo  | ✅ | ❌ | ❌ |  ✅   | ✅ | | | | |
-| ElasticSearch 6 | elastic6 | ✅ | ❌ | ❌ |  ✅   | ✅ | | | | |
-| ElasticSearch 7 | elastic7 | ✅ | ❌ | ❌ |  ✅   | ✅ | | | ✅ | |
-| ElasticSearch 8 | elastic8 | ✅ | ❌ | ❌ |  ✅   | ✅ | | | ✅ | |
-| Milvus | milvus | ✅ | ❌ | ❌ | ✅ ² | ✅ | | | ✅ | |
+| Data Source | Config Key | Builder API | Pagination | Write Conflicts | Sequence | Vector | Null Ordering |
+|-------|--------|:--------:|:--:|------|:--:|:--:|:----:|
+| MySQL | mysql  | ✅ | ✅ | Ignore Update | | | ✅ |
+| MariaDB | mariadb | ✅ | ✅ | Ignore Update | | | ✅ |
+| PostgreSQL | postgresql | ✅ | ✅ | Ignore Update¹ | ✅ | ✅ | |
+| KingbaseES | kingbase | ✅ | ✅ | Ignore Update¹ | ✅ | ✅ | |
+| Oracle | oracle | ✅ | ✅ | Ignore¹ Update¹ | | | |
+| Dameng | dm     | ✅ | ✅ | Ignore¹ Update¹ | ✅ | | |
+| SQL Server | sqlserver | ✅ | ✅ | Ignore¹ Update¹ | | | |
+| SQL Server (jTDS) | jtds   | ✅ | ✅ | Ignore¹ Update¹ | | | |
+| DB2 | db2    | ✅ | ✅ | Ignore¹ Update¹ | ✅ | | |
+| H2 | h2     | ✅ | ✅ | Ignore¹ Update¹ | ✅ | | |
+| Apache Derby | derby  | ✅ | ✅ | | | | |
+| HSQL | hsql   | ✅ | ✅ | | | | |
+| Hive | hive   | ✅ | ⚠️ | | | | |
+| Apache Impala | impala | ✅ | ✅ | | | | |
+| IBM Informix | informix | ✅ | ✅ | | | | |
+| SQLite | sqlite | ✅ | ✅ | | | | |
+| Xugu | xugu   | ✅ | ✅ | | | | |
+| ClickHouse | clickhouse | ✅ | ✅ | | | | |
+| Redis | —      | ❌ | | | | | |
+| MongoDB | mongo  | ✅ | ✅ | | | | |
+| ElasticSearch 6 | elastic6 | ✅ | ✅ | | | | |
+| ElasticSearch 7 | elastic7 | ✅ | ✅ | | | ✅ | |
+| ElasticSearch 8 | elastic8 | ✅ | ✅ | | | ✅ | |
+| Milvus | milvus | ✅ | ✅ | | | ✅ | |
 
 > ✅ Supported &nbsp; ❌ Not Supported
 >
 > ¹ Requires primary key
 
-> ² Current-source Milvus JDBC INSERT/UPSERT supports generated keys, not a claim for older releases or every generic Mapper/Builder backfill path. See the [version and support scope](../drivers/milvus/compatibility.md).
->
 > **⚠️ Hive**: Although `PageSqlDialect` is implemented, both `countSql` and `pageSql` throw `UnsupportedOperationException`, making pagination effectively unusable.
+
+JDBC Batch and multi-statement execution are different capabilities: multi-statement execution submits statements in one `Statement.execute("SQL1; SQL2")` call, advances between results with `getMoreResults()`, and reads result sets or update counts with `getResultSet()` / `getUpdateCount()`. This does not imply JDBC Batch support. Multiple VALUES in one INSERT, paged writes and Import are not JDBC Batch either.
+
+### JDBC Capabilities
+
+Relational JDBC Batch, stored procedures and generated keys depend on the selected JDBC driver, server version and statement, not the existence of a dialect interface. SQLite, for example, does not support stored procedures. Oracle's row-by-row dialect strategy does not mean Oracle JDBC lacks Batch support.
+
+| dbVisitor adapter | JDBC Batch | Stored procedures | getGeneratedKeys |
+| --- | --- | --- | --- |
+| jdbc-redis | Unsupported | Unsupported | Empty result |
+| jdbc-mongo | Unsupported | Unsupported | Insert returns `_id` |
+| jdbc-elastic | Unsupported | Unsupported | Document writes return `_id` |
+| jdbc-milvus | Unsupported | Unsupported | INSERT/UPSERT returns the collection primary key |
+
+A higher-level bulk API that executes individual calls does not provide driver-level `addBatch()` / `executeBatch()` support. Request generated keys with `Statement.RETURN_GENERATED_KEYS`; these adapters do not support JDBC overloads taking arrays of column names or indexes.
 
 :::info[JDBC Feature Support]
 For non-relational database drivers (Mongo, Elastic, Milvus), dbVisitor implements the `Statement.RETURN_GENERATED_KEYS` feature.
 Supported JDBC insert/key-retrieval calls expose server-returned IDs. Milvus uses the collection's primary field name, not a fixed `_id` column.
 :::
 
+When requesting keys in Mapper annotations/XML, omit `keyColumn` to avoid the unsupported column-name array overload. A single key can be assigned by position using `keyProperty`. Lambda/BaseMapper entity backfill with `KeyType.Auto` uses that array overload and cannot be directly applied to these adapters; use the JDBC flag overload or the Mapper configuration above. See [Milvus version requirements](../drivers/milvus/compatibility.md).
+
 ### Non-Relational Data Source Guides
 
-- **[Redis](./redis/about.md)** — Supports [140+ commands](../drivers/redis/commands), 5 data type operations; Builder API and object mapping not supported
-- **[MongoDB](./mongo/about.md)** — Full CRUD support, ObjectId auto-mapping, paginated queries; batch and stored procedures not supported
-- **[ElasticSearch](./elastic/about.md)** — Full CRUD support, REST DSL-based; batch and stored procedures not supported
-- **[Milvus](./milvus/about.md)** — SQL subset, vector/Hybrid search, paged Partial UPDATE, generated keys, multi-row writes and Import; JDBC batch, transactions and stored procedures are unsupported.
+- **[Redis](./redis/about.md)** — Supports [140+ commands](../drivers/redis/commands), 5 data type operations; no Builder API; map results with RowMapper or a JSON TypeHandler
+- **[MongoDB](./mongo/about.md)** — Full CRUD support, ObjectId auto-mapping, paginated queries; JDBC Batch and stored procedures not supported
+- **[ElasticSearch](./elastic/about.md)** — Full CRUD support, REST DSL-based; JDBC Batch and stored procedures not supported
+- **[Milvus](./milvus/about.md)** — SQL subset, multi-statement execution, vector/Hybrid search, paged Partial UPDATE, generated keys, multi-row writes and Import; JDBC Batch, transactions and stored procedures are unsupported.
 
 ---
 
@@ -120,13 +137,13 @@ Different database vector dialects support different distance metric functions a
 | Dialect         | Query Method                | Supported Distance Metrics                                         |
 |------------|---------------------|------------------------------------------------|
 | PostgreSQL | pgvector operators        | L2 (`<->`), Cosine (`<=>`), Inner Product (`<#>`), etc.                  |
-| Elastic 7  | script_score script     | l2norm, cosineSimilarity, dotProduct, l1norm       |
+| Elastic 7  | Script sort / script filter     | l2norm, cosineSimilarity, dotProduct, l1norm       |
 | Elastic 8  | Native kNN + script query  | L2, COSINE, IP (native); l2norm, etc. (script fallback)             |
 | Milvus     | Native vector operators             | L2 (`<->`), Cosine (`<=>`), Inner Product (`<#>`), etc.                  |
 
 ## Custom Dialects {#custom-dialect}
 
-If the built-in dialects do not meet your needs, you can customize a dialect by extending `AbstractDialect` and implementing the required interfaces. There are 5 dialect-related interfaces, with `SqlDialect` as the common base:
+If the built-in dialects do not meet your needs, you can customize a dialect by extending `AbstractDialect` and implementing the required interfaces. The main dialect interfaces are listed below, with `SqlDialect` as their common base:
 
 | Interface | Responsibility |
 |------|------|
@@ -135,6 +152,7 @@ If the built-in dialects do not meet your needs, you can customize a dialect by 
 | `InsertSqlDialect` | Advanced INSERT statement generation (e.g., [write conflict strategies](../guides/core/lambda/insert#conflict)) |
 | `PageSqlDialect` | Pagination statement generation (`countSql` + `pageSql`) |
 | `SeqSqlDialect` | Sequence query statement generation |
+| `VectorSqlDialect` | Vector ordering and range conditions |
 
 :::info[Tip]
 Extend the `AbstractDialect` abstract class and implement the `PageSqlDialect` interface to customize pagination dialect.
@@ -143,5 +161,5 @@ Extend the `AbstractDialect` abstract class and implement the `PageSqlDialect` i
 :::
 
 ```java title='Register a custom dialect'
-SqlDialectRegister.registerDialectAlias(JdbcUtils.MYSQL, MyDialect.class);
+SqlDialectRegister.registerDialectAlias(JdbcHelper.MYSQL, MyDialect.class);
 ```

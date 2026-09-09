@@ -57,7 +57,7 @@ Two ways to define object mapping, which can be mixed:
 | keyType | Description | Use case |
 |---------|------|---------|
 | `KeyType.Auto` | Database auto-increment / IDENTITY | MySQL AUTO_INCREMENT, PG SERIAL |
-| `KeyType.Sequence` | Database sequence | Oracle, PG sequence (with `@KeySeq`) |
+| `KeyType.Sequence` | Database sequence | Dialects implementing SeqSqlDialect, such as PostgreSQL, DB2 and H2 (with `@KeySeq`) |
 | `KeyType.UUID32` | App-side 32-char UUID | Databases without auto-increment PK |
 | `KeyType.UUID36` | App-side 36-char UUID | Same as above |
 
@@ -115,7 +115,7 @@ See [Write Policy](./write_policy) for details.
 If column names follow snake_case (e.g., `user_name`) and Java properties use camelCase (`userName`), enable auto-mapping:
 
 ```java
-@Table(value = "user_info", autoMapping = true)
+@Table(value = "user_info", mapUnderscoreToCamelCase = true)
 public class UserInfo { ... }
 ```
 
@@ -126,8 +126,11 @@ See [Camel Case](./camel_case) for details.
 When column names are case-sensitive or reserved keywords:
 
 ```java
-@Column(value = "\"order\"", nameSensitivity = true)
-private Integer order; // Column name is a keyword; needs escaping
+@Table(value = "orders", useDelimited = true)
+public class OrderRow {
+    @Column("order")
+    private Integer order; // The dialect adds column delimiters
+}
 ```
 
 See [Name Sensitivity](./name_sensitivity) for details.

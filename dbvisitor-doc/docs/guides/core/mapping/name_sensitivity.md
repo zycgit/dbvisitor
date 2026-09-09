@@ -8,7 +8,7 @@ description: 使用 dbVisitor ORM 映射数据库表，处理大小写敏感性�
 # 名称敏感性
 
 某些数据库的设置对于表名的拼写具有很强的敏感性，例如：users 和 USERS 在敏感性数据库中可能表示了不同的表。
-在 dbVisitor 中通过 caseInsensitive 属性或者 useDelimited 属性可以解决这些问题。
+在 dbVisitor 中`caseInsensitive` 控制映射查找是否忽略大小写；`useDelimited` 控制生成 SQL 时是否引用标识符。两者不会改变数据库本身的大小写规则。
 
 ## 名称大小写敏感
 
@@ -16,8 +16,8 @@ description: 使用 dbVisitor ORM 映射数据库表，处理大小写敏感性�
 
 ```sql
 select 
-    AGE, // 列1，名称为大写
-    age  // 列2，名称为小写
+    "AGE", -- 列1，名称为大写
+    "age"  -- 列2，名称为小写
 from Users;
 ```
 

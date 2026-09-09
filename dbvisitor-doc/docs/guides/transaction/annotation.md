@@ -35,14 +35,14 @@ public class OrderService {
     }
 
     @Transactional
-    public void createOrder(long orderId, long skuId) {
+    public void createOrder(long orderId, long skuId) throws java.sql.SQLException {
         jdbcTemplate.executeUpdate(
                 "insert into orders(id) values(?)",
                 orderId
         );
         jdbcTemplate.executeUpdate(
                 "insert into order_item(order_id, sku_id) values(?, ?)",
-                orderId, skuId
+                new Object[] { orderId, skuId }
         );
     }
 }
@@ -78,6 +78,8 @@ orderService.createOrder(10001L, 20001L);
 不要在类内部用 `this.createOrder(...)` 期待触发事务；这种自调用不会经过代理对象。
 :::
 
+这里使用的是 dbVisitor 自身的 `@Transactional`。Spring 项目使用 Spring 事务注解及管理器时，应遵循 Spring 的回滚规则，不要混用两套注解。
+
 ### 框架项目
 
 - Spring 项目可以直接使用 Spring 的事务体系，[查看 Spring 集成](../yourproject/with_spring#tran)。
@@ -95,10 +97,10 @@ import net.hasor.dbvisitor.transaction.Transactional;
         propagation = Propagation.REQUIRES_NEW,
         isolation = Isolation.READ_COMMITTED
 )
-public void writeAuditLog(long orderId, String action) {
+public void writeAuditLog(long orderId, String action) throws java.sql.SQLException {
     jdbcTemplate.executeUpdate(
             "insert into order_audit(order_id, action) values(?, ?)",
-            orderId, action
+            new Object[] { orderId, action }
     );
 }
 ```
@@ -111,10 +113,10 @@ public void writeAuditLog(long orderId, String action) {
 
 ```java title='库存不足时不回滚已写入的尝试记录'
 @Transactional(noRollbackFor = { IllegalArgumentException.class })
-public void reserveStock(long skuId, int quantity) {
+public void reserveStock(long skuId, int quantity) throws java.sql.SQLException {
     jdbcTemplate.executeUpdate(
             "insert into stock_try_log(sku_id, quantity) values(?, ?)",
-            skuId, quantity
+            new Object[] { skuId, quantity }
     );
 
     if (quantity <= 0) {

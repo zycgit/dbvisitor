@@ -13,7 +13,7 @@ Freedom Map Mode does not need entity classes and does not read object mapping. 
 
 - There is no entity class, or temporary tables, dynamic tables, or sync tasks should not have entity mappings.
 - Table names and column names come from task metadata, configuration, or runtime rules.
-- The target is a non-traditional tabular source such as Redis, MongoDB, ElasticSearch, or Milvus, while the unified builder API is still preferred.
+- The target is a non-traditional tabular source such as MongoDB, ElasticSearch, or Milvus, while the unified builder API is still preferred.
 - Map keys should be organized by database column names rather than Java property names.
 
 ## Not Suitable For
@@ -36,7 +36,7 @@ eq("login_name", "alice")
 SQL identifiers enter the statement directly
 ```
 
-Freedom Map Mode reuses builder features such as conditions, sorting, grouping, paging, and unsafe-update protection, but does not read entity mapping.
+Freedom Map Mode reuses the builder API without entity mapping; conditions, sorting, grouping and paging still depend on the dialect and data source. Redis does not support this builder; use native commands.
 
 ## Entrance
 
@@ -91,7 +91,7 @@ row.put("login_name", "alice_new");
 
 int rows = lambda.updateFreedom("users")
         .eq("id", 1001)
-        .updateRow(row)
+        .updateTo("login_name", row.get("login_name"))
         .doUpdate();
 ```
 

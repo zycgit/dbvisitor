@@ -13,12 +13,12 @@ dbVisitor 的分页围绕两个核心类型：**入参** `PageObject` 描述分�
 
 ```java title='静态工厂（推荐）'
 Page page = PageObject.of(0, 20);      // 第 0 页，每页 20 条，页码从 0 开始
-Page page = PageObject.of(1, 20, 1);   // 第 1 页，每页 20 条，页码从 1 开始
+Page oneBasedPage = PageObject.of(1, 20, 1);   // 第 1 页，每页 20 条，页码从 1 开始
 ```
 
 ```java title='构造方法'
 PageObject page = new PageObject();
-page.setPageSize(20);          // 页大小（默认 -1 表示不分页）
+page.setPageSize(20);          // 页大小（默认 0；请显式设置正数）
 page.setCurrentPage(2);        // 当前页码
 page.setPageNumberOffset(1);   // 页码偏移：设为 1 则第一页页码为 1
 ```
@@ -27,7 +27,7 @@ page.setPageNumberOffset(1);   // 页码偏移：设为 1 则第一页页码为 
 
 | 属性 | 说明 |
 |------|------|
-| `pageSize` | 每页记录数，默认 `-1`（不分页） |
+| `pageSize` | 每页记录数，默认 `0`；分页查询应显式设置正数 |
 | `currentPage` | 当前页码 |
 | `pageNumberOffset` | 页码起始偏移。设为 `1` 则第一页页码为 `1`；默认 `0` |
 
@@ -46,7 +46,7 @@ long pages = result.getTotalPage();        // 总页数
 long position = result.getFirstRecordPosition(); // 第一条记录位置
 ```
 
-`PageResult` 实现了 `Iterable<T>`，可以直接用 for-each 遍历当前页数据。
+通过 `result.getData()` 获取列表并遍历当前页数据。
 
 ## 在各 API 中使用 {#usage}
 
@@ -56,8 +56,8 @@ long position = result.getFirstRecordPosition(); // 第一条记录位置
 |-----|---------|---------|
 | 构造器 API | `lambda.query(...).initPage(10, 0)` 或 `.usePage(page)` | `List<T>` |
 | BaseMapper | `mapper.pageBySample(sample, page)` | `PageResult<T>`（含统计） |
-| 注解 Mapper | 方法签名加 `Page` 参数 | `List<T>` |
-| Mapper 文件 | 方法签名加 `Page` 参数 | `List<T>` |
+| 注解 Mapper | 方法签名加 `Page` 参数 | `List<T>` 或 `PageResult<T>` |
+| Mapper 文件 | 方法签名加 `Page` 参数 | `List<T>` 或 `PageResult<T>` |
 
 详细用法请参考各 API 的分页章节：
 - [构造器 API 分页](../core/lambda/query#page)

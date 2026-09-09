@@ -54,7 +54,7 @@ public void createOrder(long orderId) {
 }
 ```
 
-`REQUIRED` 是默认值。外层没有事务时，它创建事务；外层已经有事务时，它加入外层事务。内层方法正常返回并不代表立即提交，最终提交或回滚由最外层事务决定。
+`REQUIRED` 是默认值。外层没有事务时，它创建事务；外层已经有事务时，它加入外层事务。内层方法正常返回并不代表立即提交，最终提交或回滚由最外层事务决定。dbVisitor 本地管理器的内层 REQUIRED 回滚不会自动将外层标记为 rollback-only；如果外层捕获并吞掉内层异常，仍可能提交这些写入。需要整体失败时，应让异常继续传播或显式标记外层回滚。
 
 | 时序 | 事务 A | 事务 B | 效果 |
 |---|---|---|---|
@@ -73,10 +73,10 @@ public void createOrder(long orderId) {
 
 ```java title='外层失败时，审计日志仍可独立提交'
 @Transactional(propagation = Propagation.REQUIRES_NEW)
-public void writeAuditLog(long orderId, String action) {
+public void writeAuditLog(long orderId, String action) throws java.sql.SQLException {
     jdbcTemplate.executeUpdate(
             "insert into order_audit(order_id, action) values(?, ?)",
-            orderId, action
+            new Object[] { orderId, action }
     );
 }
 ```

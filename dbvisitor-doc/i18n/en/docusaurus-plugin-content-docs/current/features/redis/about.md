@@ -19,9 +19,9 @@ dbVisitor accesses Redis data sources via the [JDBC-Redis](../../drivers/redis/a
 | Pagination | Not supported |
 | Batch Writes | executeBatch not supported |
 | Stored Procedures | Not supported |
-| Object Mapping | Not supported (object read/write supported indirectly via JSON serialization) |
+| Object Mapping | RowMapper/result mapping and JSON TypeHandler are supported; no entity-driven CRUD builder |
 
-**Not supported:** Builder API, Generic Mapper, Object Mapping, Result Set Mapping, executeBatch, Stored Procedures
+**Not supported:** Builder API, Generic Mapper, executeBatch, Stored Procedures
 
 ## Concept Analogy
 

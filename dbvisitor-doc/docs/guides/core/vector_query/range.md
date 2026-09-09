@@ -7,7 +7,7 @@ description: 使用 vectorByL2、vectorByCosine、vectorByIP 等方法按向量�
 
 # 距离范围过滤
 
-距离范围过滤用于“查找距离小于阈值的全部记录”。dbVisitor 使用 `vectorBy*` 生成向量距离条件，该条件位于 SQL 的 `WHERE` 部分。
+距离范围过滤用于按距离阈值筛选记录。下面的完整范围查询示例以 PostgreSQL pgvector 为背景；Milvus 范围搜索由 ANN 搜索实现，不能据此承诺穷尽全部实体，且不同度量的阈值方向和组合限制不同，参阅 [Milvus 向量查询](../../../features/milvus/usage#vector-search)。dbVisitor 使用 `vectorBy*` 生成向量距离条件，该条件位于 SQL 的 `WHERE` 部分。
 
 ## 适合场景
 

@@ -35,7 +35,7 @@ Spring 是一个广泛使用的 Java 应用框架，提供 IoC 容器、事务�
 
 ## 配置方法
 
-首先引入依赖包，当前版本：<Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>
+首先引入依赖包，当前指南版本：<Highlight color="rgb(227 17 108)">{Vars.docsVersion}</Highlight>
 
 <Tabs>
   <TabItem value="a" label="SpringBoot 项目" default>
@@ -149,6 +149,7 @@ public interface UserMapper extends BaseMapper<UserDTO> {
 
   ```java
   @Configuration
+  @EnableTransactionManagement
   public class DsConfig {
     @Bean
     public PlatformTransactionManager txManager(DataSource dataSource) {
@@ -175,9 +176,10 @@ public interface UserMapper extends BaseMapper<UserDTO> {
 
 ```java title='通过 @Transactional 注解进行事务控制'
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Propagation;
 
 public class TxExample {
-    @Transactional(propagation = Propagation.REQUIRES)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void exampleMethod() {
         ...
     }
@@ -209,7 +211,7 @@ public class TxExample {
 | 属性名                                 | 描述                                       |
 |-------------------------------------|---------------------------------------------|
 | dbvisitor.mapper-packages           | <TagGray/> 要扫描加载的 Mapper 接口定义所在的包名，如果有多个包使用 `,` 号分割。|
-| dbvisitor.mapper-locations          | <TagGray/> 要扫描加载的 Mapper 映射文件所在路径，默认值为 `classpath*:/dbvisitor/mapper/**/*.xml`，如果有多个可以通过一下任意一个字符进行分割 `,; \t\n` |
+| dbvisitor.mapper-locations          | <TagGray/> 要扫描加载的 Mapper 映射文件所在路径，默认值为 `classpath*:/dbvisitor/mapper/**/*.xml`，如果有多个可以通过以下任意一个字符进行分割 `,; \t\n` |
 | dbvisitor.mapper-disabled           | <TagGray/> 使用 `true/false` 表示是否禁用 `dbvisitor.mapper-packages` 扫描到的 Mapper 接口。<br/>默认值为 false 当与某些框架合用同一个 mapper 文件时如果遇到冲突可考虑设置为 true |
 | dbvisitor.mapper-name-generator     | <TagGray/> 用于自定义生成 mapper bean 名字的生成器类名。需要实现 BeanNameGenerator 接口，默认为：空。|
 | dbvisitor.marker-annotation         | <TagGray/> 设置一个扫描路径当扫描到的 Mapper 接口身上标有某个特定类型的注解时才会被认作 Mapper 接口类。默认为：`net.hasor.dbvisitor.mapper.MapperDef` |

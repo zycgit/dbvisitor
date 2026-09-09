@@ -31,8 +31,8 @@ When scanning SQL, the dbVisitor parser identifies and skips string content wrap
 **Incorrect Example**:
 
 ```sql
--- The @{uuid} here will not be parsed, and the database will eventually receive the string '... @{uuid}'
-SELECT * FROM users WHERE name = 'user_@{uuid}'
+-- The @{uuid32} here will not be parsed, and the database will eventually receive the string '... @{uuid32}'
+SELECT * FROM users WHERE name = 'user_@{uuid32}'
 ```
 
 **Correct Practice**:
@@ -41,7 +41,7 @@ Rules should be placed outside quotes, using the database's string concatenation
 
 ```sql
 -- Method 1: Splicing using the concat function
-SELECT * FROM users WHERE name = concat('user_', @{uuid})
+SELECT * FROM users WHERE name = concat('user_', @{uuid32})
 ```
 
 ## How it Works
@@ -54,7 +54,7 @@ When dbVisitor receives a SQL with `@{...}`, it goes through the following steps
 
 ## Syntax Structure
 
-The general syntax format of the rule is as follows:
+The parsing structure is shown below; each rule defines its parameter semantics. Only conditional rules such as `if` and `ifand` interpret the second item as an OGNL condition. Ordinary rules such as `and` and `in` treat it as SQL content:
 
 ```text
 @{ RuleName [, Condition Expression [, Rule Content ]] }
@@ -63,7 +63,7 @@ The general syntax format of the rule is as follows:
 | Component | Required | Description | Example |
 | :--- |:----| :--- | :--- |
 | **RuleName** | ✅ Yes | The identifier of the rule, case-insensitive. | `and`, `or`, `uuid32` |
-| **Condition Expression** | ❌ No | An OGNL boolean expression. The rule takes effect when the result is `true`. If omitted or empty, it defaults to `true`. | `age > 18`, `name != null` |
+| **Condition Expression** | ❌ No | An OGNL boolean expression for conditional rules; for ordinary rules, this item usually belongs to the SQL content. | `age > 18`, `name != null` |
 | **Rule Content** | ❌ No | The SQL fragment or parameter to be operated by the rule. Some rules (such as UUID) do not need this part. | `age = :age`, `order by id` |
 
 ### Common Variations
@@ -90,8 +90,8 @@ The general syntax format of the rule is as follows:
 
 dbVisitor provides a wealth of built-in rules to meet the needs of different scenarios:
 
-- **[Statement Generation Rules](./dynamic_sql_rule)**
-    - Includes **Dynamic SQL Assembly** (`@{and}`, `@{or}`, `@{set}`), **Parameter Processing** (`@{md5}`, `@{uuid}`), and **Macro and Text Injection** (`@{macro}`).
+- **[Statement Generation Rules](./dynamic_rule)**
+    - Includes **Dynamic SQL Assembly** (`@{and}`, `@{or}`, `@{set}`), **Parameter Processing** (`@{md5}`, `@{uuid32}`), and **Macro and Text Injection** (`@{macro}`).
 - **[Result Processing Rules](./result_rule)**
     - Used for post-processing of query result sets, as well as auxiliary configurations for stored procedures and multi-result set queries (`@{resultSet}`).
 - **[Rule Nesting](./nested_rule)**

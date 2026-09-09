@@ -38,7 +38,7 @@ In **Stored Procedure** or **Multiple Result Set Query** scenarios, guides dbVis
 
 | Name | Type | Description |
 | :--- | :--- | :--- |
-| `name` | String | Name of the OUT parameter in the result set. |
+| `name` | String | Name of this result set in the returned Map. |
 | `javaType` | Class | Map the result set to a Java type. See [Object Mapping](../core/mapping/about). |
 | `rowMapper` | RowMapper | Use custom [RowMapper](../result/for_mapper) to handle mapping. |
 | `rowHandler` | RowCallbackHandler | Use custom [RowCallbackHandler](../result/row_callback) to handle each row. |
@@ -65,7 +65,7 @@ Marks a returned result as an **update count** (rather than a result set), used 
 
 ## DEFAULTRESULT Rule {#default}
 
-`@{defaultResult}` is equivalent to the global default configuration of `@{resultSet}`. When a query returns multiple result sets, you can use this rule to avoid repeating configurations for each result set.
+`@{defaultResult}` is equivalent to the default configuration within one execution of `@{resultSet}`. When a query returns multiple result sets, you can use this rule to avoid repeating configurations for each result set.
 
 **Syntax**:
 `@{defaultResult, key1 = value1, key2 = value2}`

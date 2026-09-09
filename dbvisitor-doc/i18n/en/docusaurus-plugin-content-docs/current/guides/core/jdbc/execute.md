@@ -10,7 +10,7 @@ description: Use JdbcTemplate.execute to run arbitrary SQL statements or load SQ
 Use JdbcTemplate's execute method to run arbitrary SQL statements.
 
 :::warning
-These methods do **not** support argument binding.
+Script-loading methods (`loadSQL` / `loadSplitSQL`) do **not** bind arguments. The `execute(sql, args)` overload does support binding; see [Arguments](../../args/about).
 :::
 
 ## Usage

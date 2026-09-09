@@ -19,9 +19,13 @@ dbVisitor 提出的"双层适配"架构旨在解决这一痛点。
 * **第一层（应用适配）**：在 API 层面，通过统一的 LambdaTemplate 和 Mapper 接口屏蔽底层语法差异（SQL vs DSL）。
 * **第二层（协议适配）**：在驱动层面，实现了标准的 JDBC 接口，将 NoSQL 数据源封装为标准 JDBC 驱动。
 
-这种设计不仅实现了"One APIs Access Any DataBase"的愿景，还带来了极高的灵活性：开发者既可以享受 dbVisitor 全栈的便捷，也可以仅使用其 JDBC 驱动，让现有的 MyBatis/Hibernate 项目瞬间具备操作 NoSQL 的能力。
+这种设计不仅实现了"One API, Access Multiple Databases"的愿景，还带来了极高的灵活性：开发者既可以享受 dbVisitor 全栈的便捷，也可以仅使用其 JDBC 驱动，让现有的 MyBatis/Hibernate 项目瞬间具备操作 NoSQL 的能力。
 
 <!-- truncate -->
+
+:::note[能力范围]
+统一的是调用方式，不是数据库语义。构造器需对应方言支持，原生命令需位于适配器支持范围；接入 ORM、连接池等组件前请核对其依赖的 JDBC 方法。参阅[功能矩阵](../docs/features/support)与[JDBC 限制](../docs/drivers/limited)。
+:::
 
 双层适配
 ----
@@ -41,9 +45,9 @@ dbVisitor 提供了 **5 种** 不同风格的 API，满足从简单 CRUD 到复�
 
 ```java
 // 传统 SQL 方式
-jdbcTemplate.executeUpdate("insert into user_info (id, name) values (?, ?)", 1, "mali");
+jdbcTemplate.executeUpdate("insert into user_info (id, name) values (?, ?)", new Object[] { 1, "mali" });
 
-// Mongo Shell 方式 (直接透传)
+// Mongo Shell 风格（驱动解析支持的命令）
 jdbcTemplate.executeUpdate("db.user_info.insert({_id: 1, name: 'mali'})");
 ```
 
@@ -81,10 +85,10 @@ UserInfo user = userMapper.selectById("1001");
 
 ```java
 // 会自动翻译为 SQL 或 NoSQL 对应的查询语句
-List<UserInfo> users = lambdaTemplate.lambdaQuery(UserInfo.class)
+List<UserInfo> users = lambdaTemplate.query(UserInfo.class)
     .eq(UserInfo::getAge, 18)
     .likeRight(UserInfo::getName, "Tom")
-    .list();
+    .queryForList();
 ```
 
 ### 5. 文件 Mapper (XML/DSL)
@@ -131,7 +135,7 @@ List<UserInfo> users = lambdaTemplate.lambdaQuery(UserInfo.class)
 
 ### 模式一：全栈模式 (Best Practice)
 
-同时使用 dbVisitor 的 API 和 Driver。这是最顺滑的使用方式，你将获得统一的开发体验、最佳的性能以及完整的类型安全支持。
+同时使用 dbVisitor 的 API 和 Driver。这是最顺滑的使用方式，你将获得统一的开发体验，并可在受支持的构造器调用中使用方法引用。
 > **适用场景**: 新项目开发，或者希望彻底统一数据访问层的项目。
 
 ### 模式二：驱动模式 (Integration)

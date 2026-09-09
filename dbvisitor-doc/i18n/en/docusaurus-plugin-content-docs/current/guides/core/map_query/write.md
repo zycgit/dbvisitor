@@ -66,7 +66,7 @@ Mapped Map Mode filters and converts fields through object mapping; Freedom Map 
 
 ## Update Maps
 
-`updateToSample` is for sample-style updates and updates non-null fields that are eligible for update.
+In mapped mode, `updateToSample` updates non-null, updatable fields. Freedom mode processes supplied keys including null values; filter the Map yourself to skip nulls.
 
 ```java title='Sample-style update'
 Map<String, Object> sample = new HashMap<>();
@@ -80,7 +80,7 @@ int rows = lambda.update(User.class)
         .doUpdate();
 ```
 
-`updateRow` is for row-style updates, where fields in the Map are processed as row data.
+In mapped mode, `updateRow` treats missing updatable properties as null; Freedom mode processes only supplied keys. Without primary-key metadata, Freedom mode requires explicit `allowUpdateKey()` before updateRow. Ensure your Map excludes keys that must not change.
 
 ```java title='Row-style update'
 Map<String, Object> row = new HashMap<>();
@@ -89,6 +89,7 @@ row.put("email", "alice_new@example.com");
 
 int rows = lambda.updateFreedom("users")
         .eq("id", 1001)
+        .allowUpdateKey()
         .updateRow(row)
         .doUpdate();
 ```

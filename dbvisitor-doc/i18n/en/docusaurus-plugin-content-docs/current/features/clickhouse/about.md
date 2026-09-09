@@ -15,7 +15,7 @@ ClickHouse is an analytical database. Its table engines, partition keys, sort ke
 | Concern | ClickHouse Behavior |
 |--------|----------------|
 | Primary Key Generation | Typically generated application-side; does not rely on database auto-increment |
-| Pagination | `LIMIT ? OFFSET ?` |
+| Pagination | `LIMIT ?, ?` (offset, count) |
 | Write Conflicts | Ignore/Update strategies not supported |
 | Batch Writes | JDBC batch supported (when no backfill) |
 | Stored Procedures | Not supported |
@@ -43,7 +43,7 @@ Use `KeyType.UUID32`/`KeyType.UUID36` to generate primary keys application-side.
 
 - JDBC batch can be used to improve performance when no primary key backfill is needed
 - ClickHouse recommends batch writes over row-by-row inserts
-- Note ClickHouse's asynchronous write characteristics: writes may not be immediately visible
+- With async_insert=1 and wait_for_async_insert=0, acknowledgement does not mean data is already visible; the default synchronous write path differs
 
 ## Special Topics
 

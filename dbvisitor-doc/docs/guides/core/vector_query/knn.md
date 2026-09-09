@@ -64,7 +64,7 @@ ORDER BY embedding <-> ? ASC
 LIMIT 5
 ```
 
-`initPage(5, 0)` 表示只取前 5 条结果。没有分页限制时，数据库会按向量距离排序全部匹配记录。
+`initPage(5, 0)` 表示只取前 5 条结果。在 PostgreSQL 上，不加 LIMIT 会对匹配结果排序而不限定条数。Milvus 的普通 KNN 无 LIMIT 查询使用搜索迭代器按需读取，不应将其理解为固定 Top-K；Hybrid Search 则必须显式指定 LIMIT。
 
 ## 选择距离度量
 
@@ -117,7 +117,7 @@ LIMIT 10
 
 ### 什么时候需要 initPage
 
-KNN 的目标通常是固定数量的近邻结果。没有 `initPage` 时，查询会返回所有匹配记录并按距离排序，这通常不是语义检索期望的结果。
+KNN 的目标通常是固定数量的近邻结果。在 PostgreSQL 上，不设置 `initPage` 会失去 Top-K 限制；Milvus 的普通 KNN 可以使用无 LIMIT 迭代查询。应始终显式设置需要的近邻数量。
 
 ## 深入阅读
 

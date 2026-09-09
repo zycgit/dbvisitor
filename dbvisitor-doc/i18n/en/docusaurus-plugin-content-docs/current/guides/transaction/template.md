@@ -1,99 +1,149 @@
 ---
 id: template
 sidebar_position: 2
-title: 10.2 Transaction Template
-description: How to use transaction templates in dbVisitor.
+title: 10.2 Transaction Templates
+description: Use TransactionTemplate to commit or roll back a code block automatically.
 ---
 
-# Transaction Template
+# Transaction Templates
 
-Transaction templates follow this general pattern, automatically handling commit and rollback:
+Transaction templates wrap a local code block with standard transaction control: begin first, commit on normal completion, and roll back on an exception or rollback marker.
 
-```java
-try {
-    txManager.begin(propagation, isolation);
-    ...
-    txManager.commit();
-} catch (Throwable e) {
-    txManager.rollBack();
-    throw e;
-}
-```
+## Suitable For
 
-To use transaction templates, first create a `TransactionTemplate`:
+- Wrap a code block in a plain Java program.
+- Avoid creating proxies for `@Transactional`.
+- Avoid repeating try/catch/finally.
+
+## Not Suitable For
+
+- A Service method defines the boundary and proxies are already available.
+- Multiple transaction statuses need manual commit or rollback ordering.
+
+This page uses dbVisitor's transaction template, not Spring's class of the same name. `execute` declares `Throwable`; callers must catch or declare it. Sequence SQL examples apply to databases supporting `NEXT VALUE FOR`, such as H2.
+
+## Basic Usage
 
 ```java title='Create TransactionTemplate'
+import javax.sql.DataSource;
+import net.hasor.dbvisitor.transaction.TransactionManager;
+import net.hasor.dbvisitor.transaction.TransactionTemplate;
+import net.hasor.dbvisitor.transaction.TransactionTemplateManager;
+import net.hasor.dbvisitor.transaction.support.TransactionHelper;
+
 DataSource dataSource = ...;
 TransactionManager txManager = TransactionHelper.txManager(dataSource);
-TransactionTemplate template = new TransactionTemplateManager(txManager);
+TransactionTemplate txTemplate = new TransactionTemplateManager(txManager);
 ```
 
-Then use the `execute` method to run transactional code blocks:
+```java title='Return a Result from a Transaction'
+Long orderId = txTemplate.execute(tranStatus -> {
+    Long newOrderId = jdbcTemplate.queryForObject(
+            "select next value for seq_order",
+            Long.class
+    );
 
-```java title='Basic usage'
-Object result = template.execute(tranStatus -> {
-    // Execute business logic within a transaction
-    return ...;
+    jdbcTemplate.executeUpdate(
+            "insert into orders(id, user_id) values(?, ?)",
+            new Object[] { newOrderId, userId }
+    );
+    jdbcTemplate.executeUpdate(
+            "insert into order_item(order_id, sku_id) values(?, ?)",
+            new Object[] { newOrderId, skuId }
+    );
+    return newOrderId;
 });
 ```
 
-```java title='When no return value is needed'
-template.execute((TransactionCallbackWithoutResult) tranStatus -> {
-    // Execute transactional operations
-    ...
+Behavior:
+- On normal callback return, the template commits and returns `newOrderId` from `execute`.
+- When the callback throws, the template marks the transaction for rollback and rethrows.
+
+## Code Blocks Without Results
+
+```java title='Use TransactionCallbackWithoutResult'
+import net.hasor.dbvisitor.transaction.TransactionCallbackWithoutResult;
+
+txTemplate.execute((TransactionCallbackWithoutResult) tranStatus -> {
+    jdbcTemplate.executeUpdate(
+            "delete from order_item where order_id = ?",
+            orderId
+    );
+    jdbcTemplate.executeUpdate(
+            "delete from orders where id = ?",
+            orderId
+    );
 });
 ```
 
-The `execute` method can also specify propagation behavior and isolation level:
+## Request Rollback
 
-```java title='Specify propagation and isolation'
-Object result = template.execute(tranStatus -> {
-    return ...;
+To request rollback without throwing an exception, call `tranStatus.setRollback()` in the callback.
+
+```java title='Roll Back on Validation Failure and Return a Business Result'
+Boolean success = txTemplate.execute(tranStatus -> {
+    int updated = jdbcTemplate.executeUpdate(
+            "update sku_stock set quantity = quantity - ? where sku_id = ? and quantity >= ?",
+            new Object[] { quantity, skuId, quantity }
+    );
+
+    if (updated == 0) {
+        tranStatus.setRollback();
+        return false;
+    }
+
+    jdbcTemplate.executeUpdate(
+            "insert into stock_log(sku_id, quantity) values(?, ?)",
+            new Object[] { skuId, quantity }
+    );
+    return true;
+});
+```
+
+Behavior:
+- With sufficient stock, the stock deduction and log commit together; the result is `true`.
+- With insufficient stock, the transaction rolls back without throwing and returns `false`.
+
+## Specify Propagation and Isolation
+
+```java title='Write Audit Logs in an Independent Transaction'
+import net.hasor.dbvisitor.transaction.Isolation;
+import net.hasor.dbvisitor.transaction.Propagation;
+
+txTemplate.execute(tranStatus -> {
+    jdbcTemplate.executeUpdate(
+            "insert into order_audit(order_id, action) values(?, ?)",
+            new Object[] { orderId, "CREATE" }
+    );
+    return null;
 }, Propagation.REQUIRES_NEW, Isolation.READ_COMMITTED);
 ```
 
-## Rolling Back
+Inside an outer transaction, `REQUIRES_NEW` suspends it and opens a new connection for the audit transaction. The outer transaction resumes after the audit transaction commits or rolls back.
 
-There are two ways to roll back when using the template:
-- **Method 1**: Throw an exception — the template will automatically roll back and rethrow.
-- **Method 2**: Mark the transaction for rollback via `setRollback()` or `setReadOnly()` — this will not throw an exception.
+## Obtain TransactionTemplate
 
-```java title='Mark rollback without throwing'
-Object result = template.execute(tranStatus -> {
-    tranStatus.setRollback();
-    // or
-    tranStatus.setReadOnly();
-    return ...;
-});
-```
-
-## Obtain TransactionTemplate {#get-template}
-
-```java title='Create from DataSource'
-DataSource dataSource = ...;
+```java title='Plain Java Programs'
 TransactionManager txManager = TransactionHelper.txManager(dataSource);
-TransactionTemplate template = new TransactionTemplateManager(txManager);
+TransactionTemplate txTemplate = new TransactionTemplateManager(txManager);
 ```
 
-```java title='Create after obtaining TransactionManager via dependency injection'
-public class TxExample {
+```java title='Dependency Injection'
+public class OrderService {
     // @Inject                 < Guice, Solon and Hasor
     // @Resource or @Autowired < Spring
-    private TransactionManager txManager;
-
-    public void doWork() throws Throwable {
-        TransactionTemplate template = new TransactionTemplateManager(txManager);
-        template.execute(tranStatus -> {
-            ...
-            return null;
-        });
-    }
+    private TransactionTemplate txTemplate;
 }
 ```
 
-:::info[For DI usage, see the framework-specific docs]
-- Spring-based projects: [see details](../yourproject/with_spring#tran)
-- Solon-based projects: [see details](../yourproject/with_solon#tran)
-- In Hasor and Guice you can inject with `@Inject`
-    - [Guice Injectable types](../yourproject/with_guice#inject), [Hasor Injectable types](../yourproject/with_hasor#inject)
-:::
+Related integrations:
+- [Spring Integration](../yourproject/with_spring#tran)
+- [Solon Integration](../yourproject/with_solon#tran)
+- [Guice Injectable Types](../yourproject/with_guice#inject)
+- [Hasor Injectable Types](../yourproject/with_hasor#inject)
+
+## Further Reading
+
+- [Transaction Manager](./manager): How the template calls `TransactionManager`.
+- [Propagation](./propagation): Choose the template's second argument.
+- [Isolation](./isolation): Choose the template's third argument.

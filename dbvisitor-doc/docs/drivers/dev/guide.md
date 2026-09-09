@@ -5,47 +5,22 @@ title: 实现指南
 description: 以接入 NewDB 为例，手把手实现一个 dbVisitor 适配器。
 ---
 
-以下内容以假想数据源 **NewDB** 为例，说明从零实现 dbVisitor 适配器的完整步骤。
+以下内容以假想数据源 **NewDB** 为例，说明适配器的组成和接入步骤。示例中的 `NewDBClient`、`NewDBResult` 是用于说明 SDK 调用位置的假想类型，需要替换为目标数据库的 API；代码片段省略了 import，不是可以直接运行的完整项目。
 
 开始之前，建议先阅读 [架构设计](./about) 了解核心组件和执行模型。
 
-## 步骤 1：创建 Maven 模块
+## 步骤 1：创建 Gradle 模块
 
-在 `dbvisitor-adapter/` 下创建 `jdbc-newdb` 模块：
+在 dbVisitor 仓库的 `dbvisitor-adapter/` 下创建 `jdbc-newdb` 模块，并在根目录 `settings.gradle` 注册项目及其目录。模块的 `build.gradle` 依赖公共 JDBC 驱动层：
 
-```xml
-<project>
-    <parent>
-        <groupId>net.hasor</groupId>
-        <artifactId>dbvisitor-adapter</artifactId>
-        <version>${revision}</version>
-    </parent>
-
-    <artifactId>jdbc-newdb</artifactId>
-
-    <dependencies>
-        <!-- dbVisitor 核心（编译时依赖，运行时由用户提供） -->
-        <dependency>
-            <groupId>net.hasor</groupId>
-            <artifactId>dbvisitor</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- Cobble 工具库 -->
-        <dependency>
-            <groupId>net.hasor</groupId>
-            <artifactId>cobble-all</artifactId>
-        </dependency>
-
-        <!-- NewDB 官方 Java SDK -->
-        <dependency>
-            <groupId>com.newdb</groupId>
-            <artifactId>newdb-java-client</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-    </dependencies>
-</project>
+```groovy
+dependencies {
+    api project(':dbvisitor-driver')
+    // 在此添加目标数据库的官方 SDK 依赖。
+}
 ```
+
+独立项目也可以通过 Maven 或 Gradle 依赖 `net.hasor:dbvisitor-driver`，版本应与使用的 dbVisitor 版本一致；无需依赖不存在的 `dbvisitor-adapter` Maven 父模块。
 
 推荐的包结构：`net.hasor.dbvisitor.adapter.newdb`
 
@@ -55,13 +30,13 @@ description: 以接入 NewDB 为例，手把手实现一个 dbVisitor 适配器�
 
 ```java
 public final class NewDBKeys {
-    public static final String ADAPTER_NAME       = "adapter_name";
+    public static final String ADAPTER_NAME       = JdbcDriver.P_ADAPTER_NAME;
     public static final String ADAPTER_NAME_VALUE = "newdb";
 
     // 连接参数
-    public static final String SERVER   = "server";
-    public static final String USERNAME = "user";
-    public static final String PASSWORD = "password";
+    public static final String SERVER   = JdbcDriver.P_SERVER;
+    public static final String USERNAME = JdbcDriver.P_USER;
+    public static final String PASSWORD = JdbcDriver.P_PASSWORD;
     public static final String DATABASE = "database";
 
     // 超时/池配置...
@@ -85,7 +60,8 @@ public class NewDBConnFactory implements AdapterFactory {
     public String[] getPropertyNames() {
         return new String[] {
             NewDBKeys.ADAPTER_NAME, NewDBKeys.SERVER,
-            NewDBKeys.USERNAME, NewDBKeys.PASSWORD, NewDBKeys.DATABASE
+            NewDBKeys.USERNAME, NewDBKeys.PASSWORD, NewDBKeys.DATABASE,
+            NewDBKeys.CONN_TIMEOUT
         };
     }
 
@@ -98,15 +74,11 @@ public class NewDBConnFactory implements AdapterFactory {
     public NewDBConn createConnection(
             Connection owner, String jdbcUrl, Properties props
     ) throws SQLException {
-        // 1. 校验 URL 前缀
-        if (!jdbcUrl.startsWith("jdbc:dbvisitor:newdb//")) {
-            throw new SQLException("invalid URL: " + jdbcUrl);
-        }
-
-        // 2. 解析配置
+        // JdbcDriver 已识别适配器并将 URL 参数合并到 props。
+        // 保留参数名称的大小写，例如 connectTimeout。
         Map<String, String> config = new HashMap<>();
         props.forEach((k, v) -> config.put(
-            k.toString().toLowerCase(), v.toString()
+            k.toString(), v.toString()
         ));
 
         // 3. 创建底层 SDK 客户端
@@ -114,9 +86,18 @@ public class NewDBConnFactory implements AdapterFactory {
         NewDBClient client = NewDBClient.connect(server);
 
         // 4. 构造连接
-        NewDBConn conn = new NewDBConn(owner, client, jdbcUrl, config);
-        conn.initConnection();
-        return conn;
+        try {
+            NewDBConn conn = new NewDBConn(owner, client, jdbcUrl, config);
+            conn.initConnection();
+            return conn;
+        } catch (Exception e) {
+            try {
+                client.close();
+            } catch (Exception closeError) {
+                e.addSuppressed(closeError);
+            }
+            throw new SQLException("Cannot initialize NewDB connection", e);
+        }
     }
 }
 ```
@@ -134,7 +115,6 @@ public class NewDBConn extends AdapterConnection {
     private final Connection  owner;
     private final NewDBClient client;
     private       String      database;
-    private volatile boolean  cancelled = false;
 
     NewDBConn(Connection owner, NewDBClient client,
               String jdbcUrl, Map<String, String> config) {
@@ -147,11 +127,12 @@ public class NewDBConn extends AdapterConnection {
     /** 初始化：获取数据库版本信息 */
     public void initConnection() {
         AdapterInfo info = this.getInfo();
-        info.setDriverName("jdbc-newdb");
+        info.getDriverVersion().setName("jdbc-newdb");
         // 通过 SDK 获取服务端版本
         String version = client.getServerVersion();
-        info.setDbProductName("NewDB");
-        // 解析版本号填充到 info...
+        info.getDbVersion().setName("NewDB");
+        info.getDbVersion().setVersion(version);
+        // 按目标数据库的版本格式填充 majorVersion、minorVersion。
     }
 
     // --- catalog / schema ---
@@ -189,7 +170,6 @@ public class NewDBConn extends AdapterConnection {
     public synchronized void doRequest(
             AdapterRequest request, AdapterReceive receive
     ) throws SQLException {
-        this.cancelled = false;
         String command = ((NewDBRequest) request).getCommandBody();
 
         try {
@@ -199,7 +179,7 @@ public class NewDBConn extends AdapterConnection {
 
             // 3. 通过 receive 回调返回结果
             if (result.isQuery()) {
-                AdapterCursor cursor = buildCursor(result);
+                AdapterCursor cursor = buildCursor(request, result);
                 receive.responseResult(request, cursor);
             } else {
                 receive.responseUpdateCount(request, result.getAffectedRows());
@@ -213,7 +193,7 @@ public class NewDBConn extends AdapterConnection {
 
     @Override
     public void cancelRequest() {
-        this.cancelled = true;
+        throw new UnsupportedOperationException("NewDB cancellation is not implemented");
     }
 
     // --- 关闭 ---
@@ -226,6 +206,8 @@ public class NewDBConn extends AdapterConnection {
 ```
 
 ### 关键实现要点
+
+示例只展示同步执行。实现参数绑定时，从 `AdapterRequest` 读取参数并优先使用 SDK 的参数接口，不要将未经处理的值拼回命令。实现取消时，需要将请求与 SDK 调用关联，优先覆盖 `cancelRequest(AdapterRequest)`，避免取消同连接的其他语句；仅设置一个未被执行流程检查的标志并不能实现取消。
 
 **`doRequest` 方法** 是适配器最核心的代码。典型流程：
 
@@ -266,24 +248,33 @@ public class NewDBRequest extends AdapterRequest {
 `AdapterCursor` 是 dbvisitor-driver 提供的结果集抽象，需要将 SDK 返回的数据转换为行列格式：
 
 ```java
-private AdapterCursor buildCursor(NewDBResult result) {
+private AdapterCursor buildCursor(AdapterRequest request, NewDBResult result) throws SQLException {
     // 1. 定义列
     List<String> columns = result.getColumnNames();
-    List<Integer> types = result.getColumnTypes(); // java.sql.Types
+    List<String> types = result.getColumnTypes(); // TypeSupport 可识别的类型名，如 VARCHAR
 
     // 2. 构造 cursor
-    AdapterCursor cursor = new AdapterCursor(columns.size());
+    List<JdbcColumn> metadata = new ArrayList<>();
     for (int i = 0; i < columns.size(); i++) {
-        cursor.setColumn(i, columns.get(i), types.get(i));
+        metadata.add(new JdbcColumn(columns.get(i), types.get(i), "", "", "",
+                ResultSetMetaData.columnNullableUnknown, false, ""));
     }
+    AdapterResultCursor cursor = new AdapterResultCursor(request, metadata);
 
     // 3. 填充数据行
     for (Object[] row : result.getRows()) {
-        cursor.addRow(row);
+        Map<String, Object> values = new LinkedHashMap<>();
+        for (int i = 0; i < columns.size(); i++) {
+            values.put(columns.get(i), row[i]);
+        }
+        cursor.pushData(values);
     }
+    cursor.pushFinish();
     return cursor;
 }
 ```
+
+`AdapterCursor` 是接口，`AdapterResultCursor` 是缓冲行的实现。上例适合小结果集；大结果集应实现按需取页的 `AdapterCursor`，并在 `close()` 中释放 SDK 游标。即使查询结果为空，也应提供列元数据；`pushFinish()` 表示数据生产结束，与 `responseFinish()` 表示请求结束不同。
 
 ## 步骤 7：添加 DSL 解析器（可选）
 
@@ -291,7 +282,7 @@ private AdapterCursor buildCursor(NewDBResult result) {
 
 ```text
 jdbc-newdb/
-└── src/main/antlr4/
+└── src/main/antlr/
     └── net/hasor/dbvisitor/adapter/newdb/parser/
         ├── NewDBLexer.g4     # 词法规则
         └── NewDBParser.g4    # 语法规则
@@ -320,40 +311,28 @@ net.hasor.dbvisitor.adapter.newdb.NewDBConnFactory
 
 ```java
 // 标准 JDBC 方式
-Connection conn = DriverManager.getConnection(
-    "jdbc:dbvisitor:newdb//localhost:9000?database=mydb",
-    "user", "password"
-);
-
-// dbVisitor 方式
-Configuration config = new Configuration();
-LambdaTemplate lambda = config.newLambda(dataSource);
-List<User> users = lambda.query(User.class)
-    .eq(User::getAge, 18)
-    .queryForList();
+try (Connection conn = DriverManager.getConnection(
+        "jdbc:dbvisitor:newdb://localhost:9000?database=mydb", "user", "password")) {
+    // 使用 Statement 或 JdbcTemplate 执行该适配器支持的命令。
+}
 ```
+
+SPI 注册只解决 JDBC 驱动接入。若要支持 LambdaTemplate 或 BaseMapper 自动生成命令，还需实现并注册相应的数据库方言，参见[自定义方言](../../features/support.md#custom-dialect)。
 
 ## 步骤 9：测试
 
-参考现有适配器的测试结构，推荐使用 Docker 容器进行集成测试：
+命令解析、参数绑定、SDK 请求组装和 JDBC 结果访问可以通过命令拦截器及 SDK mock 测试；数据库实际行为还需要真实服务测试。下面的集成测试片段假设服务已经启动，且 `SELECT 1` 是 NewDB 支持的命令：
 
 ```java
 public class NewDBAdapterTest {
     @Test
     public void testBasicQuery() throws Exception {
         // 1. 建立连接
-        Connection conn = DriverManager.getConnection(
-            "jdbc:dbvisitor:newdb//localhost:9000"
-        );
-        // 2. 通过 dbVisitor API 执行
-        JdbcTemplate jdbc = new JdbcTemplate(conn);
-        List<Map<String, Object>> result = jdbc.queryForList("...");
-
-        // 3. 验证结果
-        assertNotNull(result);
-
-        // 4. 清理
-        conn.close();
+        try (Connection conn = DriverManager.getConnection(
+                "jdbc:dbvisitor:newdb://localhost:9000")) {
+            JdbcTemplate jdbc = new JdbcTemplate(conn);
+            assertEquals(Integer.valueOf(1), jdbc.queryForObject("SELECT 1", Integer.class));
+        }
     }
 }
 ```
@@ -366,7 +345,7 @@ public class NewDBAdapterTest {
 | **暴露原生客户端** | 在 `unwrap()` 中返回底层 SDK 对象，允许高级用户绕过适配层 |
 | **异常包装** | 将 SDK 异常包装为 `SQLException`，保留原始错误信息和错误码 |
 | **资源安全** | `createConnection` 和 `doClose` 中确保异常时不泄漏底层连接 |
-| **Java 17 兼容，不限制 var/Record 等语法 |
+| **Java 版本** | 当前项目使用 Java 17，适配器及 SDK 应与目标运行环境兼容 |
 | **命名规范** | 遵循 `XxxConnFactory` / `XxxConn` / `XxxCmd` / `XxxRequest` / `XxxKeys` 的命名惯例 |
 
 ## 完整文件清单
@@ -375,7 +354,7 @@ public class NewDBAdapterTest {
 
 ```text
 jdbc-newdb/
-├── pom.xml
+├── build.gradle
 └── src/main/
     ├── java/net/hasor/dbvisitor/adapter/newdb/
     │   ├── NewDBKeys.java          # 配置键常量
@@ -389,7 +368,7 @@ jdbc-newdb/
 如需支持复杂查询语法，追加：
 
 ```text
-    ├── antlr4/.../parser/
+    ├── antlr/.../parser/
     │   ├── NewDBLexer.g4
     │   └── NewDBParser.g4
     └── java/.../

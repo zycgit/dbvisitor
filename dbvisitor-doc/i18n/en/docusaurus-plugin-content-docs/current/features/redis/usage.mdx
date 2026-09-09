@@ -18,7 +18,7 @@ dbVisitor accesses Redis data sources via the [JDBC-Redis](../../drivers/redis/a
 - General capabilities like [rules](../../guides/rules/about), [parameter passing](../../guides/args/about), [ResultSetExtractor/RowMapper](../../guides/result/about)
 - [Dynamic SQL](../../guides/core/file/dynamic_sql) tags in Mapper File
 
-**Not supported:** Builder API, Generic Mapper, Object Mapping, Result Set Mapping, executeBatch, Stored Procedures
+**Not supported:** Builder API, BaseMapper, JDBC Batch, transactions, stored procedures. RowMapper can still map result columns, and TypeHandler can decode JSON strings into objects.
 
 ## Concept Analogy
 
@@ -34,7 +34,7 @@ Use JdbcTemplate to execute Redis commands directly. Make sure the Redis data so
 
 :::tip[Tip]
 For more usage patterns, see the [JdbcTemplate class](../../guides/core/jdbc/about#guide). The following two features are unavailable due to driver limitations:
-- Batch operations
+- JDBC Batch
 - Stored procedures
 :::
 
@@ -67,7 +67,7 @@ int result1 = jdbc.executeUpdate("DEL myKey");
 int result2 = jdbc.executeUpdate("DEL ?", "myKey");
 ```
 
-### Key Read/Write/Delete (Multiple Keys)
+### Key Read/Write/Delete (Multiple Keys) {#multi-key}
 
 ```java title='Read multiple Keys'
 Map<String, Integer> result = jdbc.queryForPairs("MGET ? ? ?", String.class, Integer.class,
@@ -83,7 +83,7 @@ int result = jdbc.executeUpdate("MSET ? ? ? ? ? ?",
 int result = jdbc.executeUpdate("DEL ? ? ?", new Object[] { "key1", "key2", "key3" });
 ```
 
-### Object Read/Write
+### Object Read/Write {#json-serialization}
 
 ```java title='Bind JSON serialization with @BindTypeHandler annotation'
 @BindTypeHandler(JsonTypeHandler.class)
@@ -94,7 +94,7 @@ public class MyObject {
 
 ```java title='Read/Write objects'
 // Read object
-MyObject obj = jdbc.queryForObject("GET ?", MyObject.class, "myObjectKey");
+MyObject obj = jdbc.queryForObject("GET ?", "myObjectKey", MyObject.class);
 // Write object
 jdbc.executeUpdate("SET ? ?", new Object[] { "myObjectKey", (MyObject) myObject });
 ```
@@ -165,7 +165,7 @@ In XML Mapper files, when configuring object serialization mapping via select ta
         "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
         <mapper namespace="net.test.dto.UserInfoMapper">
             <insert id="saveUser">
-                set #{'user_' + uid} #{info}
+                set #{'user_' + info.uid} #{info}
             </insert>
 
             <select id="loadUser" resultType="net.test.dto.UserInfo">
@@ -196,18 +196,13 @@ In XML Mapper files, when configuring object serialization mapping via select ta
         "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
         <mapper namespace="net.test.dto.UserInfoMapper">
             <insert id="saveUser">
-                set #{'user_' + uid}
-                #{info, typeHandler=net.hasor.dbvisitor.types.handler.json.JsonTypeHandler}
+                set #{'user_' + info.uid} #{info, typeHandler=net.hasor.dbvisitor.types.handler.json.JsonTypeHandler}
             </insert>
 
             <!-- Must specify both resultTypeHandler and resultType attributes -->
-            <select id="loadUser1"
+            <select id="loadUser"
                     resultTypeHandler="net.hasor.dbvisitor.types.handler.json.JsonTypeHandler"
                     resultType="net.test.dto.UserInfo">
-                get #{'user_' + uid}
-            </select>
-
-            <select id="loadUser2" resultType="net.test.dto.UserInfo">
                 get #{'user_' + uid}
             </select>
 
@@ -263,15 +258,15 @@ jdbc.executeUpdate("SET ? ? EX ?", new Object[] { "myKey", "myValue", 60 });
 
 ```java title="Increment/Decrement numeric values via INCR/DECR commands"
 jdbc.executeUpdate("SET myKey 0");                      // Initial value 0
-String result = jdbc.queryForString("INCR ?", "myKey"); // Value after increment: 1
-String result = jdbc.queryForString("DECR ?", "myKey"); // Value after decrement: 0
+String incremented = jdbc.queryForString("INCR ?", "myKey"); // Value after increment: 1
+String decremented = jdbc.queryForString("DECR ?", "myKey"); // Value after decrement: 0
 ```
 - Reference: [INCR command](https://redis.io/docs/latest/commands/incr/), [DECR command](https://redis.io/docs/latest/commands/decr/)
 
 ```java title="Append/Substring operations via APPEND/GETRANGE commands"
 jdbc.executeUpdate("SET myKey myValue");                                              // Initial value myValue
-String result = jdbc.queryForString("APPEND ? ?", new Object[] { "myKey", "123" });   // After append: myValue123
-String result = jdbc.queryForString("GETRANGE ? ? ?", new Object[] { "myKey", 0, 5 });// Substring: myVal
+Long length = jdbc.queryForLong("APPEND ? ?", new Object[] { "myKey", "123" }); // New length: 10
+String prefix = jdbc.queryForString("GETRANGE ? ? ?", new Object[] { "myKey", 0, 5 }); // Index 5 included: myValu
 ```
 - Reference: [APPEND command](https://redis.io/docs/latest/commands/append/), [GETRANGE command](https://redis.io/docs/latest/commands/getrange/)
 
@@ -312,18 +307,18 @@ jdbc.executeUpdate("HSET myKey1 @{pairs, :arg0, :k :v}", SqlArg.valueOf(hashData
 
 ```java title="Read/Write list elements"
 jdbc.executeUpdate("LPUSH myListKey value1 value2 value3");
-String result = jdbc.queryForString("LPOP myListKey"); // value3
-String result = jdbc.queryForString("RPOP myListKey"); // value1
+String left = jdbc.queryForString("LPOP myListKey"); // value3
+String right = jdbc.queryForString("RPOP myListKey"); // value1
 ```
 - Reference: [LPUSH command](https://redis.io/docs/latest/commands/lpush/), [LPOP command](https://redis.io/docs/latest/commands/lpop/), [RPOP command](https://redis.io/docs/latest/commands/rpop/)
 
 ```java title="Implement message queue via LPUSH/BLPOP"
 // Left-in right-out blocking queue
 jdbc.executeUpdate("LPUSH myListKey value1");
-String result = jdbc.queryForString("BRPOP myListKey");
+List<String> right = jdbc.queryForList("BRPOP myListKey 5", String.class);
 // Right-in left-out blocking queue
 jdbc.executeUpdate("RPUSH myListKey value1");
-String result = jdbc.queryForString("BLPOP myListKey");
+List<String> left = jdbc.queryForList("BLPOP myListKey 5", String.class);
 ```
 - Reference: [LPUSH command](https://redis.io/docs/latest/commands/lpush/), [BRPOP command](https://redis.io/docs/latest/commands/brpop/)
 
@@ -373,7 +368,7 @@ Map<String,Double> hashData = new HashMap<>();
 hashData.put("field1", 3.0);
 hashData.put("field2", 2.0);
 hashData.put("field3", 1.0);
-jdbc.executeUpdate("ZADD myKey1 @{pairs, :arg0, :v :k}", SqlArg.valueOf(hashData));
+Long added = jdbc.queryForLong("ZADD myKey1 @{pairs, :arg0, :v :k}", SqlArg.valueOf(hashData));
 jdbc.queryForList("ZRANGEBYSCORE myKey1 -inf +inf ", String.class); // [field3, field2, field1]
 ```
 - Reference: [ZADD command](https://redis.io/docs/latest/commands/zadd/), [PAIRS rule](../../guides/rules/dynamic_rule#pairs)

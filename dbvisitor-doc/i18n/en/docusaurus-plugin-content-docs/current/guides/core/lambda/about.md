@@ -22,10 +22,15 @@ Entity mode and [Mapped Map Mode](../map_query/mapped) require [Object Mapping](
 ```java title='Entity class mapping'
 @Table("users")
 public class User {
-    @Column(name = "id", primary = true, keyType = KeyTypeEnum.Auto)
+    @Column(value = "id", primary = true, keyType = KeyType.Auto)
     private Long id;
     @Column("name")
     private String name;
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 }
 ```
 

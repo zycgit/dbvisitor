@@ -16,12 +16,14 @@ export const Highlight = ({children, color}) => (
 普通 Java 项目是指不使用任何框架或容器的 Java 项目，它通常是一个简单的 Java 应用程序。
 
 :::tip[提示]
-dbvisitor 也可以很好的和任何 Java 项目整合使用，包括 Spring Boot、Quarkus 等，因此你也可以这些项目当成普通项目来看待。
+dbvisitor 也可以很好的和任何 Java 项目整合使用，包括 Spring Boot、Quarkus 等，因此也可以在这些项目中手动创建 dbVisitor 入口对象。
 :::
 
 ## 引入依赖
 
-依赖包，当前版本：<Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>
+本指南对应开发版；SNAPSHOT 需从源码构建并安装到本地 Maven 仓库。版本选择见[引入依赖](./buildtools)。
+
+依赖包，当前指南版本：<Highlight color="rgb(227 17 108)">{Vars.docsVersion}</Highlight>
 
 ```xml title='Maven 依赖'
 <dependency>
@@ -48,7 +50,6 @@ LambdaTemplate lambda = new LambdaTemplate(dataSource);
 
 dbVisitor 的 API 提供分为以下几种：
 - dbVisitor 支持通过原始 SQL 方式利用 [编程式 API](../api/jdbc) 来访问数据库。
-- dbVisitor 支持通过 [Mapper API](../api/mapper) 用 Java 接口组织数据访问层。
 - dbVisitor 支持通过 [构造器 API](../api/lambda) 方式用同一种 API 来访问所有框架支持的数据库。
 - dbVisitor 支持通过 [Mapper API](../api/mapper) 用 Java 接口组织数据访问层（含 BaseMapper 通用 CRUD）。
 - dbVisitor 支持使用 [文件 Mapper](../api/file_mapper) 统一管理 SQL 语句。

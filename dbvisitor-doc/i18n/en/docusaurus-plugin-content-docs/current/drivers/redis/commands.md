@@ -56,11 +56,11 @@ description: jdbc-redis supports 140+ commonly used commands, covering DB, Serve
 | [OBJECT FREQ](https://redis.io/docs/latest/commands/object-freq/) | ResultSet | 1 | RESULT field, LONG type |
 | [OBJECT IDLETIME](https://redis.io/docs/latest/commands/object-idletime/) | ResultSet | 1 | RESULT field, LONG type |
 | [OBJECT REFCOUNT](https://redis.io/docs/latest/commands/object-refcount/) | ResultSet | 1 | RESULT field, LONG type |
-| [PERSIST](https://redis.io/docs/latest/commands/persist/) | Value | -- | 1 if the key currently has a timeout set; 0 otherwise |
+| [PERSIST](https://redis.io/docs/latest/commands/persist/) | Value | -- | 1 when the key's expiry is removed; 0 when the key does not exist or has no expiry |
 | [TTL](https://redis.io/docs/latest/commands/ttl/) | ResultSet | 1 | RESULT field, LONG type |
 | [PTTL](https://redis.io/docs/latest/commands/pttl/) | ResultSet | 1 | RESULT field, LONG type |
 | [RANDOMKEY](https://redis.io/docs/latest/commands/randomkey/) | ResultSet | 1 | KEY field, STRING type |
-| [RENAME](https://redis.io/docs/latest/commands/rename/) | Value | -- | 1 if key was renamed; 0 if target key already exists. (Determined by OK status code) |
+| [RENAME](https://redis.io/docs/latest/commands/rename/) | Value | -- | 1 on success; an existing destination is overwritten, and a missing source causes an error |
 | [RENAMENX](https://redis.io/docs/latest/commands/renamenx/) | Value | -- | 1 if key was renamed; 0 if target key already exists. |
 | [SCAN](https://redis.io/docs/latest/commands/scan/) | ResultSet | multiple | CURSOR field, STRING type<br/>KEY field, STRING type |
 | [TOUCH](https://redis.io/docs/latest/commands/touch/) | Value | -- | Number of keys that were TOUCHed. |
@@ -153,8 +153,8 @@ description: jdbc-redis supports 140+ commonly used commands, covering DB, Serve
 | [ZRANGEBYLEX](https://redis.io/docs/latest/commands/zrangebylex/) | ResultSet | multiple | ELEMENT field, STRING type |
 | [ZRANGEBYSCORE](https://redis.io/docs/latest/commands/zrangebyscore/) | ResultSet | multiple | ELEMENT field, STRING type<br/>SCORE field, DOUBLE type (when using WITHSCORES) |
 | [ZRANGESTORE](https://redis.io/docs/latest/commands/zrangestore/) | Value | -- | Number of elements in the resulting sorted set. |
-| [ZRANK](https://redis.io/docs/latest/commands/zrank/) | ResultSet | 1 | SCORE field, DOUBLE type (when using WITHSCORES)<br/>RANK field, LONG type |
-| [ZREVRANK](https://redis.io/docs/latest/commands/zrevrank/) | ResultSet | 1 | SCORE field, DOUBLE type (when using WITHSCORES)<br/>RANK field, LONG type |
+| [ZRANK](https://redis.io/docs/latest/commands/zrank/) | ResultSet | 1 | SCORE field, DOUBLE type (when using WITHSCORE)<br/>RANK field, LONG type |
+| [ZREVRANK](https://redis.io/docs/latest/commands/zrevrank/) | ResultSet | 1 | SCORE field, DOUBLE type (when using WITHSCORE)<br/>RANK field, LONG type |
 | [ZREM](https://redis.io/docs/latest/commands/zrem/) | Value | -- | Number of members removed from the sorted set, not including non-existing members. |
 | [ZREMRANGEBYLEX](https://redis.io/docs/latest/commands/zremrangebylex/) | Value | -- | Number of members removed from the sorted set, not including non-existing members. |
 | [ZREMRANGEBYRANK](https://redis.io/docs/latest/commands/zremrangebyrank/) | Value | -- | Number of members removed from the sorted set, not including non-existing members. |

@@ -2,7 +2,7 @@
 id: dynamic_sql
 sidebar_position: 4
 title: 动态 SQL
-description: dbVisitor 工具提供提供基于 XML 动态 SQL 配置，并且采用了大家熟悉的 MyBatis 风格。
+description: dbVisitor 工具提供基于 XML 动态 SQL 配置，并且采用了大家熟悉的 MyBatis 风格。
 ---
 import TagRed from '@site/src/components/tags/TagRed';
 import TagGray from '@site/src/components/tags/TagGray';
@@ -34,7 +34,8 @@ import TagGray from '@site/src/components/tags/TagGray';
 ```xml
 <select id="queryUser">
     select * from users
-    where state = 'ACTIVE' 
+    where state = 'ACTIVE'
+    @{and, age = #{age}}
 </select>
 ```
 - 了解 [AND 规则](../../rules/dynamic_rule#and)
@@ -57,7 +58,7 @@ import TagGray from '@site/src/components/tags/TagGray';
     <choose>
         <when test="title != null">and title = #{title}</when>
         <when test="content != null">and content = #{content}</when>
-        <otherwise>and owner = "owner1"</otherwise>
+        <otherwise>and owner = 'owner1'</otherwise>
     </choose>
 </select>
 ```
@@ -147,6 +148,8 @@ select * from users where age = ?
 </update>
 ```
 
+`<set>` 只清理首尾分隔符，不会自动补充更新列。所有字段都为空时，应在调用前拒绝这次更新。
+
 ### trim 标签
 
 &lt;trim&gt; 可以替代 &lt;where&gt; 和 &lt;set&gt;，它的设计目标是为了解决一些特定场景。
@@ -212,7 +215,7 @@ select * from users where age = ?
 
 ```xml
 <select id="queryByLike">
-    <bind name="pattern" value="'%' + _parameter.getTitle() + '%'" />
+    <bind name="pattern" value="'%' + title + '%'" />
     select * from users
     where title like #{pattern}
 </select>

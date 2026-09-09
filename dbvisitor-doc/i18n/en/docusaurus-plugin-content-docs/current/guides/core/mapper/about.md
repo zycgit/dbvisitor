@@ -43,8 +43,8 @@ public interface UserMapper {
     <select id="listByCondition">
         select * from users
         where 1 = 1
-        @{and, name is not null, "name like concat('%', #{name}, '%')"}
-        @{and, age is not null, "age = #{age}"}
+        @{and, name like concat('%', #{name}, '%')}
+        @{and, age = #{age}}
     </select>
 </mapper>
 ```
@@ -82,7 +82,7 @@ Method annotations place SQL on Mapper interface methods. They work best when SQ
 | Insert data | [@Insert](./annotation_insert) | Can work with generated keys or `@SelectKeySql` for primary key write-back. |
 | Update data | [@Update](./annotation_update) | Returns affected rows. |
 | Delete data | [@Delete](./annotation_delete) | Returns affected rows. |
-| Execute arbitrary SQL | [@Execute](./annotation_execute) | Suitable for DDL, batch execution, multiple result sets, etc. |
+| Execute arbitrary SQL | [@Execute](./annotation_execute) | Suitable for DDL, multiple statements and result sets, not JDBC Batch. |
 | Call a stored procedure | [@Call](./annotation_call) | Uses CallableStatement to call procedures or functions. |
 | Reuse SQL fragments | [@Segment](./annotation_segment) | Defines fragments that can be referenced by rules. |
 

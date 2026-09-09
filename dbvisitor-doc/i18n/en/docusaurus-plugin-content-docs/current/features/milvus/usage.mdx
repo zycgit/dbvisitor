@@ -11,7 +11,7 @@ description: Detailed usage of each API mode and vector search for Milvus data s
 dbVisitor accesses the Milvus vector database via the [JDBC-Milvus](../../drivers/milvus/about) driver, based on the JDBC protocol.
 Unlike the native command style of MongoDB/ElasticSearch, the Milvus adapter uses **SQL-style syntax** (`CREATE TABLE`, `INSERT`, `SELECT`, `DELETE`, etc.), resulting in a lower learning curve.
 
-This page shows how dbVisitor APIs execute the adapter's SQL subset. See [Install and Use](../../drivers/milvus/usecase.mdx) for dependencies, connections, TLS and a complete JDBC program, and the [support matrix](../../drivers/milvus/compatibility.md) for versions and unverified environments. Examples use two-dimensional FloatVector fields; the application supplies dataSource, connection, entity accessors and Session.
+This page shows how dbVisitor APIs execute the adapter's SQL subset. See [Install and Use](../../drivers/milvus/usecase.mdx) for dependencies, connections, TLS and a complete JDBC program, and the [support matrix](../../drivers/milvus/compatibility.md) for version requirements and feature boundaries. Examples use two-dimensional FloatVector fields; the application supplies dataSource, connection, entity accessors and Session.
 
 **Supported capabilities:**
 
@@ -378,7 +378,9 @@ For complete vector query documentation, see [Vector Queries](../../guides/core/
 
 ### KNN Nearest Neighbor Search (orderBy*)
 
-Use `orderByL2` / `orderByCosine` / `orderByIP` to sort by vector distance, combined with `initPage` to get the top K most similar records:
+The query metric must match the index metric_type. The index above uses L2; before trying COSINE/IP examples, create a separate collection and index with that metric.
+
+Use `orderByL2` / `orderByCosine` / `orderByIP` to sort by vector similarity, combined with `initPage` to get the top K most similar records:
 
 ```java title='L2 distance TopK search'
 LambdaTemplate lambda = new LambdaTemplate(dataSource);

@@ -41,12 +41,12 @@ dbVisitor 的核心突破在于访问模式的无缝集成：开发者可以在�
 ## 使用 dbVisitor
 
 - dbVisitor 使用商业友好的 [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0.html) 许可协议。
-- dbVisitor 只有 [Cobble](https://gitee.com/zycgit/cobble) 一个依赖（cobble 是一个类似 Apache Commons 或 Guava 的工具包）
-- 所有 dbVisitor 模块以及依赖项都可以通过 [Maven Central](https://central.sonatype.com/search?q=dbvisitor) 获得。
+- dbVisitor 核心模块只有 [Cobble](https://gitee.com/zycgit/cobble) 一个依赖（cobble 是一个类似 Apache Commons 或 Guava 的工具包）
+- 已发布模块可通过 [Maven Central](https://central.sonatype.com/search?q=dbvisitor) 获取；SNAPSHOT 版本需使用相应快照仓库或从源码本地安装。
 
 ## JVM 兼容性
 
-dbVisitor 可在所有 Java 8 或更高版本上运行，所有版本均使用 Java 8 编译构建。
+dbVisitor 6.7.1 起要求 Java 17 或更高版本；6.7.0 及更早版本的运行要求请参阅对应版本文档。所有模块和第三方 JDBC 驱动还需满足各自的依赖要求。
 
 ## 入门
 
@@ -75,7 +75,8 @@ dbVisitor 可在所有 Java 8 或更高版本上运行，所有版本均使用 J
 
 ## 版本事件
 
-- 当前最新版本 v{Vars.lastReleaseVer} ({Vars.lastReleaseTime})
+- 最新正式版：v{Vars.lastReleaseVer} ({Vars.lastReleaseTime})
+- 当前使用指南对应：{Vars.docsVersion}；开发版需要从源码构建，新增能力不要直接套用到旧版。
 - `6.x` 版本 是一次全新的升级，在继承了 5.x 的功能，并针对不同风格 API 的实现做了较大改进使其在各个方面的用法和行为保持统一。
 - `5.x` 版本 dbVisitor 正式从 Hasor 框架中分离出来并提供 编程式 API、声明式 API、构造器 三种不同风格的 API 来访问数据库。
 - `4.x` 及以前版本中没有自己独立的版本，其发布跟随 [Hasor](https://www.hasor.net/) 框架发布。

@@ -26,7 +26,7 @@ import TagYellow from '@site/src/components/tags/TagYellow';
 | typeHandler | TypeHandler | <TagGray/> 使用的类型处理器，通过指定该选项可以覆盖 dbVisitor 为参数选择的 [类型处理器](../types/about)。 |
 
 ```text title='例1：javaType 选项'
-select * from users where name = #{name,javaType=java.lang.Integer}
+select * from users where age = #{age,javaType=java.lang.Integer}
 ```
 
 - javaType 选项可以指定 TypeHandlerRegistry 中支持的任意 [Java 类型](../types/handlers/about#single_type)。
@@ -106,11 +106,11 @@ where name = #{name,
 {call test_procedure(#{arg, 
                        mode=out,
                        jdbcType=varchar,
-                       typeHandler=net.hasor.dataql.sqlproc.types.handler.StringAsMonthDayTypeHandler})
+                       typeHandler=net.hasor.dbvisitor.types.handler.string.StringAsMonthDayTypeHandler})
 }
 ```
 
-```text title='例7：为存储过程 INOUT 参数 arg 设定别名，并将传出结果使用 outArg 名称保存。'
+```text title='例7：为存储过程 OUT 参数 arg 设定别名，并将传出结果使用 outArg 名称保存。'
 {call test_procedure(#{arg, name=outArg, mode=out, jdbcType=varchar})}
 ```
 

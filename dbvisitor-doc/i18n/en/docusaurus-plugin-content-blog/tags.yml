@@ -6,12 +6,12 @@ Rule:
 DynamicSQL:
   label: DynamicSQL
   permalink: /dynamicSQL
-  description: Hello tag description
+  description: Dynamic SQL conditions, rules, and parameter binding
 
 Streaming:
   label: Streaming
   permalink: /streaming
-  description: Hola tag description
+  description: Row-by-row reading and resource management for large result sets
 
 ODM:
   label: ODM

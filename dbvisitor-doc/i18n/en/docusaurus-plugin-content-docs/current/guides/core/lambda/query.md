@@ -67,7 +67,7 @@ result = lambda.query(User.class)
 
 ## Query a single object {#object}
 
-Run a query and map the single result; multiple matches throw an exception.
+Run a query and map the single result; no match returns null, and multiple matches throw an exception.
 
 ```java title='Map to entity type'
 LambdaTemplate lambda = ...;
@@ -104,9 +104,9 @@ result = lambda.query(User.class)
 LambdaTemplate lambda = ...;
 RowMapper<UserVO> rowMapper = new BeanMappingRowMapper(UserVO.class);
 
-List<UserVO> result = null;
+UserVO result = null;
 result = lambda.query(User.class)
-               .le(User::getId, 100)     // match id <= 100
+               .eq(User::getId, 100)     // match id = 100
                .queryForObject(rowMapper);// use RowMapper for mapping
 ```
 
@@ -120,7 +120,7 @@ dbVisitor rewrites the query into a COUNT using dialect support. Example:
 -- original query
 select id, name from users where id <= 100;
 -- rewritten as count query
-select count(*) from (select id, name from users where id <= 100;) as TEMP_T;
+select count(*) from (select id, name from users where id <= 100) as TEMP_T;
 ```
 
 ```java
@@ -157,7 +157,7 @@ lambda.query(User.class)
 Use [ResultSetExtractor](../../result/for_extractor) to process the entire `ResultSet`.
 
 ```java
-ResultSetExtractor extractor = new ResultSetExtractor<Map<Integer, String>>() {
+ResultSetExtractor<Map<Integer, String>> extractor = new ResultSetExtractor<Map<Integer, String>>() {
     public Map<Integer, String> extractData(ResultSet rs) throws SQLException {
         Map<Integer, String> hashMap = new HashMap<>();
 

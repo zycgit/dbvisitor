@@ -23,8 +23,8 @@ The **multipleExecute** series of methods in **JdbcTemplate** solves the problem
   ```sql title="Example: MySQL procedure yielding two result sets"
   create procedure proc_multi_result(in userName varchar(200))
   begin
-    select * from test_user where name  = @userName;
-    select * from test_user where name != @userName;
+    select * from test_user where name  = userName;
+    select * from test_user where name != userName;
   end;
   ```
 - Other situations that produce multiple result sets.
@@ -42,28 +42,28 @@ Map<String, Object> result = jdbc.multipleExecute(multipleSql, "muhammad");
 
 ## Return Value
 
-- By default, each result set is represented as **[List/Map](../../result/for_map)**. This example yields a `List` containing two `Map` entries.
+- By default, each result set is represented as **[List/Map](../../result/for_map)**. multipleExecute returns a Map whose values are update counts or result-set Lists; rows default to Maps.
 - You can embed rules in SQL to control how each result set is handled.
 
 ```sql title="1. Annotate statements with @{resultSet} rules"
-➊ set @userName = convert(? USING utf8);           ➋ @{resultUpdate,name=upd}
-➌ select * from test_user where name  = @userName; ➍ @{resultSet,name=res1,javaType=net.demo.dto.User}
-➎ select * from test_user where name != @userName; ➏ @{resultSet,name=res2,javaType=net.demo.dto.User}
+set @userName = convert(? USING utf8);           @{resultUpdate,name=upd}
+select * from test_user where name  = @userName; @{resultSet,name=res1,javaType=net.demo.dto.User}
+select * from test_user where name != @userName; @{resultSet,name=res2,javaType=net.demo.dto.User}
 ```
 
 Explanation:
-- ➊ uses rule ➋ to label the update count as `upd`.
-- ➌ uses rule ➍ to label the first result set `res1` and map rows to `net.demo.dto.User`.
-- ➎ uses rule ➏ to label the second result set `res2` and map rows to `net.demo.dto.User`.
+- The SET statement uses a rule to label the update count as `upd`.
+- The first SELECT uses a rule to label its result set `res1` and map rows to `net.demo.dto.User`.
+- The second SELECT uses a rule to label its result set `res2` and map rows to `net.demo.dto.User`.
 
-```sql title="2. Execute annotated SQL and fetch typed results"
+```java title="2. Execute annotated SQL and fetch typed results"
 String query = "set @userName = convert(? USING utf8);           @{resultUpdate,name=upd}" +
                "select * from test_user where name  = @userName; @{resultSet,name=res1,javaType=net.demo.dto.User}" +
                "select * from test_user where name != @userName; @{resultSet,name=res2,javaType=net.demo.dto.User}";
 Map<String, Object> result = jdbcTemplate.multipleExecute(query, "muhammad");
 
-List<User> result1 = (List<User>) result.get("res1"); // statement ➌
-List<User> result2 = (List<User>) result.get("res2"); // statement ➎
+List<User> result1 = (List<User>) result.get("res1"); // First SELECT
+List<User> result2 = (List<User>) result.get("res2"); // Second SELECT
 ```
 
 :::info

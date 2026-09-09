@@ -29,7 +29,7 @@ This page skips the API overview and organizes links by usage scenarios for quic
 - In a Mapper file, use [&lt;select&gt;](./core/file/statements#select) to query and [&lt;sql&gt;](./core/file/statements#sql) to define fragments.
 
 ### Arguments
-- In dynamic SQL, pass parameters via [SQL injection](./args/inject) (assess injection risks yourself).
+- In dynamic SQL, pass parameters via [SQL text substitution](./args/inject) (assess injection risks yourself).
 - Pass parameters by [Positional](./args/position) or using [Named positional](./args/position#pos_named).
 - Pass parameters by [Named](./args/named) and further access values with [OGNL](./args/named#ognl).
 - Use [SqlArgSource](./args/interface#source) or [PreparedStatement](./args/interface#pset) for parameters.
@@ -39,13 +39,13 @@ This page skips the API overview and organizes links by usage scenarios for quic
 - Use [pagination](./core/lambda/query#page) in the Fluent API.
 - In Mapper interfaces, add paging params to @Query methods for [pagination](./core/mapper/annotation_query#page).
 - Paginate via the [Common Mapper](./core/mapper/about#base-mapper) (includes sorting and null ordering).
-- Use Session [queryStatement / pageStatement](./core/mapper/file#page) overloads for pagination.
+- Use Session [queryStatement / pageStatement](./core/mapper/file_statement#page) overloads for pagination.
 - After binding Mapper interfaces to XML, use a [Page object](./core/file/paging) for pagination.
 
 ### Dynamic SQL
 - Rules Manual: [Dynamic SQL Rules](./rules/dynamic_rule), [Nested Rules](./rules/nested_rule), [Result Processing](./rules/result_rule), etc.
 - Inject predefined SQL fragments via [MACRO rules](./rules/dynamic_rule#macro) in SQL statements (assess SQL injection security risks yourself).
-- Achieve SQL injection via [IFTEXT rules](./rules/dynamic_rule#macro) or [`${...}`](./args/inject) syntax in SQL statements (assess SQL injection security risks yourself).
+- Build SQL text via [IFTEXT rules](./rules/dynamic_rule#if) or [`${...}`](./args/inject) syntax in SQL statements (assess SQL injection security risks yourself).
 - Enhance SQL statements via [AND](./rules/dynamic_rule#and), [OR](./rules/dynamic_rule#or), [SET](./rules/dynamic_rule#set), [CASE](./rules/dynamic_rule#case) rules.
 - Use [IN](./rules/dynamic_rule#in) rule to automatically generate corresponding `(?,?,?,?)` in SQL statements based on collection parameter size.
 - Use [IFAND](./rules/dynamic_rule#and), [IFOR](./rules/dynamic_rule#or), [IFSET](./rules/dynamic_rule#set), [IFIN](./rules/dynamic_rule#in) rules to control rule validity via a condition parameter.
@@ -96,33 +96,33 @@ This page skips the API overview and organizes links by usage scenarios for quic
 - dbVisitor provides many handlers; check built-ins first:
   - [Boolean](./types/handlers/bool-handler), [Numeric](./types/handlers/number-handler), [Char/String](./types/handlers/string-handler), [Datetime](./types/handlers/datetime-handler), [Byte[]](./types/handlers/bytes-handler)
 - Map enums via [EnumOfValue](./types/enum-handler#ofvalue) or [EnumOfCode](./types/enum-handler#ofcode).
-- The [serialization](./types/json-serialization) auto-detects Fastjson2, Fastjson, Jackson, Gson in that order.
+- The [serialization](./types/json-serialization) auto-detects Jackson, Gson, Fastjson, Fastjson2 in that order.
 - With JTS on the classpath, dbVisitor can handle [WKB/WKT](./types/gis-handler) geospatial data.
 - dbVisitor also supports [InputStream/Reader](./types/stream-handler) and [Array](./types/array-handler) types.
 
 ### Redis support
 - See the 140+ Redis commands supported by dbVisitor: [Commands](../drivers/redis/commands).
-- Learn how dbVisitor handles Redis data types ([String](../optionss/redis#string), [Hash](../optionss/redis#hash),
-  [List](../optionss/redis#list), [Set](../optionss/redis#set), [Sorted Set](../optionss/redis#sorted_set)).
-- Use JdbcTemplate to [Execute commands](../optionss/redis#exec-command).
-- Use @Insert, @Update, @Delete on Mapper interfaces for [Annotation-driven](../optionss/redis#exec-annotation) Redis operations.
-- Configure commands via tags in [Mapper File](../optionss/redis#exec-file).
+- Learn how dbVisitor handles Redis data types ([String](../features/redis/usage#string), [Hash](../features/redis/usage#hash),
+  [List](../features/redis/usage#list), [Set](../features/redis/usage#set), [Sorted Set](../features/redis/usage#sorted_set)).
+- Use JdbcTemplate to [Execute commands](../features/redis/usage#exec-command).
+- Use @Insert, @Update, @Delete on Mapper interfaces for [Annotation-driven](../features/redis/usage#exec-annotation) Redis operations.
+- Configure commands via tags in [Mapper File](../features/redis/usage#exec-file).
 
 ### MongoDB support
 - See MongoDB commands supported by dbVisitor: [Commands](../drivers/mongo/commands).
-- Use JdbcTemplate to [Execute commands](../optionss/mongo#exec-command).
-- Use [Fluent API](../optionss/mongo#exec-lambda).
-- Use [Common Mapper](../optionss/mongo#exec-mapper).
-- On Mapper interfaces, use @Insert, @Update, @Delete for [Annotation-driven](../optionss/mongo#exec-annotation) operations.
-- Configure commands via tags in [Mapper File](../optionss/mongo#exec-file).
+- Use JdbcTemplate to [Execute commands](../features/mongo/usage#exec-command).
+- Use [Fluent API](../features/mongo/usage#exec-lambda).
+- Use [Common Mapper](../features/mongo/usage#exec-mapper).
+- On Mapper interfaces, use @Insert, @Update, @Delete for [Annotation-driven](../features/mongo/usage#exec-annotation) operations.
+- Configure commands via tags in [Mapper File](../features/mongo/usage#exec-file).
 
 ### ElasticSearch support
 - See ElasticSearch commands supported by dbVisitor: [Commands](../drivers/elastic/commands).
-- Use JdbcTemplate to [Execute commands](../optionss/elastic#exec-command).
-- Use [Fluent API](../optionss/elastic#exec-lambda).
-- Use [Common Mapper](../optionss/elastic#exec-mapper).
-- On Mapper interfaces, use @Insert, @Update, @Delete for [Annotation-driven](../optionss/elastic#exec-annotation) operations.
-- Configure commands via tags in [Mapper File](../optionss/elastic#exec-file).
+- Use JdbcTemplate to [Execute commands](../features/elastic/usage#exec-command).
+- Use [Fluent API](../features/elastic/usage#exec-lambda).
+- Use [Common Mapper](../features/elastic/usage#exec-mapper).
+- On Mapper interfaces, use @Insert, @Update, @Delete for [Annotation-driven](../features/elastic/usage#exec-annotation) operations.
+- Configure commands via tags in [Mapper File](../features/elastic/usage#exec-file).
 
 ### Database transactions
 - Spring projects: use [Spring Annotations](./yourproject/with_spring#tran).

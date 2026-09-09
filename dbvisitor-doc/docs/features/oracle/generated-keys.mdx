@@ -141,18 +141,7 @@ int insertUser(UserInfo user);
 int insertUser(UserInfo user);
 ```
 
-Lambda / BaseMapper 可以直接使用 `KeyType.Sequence`：
-
-```java
-@Table("user_info")
-public class UserInfo {
-    @KeySeq("user_info_seq")
-    @Column(value = "id", primary = true, keyType = KeyType.Sequence)
-    private Integer id;
-}
-```
-
-这种方式属于插入前生成主键，不依赖 Oracle JDBC generated keys。
+Lambda / BaseMapper 使用 Oracle 内置方言时，不能直接使用 `KeyType.Sequence`，因为该方言没有实现 `SeqSqlDialect`。可以先用 JdbcTemplate 查询序列值，再把它赋给普通主键字段（不配置 `KeyType.Auto` 或 `KeyType.Sequence`）后插入。
 
 ## RETURNING INTO
 
@@ -198,7 +187,7 @@ Oracle 方言当前不把 INSERT 选择为 JDBC batch 路径。`DuplicateKeyStra
 ## 设计原则
 
 - `IDENTITY`：配置 `keyColumn`，从 JDBC `getGeneratedKeys()` 回填。
-- sequence：优先使用 `selectKey` / `@SelectKeySql` / `KeyType.Sequence` 在 INSERT 前取值。
+- sequence：优先使用 `selectKey` / `@SelectKeySql` 或应用侧序列查询 在 INSERT 前取值。
 - `RETURNING ... INTO`：属于 Oracle 专有 OUT 参数模型，不等同于 PostgreSQL `RETURNING`。
 - Lambda / BaseMapper：Oracle 主键回填保守逐条执行，优先保证回填语义正确。
 - 通用说明见 [Generated Keys](../../guides/core/mapper/annotation_insert#generated-keys)。

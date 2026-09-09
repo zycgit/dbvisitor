@@ -36,7 +36,7 @@ Recommended approach: for sequence scenarios, use `selectKey` to get the sequenc
 </insert>
 ```
 
-In object mapping, use `KeyType.Sequence` + `@KeySeq` to automatically read sequences.
+The current Oracle dialect does not implement `SeqSqlDialect`; do not use `KeyType.Sequence` + `@KeySeq` directly. Use `selectKey` above or read the sequence yourself.
 
 ## RETURNING INTO
 

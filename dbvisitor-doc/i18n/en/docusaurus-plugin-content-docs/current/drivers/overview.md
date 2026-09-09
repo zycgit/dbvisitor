@@ -7,11 +7,11 @@ description: JDBC driver adapters based on dbvisitor-driver that integrate non-r
 ---
 JDBC driver adapters are a set of JDBC drivers implemented on the `dbvisitor-driver` framework. They integrate non-relational databases via standard JDBC interfaces.
 
-Each adapter is an independent JDBC driver that can be used with any JDBC-compatible framework (such as Spring JDBC, MyBatis, dbVisitor, etc.), or directly through the native JDBC API.
+Each adapter is an independent JDBC driver. It can be used directly through JDBC or integrated with Spring JDBC, MyBatis and dbVisitor. Adapters support data-source-specific commands and a subset of JDBC; before integrating another framework, check that its SQL, metadata and transaction requirements are within the [supported scope](./limited).
 They address the following core problems:
 - **Simplified driver implementation**: By abstracting the complexity of JDBC interfaces, developers can more easily implement JDBC-compatible layers for various data sources.
 - **Non-relational database integration**: Allows non-relational databases (NoSQL) to be accessed through standardized JDBC interfaces.
-- **Unified access**: Works with any JDBC-based framework through standardized JDBC interfaces, simplifying database access operations.
+- **Unified access**: Reuses JDBC connections, parameter binding and result reading to reduce interface differences between data sources.
 
 ## Usage Guide
 

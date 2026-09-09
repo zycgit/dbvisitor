@@ -36,7 +36,7 @@ Oracle 12c+ 的 `IDENTITY` 列通过 JDBC generated keys 回填。**关键配置
 </insert>
 ```
 
-对象映射中用 `KeyType.Sequence` + `@KeySeq` 自动读取序列。
+Oracle 内置方言未实现 `SeqSqlDialect`，不能直接使用 `KeyType.Sequence` + `@KeySeq`。可采用上面的 `selectKey`，或在应用中先读取序列值，再以普通主键字段插入。
 
 ## RETURNING INTO
 

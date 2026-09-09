@@ -6,12 +6,12 @@ Rule:
 DynamicSQL:
   label: DynamicSQL
   permalink: /dynamicSQL
-  description: Hello tag description
+  description: 动态 SQL 条件、规则与参数绑定
 
 Streaming:
   label: Streaming
   permalink: /streaming
-  description: Hola tag description
+  description: 大结果集逐行读取与资源管理
 
 ODM:
   label: ODM

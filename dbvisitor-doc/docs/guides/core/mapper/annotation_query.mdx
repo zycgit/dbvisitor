@@ -35,7 +35,7 @@ List<User> listUsers(@Param("id") long searchId, Page page);
 
 // 返回 PageResult（含总记录数和总页数）
 @Query("select * from users where id > #{id}")
-PageResult<User> listUsers(@Param("id") long searchId, Page page);
+PageResult<User> pageUsers(@Param("id") long searchId, Page page);
 ```
 
 ## 属性清单

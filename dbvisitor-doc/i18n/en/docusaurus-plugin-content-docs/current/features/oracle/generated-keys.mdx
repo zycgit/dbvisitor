@@ -141,18 +141,7 @@ Annotations can use `@SelectKeySql`:
 int insertUser(UserInfo user);
 ```
 
-Lambda / BaseMapper can directly use `KeyType.Sequence`:
-
-```java
-@Table("user_info")
-public class UserInfo {
-    @KeySeq("user_info_seq")
-    @Column(value = "id", primary = true, keyType = KeyType.Sequence)
-    private Integer id;
-}
-```
-
-This approach generates the primary key before insert and does not depend on Oracle JDBC generated keys.
+Lambda / BaseMapper cannot directly use `KeyType.Sequence` with the built-in Oracle dialect because it does not implement `SeqSqlDialect`. Read the sequence using JdbcTemplate first, assign it to an ordinary primary-key field (without `KeyType.Auto` or `KeyType.Sequence`), then insert.
 
 ## RETURNING INTO
 
@@ -198,7 +187,7 @@ Oracle dialect currently does not select JDBC batch path for INSERTs. `Duplicate
 ## Design Principles
 
 - `IDENTITY`: configure `keyColumn`, backfill from JDBC `getGeneratedKeys()`.
-- sequence: prioritize `selectKey` / `@SelectKeySql` / `KeyType.Sequence` to get value before INSERT.
+- sequence: prioritize `selectKey` / `@SelectKeySql` or an application-side sequence query to get value before INSERT.
 - `RETURNING ... INTO`: an Oracle-proprietary OUT parameter model, not equivalent to PostgreSQL `RETURNING`.
 - Lambda / BaseMapper: Oracle primary key backfill uses conservative row-by-row execution, prioritizing correct backfill semantics.
 - General documentation: see [Generated Keys](../../guides/core/mapper/annotation_insert#generated-keys).

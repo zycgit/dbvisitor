@@ -20,6 +20,8 @@ description: 使用 TransactionTemplate 在代码块内自动提交或回滚事�
 - 事务边界就是 Service 方法，且项目已有代理能力。
 - 需要手动保留多个 `TransactionStatus`，并按指定顺序提交或回滚。
 
+本页使用 dbVisitor 的事务模板，不是 Spring 的同名类。`execute` 声明抛出 `Throwable`，调用方法需处理或声明它。序列 SQL 示例适用于 H2 等支持 `NEXT VALUE FOR` 的数据库。
+
 ## 基本用法
 
 ```java title='创建 TransactionTemplate'
@@ -43,11 +45,11 @@ Long orderId = txTemplate.execute(tranStatus -> {
 
     jdbcTemplate.executeUpdate(
             "insert into orders(id, user_id) values(?, ?)",
-            newOrderId, userId
+            new Object[] { newOrderId, userId }
     );
     jdbcTemplate.executeUpdate(
             "insert into order_item(order_id, sku_id) values(?, ?)",
-            newOrderId, skuId
+            new Object[] { newOrderId, skuId }
     );
     return newOrderId;
 });
@@ -82,7 +84,7 @@ txTemplate.execute((TransactionCallbackWithoutResult) tranStatus -> {
 Boolean success = txTemplate.execute(tranStatus -> {
     int updated = jdbcTemplate.executeUpdate(
             "update sku_stock set quantity = quantity - ? where sku_id = ? and quantity >= ?",
-            quantity, skuId, quantity
+            new Object[] { quantity, skuId, quantity }
     );
 
     if (updated == 0) {
@@ -92,7 +94,7 @@ Boolean success = txTemplate.execute(tranStatus -> {
 
     jdbcTemplate.executeUpdate(
             "insert into stock_log(sku_id, quantity) values(?, ?)",
-            skuId, quantity
+            new Object[] { skuId, quantity }
     );
     return true;
 });
@@ -111,7 +113,7 @@ import net.hasor.dbvisitor.transaction.Propagation;
 txTemplate.execute(tranStatus -> {
     jdbcTemplate.executeUpdate(
             "insert into order_audit(order_id, action) values(?, ?)",
-            orderId, "CREATE"
+            new Object[] { orderId, "CREATE" }
     );
     return null;
 }, Propagation.REQUIRES_NEW, Isolation.READ_COMMITTED);

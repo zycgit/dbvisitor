@@ -2,12 +2,12 @@
 id: position
 sidebar_position: 2
 title: 6.1 Positional Arguments
-description: When SQL uses `?`, you can bind arguments to the corresponding zero-based index.
+description: Bind values to question-mark placeholders in order, distinguishing Java container indexes from JDBC parameter indexes.
 ---
 
 # Positional Arguments
 
-When SQL uses `?`, you can bind arguments to the corresponding zero-based index.
+dbVisitor binds `?` placeholders in array/List order. Container indexes and arg0/arg1 names start at 0; direct JDBC `PreparedStatement.setXxx(index, value)` indexes start at 1.
 
 ```sql
 select * from users where id > ? and status = ?

@@ -7,7 +7,7 @@ description: Handle case sensitivity and reserved identifiers when mapping with 
 
 # Name Sensitivity
 
-Some databases treat `users` and `USERS` as different tables. Use `caseInsensitive` or `useDelimited` to handle these cases in dbVisitor.
+Some databases treat `users` and `USERS` as different tables. `caseInsensitive` controls mapping lookup; `useDelimited` controls identifier quoting in generated SQL. Neither changes the database's case rules.
 
 ## Case sensitivity
 
@@ -15,8 +15,8 @@ If your database allows multiple columns that differ only by case, enable case s
 
 ```sql
 select 
-    AGE, -- col 1, uppercase name
-    age  -- col 2, lowercase name
+    "AGE", -- col 1, uppercase name
+    "age"  -- col 2, lowercase name
 from Users;
 ```
 

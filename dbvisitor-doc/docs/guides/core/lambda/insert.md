@@ -120,9 +120,9 @@ User user3 = new User();
 
 LambdaTemplate lambda = ...
 int result = lambda.insert(User.class)
-                   .applyEntity(user1, user2, user3);               // 不定参方式
-                 //.applyEntity(new User[]{user1, user2, user3});  // 使用数组
-                 //.applyEntity(Arrays.asList(user1, user2, user3));// 使用 List
+                   .applyEntity(user1, user2, user3)               // 不定参方式
+                 //.applyEntity(new User[]{user1, user2, user3})  // 使用数组
+                 //.applyEntity(Arrays.asList(user1, user2, user3))// 使用 List
                    .executeSumResult();
 // 返回 result 为 3
 ```
@@ -133,10 +133,10 @@ int result = lambda.insert(User.class)
 
 ## 写入冲突 {#conflict}
 
-向数据库插入重复数据通常并非有意而为之，而一旦出现主键冲突就会比较麻烦。一般的解决办法是先查询在选择更新或者是写入。
+向数据库插入重复数据通常并非有意而为之，而一旦出现主键冲突就会比较麻烦。可以先查询再选择更新或写入，但两次操作之间可能有并发写入，不能凭查询结果保证后续 INSERT 一定成功。应优先采用数据库支持的冲突处理语句。
 
 ```java title='常规方法'
-if (adapter.queryByEntity(User.class)
+if (lambda.query(User.class)
             .eq(User::getId,user.getId())
             .queryForCount() > 0) {
     // 更新
@@ -193,7 +193,7 @@ int result = lambda.insert(User.class)
 
 ### 忽略策略(IGNORE)
 
-替换策略的实现是根据具体数据库方言实现决定，如：
+忽略策略的实现是根据具体数据库方言实现决定，如：
 
 - 对于 MySQL 将会使用 `INSERT IGNORE` 语句。
 - 对于 Oracle 将会使用 `MERGE INTO ... WHEN NOT MATCHED THEN ...` 语句。

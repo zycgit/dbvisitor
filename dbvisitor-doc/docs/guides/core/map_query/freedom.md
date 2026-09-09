@@ -13,7 +13,7 @@ description: 不依赖实体类和对象映射，直接使用表名、列名和 
 
 - 没有实体类，或不希望为临时表、动态表、同步任务维护实体映射。
 - 表名、列名来自配置中心、任务元数据或运行时规则。
-- 操作对象是 Redis、MongoDB、ElasticSearch、Milvus 这类非传统表结构的数据源，同时仍希望使用统一的构造器 API。
+- 操作对象是 MongoDB、ElasticSearch、Milvus 这类非传统表结构的数据源，同时仍希望使用统一的构造器 API。
 - 需要按数据库列名直接组织 Map，而不是按 Java 属性名组织 Map。
 
 ## 不适合场景
@@ -36,7 +36,7 @@ eq("login_name", "alice")
 SQL 标识符直接进入语句
 ```
 
-自由 Map 模式复用构造器 API 的条件、排序、分组、分页和危险更新保护，但不读取实体类映射。
+自由 Map 模式复用构造器 API，但具体的条件、排序、分组和分页能力仍取决于方言与数据源。Redis 不支持这套构造器，应使用命令方式。自由 Map 模式不读取实体类映射。
 
 ## 入口写法
 
@@ -91,7 +91,7 @@ row.put("login_name", "alice_new");
 
 int rows = lambda.updateFreedom("users")
         .eq("id", 1001)
-        .updateRow(row)
+        .updateTo("login_name", row.get("login_name"))
         .doUpdate();
 ```
 

@@ -37,7 +37,7 @@ java.sql.SQLSyntaxErrorException: Table 'devtester.test_user2' doesn't exist
 
 ## 来自数据库的警告消息 {#warnings}
 
-通过设置 _**ignoreWarnings**_，dbVisitor 将在 SQL 警告时抛出异常。
+通过设置 _**ignoreWarnings**_ 为 `false`，dbVisitor 将在 SQL 警告时抛出异常。
 - 属性名：_**ignoreWarnings**_。
 - 默认值：_**true**_，表示忽略 SQL 告警。
 
@@ -134,7 +134,7 @@ jdbc.queryForList("select * from users");
 
 :::info[请注意]
 在一些数据库驱动中设置了 maxRows 并不代表查询结果会在获取到指定数量数据后能立即结束查询。
-- 例如：MySQL 在拿到 maxRows 数量的结果集后仍然会将服务器返回的多余行数据进行消费，只不过这些数据不会放入结果集。
+它不保证数据库只扫描或传输这些行。需要限制查询规模时，应结合数据库支持的 SQL 分页或 LIMIT，并查看所用驱动的说明。
 :::
 
 ## 动态数据源 {#dynamic}

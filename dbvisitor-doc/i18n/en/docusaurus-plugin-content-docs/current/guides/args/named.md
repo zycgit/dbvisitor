@@ -20,7 +20,7 @@ select * from users where id > #{id} and name = #{name}
 ```java title='Example 1: Use a Map as the argument container'
 Map<String, Object> args = CollectionUtils.asMap(
         "id", 2,
-        "Dave", true
+        "name", "Dave"
 );
 jdbcTemplate.queryForList("select * from users where id > :id and name = :name", args);
 ```
@@ -43,7 +43,7 @@ jdbcTemplate.queryForList("select * from users where id > :id and name = :name",
 
 ## OGNL Evaluation {#ognl}
 
-All three named argument syntaxes (`:name`, `&name`, `#{...}`) support OGNL expressions, allowing nested property access, array/collection indexing, and method calls.
+Named arguments use OGNL for nested properties and array/collection indexes. Wrap complex expressions in `#{...}` to avoid confusing spaces or operators with SQL boundaries. Expressions must be application-defined, not arbitrary user-supplied OGNL text.
 
 ### Nested Properties
 
@@ -54,7 +54,7 @@ All three named argument syntaxes (`:name`, `&name`, `#{...}`) support OGNL expr
     "cfg_id": {
       "array": [
         {"age": 10},
-        {"age": 40}  <<< use this value
+        {"age": 40}
       ]
     }
   }

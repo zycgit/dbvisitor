@@ -15,7 +15,7 @@ MySQL can use all of dbVisitor's general capabilities including JDBC, Mapper, La
 | Concern | MySQL Behavior |
 |--------|----------|
 | Primary Key Generation | `AUTO_INCREMENT`, backfilled via JDBC generated keys |
-| Pagination | `LIMIT ? OFFSET ?` |
+| Pagination | `LIMIT ?, ?` (offset, count) |
 | Write Conflicts | `INSERT IGNORE` (ignore) / `ON DUPLICATE KEY UPDATE` (update) |
 | Batch Writes | JDBC batch supported |
 | Stored Procedures | Supported |

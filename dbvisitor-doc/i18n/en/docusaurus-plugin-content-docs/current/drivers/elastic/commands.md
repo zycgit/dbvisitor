@@ -14,9 +14,9 @@ description: jdbc-elastic command examples, REST method coverage, results and hi
 | `GET .../_search` | Execute search query | `GET /my_index/_search { "query": { "match_all": {} } }` |
 | `POST .../_search` | Execute search query | `POST /my_index/_search { "query": { "term": { "user": "kimchy" } } }` |
 | `GET .../_count` | Count documents | `GET /my_index/_count` |
-| `GET .../_msearch` | Batch search | `GET /_msearch` |
-| `GET .../_mget` | Batch get documents | `GET /_mget` |
-| `GET .../_explain` | Get explanation info | `GET /my_index/_explain/1` |
+| `GET .../_msearch` | Batch search | `POST /my_index/_msearch [{}, {"query":{"match_all":{}}}]` |
+| `GET .../_mget` | Batch get documents | `GET /my_index/_mget {"ids":["1","2"]}` |
+| `GET .../_explain` | Get explanation info | `GET /my_index/_explain/1 {"query":{"match_all":{}}}` |
 | `GET .../_source` | Get document source data | `GET /my_index/_source/1` |
 
 ## Document Operations
@@ -89,6 +89,8 @@ The command syntax follows Elasticsearch REST endpoints.
 - Other
   - `HEAD /{path}` (returns `STATUS` column; see [REST APIs](https://www.elastic.co/guide/en/elasticsearch/reference/current/rest-apis.html))
   - Generic REST: `GET/POST/PUT/DELETE /{path}` ([REST APIs](https://www.elastic.co/guide/en/elasticsearch/reference/current/rest-apis.html))
+
+The `_msearch` body is a JSON array with alternating request headers and query bodies; the driver converts it to NDJSON. Each subquery returns a JDBC result set. Read them using `execute()` / `getMoreResults()`. This is distinct from JDBC Batch.
 
 ## Hint Support
 Hints must appear at the beginning of the command text. Format: `/*+ name=value */`.

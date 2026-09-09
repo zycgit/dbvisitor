@@ -12,7 +12,7 @@ dbVisitor provides lightweight local transaction support for grouping multiple d
 A transaction is managed by `TransactionManager`, and one manager is bound to one `DataSource`. Inside a transaction, dbVisitor lets `JdbcTemplate`, Mapper, BaseMapper, LambdaTemplate, and other APIs reuse the database connection bound to the current thread. The transaction is then committed or rolled back at the end.
 
 :::info
-dbVisitor manages local transactions, not distributed transactions. Multiple `DataSource` instances can each have transaction interceptors, but dbVisitor does not add two-phase commit between databases.
+Transactions require database and JDBC driver support and cannot be used with non-transactional adapters. dbVisitor manages local transactions, not distributed transactions. Multiple `DataSource` instances can each have transaction interceptors, but dbVisitor does not add two-phase commit between databases.
 :::
 
 ## Choose an API
@@ -30,7 +30,7 @@ Typical recommendation:
 
 ## A Complete Effect
 
-The following method makes order creation atomic: order, item, and stock update must succeed together. If any step fails, all steps roll back.
+The example assumes a database with sequences and local transactions, such as H2. Create the tables and sequence first, then invoke the method through a [transaction proxy](./annotation). The method makes order creation atomic: order, item, and stock update must succeed together. If any step fails, all steps roll back.
 
 ```java title='OrderService.java'
 import net.hasor.dbvisitor.jdbc.JdbcTemplate;
@@ -44,7 +44,7 @@ public class OrderService {
     }
 
     @Transactional
-    public long createOrder(long userId, long skuId, int quantity) {
+    public long createOrder(long userId, long skuId, int quantity) throws java.sql.SQLException {
         Long orderId = jdbcTemplate.queryForObject(
                 "select next value for seq_order",
                 Long.class
@@ -52,15 +52,15 @@ public class OrderService {
 
         jdbcTemplate.executeUpdate(
                 "insert into orders(id, user_id) values(?, ?)",
-                orderId, userId
+                new Object[] { orderId, userId }
         );
         jdbcTemplate.executeUpdate(
                 "insert into order_item(order_id, sku_id, quantity) values(?, ?, ?)",
-                orderId, skuId, quantity
+                new Object[] { orderId, skuId, quantity }
         );
         jdbcTemplate.executeUpdate(
                 "update sku_stock set quantity = quantity - ? where sku_id = ?",
-                quantity, skuId
+                new Object[] { quantity, skuId }
         );
         return orderId;
     }

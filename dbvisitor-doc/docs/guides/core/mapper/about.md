@@ -43,8 +43,8 @@ public interface UserMapper {
     <select id="listByCondition">
         select * from users
         where 1 = 1
-        @{and, name is not null, "name like concat('%', #{name}, '%')"}
-        @{and, age is not null, "age = #{age}"}
+        @{and, name like concat('%', #{name}, '%')}
+        @{and, age = #{age}}
     </select>
 </mapper>
 ```
@@ -82,7 +82,7 @@ Session 的获取方式取决于项目架构，详见 [框架整合](../../yourp
 | 插入数据 | [@Insert](./annotation_insert) | 可配合 generated keys 或 `@SelectKeySql` 回填主键。 |
 | 更新数据 | [@Update](./annotation_update) | 返回影响行数。 |
 | 删除数据 | [@Delete](./annotation_delete) | 返回影响行数。 |
-| 执行任意 SQL | [@Execute](./annotation_execute) | 适合 DDL、批量执行、多结果集等。 |
+| 执行任意 SQL | [@Execute](./annotation_execute) | 适合 DDL、多语句执行、多结果集等（不等同于 JDBC Batch）。 |
 | 调用存储过程 | [@Call](./annotation_call) | 使用 CallableStatement 调用过程或函数。 |
 | 复用 SQL 片段 | [@Segment](./annotation_segment) | 定义可被规则引用的片段。 |
 

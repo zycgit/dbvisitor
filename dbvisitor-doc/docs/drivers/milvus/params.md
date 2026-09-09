@@ -5,7 +5,7 @@ title: 连接参数与 TLS
 description: jdbc-milvus 的全部连接参数、认证、单端口 TLS、双向证书和 Zilliz Cloud 连接配置。
 ---
 
-本页对应当前源码版本，依赖及服务端支持范围见[发布与支持矩阵](./compatibility.md)。
+依赖及服务端要求见[版本与支持范围](./compatibility.md)。
 
 URL 格式：
 
@@ -22,10 +22,10 @@ Properties props = new Properties();
 props.setProperty("user", "root");
 props.setProperty("password", "YOUR_PASSWORD");
 props.setProperty("consistencyLevel", "Strong");
-// Or use props.setProperty("token", "YOUR_TOKEN"); token takes precedence.
+// 也可设置 token，非空的 token 优先于用户名和密码。
 try (Connection conn = DriverManager.getConnection(
         "jdbc:dbvisitor:milvus://127.0.0.1:19530/default", props)) {
-    // Use JDBC here.
+    // 在此通过 JDBC 执行命令。
 }
 ```
 
@@ -70,14 +70,14 @@ props.setProperty("secure", "true");
 props.setProperty("caPemPath", "/absolute/path/ca.crt");
 props.setProperty("serverName", "localhost");
 try (Connection conn = DriverManager.getConnection(
-        "jdbc:dbvisitor:milvus://127.0.0.1:2954/default", props)) {
-    // SDK and Import REST share TLS verification.
+        "jdbc:dbvisitor:milvus://127.0.0.1:19530/default", props)) {
+    // SDK 和 Import REST 共用 TLS 配置。
 }
 ```
 
-双向 TLS 再设置 `clientPemPath=/absolute/path/client.crt` 和 `clientKeyPath=/absolute/path/client.key`；本仓库双向测试入口为 `2955`，SDK 和 REST 均使用该端口。不要同时设置 caPemPath/serverPemPath；不要把服务端私钥当作客户端私钥。指定信任文件后仅信任其中的证书，不自动追加系统根证书。
+双向 TLS 再设置 `clientPemPath=/absolute/path/client.crt` 和 `clientKeyPath=/absolute/path/client.key`，SDK 和 REST 均使用 JDBC URL 指定的端口。不要同时设置 caPemPath/serverPemPath；不要把服务端私钥当作客户端私钥。指定信任文件后仅信任其中的证书，不自动追加系统根证书。
 
-服务端部署须提供对应协议：Milvus 2.6.2 明文支持 gRPC/REST 原生共用端口，但原生 TLS 模式要求内部独立监听。若 TLS 下需要完整 Import 能力，应提供统一入口；本仓库使用 Envoy 按 ALPN 透传分流 gRPC（HTTP/2）和 REST（HTTP/1.1），不终止 TLS，也不绕过 Milvus 的双向认证。驱动不探测第二个端口，不降级明文，不在提交失败后改用其他接口重复提交。直接连接仅有 gRPC 的 TLS 端口可以使用 SDK 操作，但不能使用 REST Import。此限制来自 [Milvus 2.6.2 监听实现](https://github.com/milvus-io/milvus/blob/v2.6.2/internal/distributed/proxy/listener_manager.go)。
+服务端部署须提供对应协议：Milvus 2.6.2 明文支持 gRPC/REST 原生共用端口，但原生 TLS 模式要求内部独立监听。若 TLS 下需要完整 Import 能力，应提供统一入口；例如使用 Envoy 按 ALPN 透传分流 gRPC（HTTP/2）和 REST（HTTP/1.1），不终止 TLS，也不绕过 Milvus 的双向认证。驱动不探测第二个端口，不降级明文，不在提交失败后改用其他接口重复提交。直接连接仅有 gRPC 的 TLS 端口可以使用 SDK 操作，但不能使用 REST Import。此限制来自 [Milvus 2.6.2 监听实现](https://github.com/milvus-io/milvus/blob/v2.6.2/internal/distributed/proxy/listener_manager.go)。
 
 Zilliz Cloud 使用控制台给出的公共端点和 token/API key。把端点的 `https://` 换为 JDBC 前缀，保留其主机和端口，并设置 `secure=true`。无端口的 HTTPS 端点使用 `443`；若端点明确提供 `19530` 等端口则保留。驱动默认端口仍为 19530，不根据域名猜测 Cloud 类型：
 
@@ -87,11 +87,11 @@ props.setProperty("secure", "true");
 props.setProperty("token", "YOUR_ZILLIZ_API_KEY");
 try (Connection conn = DriverManager.getConnection(
         "jdbc:dbvisitor:milvus://YOUR_CLUSTER_HOST:443/default", props)) {
-    // A publicly trusted certificate normally needs no PEM configuration.
+    // 公共 CA 签发的可信证书通常无需额外配置 PEM 文件。
 }
 ```
 
-不提供 trust-all、跳过主机名校验或自动明文回退。证书不受信任、名称不匹配、缺少双向认证证书会失败。认证信息不要放进 URL 或日志。Cloud 的端点权限、网络白名单和 Import 可用性以实际集群为准；本地 TLS 成功不等于云端已验收。
+不提供 trust-all、跳过主机名校验或自动明文回退。证书不受信任、名称不匹配、缺少双向认证证书会失败。认证信息不要放进 URL 或日志。连接 Cloud 前，请确认端点权限、网络白名单及 Import API 可用性。
 
 本地环境见 [Docker 测试环境](https://github.com/zycgit/dbvisitor/blob/main/dbvisitor-test/docker/README.md)。依据：[Milvus TLS 配置](https://milvus.io/docs/tls.md)、[Zilliz Cloud 连接说明](https://docs.zilliz.com/docs/connect-to-cluster)。
 

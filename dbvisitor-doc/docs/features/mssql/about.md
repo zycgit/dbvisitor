@@ -15,7 +15,7 @@ SQL Server 可以使用 dbVisitor 的 JDBC、Mapper、Lambda、BaseMapper、事�
 | 关注点 | SQL Server 行为 |
 |--------|---------------|
 | 主键生成 | `IDENTITY` 或 sequence default；推荐 `OUTPUT INSERTED` 回填 |
-| 分页 | `OFFSET ? ROWS FETCH NEXT ? ROWS ONLY`（2012+） |
+| 分页 | 内置方言使用 `ROW_NUMBER()` + CTE |
 | 写入冲突 | `MERGE INTO ... WHEN MATCHED ... WHEN NOT MATCHED ...` |
 | 批量写入 | 支持 JDBC batch |
 | 存储过程 | 支持 |
@@ -31,7 +31,7 @@ OUTPUT INSERTED.id
 VALUES (?, ?)
 ```
 
-Lambda / BaseMapper 生成的 INSERT 会由 SQL Server 方言自动加上 `OUTPUT INSERTED`，从当前 ResultSet 回填主键。手写 SQL 需要显式写出 `OUTPUT INSERTED` 并配置 `generatedKeySource="resultSet"`。
+Lambda / BaseMapper 使用 Into 策略且配置生成键回填时，SQL Server 方言会加上 `OUTPUT INSERTED`，从当前 ResultSet 回填主键。手写 SQL 需要显式写出 `OUTPUT INSERTED` 并配置 `generatedKeySource="resultSet"`。
 
 如果不使用 `OUTPUT INSERTED`，也可以走 JDBC generated keys（和 MySQL 类似）。
 

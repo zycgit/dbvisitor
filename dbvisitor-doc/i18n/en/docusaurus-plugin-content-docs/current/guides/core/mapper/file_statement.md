@@ -37,10 +37,10 @@ public interface UserMapper {
 <!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
         "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
 <mapper namespace="net.example.mapper.UserMapper">
-    <select id="listUsers" resultMap="user_resultMap">
+    <select id="listUsers" resultType="net.example.dto.User">
         select * from users
         where 1 = 1
-        @{and, name is not null, "name like concat('%', #{name}, '%')"}
+        @{and, name like concat('%', #{name}, '%')}
     </select>
 </mapper>
 ```
@@ -78,7 +78,7 @@ Interface calls are better for business code: the method signature is the contra
 Pass a `Page` parameter for paginated queries. Both BaseMapper and Session support `queryStatement` with pagination.
 
 ```java title='Pagination query (returns List)'
-PageObject page = PageObject.of(0, 20);
+Page page = PageObject.of(0, 20);
 BaseMapper<User> mapper = session.createBaseMapper(User.class);
 
 List<User> users = mapper.queryStatement(
@@ -88,7 +88,7 @@ List<User> users = mapper.queryStatement(
 ```
 
 ```java title='Pagination query (returns PageResult, Session only)'
-PageObject page = PageObject.of(0, 20);
+Page page = PageObject.of(0, 20);
 PageResult<User> users = session.pageStatement(
         "net.example.mapper.UserMapper.listUsers",
         args,

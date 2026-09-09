@@ -50,6 +50,6 @@ The jdbc-redis project uses the Adapter pattern to map standard JDBC interfaces 
 
 ## Versions and Documentation
 
-Current source requires Java 17+ and depends on Jedis 6.1.0, ANTLR4 and dbvisitor-driver. Client versions do not establish acceptance for every Redis server version or new command.
+The current development version requires Java 17+ and depends on Jedis 6.1.0, ANTLR4 and dbvisitor-driver. The client dependency does not imply support for all new server commands; see this driver's command reference.
 
 [Install and Use](./usecase.mdx) · [Connection Parameters](./params.md) · [149 commands and result columns](./commands.md) · [dbVisitor API](../../features/redis/usage.mdx)

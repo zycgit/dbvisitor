@@ -20,7 +20,7 @@ SELECT ... LIMIT ?, ?
 SELECT ... LIMIT ?
 ```
 
-Parameter order: `LIMIT offset, limit` (note: MySQL's LIMIT syntax is `LIMIT offset, count`, not `LIMIT count OFFSET offset`).
+Parameter order: `LIMIT offset, limit` (this is the dialect's chosen form; MySQL also accepts `LIMIT count OFFSET offset`).
 
 ## Count SQL
 
@@ -58,12 +58,12 @@ MySQL does not require a configured primary key column to use Ignore/Update stra
 
 ## Null Ordering
 
-Supports `ORDER BY ... NULLS FIRST` / `NULLS LAST`.
+Use `OrderNullsStrategy`. The dialect generates `ORDER BY name IS NULL DESC, name` for nulls first, or `ORDER BY name IS NULL ASC, name` for nulls last—not `NULLS FIRST` / `NULLS LAST`.
 
 ## Key Differences Summary
 
-- The only database that uses backticks for identifier quoting
-- The only database that does not require a primary key to use Ignore/Update
+- The dialect quotes identifiers with backticks
+- Ignore/Update does not require primary-key columns in the entity mapping
 - `LIMIT offset, count` semantics (offset first, count second)
 - Sequences not supported
 - Vector search not supported

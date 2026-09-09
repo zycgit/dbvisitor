@@ -11,8 +11,8 @@ Array type handlers are located in the `net.hasor.dbvisitor.types.handler.array`
 
 | Handler | Java Type | Purpose |
 |---|---|---|
-| `ArrayTypeHandler` | `java.sql.Array` | General array handling, using getArray/setArray for reading and writing |
-| `PgArrayTypeHandler` | `java.sql.Array` | PostgreSQL array type specific handling |
+| `ArrayTypeHandler` | Input: java.sql.Array or object array; output: Java array | Uses getArray/setArray; frees SQL Array after reading |
+| `PgArrayTypeHandler` | Input: java.sql.Array or object array; output: Object[] | Explicit PostgreSQL element type |
 | `PgVectorTypeHandler` | `List<Float>` | PostgreSQL [pgvector](https://github.com/pgvector/pgvector) vector type handling |
 
 ## PgVectorTypeHandler
@@ -25,6 +25,12 @@ public class EmbeddingEntity {
     private List<Float> embedding;
 }
 ```
+
+:::caution
+When given Java arrays, both SQL ARRAY handlers use Object[]. Pass object arrays such as Integer[], not primitive arrays such as int[]. Milvus JDBC vector parameter support for primitive arrays follows a separate path; see [Milvus Usage](../../drivers/milvus/usecase).
+
+The general ArrayTypeHandler converts non-empty arrays of Double elements to Float arrays when reading. To preserve double precision, use JDBC getArray() with your own conversion or a dedicated handler. Callers are responsible for freeing SQL Array inputs they supply.
+:::
 
 ## Array Element Type Mapping
 

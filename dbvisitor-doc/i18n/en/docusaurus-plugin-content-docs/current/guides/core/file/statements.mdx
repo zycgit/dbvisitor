@@ -13,7 +13,7 @@ Document tags consist of the following:
 - [&lt;select&gt;](./statements#select): configure SELECT.
 - [&lt;update&gt; / &lt;delete&gt;](./statements#update_delete): configure UPDATE and DELETE.
 - [&lt;insert&gt;](./statements#insert): configure INSERT.
-- [&lt;selectKey&gt;](./statements#selectKey): inside &lt;insert&gt; to fetch generated keys without another query.
+- [&lt;selectKey&gt;](./statements#selectKey): inside &lt;insert&gt; to execute an additional key query and fill the key property.
 - [&lt;execute&gt;](./statements#execute): run arbitrary SQL.
 - [&lt;sql&gt;](./statements#sql): define reusable SQL fragments.
 
@@ -106,12 +106,14 @@ Document tags consist of the following:
 
 `<selectKey>` works with `<insert>`, same as [@SelectKeySql](../mapper/annotation_insert#selectkey).
 
-Use `<selectKey>` to fetch generated keys (or custom-generated keys) without an extra query when inserting.
+`<selectKey>` executes an additional query and fills the parameter object's key property, so application code does not need to query and assign it manually. It also supports custom key generation.
+
+The following MySQL example generates a UUID string; `id` must be a string column that holds 36 characters and a Java String property.
 
 ```xml
 <insert id="insertUser">
     <selectKey keyProperty="id" order="BEFORE">
-        SELECT CONCAT('1', CEILING(RAND() * 1000 + 1000))
+        SELECT UUID()
     </selectKey>
     insert into `test_user` (
         `id`, `name`, `age`, `create_time`

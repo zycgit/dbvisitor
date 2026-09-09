@@ -15,7 +15,7 @@ ClickHouse 是分析型数据库，表引擎、分区键、排序键和写入模
 | 关注点 | ClickHouse 行为 |
 |--------|----------------|
 | 主键生成 | 通常由应用侧生成，不依赖数据库自增 |
-| 分页 | `LIMIT ? OFFSET ?` |
+| 分页 | `LIMIT ?` / `LIMIT offset, count` |
 | 写入冲突 | 不支持 Ignore/Update 策略 |
 | 批量写入 | 支持 JDBC batch（无回填时） |
 | 存储过程 | 不支持 |
@@ -43,7 +43,7 @@ public class UserInfo {
 
 - 无主键回填时可用 JDBC batch 提升性能
 - ClickHouse 推荐批量写入而非逐条插入
-- 注意 ClickHouse 的异步写入特性，写入后未必立即可见
+- 写入可见性取决于表引擎和设置。启用 `async_insert` 且关闭 `wait_for_async_insert` 时，响应可在数据落入表前返回；这不是所有 INSERT 的默认行为。见[异步写入说明](https://clickhouse.com/docs/optimize/asynchronous-inserts)。
 
 ## 专题
 

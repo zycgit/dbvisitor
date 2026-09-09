@@ -11,7 +11,7 @@ import TabItem from '@theme/TabItem';
 
 # Queries
 
-JdbcTemplate offers several read-only APIs. Most take an SQL string plus arguments (object or array) and return objects built from the result set; some provide callbacks/mappers for custom processing.
+JdbcTemplate offers APIs for reading result sets; method names do not force a connection or operation to be read-only. Most take an SQL string plus arguments (object or array) and return objects built from the result set; some provide callbacks/mappers for custom processing.
 
 ## Choose a Method First
 
@@ -34,55 +34,67 @@ Query a collection of objects or maps and return them.
     <TabItem value="demo1" label="ObjectMapping">
 
         ```java
-        // Raw SQL
-        List<User> users = jdbc.queryForList(
-                "select * from users where id > 2", User.class);
+        // Raw SQL (independent example)
+        {
+            List<User> users = jdbc.queryForList(
+                    "select * from users where id > 2", User.class);
+        }
 
-        // Positional arguments
-        Object[] args = new Object[]{ 2 };
-        List<User> result = jdbc.queryForList(
-                "select * from users where id > ?", args, User.class);
+        // Positional arguments (independent example)
+        {
+            Object[] args = new Object[]{ 2 };
+            List<User> result = jdbc.queryForList(
+                    "select * from users where id > ?", args, User.class);
+        }
 
-        // Named arguments
-        Map<String, Object> args = CollectionUtils.asMap("id", 2);
-        List<User> result = jdbc.queryForList(
-                "select * from users where id > :id", args, User.class);
+        // Named arguments (independent example)
+        {
+            Map<String, Object> namedArgs = CollectionUtils.asMap("id", 2);
+            List<User> result = jdbc.queryForList(
+                    "select * from users where id > :id", namedArgs, User.class);
+        }
         ```
 
     </TabItem>
     <TabItem value="demo2" label="Map">
 
         ```java
-        // Raw SQL
-        List<Map<String, Object>> users = jdbc.queryForList(
-                "select * from users where id > 2");
+        // Raw SQL (independent example)
+        {
+            List<Map<String, Object>> users = jdbc.queryForList(
+                    "select * from users where id > 2");
+        }
 
-        // Positional arguments
-        Object[] args = new Object[]{ 2 };
-        List<Map<String, Object>> result = jdbc.queryForList(
-                "select * from users where id > ?", args);
+        // Positional arguments (independent example)
+        {
+            Object[] args = new Object[]{ 2 };
+            List<Map<String, Object>> result = jdbc.queryForList(
+                    "select * from users where id > ?", args);
+        }
 
-        // Named arguments
-        Map<String, Object> args = CollectionUtils.asMap("id", 2);
-        List<Map<String, Object>> result = jdbc.queryForList(
-                "select * from users where id > :id", args);
+        // Named arguments (independent example)
+        {
+            Map<String, Object> namedArgs = CollectionUtils.asMap("id", 2);
+            List<Map<String, Object>> result = jdbc.queryForList(
+                    "select * from users where id > :id", namedArgs);
+        }
         ```
 
     </TabItem>
     <TabItem value="sig" label="Signatures">
 
         ```java
-        // Object mapping or type handler
+        // Use object mapping or type handlers
         List<T> queryForList(String sql, Class<T> elementType);
         List<T> queryForList(String sql, Object args, Class<T> elementType);
         List<T> queryForList(String sql, PreparedStatementSetter pss, Class<T> elementType);
 
-        // RowMapper
+        // Use RowMapper
         List<T> queryForList(String sql, RowMapper<T> rowMapper);
         List<T> queryForList(String sql, Object args, RowMapper<T> rowMapper);
         List<T> queryForList(String sql, PreparedStatementSetter pss, RowMapper<T> rowMapper);
 
-        // Receive as List/Map without mapping
+        // Receive List/Map without mapping
         List<Map<String, Object>> queryForList(String sql);
         List<Map<String, Object>> queryForList(String sql, Object args);
         List<Map<String, Object>> queryForList(String sql, PreparedStatementSetter pss);
@@ -93,61 +105,73 @@ Query a collection of objects or maps and return them.
 
 ## Query a Single Object {#one}
 
-Return one row mapped to the specified type. Common use: aggregates or primary-key lookups. Multiple rows will raise an exception.
+Return one row mapped to the specified type. Common use: aggregates or primary-key lookups. No rows returns null; multiple rows raise an exception. Use wrapper types for potentially null scalar results.
 
 <Tabs>
     <TabItem value="demo1" label="ObjectMapping">
 
         ```java
-        // Raw SQL
-        User user = jdbc.queryForObject(
-                "select * from users where id = 2", User.class);
+        // Raw SQL (independent example)
+        {
+            User user = jdbc.queryForObject(
+                    "select * from users where id = 2", User.class);
+        }
 
-        // Positional arguments
-        Object[] args = new Object[]{ 2 };
-        User user = jdbc.queryForObject(
-                "select * from users where id = ?", args, User.class);
+        // Positional arguments (independent example)
+        {
+            Object[] args = new Object[]{ 2 };
+            User user = jdbc.queryForObject(
+                    "select * from users where id = ?", args, User.class);
+        }
 
-        // Named arguments
-        Map<String, Object> args = CollectionUtils.asMap("id", 2);
-        User user = jdbc.queryForObject(
-                "select * from users where id = :id", args, User.class);
+        // Named arguments (independent example)
+        {
+            Map<String, Object> namedArgs = CollectionUtils.asMap("id", 2);
+            User user = jdbc.queryForObject(
+                    "select * from users where id = :id", namedArgs, User.class);
+        }
         ```
 
     </TabItem>
     <TabItem value="demo2" label="Map">
 
         ```java
-        // Raw SQL
-        Map<String, Object> user = jdbc.queryForMap(
-                "select * from users where id = 2");
+        // Raw SQL (independent example)
+        {
+            Map<String, Object> user = jdbc.queryForMap(
+                    "select * from users where id = 2");
+        }
 
-        // Positional arguments
-        Object[] args = new Object[]{ 2 };
-        Map<String, Object> user = jdbc.queryForMap(
-                "select * from users where id = ?", args);
+        // Positional arguments (independent example)
+        {
+            Object[] args = new Object[]{ 2 };
+            Map<String, Object> user = jdbc.queryForMap(
+                    "select * from users where id = ?", args);
+        }
 
-        // Named arguments
-        Map<String, Object> args = CollectionUtils.asMap("id", 2);
-        Map<String, Object> user = jdbc.queryForMap(
-                "select * from users where id = :id", args);
+        // Named arguments (independent example)
+        {
+            Map<String, Object> namedArgs = CollectionUtils.asMap("id", 2);
+            Map<String, Object> user = jdbc.queryForMap(
+                    "select * from users where id = :id", namedArgs);
+        }
         ```
 
     </TabItem>
     <TabItem value="sig" label="Signatures">
 
         ```java
-        // Object Mapping or Type Handler
+        // Use object mapping or type handlers
         T queryForObject(String sql, Class<T> requiredType);
         T queryForObject(String sql, Object args, Class<T> requiredType);
         T queryForObject(String sql, PreparedStatementSetter pss, Class<T> requiredType);
 
-        // RowMapper
+        // Use RowMapper
         T queryForObject(String sql, RowMapper<T> rowMapper);
         T queryForObject(String sql, Object args, RowMapper<T> rowMapper);
         T queryForObject(String sql, PreparedStatementSetter pss, RowMapper<T> rowMapper);
 
-        // Receive as List/Map without mapping
+        // Receive List/Map without mapping
         Map<String, Object> queryForMap(String sql);
         Map<String, Object> queryForMap(String sql, Object args);
         Map<String, Object> queryForMap(String sql, PreparedStatementSetter pss);
@@ -164,26 +188,32 @@ Use the first and second columns of the result set as Map key/value.
     <TabItem value="demo" label="Example">
 
         ```java
-        // Raw SQL
-        Map<Long, String> userMap = jdbc.queryForPairs(
-                "select uid, name from user where age > 2", Long.class, String.class);
+        // Raw SQL (independent example)
+        {
+            Map<Long, String> userMap = jdbc.queryForPairs(
+                    "select uid, name from user where age > 2", Long.class, String.class);
+        }
 
-        // Positional arguments
-        Object[] args = new Object[]{ 2 };
-        Map<Long, String> userMap = jdbc.queryForPairs(
-                "select uid, name from user where age > ?", Long.class, String.class, args);
+        // Positional arguments (independent example)
+        {
+            Object[] args = new Object[]{ 2 };
+            Map<Long, String> userMap = jdbc.queryForPairs(
+                    "select uid, name from user where age > ?", Long.class, String.class, args);
+        }
 
-        // Named arguments
-        Map<String, Object> args = CollectionUtils.asMap("age", 2);
-        Map<Long, String> userMap = jdbc.queryForPairs(
-                "select uid, name from user where age > :age", Long.class, String.class, args);
+        // Named arguments (independent example)
+        {
+            Map<String, Object> namedArgs = CollectionUtils.asMap("age", 2);
+            Map<Long, String> userMap = jdbc.queryForPairs(
+                    "select uid, name from user where age > :age", Long.class, String.class, namedArgs);
+        }
         ```
 
     </TabItem>
     <TabItem value="sig" label="Signatures">
 
         ```java
-        // pairKey and pairValue are mapped via object mapping or type handlers
+        // pairKey and pairValue use object mapping or type handlers.
         Map<K, V> queryForPairs(String sql,
                     Class<K> pairKey, Class<V> pairValue);
         Map<K, V> queryForPairs(String sql,
@@ -205,19 +235,25 @@ Values are the smallest mappable units (types registered in [TypeHandlerRegistry
     <TabItem value="demo1" label="Single value">
 
         ```java
-        // Raw SQL
-        long count = jdbc.queryForLong(
-                "select count(*) from user where age > 2");
+        // Raw SQL (independent example)
+        {
+            long count = jdbc.queryForLong(
+                    "select count(*) from user where age > 2");
+        }
 
-        // Positional arguments
-        Object[] args = new Object[]{ 2 };
-        long count = jdbc.queryForLong(
-                "select count(*) from user where age > ?", args);
+        // Positional arguments (independent example)
+        {
+            Object[] args = new Object[]{ 2 };
+            long count = jdbc.queryForLong(
+                    "select count(*) from user where age > ?", args);
+        }
 
-        // Named arguments
-        Map<String, Object> args = CollectionUtils.asMap("age", 2);
-        long count = jdbc.queryForLong(
-                "select count(*) from user where age > :age", args);
+        // Named arguments (independent example)
+        {
+            Map<String, Object> namedArgs = CollectionUtils.asMap("age", 2);
+            long count = jdbc.queryForLong(
+                    "select count(*) from user where age > :age", namedArgs);
+        }
         ```
 
         :::info[Hint]
@@ -228,36 +264,42 @@ Values are the smallest mappable units (types registered in [TypeHandlerRegistry
     <TabItem value="demo2" label="Multiple value">
 
         ```java
-        // Raw SQL
-        List<String> result = jdbc.queryForList(
-                "select name from users", String.class);
+        // Raw SQL (independent example)
+        {
+            List<String> result = jdbc.queryForList(
+                    "select name from users", String.class);
+        }
 
-        // Positional arguments
-        Object[] args = new Object[]{ 2 };
-        List<String> result = jdbc.queryForList(
-                "select name from users where name = ?", args, String.class);
+        // Positional arguments (independent example)
+        {
+            Object[] args = new Object[]{ "Bob" };
+            List<String> result = jdbc.queryForList(
+                    "select name from users where name = ?", args, String.class);
+        }
 
-        // Named arguments
-        Map<String, Object> args = CollectionUtils.asMap("name", "Bob");
-        List<String> result = jdbc.queryForList(
-                "select name from users where id = :id", args, String.class);
+        // Named arguments (independent example)
+        {
+            Map<String, Object> namedArgs = CollectionUtils.asMap("name", "Bob");
+            List<String> result = jdbc.queryForList(
+                    "select name from users where name = :name", namedArgs, String.class);
+        }
         ```
 
     </TabItem>
     <TabItem value="sig" label="Signatures">
 
         ```java
-        // Query Long
+        // Query Long values
         Long queryForLong(String sql);
         Long queryForLong(String sql, Object args);
-        Long queryForLong(String sql, PreparedStatementSetter args)
+        Long queryForLong(String sql, PreparedStatementSetter args);
 
-        // Query int
+        // Query int values
         Integer queryForInt(String sql);
         Integer queryForInt(String sql, Object args);
         Integer queryForInt(String sql, PreparedStatementSetter args);
 
-        // Query String
+        // Query String values
         String queryForString(String sql);
         String queryForString(String sql, Object args);
         String queryForString(String sql, PreparedStatementSetter args);
@@ -297,11 +339,13 @@ User user = jdbc.query(
 );
 ```
 
-### Streaming Queries {#stream}
+### Row-by-Row Processing {#stream}
+
+Callbacks avoid collecting all results in application memory. On-demand server reads still depend on the JDBC driver, fetchSize and connection settings.
 
 ```java
 RowCallbackHandler handler = (rs, rowNum) -> {
-    // handle one row without collecting a List
+    // Process each row without collecting a List
 };
 
 jdbc.query("select * from users where age > ?", new Object[]{ 18 }, handler);
@@ -315,7 +359,7 @@ By default, Map result keys are case-insensitive. Different databases may return
 
 In query-related APIs, arguments are passed uniformly as `Object`. Supported types include:
 
-- [Positional arguments](../../args/position) (equivalent to `Object... args`)
+- [Positional arguments](../../args/position) (put multiple values in an array or collection; the method takes `Object args`, not varargs)
     - Arrays, Collection, types registered in TypeRegistry
 - [Named arguments](../../args/named)
     - Map, entity Bean, SqlArg (name will be fixed as `arg0`)
@@ -323,7 +367,7 @@ In query-related APIs, arguments are passed uniformly as `Object`. Supported typ
     - [PreparedStatementSetter](../../args/interface#pset), [SqlArgSource](../../args/interface#source)
 - Dynamic SQL
     - Use [Rules](../../rules/dynamic_rule) to bind arguments when building query commands, supporting named arguments.
-    - Using `${...}` for [SQL injection](../../args/inject) does not participate in PreparedStatement but is still a form of argument passing.
+    - Using `${...}` for [SQL text substitution](../../args/inject) does not participate in PreparedStatement but is still a form of argument passing.
 
 
 Argument types are ultimately processed through TypeHandler to ensure correct mapping between JDBC types and Java types.

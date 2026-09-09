@@ -5,7 +5,7 @@ title: Syntax Manual
 description: Current jdbc-milvus SQL subset, parameters, DDL, DML, vector and hybrid search, and JDBC results.
 ---
 
-> **Version baseline**: Current 6.7.1-SNAPSHOT implementation, Java 17, Java SDK 2.6.22, minimum Milvus server 2.6.2. Version 2.5.x and earlier are unsupported; later-version compatibility still requires real-cluster validation.
+> **Version baseline**: Current 6.7.1-SNAPSHOT implementation, Java 17, Java SDK 2.6.22, minimum Milvus server 2.6.2. Version 2.5.x and earlier are unsupported; later versions are not automatically supported. See [Versions and Support](./compatibility.md).
 
 See the [Install and Use](./usecase.mdx) for dependencies, connections and a complete program. This manual follows the current parser and command implementations; the full Milvus SDK and relational SQL are not implicitly supported.
 
@@ -356,7 +356,7 @@ IMPORT FROM 'prepared/1.json' INTO TABLE table_name PARTITION partition_name;
 
 Paths refer to prepared files in Milvus object storage, not local Java files; the driver does not read/upload files. Supply one path or [[...],[...]] groups, or bind List&lt;List&lt;String>> to ?. JSON/Parquet uses one file per group; NumPy groups contain related column files. See [official preparation/storage requirements](https://milvus.io/docs/v2.6.x/import-data.md).
 
-Import uses the official REST API with JDBC endpoint/database/credentials; REST must be enabled. Create/list/describe stay on the first selected import endpoint for the connection. Ordinary IMPORT returns update count 0 (not imported rows); RETURNING JOB_ID returns one string ID. SHOW IMPORT and SHOW IMPORTS inspect jobs through JDBC.
+Import uses the official REST API with JDBC endpoint/database/credentials; REST must be enabled. Job creation, listing and inspection use the same JDBC address within a connection. Ordinary IMPORT returns update count 0 (not imported rows); RETURNING JOB_ID returns one string ID. SHOW IMPORT and SHOW IMPORTS inspect jobs through JDBC.
 
 `IMPORT FROM` waits for the Milvus Import task to finish by default. Use the `sync=false` hint to return asynchronously. The `timeout` hint sets the sync wait timeout in milliseconds.
 
@@ -592,7 +592,7 @@ try (PreparedStatement ps = conn.prepareStatement(sql)) {
 - JDBC addBatch/executeBatch, savepoints, updatable ResultSets and cross-page transactions are unsupported. PreparedStatement parameterization and JDBC batch are different capabilities.
 - Documented SQL/SHOW results are the supported access paths; not every DatabaseMetaData method satisfies relational assumptions made by ORM/BI/migration tools.
 
-## 9. Extended Types, Bulk Writes and Hybrid Search {#extended}
+## 9. Types, Multi-row Writes and Hybrid Search {#extended}
 
 ### Type binding and schema
 
@@ -657,7 +657,7 @@ CREATE TABLE embedded_docs (
 SELECT id,score FROM embedded_docs ORDER BY dense <=> 'search text' LIMIT 10;
 ```
 
-BM25 requires enable_analyzer=true and Sparse output. TextEmbedding uses dense float output. Field WITH accepts enable_analyzer/enable_match booleans and analyzer_params as a JSON object string. Function WITH scalar values become SDK string parameters. TextEmbedding requires suitable server/provider/model/network/credential configuration and matching dimensions; the example does not imply a configured external service. Configure secrets on the server instead of exposing them through SQL/SHOW CREATE. Current schema functions are BM25/TEXTEMBEDDING, not every future FunctionType.
+BM25 requires enable_analyzer=true and Sparse output. TextEmbedding uses dense float output. Field WITH accepts enable_analyzer/enable_match booleans and analyzer_params as a JSON object string. Function WITH scalar values become SDK string parameters. TextEmbedding requires suitable server/provider/model/network/credential configuration and matching dimensions; configure the external model service before running the example. Configure secrets on the server instead of exposing them through SQL/SHOW CREATE. Current schema functions are BM25/TEXTEMBEDDING, not every future FunctionType.
 
 ### Hybrid Search and rerank {#hybrid}
 
@@ -691,10 +691,10 @@ SHOW IMPORTS FROM docs WITH (page_size=20,current_page=1);
 
 RETURNING JOB_ID uses executeQuery; without RETURNING, update count remains zero. SHOW returns JOB_ID/STATE/REASON (VARCHAR), PROGRESS/TOTAL_ROWS/IMPORTED_ROWS (BIGINT), DETAILS (JSON). Missing server values are NULL; DETAILS preserves file-level status. List pagination depends on the target REST version; one statement does not promise to enumerate all historical jobs.
 
-REST must be available and uses JDBC database/credentials. Submission/inspection stays on the first selected import endpoint for the connection; reconnect to that endpoint when inspecting an old job. Files must already reside in accessible object storage. The driver does not generate/upload files; official BulkWriter can prepare them. Formats, resource limits and large-scale throughput require deployment validation.
+REST must be available and uses JDBC database/credentials. Submission and inspection use the same JDBC address within a connection; reconnect to the service hosting the original job. Files must already reside in accessible object storage. The driver does not generate/upload files; official BulkWriter can prepare them. Formats, resource limits and large-scale throughput require deployment validation.
 
 Default sync=true waits. Hint timeout is a client millisecond wait; WITH timeout is a server job duration string. Timeout/cancellation, Failed state or later HTTP failure retains the known Job ID and last progress, without cancelling/resubmitting the server job. A lost create response may leave an existing job with unknown ID; reconcile through the job list. Imports do not promise transactions or exactly-once execution.
 
 Note: Statement.cancel() or a shared JDBC timeout may return its standard cancellation/timeout exception before adapter progress is available; it does not imply zero writes. For reliable recording of an import ID, submit with sync=false RETURNING JOB_ID and inspect separately.
 
-See the [release and support matrix](./compatibility.md) for versions, implemented capabilities and real-environment validation scope.
+See [Versions and Support](./compatibility.md) for version and feature requirements.

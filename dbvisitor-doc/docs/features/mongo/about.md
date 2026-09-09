@@ -21,13 +21,13 @@ dbVisitor 通过 [JDBC-Mongo](../../drivers/mongo/about) 驱动，基于 JDBC �
 | 存储过程 | 不支持 |
 | 对象映射 | 支持（需用 `ObjectId(?)` 模板处理 `_id` 查询） |
 
-**不支持：** executeBatch、存储过程
+**不支持：** JDBC addBatch/executeBatch、事务、存储过程
 
 ## 概念类比
 
-不同 MongoDB 命令的执行结果分为三种：
+不同 MongoDB 命令的执行结果分为两种：
 - **更新数** — 类比 INSERT/UPDATE/DELETE，用 `executeUpdate` 获取
-- **单行/多行结果** — 类比 SELECT 结果集，第一列为 `_ID`，第二列为 `_JSON`（均为字符串）
+- **单行/多行结果** — 类比 SELECT 结果集，文档查询的第一列为 `_ID`，第二列为 `_JSON`（均为字符串）
 
 ## 详细用法
 

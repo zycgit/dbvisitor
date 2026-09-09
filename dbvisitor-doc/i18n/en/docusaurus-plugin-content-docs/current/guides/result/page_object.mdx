@@ -13,12 +13,12 @@ dbVisitor pagination revolves around two core types: **input** `PageObject` desc
 
 ```java title='Static factory (recommended)'
 Page page = PageObject.of(0, 20);      // Page 0, 20 per page, 0-based
-Page page = PageObject.of(1, 20, 1);   // Page 1, 20 per page, 1-based
+Page oneBasedPage = PageObject.of(1, 20, 1);   // Page 1, 20 per page, 1-based
 ```
 
 ```java title='Constructor'
 PageObject page = new PageObject();
-page.setPageSize(20);          // Page size (default -1 = no pagination)
+page.setPageSize(20);          // Page size (default 0; explicitly set a positive value)
 page.setCurrentPage(2);        // Current page number
 page.setPageNumberOffset(1);   // Page offset: 1 means first page is 1 (default 0)
 ```
@@ -27,7 +27,7 @@ Core properties:
 
 | Property | Description |
 |----------|-------------|
-| `pageSize` | Records per page, default `-1` (no pagination) |
+| `pageSize` | Records per page, default `0`; explicitly set a positive value for pagination |
 | `currentPage` | Current page number |
 | `pageNumberOffset` | Starting page offset. Set `1` for 1-based pages; default `0` |
 
@@ -46,7 +46,7 @@ long pages = result.getTotalPage();        // Total page count
 long position = result.getFirstRecordPosition(); // First record position
 ```
 
-`PageResult` implements `Iterable<T>` — iterate current page data directly with for-each.
+Use `result.getData()` to obtain and iterate the current page's list.
 
 ## Using Pagination Across APIs {#usage}
 
@@ -56,8 +56,8 @@ The PageObject itself is universal; integration varies by API:
 |-----|----------------|-------------|
 | Fluent API | `lambda.query(...).initPage(10, 0)` or `.usePage(page)` | `List<T>` |
 | BaseMapper | `mapper.pageBySample(sample, page)` | `PageResult<T>` (with stats) |
-| Annotation Mapper | Add `Page` parameter to method signature | `List<T>` |
-| Mapper File | Add `Page` parameter to method signature | `List<T>` |
+| Annotation Mapper | Add `Page` parameter to method signature | `List<T>` or `PageResult<T>` |
+| Mapper File | Add `Page` parameter to method signature | `List<T>` or `PageResult<T>` |
 
 Detailed usage per API:
 - [Fluent API Pagination](../core/lambda/query#page)

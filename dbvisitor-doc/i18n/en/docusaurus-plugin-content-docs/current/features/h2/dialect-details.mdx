@@ -35,10 +35,10 @@ SELECT * FROM "users" WHERE "name" = ?
 | Strategy | SQL Syntax | PK Required |
 |------|---------|:----------:|
 | Into | `INSERT INTO ... VALUES (...)` | No |
-| Ignore | `MERGE INTO ...` | Yes |
-| Update | `MERGE INTO ...` | Yes |
+| Ignore | `MERGE INTO ... USING (VALUES ...) ... WHEN NOT MATCHED THEN INSERT ...` | Yes |
+| Update | `MERGE INTO ... KEY (...) VALUES (...)` | Yes |
 
-H2's MERGE syntax differs from Oracle/DB2: it uses H2's own `MERGE INTO` syntax.
+Ignore uses a matching condition to insert unmatched records only; Update uses H2's `MERGE INTO ... KEY (...) VALUES (...)` syntax.
 
 ## Generated Key Strategy
 
@@ -57,15 +57,15 @@ VALUES NEXT VALUE FOR user_seq
 
 ## Testing Scenario Recommendations
 
-- For local development, recommend `-Dnxn.env=h2` (no Docker needed)
+- For local development, create an in-memory database with `jdbc:h2:mem:demo;DB_CLOSE_DELAY=-1`
 - H2 compatibility mode can simulate MySQL/PostgreSQL behavior
 - But note that pagination syntax may differ from real databases
-- H2's `IDENTITY` behaves basically the same as MySQL `AUTO_INCREMENT`
+- H2 compatibility modes do not replace type, transaction and SQL validation against your target database
 
 ## Key Differences Summary
 
 - Pagination syntax same as PostgreSQL (`LIMIT ? OFFSET ?`)
-- MERGE syntax is H2's own, different from Oracle/DB2
+- Ignore and Update use different MERGE forms
 - Supports sequences (same syntax as DB2: `VALUES NEXT VALUE FOR`)
 - Uniform row-by-row execution when backfill is needed
-- The most recommended local testing database
+- In-memory databases support local development without a separate service

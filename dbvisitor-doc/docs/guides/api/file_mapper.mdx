@@ -44,7 +44,6 @@ public interface UserMapper {
 <mapper namespace="com.example.UserMapper">
     <select id="listUsers" resultType="com.example.User">
         select * from users
-        where
             @{and, status = :status}
             @{and, name like concat(:name, '%')}
     </select>

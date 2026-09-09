@@ -17,11 +17,13 @@ LambdaTemplate lambda = ...
 List<User> result = null;
 result = lambda.query(User.class)
                .ge(User::getId, 100)
-               .orderBy(User::getName); // default (order by name)
-             //.asc(User::getName);     // ascending  (order by name asc)
-             //.desc(User::getName);    // descending (order by name desc)
+               .orderBy(User::getName) // Default ordering (order by name)
+               .queryForList();
+             //.asc(User::getName);    //Ascending (order by name asc)
+             //.desc(User::getName);   //Descending (order by name desc)
 
-// SQL: select * from users where id >= 100 order by name;
+// Equivalent SQL
+//   select * from users where id >= 100 order by name;
 ```
 
 ## Multiple Columns
@@ -33,9 +35,11 @@ List<User> result = null;
 result = lambda.query(User.class)
                .ge(User::getId, 100)
                .orderBy(User::getName)
-               .orderBy(User::getAge);
+               .orderBy(User::getAge)
+               .queryForList();
 
-// SQL: select * from users where id >= 100 order by name, age;
+// Equivalent SQL
+//   select * from users where id >= 100 order by name, age;
 ```
 
 ## Null Ordering
@@ -46,9 +50,11 @@ LambdaTemplate lambda = ...
 List<User> result = null;
 result = lambda.query(User.class)
                .ge(User::getId, 100)
-               .orderBy(User::getName, OrderType.DEFAULT, OrderNullsStrategy.FIRST);
+               .orderBy(User::getName, OrderType.DEFAULT, OrderNullsStrategy.FIRST)
+               .queryForList();
 
-// MySQL SQL: select * from users where id >= 100 order by name is null desc, name
+// Equivalent SQL(MySQL)
+//   select * from users where id >= 100 order by name is null desc, name
 ```
 
 ```java title='NULLS LAST'
@@ -57,9 +63,11 @@ LambdaTemplate lambda = ...
 List<User> result = null;
 result = lambda.query(User.class)
                .ge(User::getId, 100)
-               .orderBy(User::getName, OrderType.DEFAULT, OrderNullsStrategy.LAST);
+               .orderBy(User::getName, OrderType.DEFAULT, OrderNullsStrategy.LAST)
+               .queryForList();
 
-// MySQL SQL: select * from users where id >= 100 order by name is null asc, name
+// Equivalent SQL(MySQL)
+//   select * from users where id >= 100 order by name is null asc, name
 ```
 
 :::info[Tip]

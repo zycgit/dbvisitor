@@ -20,6 +20,8 @@ description: 直接使用 TransactionManager 手动控制事务的开启、提�
 - 常规 Service 方法事务，优先用 [注解式事务](./annotation)。
 - 只想包住一段代码，优先用 [模板事务](./template)。
 
+以下是可放入抛出异常的方法中的片段。JdbcTemplate 与事务管理器必须使用同一个 DataSource。
+
 ## 基本用法
 
 ```java title='手动提交和回滚'
@@ -33,23 +35,29 @@ TransactionStatus tran = txManager.begin();
 try {
     jdbcTemplate.executeUpdate(
             "insert into orders(id, user_id) values(?, ?)",
-            orderId, userId
+            new Object[] { orderId, userId }
     );
     jdbcTemplate.executeUpdate(
             "insert into order_item(order_id, sku_id) values(?, ?)",
-            orderId, skuId
+            new Object[] { orderId, skuId }
     );
 
     txManager.commit(tran);
 } catch (Throwable e) {
-    txManager.rollBack(tran);
+    if (!tran.isCompleted()) {
+        try {
+            txManager.rollBack(tran);
+        } catch (Throwable rollbackError) {
+            e.addSuppressed(rollbackError);
+        }
+    }
     throw e;
 }
 ```
 
 执行效果：
 - 两个 SQL 都成功，`commit(tran)` 提交事务。
-- 任意 SQL 抛出异常，`rollBack(tran)` 回滚事务。
+- SQL 失败且事务未完成时，尝试回滚；提交失败不等于已回滚，需根据异常和数据库状态判断结果。
 
 ## 指定传播行为和隔离级别
 
@@ -64,11 +72,17 @@ TransactionStatus auditTran = txManager.begin(
 try {
     jdbcTemplate.executeUpdate(
             "insert into order_audit(order_id, action) values(?, ?)",
-            orderId, "CREATE"
+            new Object[] { orderId, "CREATE" }
     );
     txManager.commit(auditTran);
 } catch (Throwable e) {
-    txManager.rollBack(auditTran);
+    if (!auditTran.isCompleted()) {
+        try {
+            txManager.rollBack(auditTran);
+        } catch (Throwable rollbackError) {
+            e.addSuppressed(rollbackError);
+        }
+    }
     throw e;
 }
 ```
@@ -84,27 +98,42 @@ TransactionStatus outer = txManager.begin();
 try {
     jdbcTemplate.executeUpdate(
             "insert into orders(id, user_id) values(?, ?)",
-            orderId, userId
+            new Object[] { orderId, userId }
     );
 
     TransactionStatus nested = txManager.begin(Propagation.NESTED);
     try {
         jdbcTemplate.executeUpdate(
                 "insert into order_coupon(order_id, coupon_id) values(?, ?)",
-                orderId, couponId
+                new Object[] { orderId, couponId }
         );
         txManager.commit(nested);
-    } catch (Throwable couponError) {
-        txManager.rollBack(nested);
+    } catch (SQLException couponError) {
+        if (nested.isCompleted()) {
+            throw couponError;
+        }
+        try {
+            txManager.rollBack(nested);
+        } catch (Throwable rollbackError) {
+            couponError.addSuppressed(rollbackError);
+            throw couponError;
+        }
+        // 只有业务明确允许忽略该优惠券失败时才继续；实际应用记录失败原因。
     }
 
     jdbcTemplate.executeUpdate(
             "insert into order_item(order_id, sku_id) values(?, ?)",
-            orderId, skuId
+            new Object[] { orderId, skuId }
     );
     txManager.commit(outer);
 } catch (Throwable e) {
-    txManager.rollBack(outer);
+    if (!outer.isCompleted()) {
+        try {
+            txManager.rollBack(outer);
+        } catch (Throwable rollbackError) {
+            e.addSuppressed(rollbackError);
+        }
+    }
     throw e;
 }
 ```

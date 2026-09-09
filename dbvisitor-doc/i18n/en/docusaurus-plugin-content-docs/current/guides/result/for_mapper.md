@@ -83,14 +83,14 @@ List<TestUser> result = jdbc.queryForList(querySql, rowMapper);
 ```java title='MapMappingRowMapper'
 // Map each row to a Map based on ORM mapping (only includes declared mapped columns)
 String querySql = "select * from users where age > 40";
-RowMapper<Map<String, Object>> rowMapper = new MapMappingRowMapper<>(TestUser.class);
+RowMapper<Map<String, Object>> rowMapper = new MapMappingRowMapper(TestUser.class, new MappingRegistry());
 List<Map<String, Object>> result = jdbc.queryForList(querySql, rowMapper);
 ```
 
 ```java title='TypeHandlerColumnRowMapper'
 // When the query result has only one column, use a specified TypeHandler for type conversion
 String querySql = "select create_time from users where age > 40";
-RowMapper<LocalDateTime> rowMapper = new TypeHandlerColumnRowMapper<>(new LocalDateTimeOfTimestampTypeHandler());
+RowMapper<LocalDateTime> rowMapper = new TypeHandlerColumnRowMapper<>(new SqlTimestampAsLocalDateTimeTypeHandler());
 List<LocalDateTime> result = jdbc.queryForList(querySql, rowMapper);
 ```
 

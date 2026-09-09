@@ -49,4 +49,4 @@ Milvus 适配器使用 SQL 风格的命令子集：
 
 通用 API 用法见 [核心API](../../guides/overview)。向量查询 API 见 [向量查询](../../guides/core/vector_query/about)。
 
-当前源码要求 Java 17+、SDK 2.6.22、Milvus 最低 2.6.2；服务端功能门槛、发布版区别及验证范围见[发布与支持矩阵](../../drivers/milvus/compatibility.md)。JDBC 主键用法见[类型绑定与主键回传](../../drivers/milvus/usecase.mdx#typed-values)。
+当前开发版要求 Java 17+、SDK 2.6.22、Milvus 最低 2.6.2；服务端功能门槛、发布版区别及功能边界见[版本与支持范围](../../drivers/milvus/compatibility.md)。JDBC 主键用法见[类型绑定与主键回传](../../drivers/milvus/usecase.mdx#typed-values)。

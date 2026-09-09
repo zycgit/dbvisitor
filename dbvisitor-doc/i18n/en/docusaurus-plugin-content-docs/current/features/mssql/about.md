@@ -15,11 +15,11 @@ SQL Server can use all of dbVisitor's general capabilities including JDBC, Mappe
 | Concern | SQL Server Behavior |
 |--------|---------------|
 | Primary Key Generation | `IDENTITY` or sequence default; recommend `OUTPUT INSERTED` for backfill |
-| Pagination | `OFFSET ? ROWS FETCH NEXT ? ROWS ONLY` (2012+) |
+| Pagination | `ROW_NUMBER() OVER(...)` with an outer range filter |
 | Write Conflicts | `MERGE INTO ... WHEN MATCHED ... WHEN NOT MATCHED ...` |
 | Batch Writes | JDBC batch supported |
 | Stored Procedures | Supported |
-| Sequences | Supports `NEXT VALUE FOR seq` |
+| Sequences | The database supports `NEXT VALUE FOR seq`; the built-in dialect does not implement SeqSqlDialect |
 
 ## Primary Key Backfill
 

@@ -8,15 +8,15 @@ description: Map field types and jdbcType with dbVisitor ORM.
 # Type Mapping and Handlers
 
 When a Java `int` maps to a database `int`, three aspects matter:
-- ➊ Java type used by the property
-- ➋ JDBC type of the column
-- ➌ TypeHandler for reading/writing
+- Java type used by the property
+- JDBC type of the column
+- TypeHandler for reading/writing
 
 ```java
 @Table
 public class Users {
-    @Column(➋ jdbcType = java.sql.Types.TINYINT, ➌ typeHandler = IntegerTypeHandler.class)
-    private ➊ Integer id;
+    @Column(jdbcType = java.sql.Types.TINYINT, typeHandler = IntegerTypeHandler.class)
+    private Integer id;
 }
 ```
 

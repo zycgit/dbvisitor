@@ -32,8 +32,8 @@ dbVisitor 的解析器在扫描 SQL 时会识别并跳过由单引号 `'` 包裹
 **错误示例**：
 
 ```sql
--- 这里的 @{uuid} 不会被解析，数据库最终收到的字符串就是 '... @{uuid}'
-SELECT * FROM users WHERE name = 'user_@{uuid}'
+-- 这里的 @{uuid32} 不会被解析，数据库最终收到的字符串就是 '... @{uuid32}'
+SELECT * FROM users WHERE name = 'user_@{uuid32}'
 ```
 
 **正确做法**：
@@ -42,7 +42,7 @@ SELECT * FROM users WHERE name = 'user_@{uuid}'
 
 ```sql
 -- 方式 1: 使用 concat 函数拼接
-SELECT * FROM users WHERE name = concat('user_', @{uuid})
+SELECT * FROM users WHERE name = concat('user_', @{uuid32})
 ```
 
 ## 工作原理
@@ -55,7 +55,7 @@ SELECT * FROM users WHERE name = concat('user_', @{uuid})
 
 ## 语法结构
 
-规则的通用语法格式如下：
+规则的解析结构如下，具体参数含义由各规则决定。只有 `if`、`ifand` 等条件规则会把第二项作为 OGNL 条件；`and`、`in` 等普通规则把它作为 SQL 内容：
 
 ```text
 @{ 规则名 [, 条件表达式 [, 规则内容 ]] }
@@ -64,7 +64,7 @@ SELECT * FROM users WHERE name = concat('user_', @{uuid})
 | 组成部分 | 必须  | 说明 | 示例 |
 | :--- |:----| :--- | :--- |
 | **规则名** | ✅ 是 | 规则的标识符，不区分大小写。 | `and`, `or`, `uuid32` |
-| **条件表达式** | ❌ 否 | 一个 OGNL 布尔表达式。当结果为 `true` 时规则生效。若省略或为空，默认为 `true`。 | `age > 18`, `name != null` |
+| **条件表达式** | ❌ 否 | 在条件规则中是 OGNL 布尔表达式；普通规则中的这一项通常属于 SQL 内容。 | `age > 18`, `name != null` |
 | **规则内容** | ❌ 否 | 规则要操作的 SQL 片段或参数。部分规则（如 UUID）不需要此部分。 | `age = :age`, `order by id` |
 
 ### 常见变体
@@ -92,7 +92,7 @@ SELECT * FROM users WHERE name = concat('user_', @{uuid})
 dbVisitor 提供了丰富的内置规则，满足不同场景的需求：
 
 - **[语句生成规则](./dynamic_rule)**
-    - 包含 **动态 SQL 拼接**（`@{and}`, `@{or}`, `@{set}`）、**参数处理**（`@{md5}`, `@{uuid}`）以及 **宏与文本注入**（`@{macro}`）等功能。
+    - 包含 **动态 SQL 拼接**（`@{and}`, `@{or}`, `@{set}`）、**参数处理**（`@{md5}`, `@{uuid32}`）以及 **宏与文本注入**（`@{macro}`）等功能。
 - **[结果处理规则](./result_rule)**
     - 用于对查询结果集进行后置处理，以及存储过程和多结果集查询的辅助配置（`@{resultSet}`）。
 - **[规则嵌套](./nested_rule)**

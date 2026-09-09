@@ -30,7 +30,7 @@ Guice is Google's lightweight dependency injection framework, suitable for proje
 
 ## How to Use
 
-First, add the dependency, current version: <Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>
+First, add the dependency, guide version: <Highlight color="rgb(227 17 108)">{Vars.docsVersion}</Highlight>
 
 ```xml title='Maven Dependency'
 <dependency>
@@ -104,7 +104,7 @@ ServiceTest service = injector.getInstance(ServiceTest.class);
 
 **Relevant Classes**
 - net.hasor.dbvisitor.jdbc.JdbcOperations
-- net.hasor.dbvisitor.jdbc.core.JdbcTemplate
+- net.hasor.dbvisitor.jdbc.JdbcTemplate
 - net.hasor.dbvisitor.lambda.LambdaOperations
 - net.hasor.dbvisitor.lambda.LambdaTemplate
 - net.hasor.dbvisitor.transaction.TransactionTemplate
@@ -126,4 +126,4 @@ ServiceTest service = injector.getInstance(ServiceTest.class);
 | dbvisitor.use-delimited | <TagGray/> Force adding identifier delimiters when generating table names/column names/index names. For example: set this property to solve the problem of column names being keywords. Default is `false` (not set). |
 | dbvisitor.case-insensitive | <TagGray/> Whether table/column names are case-sensitive. Default `true` (insensitive). |
 | dbvisitor.ignore-nonexist-statement | <TagGray/> Whether to ignore missing mappings during the mapping of Mapper interface methods to XML. Default is `false`. Missing mappings will report an error. |
-| dbvisitor.dialect | <TagGray/> **[Database Dialect](../../optionss/support#dialect)** used by default. |
+| dbvisitor.dialect | <TagGray/> **[Database Dialect](../../features/support#dialect)** used by default. |

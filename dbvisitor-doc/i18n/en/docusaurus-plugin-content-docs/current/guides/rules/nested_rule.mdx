@@ -5,7 +5,7 @@ description: Learn how to nest rules in dbVisitor to implement complex logical c
 ---
 # Rule Nesting
 
-In dbVisitor, rules can be nested within each other. The parsing engine follows a "**Depth First**" strategy during recursive traversal.
+In dbVisitor, rules can be nested within each other. The outer rule determines whether to parse its content; inner rules are not all evaluated in advance.
 Using this feature, you can combine different rules to implement parameter pre-processing, conditional combinations, and other complex logic without writing additional processing logic in Java code.
 
 ## Basic Usage
@@ -18,7 +18,7 @@ The nested syntax takes the form of calling another rule `@{...}` within the par
 
 ### Example 1: AND + MD5
 
-Convert the user-input plain text password to MD5 before splicing it into SQL.
+This example only illustrates parameter handling for existing MD5 fields. Do not use MD5 for new password storage.
 
 ```sql
 -- Original parameter :pwd = '123456'
@@ -50,7 +50,7 @@ dbVisitor does not strictly limit the nesting level, but for readability and mai
 The following example shows how to combine `@{and}`, `@{case}`, and `@{md5}` to implement complex dynamic logic:
 
 ```sql
--- Scenario: Decide whether to query with MD5 encryption based on the encryptMode parameter
+-- Scenario: Decide whether to query with MD5 hashing based on the encryptMode parameter
 -- And the entire query condition is wrapped in AND
 -- Note: The first parameter of @{case} is an OGNL expression, referencing the variable name directly (no colon needed)
 @{and, password = @{case, encryptMode,
@@ -70,11 +70,11 @@ The following example shows how to combine `@{and}`, `@{case}`, and `@{md5}` to 
 ## Usage Notes
 
 :::caution[Avoid Single Quotes Wrapping Rules]
-**Do not wrap single quotes around rules**, especially when the rule (such as `@{md5}`, `@{uuid}`) itself is used to generate parameter placeholders.
+**Do not wrap single quotes around rules**, especially when the rule (such as `@{md5}`, `@{uuid32}`) itself is used to generate parameter placeholders.
 *   **Correct**: `pwd = @{md5, :val}` -> Generates `pwd = ?` (Passed via PreparedStatement, safe and correct)
-*   **Incorrect**: `pwd = '@{md5, :val}'` -> Generates `pwd = '?'` (Treated as string literal, functionality fails)
+*   **Incorrect**: `pwd = '@{md5, :val}'` -> Preserves the literal `pwd = '@{md5, :val}'`; the rule does not execute
 :::
 
 :::tip[Execution Order]
-Rules are always calculated from the inner layer first, then the outer layer. If the inner rule does not generate any content (returns an empty string) because the condition is not met, the outer rule receives an empty string.
+Outer rules such as `if` check their condition before parsing content. Unselected CASE branches do not execute. Rules such as AND parse inner results, inspect parameters, and add a connector; without a preceding WHERE they add WHERE rather than always emitting AND.
 :::

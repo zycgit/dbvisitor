@@ -73,7 +73,7 @@ jdbc.queryForList("select * from users where id > ?", 2, User.class);
 ```xml title='Use a custom type handler in entity mapping XML'
 <!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
                         "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
-<mapper>
+<mapper namespace="net.demos.dto">
     <entity table="users" type="net.demos.dto.User">
         ...
         <mapping column="my_time" property="myTime" typeHandler="net.demos.dto.MyDateTypeHandler"/>
@@ -217,16 +217,16 @@ When a type handler uses a constructor argument, the cache may hit an already-cr
 
 ```text title='Example: two queries use the same TypeHandler but different parameter types'
 select * from users 
-where user_type = #{arg0, javaType= net.demos.dto.UserTypeEnum, ➊
+where user_type = #{arg0, javaType= net.demos.dto.UserTypeEnum,
                           typeHandler=net.demos.dto.MyTypeHandler}
 
 
 select * from users 
-where auth_type = #{arg0, javaType= net.demos.dto.AuthTypeEnum, ➋
+where auth_type = #{arg0, javaType= net.demos.dto.AuthTypeEnum,
                           typeHandler=net.demos.dto.MyTypeHandler}
 ```
 
-- ➊ and ➋ both use the same type handler MyTypeHandler for different Java enum types.
+- Both queries use the same type handler MyTypeHandler for different Java enum types.
 - Without `@NoCache`, the second query would have dbVisitor treat the argument as UserTypeEnum, causing confusion.
 
 
@@ -247,10 +247,10 @@ Any operation that manually registers a TypeHandler into TypeHandlerRegistry is 
 For example, the following registrations will successfully and permanently bind the MyTypeHandler instance to the corresponding type combination regardless of @NoCache:
 
 ```java
-typeRegistry.registerHandler(MyTypeHandler.class, new MyTypeHandler());
-typeRegistry.register(String.class, new MyTypeHandler());
-typeRegistry.register(Types.NVARCHAR, new MyTypeHandler());
-typeRegistry.register(Types.NVARCHAR, String.class, new MyTypeHandler());
+typeRegistry.registerHandler(MyTypeHandler.class, new MyTypeHandler(String.class));
+typeRegistry.register(String.class, new MyTypeHandler(String.class));
+typeRegistry.register(Types.NVARCHAR, new MyTypeHandler(String.class));
+typeRegistry.register(Types.NVARCHAR, String.class, new MyTypeHandler(String.class));
 ```
 :::
 

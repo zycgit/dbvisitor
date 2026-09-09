@@ -16,13 +16,13 @@ dbVisitor 通过 [JDBC-Mongo](../../drivers/mongo/about) 驱动，基于 JDBC �
 - 对象映射、结果集映射、[规则](../../guides/rules/about)、[参数传递](../../guides/args/about)、[ResultSetExtractor/RowMapper](../../guides/result/about)
 - Mapper File 中的[动态 SQL](../../guides/core/file/dynamic_sql) 标签、`Statement.RETURN_GENERATED_KEYS`（自动获取 `_id`）
 
-**不支持：** executeBatch、存储过程
+**不支持：** JDBC addBatch/executeBatch、事务、存储过程
 
 ## 概念类比
 
-不同 MongoDB 命令的执行结果分为三种：
+不同 MongoDB 命令的执行结果分为两种：
 - **更新数** — 类比 INSERT/UPDATE/DELETE，用 `executeUpdate` 获取
-- **单行/多行结果** — 类比 SELECT 结果集，第一列为 `_ID`，第二列为 `_JSON`（均为字符串）
+- **单行/多行结果** — 类比 SELECT 结果集，文档查询通常包含 `_ID` 和 `_JSON`（字符串）及文档字段；管理、统计等命令的列结构见驱动命令手册
 
 ---
 
@@ -32,7 +32,7 @@ dbVisitor 通过 [JDBC-Mongo](../../drivers/mongo/about) 驱动，基于 JDBC �
 
 :::tip[提示]
 更多使用方式请参考 [JdbcTemplate 类](../../guides/core/jdbc/about#guide)，在使用过程中下面两个特性由于驱动原因无法支持：
-- 批量化
+- JDBC Batch（可使用驱动支持的多文档写入命令）
 - 存储过程
 :::
 
@@ -93,7 +93,7 @@ UserInfo user = lambda.query(UserInfo.class)
 
 // 列表查询
 List<UserInfo> users = lambda.query(UserInfo.class)
-                             .like(UserInfo::getName, "test%")
+                             .like(UserInfo::getName, "test")
                              .queryForList();
 ```
 
@@ -178,14 +178,14 @@ Session session = config.newSession(dataSource);
 UserInfoMapper mapper = session.createMapper(UserInfoMapper.class);
 ```
 
-### 映射 ObjectId
+### 映射 ObjectId {#object-id}
 
 MongoDB 的 `_id` 字段通常是 `ObjectId` 类型，Java 对象中通常使用 `String` 类型。
 
 ```java title='定义对象（ObjectId 映射）'
 @Table("user_info")
 public class UserInfo {
-    @Column(value = "_id", primary = true, keyType = KeyType.Auto, whereValueTemplate = "ObjectId(?)")
+    @Column(value = "_id", primary = true, whereValueTemplate = "ObjectId(?)")
     private String id;
 
     @Column("name")
@@ -202,7 +202,7 @@ public interface UserInfoMapper {
 }
 ```
 
-### _id 回填
+### _id 回填 {#id-fill}
 
 MongoDB 插入文档时会返回插入文档的 `_id`。MongoDB 官方文档中 `insertOne()` 的返回值包含 `insertedId`；如果文档没有指定 `_id`，MongoDB 或驱动会生成 `_id`。参考 [MongoDB insertOne 文档](https://www.mongodb.com/docs/manual/reference/method/db.collection.insertone/)。
 
@@ -211,8 +211,7 @@ dbVisitor 的 jdbc-mongo 适配器会把 MongoDB `insertOne` / `insertMany` 的 
 ```xml title='MongoDB Mapper XML 回填 _id'
 <insert id="insertUser"
         useGeneratedKeys="true"
-        keyProperty="id"
-        keyColumn="_id">
+        keyProperty="id">
     test.user_info.insertOne({name: #{name}, age: #{age}})
 </insert>
 ```
@@ -221,18 +220,17 @@ dbVisitor 的 jdbc-mongo 适配器会把 MongoDB `insertOne` / `insertMany` 的 
 @Insert(
     value = "test.user_info.insertOne({name: #{name}, age: #{age}})",
     useGeneratedKeys = true,
-    keyProperty = "id",
-    keyColumn = "_id"
+    keyProperty = "id"
 )
 int insertUser(UserInfo user);
 ```
 
-Lambda / BaseMapper 使用对象映射时，可以把 `_id` 声明为主键，并使用 `KeyType.Auto`：
+上述 Mapper 回填不指定 `keyColumn`，按第一列取键。适配器不支持指定列名数组的 JDBC 重载，因此不能直接使用会选择该重载的 Lambda / BaseMapper `KeyType.Auto` 回填。对于已存在的 ObjectId，可将其映射为查询主键：
 
 ```java
 @Table("user_info")
 public class UserInfo {
-    @Column(value = "_id", primary = true, keyType = KeyType.Auto, whereValueTemplate = "ObjectId(?)")
+    @Column(value = "_id", primary = true, whereValueTemplate = "ObjectId(?)")
     private String id;
 
     @Column("name")
@@ -242,7 +240,7 @@ public class UserInfo {
 
 MongoDB 的 generated keys 来自驱动适配器的 insert result，不来自 `MongoDialect` 拼接 SQL。`MongoDialect` 负责 Mongo 命令构造、条件、排序、分页等语法差异；`_id` 回填由 jdbc-mongo 命令执行层完成。
 
-### 分页查询
+### 分页查询 {#pagination}
 
 在 Mapper 方法中添加 `Page` 参数即可实现分页查询。
 

@@ -27,7 +27,7 @@ JdbcTemplate jdbc = new JdbcTemplate(dataSource);
 List<Map<String, Object>> rows = jdbc.queryForList("select * from users where age > ?", 18);
 
 // Update
-int affected = jdbc.executeUpdate("update users set name = ? where id = ?", "alice", 1);
+int affected = jdbc.executeUpdate("update users set name = ? where id = ?", new Object[] { "alice", 1 });
 ```
 
 :::tip[Hint]

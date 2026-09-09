@@ -24,7 +24,7 @@ This section focuses on the usage patterns and differences for specific data sou
 - [MySQL](./mysql/about): `AUTO_INCREMENT`, JDBC generated keys, `INSERT IGNORE`/`ON DUPLICATE KEY UPDATE`, `TINYINT(1)` boolean mapping
 - [PostgreSQL](./postgresql/about): `SERIAL`, `RETURNING`, `ON CONFLICT`, pgvector vector search, sequences
 - [Oracle](./oracle/about): `IDENTITY`, sequence, `keyColumn` requirement, `MERGE` conflict strategy, `RETURNING INTO` limitations
-- [SQL Server](./mssql/about): `OUTPUT INSERTED`, `MERGE`, `OFFSET FETCH` pagination, `ORDER BY` deduplication
+- [SQL Server](./mssql/about): `OUTPUT INSERTED`, `MERGE`, `ROW_NUMBER` pagination, `ORDER BY` deduplication
 - [DB2](./db2/about): `IDENTITY`, sequence, batch generated keys limitation, `MERGE` conflict strategy
 - [Dameng](./dm/about): Auto-increment columns, `IGNORE_ROW_ON_DUPKEY_INDEX`, `MERGE`, sequences
 - [H2](./h2/about): `IDENTITY`, sequence, `MERGE`, recommended for testing
@@ -43,6 +43,6 @@ To compare support differences across data sources for Builder API, pagination, 
 
 ## Reading Suggestions
 
-To learn dbVisitor's general capabilities, read [Database Access](../guides/overview) first. If you're interested in JDBC driver adapters for MongoDB, Redis, Elasticsearch, Milvus, etc., read [Driver Adapters](../drivers/about).
+To learn dbVisitor's general capabilities, read [Core APIs](../guides/overview) first. If you're interested in JDBC driver adapters for MongoDB, Redis, Elasticsearch, Milvus, etc., read [Driver Adapters](../drivers/about).
 
 When a database behaves differently from the general documentation, the data-source-specific notes in this section take precedence.

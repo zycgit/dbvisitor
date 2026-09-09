@@ -11,7 +11,7 @@ import TabItem from '@theme/TabItem';
 
 # 查询
 
-JdbcTemplate 提供多种只读查询 API。大多数接口接受 SQL 字符串和参数（对象或数组），返回由结果集构建的对象；部分接口支持回调/映射器以自定义处理过程。
+JdbcTemplate 提供多种读取结果集的 API；方法名称并不会把连接或数据库操作强制设为只读。大多数接口接受 SQL 字符串和参数（对象或数组），返回由结果集构建的对象；部分接口支持回调/映射器以自定义处理过程。
 
 ## 先选方法
 
@@ -34,38 +34,50 @@ JdbcTemplate 提供多种只读查询 API。大多数接口接受 SQL 字符串�
     <TabItem value="demo1" label="示例：使用 Bean 映射结果集">
 
         ```java
-        // 原始 SQL
-        List<User> users = jdbc.queryForList(
-                "select * from users where id > 2", User.class);
+        // 原始 SQL（独立示例）
+        {
+            List<User> users = jdbc.queryForList(
+                    "select * from users where id > 2", User.class);
+        }
 
-        // 位置参数
-        Object[] args = new Object[]{ 2 };
-        List<User> result = jdbc.queryForList(
-                "select * from users where id > ?", args, User.class);
+        // 位置参数（独立示例）
+        {
+            Object[] args = new Object[]{ 2 };
+            List<User> result = jdbc.queryForList(
+                    "select * from users where id > ?", args, User.class);
+        }
 
-        // 名称参数
-        Map<String, Object> args = CollectionUtils.asMap("id", 2);
-        List<User> result = jdbc.queryForList(
-                "select * from users where id > :id", args, User.class);
+        // 名称参数（独立示例）
+        {
+            Map<String, Object> namedArgs = CollectionUtils.asMap("id", 2);
+            List<User> result = jdbc.queryForList(
+                    "select * from users where id > :id", namedArgs, User.class);
+        }
         ```
 
     </TabItem>
     <TabItem value="demo2" label="示例：使用 Map 映射结果集">
 
         ```java
-        // 原始 SQL
-        List<Map<String, Object>> users = jdbc.queryForList(
-                "select * from users where id > 2");
+        // 原始 SQL（独立示例）
+        {
+            List<Map<String, Object>> users = jdbc.queryForList(
+                    "select * from users where id > 2");
+        }
 
-        // 位置参数
-        Object[] args = new Object[]{ 2 };
-        List<Map<String, Object>> result = jdbc.queryForList(
-                "select * from users where id > ?", args);
+        // 位置参数（独立示例）
+        {
+            Object[] args = new Object[]{ 2 };
+            List<Map<String, Object>> result = jdbc.queryForList(
+                    "select * from users where id > ?", args);
+        }
 
-        // 名称参数
-        Map<String, Object> args = CollectionUtils.asMap("id", 2);
-        List<Map<String, Object>> result = jdbc.queryForList(
-                "select * from users where id > :id", args);
+        // 名称参数（独立示例）
+        {
+            Map<String, Object> namedArgs = CollectionUtils.asMap("id", 2);
+            List<Map<String, Object>> result = jdbc.queryForList(
+                    "select * from users where id > :id", namedArgs);
+        }
         ```
 
     </TabItem>
@@ -93,44 +105,56 @@ JdbcTemplate 提供多种只读查询 API。大多数接口接受 SQL 字符串�
 
 ## 查询对象 {#one}
 
-返回映射到指定类型的单行。常见场景：聚合查询、主键查找。若结果为多行会抛出异常。
+返回映射到指定类型的单行。常见场景：聚合查询、主键查找。无结果时返回 null，多行时抛出异常；接收可能为空的标量时使用包装类型。
 
 <Tabs>
     <TabItem value="demo1" label="示例：使用 Bean 映射结果集">
 
         ```java
-        // 原始 SQL
-        User user = jdbc.queryForObject(
-                "select * from users where id = 2", User.class);
+        // 原始 SQL（独立示例）
+        {
+            User user = jdbc.queryForObject(
+                    "select * from users where id = 2", User.class);
+        }
 
-        // 位置参数
-        Object[] args = new Object[]{ 2 };
-        User user = jdbc.queryForObject(
-                "select * from users where id = ?", args, User.class);
+        // 位置参数（独立示例）
+        {
+            Object[] args = new Object[]{ 2 };
+            User user = jdbc.queryForObject(
+                    "select * from users where id = ?", args, User.class);
+        }
 
-        // 名称参数
-        Map<String, Object> args = CollectionUtils.asMap("id", 2);
-        User user = jdbc.queryForObject(
-                "select * from users where id = :id", args, User.class);
+        // 名称参数（独立示例）
+        {
+            Map<String, Object> namedArgs = CollectionUtils.asMap("id", 2);
+            User user = jdbc.queryForObject(
+                    "select * from users where id = :id", namedArgs, User.class);
+        }
         ```
 
 </TabItem>
     <TabItem value="demo2" label="示例：使用 Map 映射结果集">
 
         ```java
-        // 原始 SQL
-        Map<String, Object> user = jdbc.queryForMap(
-                "select * from users where id = 2");
+        // 原始 SQL（独立示例）
+        {
+            Map<String, Object> user = jdbc.queryForMap(
+                    "select * from users where id = 2");
+        }
 
-        // 位置参数
-        Object[] args = new Object[]{ 2 };
-        Map<String, Object> user = jdbc.queryForMap(
-                "select * from users where id = ?", args);
+        // 位置参数（独立示例）
+        {
+            Object[] args = new Object[]{ 2 };
+            Map<String, Object> user = jdbc.queryForMap(
+                    "select * from users where id = ?", args);
+        }
 
-        // 名称参数
-        Map<String, Object> args = CollectionUtils.asMap("id", 2);
-        Map<String, Object> user = jdbc.queryForMap(
-                "select * from users where id = :id", args);
+        // 名称参数（独立示例）
+        {
+            Map<String, Object> namedArgs = CollectionUtils.asMap("id", 2);
+            Map<String, Object> user = jdbc.queryForMap(
+                    "select * from users where id = :id", namedArgs);
+        }
         ```
 
     </TabItem>
@@ -164,19 +188,25 @@ JdbcTemplate 提供多种只读查询 API。大多数接口接受 SQL 字符串�
     <TabItem value="demo" label="示例">
 
         ```java
-        // 原始 SQL
-        Map<Long, String> userMap = jdbc.queryForPairs(
-                "select uid, name from user where age > 2", Long.class, String.class);
+        // 原始 SQL（独立示例）
+        {
+            Map<Long, String> userMap = jdbc.queryForPairs(
+                    "select uid, name from user where age > 2", Long.class, String.class);
+        }
 
-        // 位置参数
-        Object[] args = new Object[]{ 2 };
-        Map<Long, String> userMap = jdbc.queryForPairs(
-                "select uid, name from user where age > ?", Long.class, String.class, args);
+        // 位置参数（独立示例）
+        {
+            Object[] args = new Object[]{ 2 };
+            Map<Long, String> userMap = jdbc.queryForPairs(
+                    "select uid, name from user where age > ?", Long.class, String.class, args);
+        }
 
-        // 名称参数
-        Map<String, Object> args = CollectionUtils.asMap("age", 2);
-        Map<Long, String> userMap = jdbc.queryForPairs(
-                "select uid, name from user where age > :age", Long.class, String.class, args);
+        // 名称参数（独立示例）
+        {
+            Map<String, Object> namedArgs = CollectionUtils.asMap("age", 2);
+            Map<Long, String> userMap = jdbc.queryForPairs(
+                    "select uid, name from user where age > :age", Long.class, String.class, namedArgs);
+        }
         ```
 
     </TabItem>
@@ -205,19 +235,25 @@ JdbcTemplate 提供多种只读查询 API。大多数接口接受 SQL 字符串�
     <TabItem value="demo1" label="示例：单值">
 
         ```java
-        // 原始 SQL
-        long count = jdbc.queryForLong(
-                "select count(*) from user where age > 2");
+        // 原始 SQL（独立示例）
+        {
+            long count = jdbc.queryForLong(
+                    "select count(*) from user where age > 2");
+        }
 
-        // 位置参数
-        Object[] args = new Object[]{ 2 };
-        long count = jdbc.queryForLong(
-                "select count(*) from user where age > ?", args);
+        // 位置参数（独立示例）
+        {
+            Object[] args = new Object[]{ 2 };
+            long count = jdbc.queryForLong(
+                    "select count(*) from user where age > ?", args);
+        }
 
-        // 名称参数
-        Map<String, Object> args = CollectionUtils.asMap("age", 2);
-        long count = jdbc.queryForLong(
-                "select count(*) from user where age > :age", args);
+        // 名称参数（独立示例）
+        {
+            Map<String, Object> namedArgs = CollectionUtils.asMap("age", 2);
+            long count = jdbc.queryForLong(
+                    "select count(*) from user where age > :age", namedArgs);
+        }
         ```
 
         :::info[提示]
@@ -228,19 +264,25 @@ JdbcTemplate 提供多种只读查询 API。大多数接口接受 SQL 字符串�
     <TabItem value="demo2" label="示例：值列表">
 
         ```java
-        // 原始 SQL
-        List<String> result = jdbc.queryForList(
-                "select name from users", String.class);
+        // 原始 SQL（独立示例）
+        {
+            List<String> result = jdbc.queryForList(
+                    "select name from users", String.class);
+        }
 
-        // 位置参数
-        Object[] args = new Object[]{ 2 };
-        List<String> result = jdbc.queryForList(
-                "select name from users where name = ?", args, String.class);
+        // 位置参数（独立示例）
+        {
+            Object[] args = new Object[]{ "Bob" };
+            List<String> result = jdbc.queryForList(
+                    "select name from users where name = ?", args, String.class);
+        }
 
-        // 名称参数
-        Map<String, Object> args = CollectionUtils.asMap("name", "Bob");
-        List<String> result = jdbc.queryForList(
-                "select name from users where id = :id", args, String.class);
+        // 名称参数（独立示例）
+        {
+            Map<String, Object> namedArgs = CollectionUtils.asMap("name", "Bob");
+            List<String> result = jdbc.queryForList(
+                    "select name from users where name = :name", namedArgs, String.class);
+        }
         ```
 
     </TabItem>
@@ -250,7 +292,7 @@ JdbcTemplate 提供多种只读查询 API。大多数接口接受 SQL 字符串�
         // 查询 Long 类型值
         Long queryForLong(String sql);
         Long queryForLong(String sql, Object args);
-        Long queryForLong(String sql, PreparedStatementSetter args)
+        Long queryForLong(String sql, PreparedStatementSetter args);
 
         // 查询 int 类型值
         Integer queryForInt(String sql);
@@ -298,7 +340,9 @@ User user = jdbc.query(
 );
 ```
 
-### 流式查询 {#stream}
+### 逐行处理 {#stream}
+
+回调避免应用收集完整结果集，但是否按需从服务端读取，还取决于 JDBC 驱动、fetchSize 和连接配置。
 
 ```java
 RowCallbackHandler handler = (rs, rowNum) -> {
@@ -316,7 +360,7 @@ jdbc.query("select * from users where age > ?", new Object[]{ 18 }, handler);
 
 在查询相关 API 中，参数统一按 `Object` 传递，可支持的类型如下：
 
-- [位置参数](../../args/position)（相当于 `Object... args`）
+- [位置参数](../../args/position)（多个值放入数组或集合，方法接收的是 `Object args`，不是可变参数）
     - 数组、Collection、TypeRegistry 中注册的类型
 - [名称化参数](../../args/named)
     - Map、实体 Bean、SqlArg（名称会固定为 `arg0`）
@@ -324,7 +368,7 @@ jdbc.query("select * from users where age > ?", new Object[]{ 18 }, handler);
     - [PreparedStatementSetter](../../args/interface#pset)、[SqlArgSource](../../args/interface#source)
 - 动态 SQL
     - 使用 [规则](../../rules/dynamic_rule) 构建查询命令时进行参数绑定，支持名称化参数。
-    - 使用 `${...}` 进行 [SQL 注入](../../args/inject) 时虽然不会参与 PreparedStatement 但也算所传参的一种。
+    - 使用 `${...}` 进行 [SQL 文本替换](../../args/inject) 时虽然不会参与 PreparedStatement 但也算所传参的一种。
 
 
 参数类型最终会经过 TypeHandler 处理，确保 JDBC 类型与 Java 类型的正确映射。

@@ -10,7 +10,7 @@ description: Low-level behavioral details of SQL Server dialect including pagina
 
 ## Pagination SQL
 
-SQL Server uses `ROW_NUMBER()` + CTE for pagination:
+The SQL Server dialect uses `ROW_NUMBER()` + CTE. With offset=1 and limit=3, boundaries are inserted into SQL directly, not bound as new JDBC placeholders. Use a stable ORDER BY for repeatable pages:
 
 ```sql
 WITH selectTemp AS (
@@ -18,7 +18,7 @@ WITH selectTemp AS (
   FROM original query
 )
 SELECT * FROM selectTemp
-WHERE __row_number__ BETWEEN ? AND ?
+WHERE __row_number__ BETWEEN 2 AND 4
 ORDER BY __row_number__
 ```
 
@@ -30,7 +30,7 @@ WITH selectTemp AS (
   FROM original query (containing order by a desc)
 )
 SELECT * FROM selectTemp
-WHERE __row_number__ BETWEEN ? AND ?
+WHERE __row_number__ BETWEEN 2 AND 4
 ORDER BY __row_number__
 ```
 
@@ -79,7 +79,7 @@ For Ignore/Update + backfill columns, conservative `OneByOne` (row-by-row execut
 
 ## Sequences
 
-SQL Server does not implement `SeqSqlDialect`; sequences are read via `selectKey` or `@KeySeq` + `KeyType.Sequence`:
+The built-in SQL Server dialect does not implement `SeqSqlDialect`; do not directly use `@KeySeq` + `KeyType.Sequence`. Use `selectKey`, `@SelectKeySql`, or application code:
 
 ```sql
 SELECT NEXT VALUE FOR user_info_id_seq
@@ -93,7 +93,7 @@ SELECT NEXT VALUE FOR user_info_id_seq
 
 ## Key Differences Summary
 
-- The only database that uses square brackets `[]` for identifier quoting
-- The only database that uses `ROW_NUMBER() OVER()` + CTE for pagination
+- Uses square brackets `[]` for identifier quoting
+- Uses `ROW_NUMBER() OVER()` + CTE for pagination
 - Automatically inserts `dbo` as the default schema
 - `OUTPUT INSERTED` is similar to PostgreSQL `RETURNING`, but not used for Ignore/Update

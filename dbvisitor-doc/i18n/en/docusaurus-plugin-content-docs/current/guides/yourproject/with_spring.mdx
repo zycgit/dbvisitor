@@ -35,7 +35,7 @@ Spring is a widely used Java application framework that provides an IoC containe
 
 ## Configuration Method
 
-First, add the dependency, current version: <Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>
+First, add the dependency, guide version: <Highlight color="rgb(227 17 108)">{Vars.docsVersion}</Highlight>
 
 <Tabs>
   <TabItem value="a" label="SpringBoot Project" default>
@@ -149,6 +149,7 @@ public interface UserMapper extends BaseMapper<UserDTO> {
 
   ```java
   @Configuration
+  @EnableTransactionManagement
   public class DsConfig {
     @Bean
     public PlatformTransactionManager txManager(DataSource dataSource) {
@@ -175,9 +176,10 @@ public interface UserMapper extends BaseMapper<UserDTO> {
 
 ```java title='Transaction control via @Transactional annotation'
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Propagation;
 
 public class TxExample {
-    @Transactional(propagation = Propagation.REQUIRES)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void exampleMethod() {
         ...
     }
@@ -186,7 +188,7 @@ public class TxExample {
 
 ## Relevant Classes
 - net.hasor.dbvisitor.jdbc.JdbcOperations
-- net.hasor.dbvisitor.jdbc.core.JdbcTemplate
+- net.hasor.dbvisitor.jdbc.JdbcTemplate
 - net.hasor.dbvisitor.lambda.LambdaOperations
 - net.hasor.dbvisitor.lambda.LambdaTemplate
 - net.hasor.dbvisitor.transaction.TransactionTemplate
@@ -223,7 +225,7 @@ public class TxExample {
 | dbvisitor.use-delimited | <TagGray/> Force adding identifier delimiters when generating table names/column names/index names. For example: set this property to solve the problem of column names being keywords. Default is `false` (not set). |
 | dbvisitor.case-insensitive | <TagGray/> Whether table/column names are case-sensitive. Default `true` (insensitive). |
 | dbvisitor.ignore-nonexist-statement | <TagGray/> Whether to ignore missing mappings during the mapping of Mapper interface methods to XML. Default is `false`. Missing mappings will report an error. |
-| dbvisitor.dialect | <TagGray/> **[Database Dialect](../../optionss/support#dialect)** used by default. |
+| dbvisitor.dialect | <TagGray/> **[Database Dialect](../../features/support#dialect)** used by default. |
 
 ### @MapperScan Annotation Attributes
 

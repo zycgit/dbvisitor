@@ -7,7 +7,7 @@ description: Usage limits of JDBC adapters based on dbvisitor-driver regarding J
 ---
 JDBC adapters based on dbvisitor-driver have the following usage limits regarding JDBC interface support:
 
-- Properties obtained through the DatabaseMetaData interface are unreliable.
+- DatabaseMetaData provides partial metadata and capability information, not a complete relational schema discovery API. ORM, BI and migration tools that model databases from metadata need a separate compatibility assessment.
 - When using resultSetType, resultSetConcurrency, resultSetHoldability, and fetchDirection parameters, only the following default values are supported:
     - resultSetType = TYPE_FORWARD_ONLY
     - resultSetConcurrency = CONCUR_READ_ONLY
@@ -20,6 +20,6 @@ JDBC adapters based on dbvisitor-driver have the following usage limits regardin
     - xxx(String sql, String[] columnNames) methods
 - Unsupported JDBC data types:
     - SQLXML, REF_CURSOR, RowId, Ref, Struct, DISTINCT
-- addBatch and clearBatch batch operations are not supported
+- JDBC addBatch, clearBatch and executeBatch are not supported. Multiple statements and multi-row writes in a single command are not JDBC Batch.
 - Savepoint operations are not supported
 - Array, Blob, Clob, and NClob type data is pre-read into memory; please be aware of data size

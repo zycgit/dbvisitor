@@ -38,13 +38,13 @@ Solves the problem of dynamically concatenating `AND` conditions in `WHERE` clau
 
 | Feature | `@{and, sql fragment}` | `@{ifand, OGNL condition, sql fragment}` |
 |---------|------------------------|------------------------------------------|
-| Activation | Takes effect when **all arguments** in the SQL fragment are **non-null** | Takes effect when the **OGNL condition expression** is `true` |
-| Null arguments | When an argument is null, the entire fragment is **discarded** | When the condition is met, null arguments are **retained** |
+| Activation | Takes effect when **at least one argument** in the SQL fragment are **non-null** | Takes effect when the **OGNL condition expression** is `true` |
+| Null arguments | When all arguments are null or there are no arguments, the entire fragment is **discarded** | When the condition is met, null arguments are **retained** |
 | Typical use | Concise syntax with automatic null checking | Custom judgment logic needed |
 
 ### Features
 
-1. **Auto Prefix Removal**: The rule automatically handles the `WHERE` keyword and redundant leading `AND`. For example, `WHERE @{and, AND x=1}` will be optimized to `WHERE x=1`.
+1. **Context-aware connectors**: The rule inspects the preceding `WHERE`, `AND`, or `OR` to decide whether to add a connector. Write the predicate directly, for example `WHERE @{and, x=:x}`; do not add a leading AND inside the rule.
 2. **Smart Null Discard**:
    - By default, if `:val` in `@{and, col=:val}` is empty (null), the entire fragment is discarded.
    - **Exception**: If the fragment contains `${...}` dynamic injection, it is forced to be retained even if the parameter is empty (preventing accidental deletion of filter logic).
@@ -60,8 +60,8 @@ Solves the problem of dynamically concatenating `AND` conditions in `WHERE` clau
 select * from users 
 where status = :status      -- Fixed condition
       @{and, uid = :userId} -- Automatically handles AND prefix
-      -- Only effective when userId is not null and length > 0
-      @{ifand, userId != null && userId.length() > 0, uid = :userId}
+      -- To apply an explicit condition, replace the preceding rule with:
+      -- @{ifand, userId != null && userId.length() > 0, uid = :userId}
 ```
 
 ```sql title="Generated SQL (status=1, userId='abc')"
@@ -87,8 +87,8 @@ where status = ? and uid = ?
 
 :::info Smart Features
 - **Auto WHERE Completion**: If the rule is at the beginning of the condition, it automatically adds the `WHERE` keyword.
-- **Auto Prefix Handling**: Intelligently identifies context to automatically remove or add necessary `AND`.
-- **Auto Downgrade**: If the preceding connector is `OR`, it automatically adapts.
+- **Context-aware Connectors**: Checks preceding SQL to decide whether to add `AND`; it does not strip a handwritten leading `AND` from the rule body.
+- **Preserve Existing Connectors**: If preceding SQL ends with `OR`, no extra `AND` is added.
 :::
 
 ---
@@ -108,8 +108,8 @@ Solves the problem of dynamically concatenating `OR` conditions in `WHERE` claus
 select * from users 
 where username = :username 
       @{or, email = :email} -- Automatically connects with OR
-      -- Only effective when email contains '@'
-      @{ifor, email != null && email.contains("@"), email = :email}
+      -- To apply an explicit condition, replace the preceding rule with:
+      -- @{ifor, email != null && email.contains("@"), email = :email}
 ```
 
 ```sql title="Generated SQL (username='admin', email='a@b.c')"
@@ -134,7 +134,7 @@ where username = ? or email = ?
 </Tabs>
 
 :::info Smart Features
-Consistent with AND rules, capable of auto-completing `WHERE` and auto-correcting connectors (OR).
+Like the AND rule, it adds `WHERE` or `OR` according to preceding SQL. Write the condition directly inside the rule, without a leading connector.
 :::
 
 ---
@@ -154,8 +154,8 @@ Used to simplify concatenating `IN` clauses by automatically flattening collecti
 select * from users
 where status = :status
       @{in, and id in :ids} -- Automatically expands to id in (?,?,?)
-      -- Only effective when ids collection is not empty
-      @{ifin, ids != null && ids.size() > 0, and id in :ids}
+      -- To apply an explicit condition, replace the preceding rule with:
+      -- @{ifin, ids != null && ids.size() > 0, and id in :ids}
 ```
 
 ```sql title="Generated SQL (ids=[1,2,3])"
@@ -183,7 +183,7 @@ where status = ? and id in (?, ?, ?)
 </Tabs>
 
 :::caution Note
-This rule **does not** automatically complete `AND`/`OR` prefixes; you need to write them manually within the rule (as `and id in ...` in the example).
+This rule **does not** automatically complete `AND`/`OR` prefixes; you need to write them manually within the rule (as `and id in ...` in the example). An empty or null collection emits no content. If an empty collection should match no rows, return an empty result before querying or explicitly append `1=0`; do not let an omitted condition broaden a query or modification.
 :::
 
 ---
@@ -191,20 +191,20 @@ This rule **does not** automatically complete `AND`/`OR` prefixes; you need to w
 ## SET, IFSET Rules {#set}
 
 Dedicated to `UPDATE` statements to solve the problem of comma concatenation during dynamic column updates.
-- **`@{set, sql fragment}`**: Appends assignment when the argument is not null, and automatically manages commas. Unlike `and`/`or`, `set` **allows argument values to be null**.
+- **`@{set, sql fragment}`**: Appends an assignment and automatically manages commas. Unlike `and`/`or`, `set` **allows argument values to be null**.
 - **`@{ifset, OGNL condition, sql fragment}`**: Effective only when the OGNL condition is true.
 
 <Tabs>
   <TabItem value="rule-style" label="Using Rules" default>
 
-**Example**: Update user, `status` is optional.
+**Example**: Update a user; a null `status` is also written as NULL.
 
 ```sql
 update users 
 set update_time = now()      -- Fixed column
     @{set, status = :status} -- Automatically handles comma
-    -- Only update status when it is not 'disabled'
-    @{ifset, status != null && status != 'disabled', status = :status}
+    -- To update conditionally, replace the preceding rule with:
+    -- @{ifset, status != null && status != 'disabled', status = :status}
 where uid = :uid
 ```
 
@@ -221,9 +221,7 @@ where uid = ?
 <update id="updateUser">
     update users 
     set update_time = now()
-    <if test="status != null">
-        , status = #{status}
-    </if>
+    , status = #{status}
     where uid = #{uid}
 </update>
 ```
@@ -237,10 +235,11 @@ When mixing **manual SQL** (e.g., `fixed_col = 1`) between `@{set}` rules, **no 
 The rule engine automatically detects preceding content and intelligently supplements commas. Manually adding commas may lead to syntax errors in some dynamic scenarios.
 
 ```sql title='Recommended style (rules at the end)'
-update user
+update users set
   fixed_col = 1        -- No comma at the end
   @{set, name = :name} -- Rule automatically handles preceding comma (generates ", name = ?")
   @{set, age = :age}
+where id = :id
 ```
 
 ```sql title='Problematic style (when rules do not match)'
@@ -286,7 +285,7 @@ select * from users where 1=1
   <TabItem value="xml-style" label="XML Comparison">
 
 ```xml
-<select>
+<select id="queryUser">
     select * from users where 1=1
     <!-- @{if} corresponds to standard <if> -->
     <if test="hasName">
@@ -419,7 +418,8 @@ config.addMacro("includeSeq", "and seq = :seq");
 select * from users where
     status = :status
     @{macro, includeSeq} -- Reference Macro
-    @{ifmacro, status > 2, includeSeq} -- Conditional Reference
+    -- For conditional inclusion, replace the preceding rule with:
+    -- @{ifmacro, status > 2, includeSeq}
 ```
 
 ```sql title="Generated SQL (status=3)"
@@ -440,9 +440,7 @@ where status = ? and seq = ?
 <select id="queryUser">
     select * from users where status = #{status}
     <include refid="includeSeq"/>
-    <if test="status > 2">
-         <include refid="includeSeq"/>
-    </if>
+    <!-- For conditional inclusion, wrap the preceding include in if; do not include it twice. -->
 </select>
 ```
 
@@ -466,13 +464,13 @@ Calculates the MD5 hash of a parameter value and binds the result as a SQL argum
 - **`@{md5, :param}`**: Takes the value of `:param`, computes its MD5, and binds it as a `?` placeholder.
 
 :::caution[Note]
-The parameter must be referenced with the `:` prefix (e.g., `:loginPassword`); otherwise, it will not be recognized as a parameter reference.
+The content must parse into exactly one bound parameter, such as `:loginPassword`, `#{loginPassword}`, or `?`. A bare name is not a bound parameter. MD5 is hashing, not encryption, and should not be used for new password storage; this example only illustrates compatibility with an existing MD5 field.
 :::
 
 <Tabs>
   <TabItem value="rule-style" label="Using Rules" default>
 
-**Example**: MD5 password matching.
+**Example**: Hash matching for an existing MD5 password field.
 
 ```sql
 select * from users 

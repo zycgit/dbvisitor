@@ -15,7 +15,7 @@ DB2 can use all of dbVisitor's general capabilities including JDBC, Mapper, Lamb
 | Concern | DB2 Behavior |
 |--------|---------|
 | Primary Key Generation | `IDENTITY` columns, backfilled via JDBC generated keys |
-| Pagination | `FETCH FIRST ? ROWS ONLY` + nested query |
+| Pagination | `ROWNUMBER() OVER(...)` with an outer range filter |
 | Write Conflicts | `MERGE INTO ... WHEN MATCHED ... WHEN NOT MATCHED ...` |
 | Batch Writes | Supported, but batch generated keys have driver limitations |
 | Stored Procedures | Supported |

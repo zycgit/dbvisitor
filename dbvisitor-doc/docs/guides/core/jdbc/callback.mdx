@@ -42,7 +42,7 @@ T resultList = jdbcTemplate.execute((StatementCallback<T>) stmt -> {
     ```java
     T result = jdbc.executeCreator(con -> {
         PreparedStatement ps = con.prepareStatement("select * from users where id > ?");
-        ps.setString(1, "Bob");
+        ps.setInt(1, 2);
         return ps;
     }, (ResultSetExtractor) rs -> {
         return ...;
@@ -52,7 +52,7 @@ T resultList = jdbcTemplate.execute((StatementCallback<T>) stmt -> {
     ```java
     List<User> result = jdbc.executeCreator(con -> {
         PreparedStatement ps = con.prepareStatement("select * from users where id > ?");
-        ps.setString(1, "Bob");
+        ps.setInt(1, 2);
         return ps;
     }, (RowMapper<User>) (rs, rowNum) -> {
         return ...;
@@ -62,7 +62,7 @@ T resultList = jdbcTemplate.execute((StatementCallback<T>) stmt -> {
     ```java
     jdbc.executeCreator(con -> {
         PreparedStatement ps = con.prepareStatement("select * from users where id > ?");
-        ps.setString(1, "Bob");
+        ps.setInt(1, 2);
         return ps;
     }, (RowCallbackHandler) (rs, rowNum) -> {
         // 处理一行数据

@@ -9,10 +9,14 @@ language: zh-cn
 有开发者引用物理学隐喻：“粒子的位置与动量不可同时确定”，暗示在框架设计中，通用性与专用性难以兼得。
 更有人直言，任何尝试“大一统”的框架，最终都会沦为“四不像”，不仅丢掉了数据库的强事务优势，也没能发挥出例如 Elasticsearch 的能力。
 
-面对这些质疑，dbVisitor 依然坚定地提出了 **"One APIs Access Any DataBase"** 的愿景。
+面对这些质疑，dbVisitor 依然坚定地提出了 **"One API, Access Multiple Databases"** 的愿景。
 为什么我敢这么说？今天我们就来拆解这个争议，聊聊 dbVisitor 敢于挑战“大一统”的底气究竟在哪里。
 
 <!-- truncate -->
+
+:::note[能力范围]
+统一的是调用方式，不是数据库语义。构造器需对应方言支持，原生命令需位于适配器支持范围；接入 ORM、连接池等组件前请核对其依赖的 JDBC 方法。参阅[功能矩阵](../docs/features/support)与[JDBC 限制](../docs/drivers/limited)。
+:::
 
 ## 一、我们对 API 的误解
 
@@ -51,7 +55,7 @@ MyBatis Plus 在国内的巨大成功，正是建立在 MyBatis 这个坚实的�
 *   Elasticsearch 插入一条数据用 `IndexRequest`
 *   Redis 插入一条数据用 `set` 命令
 
-这些“简单”的操作，API 风格天差地别。在 **"One APIs Access Any DataBase"** 的愿景下，能用统一的 `insert(entity)` 完成上述所有操作，本身就具有极高的普世价值，它消除了认知切换的成本。
+这些“简单”的操作，API 风格天差地别。在 **"One API, Access Multiple Databases"** 的愿景下，能用统一的 JDBC/Mapper 调用形式描述这些操作（Redis 使用命令，不支持实体插入构造器），本身就具有极高的普世价值，它消除了认知切换的成本。
 
 #### 反驳观点二：API 不仅仅是查询构造器
 这是一个巨大的思维误区：**“统一 API” 不等于 “统一成某一特定的接口”**。
@@ -74,14 +78,14 @@ dbVisitor 之所以敢说“可以”，是因为其核心思想并非去 **消�
 而是通过 **JDBC 标准化** 和 **分层抽象** 来 **管理差异**。并通过独特的双层适配器架构来弥合鸿沟：
 
 #### JDBC 标准化
-这层是 dbVisitor 达成 “One APIs Access Any DataBase” 愿景的根基。
+这层是 dbVisitor 达成 “One API, Access Multiple Databases” 愿景的根基。
 
 *   **复用 JDBC 标准**：没有发明新协议，而是为 NoSQL（MongoDB, Elasticsearch, Redis）编写了遵循 JDBC 规范的驱动。
     并使用这些数据库官方原始的 DSL 语言来进行数据库操作。这些驱动在内部也仅仅是将 JDBC 的操作映射到各自的原生 SDK 调用上，并将返回值映射成 JDBC 标准方式。
 *   **Request/Response 模型**：为了简化异构数据源的接入，复杂的 JDBC 状态管理被简化为轻量级的 Request/Response 模型。这使得你可以用很少的代码即可接入一个全新的非标准的数据源。 
-    新的数据源，甚至直接被 **HikariCP** 管理。在使用它们的时候，除了查询语法不是 SQL 意外其它完全一致。
+    新的数据源，甚至直接被 **HikariCP** 管理。在使用它们的时候，需使用该适配器支持的命令和 JDBC 方法，而不是完整的关系型 JDBC 能力。
 
-正是基于上述特征 dbVisitor 在进行适配 Elasticsearch 时只使用了约 20 个类，总共 2300 行代码，极其轻量。
+Elasticsearch 适配器复用公共 JDBC 状态管理层，将数据源专属代码集中在命令解析与执行中。
 
 #### One API
 
@@ -89,6 +93,8 @@ dbVisitor 之所以敢说“可以”，是因为其核心思想并非去 **消�
 dbVisitor 的设计哲学认为，真正的统一不是强行把所有数据库操作都塞进同一个狭窄的入口，而是通过 **分层抽象** 在不同的维度上提供统一的体验。
 
 ![API 分层抽象示意图](../static/img/blog/api-levels.jpg)
+
+图中层次与比例用于说明抽象程度，不是功能覆盖率或性能统计；JdbcTemplate 只执行驱动支持的语句，并不会把任意 SQL 翻译为任意数据库的命令。
 
 dbVisitor 为不同的场景设计了不同级别的抽象接口，以应对不同的行为需求：
 
@@ -102,11 +108,11 @@ dbVisitor 为不同的场景设计了不同级别的抽象接口，以应对不�
 
 *   **JDBC Template（透传执行）**
     *   **应对场景**：数据库特有的管理命令或原生 Shell 脚本。
-    *   **优势**：这是 **最“灵活”** 的一层。它允许你直接穿透框架，与底层的驱动进行对话，执行任何原生指令。
+    *   **优势**：这是 **最“灵活”** 的一层。它允许你直接穿透框架，与底层的驱动进行对话，执行适配器语法手册中支持的指令。
 
 :::warning[统一 API ≠ 统一能力]
 尽管 dbVisitor 统一了 insert/update/commit 等调用形式，但它不能改变底层数据库的物理特性。
-对于 MongoDB、Elasticsearch 等弱事务或无事务的存储，调用 `commit()` 可能只是逻辑上的空操作，并不意味着具备了关系型数据库的 ACID 强一致性保障。
+dbVisitor 的 MongoDB、Elasticsearch 等适配器没有接入 JDBC 事务，不支持通过 `commit()`/`rollback()` 管理事务。这是适配器的边界，不是在断言 MongoDB 服务端没有事务能力。
 :::
 
 ## 三、实战：多维度的统一体验
@@ -124,14 +130,14 @@ template.insert(UserInfo.class)
         .executeSumResult();
 
 // 统一的查询
-List<UserInfo> list = template.lambdaQuery(UserInfo.class)
+List<UserInfo> list = template.query(UserInfo.class)
         .eq(UserInfo::getAge, 18)  // 自动翻译为 SQL / QueryDSL / Bson
-        .list();
+        .queryForList();
 ```
 
 ### 2. 业务维度（行为为中心）
 
-当我们需要发挥 ES 的聚合能力或 MySQL 的复杂 Join 时，Mapper 接口是最佳选择。dbVisitor 提供了三种使用 Mapper 的姿势，你可以根据业务复杂度灵活混用。
+当我们需要发挥 ES 的聚合能力或 MySQL 的复杂 Join 时，Mapper 接口是最佳选择。dbVisitor 提供了三种使用 Mapper 的姿势，你可以根据业务复杂度选择。以下 MySQL 与 Elasticsearch 示例应使用各自的数据源和 Mapper，不能让同一 Session 自动切换数据库。
 
 #### 方式一：纯 Java 构建
 
@@ -147,7 +153,7 @@ public interface UserMapper extends BaseMapper<UserInfo> {
         return this.query()
                    .eq(UserInfo::getStatus, "ENABLE")
                    .gt(UserInfo::getAge, minAge)
-                   .list();
+                   .queryForList();
     }
 }
 ```
@@ -165,7 +171,7 @@ public interface UserMapper extends BaseMapper<UserInfo> {
     List<UserInfo> findByAge(@Param("age") int age);
 
     // 混合使用：Elasticsearch 使用 JSON DSL
-    @Query("{\"bool\": {\"filter\": [ {\"term\": {\"age\": #{age}}} ]}}")
+    @Query("POST /user_info/_search {\"query\": {\"term\": {\"age\": #{age}}}}")
     List<UserInfo> searchByAge(@Param("age") int age);
     
     // 同时也支持 @Insert, @Update, @Delete 等标准注解
@@ -180,6 +186,7 @@ public interface UserMapper extends BaseMapper<UserInfo> {
 
 **Java 接口（定义行为）：**
 ```java
+@RefMapper("mapper/user-mapper.xml")
 public interface UserMapper {
     // 这是一个业务意图：统计年龄分布
     List<Map<String, Object>> groupByAge(@Param("minAge") int minAge);
@@ -187,7 +194,7 @@ public interface UserMapper {
 ```
 
 **XML 实现（定义逻辑）：**
-这里展示了 dbVisitor 的强大之处：**在 XML 中写不同数据库的方言**。
+下面是二选一的 XML 语句片段，放入 namespace 指向上述接口的 `<mapper>` 中；同一个文件不能重复定义同名语句。Elasticsearch 聚合结果的结构不同于 SQL 分组行，应按聚合响应读取，参阅驱动手册。
 
 ```xml
 <!-- 如果是 MySQL -->
@@ -210,7 +217,7 @@ public interface UserMapper {
 这是 dbVisitor 的 **“逃生舱”**。当上层所有的抽象都无法满足你的特殊需求时，比如需要极致的性能优化、使用数据库特有的非标指令，或者集成 **QueryDSL** 等第三方框架，你可以退回到这层。
 
 #### 场景一：原生 SQL/Shell 透传
-直接下发数据库能识别的原生命令，无需任何转译。
+使用目标数据源的命令风格。NoSQL 适配器仍会解析受支持的命令并调用 SDK，不是任意 Shell/JavaScript 的透传执行器。
 
 ```java
 JdbcTemplate jdbc = new JdbcTemplate(connection);
@@ -244,8 +251,7 @@ if (conn.isWrapperFor(MongoClient.class)) {
 
 ### 1. 独立的双层适配能力
 dbVisitor 是 **One API + Driver**。
-即便你不打算替换现在的 MyBatis，你依然可以单独使用 dbVisitor 的 **JDBC Driver**。把它放入你的 Spring Boot + MyBatis 项目中，你的 MyBatis 立刻就具备了操作 MongoDB 和 Elasticsearch 的能力！
-这是一种“降维打击”般的兼容性。
+即便你不打算替换现在的 MyBatis，你依然可以单独使用 dbVisitor 的 **JDBC Driver**。把它放入你的 Spring Boot + MyBatis 项目中，可用 MyBatis 映射驱动支持的命令；依赖事务、Batch 或完整元数据的插件不能据此视为兼容。
 
 ### 2. 底层架构的高度统一
 如果你尝试过在项目中混用 MyBatis 和 Spring JDBC，你会发现割裂感很强：
@@ -259,7 +265,7 @@ JDBC Template、LambdaQuery、Mapper XML 全部共享同一套 **TypeHandler 机
 ### 3. 生态框架的无关性
 
 这是 dbVisitor 区别于 Spring Data 或 MyBatis-Plus 的另一个重要特征。
-dbVisitor 的核心不依赖 Spring，也不依赖任何 Web 容器。它基于纯 Java (JDK 8+) 和 JDBC 标准构建。
+dbVisitor 的核心不依赖 Spring，也不依赖任何 Web 容器。它基于纯 Java（6.7.1 起要求 JDK 17+） 和 JDBC 标准构建。
 这意味着：
 
 * 你可以在 **Spring Boot** 中用它。

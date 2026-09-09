@@ -120,7 +120,7 @@ User user3 = new User();
 
 LambdaTemplate lambda = ...
 int result = lambda.insert(User.class)
-                   .applyEntity(user1, user2, user3);               // varargs
+                   .applyEntity(user1, user2, user3)               // varargs
                  //.applyEntity(new User[]{user1, user2, user3});  // array
                  //.applyEntity(Arrays.asList(user1, user2, user3));// List
                    .executeSumResult();
@@ -135,7 +135,7 @@ int result = lambda.insert(User.class)
 Inserting duplicate data into a database is usually unintentional, and a primary key conflict can be troublesome. A common workaround is to query first and then decide whether to update or insert.
 
 ```java title='Common approach'
-if (adapter.queryByEntity(User.class)
+if (lambda.query(User.class)
             .eq(User::getId,user.getId())
             .queryForCount() > 0) {
     // update
@@ -156,7 +156,7 @@ Using these database features requires two prerequisites:
 dbVisitor provides three conflict strategies to avoid redundant code logic in write operations:
 - Error (Into): uses regular `INSERT INTO` to write data.
 - Replace (Update): uses Merge or ON CONFLICT and other database-specific syntax to auto-update on write conflict.
-- Ignore (Ignore): uses Ignore or other database-provided statements to silently skip on write error.
+- Ignore (Ignore): uses Ignore or other database-provided statements to skip conflicting records according to database semantics, not suppress all write errors.
 
 ### Default Strategy (INTO)
 

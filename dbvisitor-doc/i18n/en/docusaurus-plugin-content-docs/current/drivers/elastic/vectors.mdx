@@ -96,7 +96,7 @@ public class ElasticVectorExample {
 }
 ```
 
-L2 range means distance below 0.8, combined with scalar eq conditions. Elastic7Dialect COSINE ranges use `1 - cosineSimilarity < threshold`, not similarity above the same value. DSL generation and server execution must be accepted separately; successful Java compilation does not prove vector functions work in every script context.
+L2 range means distance below 0.8, combined with scalar eq conditions. Elastic7Dialect COSINE ranges use `1 - cosineSimilarity < threshold`, not similarity above the same value. Whether vector functions are available in sort or filter scripts depends on the target ES version and script context. For exact scoring, use the native script_score example below.
 
 ## Native DSL and Prepared Vectors {#native}
 
@@ -137,7 +137,9 @@ String dsl = "POST /product_index/_search {"
 try (PreparedStatement ps = conn.prepareStatement(dsl)) {
     ps.setObject(1, Arrays.asList(0.1, 0.2, 0.3));
     try (ResultSet rs = ps.executeQuery()) {
-        while (rs.next()) System.out.println(rs.getString("_DOC"));
+        while (rs.next()) {
+            System.out.println(rs.getString("_DOC"));
+        }
     }
 }
 ```
@@ -146,7 +148,7 @@ try (PreparedStatement ps = conn.prepareStatement(dsl)) {
 
 ## Result Mapping and Vector Reads {#results}
 
-Search exposes _ID and _DOC (raw _source JSON); preRead=true additionally expands fields. Current parseHit serializes nested objects/arrays to JSON strings, so getObject("embedding") does not directly return a List or primitive array. Keep the required fields in _source; with pre-read disabled, decode the vector from _DOC.
+Search exposes _ID and _DOC (raw _source JSON); preRead=true additionally expands fields. The driver serializes nested objects/arrays to JSON strings, so getObject("embedding") does not directly return a List or primitive array. Keep the required fields in _source; with pre-read disabled, decode the vector from _DOC.
 
 ```java
 try (Statement stmt = conn.createStatement();
@@ -203,21 +205,7 @@ L2 ranges produce this script-filter shape:
 
 Current sorting maps missing vectors to zero; ensure vectors exist and verify ordering before use. For explicitly supported exact scoring, prefer the complete script_score example above. See [Elastic7Dialect](https://github.com/zycgit/dbvisitor/blob/main/dbvisitor/src/main/java/net/hasor/dbvisitor/dialect/provider/Elastic7Dialect.java) and [Elastic8Dialect](https://github.com/zycgit/dbvisitor/blob/main/dbvisitor/src/main/java/net/hasor/dbvisitor/dialect/provider/Elastic8Dialect.java) for the implementation.
 
-## Tests and Performance {#validation}
-
-Offline adapter regression from the repository root:
-
-```bash
-./gradlew :jdbc-elastic:test --no-daemon --offline
-```
-
-Live ES7 contracts are under dbvisitor-test's realdb/elastic7 and require environment configuration:
-
-```bash
-./gradlew :dbvisitor-test:test -Pnxn.env=elastic7 --no-daemon
-```
-
-Ordinary adapter tests exclude realdb. Compilation, offline tests and real-server behavior are distinct.
+## Performance and Configuration {#validation}
 
 - For large datasets, evaluate approximate KNN while measuring recall and indexing cost; it is not unconditionally the fastest choice.
 - num_candidates=100 and k=10 are examples, not a fixed tuning ratio. Measure recall, latency, memory and shard-count effects.

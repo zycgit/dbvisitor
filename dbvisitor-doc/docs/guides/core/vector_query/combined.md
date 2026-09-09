@@ -7,6 +7,8 @@ description: 将普通字段条件、KNN 排序和距离范围过滤组合成业
 
 # 组合查询
 
+以下示例以 PostgreSQL pgvector 为背景。Milvus 等数据源有不同的度量与组合限制，应阅读相应驱动手册。
+
 组合查询用于把普通字段条件和向量查询放在同一个查询中。常见做法是先用业务字段缩小候选集，再使用 `orderBy*` 做近邻排序，或使用 `vectorBy*` 做距离范围过滤。
 
 ## 适合场景
@@ -85,7 +87,7 @@ WHERE category = ?
 
 ## 动态组合条件
 
-构造器 API 的条件方法可以按 boolean 参数动态控制是否进入 SQL。
+构造器 API 的条件方法可以按 boolean 参数动态控制是否进入 SQL。下例假定向量字段配置了 `PgVectorTypeHandler`，`request.getVector()` 返回 `List<Float>`；范围条件通过字段的 TypeHandler 绑定参数。
 
 ```java title='动态组合'
 boolean hasCategory = request.getCategory() != null;
@@ -100,11 +102,14 @@ List<ProductVector> rows = lambda.query(ProductVector.class)
 固定 Top-K 查询也可以动态选择是否追加向量排序：
 
 ```java title='动态 KNN'
-List<ProductVector> rows = lambda.query(ProductVector.class)
-        .eq(ProductVector::getCategory, "book")
-        .orderByL2(ProductVector::getEmbedding, target)
-        .initPage(10, 0)
-        .queryForList();
+var query = lambda.query(ProductVector.class)
+        .eq(ProductVector::getCategory, "book");
+if (target != null) {
+    query.orderByL2(ProductVector::getEmbedding, target);
+} else {
+    query.orderByAsc(ProductVector::getId);
+}
+List<ProductVector> rows = query.initPage(10, 0).queryForList();
 ```
 
 ## 选择组合方式

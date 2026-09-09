@@ -20,7 +20,7 @@ SELECT ... LIMIT ?, ?
 SELECT ... LIMIT ?
 ```
 
-参数顺序：`LIMIT offset, limit`（注意：MySQL 的 LIMIT 语法是 `LIMIT offset, count`，不是 `LIMIT count OFFSET offset`）。
+参数顺序：`LIMIT offset, limit`（这是本方言选择的写法；MySQL 也接受 `LIMIT count OFFSET offset`）。
 
 ## Count SQL
 
@@ -58,12 +58,12 @@ MySQL 不强制要求配置主键列即可使用 Ignore/Update 策略。冲突�
 
 ## 空值排序
 
-支持 `ORDER BY ... NULLS FIRST` / `NULLS LAST`。
+通过 `OrderNullsStrategy` 控制空值位置。MySQL 方言生成 `ORDER BY name IS NULL DESC, name`（空值最前）或 `ORDER BY name IS NULL ASC, name`（空值最后），不是生成 `NULLS FIRST` / `NULLS LAST`。
 
 ## 关键差异总结
 
-- 唯一使用反引号的数据库
-- 是唯一不要求主键即可使用 Ignore/Update 的数据库
+- 方言使用反引号引用标识符
+- Ignore/Update 不要求实体映射提供主键列
 - `LIMIT offset, count` 语义（offset 在前，count 在后）
 - 不支持序列
 - 不支持向量搜索

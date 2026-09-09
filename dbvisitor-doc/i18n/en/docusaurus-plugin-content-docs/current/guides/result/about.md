@@ -16,7 +16,7 @@ dbVisitor provides multiple ways to process query results. Most scenarios are ha
 |---------|---------|------|
 | Return a list of entity objects | `queryForList(User.class)` | Automatic conversion based on object mapping |
 | Return a single entity object | `queryForObject(User.class)` | Use when there is only one record |
-| No entity class needed, use Map | `queryForMapList()` / `queryForMap()` | Column name → Map key |
+| No entity class needed, use Map | JdbcTemplate `queryForList(sql)` / `queryForMap(sql)` | Column name → Map key |
 | Fetch only one column's values | `queryForList(String.class)` | Single-column result set |
 | Fetch only one value | `queryForObject(Integer.class)` | COUNT results, etc. |
 | Process row by row without collecting | `RowCallbackHandler` | Streaming / large data volumes |
@@ -50,7 +50,7 @@ int count = jdbc.queryForObject("select count(*) from users", Integer.class);
 
 ## Row-by-Row Processing (for Large Data Volumes)
 
-Use `RowCallbackHandler` to process rows one by one without keeping results in memory:
+`RowCallbackHandler` consumes rows without collecting a result list in the framework. The driver may still buffer results; configure its cursor or fetchSize for large queries and avoid accumulating data in the callback:
 
 ```java
 jdbc.query("select * from users", (RowCallbackHandler) (rs, rowNum) -> {
@@ -109,8 +109,8 @@ List<User> users = lambda.query(User.class)
 
 // BaseMapper pagination (returns PageResult with statistics)
 PageResult<User> result = mapper.pageBySample(sample, page);
-int totalRecords = result.getTotalCount();
-int totalPages = result.getTotalPage();
+long totalRecords = result.getTotalCount();
+long totalPages = result.getTotalPage();
 ```
 
 ## Further Reading

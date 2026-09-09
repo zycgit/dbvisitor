@@ -17,7 +17,8 @@ LambdaTemplate lambda = ...
 List<User> result = null;
 result = lambda.query(User.class)
                .ge(User::getId, 100)
-               .orderBy(User::getName);//默认排序（order by name）
+               .orderBy(User::getName) // 默认排序（order by name）
+               .queryForList();
              //.asc(User::getName);    //升序   （order by name asc）
              //.desc(User::getName);   //降序   （order by name desc）
 
@@ -34,7 +35,8 @@ List<User> result = null;
 result = lambda.query(User.class)
                .ge(User::getId, 100)
                .orderBy(User::getName)
-               .orderBy(User::getAge);
+               .orderBy(User::getAge)
+               .queryForList();
 
 // 对应的 SQL
 //   select * from users where id >= 100 order by name, age;
@@ -48,7 +50,8 @@ LambdaTemplate lambda = ...
 List<User> result = null;
 result = lambda.query(User.class)
                .ge(User::getId, 100)
-               .orderBy(User::getName, OrderType.DEFAULT, OrderNullsStrategy.FIRST);
+               .orderBy(User::getName, OrderType.DEFAULT, OrderNullsStrategy.FIRST)
+               .queryForList();
 
 // 对应的 SQL(MySQL)
 //   select * from users where id >= 100 order by name is null desc, name
@@ -60,7 +63,8 @@ LambdaTemplate lambda = ...
 List<User> result = null;
 result = lambda.query(User.class)
                .ge(User::getId, 100)
-               .orderBy(User::getName, OrderType.DEFAULT, OrderNullsStrategy.LAST);
+               .orderBy(User::getName, OrderType.DEFAULT, OrderNullsStrategy.LAST)
+               .queryForList();
 
 // 对应的 SQL(MySQL)
 //   select * from users where id >= 100 order by name is null asc, name

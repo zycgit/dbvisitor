@@ -37,10 +37,10 @@ public interface UserMapper {
 <!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
         "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
 <mapper namespace="net.example.mapper.UserMapper">
-    <select id="listUsers" resultMap="user_resultMap">
+    <select id="listUsers" resultType="net.example.dto.User">
         select * from users
         where 1 = 1
-        @{and, name is not null, "name like concat('%', #{name}, '%')"}
+        @{and, name like concat('%', #{name}, '%')}
     </select>
 </mapper>
 ```
@@ -78,7 +78,7 @@ List<User> users = session.queryStatement("net.example.mapper.UserMapper.listUse
 通过传递 `Page` 参数进行分页查询。BaseMapper 和 Session 都支持带分页的 `queryStatement`。
 
 ```java title='分页查询（返回 List）'
-PageObject page = PageObject.of(0, 20);
+Page page = PageObject.of(0, 20);
 BaseMapper<User> mapper = session.createBaseMapper(User.class);
 
 List<User> users = mapper.queryStatement(
@@ -88,7 +88,7 @@ List<User> users = mapper.queryStatement(
 ```
 
 ```java title='分页查询（返回 PageResult，仅 Session 支持）'
-PageObject page = PageObject.of(0, 20);
+Page page = PageObject.of(0, 20);
 PageResult<User> users = session.pageStatement(
         "net.example.mapper.UserMapper.listUsers",
         args,

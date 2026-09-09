@@ -19,9 +19,9 @@ dbVisitor 通过 [JDBC-Redis](../../drivers/redis/about) 驱动，基于 JDBC �
 | 分页 | 不支持 |
 | 批量写入 | 不支持 executeBatch |
 | 存储过程 | 不支持 |
-| 对象映射 | 不支持（通过 JSON 序列化间接支持对象读写） |
+| 结果映射 | 支持 RowMapper / 结果列映射；整个对象可通过 JSON TypeHandler 读写 |
 
-**不支持：** 构造器 API、通用 Mapper、对象映射、结果集映射、executeBatch、存储过程
+**不支持：** 构造器 API、BaseMapper、JDBC Batch、事务、存储过程
 
 ## 概念类比
 

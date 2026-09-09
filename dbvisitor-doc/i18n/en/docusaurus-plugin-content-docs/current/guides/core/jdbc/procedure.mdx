@@ -14,7 +14,9 @@ dbVisitor supports stored procedures with IN/OUT arguments. Common scenarios inc
 
 ## Execute a Stored Procedure {#exec}
 
-Example MySQL procedure that accepts one argument and returns one result set.
+Each section is an independent example; do not create same-named procedures twice. In the MySQL client, configure the delimiter for CREATE PROCEDURE, or send the complete definition in one JDBC call.
+
+This MySQL procedure accepts one argument and returns one result set.
 
 ```sql title='1. MySQL procedure'
 create procedure proc_select_table(in userName varchar(200))
@@ -24,22 +26,22 @@ end;
 ```
 
 ```sql title='2. Compose the call'
-➊ {call proc_select_table(?)} ➋ @{resultSet,name=res,javaType=net.demo.UserDTO}
+{call proc_select_table(?)} @{resultSet,name=res,javaType=net.demo.UserDTO}
 ```
 
-- ➊ Calls `proc_select_table` with positional argument binding.
-- ➋ Uses the [RESULT rule](../../rules/result_rule#result-set) to map the result set to `UserDTO`.
+- Calls `proc_select_table` with positional argument binding.
+- Uses the [RESULT rule](../../rules/result_rule#result-set) to map the result set to `UserDTO`.
 
 ```java title='3. Execute'
 JdbcTemplate jdbc = ...
-Map<String, Object> res = jdbc.call(➊ "{call proc_select_table(?)} @{resultSet,name=res,javaType=net.demo.UserDTO}",
-                                    ➋ "Kevin");
-List<UserDTO> result = (List<UserDTO>)res.get("res"); ➌
+Map<String, Object> res = jdbc.call("{call proc_select_table(?)} @{resultSet,name=res,javaType=net.demo.UserDTO}",
+                                    "Kevin");
+List<UserDTO> result = (List<UserDTO>)res.get("res");
 ```
 
-- ➊ Final SQL with rule applied.
-- ➋ Input argument.
-- ➌ Retrieve the result set named `res`.
+- Final SQL with rule applied.
+- Input argument.
+- Retrieve the result set named `res`.
 
 :::info
 If the procedure emits multiple result sets, add more **[RESULT rules](../../rules/result_rule#result-set)** to handle each one.
@@ -49,9 +51,9 @@ If the procedure emits multiple result sets, add more **[RESULT rules](../../rul
 
 ```java title='Execute with named argument'
 JdbcTemplate jdbc = ...
-Map<String, Object> res = jdbc.call(➊ "{call proc_select_table(:userName)} @{resultSet,name=res,javaType=net.demo.UserDTO}",
-                                    ➋ CollectionUtils.asMap("userName", "Kevin"));
-List<UserDTO> result = (List<UserDTO>)res.get("res"); ➌
+Map<String, Object> res = jdbc.call("{call proc_select_table(:userName)} @{resultSet,name=res,javaType=net.demo.UserDTO}",
+                                    CollectionUtils.asMap("userName", "Kevin"));
+List<UserDTO> result = (List<UserDTO>)res.get("res");
 ```
 
 Named parameters replace `?` placeholders with names such as `:userName`.
@@ -63,28 +65,29 @@ See **[Arguments](../../args/about)** for more binding styles.
 ## OUT Arguments {#outp}
 
 ```sql title='1. MySQL procedure with OUT argument'
-create procedure proc_select_table(in userName varchar(200), ➊
-                                   out outName varchar(200)) ➋ -- OUT arg
+create procedure proc_select_table(in userName varchar(200), out outName varchar(200)) -- OUT parameter
 begin
-    select * from test_user where name = userName; ➌
+    select * from test_user where name = userName;
     set outName = concat(userName,'-str');
 end;
 ```
 
 ```text title='2. Compose the call'
 {
- call proc_select_table(➊ #{userName,jdbcType=varchar},
-                        ➋ #{outName, mode=out,jdbcType=varchar})
-} ➌ @{resultSet,name=res,javaType=net.demo.UserDTO}
+ call proc_select_table(#{userName,jdbcType=varchar},
+                        #{outName, mode=out,jdbcType=varchar})
+} @{resultSet,name=res,javaType=net.demo.UserDTO}
 ```
 
 ```java title='3. Execute'
 JdbcTemplate jdbc = ...
+Map<String, Object> args = CollectionUtils.asMap("userName", "Kevin");
 Map<String, Object> res = jdbc.call(
-        "{call proc_select_table(#{userName,jdbcType=varchar}, " +
-        "                        #{outName, mode=out,jdbcType=varchar})" +
-        "} @{resultSet,name=res,javaType=net.demo.UserDTO}",
-        CollectionUtils.asMap("userName", "Kevin"));
+                "{call proc_select_table(#{userName,jdbcType=varchar}, " +
+                "                        #{outName, mode=out,jdbcType=varchar})" +
+                "} @{resultSet,name=res,javaType=net.demo.UserDTO}",
+        args
+);
 
 String outName = (String)res.get("outName");
 List<UserDTO> result = (List<UserDTO>)res.get("res");
@@ -94,8 +97,8 @@ List<UserDTO> result = (List<UserDTO>)res.get("res");
 
 ```oracle title='1. Oracle procedure returning a cursor'
 create or replace procedure proc_out_cursor(
-    ➊ userName in varchar2,
-    ➋ tableCursor out sys_refcursor)
+    userName in varchar2,
+    tableCursor out sys_refcursor)
 as
 begin
     open tableCursor for select * from test_user where name = userName;
@@ -104,17 +107,18 @@ end;
 
 ```text title='2. Compose the call'
 {
- call proc_out_cursor(➊ #{userName,jdbcType=varchar},
-                      ➋ #{tableCursor,mode=cursor,javaType=net.demo.UserDTO})
+ call proc_out_cursor(#{userName,jdbcType=varchar},
+                      #{tableCursor,mode=cursor,javaType=net.demo.UserDTO})
 }
 ```
 
 ```java title='3. Execute'
 JdbcTemplate jdbc = ...
+Map<String, Object> args = CollectionUtils.asMap("userName", "Kevin");
 Map<String, Object> res = jdbc.call(
-        "{call proc_out_cursor(#{userName,jdbcType=varchar}," +
-        "                      #{tableCursor,mode=cursor,javaType=net.demo.UserDTO})" +
-        "}", CollectionUtils.asMap("userName", "Kevin"));
+                "{call proc_out_cursor(#{userName,jdbcType=varchar}," +
+                "                      #{tableCursor,mode=cursor,javaType=net.demo.UserDTO})" +
+                "}", args);
 
 List<UserDTO> result = (List<UserDTO>)res.get("tableCursor");
 ```

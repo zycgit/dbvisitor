@@ -35,10 +35,10 @@ SELECT * FROM "users" WHERE "name" = ?
 | 策略 | SQL 语法 | 主键是否必须 |
 |------|---------|:----------:|
 | Into | `INSERT INTO ... VALUES (...)` | 否 |
-| Ignore | `MERGE INTO ...` | 是 |
-| Update | `MERGE INTO ...` | 是 |
+| Ignore | `MERGE INTO ... USING (VALUES ...) ... WHEN NOT MATCHED THEN INSERT ...` | 是 |
+| Update | `MERGE INTO ... KEY (...) VALUES (...)` | 是 |
 
-H2 的 MERGE 语法与 Oracle/DB2 不同：使用 H2 自有的 `MERGE INTO` 语法。
+Ignore 使用带匹配条件的 MERGE，只插入未匹配记录；Update 使用 H2 的 `MERGE INTO ... KEY (...) VALUES (...)` 写法。
 
 ## Generated Key 策略
 
@@ -57,15 +57,15 @@ VALUES NEXT VALUE FOR user_seq
 
 ## 测试场景建议
 
-- 本地开发推荐使用 `-Dnxn.env=h2`（无需 Docker）
+- 本地开发可使用 `jdbc:h2:mem:demo;DB_CLOSE_DELAY=-1` 创建内存数据库
 - H2 兼容模式可模拟 MySQL/PostgreSQL 行为
 - 但注意分页语法与真实数据库可能存在差异
-- H2 的 `IDENTITY` 与 MySQL `AUTO_INCREMENT` 行为基本一致
+- 不要用 H2 的兼容模式替代目标数据库的类型、事务和 SQL 行为验证
 
 ## 关键差异总结
 
 - 分页语法与 PostgreSQL 一致（`LIMIT ? OFFSET ?`）
-- MERGE 语法为 H2 自有，与 Oracle/DB2 不同
+- Ignore 和 Update 使用不同的 MERGE 形式
 - 支持序列（与 DB2 语法一致：`VALUES NEXT VALUE FOR`）
 - 有回填时统一逐条执行
-- 最推荐的本地测试数据库
+- 支持内存数据库，适合无需独立服务的本地开发

@@ -58,7 +58,7 @@ List<User> users = mapper.listBySample(sample);
 
 // Switch to Fluent API when conditions get complex
 List<User> result = mapper.query()
-        .like(User::getName, "A%")
+        .likeRight(User::getName, "A")
         .ge(User::getAge, 18)
         .queryForList();
 ```
@@ -78,7 +78,7 @@ public interface UserMapper {
 <mapper namespace="com.example.UserMapper">
     <select id="listUsers" resultType="com.example.User">
         select * from users
-        where @{and, status = :status}
+        @{and, status = :status}
               @{and, name like concat(:name, '%')}
     </select>
 </mapper>

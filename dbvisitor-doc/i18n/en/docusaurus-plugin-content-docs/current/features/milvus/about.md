@@ -49,4 +49,4 @@ For complete JdbcTemplate, Builder API, BaseMapper, Annotation, and Mapper File 
 
 For general API usage, see [Core API](../../guides/overview). For vector query API, see [Vector Queries](../../guides/core/vector_query/about).
 
-Current source requires Java 17+, SDK 2.6.22 and a minimum Milvus 2.6.2 baseline. See the [release and support matrix](../../drivers/milvus/compatibility.md) for feature requirements, published versions and validation scope, and [typed values and generated keys](../../drivers/milvus/usecase.mdx#typed-values) for JDBC examples.
+Current source requires Java 17+, SDK 2.6.22 and a minimum Milvus 2.6.2 baseline. See the [Versions and Support](../../drivers/milvus/compatibility.md) for version and feature requirements, and [typed values and generated keys](../../drivers/milvus/usecase.mdx#typed-values) for JDBC examples.

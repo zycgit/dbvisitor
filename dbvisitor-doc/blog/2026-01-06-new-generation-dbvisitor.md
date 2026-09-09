@@ -1,7 +1,7 @@
 ---
 slug: new-generation-dbvisitor
 title: 新一代 Java 数据访问库：dbVisitor
-description: 数据的存储形式从单一的关系型数据库演进到了多元化时代（NoSQL, NewSQL, AI Vector 等），数据访问层依然停留在旧时代。dbVisitor 的出世旨在定义“新一代”数据访问库的标准：One APIs Access Any DataBase。
+description: 数据的存储形式从单一的关系型数据库演进到了多元化时代（NoSQL, NewSQL, AI Vector 等），数据访问层依然停留在旧时代。dbVisitor 的出世旨在定义“新一代”数据访问库的标准：One API, Access Multiple Databases。
 authors: [ZhaoYongChun]
 tags: [dbVisitor, ORM, JDBC, NoSQL]
 language: zh-cn
@@ -12,6 +12,10 @@ language: zh-cn
 新一代的挑战不再仅仅是如何优雅地写 SQL，而是如何用统一的方式访问那些不再仅仅存储在关系型数据库中的数据。
 
 <!-- truncate -->
+
+:::note[能力范围]
+统一的是调用方式，不是数据库语义。构造器需对应方言支持，原生命令需位于适配器支持范围；接入 ORM、连接池等组件前请核对其依赖的 JDBC 方法。参阅[功能矩阵](../docs/features/support)与[JDBC 限制](../docs/drivers/limited)。
+:::
 
 ## 一、老旧的一代
 
@@ -41,8 +45,8 @@ language: zh-cn
 
 2.  **中间件对 JDBC 的态度**：
     JDBC 本是 Java 界最成功的抽象之一，但它被打上了深深的关系型数据库烙印。
-    *   **Elasticsearch**：曾经尝试提供 JDBC 支持，但限制诸多（不支持嵌套对象复杂查询），甚至一度计划废弃 SQL 插件。
-    *   **MongoDB**：虽然有商业版的 JDBC 驱动，但社区生态中大家更习惯用 MongoTemplate 或原声 BSON API。
+    *   **Elasticsearch**：曾经尝试提供 JDBC 支持，但限制诸多（不支持嵌套对象复杂查询），其 SQL 能力也不能等同于所有 Query DSL 功能。
+    *   **MongoDB**：虽然有商业版的 JDBC 驱动，但社区生态中大家更习惯用 MongoTemplate 或原生 BSON API。
 
 3.  **API 接口层面的持续割裂**：
     尽管有 Spring Data 这样的封装，但底层的割裂依然存在。
@@ -52,13 +56,13 @@ language: zh-cn
     
     这种割裂不仅增加了学习成本，更让架构设计变得复杂。我们看似有了一堆工具，但依然没有一个真正的 “One API” 来统一所有数据访问。
 
-## 三、One APIs Access Any DataBase
+## 三、One API, Access Multiple Databases
 
 既然已经走向多元化，数据访问层（DAL）也必须进化。 **新一代数据访问库的使命，应当是让数据访问重新实现标准化和统一化。**
 
 我们不再应该问 “这是什么数据库？”，而应该问 “我想在这个数据源上做什么操作？”。
 
-继承 JDBC 和 SQL 的普世精神，但打破其对关系型数据库的枷锁，这就是新一代数据访问库的目标。将其概括为一句就是：**"One APIs Access Any DataBase"**。
+继承 JDBC 和 SQL 的普世精神，但打破其对关系型数据库的枷锁，这就是新一代数据访问库的目标。将其概括为一句就是：**"One API, Access Multiple Databases"**。
 
 ## 四、 技术选择与可行路径
 
@@ -95,7 +99,7 @@ language: zh-cn
 
 ## 五、 新一代数据访问库
 
-我认为 “新一代 Java 数据访问库” 应该具是以 **One APIs Access Any DataBase** 为核心愿景，通过标准化的 API 屏蔽底层数据源的差异，为开发者提供统一、简单、高效的数据操作体验为目标。
+我认为 “新一代 Java 数据访问库” 应该具是以 **One API, Access Multiple Databases** 为核心愿景，通过标准化的 API 屏蔽底层数据源的差异，为开发者提供统一、简单、高效的数据操作体验为目标。
 
 它不应再区分“这是 ORM”还是“这是 Client”，它就是应用通往数据的统一大门。
 
@@ -105,18 +109,18 @@ language: zh-cn
 
 ### 1. API访问库：提供统一 API
 
-![双层适配架构图](../static/img/blog/one-api2.jpg)
+![双层适配架构图](../static/img/double.png)
 
 dbVisitor 的数据访问层不依赖于具体的 SQL 语法，而是提供高度抽象的 API。例如：查询构造器
 ```java
 // 无论是 MySQL 还是 MongoDB，代码看起来都是一样的
-lambdaTemplate.lambdaQuery(User.class)
+lambdaTemplate.query(User.class)
     .eq(User::getAge, 18)
-    .list();
+    .queryForList();
 ```
 这一层负责屏蔽 Java 对象与数据模型之间的映射差异。
 
-在此过程中，**方言（Dialect）** 扮演了关键的翻译官角色。它负责根据上层统一 API 的调用行为（如 `.list()`, `.eq()`），生成目标数据源能够理解的 **专有 DSL**（如 MySQL 的 SQL、MongoDB 的 BSON Command、Elasticsearch 的 JSON DSL）。
+在此过程中，**方言（Dialect）** 扮演了关键的翻译官角色。它负责根据上层统一 API 的调用行为（如 `.queryForList()`, `.eq()`），生成目标数据源能够理解的 **专有 DSL**（如 MySQL 的 SQL、MongoDB 的 BSON Command、Elasticsearch 的 JSON DSL）。
 
 这些生成的 DSL 随后会被下发到 **JDBC Driver 适配层**，由对应的驱动执行器完成最终的数据交互。这种机制确保了业务代码的纯净性，同时保留了对底层特性的精确控制。
 
@@ -161,7 +165,7 @@ dbVisitor 的解法是引入一个轻量级的驱动适配器框架。它将 JDB
 
 ### 1. 统一的 CRUD 体验
 
-无论底层是 **MySQL**、**MongoDB** 还是 **Elasticsearch**，开发者都可以使用完全一致的 API 进行数据操作。
+无论底层是 **MySQL**、**MongoDB** 还是 **Elasticsearch**，开发者都可以使用相同风格的 API 进行受支持的数据操作；实体映射、索引、刷新可见性和冲突行为仍需分别配置。
 
 ```java
 // 初始化 (仅需更改 Connection 创建方式)
@@ -183,7 +187,7 @@ template.insert(UserInfo.class)
 // 自动适配：MySQL WHERE / Mongo Filter / ES BoolQuery
 List<UserInfo> list = template.query(UserInfo.class)
     .eq(UserInfo::getName, "dbVisitor")
-    .list();
+    .queryForList();
 
 // 3. 更新数据 (Update)
 template.update(UserInfo.class)
@@ -228,7 +232,7 @@ if (conn.isWrapperFor(RestClient.class)) {
 *   **NoSQL 支持**：
     *   **Elasticsearch**：支持复杂的索引查询和聚合。
     *   **MongoDB**：支持文档的 CRUD 及复杂过滤。
-    *   **Redis**：将 Redis 抽象为数据表进行操作。
+    *   **Redis**：通过命令、JDBC 和 Mapper 访问键值数据，不提供 Lambda 表查询方言。
 
 在 dbVisitor 的世界里，开发者不再需要为了引入一个新的中间件而重构整个数据访问层代码。**One API, Access Any DataBase**，这不仅仅是一句口号。
 

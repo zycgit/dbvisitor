@@ -20,7 +20,7 @@ select * from users where id > #{id} and name = #{name}
 ```java title='例1：使用 Map 作为参数容器'
 Map<String, Object> args = CollectionUtils.asMap(
         "id", 2,
-        "Dave", true
+        "name", "Dave"
 );
 jdbcTemplate.queryForList("select * from users where id > :id and name = :name", args);
 ```
@@ -43,7 +43,7 @@ jdbcTemplate.queryForList("select * from users where id > :id and name = :name",
 
 ## OGNL 取值 {#ognl}
 
-三种命名参数写法（`:name`、`&name`、`#{...}`）均支持 OGNL 表达式，可以进行嵌套属性访问、数组/集合索引、方法调用。
+命名参数使用 OGNL 取值，支持嵌套属性、数组/集合索引等。复杂表达式使用 `#{...}` 包裹，避免表达式中的空格或运算符与 SQL 边界混淆。表达式应由应用定义，不接受用户提交的任意 OGNL 文本。
 
 ### 嵌套属性
 
@@ -54,7 +54,7 @@ jdbcTemplate.queryForList("select * from users where id > :id and name = :name",
     "cfg_id": {
       "array": [
         {"age": 10},
-        {"age": 40}  <<< 使用该属性作为参数
+        {"age": 40}
       ]
     }
   }

@@ -8,11 +8,12 @@ description: 基于 dbvisitor-driver 的 JDBC 驱动适配器，将非关系型�
 
 JDBC 驱动适配器是一组基于 `dbvisitor-driver` 框架实现的 JDBC 驱动，它们将非关系型数据库以标准 JDBC 接口形式接入。
 
-每个适配器都是独立的 JDBC 驱动，可以在任何支持 JDBC 的框架中使用（如 Spring JDBC、MyBatis、dbVisitor 等），也可以直接通过原生 JDBC API 使用。
+每个适配器都是独立的 JDBC 驱动，可以直接通过 JDBC API 使用，也可接入 Spring JDBC、MyBatis、dbVisitor 等框架。适配器支持的是各数据源的命令和部分 JDBC 接口；接入其他框架时，应确认其使用的 SQL、元数据和事务能力在[支持范围](./limited)内。
 主要解决了以下核心问题：
+
 - 简化驱动实现：通过抽象 JDBC 接口的复杂性，使开发者能够更轻松地为各种数据源实现 JDBC 兼容层。
 - 非关系型数据库集成：允许非关系型数据库（NoSQL）以标准化的 JDBC 接口形式被访问。
-- 统一接入：通过标准化 JDBC 接口可以与任何基于 JDBC 的框架协同工作，简化数据库访问操作。
+- 统一接入：复用 JDBC 的连接、参数绑定和结果读取方式，减少访问不同数据源时的接口差异。
 
 ## 使用指引
 

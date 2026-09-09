@@ -35,7 +35,7 @@ public class UserResultSetExtractor implements ResultSetExtractor<Map<Integer, S
 // Use query() method; return value is determined by the Extractor generic type
 Map<Integer, String> result = jdbc.query("select * from users", userExtractor);
 // With arguments
-Map<Integer, String> result = jdbc.query("select * from users where age > ?", 18, userExtractor);
+Map<Integer, String> filtered = jdbc.query("select * from users where age > ?", 18, userExtractor);
 ```
 
 ```java title='Example: Declarative API'

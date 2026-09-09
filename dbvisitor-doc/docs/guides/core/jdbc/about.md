@@ -7,7 +7,7 @@ description: 基于 SQL 字符串的数据库操作封装，自动处理连接�
 
 # 5.1 编程式 API
 
-`JdbcTemplate` 是 dbVisitor 专门为 **SQL 字符串** 场景设计的数据库操作封装。它是无状态的，可随时创建和销毁。
+`JdbcTemplate` 是 dbVisitor 专门为 **SQL 字符串** 场景设计的数据库操作封装。可以配置数据源和查询选项并重复使用。并发使用前应完成配置；不要在多个线程之间共享同一个 JDBC Connection。
 
 ## 先看场景
 
@@ -27,7 +27,7 @@ JdbcTemplate jdbc = new JdbcTemplate(dataSource);
 List<Map<String, Object>> rows = jdbc.queryForList("select * from users where age > ?", 18);
 
 // 更新
-int affected = jdbc.executeUpdate("update users set name = ? where id = ?", "alice", 1);
+int affected = jdbc.executeUpdate("update users set name = ? where id = ?", new Object[] { "alice", 1 });
 ```
 
 :::tip[提示]

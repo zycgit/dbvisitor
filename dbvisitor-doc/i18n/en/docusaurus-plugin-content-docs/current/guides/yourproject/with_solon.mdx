@@ -30,7 +30,7 @@ Solon is a lightweight Java application framework that provides dependency injec
 
 ## Configuration Method
 
-First, add the dependency, current version: <Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>
+First, add the dependency, guide version: <Highlight color="rgb(227 17 108)">{Vars.docsVersion}</Highlight>
 
 ```xml title='Maven Dependency'
 <dependency>
@@ -91,7 +91,7 @@ public interface UserMapper extends BaseMapper<UserDTO> {
 
 **Relevant Classes**
 - net.hasor.dbvisitor.jdbc.JdbcOperations
-- net.hasor.dbvisitor.jdbc.core.JdbcTemplate
+- net.hasor.dbvisitor.jdbc.JdbcTemplate
 - net.hasor.dbvisitor.lambda.LambdaOperations
 - net.hasor.dbvisitor.lambda.LambdaTemplate
 - net.hasor.dbvisitor.transaction.TransactionTemplate
@@ -131,4 +131,4 @@ public class TxExample {
 | useDelimited | <TagGray/> Force adding identifier delimiters when generating table names/column names/index names. For example: set this property to solve the problem of column names being keywords. Default is `false` (not set). |
 | caseInsensitive | <TagGray/> Whether table/column names are case-sensitive. Default `true` (insensitive). |
 | ignoreNonExistStatement | <TagGray/> Whether to ignore missing mappings during the mapping of Mapper interface methods to XML. Default is `false`. Missing mappings will report an error. |
-| dialect | <TagGray/> **[Database Dialect](../../optionss/support#dialect)** used by default. |
+| dialect | <TagGray/> **[Database Dialect](../../features/support#dialect)** used by default. |

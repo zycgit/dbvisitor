@@ -16,7 +16,7 @@ dbVisitor 提供了多种方式处理查询结果。大部分场景用默认映�
 |---------|---------|------|
 | 返回实体对象列表 | `queryForList(User.class)` | 基于对象映射自动转换 |
 | 返回单个实体对象 | `queryForObject(User.class)` | 只有一条记录时使用 |
-| 不需要实体类，用 Map | `queryForMapList()` / `queryForMap()` | 列名 → Map key |
+| 不需要实体类，用 Map | JdbcTemplate 的 `queryForList(sql)` / `queryForMap(sql)` | 列名 → Map key |
 | 只取一列的值 | `queryForList(String.class)` | 单列结果集 |
 | 只取一个值 | `queryForObject(Integer.class)` | COUNT 结果等 |
 | 逐行处理，不收集 | `RowCallbackHandler` | 流式/大数据量 |
@@ -50,7 +50,7 @@ int count = jdbc.queryForObject("select count(*) from users", Integer.class);
 
 ## 逐行处理（适合大数据量）
 
-通过 `RowCallbackHandler` 逐行处理，结果不留在内存中：
+通过 `RowCallbackHandler` 逐行消费，框架不额外收集结果列表。驱动仍可能缓存结果；大查询还需配置驱动的游标或 fetchSize，并避免在回调中积攒数据：
 
 ```java
 jdbc.query("select * from users", (RowCallbackHandler) (rs, rowNum) -> {
@@ -109,8 +109,8 @@ List<User> users = lambda.query(User.class)
 
 // BaseMapper 分页（返回 PageResult 含统计信息）
 PageResult<User> result = mapper.pageBySample(sample, page);
-int totalRecords = result.getTotalCount();
-int totalPages = result.getTotalPage();
+long totalRecords = result.getTotalCount();
+long totalPages = result.getTotalPage();
 ```
 
 ## 深入阅读

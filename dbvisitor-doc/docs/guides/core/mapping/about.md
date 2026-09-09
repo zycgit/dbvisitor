@@ -57,7 +57,7 @@ public class User {
 | keyType | 说明 | 适用场景 |
 |---------|------|---------|
 | `KeyType.Auto` | 数据库自增/IDENTITY | MySQL AUTO_INCREMENT、PG SERIAL |
-| `KeyType.Sequence` | 数据库序列 | Oracle、PG sequence（搭配 `@KeySeq`） |
+| `KeyType.Sequence` | 数据库序列 | PostgreSQL、DB2、H2 等实现 SeqSqlDialect 的方言（搭配 `@KeySeq`） |
 | `KeyType.UUID32` | 应用侧生成 32 位 UUID | 无自增主键的数据库 |
 | `KeyType.UUID36` | 应用侧生成 36 位 UUID | 同上 |
 
@@ -112,10 +112,10 @@ private Date updateTime; // INSERT 和 UPDATE 都写入
 
 ### 驼峰命名
 
-如果列名遵循下划线命名（如 `user_name`），Java 属性使用驼峰命名（`userName`），可以开启自动映射：
+如果列名遵循下划线命名（如 `user_name`），Java 属性使用驼峰命名（`userName`），可以开启驼峰转换：
 
 ```java
-@Table(value = "user_info", autoMapping = true)
+@Table(value = "user_info", mapUnderscoreToCamelCase = true)
 public class UserInfo { ... }
 ```
 
@@ -126,8 +126,11 @@ public class UserInfo { ... }
 当列名大小写敏感或是数据库关键字时：
 
 ```java
-@Column(value = "\"order\"", nameSensitivity = true)
-private Integer order; // 列名是关键字，需要转义
+@Table(value = "orders", useDelimited = true)
+public class OrderRow {
+    @Column("order")
+    private Integer order; // 由方言为列名添加限定符
+}
 ```
 
 详细说明见 [名称敏感性](./name_sensitivity)。

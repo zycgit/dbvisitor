@@ -38,7 +38,7 @@ import TabItem from '@theme/TabItem';
 
 | 名称 | 类型 | 说明 |
 | :--- | :--- | :--- |
-| `name` | String | OUT 参数在结果集中的名称。 |
+| `name` | String | 该结果集在返回 Map 中的名称。 |
 | `javaType` | Class | 将结果集映射到的 Java 类型。详见 [对象映射](../core/mapping/about)。 |
 | `rowMapper` | RowMapper | 使用自定义 [RowMapper](../result/for_mapper) 处理映射。 |
 | `rowHandler` | RowCallbackHandler | 使用自定义 [RowCallbackHandler](../result/row_callback) 处理每一行。 |
@@ -65,7 +65,7 @@ import TabItem from '@theme/TabItem';
 
 ## DEFAULTRESULT 规则 {#default}
 
-`@{defaultResult}` 相当于 `@{resultSet}` 的全局默认配置。当一个查询返回多个结果集时，可以使用此规则避免为每个结果集重复配置。
+`@{defaultResult}` 相当于 `@{resultSet}` 的一次执行范围内默认配置。当一个查询返回多个结果集时，可以使用此规则避免为每个结果集重复配置。
 
 **语法**：
 `@{defaultResult, key1 = value1, key2 = value2}`

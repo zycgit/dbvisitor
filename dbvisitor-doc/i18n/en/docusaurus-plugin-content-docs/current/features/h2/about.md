@@ -29,13 +29,13 @@ H2 is commonly used for unit testing, integration testing, and lightweight embed
 
 | Strategy | H2 Implementation |
 |------|--------|
-| Ignore | `MERGE INTO ...` (requires PK) |
-| Update | `MERGE INTO ...` (requires PK) |
+| Ignore | MERGE with WHEN NOT MATCHED THEN INSERT (requires PK) |
+| Update | `MERGE INTO ... KEY (...) VALUES (...)` (requires PK) |
 
 ## Testing Scenario Recommendations
 
-- For local development/testing, recommend `-Dnxn.env=h2` — no Docker needed
-- H2 compatibility mode can simulate MySQL/PostgreSQL behavior; dialect auto-detection
+- H2 embedded or in-memory URLs can run locally without Docker
+- H2 compatibility mode supports some MySQL/PostgreSQL syntax; a jdbc:h2 URL still selects the H2 dialect
 - Note subtle differences between H2 and actual databases in pagination and sequence syntax
 
 ## Special Topics

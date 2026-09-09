@@ -2,13 +2,13 @@
 id: row_callback
 sidebar_position: 3
 title: 9.3 RowCallbackHandler
-description: RowCallbackHandler 用于逐行处理查询结果，而非收集它们。适用于流式处理大规模数据，处理过程中数据不会堆积在内存中。
+description: RowCallbackHandler 用于逐行处理查询结果，而非收集它们。适用于逐行消费；是否流式取数还取决于 JDBC 驱动配置。
 ---
 
 # RowCallbackHandler
 
 `RowCallbackHandler` 用于**逐行处理**查询结果而非收集它们。与 RowMapper 返回结果不同，RowCallbackHandler 的 `processRow` 方法返回 `void`，
-适合流式处理大规模数据（如逐行写入文件、发送消息等），数据不会堆积在内存中。
+适合逐行写入文件或发送消息。它不强制 JDBC 驱动采用流式取数；大查询需结合驱动游标或 fetchSize 配置。下面为展示回调结果而收集名称，会占用与行数成正比的内存，不适合作为大数据量消费方案。
 
 ```java title='接口定义'
 @FunctionalInterface

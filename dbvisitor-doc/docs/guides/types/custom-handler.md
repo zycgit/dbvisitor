@@ -46,7 +46,7 @@ public class MyDateTypeHandler extends AbstractTypeHandler<String> {
 }
 ```
 
-## 显示引用
+## 显式引用
 
 显式引用是最常见的使用方式，即在 SQL 语句或代码中明确指定使用的类型处理器。
 
@@ -73,7 +73,7 @@ jdbc.queryForList("select * from users where id > ?", 2, User.class);
 ```xml title='在 XML 文件中定义实体时使用自定义类型处理器'
 <!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
                         "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
-<mapper>
+<mapper namespace="net.demos.dto">
     <entity table="users" type="net.demos.dto.User">
         ...
         <mapping column="my_time" property="myTime" typeHandler="net.demos.dto.MyDateTypeHandler"/>
@@ -217,12 +217,12 @@ public class MyTypeHandler extends AbstractTypeHandler<Object> {
 
 ```text title='示例：两个查询使用相同 TypeHandler 但不同参数类型'
 select * from users 
-where user_type = #{arg0, javaType= net.demos.dto.UserTypeEnum, ➊
+where user_type = #{arg0, javaType= net.demos.dto.UserTypeEnum,
                           typeHandler=net.demos.dto.MyTypeHandler}
 
 
 select * from users 
-where auth_type = #{arg0, javaType= net.demos.dto.AuthTypeEnum, ➋
+where auth_type = #{arg0, javaType= net.demos.dto.AuthTypeEnum,
                           typeHandler=net.demos.dto.MyTypeHandler}
 ```
 
@@ -244,13 +244,13 @@ public class MyTypeHandler extends AbstractTypeHandler<Object> {
 :::info
 任何主动将 TypeHandler 注册到 TypeHandlerRegistry 的操作 @NoCache 都不会对其产生影响。
 
-比如：通过如下三种方式，无论是否具有 @NoCache 标志依然能够成功将 MyTypeHandler 实例对象永久绑定到对应类型组合中。
+比如：通过如下四种方式，无论是否具有 @NoCache 标志依然能够成功将 MyTypeHandler 实例对象永久绑定到对应类型组合中。
 
 ```java
-typeRegistry.registerHandler(MyTypeHandler.class, new MyTypeHandler());
-typeRegistry.register(String.class, new MyTypeHandler());
-typeRegistry.register(Types.NVARCHAR, new MyTypeHandler());
-typeRegistry.register(Types.NVARCHAR, String.class, new MyTypeHandler());
+typeRegistry.registerHandler(MyTypeHandler.class, new MyTypeHandler(String.class));
+typeRegistry.register(String.class, new MyTypeHandler(String.class));
+typeRegistry.register(Types.NVARCHAR, new MyTypeHandler(String.class));
+typeRegistry.register(Types.NVARCHAR, String.class, new MyTypeHandler(String.class));
 ```
 :::
 

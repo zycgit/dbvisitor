@@ -17,8 +17,9 @@ result = lambda.query(User.class)
                .ge(User::getId, 100)
                .le(User::getId, 500)
                .groupBy(User::getStatus)
+               .selectAdd(User::getStatus)
                .queryForList();
-// In the result, only status is populated on User objects
+// selectAdd explicitly selects status; groupBy does not change projection
 ```
 
 ```java title='Equivalent SQL'
@@ -30,7 +31,7 @@ select status from users where id >= 100 and id <= 500 group by status;
 ```java title='Group and sum' {14,15}
 class UserGroupBy{
     private String  status;
-    private Integer cnt;
+    private Long cnt;
     ...
 }
 

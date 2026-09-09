@@ -13,10 +13,12 @@ export const Highlight = ({children, color}) => (
 
 # 3.1 Add Dependency
 
-All dbVisitor modules and dependencies are available via [Maven Central](https://central.sonatype.com/search?q=dbvisitor).
+Released dbVisitor modules are available via [Maven Central](https://central.sonatype.com/search?q=dbvisitor).
 Therefore, any project using dependency management tools (Apache Maven, Gradle, sbt, leiningen, Apache Ivy, etc.) can access these modules.
 
-As of now, the latest version of dbVisitor is: **<Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>**
+The latest stable dbVisitor release is: **<Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>**
+
+This guide targets **{Vars.docsVersion}**. SNAPSHOT is not listed as a stable release on Maven Central; build it from source and install it in your local Maven repository before use. Do not assume development-version capabilities are available in an older release.
 
 ## Choose an Integration
 

@@ -1,19 +1,19 @@
 ---
 id: inject
 sidebar_position: 4
-title: 6.3 SQL Injection
+title: 6.3 SQL Text Substitution
 description: Use ${...} to fetch named arguments and inject the result into SQL text.
 ---
 
-# SQL Injection
+# SQL Text Substitution
 
 :::warning[Please note]
-SQL injection is **dangerous**. You must ensure injected content is safe.
+`${...}` substitutes text directly; it is not PreparedStatement binding. For table names, columns and ordering, map application allowlist choices to fixed SQL fragments rather than accepting raw user input.
 :::
 
 Use `${...}` to fetch named arguments and inject the result into SQL text.
 
-```text title='Example: Argument-driven sorting via SQL injection'
+```text title='Example: Choose a sort fragment from an allowlist'
 select * from users where id > #{id} order by ${order}
 ```
 
@@ -47,7 +47,7 @@ select * from users order by ${orderBy}
 
 | Syntax | Behavior | Safety |
 |--------|----------|--------|
-| `#{...}` | Generates a `?` placeholder and binds the argument value via PreparedStatement | **Safe**, prevents SQL injection |
+| `#{...}` | Generates a `?` placeholder and binds the argument value via PreparedStatement | Separates values from SQL structure; the application must still control SQL templates and OGNL expressions |
 | `${...}` | Evaluates via OGNL and splices the result directly into the SQL string | **Unsafe**, SQL injection risk |
 
 :::tip[Principle]

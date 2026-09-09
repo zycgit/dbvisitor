@@ -7,7 +7,7 @@ tags: [dbVisitor, JDBC]
 
 在日常开发中，"查两列，组成 Map"是一个高频操作：ID 到名称的映射、编码到描述的映射、配置键到值的映射…… 以往你需要查出列表再手动遍历构建 Map。
 
-dbVisitor 6.7.0 新增的 `queryForPairs` 方法，一行代码直接拿到 `Map<K, V>`。
+dbVisitor 6.7.0 为构造器新增的 `queryForPairs` 方法，一行代码直接拿到 `Map<K, V>`。
 
 <!--truncate-->
 
@@ -18,7 +18,7 @@ dbVisitor 6.7.0 新增的 `queryForPairs` 方法，一行代码直接拿到 `Map
 ```java
 // 查出 ID → Name 映射
 List<UserInfo> users = lambda.query(UserInfo.class)
-      .between(UserInfo::getId, 1001, 1003)
+      .rangeBetween(UserInfo::getId, 1001, 1003)
       .queryForList();
 
 Map<Integer, String> idToName = new LinkedHashMap<>();
@@ -35,7 +35,7 @@ for (UserInfo u : users) {
 
 ```java
 Map<Integer, String> idToName = lambda.query(UserInfo.class)
-      .between(UserInfo::getId, 1001, 1003)
+      .rangeBetween(UserInfo::getId, 1001, 1003)
       .queryForPairs(UserInfo::getId, UserInfo::getName, Integer.class, String.class);
 
 // {1001="Alice", 1002="Bob", 1003="Charlie"}
@@ -47,13 +47,13 @@ Map<Integer, String> idToName = lambda.query(UserInfo.class)
 
 ```java
 Map<Integer, String> idToName = lambda.query(UserInfo.class)
-      .between("id", 1001, 1003)
+      .ge("id", 1001).le("id", 1003)
       .queryForPairs("id", "name", Integer.class, String.class);
 ```
 
 ### JdbcTemplate — 原生 SQL
 
-`queryForPairs` 同时下沉到了 `JdbcTemplate` 层，支持多种参数传递方式：
+`JdbcTemplate` 也提供 `queryForPairs`（早于本次构造器扩展已有），支持多种参数传递方式：
 
 ```java
 // 1. 无参数

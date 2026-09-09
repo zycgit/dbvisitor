@@ -64,7 +64,7 @@ ORDER BY embedding <-> ? ASC
 LIMIT 5
 ```
 
-`initPage(5, 0)` returns only the first 5 results. Without a paging limit, the database sorts all matching records by vector distance.
+`initPage(5, 0)` returns only the first 5 results. On PostgreSQL, omitting LIMIT sorts matching records without bounding their count. Milvus uses a search iterator to read ordinary KNN results on demand when LIMIT is omitted; this is not a fixed Top-K query. Hybrid Search requires an explicit LIMIT.
 
 ## Choose A Metric
 
@@ -117,7 +117,7 @@ LIMIT 10
 
 ### When initPage is needed
 
-KNN usually expects a fixed number of nearest-neighbor results. Without `initPage`, the query returns all matching records sorted by distance, which is usually not the expected shape for semantic retrieval.
+KNN usually expects a fixed number of nearest-neighbor results. Without `initPage`, PostgreSQL has no Top-K bound; Milvus also allows unbounded ordinary KNN iteration. Explicitly set the number of neighbors required by the application.
 
 ## Further Reading
 

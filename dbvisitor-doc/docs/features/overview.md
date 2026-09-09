@@ -8,7 +8,7 @@ description: 按具体数据源说明 dbVisitor 在类型、方言、主键回�
 
 # 数据源特性
 
-`数据库访问` 侧重介绍 dbVisitor 的 ORM、Mapper、Lambda、事务、TypeHandler 等整体能力；`驱动适配器` 侧重介绍基于 `dbvisitor-driver` 的 JDBC 适配器和驱动层行为。
+`核心API` 侧重介绍 dbVisitor 的 ORM、Mapper、Lambda、事务、TypeHandler 等整体能力；`驱动适配器` 侧重介绍基于 `dbvisitor-driver` 的 JDBC 适配器和驱动层行为。
 
 本栏目专注于某个具体数据源下的使用方式和差异，包括：
 
@@ -24,7 +24,7 @@ description: 按具体数据源说明 dbVisitor 在类型、方言、主键回�
 - [MySQL](./mysql/about)：`AUTO_INCREMENT`、JDBC generated keys、`INSERT IGNORE`/`ON DUPLICATE KEY UPDATE`、`TINYINT(1)` 布尔映射
 - [PostgreSQL](./postgresql/about)：`SERIAL`、`RETURNING`、`ON CONFLICT`、pgvector 向量搜索、序列
 - [Oracle](./oracle/about)：`IDENTITY`、sequence、`keyColumn` 必要性、`MERGE` 冲突策略、`RETURNING INTO` 限制
-- [SQL Server](./mssql/about)：`OUTPUT INSERTED`、`MERGE`、`OFFSET FETCH` 分页、`ORDER BY` 去重
+- [SQL Server](./mssql/about)：`OUTPUT INSERTED`、`MERGE`、`ROW_NUMBER()` 分页、`ORDER BY` 去重
 - [DB2](./db2/about)：`IDENTITY`、sequence、batch generated keys 限制、`MERGE` 冲突策略
 - [达梦](./dm/about)：自增列、`IGNORE_ROW_ON_DUPKEY_INDEX`、`MERGE`、序列
 - [H2](./h2/about)：`IDENTITY`、sequence、`MERGE`、测试场景推荐
@@ -43,6 +43,6 @@ description: 按具体数据源说明 dbVisitor 在类型、方言、主键回�
 
 ## 阅读建议
 
-如果你想学习 dbVisitor 的通用能力，请先阅读 [数据库访问](../guides/overview)。如果你关注 MongoDB、Redis、Elasticsearch、Milvus 等 JDBC 驱动适配器本身，请阅读 [驱动适配器](../drivers/about)。
+如果你想学习 dbVisitor 的通用能力，请先阅读 [核心API](../guides/overview)。如果你关注 MongoDB、Redis、Elasticsearch、Milvus 等 JDBC 驱动适配器本身，请阅读 [驱动适配器](../drivers/about)。
 
 当某个数据库和通用文档行为不完全一致时，以本栏目中的数据源特性说明为准。

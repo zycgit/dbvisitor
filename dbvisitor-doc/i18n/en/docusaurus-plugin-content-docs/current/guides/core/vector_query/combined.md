@@ -7,6 +7,8 @@ description: Compose scalar predicates, KNN ordering, and distance range filteri
 
 # Combined Queries
 
+The examples below use PostgreSQL pgvector. Data sources such as Milvus have different metric and composition constraints; consult the corresponding driver manual.
+
 Combined queries put ordinary field predicates and vector query in the same query. A common pattern is to narrow candidates with business fields, then use `orderBy*` for nearest-neighbor ordering or `vectorBy*` for distance range filtering.
 
 ## Suitable For
@@ -85,7 +87,7 @@ This form is for "find all sufficiently similar records in a specified scope".
 
 ## Dynamic Condition Composition
 
-Builder API condition methods can use a boolean parameter to control whether the condition is emitted into SQL.
+Builder API condition methods can use a boolean parameter to control whether the condition is emitted into SQL. The example assumes `PgVectorTypeHandler` is configured on the vector field and `request.getVector()` returns `List<Float>`; range conditions bind parameters through the field's TypeHandler.
 
 ```java title='Dynamic composition'
 boolean hasCategory = request.getCategory() != null;
@@ -100,11 +102,14 @@ List<ProductVector> rows = lambda.query(ProductVector.class)
 Fixed Top-K query can also append vector ordering when it is required:
 
 ```java title='Dynamic KNN'
-List<ProductVector> rows = lambda.query(ProductVector.class)
-        .eq(ProductVector::getCategory, "book")
-        .orderByL2(ProductVector::getEmbedding, target)
-        .initPage(10, 0)
-        .queryForList();
+var query = lambda.query(ProductVector.class)
+        .eq(ProductVector::getCategory, "book");
+if (target != null) {
+    query.orderByL2(ProductVector::getEmbedding, target);
+} else {
+    query.orderByAsc(ProductVector::getId);
+}
+List<ProductVector> rows = query.initPage(10, 0).queryForList();
 ```
 
 ## Choose A Combination

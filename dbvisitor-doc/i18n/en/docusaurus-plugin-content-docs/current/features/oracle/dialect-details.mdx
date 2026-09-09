@@ -50,7 +50,7 @@ Oracle's MERGE uses `FROM dual` as the virtual source table.
 
 ## Generated Key Strategy
 
-Oracle dialect **uniformly uses `OneByOne`** (row-by-row execution), regardless of whether backfill columns exist or what conflict strategy is used. This is the most conservative and safest strategy:
+Oracle dialect **uniformly uses `OneByOne`** (row-by-row execution), regardless of whether backfill columns exist or what conflict strategy is used. This does not mean Oracle JDBC itself lacks batch support:
 
 | Scenario | GeneratedKeyStrategy |
 |------|---------------------|
@@ -60,7 +60,7 @@ Reason: Oracle JDBC's batch generated keys behavior is unstable. If `Statement.R
 
 ## Sequences
 
-Oracle does not implement `SeqSqlDialect`. Instead, sequences are read via `selectKey` in Mapper XML or `@KeySeq` + `KeyType.Sequence` in object mapping:
+The built-in Oracle dialect does not implement `SeqSqlDialect`, so `@KeySeq` + `KeyType.Sequence` cannot be used directly. Read sequences using Mapper XML `selectKey` or `@SelectKeySql`:
 
 ```sql
 SELECT user_info_seq.NEXTVAL AS id FROM dual
@@ -74,7 +74,7 @@ SELECT user_info_seq.NEXTVAL AS id FROM dual
 
 ## Key Differences Summary
 
-- The only database where all scenarios use the `OneByOne` strategy
-- Pagination uses ROWNUM nesting (poor performance; recommend 12c+ `OFFSET FETCH`)
+- The dialect uses `OneByOne` for all insert scenarios
+- Pagination uses ROWNUM nesting; write your own SQL or custom dialect for other pagination forms
 - MERGE uses `FROM dual` to construct a virtual source table
 - Does not implement `SeqSqlDialect`; sequences go through the `selectKey` channel

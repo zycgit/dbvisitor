@@ -5,7 +5,7 @@ title: 架构设计
 description: dbvisitor-driver 适配器层的核心架构、组件职责和执行流程。
 ---
 
-dbVisitor 的协议适配层（dbvisitor-driver）允许开发者将非关系型数据库封装为类 JDBC 接口，从而复用 dbVisitor 的全部上层 API（JdbcTemplate、LambdaTemplate、BaseMapper 等）。
+dbVisitor 的协议适配层（dbvisitor-driver）允许开发者通过 JDBC 接口访问非关系型数据库，从而复用 JdbcTemplate、注解 Mapper 和 Mapper 文件中的命令执行与结果映射。LambdaTemplate、BaseMapper 的命令生成还需要对应的数据库方言支持。
 
 适配器层包含核心组件和执行模型。适配器实现步骤见 [实现指南](./guide)。
 
@@ -42,11 +42,11 @@ public interface AdapterFactory {
 }
 ```
 
-JDBC URL 格式统一为：`jdbc:dbvisitor:<adapterName>//<server?param=value>`
+JDBC URL 格式为：`jdbc:dbvisitor:<adapterName>://<server>?param=value`，也兼容适配器名后省略冒号的旧写法。
 
 ## AdapterConnection
 
-适配器的核心，每个连接实例管理一个底层数据源客户端。需要实现以下关键方法：
+适配器的核心，每个连接实例管理底层数据源客户端。下面仅列出关键 API 签名，省略已有方法的实现体；创建适配器时继承该类，而不是复制此声明：
 
 ```java
 public abstract class AdapterConnection implements Closeable {
@@ -78,6 +78,9 @@ public abstract class AdapterConnection implements Closeable {
 
     /** 取消正在执行的请求 */
     public abstract void cancelRequest();
+
+    /** 取消指定请求；支持并发语句时应覆盖此方法 */
+    public void cancelRequest(AdapterRequest request);
 
     /** 关闭连接，释放底层资源 */
     protected abstract void doClose() throws IOException;
@@ -154,7 +157,7 @@ public interface AdapterReceive {
              └─ Receive: 结果回调 → responseResult / responseUpdateCount
          → JDBC ResultSet ← AdapterCursor
          → dbVisitor TypeHandler 映射
-         → List<User>
+         → List<Map<String, Object>>
 ```
 
 ## 现有适配器
@@ -163,16 +166,16 @@ public interface AdapterReceive {
 
 | 适配器 | 底层 SDK | URL 前缀 | 解析方式 |
 | -------- | --------- | --------- | --------- |
-| **jdbc-redis** | Jedis | `jdbc:dbvisitor:redis//` | 命令行风格 (ANTLR4) |
-| **jdbc-mongo** | MongoDB Java Driver | `jdbc:dbvisitor:mongo//` | JS Shell 风格 (ANTLR4) |
-| **jdbc-elastic** | Elasticsearch RestClient | `jdbc:dbvisitor:elastic//` | JSON 风格 (ANTLR4) |
+| **jdbc-redis** | Jedis | `jdbc:dbvisitor:jedis://` | 命令行风格 (ANTLR4) |
+| **jdbc-mongo** | MongoDB Java Driver | `jdbc:dbvisitor:mongo://` | JS Shell 风格 (ANTLR4) |
+| **jdbc-elastic** | Elasticsearch RestClient | `jdbc:dbvisitor:elastic://` | JSON 风格 (ANTLR4) |
 | **jdbc-milvus** | Milvus Java SDK | `jdbc:dbvisitor:milvus://` | SQL-like 风格 (ANTLR4) |
 
 每个适配器模块的标准目录结构：
 
 ```text
 jdbc-xxx/
-├── src/main/antlr4/          # .g4 语法文件
+├── src/main/antlr/           # .g4 语法文件
 ├── src/main/java/.../
 │   ├── XxxConnFactory.java    # AdapterFactory 实现
 │   ├── XxxConn.java           # AdapterConnection 实现

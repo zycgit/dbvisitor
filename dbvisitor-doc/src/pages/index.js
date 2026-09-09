@@ -5,6 +5,7 @@ import Link from '@docusaurus/Link';
 import Translate, {translate} from '@docusaurus/Translate';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import styles from './index.module.css';
+import Vars from '@site/plugins/projectVars';
 
 /* ==================== Static Data ==================== */
 
@@ -57,7 +58,7 @@ function HeroSection() {
                 <p className={styles.heroSlogan}>One APIs Access Any DataBase</p>
                 <p className={styles.heroDesc}>
                     <Translate id="dbv.hero.desc">
-                        承认差异、管理差异、而非消灭差异 —— 通过双层适配架构，让一套 API 自然地访问任何数据库。
+                        承认差异、管理差异、而非消灭差异 —— 通过双层适配架构，通过统一 API 访问已支持的数据库。
                     </Translate>
                 </p>
                 <div className={styles.heroBadges}>
@@ -125,7 +126,7 @@ function PhilosophySection() {
             title: translate({id: 'dbv.phil.unified.title', message: '统一 APIs'}),
             desc: translate({
                 id: 'dbv.phil.unified.desc',
-                message: '编程式、声明式、Mapper、XML File 等 5 种 APIs',
+                message: 'JdbcTemplate、声明式接口、BaseMapper、LambdaTemplate 和 XML Mapper',
             }),
         },
         {
@@ -224,8 +225,8 @@ function ApiStylesSection() {
                 <span className={s.codeComment}>{translate({id: 'dbv.api.jdbc.c1', message: '// 查询映射到 Bean'}) + '\n'}</span>
                 <span className={s.codeType}>{'List'}</span>{'<'}<span className={s.codeType}>{'User'}</span>{'>'}{' users = jdbc.'}<span className={s.codeMethod}>{'queryForList'}</span>{'(\n'}
                 {'    '}<span className={s.codeString}>{'"select * from users where age > ?"'}</span>{',\n'}
-                {'    '}<span className={s.codeType}>{'User'}</span>{'.class,\n'}
-                {'    '}<span className={s.codeKeyword}>{'new'}</span>{' '}<span className={s.codeType}>{'Object'}</span>{'[] { '}<span className={s.codeString}>{'18'}</span>{' }\n);\n\n'}
+                {'    '}<span className={s.codeKeyword}>{'new'}</span>{' '}<span className={s.codeType}>{'Object'}</span>{'[] { '}<span className={s.codeString}>{'18'}</span>{' },\n'}
+                {'    '}<span className={s.codeType}>{'User'}</span>{'.class\n);\n\n'}
                 <span className={s.codeComment}>{translate({id: 'dbv.api.jdbc.c2', message: '// 查询单值'}) + '\n'}</span>
                 <span className={s.codeType}>{'Long'}</span>{' total = jdbc.'}<span className={s.codeMethod}>{'queryForObject'}</span>{'(\n'}
                 {'    '}<span className={s.codeString}>{'"select count(*) from users"'}</span>{',\n'}
@@ -243,7 +244,7 @@ function ApiStylesSection() {
                 <span className={s.codeKeyword}>{'public interface'}</span>{' '}<span className={s.codeType}>{'UserMapper'}</span>{' {\n'}
                 {'    '}<span className={s.codeKeyword}>{'@Query'}</span>{'('}<span className={s.codeString}>{'"select * from users where id = #{id}"'}</span>{')\n'}
                 {'    '}<span className={s.codeType}>{'User'}</span>{' '}<span className={s.codeMethod}>{'selectById'}</span>{'('}<span className={s.codeKeyword}>{'@Param'}</span>{'('}<span className={s.codeString}>{'"id"'}</span>{') '}<span className={s.codeType}>{'int'}</span>{' id);\n\n'}
-                {'    '}<span className={s.codeKeyword}>{'@Insert'}</span>{'('}<span className={s.codeString}>{'"insert into users (name, age) values (#{name}, #{age})'}</span>{'\n'}
+                {'    '}<span className={s.codeKeyword}>{'@Insert'}</span>{'('}<span className={s.codeString}>{'"insert into users (name, age) values (#{name}, #{age})"'}</span>{')\n'}
                 {'    '}<span className={s.codeType}>{'int'}</span>{' '}<span className={s.codeMethod}>{'insertUser'}</span>{'('}
                             <span className={s.codeKeyword}>{'@Param'}</span>{'('}<span className={s.codeString}>{'"name"'}</span>{') '}<span className={s.codeType}>{'String'}</span>{' name, '}
                             <span className={s.codeKeyword}>{'@Param'}</span>{'('}<span className={s.codeString}>{'"age"'}</span>{')  '}<span className={s.codeType}>{'int'}</span>{' age);\n}\n'}
@@ -253,16 +254,15 @@ function ApiStylesSection() {
             icon: '🧱',
             name: translate({id: 'dbv.api.base.name', message: '通用 Mapper'}),
             desc: translate({id: 'dbv.api.base.desc', message: '通用 CRUD 操作，零 SQL 快速开发'}),
-            docLink: '/docs/guides/api/base_mapper',
+            docLink: '/docs/guides/core/mapper/about',
             codeTitle: 'BaseMapper.java',
             code: (s) => (<>
                 <span className={s.codeType}>{'BaseMapper'}</span>{'<'}<span className={s.codeType}>{'User'}</span>{'>'}{' mapper = session.'}<span className={s.codeMethod}>{'createBaseMapper'}</span>{'('}<span className={s.codeType}>{'User'}</span>{'.class);\n\n'}
                 <span className={s.codeComment}>{translate({id: 'dbv.api.base.c1', message: '// 主键查询'}) + '\n'}</span>
                 <span className={s.codeType}>{'User'}</span>{' user = mapper.'}<span className={s.codeMethod}>{'selectById'}</span>{'('}<span className={s.codeString}>{'1'}</span>{');\n\n'}
-                <span className={s.codeComment}>{translate({id: 'dbv.api.base.c2', message: '// 插入 & 更新'}) + '\n'}</span>
-                {'mapper.'}<span className={s.codeMethod}>{'insert'}</span>{'(user);\n'}
-                {'user.'}<span className={s.codeMethod}>{'setAge'}</span>{'('}<span className={s.codeString}>{'30'}</span>{');\n'}
-                {'mapper.'}<span className={s.codeMethod}>{'update'}</span>{'(user);\n\n'}
+                <span className={s.codeComment}>{translate({id: 'dbv.api.base.c2', message: '// 更新已存在的用户'}) + '\n'}</span>
+                {'if (user != null) {\n    user.'}<span className={s.codeMethod}>{'setAge'}</span>{'('}<span className={s.codeString}>{'30'}</span>{');\n'}
+                {'    mapper.'}<span className={s.codeMethod}>{'update'}</span>{'(user);\n}\n\n'}
                 <span className={s.codeComment}>{translate({id: 'dbv.api.base.c3', message: '// 主键删除'}) + '\n'}</span>
                 {'mapper.'}<span className={s.codeMethod}>{'deleteById'}</span>{'('}<span className={s.codeString}>{'1'}</span>{');\n'}
             </>),
@@ -291,7 +291,7 @@ function ApiStylesSection() {
             codeTitle: 'userMapper.xml + UserMapper.java',
             code: (s) => (<>
                 <span className={s.codeComment}>{translate({id: 'dbv.api.xml.c1', message: '// XML 定义（userMapper.xml）'}) + '\n'}</span>
-                <span className={s.codeKeyword}>{'<select'}</span>{' '}<span className={s.codeType}>{'id'}</span>{'='}<span className={s.codeString}>{'"selectById"'}</span>{' '}<span className={s.codeType}>{'resultType'}</span>{'='}<span className={s.codeString}>{'"User"'}</span><span className={s.codeKeyword}>{'>'}</span>{'\n'}
+                <span className={s.codeKeyword}>{'<select'}</span>{' '}<span className={s.codeType}>{'id'}</span>{'='}<span className={s.codeString}>{'"selectById"'}</span>{' '}<span className={s.codeType}>{'resultType'}</span>{'='}<span className={s.codeString}>{'"com.example.User"'}</span><span className={s.codeKeyword}>{'>'}</span>{'\n'}
                 {'  '}<span className={s.codeString}>{'select * from users where id = #{id}'}</span>{'\n'}
                 <span className={s.codeKeyword}>{'</select>'}</span>{'\n\n'}
                 <span className={s.codeComment}>{translate({id: 'dbv.api.xml.c2', message: '// Java 接口'}) + '\n'}</span>
@@ -304,7 +304,9 @@ function ApiStylesSection() {
 
     // Auto-rotate every 5 seconds
     useEffect(() => {
-        if (paused) return;
+        if (paused) {
+            return;
+        }
         const timer = setInterval(() => {
             setActiveIdx((prev) => (prev + 1) % apiStyles.length);
         }, 5000);
@@ -382,7 +384,7 @@ function CodeExampleSection() {
                 </h2>
                 <p className={styles.sectionSubtitle} style={{textAlign: 'center'}}>
                     <Translate id="dbv.code.subtitle">
-                        无论底层是 MySQL 还是 MongoDB，上层代码保持一致
+                        在驱动支持的范围内复用 API，SQL、字段映射和事务能力仍取决于数据源
                     </Translate>
                 </p>
                 <div className={styles.codeContainer}>
@@ -392,9 +394,9 @@ function CodeExampleSection() {
                         <span className={styles.codeType}>{'LambdaTemplate'}</span>{' t = config.'}<span className={styles.codeMethod}>{'newLambda'}</span>{'(ds);\n\n'}
                         <span className={styles.codeComment}>{translate({id: 'dbv.code.comment.lambda', message: '// Lambda 查询'}) + '\n'}</span>
                         <span className={styles.codeType}>{'List'}</span>{'<'}<span className={styles.codeType}>{'User'}</span>{'>'}{' users = t\n'}
-                        {'    .'}<span className={styles.codeMethod}>{'lambdaQuery'}</span>{'('}<span className={styles.codeType}>{'User'}</span>{'.class)\n'}
+                        {'    .'}<span className={styles.codeMethod}>{'query'}</span>{'('}<span className={styles.codeType}>{'User'}</span>{'.class)\n'}
                         {'    .'}<span className={styles.codeMethod}>{'eq'}</span>{'('}<span className={styles.codeType}>{'User'}</span>{'::'}<span className={styles.codeMethod}>{'getAge'}</span>{', '}<span className={styles.codeString}>{'18'}</span>{')\n'}
-                        {'    .'}<span className={styles.codeMethod}>{'list'}</span>{'();\n'}
+                        {'    .'}<span className={styles.codeMethod}>{'queryForList'}</span>{'();\n'}
                     </CodeBlock>
 
                     <CodeBlock title="MongoDB / Elasticsearch">
@@ -403,9 +405,9 @@ function CodeExampleSection() {
                         <span className={styles.codeType}>{'LambdaTemplate'}</span>{' t = config.'}<span className={styles.codeMethod}>{'newLambda'}</span>{'(ds);\n\n'}
                         <span className={styles.codeComment}>{translate({id: 'dbv.code.comment.same', message: '// 完全相同的 Lambda 查询'}) + '\n'}</span>
                         <span className={styles.codeType}>{'List'}</span>{'<'}<span className={styles.codeType}>{'User'}</span>{'>'}{' users = t\n'}
-                        {'    .'}<span className={styles.codeMethod}>{'lambdaQuery'}</span>{'('}<span className={styles.codeType}>{'User'}</span>{'.class)\n'}
+                        {'    .'}<span className={styles.codeMethod}>{'query'}</span>{'('}<span className={styles.codeType}>{'User'}</span>{'.class)\n'}
                         {'    .'}<span className={styles.codeMethod}>{'eq'}</span>{'('}<span className={styles.codeType}>{'User'}</span>{'::'}<span className={styles.codeMethod}>{'getAge'}</span>{', '}<span className={styles.codeString}>{'18'}</span>{')\n'}
-                        {'    .'}<span className={styles.codeMethod}>{'list'}</span>{'();\n'}
+                        {'    .'}<span className={styles.codeMethod}>{'queryForList'}</span>{'();\n'}
                     </CodeBlock>
                 </div>
             </div>
@@ -424,7 +426,7 @@ function QuickStartSection() {
                 </h2>
                 <p className={styles.sectionSubtitle} style={{textAlign: 'center'}}>
                     <Translate id="dbv.start.subtitle">
-                        只需一个 Maven 依赖，即可开始使用
+                        引入核心库与目标 JDBC 驱动，以下使用最新正式版
                     </Translate>
                 </p>
                 <div className={styles.quickStartContainer}>
@@ -436,7 +438,7 @@ function QuickStartSection() {
                             {'<'}<span className={styles.codeKeyword}>{'dependency'}</span>{'>\n'}
                             {'  <'}<span className={styles.codeKeyword}>{'groupId'}</span>{'>'}<span className={styles.codeString}>{'net.hasor'}</span>{'</'}<span className={styles.codeKeyword}>{'groupId'}</span>{'>\n'}
                             {'  <'}<span className={styles.codeKeyword}>{'artifactId'}</span>{'>'}<span className={styles.codeString}>{'dbvisitor'}</span>{'</'}<span className={styles.codeKeyword}>{'artifactId'}</span>{'>\n'}
-                            {'  <'}<span className={styles.codeKeyword}>{'version'}</span>{'>'}<span className={styles.codeString}>{'6.7.0'}</span>{'</'}<span className={styles.codeKeyword}>{'version'}</span>{'>\n'}
+                            {'  <'}<span className={styles.codeKeyword}>{'version'}</span>{'>'}<span className={styles.codeString}>{Vars.lastReleaseVer}</span>{'</'}<span className={styles.codeKeyword}>{'version'}</span>{'>\n'}
                             {'</'}<span className={styles.codeKeyword}>{'dependency'}</span>{'>\n'}
                         </pre>
                     </div>
@@ -465,7 +467,7 @@ function CtaSection() {
                 </h2>
                 <p className={styles.ctaDesc}>
                     <Translate id="dbv.cta.desc">
-                        Apache 2.0 开源协议 · 唯一依赖 Cobble · Java 8+
+                        Apache 2.0 开源协议 · 核心依赖 Cobble · 6.7.1 起要求 Java 17+
                     </Translate>
                 </p>
                 <div className={styles.ctaLinks}>

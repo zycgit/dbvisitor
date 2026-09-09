@@ -40,7 +40,7 @@ Template methods let you customize `PreparedStatement` creation.
     ```java
     T result = jdbc.executeCreator(con -> {
         PreparedStatement ps = con.prepareStatement("select * from users where id > ?");
-        ps.setString(1, "Bob");
+        ps.setInt(1, 2);
         return ps;
     }, (ResultSetExtractor) rs -> {
         return ...;
@@ -50,7 +50,7 @@ Template methods let you customize `PreparedStatement` creation.
     ```java
     List<User> result = jdbc.executeCreator(con -> {
         PreparedStatement ps = con.prepareStatement("select * from users where id > ?");
-        ps.setString(1, "Bob");
+        ps.setInt(1, 2);
         return ps;
     }, (RowMapper<User>) (rs, rowNum) -> {
         return ...;
@@ -60,7 +60,7 @@ Template methods let you customize `PreparedStatement` creation.
     ```java
     jdbc.executeCreator(con -> {
         PreparedStatement ps = con.prepareStatement("select * from users where id > ?");
-        ps.setString(1, "Bob");
+        ps.setInt(1, 2);
         return ps;
     }, (RowCallbackHandler) (rs, rowNum) -> {
         // process one row

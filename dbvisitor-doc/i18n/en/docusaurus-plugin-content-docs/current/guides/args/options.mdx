@@ -26,7 +26,7 @@ Argument options fall into three categories:
 | typeHandler | TypeHandler   | <TagGray/> Type handler to use, overriding the default [TypeHandler](../types/about) choice.   |
 
 ```text title='Example 1: javaType option'
-select * from users where name = #{name,javaType=java.lang.Integer}
+select * from users where age = #{age,javaType=java.lang.Integer}
 ```
 
 - `javaType` can be any [Java type](../types/handlers/about#single_type) supported by the TypeHandlerRegistry.
@@ -105,11 +105,11 @@ When both **typeName** and **scale** are present, `typeName` takes precedence. P
 {call test_procedure(#{arg, 
             mode=out,
             jdbcType=varchar,
-            typeHandler=net.hasor.dataql.sqlproc.types.handler.StringAsMonthDayTypeHandler})
+            typeHandler=net.hasor.dbvisitor.types.handler.string.StringAsMonthDayTypeHandler})
 }
 ```
 
-```text title='Example 7: Alias an INOUT argument and save the OUT result as outArg'
+```text title='Example 7: Alias an OUT argument and save the OUT result as outArg'
 {call test_procedure(#{arg, name=outArg, mode=out, jdbcType=varchar})}
 ```
 

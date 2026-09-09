@@ -2,12 +2,12 @@
 id: position
 sidebar_position: 2
 title: 6.1 位置参数
-description: 当在 SQL 语句使用 “?” 标记时，可以将值绑定到相应索引（从 0 开始）的参数。
+description: 通过问号占位符按顺序绑定参数，区分 Java 容器下标与 JDBC 参数索引。
 ---
 
 # 位置参数
 
-当在 SQL 语句使用 “?” 标记时，可以将值绑定到相应索引（从 0 开始）的参数。
+在 SQL 中使用 `?` 标记参数，dbVisitor 按数组或 List 的顺序绑定值。容器下标及 `arg0`、`arg1` 名称从 0 开始；直接调用 JDBC `PreparedStatement.setXxx(index, value)` 时，索引从 1 开始。
 
 ```sql
 select * from users where id > ? and status = ?

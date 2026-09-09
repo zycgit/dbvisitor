@@ -51,21 +51,22 @@ public class UserInfo {
 
 ### 2.2 使用 Mapper 接口 (注解方式)
 
-你可以定义一个 Mapper 接口，使用注解来编写 ElasticSearch 的 DSL 命令。
+你可以定义一个 Mapper 接口，使用注解编写 ElasticSearch 命令。路径中的 `{#{id}}` 经 dbVisitor 绑定后成为驱动的 `{?}` 路径占位符；JSON 数据值直接使用 `#{...}`。
 
 ```java
 @SimpleMapper
 public interface UserInfoMapper {
     // 插入数据
-    @Insert("POST /user_info/_doc { \"name\": #{info.name}, \"age\": #{info.age} }")
+    @Insert(value = "POST /user_info/_doc { \"name\": #{info.name}, \"age\": #{info.age} }",
+            useGeneratedKeys = true, keyProperty = "info.id")
     int saveUser(@Param("info") UserInfo info);
 
     // 根据 ID 查询
-    @Query("GET /user_info/_doc/#{id}")
+    @Query("GET /user_info/_doc/{#{id}}")
     UserInfo loadById(@Param("id") String id);
 
     // 删除数据
-    @Delete("DELETE /user_info/_doc/#{id}")
+    @Delete("DELETE /user_info/_doc/{#{id}}")
     int deleteUser(@Param("id") String id);
 }
 ```
@@ -153,7 +154,7 @@ public interface UserInfoXmlMapper {
 // 创建分页对象
 Page page = new PageObject();
 page.setPageSize(10);
-page.setPageNumber(0); // 第一页
+page.setCurrentPage(0); // 第一页
 
 // 执行查询，dbVisitor 会自动拦截并重写为分页查询
 // 对于 ElasticSearch，会自动转换为 "from": 0, "size": 10
@@ -167,26 +168,11 @@ page.nextPage();
 list = mapper.listByUserName("mali", page);
 ```
 
-## 4. 同类工具对比
+## 4. 适用范围
 
-在 Java 生态中，针对 ElasticSearch 的 ORM 封装百花齐放。以下是 dbVisitor 与几款代表性工具的对比，帮助你做出技术选型：
+jdbc-elastic 适合需要复用 JDBC、Mapper 或 XML 的项目，不是完整 JDBC 或官方客户端的替代品。它不支持 JDBC Batch、事务和存储过程；未覆盖的命令应使用官方客户端。
 
-| 特性 | **Official Client** | **Spring Data ES** | **Easy-Es** | **dbVisitor** |
-| :--- | :--- | :--- | :--- | :--- |
-| **定位** | 官方底层客户端 | Spring 生态标准组件 | ES 界的 MyBatis-Plus | **JDBC 驱动 + ORM** |
-| **依赖程度** | 无 (基础库) | 强依赖 Spring | 依赖 Spring / MP | **极低 (仅 JDK + 官方驱动)** |
-| **API 风格** | Builder / DSL | Repository / JPA | Lambda / Wrapper | **JDBC / Mapper / XML / Lambda** |
-| **动态 SQL** | 需手动拼接 JSON | 较弱 | 不支持 XML | **强 (XML 动态标签)** |
-| **JDBC 支持** | 无 | 无 | 无 | **原生支持** |
-| **学习曲线** | 高 (需熟记 DSL) | 中 (需懂 Spring Data) | 中 (需懂 MP) | **低 (兼容 MyBatis/JDBC 习惯)** |
-| **统一性** | 仅限 ES | 需借助 Spring 生态 | 仅限 ES | **一套 API 统一操作 RDBMS 和 ES** |
-
-### 选型建议
-
-*   **Official Client**: 如果你需要使用 ES 的最新特性，或者对性能有极致要求，且不介意编写复杂的 DSL 代码。
-*   **Spring Data Elasticsearch**: 如果你是 Spring 全家桶用户，且习惯 JPA/Repository 开发模式。
-*   **Easy-Es**: 如果你是 MyBatis-Plus 的重度用户，希望在 ES 中也能获得类似的开发体验。
-*   **dbVisitor**: 如果你希望用 **标准 JDBC** 和 **MyBatis XML** 的方式统一管理 RDBMS 和 ES，或者你的项目不依赖 Spring (如 Solon, Hasor, 纯 Java)，dbVisitor 是最佳选择。
+使用 `term` 对字符串做精确匹配时，应先将相应字段定义为 keyword。写入后立即搜索还需考虑 refresh；可在写入请求中指定 `?refresh=wait_for`，或使用驱动相应连接参数。分页仍受 Elasticsearch 结果窗口等限制。
 
 ## 5. 总结
 

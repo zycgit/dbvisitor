@@ -15,7 +15,7 @@ DB2 可以使用 dbVisitor 的 JDBC、Mapper、Lambda、BaseMapper、事务、�
 | 关注点 | DB2 行为 |
 |--------|---------|
 | 主键生成 | `IDENTITY` 列，通过 JDBC generated keys 回填 |
-| 分页 | `FETCH FIRST ? ROWS ONLY` + 嵌套查询 |
+| 分页 | `ROWNUMBER() OVER()` + 嵌套查询 |
 | 写入冲突 | `MERGE INTO ... WHEN MATCHED ... WHEN NOT MATCHED ...` |
 | 批量写入 | 支持，但 batch generated keys 存在驱动限制 |
 | 存储过程 | 支持 |

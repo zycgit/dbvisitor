@@ -94,7 +94,7 @@ Automatic timezone conversion — timezone reads and writes are converted to UTC
 
 Julian Day Number is a date representation method commonly used in astronomy, counting continuously from January 1, 4713 BCE. Stored as `BIGINT` in the database, it avoids conversion issues between different calendar systems.
 
-Applicable scenarios: when you need to handle BCE dates, or ensure date consistency across database systems.
+Use this when business dates need integer storage. The handler uses integer conversion algorithms and does not guarantee the entire LocalDate year range; constrain the business range and verify round-trip conversion.
 
 ### PgDateTypeHandler
 
@@ -106,3 +106,5 @@ PostgreSQL supports using a BC suffix to represent BCE dates (e.g. `0100-01-01 B
 | Year 0 | 1 BCE (1 BC) |
 | Year -1 | 2 BCE (2 BC) |
 | Year -99 | 100 BCE (100 BC) |
+
+BC leap days, native database DATE limits, and legacy date conversions are additional boundaries; the year mapping alone does not guarantee lossless round trips for every historical date.

@@ -10,10 +10,10 @@ description: ClickHouse dialect pagination, write model, application-side ID, an
 
 ## Pagination SQL
 
-ClickHouse uses `LIMIT ? OFFSET ?` (same as PostgreSQL):
+The ClickHouse dialect uses `LIMIT offset, count`; offset=0 produces only `LIMIT count`:
 
 ```sql
-SELECT ... LIMIT ? OFFSET ?
+SELECT ... LIMIT ?, ?
 ```
 
 ## Count SQL
@@ -24,10 +24,10 @@ SELECT COUNT(*) FROM (original query) as TEMP_T
 
 ## Identifier Quoting
 
-Uses double quotes `"`:
+The dialect uses backticks:
 
 ```sql
-SELECT * FROM "users" WHERE "name" = ?
+SELECT * FROM `users` WHERE `name` = ?
 ```
 
 ## Write Conflict Strategies
@@ -59,12 +59,12 @@ Not supported. ClickHouse does not implement `SeqSqlDialect`.
 
 - ClickHouse recommends batch writes over row-by-row inserts
 - `JdbcBatch` can be used for throughput when no backfill is needed
-- Note asynchronous write characteristics: writes may not be immediately visible
+- Visibility depends on the table engine and settings. With async_insert enabled and wait_for_async_insert disabled, acknowledgement can precede insertion into the table; this is not the default behavior of every INSERT. See [asynchronous inserts](https://clickhouse.com/docs/optimize/asynchronous-inserts)
 - Recommended primary key generation: `KeyType.UUID32` or `KeyType.UUID36`
 
 ## Key Differences Summary
 
-- The only relational data source that does not support any conflict strategies
+- The dialect provides Into writes, not Ignore/Update conflict strategies
 - Relying on JDBC generated keys is not recommended
 - Sequences not supported
-- Analytical write model (batch-first, async visibility)
+- Analytical write model; usually submit multiple rows together

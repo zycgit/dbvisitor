@@ -7,10 +7,6 @@
     "message": "dbVisitor Logo",
     "description": "The alt text of navbar logo"
   },
-  "item.label.数据库访问": {
-    "message": "Database Access",
-    "description": "Navbar item with label 数据库访问"
-  },
   "item.label.驱动适配器": {
     "message": "Driver Adapters",
     "description": "Navbar item with label 驱动适配器"
@@ -30,5 +26,13 @@
   "item.label.Github": {
     "message": "Github",
     "description": "Navbar item with label Github"
+  },
+  "item.label.核心API": {
+    "message": "Core APIs",
+    "description": "Navbar item with label 核心API"
+  },
+  "item.label.数据源": {
+    "message": "Data Sources",
+    "description": "Navbar item with label 数据源"
   }
 }

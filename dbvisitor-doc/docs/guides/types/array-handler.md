@@ -11,8 +11,8 @@ description: dbVisitor 处理数组类型及 PostgreSQL pgvector 的类型处理
 
 | 类型处理器 | Java 类型 | 作用 |
 |---|---|---|
-| `ArrayTypeHandler` | `java.sql.Array` | 通用数组处理，使用 getArray/setArray 读写 |
-| `PgArrayTypeHandler` | `java.sql.Array` | PostgreSQL 数组类型专用处理 |
+| `ArrayTypeHandler` | 输入 `java.sql.Array` 或对象数组，输出 Java 数组 | 通过 getArray/setArray 读写，读取后释放 SQL Array |
+| `PgArrayTypeHandler` | 输入 `java.sql.Array` 或对象数组，输出 `Object[]` | 显式指定 PostgreSQL 元素类型 |
 | `PgVectorTypeHandler` | `List<Float>` | PostgreSQL [pgvector](https://github.com/pgvector/pgvector) 向量类型处理 |
 
 ## PgVectorTypeHandler
@@ -25,6 +25,12 @@ public class EmbeddingEntity {
     private List<Float> embedding;
 }
 ```
+
+:::caution
+这两个 SQL ARRAY 处理器接收 Java 数组时使用 `Object[]`，应传 `Integer[]` 等对象数组，不能直接传 `int[]` 等基础类型数组。Milvus JDBC 驱动对向量参数的基础类型数组支持是另一条处理路径，见 [Milvus 用法](../../drivers/milvus/usecase)。
+
+通用 ArrayTypeHandler 读取非空的 Double 元素数组时会转成 Float 数组；需要保留双精度时，请直接使用 JDBC `getArray()` 并自行转换，或配置专用处理器。调用者提供的 SQL Array 由调用者负责 `free()`。
+:::
 
 ## 数组元素类型映射
 

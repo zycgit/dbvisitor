@@ -7,12 +7,12 @@ description: Dependencies, runnable JDBC examples, paging, typed values, generat
 
 ## 1. Versions and Dependencies
 
-This document describes the current `6.7.1-SNAPSHOT` workspace:
+This document describes the `6.7.1-SNAPSHOT` development version:
 
 - Java: **17 or later**; the current build targets Java 17.
 - Java SDK: `io.milvus:milvus-sdk-java:2.6.22`.
-- Minimum Milvus server baseline: **2.6.2**. Version 2.5.x and earlier are not supported. This does not mean all later versions, such as 3.0, have passed real-cluster validation.
-- Workspace changes are not necessarily available in published releases. Use documentation matching the source of your chosen release.
+- Minimum Milvus server baseline: **2.6.2**. Version 2.5.x and earlier are not supported. Version 3.0 is outside the scope of this documentation.
+- For other versions, read the corresponding version of the documentation.
 
 The current Gradle publication uses the adapter JAR with the `all` classifier. It includes relocated ANTLR; other dependencies are still transitive, not bundled. Maven:
 
@@ -32,7 +32,7 @@ repositories { mavenLocal(); mavenCentral() }
 dependencies { implementation 'net.hasor:jdbc-milvus:6.7.1-SNAPSHOT:all' }
 ```
 
-This SNAPSHOT example does not imply availability on Central. To use the current source, install locally from the repository root before running your Java project:
+Before using this SNAPSHOT dependency, build and install the source locally from the repository root:
 
 ```bash
 ./gradlew :dbvisitor-driver:publishToMavenLocal :jdbc-milvus:publishToMavenLocal
@@ -105,7 +105,7 @@ public class MilvusJdbcExample {
 
 `score` is the distance/similarity result column, not a stored field. Smaller L2 scores are nearer. `Class.forName` explicitly registers the driver; normal classpath environments can also use JDBC service discovery.
 
-For authentication, TLS/mTLS, Zilliz Cloud and all connection properties, see [Connection Parameters](./params.md). See [Release and Support Matrix](./compatibility.md) for server requirements and validation scope.
+For authentication, TLS/mTLS, Zilliz Cloud and all connection properties, see [Connection Parameters](./params.md). See [Versions and Support](./compatibility.md) for server and feature requirements.
 
 ## 3. Common Reads and Writes
 
@@ -232,7 +232,9 @@ try (PreparedStatement ps = conn.prepareStatement(insert, Statement.RETURN_GENER
     ps.setObject(1, rows.iterator());
     System.out.println(ps.executeLargeUpdate());
     try (ResultSet keys = ps.getGeneratedKeys()) {
-        while (keys.next()) System.out.println(keys.getObject("id"));
+        while (keys.next()) {
+            System.out.println(keys.getObject("id"));
+        }
     }
 }
 ```
@@ -277,7 +279,9 @@ try (PreparedStatement ps = conn.prepareStatement(submitSql)) {
 try (PreparedStatement ps = conn.prepareStatement("SHOW IMPORT ?")) {
     ps.setString(1, jobId);
     try (ResultSet rs = ps.executeQuery()) {
-        while (rs.next()) System.out.println(rs.getString("STATE") + " " + rs.getString("REASON"));
+        while (rs.next()) {
+            System.out.println(rs.getString("STATE") + " " + rs.getString("REASON"));
+        }
     }
 }
 ```

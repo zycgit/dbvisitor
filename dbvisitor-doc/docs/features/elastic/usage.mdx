@@ -16,13 +16,13 @@ dbVisitor 通过 [JDBC-Elastic](../../drivers/elastic/about) 驱动，基于 JDB
 - 对象映射、结果集映射、[规则](../../guides/rules/about)、[参数传递](../../guides/args/about)、[ResultSetExtractor/RowMapper](../../guides/result/about)
 - Mapper File 中的[动态 SQL](../../guides/core/file/dynamic_sql) 标签、`Statement.RETURN_GENERATED_KEYS`（自动获取 `_id`）
 
-**不支持：** executeBatch、存储过程
+**不支持：** JDBC addBatch/executeBatch、事务、存储过程
 
 ## 概念类比
 
-不同 ElasticSearch 命令的执行结果分为三种：
+不同 ElasticSearch 命令的执行结果分为两种：
 - **更新数** — 类比 INSERT/UPDATE/DELETE，用 `executeUpdate` 获取
-- **单行/多行结果** — 类比 SELECT 结果集，第一列为 `_ID`，第二列为 `_DOC`（均为字符串）
+- **单行/多行结果** — 类比 SELECT 结果集，搜索命中通常包含 `_ID` 和 `_DOC`（字符串），并展开 `_source` 字段供对象映射；管理、聚合等命令的列结构见驱动命令手册
 
 ---
 
@@ -32,7 +32,7 @@ dbVisitor 通过 [JDBC-Elastic](../../drivers/elastic/about) 驱动，基于 JDB
 
 :::tip[提示]
 更多使用方式请参考 [JdbcTemplate 类](../../guides/core/jdbc/about#guide)，在使用过程中下面两个特性由于驱动原因无法支持：
-- 批量化
+- JDBC Batch（可使用驱动支持的多文档写入命令）
 - 存储过程
 :::
 
@@ -50,13 +50,13 @@ jdbc.execute("POST /my_index/_doc/1 { \"name\": ?, \"age\": ? }", new Object[] {
 ```
 
 ```java title='查询数据'
-// 查询所有
+// 查询首批匹配结果；未指定 size 时采用 Elasticsearch 默认条数
 List<Map<String, Object>> list = jdbc.queryForList(
     "POST /my_index/_search { \"query\": { \"match_all\": {} } }");
 // 条件查询
 Map<String, Object> mali = jdbc.queryForMap(
     "POST /my_index/_search { \"query\": { \"term\": { \"name\": \"mali\" } } }");
-String json = (String) mali.get("_DOC");
+String json = mali == null ? null : (String) mali.get("_DOC");
 ```
 
 ```java title='更新数据'
@@ -68,6 +68,19 @@ jdbc.execute("DELETE /my_index/_doc/1");
 ```
 
 ---
+
+搜索的可见性受 refresh 影响。需要写入后立即搜索时，在写入请求上使用 `?refresh=wait_for`。用于 `term` 精确匹配的字符串字段应预先映射为 `keyword`。
+
+## 自动生成 ID {#id-fill}
+
+原生 JDBC 使用 `prepareStatement(command, Statement.RETURN_GENERATED_KEYS)`，执行后调用 `getGeneratedKeys()` 读取 `_id`。Mapper 使用如下配置回填 `info.id`，不要设置 `keyColumn`：
+
+```java
+@Insert(value = "POST /user_info/_doc { \"name\": #{info.name} }", useGeneratedKeys = true, keyProperty = "info.id")
+int insertWithId(@Param("info") UserWithId info);
+```
+
+其中 `UserWithId` 提供可写的 `String id` 属性。此处说明的是 JDBC/Mapper 生成键；Lambda 的 `KeyType.Auto` 使用列名形式的 JDBC 重载，当前适配器不支持该方式，应自行赋业务主键。
 
 ## 构造器 API（LambdaTemplate）{#exec-lambda}
 
@@ -93,7 +106,7 @@ UserInfo user = lambda.query(UserInfo.class)
                       .queryForObject();
 
 List<UserInfo> users = lambda.query(UserInfo.class)
-                             .like(UserInfo::getName, "test%")
+                             .like(UserInfo::getName, "test")
                              .queryForList();
 ```
 
@@ -178,7 +191,7 @@ Session session = config.newSession(dataSource);
 UserInfoMapper mapper = session.createMapper(UserInfoMapper.class);
 ```
 
-### 分页查询
+### 分页查询 {#pagination}
 
 在 Mapper 方法中添加 `Page` 参数即可实现分页查询。
 

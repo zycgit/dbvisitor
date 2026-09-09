@@ -96,7 +96,7 @@ public class ElasticVectorExample {
 }
 ```
 
-L2 范围含义为距离小于 0.8；标量 eq 条件与向量条件组合。Elastic7Dialect 的 COSINE 范围使用 `1 - cosineSimilarity < threshold`，不是相似度大于同一数值。脚本排序/过滤的生成能力与服务端可执行性应分别验收；向量函数在脚本上下文中的可用性不能由 Java 编译通过证明。
+L2 范围含义为距离小于 0.8；标量 eq 条件与向量条件组合。Elastic7Dialect 的 COSINE 范围使用 `1 - cosineSimilarity < threshold`，不是相似度大于同一数值。向量函数是否能在排序或过滤脚本中使用，取决于目标 ES 版本的脚本上下文；需要精确评分时可使用下文的原生 script_score 示例。
 
 ## 原生 DSL 与参数化向量 {#native}
 
@@ -137,7 +137,9 @@ String dsl = "POST /product_index/_search {"
 try (PreparedStatement ps = conn.prepareStatement(dsl)) {
     ps.setObject(1, Arrays.asList(0.1, 0.2, 0.3));
     try (ResultSet rs = ps.executeQuery()) {
-        while (rs.next()) System.out.println(rs.getString("_DOC"));
+        while (rs.next()) {
+            System.out.println(rs.getString("_DOC"));
+        }
     }
 }
 ```
@@ -146,7 +148,7 @@ try (PreparedStatement ps = conn.prepareStatement(dsl)) {
 
 ## 结果映射与向量读取 {#results}
 
-搜索结果提供 `_ID` 和 `_DOC`（原始 _source JSON）；preRead=true 时额外展开字段。当前 parseHit 把嵌套对象和数组序列化为 JSON 字符串，因此 `getObject("embedding")` 不是直接返回 List/基本类型数组。_source 必须保留要读取的字段；关闭 preRead 时从 _DOC 解析向量。
+搜索结果提供 `_ID` 和 `_DOC`（原始 _source JSON）；preRead=true 时额外展开字段。驱动把嵌套对象和数组序列化为 JSON 字符串，因此 `getObject("embedding")` 不是直接返回 List/基本类型数组。_source 必须保留要读取的字段；关闭 preRead 时从 _DOC 解析向量。
 
 ```java
 try (Statement stmt = conn.createStatement();
@@ -203,21 +205,7 @@ L2 范围条件生成的 script filter 形态：
 
 当前排序脚本把缺失向量映射为 0；使用前需确保文档有向量并验证排序行为。需要服务端明确支持的精确评分时，优先使用上文完整 script_score 查询。方言源码位于 [Elastic7Dialect](https://github.com/zycgit/dbvisitor/blob/main/dbvisitor/src/main/java/net/hasor/dbvisitor/dialect/provider/Elastic7Dialect.java) 和 [Elastic8Dialect](https://github.com/zycgit/dbvisitor/blob/main/dbvisitor/src/main/java/net/hasor/dbvisitor/dialect/provider/Elastic8Dialect.java)。
 
-## 测试与性能 {#validation}
-
-仓库根目录离线回归：
-
-```bash
-./gradlew :jdbc-elastic:test --no-daemon --offline
-```
-
-真实 ES7 合同测试位于 dbvisitor-test 的 realdb/elastic7，需要先配置环境：
-
-```bash
-./gradlew :dbvisitor-test:test -Pnxn.env=elastic7 --no-daemon
-```
-
-默认适配器 test 排除 realdb，编译、离线测试和真实服务端行为不能互相替代。
+## 性能与配置 {#validation}
 
 - 大数据量可评估原生近似 KNN，但要接受召回率与索引成本权衡，不能无条件保证其性能最佳。
 - num_candidates=100、k=10 是示例值，不是固定调优比例；按召回率、延迟、内存和分片数压测。

@@ -16,13 +16,13 @@ dbVisitor accesses ElasticSearch data sources via the [JDBC-Elastic](../../drive
 - Object mapping, result set mapping, [rules](../../guides/rules/about), [parameter passing](../../guides/args/about), [ResultSetExtractor/RowMapper](../../guides/result/about)
 - [Dynamic SQL](../../guides/core/file/dynamic_sql) tags in Mapper File, `Statement.RETURN_GENERATED_KEYS` (auto-retrieve `_id`)
 
-**Not supported:** executeBatch, Stored Procedures
+**Not supported:** JDBC addBatch/executeBatch, transactions, stored procedures
 
 ## Concept Analogy
 
-Execution results of different ElasticSearch commands fall into three categories:
+Execution results of different ElasticSearch commands fall into two categories:
 - **Update count** — analogous to INSERT/UPDATE/DELETE, obtained via `executeUpdate`
-- **Single/Multi-row results** — analogous to SELECT result sets, first column is `_ID`, second is `_DOC` (both strings)
+- **Single/Multi-row results** — analogous to SELECT result sets, document queries normally include `_ID`, `_DOC` (strings), and document fields. See the driver reference for administrative and aggregate results
 
 ---
 
@@ -32,7 +32,7 @@ Use JdbcTemplate to execute ElasticSearch commands directly. Make sure the Elast
 
 :::tip[Tip]
 For more usage patterns, see the [JdbcTemplate class](../../guides/core/jdbc/about#guide). The following two features are unavailable due to driver limitations:
-- Batch operations
+- JDBC Batch (use supported multi-document commands instead)
 - Stored procedures
 :::
 
@@ -50,13 +50,13 @@ jdbc.execute("POST /my_index/_doc/1 { \"name\": ?, \"age\": ? }", new Object[] {
 ```
 
 ```java title='Query data'
-// Query all
+// First matching results; omitted size uses the Elasticsearch default
 List<Map<String, Object>> list = jdbc.queryForList(
     "POST /my_index/_search { \"query\": { \"match_all\": {} } }");
 // Conditional query
 Map<String, Object> mali = jdbc.queryForMap(
     "POST /my_index/_search { \"query\": { \"term\": { \"name\": \"mali\" } } }");
-String json = (String) mali.get("_DOC");
+String json = mali == null ? null : (String) mali.get("_DOC");
 ```
 
 ```java title='Update data'
@@ -68,6 +68,19 @@ jdbc.execute("DELETE /my_index/_doc/1");
 ```
 
 ---
+
+Search visibility depends on refresh. Add `?refresh=wait_for` to writes when you need immediate search visibility. String fields used with exact `term` queries should be mapped as `keyword`.
+
+## Generated IDs {#id-fill}
+
+Use native JDBC `prepareStatement(command, Statement.RETURN_GENERATED_KEYS)`, then read `_id` through `getGeneratedKeys()`. For Mapper backfill into `info.id`, omit `keyColumn`:
+
+```java
+@Insert(value = "POST /user_info/_doc { \"name\": #{info.name} }", useGeneratedKeys = true, keyProperty = "info.id")
+int insertWithId(@Param("info") UserWithId info);
+```
+
+`UserWithId` needs a writable `String id` property. This is JDBC/Mapper key retrieval. Lambda `KeyType.Auto` selects the unsupported column-name JDBC overload; assign business IDs yourself instead.
 
 ## Builder API (LambdaTemplate) {#exec-lambda}
 
@@ -93,7 +106,7 @@ UserInfo user = lambda.query(UserInfo.class)
                       .queryForObject();
 
 List<UserInfo> users = lambda.query(UserInfo.class)
-                             .like(UserInfo::getName, "test%")
+                             .like(UserInfo::getName, "test")
                              .queryForList();
 ```
 
@@ -178,7 +191,7 @@ Session session = config.newSession(dataSource);
 UserInfoMapper mapper = session.createMapper(UserInfoMapper.class);
 ```
 
-### Paginated Queries
+### Paginated Queries {#pagination}
 
 Add a `Page` parameter to Mapper methods for paginated queries.
 

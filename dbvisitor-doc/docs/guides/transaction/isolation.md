@@ -83,12 +83,12 @@ public List<OrderInfo> queryFastButWeakConsistent() {
 
 | 时序 | 事务 A | 事务 B | 效果 |
 |---|---|---|---|
-| T1 | set isolation level read uncommitted | | |
+| T1 | | set isolation level read uncommitted | |
 | T2 | begin | begin | |
 | T3 | update students set name='bob' where id=1 | | |
 | T4 | | select * from students where id=1 | 读到 'bob'（脏读） |
 | T5 | rollback | | |
-| T6 | | select * from students where id=1 | 仍然读到 'Alice' |
+| T6 | | select * from students where id=1 | 读回 'Alice' |
 
 ## 不可重复读 (Read Committed)
 
@@ -116,7 +116,7 @@ public void payOrder(long orderId) {
 
 ## 可重复读 (Repeatable Read)
 
-在事务执行期间，相同的查询总是返回相同的结果，即使其他事务已提交了修改。
+防止同一事务重复读取已有行时受到其他事务已提交修改的影响。自身写入、范围内新增行和锁定读的行为还取决于数据库实现。
 - 常量 `Isolation.REPEATABLE_READ`
 
 ```java title='同一事务内需要稳定读取'
@@ -130,7 +130,7 @@ public OrderSummary buildOrderSummary(long orderId) {
 
 :::info[幻读]
 在 Repeatable Read 下，一个事务可能遇到**幻读（Phantom Read）**：
-第一次查询某条记录发现不存在，但当更新这条记录时却能成功，再次查询它就出现了。
+幻读通常指同一范围查询因其他事务提交而出现或消失记录。下面展示 MySQL InnoDB 中一致性读与更新操作可能观察到不同数据的情形，不是所有数据库在该级别的共同表现。
 :::
 
 | 时序 | 事务 A | 事务 B | 效果 |
@@ -144,9 +144,9 @@ public OrderSummary buildOrderSummary(long orderId) {
 | T7 | | update students set name='alice' where id=99 | 更新成功 |
 | T8 | | select * from students where id=99 | 出现数据（幻读） |
 
-## 同步事务 (Serializable)
+## 可串行化 (Serializable)
 
-最高的隔离级别。事务序列化执行，不能并发。脏读、不可重复读、幻读都不会出现。
+要求已提交事务的效果等价于按某种顺序串行执行，不意味着事务必须逐个运行。它排除脏读、不可重复读、幻读及不可串行化结果。
 - 常量 `Isolation.SERIALIZABLE`
 
 ```java title='需要最高一致性时使用'
@@ -158,11 +158,12 @@ public void allocateUniqueNumber(String bizType) {
 ```
 
 :::caution[性能影响]
-Serializable 相当于在开启事务时对整个数据库加 **排他锁**，直到事务提交后其他事务才能开始，效率会大大下降。
-一般没有特别重要的场景不会使用此级别。
+数据库可能通过锁或并发冲突检测实现此级别，并不等同于全库排他锁。需要考虑等待、死锁或序列化失败；发生可重试冲突时，应按数据库要求重试整个事务。详见 [PostgreSQL 事务隔离说明](https://www.postgresql.org/docs/current/transaction-iso.html)。
 :::
 
 ## 各级别对比
+
+下表描述标准允许的现象；数据库可以提供更强保证，例如 PostgreSQL 的 Repeatable Read 不允许幻读。
 
 | 隔离级别 | 脏读 | 不可重复读 | 幻读 |
 |---|:---:|:---:|:---:|

@@ -5,7 +5,7 @@ title: Connection Parameters and TLS
 description: All jdbc-milvus properties, authentication, single-port TLS/mTLS and Zilliz Cloud connections.
 ---
 
-This page describes the current source version. See the [release and support matrix](./compatibility.md) for dependency and server requirements.
+See [Versions and Supported Scope](./compatibility.md) for dependency and server requirements.
 
 URL format:
 
@@ -70,14 +70,14 @@ props.setProperty("secure", "true");
 props.setProperty("caPemPath", "/absolute/path/ca.crt");
 props.setProperty("serverName", "localhost");
 try (Connection conn = DriverManager.getConnection(
-        "jdbc:dbvisitor:milvus://127.0.0.1:2954/default", props)) {
+        "jdbc:dbvisitor:milvus://127.0.0.1:19530/default", props)) {
     // SDK and Import REST share TLS verification.
 }
 ```
 
-For mutual TLS, also set `clientPemPath=/absolute/path/client.crt` and `clientKeyPath=/absolute/path/client.key`. The repository's mutual-TLS ingress uses port `2955` for both SDK and REST. Do not combine caPemPath/serverPemPath or use a server private key as client identity. A supplied trust file replaces rather than augments default system trust.
+For mutual TLS, also set `clientPemPath=/absolute/path/client.crt` and `clientKeyPath=/absolute/path/client.key`. SDK and REST both use the port specified in the JDBC URL. Do not combine caPemPath/serverPemPath or use a server private key as client identity. A supplied trust file replaces rather than augments default system trust.
 
-The deployment must expose the required protocols. Milvus 2.6.2 natively shares a plaintext gRPC/REST port but requires separate internal listeners with native TLS. For full Import support over TLS, expose a unified ingress. This repository uses Envoy ALPN-based passthrough for gRPC (HTTP/2) and REST (HTTP/1.1), without terminating TLS or bypassing Milvus mutual authentication. The driver never probes another port, downgrades to plaintext, or resubmits a failed job through another API. A direct gRPC-only TLS endpoint supports SDK operations but not REST Import. See the [Milvus 2.6.2 listener implementation](https://github.com/milvus-io/milvus/blob/v2.6.2/internal/distributed/proxy/listener_manager.go).
+The deployment must expose the required protocols. Milvus 2.6.2 natively shares a plaintext gRPC/REST port but requires separate internal listeners with native TLS. For full Import support over TLS, expose a unified ingress. For example, Envoy can provide ALPN-based passthrough for gRPC (HTTP/2) and REST (HTTP/1.1), without terminating TLS or bypassing Milvus mutual authentication. The driver never probes another port, downgrades to plaintext, or resubmits a failed job through another API. A direct gRPC-only TLS endpoint supports SDK operations but not REST Import. See the [Milvus 2.6.2 listener implementation](https://github.com/milvus-io/milvus/blob/v2.6.2/internal/distributed/proxy/listener_manager.go).
 
 For Zilliz Cloud, use the public endpoint and token/API key from the console. Replace `https://` with the JDBC prefix, retain the endpoint host and port, and set `secure=true`. Use `443` when the HTTPS endpoint omits a port; preserve an explicitly supplied port such as `19530`. The JDBC default remains 19530; the driver does not infer Cloud type from a hostname:
 
@@ -91,7 +91,7 @@ try (Connection conn = DriverManager.getConnection(
 }
 ```
 
-There is no trust-all, hostname-verification bypass, or automatic plaintext fallback. Untrusted certificates, identity mismatch and missing mutual-TLS credentials fail. Keep credentials out of URLs and logs. Cloud permissions, network allowlists and Import availability depend on the actual cluster; local TLS validation does not establish cloud acceptance.
+There is no trust-all, hostname-verification bypass, or automatic plaintext fallback. Untrusted certificates, identity mismatch and missing mutual-TLS credentials fail. Keep credentials out of URLs and logs. Before connecting to Cloud, check endpoint permissions, network allowlists and Import API availability.
 
 See the [Docker test environment](https://github.com/zycgit/dbvisitor/blob/main/dbvisitor-test/docker/README.md), [Milvus TLS configuration](https://milvus.io/docs/tls.md) and [Zilliz Cloud connection guide](https://docs.zilliz.com/docs/connect-to-cluster).
 

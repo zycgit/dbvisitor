@@ -21,13 +21,13 @@
     "message": "Feature"
   },
   "dbv.feature3_desc": {
-    "message": "Most straightforward, No cognitive burden, No hidden SQL, No magic, MyBatis compatible"
+    "message": "Keep SQL and native commands, with annotation and XML Mappers; see each driver manual for JDBC compatibility."
   },
   "dbv.tagline": {
     "message": "dbVisitor provides a unified and simple way to access various types of databases."
   },
   "dbv.hero.desc": {
-    "message": "Acknowledge differences, manage differences, not eliminate them — through a dual-layer adapter architecture, one set of APIs naturally accesses any database."
+    "message": "Acknowledge and manage differences rather than eliminate them — access supported databases through unified APIs and a dual-layer adapter architecture."
   },
   "dbv.hero.getStarted": {
     "message": "Get Started"
@@ -36,7 +36,7 @@
     "message": "Broad Database Support"
   },
   "dbv.db.subtitle": {
-    "message": "Covers 11 relational database dialects, plus NoSQL and vector databases via JDBC driver adapters"
+    "message": "Supports multiple relational database dialects, plus NoSQL and vector databases through JDBC driver adapters"
   },
   "dbv.phil.title": {
     "message": "Core Philosophy"
@@ -48,7 +48,7 @@
     "message": "Unified APIs"
   },
   "dbv.phil.unified.desc": {
-    "message": "Programmatic, Declarative, Mapper, XML File — 5 API styles"
+    "message": "JdbcTemplate, declarative interfaces, BaseMapper, LambdaTemplate, and XML Mapper"
   },
   "dbv.phil.adapter.title": {
     "message": "Dual-Layer Adapter Architecture"
@@ -141,7 +141,7 @@
     "message": "Same APIs, Different Databases"
   },
   "dbv.code.subtitle": {
-    "message": "Whether the underlying database is MySQL or MongoDB, the application code stays the same"
+    "message": "Reuse APIs within driver capabilities; SQL, field mappings, and transaction support still depend on the data source"
   },
   "dbv.code.comment.rdb": {
     "message": "// Connect to relational database"
@@ -165,7 +165,7 @@
     "message": "Join the Community"
   },
   "dbv.cta.desc": {
-    "message": "Apache 2.0 License · Only dependency: Cobble · Java 8+"
+    "message": "Apache 2.0 License · Core dependency: Cobble · Java 17+ starting with 6.7.1"
   },
   "faker.feature1_title": {
     "message": "Full types"
@@ -394,7 +394,7 @@
     "description": "The title of the tag list page"
   },
   "homepage.tagline": {
-    "message": "HasorDB is a Full-featured database access tool, Multiple usage, and compatible with Spring JDBC, MyBatis usage"
+    "message": "dbVisitor is a database access tool with JDBC, Lambda, annotation Mapper, and XML Mapper APIs."
   },
   "theme.colorToggle.ariaLabel.mode.system": {
     "message": "system mode",
@@ -565,5 +565,11 @@
   "theme.contentVisibility.draftBanner.message": {
     "message": "This page is a draft. It will only be visible in dev and be excluded from the production build.",
     "description": "The draft content banner message"
+  },
+  "commons.optional": {
+    "message": "Optional"
+  },
+  "commons.required": {
+    "message": "Required"
   }
 }

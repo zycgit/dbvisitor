@@ -18,11 +18,11 @@ dbVisitor 通过 [JDBC-Redis](../../drivers/redis/about) 驱动，基于 JDBC �
 - [规则](../../guides/rules/about)、[参数传递](../../guides/args/about)、[ResultSetExtractor/RowMapper](../../guides/result/about) 等通用能力
 - Mapper File 中的[动态 SQL](../../guides/core/file/dynamic_sql) 标签
 
-**不支持：** 构造器 API、通用 Mapper、对象映射、结果集映射、executeBatch、存储过程
+**不支持：** 构造器 API、BaseMapper、JDBC Batch、事务、存储过程。结果列仍可通过 RowMapper 映射；JSON 字符串可通过 TypeHandler 还原为对象。
 
 ## 概念类比
 
-不同 Redis 命令的执行结果分为三种：
+不同 Redis 命令的执行结果分为两种：
 - **更新数** — 类比 INSERT/UPDATE/DELETE，用 `executeUpdate` 获取
 - **单行/多行结果** — 类比 SELECT 结果集
 
@@ -34,7 +34,7 @@ dbVisitor 通过 [JDBC-Redis](../../drivers/redis/about) 驱动，基于 JDBC �
 
 :::tip[提示]
 更多使用方式请参考 [JdbcTemplate 类](../../guides/core/jdbc/about#guide)，在使用过程中下面两个特性由于驱动原因无法支持：
-- 批量化
+- JDBC Batch
 - 存储过程
 :::
 
@@ -67,7 +67,7 @@ int result1 = jdbc.executeUpdate("DEL myKey");
 int result2 = jdbc.executeUpdate("DEL ?", "myKey");
 ```
 
-### Key 读/写/删（多个 Key）
+### Key 读/写/删（多个 Key） {#multi-key}
 
 ```java title='读取多个 Key'
 Map<String, Integer> result = jdbc.queryForPairs("MGET ? ? ?", String.class, Integer.class,
@@ -83,7 +83,7 @@ int result = jdbc.executeUpdate("MSET ? ? ? ? ? ?",
 int result = jdbc.executeUpdate("DEL ? ? ?", new Object[] { "key1", "key2", "key3" });
 ```
 
-### 对象的读/写
+### 对象的读/写 {#json-serialization}
 
 ```java title='使用 @BindTypeHandler 注解绑定 JSON 序列化'
 @BindTypeHandler(JsonTypeHandler.class)
@@ -94,7 +94,7 @@ public class MyObject {
 
 ```java title='读写对象'
 // 读取对象
-MyObject obj = jdbc.queryForObject("GET ?", MyObject.class, "myObjectKey");
+MyObject obj = jdbc.queryForObject("GET ?", "myObjectKey", MyObject.class);
 // 写入对象
 jdbc.executeUpdate("SET ? ?", new Object[] { "myObjectKey", (MyObject) myObject });
 ```
@@ -165,7 +165,7 @@ UserInfoMapper mapper = session.createMapper(UserInfoMapper.class);
         "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
         <mapper namespace="net.test.dto.UserInfoMapper">
             <insert id="saveUser">
-                set #{'user_' + uid} #{info}
+                set #{'user_' + info.uid} #{info}
             </insert>
 
             <select id="loadUser" resultType="net.test.dto.UserInfo">
@@ -196,18 +196,13 @@ UserInfoMapper mapper = session.createMapper(UserInfoMapper.class);
         "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
         <mapper namespace="net.test.dto.UserInfoMapper">
             <insert id="saveUser">
-                set #{'user_' + uid}
-                #{info, typeHandler=net.hasor.dbvisitor.types.handler.json.JsonTypeHandler}
+                set #{'user_' + info.uid} #{info, typeHandler=net.hasor.dbvisitor.types.handler.json.JsonTypeHandler}
             </insert>
 
             <!-- 需要同时指定 resultTypeHandler 和 resultType 属性 -->
-            <select id="loadUser1"
+            <select id="loadUser"
                     resultTypeHandler="net.hasor.dbvisitor.types.handler.json.JsonTypeHandler"
                     resultType="net.test.dto.UserInfo">
-                get #{'user_' + uid}
-            </select>
-
-            <select id="loadUser2" resultType="net.test.dto.UserInfo">
                 get #{'user_' + uid}
             </select>
 
@@ -263,15 +258,15 @@ jdbc.executeUpdate("SET ? ? EX ?", new Object[] { "myKey", "myValue", 60 });
 
 ```java title="通过 INCR/DECR 命令对数值进行自增/自减操作"
 jdbc.executeUpdate("SET myKey 0");                      // 初始值 0
-String result = jdbc.queryForString("INCR ?", "myKey"); // 自增后的值为 1
-String result = jdbc.queryForString("DECR ?", "myKey"); // 自减后的值为 0
+String incremented = jdbc.queryForString("INCR ?", "myKey"); // 自增后的值为 1
+String decremented = jdbc.queryForString("DECR ?", "myKey"); // 自减后的值为 0
 ```
 - 参考：[INCR 命令](https://redis.io/docs/latest/commands/incr/)、[DECR 命令](https://redis.io/docs/latest/commands/decr/)
 
 ```java title="通过 APPEND/GETRANGE 命令对字符串进行追加/截取操作"
 jdbc.executeUpdate("SET myKey myValue");                                              // 初始值 myValue
-String result = jdbc.queryForString("APPEND ? ?", new Object[] { "myKey", "123" });   // 追加后的值为 myValue123
-String result = jdbc.queryForString("GETRANGE ? ? ?", new Object[] { "myKey", 0, 5 });// 截取后的值为 myVal
+Long length = jdbc.queryForLong("APPEND ? ?", new Object[] { "myKey", "123" }); // 新长度为 10
+String prefix = jdbc.queryForString("GETRANGE ? ? ?", new Object[] { "myKey", 0, 5 }); // 包含下标 5，结果为 myValu
 ```
 - 参考：[APPEND 命令](https://redis.io/docs/latest/commands/append/)、[GETRANGE 命令](https://redis.io/docs/latest/commands/getrange/)
 
@@ -312,18 +307,18 @@ jdbc.executeUpdate("HSET myKey1 @{pairs, :arg0, :k :v}", SqlArg.valueOf(hashData
 
 ```java title="读写列表元素"
 jdbc.executeUpdate("LPUSH myListKey value1 value2 value3");
-String result = jdbc.queryForString("LPOP myListKey"); // value3
-String result = jdbc.queryForString("RPOP myListKey"); // value1
+String left = jdbc.queryForString("LPOP myListKey"); // value3
+String right = jdbc.queryForString("RPOP myListKey"); // value1
 ```
 - 参考：[LPUSH 命令](https://redis.io/docs/latest/commands/lpush/)、[LPOP 命令](https://redis.io/docs/latest/commands/lpop/)、[RPOP 命令](https://redis.io/docs/latest/commands/rpop/)
 
 ```java title="通过 LPUSH/BLPOP 实现消息队列"
 // 左进右出阻塞队列
 jdbc.executeUpdate("LPUSH myListKey value1");
-String result = jdbc.queryForString("BRPOP myListKey");
+List<String> right = jdbc.queryForList("BRPOP myListKey 5", String.class);
 // 右进左出阻塞队列
 jdbc.executeUpdate("RPUSH myListKey value1");
-String result = jdbc.queryForString("BLPOP myListKey");
+List<String> left = jdbc.queryForList("BLPOP myListKey 5", String.class);
 ```
 - 参考：[LPUSH 命令](https://redis.io/docs/latest/commands/lpush/)、[BRPOP 命令](https://redis.io/docs/latest/commands/brpop/)
 
@@ -373,7 +368,7 @@ Map<String,Double> hashData = new HashMap<>();
 hashData.put("field1", 3.0);
 hashData.put("field2", 2.0);
 hashData.put("field3", 1.0);
-jdbc.executeUpdate("ZADD myKey1 @{pairs, :arg0, :v :k}", SqlArg.valueOf(hashData));
+Long added = jdbc.queryForLong("ZADD myKey1 @{pairs, :arg0, :v :k}", SqlArg.valueOf(hashData));
 jdbc.queryForList("ZRANGEBYSCORE myKey1 -inf +inf ", String.class); // [field3, field2, field1]
 ```
 - 参考：[ZADD 命令](https://redis.io/docs/latest/commands/zadd/)、[PAIRS 规则](../../guides/rules/dynamic_rule#pairs)

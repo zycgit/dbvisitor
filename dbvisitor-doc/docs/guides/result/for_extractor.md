@@ -35,7 +35,7 @@ public class UserResultSetExtractor implements ResultSetExtractor<Map<Integer, S
 // 使用 query() 方法，返回值由 Extractor 泛型决定
 Map<Integer, String> result = jdbc.query("select * from users", userExtractor);
 // 带参数
-Map<Integer, String> result = jdbc.query("select * from users where age > ?", 18, userExtractor);
+Map<Integer, String> filtered = jdbc.query("select * from users where age > ?", 18, userExtractor);
 ```
 
 ```java title='例：声明式 API'

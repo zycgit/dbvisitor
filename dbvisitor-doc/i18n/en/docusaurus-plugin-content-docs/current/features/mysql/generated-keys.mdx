@@ -14,7 +14,7 @@ MySQL's `AUTO_INCREMENT` columns are well-suited for backfilling via JDBC genera
 
 | Scenario | GeneratedKeyStrategy | Notes |
 |------|---------------------|------|
-| No backfill columns | `JdbcBatch` | Regular JDBC batch, best performance |
+| No backfill columns | `JdbcBatch` | Regular JDBC batch, reduces per-statement submission overhead |
 | `Into` + with backfill columns | `JdbcBatchGeneratedKeys` | batch + `getGeneratedKeys()` backfill |
 | `Ignore` + with backfill columns | `OneByOne` | Conservative row-by-row execution to guarantee backfill semantics |
 | `Update` + with backfill columns | `OneByOne` | Same as above, avoids unstable combination of `ON DUPLICATE KEY UPDATE` with batch generated keys |
@@ -48,7 +48,7 @@ Integer id = user.getId(); // Auto-backfilled
 | Ignore | `INSERT IGNORE INTO ...` | Not required (works even without PK) |
 | Update | `INSERT INTO ... ON DUPLICATE KEY UPDATE ...` | Not required (updates all columns when no PK) |
 
-MySQL is the only database that does **not require a primary key** to use Ignore/Update strategies. Strategies are triggered by database unique keys or primary keys.
+The MySQL dialect does not require primary-key columns in the entity mapping for Ignore/Update strategies. Strategies are triggered by database unique keys or primary keys.
 
 ## Mapper XML / Annotation
 

@@ -131,7 +131,7 @@ TransactionStatus tran = txManager.begin();
 try {
     jdbcTemplate.executeUpdate(
             "update sku_stock set quantity = quantity - ? where sku_id = ?",
-            quantity, skuId
+            new Object[] { quantity, skuId }
     );
 
     if (quantity <= 0) {
@@ -140,7 +140,13 @@ try {
 
     txManager.commit(tran);
 } catch (Throwable e) {
-    txManager.rollBack(tran);
+    if (!tran.isCompleted()) {
+        try {
+            txManager.rollBack(tran);
+        } catch (Throwable rollbackError) {
+            e.addSuppressed(rollbackError);
+        }
+    }
     throw e;
 }
 ```

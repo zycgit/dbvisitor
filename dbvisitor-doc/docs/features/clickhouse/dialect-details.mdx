@@ -10,10 +10,10 @@ description: ClickHouse 方言的分页、写入模型、应用侧 ID 和 batch 
 
 ## 分页 SQL
 
-ClickHouse 使用 `LIMIT ? OFFSET ?`（与 PostgreSQL 相同）：
+ClickHouse 方言使用 `LIMIT offset, count`；offset 为 0 时仅追加 `LIMIT count`：
 
 ```sql
-SELECT ... LIMIT ? OFFSET ?
+SELECT ... LIMIT ?, ?
 ```
 
 ## Count SQL
@@ -24,10 +24,10 @@ SELECT COUNT(*) FROM (原始查询) as TEMP_T
 
 ## 标识符引用
 
-使用双引号 `"`：
+方言使用反引号：
 
 ```sql
-SELECT * FROM "users" WHERE "name" = ?
+SELECT * FROM `users` WHERE `name` = ?
 ```
 
 ## 写入冲突策略
@@ -59,12 +59,12 @@ ClickHouse 是分析型数据库，不存在传统 OLTP 数据库的主键冲突
 
 - ClickHouse 推荐批量写入而非逐条插入
 - 无回填需求时可利用 `JdbcBatch` 提升吞吐
-- 注意异步写入特性：写入后未必立即可见
+- 写入可见性取决于表引擎和设置。启用 `async_insert` 且关闭 `wait_for_async_insert` 时，响应可在数据落入表前返回；这不是所有 INSERT 的默认行为。见[异步写入说明](https://clickhouse.com/docs/optimize/asynchronous-inserts)。
 - 推荐主键生成方式：`KeyType.UUID32` 或 `KeyType.UUID36`
 
 ## 关键差异总结
 
-- 唯一不支持任何冲突策略的关系型数据源
+- 方言只提供普通 Into 写入，不提供 Ignore/Update 冲突策略
 - 不推荐依赖 JDBC generated keys
 - 不支持序列
-- 分析型写入模型（批量优先，异步可见）
+- 分析型写入模型，通常应合并多行提交

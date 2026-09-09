@@ -38,13 +38,13 @@ SQL 增强规则用于简化动态 SQL 开发。相比 XML 标签，规则能更
 
 | 特性 | `@{and, sql片段}` | `@{ifand, OGNL条件, sql片段}` |
 |------|-------------------|-------------------------------|
-| 生效判断 | SQL 片段中的参数**全部非 null** 时生效 | **OGNL 条件表达式**为 `true` 时生效 |
-| 空值参数 | 参数为 null 时整个片段被**丢弃** | 条件满足时参数为 null 也会**保留** |
+| 生效判断 | SQL 片段中的至少一个参数**非 null** 时生效（文本注入另见下文） | **OGNL 条件表达式**为 `true` 时生效 |
+| 空值参数 | 参数全部为 null 或没有参数时，整个片段被**丢弃** | 条件满足时参数为 null 也会**保留** |
 | 典型用途 | 简洁写法，自动判空 | 需要自定义判断逻辑 |
 
 ### 特性说明
 
-1. **自动前缀去除**：规则会自动处理 `WHERE` 关键字和最前面多余的 `AND`，例如 `WHERE @{and, AND x=1}` 会优化为 `WHERE x=1`。
+1. **上下文连接符**：规则检查前文末尾的 `WHERE`、`AND`、`OR` 等，决定是否补连接符；规则内容应直接写条件，例如 `WHERE @{and, x=:x}`。不要在规则内部再写前导 AND。
 2. **智能空值丢弃**：
    - 默认情况下，如果 `@{and, col=:val}` 中的 `:val` 为空 (null)，则整个片段会被丢弃。
    - **例外**：如果片段中包含 `${...}` 动态注入，即使参数为空，该片段也会被强制保留（防止误删筛选逻辑）。
@@ -60,8 +60,8 @@ SQL 增强规则用于简化动态 SQL 开发。相比 XML 标签，规则能更
 select * from users 
 where status = :status      -- 固定条件
       @{and, uid = :userId} -- 自动处理 AND 前缀
-      -- 仅当 userId 不为空且长度>0 时生效
-      @{ifand, userId != null && userId.length() > 0, uid = :userId}
+      -- 若需额外检查长度，可将上面规则替换为：
+      -- @{ifand, userId != null && userId.length() > 0, uid = :userId}
 ```
 
 ```sql title="生成的 SQL (status=1, userId='abc')"
@@ -87,8 +87,8 @@ where status = ? and uid = ?
 
 :::info 智能特性
 - **自动补全 WHERE**：若规则位于条件首位，会自动补全 `WHERE` 关键字。
-- **自动处理前缀**：智能识别上下文，自动去除或添加必要的 `AND`。
-- **自动降级**：若前文是 `OR`，会自动适配。
+- **按上下文补连接符**：检查前文决定是否添加 `AND`；不会去除规则内容中手写的前导 `AND`。
+- **保留已有连接符**：若前文已以 `OR` 结尾，不再补 `AND`。
 :::
 
 ---
@@ -108,8 +108,8 @@ where status = ? and uid = ?
 select * from users 
 where username = :username 
       @{or, email = :email} -- 自动以 OR 连接
-      -- 仅当 email 包含 '@' 时生效
-      @{ifor, email != null && email.contains("@"), email = :email}
+      -- 如需检查格式，可将上面规则替换为：
+      -- @{ifor, email != null && email.contains("@"), email = :email}
 ```
 
 ```sql title="生成的 SQL (username='admin', email='a@b.c')"
@@ -134,7 +134,7 @@ where username = ? or email = ?
 </Tabs>
 
 :::info 智能特性
-与 AND 规则一致，具备自动补全 `WHERE` 和自动修正连接符（OR）的能力。
+与 AND 规则一致，根据前文补 `WHERE` 或 `OR`；规则内部应直接写条件，不要再写前导连接符。
 :::
 
 ---
@@ -154,8 +154,8 @@ where username = ? or email = ?
 select * from users
 where status = :status
       @{in, and id in :ids} -- 自动展开为 id in (?,?,?)
-      -- 仅当 ids 集合非空时生效
-      @{ifin, ids != null && ids.size() > 0, and id in :ids}
+      -- 如需显式判断，可将上面规则替换为：
+      -- @{ifin, ids != null && ids.size() > 0, and id in :ids}
 ```
 
 ```sql title="生成的 SQL (ids=[1,2,3])"
@@ -183,7 +183,7 @@ where status = ? and id in (?, ?, ?)
 </Tabs>
 
 :::caution 注意事项
-本规则**不会**自动补全 `AND`/`OR` 前缀，需在规则内手动写明（如示例中的 `and id in ...`）。
+本规则**不会**自动补全 `AND`/`OR` 前缀，需在规则内手动写明（如示例中的 `and id in ...`）。集合为空或 null 时规则不输出内容；若空集合应表示“不匹配任何行”，应在调用前返回空结果或显式追加 `1=0`，不要让条件被省略后扩大查询或修改范围。
 :::
 
 ---
@@ -191,20 +191,20 @@ where status = ? and id in (?, ?, ?)
 ## SET、IFSET 规则 {#set}
 
 专用于 `UPDATE` 语句，解决动态列更新时的逗号拼接问题。
-- **`@{set, sql片段}`**：参数非空时追加赋值，并自动管理逗号。与 `and`/`or` 不同，`set` **允许参数值为 null**。
+- **`@{set, sql片段}`**：追加赋值并自动管理逗号。与 `and`/`or` 不同，`set` **允许参数值为 null**。
 - **`@{ifset, OGNL条件, sql片段}`**：当 OGNL 条件为真时生效。
 
 <Tabs>
   <TabItem value="rule-style" label="使用规则" default>
 
-**示例**：更新用户，`status` 为选填。
+**示例**：更新用户，`status` 为 null 时也会写入 NULL。
 
 ```sql
 update users 
 set update_time = now()      -- 固定列
     @{set, status = :status} -- 自动处理逗号
-    -- 仅当 status != 'disabled' 时更新
-    @{ifset, status != null && status != 'disabled', status = :status}
+    -- 如需按条件更新，可将上面规则替换为：
+    -- @{ifset, status != null && status != 'disabled', status = :status}
 where uid = :uid
 ```
 
@@ -221,9 +221,7 @@ where uid = ?
 <update id="updateUser">
     update users 
     set update_time = now()
-    <if test="status != null">
-        , status = #{status}
-    </if>
+    , status = #{status}
     where uid = #{uid}
 </update>
 ```
@@ -237,10 +235,11 @@ where uid = ?
 规则引擎会自动检测前文内容并智能补充逗号。手动添加逗号反而可能在某些动态场景下导致语法错误。
 
 ```sql title='推荐写法（规则放到最后）'
-update user
+update users set
   fixed_col = 1        -- 结尾不要加逗号
   @{set, name = :name} -- 规则会自动处理前置逗号（生成 ", name = ?"）
   @{set, age = :age}
+where id = :id
 ```
 
 ```sql title='问题写法（当规则没有匹配时）'
@@ -286,7 +285,7 @@ select * from users where 1=1
   <TabItem value="xml-style" label="XML 对照">
 
 ```xml
-<select>
+<select id="queryUser">
     select * from users where 1=1
     <!-- @{if} 对应标准 <if> -->
     <if test="hasName">
@@ -419,7 +418,8 @@ config.addMacro("includeSeq", "and seq = :seq");
 select * from users where
     status = :status
     @{macro, includeSeq} -- 引用宏
-    @{ifmacro, status > 2, includeSeq} -- 条件引用
+    -- 如需按条件引用，可替换上面规则：
+    -- @{ifmacro, status > 2, includeSeq}
 ```
 
 ```sql title="生成的 SQL (status=3)"
@@ -440,9 +440,7 @@ where status = ? and seq = ?
 <select id="queryUser">
     select * from users where status = #{status}
     <include refid="includeSeq"/>
-    <if test="status > 2">
-         <include refid="includeSeq"/>
-    </if>
+    <!-- 条件引用时，可用 if 包裹上面的 include；不要重复引用同一条件。 -->
 </select>
 ```
 
@@ -466,13 +464,13 @@ where status = ? and seq = ?
 - **`@{md5, :param}`**：取 `:param` 参数的值，计算其 MD5 后绑定为 `?` 占位符。
 
 :::caution[注意]
-参数必须使用 `:` 前缀引用（如 `:loginPassword`），否则不会被识别为参数引用。
+规则内容必须解析出且仅解析出一个绑定参数，如 `:loginPassword`、`#{loginPassword}` 或 `?`；裸名称不是绑定参数。MD5 是哈希而非加密，不应用于新的密码存储方案；下面仅演示兼容既有 MD5 字段。
 :::
 
 <Tabs>
   <TabItem value="rule-style" label="使用规则" default>
 
-**示例**：对密码进行 MD5 加密匹配。
+**示例**：对既有 MD5 密码字段进行哈希匹配。
 
 ```sql
 select * from users 

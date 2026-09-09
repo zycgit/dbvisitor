@@ -11,7 +11,7 @@ description: Milvus 数据源各 API 方式和向量搜索的详细用法。
 dbVisitor 通过 [JDBC-Milvus](../../drivers/milvus/about) 驱动，基于 JDBC 协议访问 Milvus 向量数据库。
 与 MongoDB/ElasticSearch 的原生命令风格不同，Milvus 适配器采用 **SQL 风格语法**（`CREATE TABLE`、`INSERT`、`SELECT`、`DELETE` 等），学习成本更低。
 
-本页介绍 dbVisitor API 如何执行适配器支持的 SQL；依赖、连接、TLS 和完整 JDBC 程序统一见[安装与使用](../../drivers/milvus/usecase.mdx)。版本要求与未验证范围见[支持矩阵](../../drivers/milvus/compatibility.md)。下面示例使用二维 FloatVector；片段中的 dataSource、connection、实体访问器和 Session 由应用提供。
+本页介绍 dbVisitor API 如何执行适配器支持的 SQL；依赖、连接、TLS 和完整 JDBC 程序统一见[安装与使用](../../drivers/milvus/usecase.mdx)。版本要求与功能边界见[支持矩阵](../../drivers/milvus/compatibility.md)。下面示例使用二维 FloatVector；片段中的 dataSource、connection、实体访问器和 Session 由应用提供。
 
 **支持的能力：**
 
@@ -378,7 +378,9 @@ Milvus 的核心能力是向量相似性检索。dbVisitor 的构造器 API 提�
 
 ### KNN 近邻搜索（orderBy*）
 
-使用 `orderByL2` / `orderByCosine` / `orderByIP` 按向量距离排序，配合 `initPage` 取前 K 条最相似记录：
+查询度量必须与已建索引的 metric_type 一致。上文创建的是 L2 索引；尝试 COSINE/IP 示例前，应另建采用对应度量的集合与索引，不要直接在同一个 L2 索引上运行。
+
+使用 `orderByL2` / `orderByCosine` / `orderByIP` 按向量相似度排序，配合 `initPage` 取前 K 条最相似记录：
 
 ```java title='L2 距离 TopK 搜索'
 LambdaTemplate lambda = new LambdaTemplate(dataSource);
