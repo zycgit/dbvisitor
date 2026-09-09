@@ -15,9 +15,10 @@
  */
 package net.hasor.dbvisitor.adapter.milvus;
 import java.util.Map;
-import io.milvus.client.MilvusServiceClient;
+import io.milvus.v2.client.MilvusClientV2;
 
+/** Creates the SDK client used by all JDBC commands. */
+@FunctionalInterface
 public interface CustomMilvus {
-    /** return MilvusServiceClient */
-    MilvusServiceClient createMilvusClient(String jdbcUrl, Map<String, String> props);
+    MilvusClientV2 createMilvusClient(String jdbcUrl, Map<String, String> props);
 }

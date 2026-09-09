@@ -78,7 +78,7 @@ class ElasticOperation {
         }
 
         StringBuilder sb = new StringBuilder(queryPath);
-        boolean first = queryParams.isEmpty();
+        boolean first = true;
         for (Map.Entry<String, Object> e : queryParams.entrySet()) {
             sb.append(first ? "?" : "&").append(e.getKey()).append("=").append(e.getValue());
             first = false;

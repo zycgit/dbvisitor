@@ -16,6 +16,13 @@
 package net.hasor.dbvisitor.adapter.milvus;
 import java.sql.SQLException;
 import net.hasor.cobble.concurrent.future.Future;
+import net.hasor.dbvisitor.adapter.milvus.commands.admin.MilvusCommandsForMaintenance;
+import net.hasor.dbvisitor.adapter.milvus.commands.admin.MilvusCommandsForUser;
+import net.hasor.dbvisitor.adapter.milvus.commands.imports.MilvusCommandsForImport;
+import net.hasor.dbvisitor.adapter.milvus.commands.query.MilvusCommandsForDQL;
+import net.hasor.dbvisitor.adapter.milvus.commands.schema.*;
+import net.hasor.dbvisitor.adapter.milvus.commands.write.MilvusCommandsForData;
+import net.hasor.dbvisitor.adapter.milvus.commands.write.MilvusCommandsForWrite;
 import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser;
 import net.hasor.dbvisitor.driver.AdapterReceive;
 import net.hasor.dbvisitor.driver.AdapterRequest;
@@ -38,10 +45,10 @@ public class MilvusDistributeCall {
                 return execShowCmd(sync, milvusCmd, h, command.showCmd(), request, receive, startArgIdx);
             }
             if (command.insertCmd() != null) {
-                return MilvusCommandsForData.execInsertCmd(sync, milvusCmd, h, command.insertCmd(), request, receive, startArgIdx);
+                return MilvusCommandsForWrite.execInsertCmd(sync, milvusCmd, h, command.insertCmd(), request, receive, startArgIdx);
             }
             if (command.upsertCmd() != null) {
-                return MilvusCommandsForData.execUpsertCmd(sync, milvusCmd, h, command.upsertCmd(), request, receive, startArgIdx);
+                return MilvusCommandsForWrite.execUpsertCmd(sync, milvusCmd, h, command.upsertCmd(), request, receive, startArgIdx);
             }
             if (command.updateCmd() != null) {
                 return MilvusCommandsForData.execUpdateCmd(sync, milvusCmd, h, command.updateCmd(), request, receive, startArgIdx);
@@ -56,13 +63,13 @@ public class MilvusDistributeCall {
                 return MilvusCommandsForUser.execRevokeCmd(sync, milvusCmd, h, command.revokeCmd(), request, receive, startArgIdx);
             }
             if (command.importCmd() != null) {
-                return MilvusCommandsForData.execImportCmd(sync, milvusCmd, h, command.importCmd(), request, receive, startArgIdx);
+                return MilvusCommandsForImport.execImportCmd(sync, milvusCmd, h, command.importCmd(), request, receive, startArgIdx);
             }
             if (command.loadCmd() != null) {
-                return MilvusCommandsForData.execLoadCmd(sync, milvusCmd, h, command.loadCmd(), request, receive, startArgIdx);
+                return MilvusCommandsForMaintenance.execLoadCmd(sync, milvusCmd, h, command.loadCmd(), request, receive, startArgIdx);
             }
             if (command.releaseCmd() != null) {
-                return MilvusCommandsForData.execReleaseCmd(sync, milvusCmd, h, command.releaseCmd(), request, receive, startArgIdx);
+                return MilvusCommandsForMaintenance.execReleaseCmd(sync, milvusCmd, h, command.releaseCmd(), request, receive, startArgIdx);
             }
             if (command.renameCmd() != null) {
                 return MilvusCommandsForTable.execRenameCmd(sync, milvusCmd, h, command.renameCmd(), request, receive, startArgIdx);
@@ -74,7 +81,7 @@ public class MilvusDistributeCall {
                 return MilvusCommandsForDQL.execCountCmd(sync, milvusCmd, h, command.countCmd(), request, receive, startArgIdx);
             }
             if (command.flushCmd() != null) {
-                return MilvusCommandsForOther.execFlushCmd(sync, milvusCmd, h, command.flushCmd(), request, receive, startArgIdx);
+                return MilvusCommandsForMaintenance.execFlushCmd(sync, milvusCmd, h, command.flushCmd(), request, receive, startArgIdx);
             }
 
             sync.failed(new SQLException("unknown command."));
@@ -99,7 +106,7 @@ public class MilvusDistributeCall {
         } else if (createCmd.INDEX() != null) {
             return MilvusCommandsForIndex.execCreateIndex(future, milvusCmd, h, createCmd, request, receive, startArgIdx);
         } else if (createCmd.ALIAS() != null) {
-            return MilvusCommandsForOther.execCreateAlias(future, milvusCmd, h, createCmd, request, receive, startArgIdx);
+            return MilvusCommandsForAlias.execCreateAlias(future, milvusCmd, h, createCmd, request, receive, startArgIdx);
         } else {
             throw new SQLException("Unknown CREATE command");
         }
@@ -109,7 +116,7 @@ public class MilvusDistributeCall {
         if (alterCmd.DATABASE() != null) {
             return MilvusCommandsForDB.execAlterDatabase(future, milvusCmd, h, alterCmd, request, receive, startArgIdx);
         } else if (alterCmd.ALIAS() != null) {
-            return MilvusCommandsForOther.execAlterAlias(future, milvusCmd, h, alterCmd, request, receive, startArgIdx);
+            return MilvusCommandsForAlias.execAlterAlias(future, milvusCmd, h, alterCmd, request, receive, startArgIdx);
         } else {
             throw new SQLException("Unknown ALTER command");
         }
@@ -129,7 +136,7 @@ public class MilvusDistributeCall {
         } else if (dropCmd.TABLE() != null) {
             return MilvusCommandsForTable.execDropTable(future, milvusCmd, h, dropCmd, request, receive, startArgIdx);
         } else if (dropCmd.ALIAS() != null) {
-            return MilvusCommandsForOther.execDropAlias(future, milvusCmd, h, dropCmd, request, receive, startArgIdx);
+            return MilvusCommandsForAlias.execDropAlias(future, milvusCmd, h, dropCmd, request, receive, startArgIdx);
         } else {
             throw new SQLException("Unknown DROP command");
         }
@@ -137,7 +144,9 @@ public class MilvusDistributeCall {
 
     public static Future<?> execShowCmd(Future<Object> future, MilvusCmd milvusCmd, MilvusParser.HintCommandContext h, MilvusParser.ShowCmdContext showCmd,//
             AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
-        if (showCmd.DATABASES() != null) {
+        if (showCmd.IMPORT() != null || showCmd.IMPORTS() != null) {
+            return MilvusCommandsForImport.execShowImport(future, milvusCmd, h, showCmd, request, receive, startArgIdx);
+        } else if (showCmd.DATABASES() != null) {
             return MilvusCommandsForDB.execShowDatabases(future, milvusCmd, h, request, receive, startArgIdx);
         } else if (showCmd.USERS() != null) {
             return MilvusCommandsForUser.execShowUsers(future, milvusCmd, h, showCmd, request, receive, startArgIdx);
@@ -150,7 +159,7 @@ public class MilvusDistributeCall {
                 return MilvusCommandsForIndex.execShowProgressIndex(future, milvusCmd, h, showCmd, request, receive, startArgIdx);
             }
             if (showCmd.LOADING() != null) {
-                return MilvusCommandsForOther.execShowProgressLoading(future, milvusCmd, h, showCmd, request, receive, startArgIdx);
+                return MilvusCommandsForMaintenance.execShowProgressLoading(future, milvusCmd, h, showCmd, request, receive, startArgIdx);
             }
         } else if (showCmd.TABLES() != null) {
             return MilvusCommandsForTable.execShowTables(future, milvusCmd, h, showCmd, request, receive, startArgIdx);

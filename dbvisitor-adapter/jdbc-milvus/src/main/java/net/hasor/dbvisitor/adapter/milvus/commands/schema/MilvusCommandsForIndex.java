@@ -13,24 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.adapter.milvus;
+package net.hasor.dbvisitor.adapter.milvus.commands.schema;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import io.milvus.grpc.DescribeIndexResponse;
-import io.milvus.grpc.GetIndexBuildProgressResponse;
-import io.milvus.grpc.IndexDescription;
-import io.milvus.grpc.KeyValuePair;
-import io.milvus.param.IndexType;
-import io.milvus.param.MetricType;
-import io.milvus.param.R;
-import io.milvus.param.index.CreateIndexParam;
-import io.milvus.param.index.DescribeIndexParam;
-import io.milvus.param.index.DropIndexParam;
-import io.milvus.param.index.GetIndexBuildProgressParam;
+import io.milvus.v2.common.IndexParam;
+import io.milvus.v2.common.IndexParam.IndexType;
+import io.milvus.v2.common.IndexParam.MetricType;
+import io.milvus.v2.service.index.request.CreateIndexReq;
+import io.milvus.v2.service.index.request.DescribeIndexReq;
+import io.milvus.v2.service.index.request.DropIndexReq;
+import io.milvus.v2.service.index.response.DescribeIndexResp;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
+import net.hasor.dbvisitor.adapter.milvus.MilvusCmd;
+import net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandKeys;
+import net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommands;
 import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser;
 import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser.CreateCmdContext;
 import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser.DropCmdContext;
@@ -40,19 +40,27 @@ import net.hasor.dbvisitor.driver.AdapterReceive;
 import net.hasor.dbvisitor.driver.AdapterRequest;
 import net.hasor.dbvisitor.driver.AdapterType;
 import net.hasor.dbvisitor.driver.JdbcColumn;
+import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandUtils.*;
 
-class MilvusCommandsForIndex extends MilvusCommands {
-    private static final JdbcColumn COL_PARAMS_STRING = new JdbcColumn("PARAMS", AdapterType.String, "", "", "");
-    private static final JdbcColumn COL_TOTAL_LONG    = new JdbcColumn("TOTAL", AdapterType.Long, "", "", "");
-    private static final JdbcColumn COL_INDEXED_LONG  = new JdbcColumn("INDEXED", AdapterType.Long, "", "", "");
+public final class MilvusCommandsForIndex extends MilvusCommands {
+    private MilvusCommandsForIndex() {
+    }
+
+    // Preserve the ten-minute synchronous index wait used by the previous SDK API.
+    private static final long       INDEX_WAIT_TIMEOUT_MS = 600_000L;
+    private static final JdbcColumn COL_PARAMS_STRING     = new JdbcColumn("PARAMS", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    private static final JdbcColumn COL_TOTAL_LONG        = new JdbcColumn("TOTAL", AdapterType.Long, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    private static final JdbcColumn COL_INDEXED_LONG      = new JdbcColumn("INDEXED", AdapterType.Long, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+
+    // Index creation and lifecycle
 
     public static Future<?> execCreateIndex(Future<Object> future, MilvusCmd cmd, HintCommandContext h, CreateCmdContext c,//
             AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         readHints(argIndex, request, h.hint());
-        String collectionName = argAsName(argIndex, request, c.collectionName);
-        String fieldName = argAsName(argIndex, request, c.fieldName);
-        String indexName = c.indexName != null ? argAsName(argIndex, request, c.indexName) : null;
+        String collectionName = readName(c.collectionName);
+        String fieldName = readName(c.fieldName);
+        String indexName = c.indexName != null ? readName(c.indexName) : null;
 
         Map<String, Object> props = new LinkedCaseInsensitiveMap<>();
         if (c.withOptionList() != null) {
@@ -64,8 +72,12 @@ class MilvusCommandsForIndex extends MilvusCommands {
                     value = getIdentifier(opt.STRING_LITERAL().getText());
                 } else if (opt.INTEGER() != null) {
                     value = Long.parseLong(opt.INTEGER().getText());
+                } else if (opt.FLOAT_LITERAL() != null) {
+                    value = Double.parseDouble(opt.FLOAT_LITERAL().getText());
+                } else if (opt.TRUE() != null || opt.FALSE() != null) {
+                    value = opt.TRUE() != null;
                 } else if (opt.identifier().size() > 1) {
-                    value = getIdentifier(opt.identifier(1).getText());
+                    value = opt.identifier(1).ARG() != null ? getArg(argIndex, request) : getIdentifier(opt.identifier(1).getText());
                 }
 
                 if (value != null) {
@@ -74,9 +86,9 @@ class MilvusCommandsForIndex extends MilvusCommands {
             }
         }
 
-        String metricTypeStr = (String) props.remove("metric_type");
+        String metricTypeStr = (String) props.remove(MilvusCommandKeys.METRIC_TYPE);
         if (metricTypeStr == null) {
-            metricTypeStr = (String) props.remove("metric");
+            metricTypeStr = (String) props.remove(MilvusCommandKeys.METRIC);
         }
         MetricType metricType = null;
         if (metricTypeStr != null) {
@@ -104,44 +116,18 @@ class MilvusCommandsForIndex extends MilvusCommands {
             }
         }
 
-        CreateIndexParam.Builder builder = CreateIndexParam.newBuilder()//
-                .withCollectionName(collectionName)                     //
-                .withFieldName(fieldName)                               //
-                .withIndexName(indexName == null ? "" : indexName)      //
-                .withSyncMode(Boolean.TRUE);
+        IndexParam.IndexParamBuilder builder = IndexParam.builder().fieldName(fieldName).indexName(indexName == null ? "" : indexName);
 
         if (indexType != null) {
-            builder.withIndexType(indexType);
+            builder.indexType(indexType);
         }
         if (metricType != null) {
-            builder.withMetricType(metricType);
+            builder.metricType(metricType);
         }
 
-        StringBuilder extraParam = new StringBuilder("{");
-        int i = 0;
-        for (Map.Entry<String, Object> entry : props.entrySet()) {
-            if (i > 0) {
-                extraParam.append(",");
-            }
-
-            extraParam.append("\"").append(entry.getKey()).append("\":");
-            Object v = entry.getValue();
-            if (v instanceof Number || v instanceof Boolean) {
-                extraParam.append(v);
-            } else {
-                extraParam.append("\"").append(v).append("\"");
-            }
-            i++;
-        }
-        extraParam.append("}");
-        if (extraParam.length() > 2) {
-            builder.withExtraParam(extraParam.toString());
-        }
-
-        R<?> resp = cmd.getClient().createIndex(builder.build());
-        if (resp.getStatus() != R.Status.Success.getCode()) {
-            throw new SQLException(resp.getMessage());
-        }
+        Map<String, Object> extraParams = new LinkedHashMap<>(props);
+        builder.extraParams(extraParams);
+        cmd.createIndex(CreateIndexReq.builder().databaseName(cmd.getCatalog()).collectionName(collectionName).indexParams(Collections.singletonList(builder.build())).sync(true).timeout(INDEX_WAIT_TIMEOUT_MS).build());
 
         receive.responseUpdateCount(request, 0);
         return completed(future);
@@ -151,61 +137,53 @@ class MilvusCommandsForIndex extends MilvusCommands {
             AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         readHints(argIndex, request, h.hint());
-        String collectionName = argAsName(argIndex, request, c.collectionName);
-        String indexName = argAsName(argIndex, request, c.indexName);
+        String collectionName = readName(c.collectionName);
+        String indexName = readName(c.indexName);
 
-        R<?> resp = cmd.getClient().dropIndex(DropIndexParam.newBuilder()//
-                .withCollectionName(collectionName)//
-                .withIndexName(indexName)//
+        cmd.dropIndex(DropIndexReq.builder().databaseName(cmd.getCatalog())//
+                .collectionName(collectionName)//
+                .indexName(indexName)//
                 .build());
-
-        if (resp.getStatus() != R.Status.Success.getCode()) {
-            throw new SQLException(resp.getMessage());
-        }
 
         receive.responseUpdateCount(request, 0);
         return completed(future);
     }
 
+    // Index metadata and build progress
+
     public static Future<?> execShowIndex(Future<Object> future, MilvusCmd cmd, HintCommandContext h, ShowCmdContext c,//
             AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         readHints(argIndex, request, h.hint());
-        String collectionName = argAsName(argIndex, request, c.collectionName);
-        String indexName = c.indexName != null ? argAsName(argIndex, request, c.indexName) : null;
+        String collectionName = readName(c.collectionName);
+        String indexName = c.indexName != null ? readName(c.indexName) : null;
 
-        R<DescribeIndexResponse> resp = cmd.getClient()//
-                .describeIndex(DescribeIndexParam.newBuilder()//
-                        .withCollectionName(collectionName)//
-                        .withFieldName(indexName == null ? "" : indexName)//
+        DescribeIndexResp resp = cmd//
+                .describeIndex(DescribeIndexReq.builder().databaseName(cmd.getCatalog())//
+                        .collectionName(collectionName)//
+                        .indexName(indexName == null ? "" : indexName)//
                         .build());
 
-        if (resp.getStatus() != R.Status.Success.getCode()) {
-            throw new SQLException(resp.getMessage());
-        }
-
         List<Map<String, Object>> result = new ArrayList<>();
-        DescribeIndexResponse data = resp.getData();
+        DescribeIndexResp data = resp;
 
         if (data != null) {
-            for (IndexDescription info : data.getIndexDescriptionsList()) {
+            for (DescribeIndexResp.IndexDesc info : data.getIndexDescriptions()) {
                 if (StringUtils.isNotBlank(indexName) && !indexName.equals(info.getIndexName())) {
                     continue;
                 }
                 Map<String, Object> row = new LinkedHashMap<>();
                 row.put(COL_INDEX_STRING.name, info.getIndexName());
                 row.put(COL_FIELD_STRING.name, info.getFieldName());
-                row.put(COL_ID_LONG.name, info.getIndexID());
+                row.put(COL_ID_LONG.name, info.getId());
 
-                StringBuilder params = new StringBuilder();
-                for (KeyValuePair kv : info.getParamsList()) {
-                    if (params.length() > 0) {
-                        params.append(", ");
-                    }
-                    params.append(kv.getKey()).append("=").append(kv.getValue());
-                }
-
-                row.put(COL_PARAMS_STRING.name, params.toString());
+                Map<String, Object> params = new LinkedHashMap<>();
+                params.put(MilvusCommandKeys.INDEX_TYPE, info.getIndexType());
+                params.put(MilvusCommandKeys.METRIC_TYPE, info.getMetricType());
+                params.putAll(info.getExtraParams());
+                StringJoiner description = new StringJoiner(", ");
+                params.forEach((key, value) -> description.add(key + "=" + value));
+                row.put(COL_PARAMS_STRING.name, description.toString());
                 result.add(row);
             }
         }
@@ -224,16 +202,17 @@ class MilvusCommandsForIndex extends MilvusCommands {
             AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         readHints(argIndex, request, h.hint());
-        String collectionName = argAsName(argIndex, request, c.collectionName);
-        String indexName = c.indexName != null ? argAsName(argIndex, request, c.indexName) : null;
+        String collectionName = readName(c.collectionName);
+        String indexName = c.indexName != null ? readName(c.indexName) : null;
 
-        R<GetIndexBuildProgressResponse> resp = cmd.getClient().getIndexBuildProgress(GetIndexBuildProgressParam.newBuilder().withCollectionName(collectionName).withIndexName(indexName == null ? "" : indexName).build());
-        if (resp.getStatus() != R.Status.Success.getCode()) {
-            throw new SQLException(resp.getMessage());
+        DescribeIndexResp response = cmd.describeIndex(DescribeIndexReq.builder().databaseName(cmd.getCatalog()).collectionName(collectionName).indexName(indexName == null ? "" : indexName).build());
+        long total = 0;
+        long indexed = 0;
+        for (DescribeIndexResp.IndexDesc index : response.getIndexDescriptions()) {
+            total += index.getTotalRows();
+            indexed += index.getIndexedRows();
         }
-
-        GetIndexBuildProgressResponse data = resp.getData();
-        receive.responseResult(request, twoResult(request, COL_TOTAL_LONG, data.getTotalRows(), COL_INDEXED_LONG, data.getIndexedRows()));
+        receive.responseResult(request, twoResult(request, COL_TOTAL_LONG, total, COL_INDEXED_LONG, indexed));
         return completed(future);
     }
 }

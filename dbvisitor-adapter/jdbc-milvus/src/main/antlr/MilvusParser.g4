@@ -49,7 +49,7 @@ command
 
 createCmd
     : CREATE DATABASE (IF NOT EXISTS)? dbName=identifier
-    | CREATE TABLE (IF NOT EXISTS)? collectionName=identifier OPEN_PAREN fieldDefinition (COMMA fieldDefinition)* CLOSE_PAREN (WITH withOptionList)?
+    | CREATE TABLE (IF NOT EXISTS)? collectionName=identifier OPEN_PAREN fieldDefinition (COMMA fieldDefinition)* (COMMA functionDefinition)* CLOSE_PAREN (WITH withOptionList)?
     | CREATE PARTITION (IF NOT EXISTS)? partitionName=identifier ON (TABLE)? collectionName=identifier
     | CREATE INDEX (indexName=identifier)? ON (TABLE)? collectionName=identifier OPEN_PAREN fieldName=identifier CLOSE_PAREN (USING algo=indexAlgo)? (WITH withOptionList)?
     | CREATE ALIAS aliasName=identifier FOR (TABLE)? collectionName=identifier
@@ -94,15 +94,20 @@ showCmd
     | SHOW GRANTS FOR ROLE roleName=identifier ON GLOBAL
     | SHOW PROGRESS OF INDEX (indexName=identifier)? ON (TABLE)? collectionName=identifier
     | SHOW PROGRESS OF LOADING ON (TABLE)? collectionName=identifier (PARTITION partitionName=identifier)?
+    | SHOW (PROGRESS OF)? IMPORT jobId=literal
+    | SHOW IMPORTS FROM (TABLE)? collectionName=identifier (WITH propertiesList)?
     ;
 
 insertCmd
-    : INSERT INTO collectionName=identifier (PARTITION partitionName=identifier)? (OPEN_PAREN columnList=identifiers CLOSE_PAREN)? VALUES OPEN_PAREN valueList=terms CLOSE_PAREN
+    : INSERT INTO collectionName=identifier (PARTITION partitionName=identifier)? (OPEN_PAREN columnList=identifiers CLOSE_PAREN)? VALUES valuesClause
     ;
 
 upsertCmd
-    : UPSERT INTO collectionName=identifier (PARTITION partitionName=identifier)? (OPEN_PAREN columnList=identifiers CLOSE_PAREN)? VALUES OPEN_PAREN valueList=terms CLOSE_PAREN
+    : UPSERT INTO collectionName=identifier (PARTITION partitionName=identifier)? (OPEN_PAREN columnList=identifiers CLOSE_PAREN)? VALUES valuesClause
     ;
+
+valuesClause: valueRow (COMMA valueRow)* | ARG;
+valueRow: OPEN_PAREN terms CLOSE_PAREN;
 
 updateCmd
     : UPDATE collectionName=identifier (PARTITION partitionName=identifier)? SET setClauseList (WHERE expression)? (ORDER BY sortClause)? (LIMIT (limit=INTEGER | limit=ARG))?
@@ -121,7 +126,7 @@ deleteCmd
     ;
 
 selectCmd
-    : SELECT selectElements FROM collectionName=identifier (PARTITION partitionName=identifier)? (WHERE expression)? (ORDER BY sortClause)? (LIMIT (limit=INTEGER | limit=ARG))? (OFFSET (offset=INTEGER | offset=ARG))? (WITH propertiesList)?
+    : SELECT selectElements FROM collectionName=identifier (PARTITION partitionName=identifier)? (WHERE expression)? (ORDER BY (sortClause | hybridClause))? (LIMIT (limit=INTEGER | limit=ARG))? (OFFSET (offset=INTEGER | offset=ARG))? (WITH propertiesList)?
     ;
 
 countCmd
@@ -139,7 +144,7 @@ revokeCmd
     ;
 
 importCmd
-    : IMPORT FROM (FILE)? fileName=STRING_LITERAL INTO (TABLE)? collectionName=IDENTIFIER (PARTITION partitionName=IDENTIFIER)?
+    : IMPORT FROM (FILE)? files=literal INTO (TABLE)? collectionName=identifier (PARTITION partitionName=identifier)? (WITH propertiesList)? (RETURNING resultName=identifier)?
     ;
 
 renameCmd
@@ -174,8 +179,14 @@ sortClause
 
 vectorValue
     : listLiteral
+    | STRING_LITERAL
     | ARG
     ;
+
+hybridClause: HYBRID OPEN_PAREN annClause (COMMA annClause)+ CLOSE_PAREN;
+annClause: fieldName=identifier distanceOperator vectorValue LIMIT (limit=INTEGER | limit=ARG) (WITH propertiesList)?;
+functionDefinition: FUNCTION name=identifier USING type=identifier OPEN_PAREN inputs=identifiers CLOSE_PAREN
+                    INTO OPEN_PAREN outputs=identifiers CLOSE_PAREN (WITH propertiesList)?;
 
 distanceOperator
     : LT_MINUS_GT
@@ -198,6 +209,7 @@ expression
     | expression (AND | OR) expression                           # logicalExpression
     | fieldName=identifier IN (listLiteral | parenListLiteral | ARG)                # inExpression
     | fieldName=identifier LIKE (pattern=STRING_LITERAL | ARG)   # likeExpression
+    | fieldName=identifier IS NOT? NULL                         # nullExpression
     | funcName=identifier OPEN_PAREN funcArgs? CLOSE_PAREN       # funcExpression
     | term                                                       # termExpression
     ;
@@ -236,7 +248,7 @@ indexOption: OPT_INDEX (STRING_LITERAL | IDENTIFIER);
 timeoutOption: (OPT_T | OPT_TIMEOUT_LONG) INTEGER;
 newNameOption: OPT_NEW_NAME (STRING_LITERAL | identifier);
 withOptionList: OPEN_PAREN withOption (COMMA withOption)* CLOSE_PAREN;
-withOption: identifier EQUALS (STRING_LITERAL | identifier | INTEGER);
+withOption: identifier EQUALS (STRING_LITERAL | identifier | INTEGER | FLOAT_LITERAL | TRUE | FALSE);
 
 outFieldsOption: OUT_FIELDS (identifiers | STAR);
 limitOption: LIMIT INTEGER;
@@ -248,7 +260,7 @@ annsFieldOption: ANNS_FIELD identifier;
 roundDecimalOption: ROUND_DECIMAL INTEGER;
 consistencyLevelOption: CONSISTENCY_LEVEL (STRING_LITERAL | identifier);
 
-fieldDefinition: fieldName=identifier fieldType fieldConstraint*;
+fieldDefinition: fieldName=identifier fieldType fieldConstraint* (WITH propertiesList)?;
 
 fieldType
     : BOOL | INT8 | INT16 | INT32 | INT64 | FLOAT | DOUBLE | JSON
@@ -257,14 +269,20 @@ fieldType
     | BINARY_VECTOR OPEN_PAREN INTEGER CLOSE_PAREN
     | FLOAT16_VECTOR OPEN_PAREN INTEGER CLOSE_PAREN
     | BFLOAT16_VECTOR OPEN_PAREN INTEGER CLOSE_PAREN
-    | SPARSE_FLOAT_VECTOR OPEN_PAREN INTEGER CLOSE_PAREN
-    | ARRAY
+    | SPARSE_FLOAT_VECTOR (OPEN_PAREN INTEGER CLOSE_PAREN)?
+    | ARRAY (LT arrayElementType GT OPEN_PAREN capacity=INTEGER CLOSE_PAREN)?
+    ;
+
+arrayElementType
+    : BOOL | INT8 | INT16 | INT32 | INT64 | FLOAT | DOUBLE
+    | VARCHAR OPEN_PAREN INTEGER CLOSE_PAREN
     ;
 
 fieldConstraint
     : PRIMARY KEY
     | NOT NULL
-    | DEFAULT (STRING_LITERAL | IDENTIFIER | INTEGER)
+    | NULL
+    | DEFAULT ((PLUS | MINUS)? (INTEGER | FLOAT_LITERAL) | STRING_LITERAL | IDENTIFIER | TRUE | FALSE)
     | COMMENT STRING_LITERAL
     | AUTO_ID
     ;
@@ -305,6 +323,8 @@ identifier
     | IMPORT
     | RELEASE
     | SEARCH
+    | HYBRID
+    | FUNCTION
     | QUERY
     | FLUSH
     | COMPACT
@@ -321,13 +341,13 @@ literal
     | ARG
     | TRUE
     | FALSE
+    | NULL
     | identifier
     ;
 
-listLiteral: OPEN_BRACKET literal (COMMA literal)* CLOSE_BRACKET;
+listLiteral: OPEN_BRACKET (literal (COMMA literal)*)? CLOSE_BRACKET;
 
 indexAlgo
     : STRING_LITERAL
     | identifier
     ;
-

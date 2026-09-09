@@ -13,49 +13,53 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.adapter.milvus;
+package net.hasor.dbvisitor.adapter.milvus.commands.schema;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import io.milvus.common.clientenum.ConsistencyLevelEnum;
 import io.milvus.grpc.DataType;
-import io.milvus.grpc.DescribeCollectionResponse;
 import io.milvus.grpc.FieldSchema;
-import io.milvus.grpc.ShowCollectionsResponse;
-import io.milvus.param.R;
-import io.milvus.param.collection.*;
+import io.milvus.param.ParamUtils;
+import io.milvus.v2.common.ConsistencyLevel;
+import io.milvus.v2.service.collection.request.*;
+import io.milvus.v2.service.collection.response.DescribeCollectionResp;
+import io.milvus.v2.service.collection.response.ListCollectionsResp;
+import io.milvus.v2.utils.SchemaUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.concurrent.future.Future;
+import net.hasor.dbvisitor.adapter.milvus.MilvusCmd;
+import net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandKeys;
+import net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommands;
 import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser.*;
 import net.hasor.dbvisitor.driver.AdapterReceive;
 import net.hasor.dbvisitor.driver.AdapterRequest;
 import net.hasor.dbvisitor.driver.AdapterType;
 import net.hasor.dbvisitor.driver.JdbcColumn;
+import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandUtils.*;
+import static net.hasor.dbvisitor.adapter.milvus.mapping.MilvusSchema.collectionFields;
 
-class MilvusCommandsForTable extends MilvusCommands {
-    protected static final JdbcColumn COL_CREATE_STRING      = new JdbcColumn("CREATE SCRIPT", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_DIMENSION_INTEGER  = new JdbcColumn("DIMENSION", AdapterType.Int, "", "", "");
-    protected static final JdbcColumn COL_PRIMARY_BOOL       = new JdbcColumn("PRIMARY", AdapterType.Boolean, "", "", "");
-    protected static final JdbcColumn COL_AUTO_ID_BOOL       = new JdbcColumn("AUTO_ID", AdapterType.Boolean, "", "", "");
-    protected static final JdbcColumn COL_DESCRIPTION_STRING = new JdbcColumn("DESCRIPTION", AdapterType.String, "", "", "");
-
-    private static boolean collectionExists(MilvusCmd milvusCmd, String collectionName) throws SQLException {
-        R<Boolean> resp = milvusCmd.getClient().hasCollection(HasCollectionParam.newBuilder()//
-                .withCollectionName(collectionName).build());
-        if (resp.getStatus() != R.Status.Success.getCode()) {
-            throw new SQLException(resp.getMessage());
-        }
-        Boolean data = resp.getData();
-        return data != null && data;
+public final class MilvusCommandsForTable extends MilvusCommands {
+    private MilvusCommandsForTable() {
     }
 
-    //
+    private static final JdbcColumn COL_CREATE_STRING     = new JdbcColumn("CREATE SCRIPT", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    private static final JdbcColumn COL_DIMENSION_INTEGER = new JdbcColumn("DIMENSION", AdapterType.Int, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    private static final   JdbcColumn COL_PRIMARY_BOOL      = new JdbcColumn("PRIMARY", AdapterType.Boolean, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    private static final   JdbcColumn COL_AUTO_ID_BOOL      = new JdbcColumn("AUTO_ID", AdapterType.Boolean, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    private static final   JdbcColumn COL_DESCRIPTION_STRING = new JdbcColumn("DESCRIPTION", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    private static final   JdbcColumn COL_NULLABLE_BOOL      = new JdbcColumn("NULLABLE", AdapterType.Boolean, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    private static final   JdbcColumn COL_ELEMENT_STRING     = new JdbcColumn("ELEMENT_TYPE", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    private static final   JdbcColumn COL_CAPACITY_INT       = new JdbcColumn("MAX_CAPACITY", AdapterType.Int, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    private static final   JdbcColumn COL_LENGTH_INT         = new JdbcColumn("MAX_LENGTH", AdapterType.Int, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+
+    // Collection creation and lifecycle
 
     public static Future<?> execCreateTable(Future<Object> future, MilvusCmd cmd, HintCommandContext h, CreateCmdContext c,//
             AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         readHints(argIndex, request, h.hint());
-        String collectionName = argAsName(argIndex, request, c.collectionName);
+        String collectionName = readName(c.collectionName);
 
         boolean ifNotExists = c.IF() != null && c.NOT() != null && c.EXISTS() != null;
         if (ifNotExists && collectionExists(cmd, collectionName)) {
@@ -63,9 +67,9 @@ class MilvusCommandsForTable extends MilvusCommands {
             return completed(future);
         }
 
-        CreateCollectionParam.Builder builder = CreateCollectionParam.newBuilder()//
-                .withCollectionName(collectionName)//
-                .withDescription("");
+        CreateCollectionReq.CreateCollectionReqBuilder builder = CreateCollectionReq.builder().databaseName(cmd.getCatalog())//
+                .collectionName(collectionName)//
+                .description("");
 
         if (c.withOptionList() != null) {
             for (WithOptionContext opt : c.withOptionList().withOption()) {
@@ -80,80 +84,23 @@ class MilvusCommandsForTable extends MilvusCommands {
                     value = getIdentifier(opt.identifier(1).getText());
                 }
 
-                if ("consistency_level".equalsIgnoreCase(key) && StringUtils.isNotBlank(value)) {
-                    builder.withConsistencyLevel(ConsistencyLevelEnum.valueOf(value.toUpperCase()));
+                if (MilvusCommandKeys.COLLECTION_CONSISTENCY_LEVEL.equalsIgnoreCase(key) && StringUtils.isNotBlank(value)) {
+                    builder.consistencyLevel(ConsistencyLevel.valueOf(value.toUpperCase()));
                 }
             }
         }
 
-        List<FieldType> fieldTypes = new ArrayList<>();
+        CreateCollectionReq.CollectionSchema schema = CreateCollectionReq.CollectionSchema.builder().build();
         for (FieldDefinitionContext fieldCtx : c.fieldDefinition()) {
-            String fieldName = argAsName(argIndex, request, fieldCtx.fieldName);
-            FieldTypeContext typeCtx = fieldCtx.fieldType();
-
-            FieldType.Builder fieldBuilder = FieldType.newBuilder().withName(fieldName);
-
-            if (typeCtx.BOOL() != null) {
-                fieldBuilder.withDataType(DataType.Bool);
-            } else if (typeCtx.INT8() != null) {
-                fieldBuilder.withDataType(DataType.Int8);
-            } else if (typeCtx.INT16() != null) {
-                fieldBuilder.withDataType(DataType.Int16);
-            } else if (typeCtx.INT32() != null) {
-                fieldBuilder.withDataType(DataType.Int32);
-            } else if (typeCtx.INT64() != null) {
-                fieldBuilder.withDataType(DataType.Int64);
-            } else if (typeCtx.FLOAT() != null) {
-                fieldBuilder.withDataType(DataType.Float);
-            } else if (typeCtx.DOUBLE() != null) {
-                fieldBuilder.withDataType(DataType.Double);
-            } else if (typeCtx.JSON() != null) {
-                fieldBuilder.withDataType(DataType.JSON);
-            } else if (typeCtx.VARCHAR() != null) {
-                fieldBuilder.withDataType(DataType.VarChar);
-                fieldBuilder.withMaxLength(Integer.parseInt(typeCtx.INTEGER().getText()));
-            } else if (typeCtx.FLOAT_VECTOR() != null) {
-                fieldBuilder.withDataType(DataType.FloatVector);
-                fieldBuilder.withDimension(Integer.parseInt(typeCtx.INTEGER().getText()));
-            } else if (typeCtx.BINARY_VECTOR() != null) {
-                fieldBuilder.withDataType(DataType.BinaryVector);
-                fieldBuilder.withDimension(Integer.parseInt(typeCtx.INTEGER().getText()));
-            } else if (typeCtx.FLOAT16_VECTOR() != null) {
-                fieldBuilder.withDataType(DataType.Float16Vector);
-                fieldBuilder.withDimension(Integer.parseInt(typeCtx.INTEGER().getText()));
-            } else if (typeCtx.BFLOAT16_VECTOR() != null) {
-                fieldBuilder.withDataType(DataType.BFloat16Vector);
-                fieldBuilder.withDimension(Integer.parseInt(typeCtx.INTEGER().getText()));
-            } else if (typeCtx.SPARSE_FLOAT_VECTOR() != null) {
-                fieldBuilder.withDataType(DataType.SparseFloatVector);
-                fieldBuilder.withDimension(Integer.parseInt(typeCtx.INTEGER().getText()));
-            } else if (typeCtx.ARRAY() != null) {
-                fieldBuilder.withDataType(DataType.Array);
-                // Array logic handling requires more context, keeping simple for now or assuming unsupported by basic DDL parser yet
-            }
-
-            for (FieldConstraintContext constraint : fieldCtx.fieldConstraint()) {
-                if (constraint.PRIMARY() != null && constraint.KEY() != null) {
-                    fieldBuilder.withPrimaryKey(true);
-                }
-                if (constraint.AUTO_ID() != null) {
-                    fieldBuilder.withAutoID(true);
-                }
-                // Other constraints like NOT NULL, DEFAULT, COMMENT might need SDK support or are just for metadata
-                if (constraint.COMMENT() != null) {
-                    String comment = constraint.STRING_LITERAL().getText();
-                    fieldBuilder.withDescription(getIdentifier(comment));
-                }
-            }
-
-            fieldTypes.add(fieldBuilder.build());
+            CreateCollectionReq.FieldSchema field = SchemaUtils.convertFromGrpcFieldSchema(ParamUtils.ConvertField(MilvusFieldDefinition.readFieldDefinition(fieldCtx)));
+            MilvusFunctions.configureField(field, fieldCtx.propertiesList(), argIndex, request);
+            schema.getFieldSchemaList().add(field);
         }
-        builder.withSchema(CollectionSchemaParam.newBuilder().withFieldTypes(fieldTypes).build());
+        MilvusFunctions.addFunctions(schema, c.functionDefinition(), argIndex, request);
+        schema.setEnableDynamicField(false);
+        builder.collectionSchema(schema).enableDynamicField(false);
 
-        R<?> result = cmd.getClient().createCollection(builder.build());
-        if (result.getStatus() != R.Status.Success.getCode()) {
-            throw new SQLException(result.getMessage());
-        }
+        cmd.createCollection(builder.build());
 
         receive.responseUpdateCount(request, 0);
         return completed(future);
@@ -163,7 +110,7 @@ class MilvusCommandsForTable extends MilvusCommands {
             AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         readHints(argIndex, request, h.hint());
-        String collectionName = argAsName(argIndex, request, c.collectionName);
+        String collectionName = readName(c.collectionName);
 
         boolean ifExists = c.IF() != null && c.EXISTS() != null;
         if (!collectionExists(cmd, collectionName)) {
@@ -174,11 +121,8 @@ class MilvusCommandsForTable extends MilvusCommands {
             throw new SQLException("collection not exists.");
         }
 
-        DropCollectionParam param = DropCollectionParam.newBuilder().withCollectionName(collectionName).build();
-        R<?> result = cmd.getClient().dropCollection(param);
-        if (result.getStatus() != R.Status.Success.getCode()) {
-            throw new SQLException(result.getMessage());
-        }
+        DropCollectionReq param = DropCollectionReq.builder().databaseName(cmd.getCatalog()).collectionName(collectionName).build();
+        cmd.dropCollection(param);
 
         receive.responseUpdateCount(request, 0);
         return completed(future);
@@ -191,31 +135,27 @@ class MilvusCommandsForTable extends MilvusCommands {
         String oldName = getIdentifier(c.collectionName.getText());
         String newName = getIdentifier(c.newName.getText());
 
-        RenameCollectionParam param = RenameCollectionParam.newBuilder()//
-                .withOldCollectionName(oldName)//
-                .withNewCollectionName(newName)//
+        RenameCollectionReq param = RenameCollectionReq.builder().databaseName(cmd.getCatalog())//
+                .collectionName(oldName)//
+                .newCollectionName(newName)//
                 .build();
 
-        R<?> result = cmd.getClient().renameCollection(param);
-        if (result.getStatus() != R.Status.Success.getCode()) {
-            throw new SQLException(result.getMessage());
-        }
+        cmd.renameCollection(param);
 
         receive.responseUpdateCount(request, 0);
         return completed(future);
     }
 
+    // Collection metadata and CREATE script
+
     public static Future<?> execShowTables(Future<Object> future, MilvusCmd cmd, HintCommandContext h, ShowCmdContext c,//
             AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         readHints(argIndex, request, h.hint());
-        ShowCollectionsParam param = ShowCollectionsParam.newBuilder().build();
-        R<ShowCollectionsResponse> resp = cmd.getClient().showCollections(param);
-        if (resp.getStatus() != R.Status.Success.getCode()) {
-            throw new SQLException(resp.getMessage());
-        }
+        ListCollectionsReq param = ListCollectionsReq.builder().databaseName(cmd.getCatalog()).build();
+        ListCollectionsResp resp = cmd.listCollectionsV2(param);
 
-        List<String> names = resp.getData().getCollectionNamesList();
+        List<String> names = resp.getCollectionNames();
 
         receive.responseResult(request, listResult(request, COL_TABLE_STRING, names));
         return completed(future);
@@ -225,15 +165,12 @@ class MilvusCommandsForTable extends MilvusCommands {
             AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         readHints(argIndex, request, h.hint());
-        String collectionName = argAsName(argIndex, request, c.collectionName);
+        String collectionName = readName(c.collectionName);
 
-        DescribeCollectionParam param = DescribeCollectionParam.newBuilder().withCollectionName(collectionName).build();
-        R<DescribeCollectionResponse> resp = cmd.getClient().describeCollection(param);
-        if (resp.getStatus() != R.Status.Success.getCode()) {
-            throw new SQLException(resp.getMessage());
-        }
+        DescribeCollectionReq param = DescribeCollectionReq.builder().databaseName(cmd.getCatalog()).collectionName(collectionName).build();
+        DescribeCollectionResp resp = cmd.describeCollection(param);
 
-        List<FieldSchema> fields = resp.getData().getSchema().getFieldsList();
+        List<FieldSchema> fields = collectionFields(resp);
         List<Map<String, Object>> result = new ArrayList<>();
 
         for (FieldSchema field : fields) {
@@ -244,14 +181,14 @@ class MilvusCommandsForTable extends MilvusCommands {
             // Extract dimension from type_params if possible, or if it is vector type
             String dim = "";
             for (io.milvus.grpc.KeyValuePair kv : field.getTypeParamsList()) {
-                if ("dim".equalsIgnoreCase(kv.getKey())) {
+                if (MilvusCommandKeys.DIMENSION.equalsIgnoreCase(kv.getKey())) {
                     dim = kv.getValue();
                     break;
                 }
             }
             if (StringUtils.isBlank(dim) && field.getDataType() == DataType.VarChar) {
                 for (io.milvus.grpc.KeyValuePair kv : field.getTypeParamsList()) {
-                    if ("max_length".equalsIgnoreCase(kv.getKey())) {
+                    if (MilvusCommandKeys.MAX_LENGTH.equalsIgnoreCase(kv.getKey())) {
                         dim = kv.getValue();
                         break;
                     }
@@ -262,6 +199,14 @@ class MilvusCommandsForTable extends MilvusCommands {
             row.put(COL_PRIMARY_BOOL.name, field.getIsPrimaryKey());
             row.put(COL_AUTO_ID_BOOL.name, field.getAutoID());
             row.put(COL_DESCRIPTION_STRING.name, field.getDescription());
+            row.put(COL_NULLABLE_BOOL.name, field.getNullable());
+            row.put(COL_ELEMENT_STRING.name, field.getDataType() == DataType.Array ? field.getElementType().name() : null);
+            for (io.milvus.grpc.KeyValuePair option : field.getTypeParamsList()) {
+                if (MilvusCommandKeys.MAX_CAPACITY.equals(option.getKey()))
+                    row.put(COL_CAPACITY_INT.name, Integer.valueOf(option.getValue()));
+                if (MilvusCommandKeys.MAX_LENGTH.equals(option.getKey()))
+                    row.put(COL_LENGTH_INT.name, Integer.valueOf(option.getValue()));
+            }
             result.add(row);
         }
 
@@ -271,7 +216,7 @@ class MilvusCommandsForTable extends MilvusCommands {
                 COL_DIMENSION_INTEGER,//
                 COL_PRIMARY_BOOL,     //
                 COL_AUTO_ID_BOOL,     //
-                COL_DESCRIPTION_STRING), result));
+                COL_DESCRIPTION_STRING, COL_NULLABLE_BOOL, COL_ELEMENT_STRING, COL_CAPACITY_INT, COL_LENGTH_INT), result));
         return completed(future);
     }
 
@@ -279,18 +224,15 @@ class MilvusCommandsForTable extends MilvusCommands {
             AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         readHints(argIndex, request, h.hint());
-        String collectionName = argAsName(argIndex, request, c.collectionName);
+        String collectionName = readName(c.collectionName);
 
-        DescribeCollectionParam param = DescribeCollectionParam.newBuilder().withCollectionName(collectionName).build();
-        R<DescribeCollectionResponse> resp = cmd.getClient().describeCollection(param);
-        if (resp.getStatus() != R.Status.Success.getCode()) {
-            throw new SQLException(resp.getMessage());
-        }
+        DescribeCollectionReq param = DescribeCollectionReq.builder().databaseName(cmd.getCatalog()).collectionName(collectionName).build();
+        DescribeCollectionResp resp = cmd.describeCollection(param);
 
         StringBuilder sql = new StringBuilder();
         sql.append("CREATE TABLE ").append(collectionName).append(" (");
 
-        List<FieldSchema> fields = resp.getData().getSchema().getFieldsList();
+        List<FieldSchema> fields = collectionFields(resp);
         for (int i = 0; i < fields.size(); i++) {
             FieldSchema field = fields.get(i);
             if (i > 0) {
@@ -302,7 +244,7 @@ class MilvusCommandsForTable extends MilvusCommands {
             DataType type = field.getDataType();
             String dim = "";
             for (io.milvus.grpc.KeyValuePair kv : field.getTypeParamsList()) {
-                if ("dim".equalsIgnoreCase(kv.getKey()) || "max_length".equalsIgnoreCase(kv.getKey())) {
+                if (MilvusCommandKeys.DIMENSION.equalsIgnoreCase(kv.getKey()) || MilvusCommandKeys.MAX_LENGTH.equalsIgnoreCase(kv.getKey())) {
                     dim = kv.getValue();
                     break;
                 }
@@ -310,7 +252,7 @@ class MilvusCommandsForTable extends MilvusCommands {
 
             switch (type) {
                 case Bool:
-                    sql.append("boolean");
+                    sql.append("bool");
                     break;
                 case Int8:
                     sql.append("int8");
@@ -352,10 +294,14 @@ class MilvusCommandsForTable extends MilvusCommands {
                     sql.append("bfloat16_vector(").append(dim).append(")");
                     break;
                 case SparseFloatVector:
-                    sql.append("sparse_float_vector(").append(dim).append(")");
+                    sql.append("sparse_float_vector");
                     break;
                 case Array:
-                    sql.append("array");
+                    sql.append("array<").append(field.getElementType() == DataType.Bool ? "bool" : field.getElementType().name().toLowerCase(Locale.ROOT));
+                    if (field.getElementType() == DataType.VarChar) {
+                        sql.append('(').append(field.getTypeParamsList().stream().filter(p -> MilvusCommandKeys.MAX_LENGTH.equals(p.getKey())).map(io.milvus.grpc.KeyValuePair::getValue).findFirst().orElse("")).append(')');
+                    }
+                    sql.append(">(").append(field.getTypeParamsList().stream().filter(p -> MilvusCommandKeys.MAX_CAPACITY.equals(p.getKey())).map(io.milvus.grpc.KeyValuePair::getValue).findFirst().orElse("")).append(')');
                     break;
                 default:
                     sql.append(type.name());
@@ -368,13 +314,34 @@ class MilvusCommandsForTable extends MilvusCommands {
             if (field.getAutoID()) {
                 sql.append(" AUTO_ID");
             }
+            sql.append(field.getNullable() ? " NULL" : " NOT NULL");
+            if (field.hasDefaultValue()) {
+                Object value = io.milvus.param.ParamUtils.valueFieldToObject(field.getDefaultValue(), field.getDataType());
+                if (value != null) {
+                    sql.append(" DEFAULT ");
+                    if (value instanceof String) {
+                        sql.append("'").append(((String) value).replace("'", "''")).append("'");
+                    } else {
+                        sql.append(value);
+                    }
+                }
+            }
+
             if (StringUtils.isNotBlank(field.getDescription())) {
                 sql.append(" COMMENT '").append(field.getDescription().replace("'", "''")).append("'");
             }
+            MilvusFunctions.appendFieldOptions(sql, field);
         }
+        MilvusFunctions.appendFunctions(sql, resp.getCollectionSchema());
         sql.append(")");
 
         receive.responseResult(request, twoResult(request, COL_TABLE_STRING, collectionName, COL_CREATE_STRING, sql.toString()));
         return completed(future);
+    }
+    // Collection lookup for IF [NOT] EXISTS
+
+    private static boolean collectionExists(MilvusCmd milvusCmd, String collectionName) throws SQLException {
+        return Boolean.TRUE.equals(milvusCmd.hasCollection(HasCollectionReq.builder().databaseName(milvusCmd.getCatalog())//
+                .collectionName(collectionName).build()));
     }
 }

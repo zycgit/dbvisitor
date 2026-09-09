@@ -13,32 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.adapter.milvus;
+package net.hasor.dbvisitor.adapter.milvus.commands.schema;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-import io.milvus.grpc.ListDatabasesResponse;
-import io.milvus.param.R;
-import io.milvus.param.collection.AlterDatabaseParam;
-import io.milvus.param.collection.CreateDatabaseParam;
-import io.milvus.param.collection.DropDatabaseParam;
+import io.milvus.v2.service.database.request.AlterDatabasePropertiesReq;
+import io.milvus.v2.service.database.request.CreateDatabaseReq;
+import io.milvus.v2.service.database.request.DropDatabaseReq;
+import io.milvus.v2.service.database.response.ListDatabasesResp;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.concurrent.future.Future;
+import net.hasor.dbvisitor.adapter.milvus.MilvusCmd;
+import net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommands;
 import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser.AlterCmdContext;
 import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser.CreateCmdContext;
 import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser.DropCmdContext;
 import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser.HintCommandContext;
 import net.hasor.dbvisitor.driver.AdapterReceive;
 import net.hasor.dbvisitor.driver.AdapterRequest;
+import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandUtils.*;
 
-class MilvusCommandsForDB extends MilvusCommands {
+public final class MilvusCommandsForDB extends MilvusCommands {
+    private MilvusCommandsForDB() {
+    }
+
     public static Future<?> execCreateDatabase(Future<Object> future, MilvusCmd cmd, HintCommandContext h, CreateCmdContext c,//
             AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         readHints(argIndex, request, h.hint());
-        String dbName = argAsDbName(argIndex, request, c.dbName, cmd);
+        String dbName = readDatabaseName(c.dbName, cmd);
 
         boolean ifNotExists = c.IF() != null && c.NOT() != null && c.EXISTS() != null;
         if (ifNotExists && dbExists(cmd, dbName)) {
@@ -46,11 +51,8 @@ class MilvusCommandsForDB extends MilvusCommands {
             return completed(future);
         }
 
-        CreateDatabaseParam param = CreateDatabaseParam.newBuilder().withDatabaseName(dbName).build();
-        R<?> result = cmd.getClient().createDatabase(param);
-        if (result.getStatus() != R.Status.Success.getCode()) {
-            throw new SQLException(result.getMessage());
-        }
+        CreateDatabaseReq param = CreateDatabaseReq.builder().databaseName(dbName).build();
+        cmd.createDatabase(param);
 
         receive.responseUpdateCount(request, 0);
         return completed(future);
@@ -60,18 +62,15 @@ class MilvusCommandsForDB extends MilvusCommands {
             AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         readHints(argIndex, request, h.hint());
-        String dbName = argAsDbName(argIndex, request, c.dbName, cmd);
-        Map<String, String> properties = readProperties(argIndex, request, c.propertiesList());
+        String dbName = readDatabaseName(c.dbName, cmd);
+        Map<String, Object> properties = readProperties(argIndex, request, c.propertiesList());
 
-        AlterDatabaseParam.Builder builder = AlterDatabaseParam.newBuilder().withDatabaseName(dbName);
-        for (Map.Entry<String, String> entry : properties.entrySet()) {
-            builder.withProperty(entry.getKey(), entry.getValue());
+        AlterDatabasePropertiesReq.AlterDatabasePropertiesReqBuilder builder = AlterDatabasePropertiesReq.builder().databaseName(dbName);
+        for (Map.Entry<String, Object> entry : properties.entrySet()) {
+            builder.property(entry.getKey(), String.valueOf(entry.getValue()));
         }
 
-        R<?> result = cmd.getClient().alterDatabase(builder.build());
-        if (result.getStatus() != R.Status.Success.getCode()) {
-            throw new SQLException(result.getMessage());
-        }
+        cmd.alterDatabaseProperties(builder.build());
 
         receive.responseUpdateCount(request, 0);
         return completed(future);
@@ -81,7 +80,7 @@ class MilvusCommandsForDB extends MilvusCommands {
             AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         readHints(argIndex, request, h.hint());
-        String dbName = argAsDbName(argIndex, request, c.dbName, cmd);
+        String dbName = readDatabaseName(c.dbName, cmd);
 
         boolean ifExists = c.IF() != null && c.EXISTS() != null;
         if (!dbExists(cmd, dbName)) {
@@ -93,11 +92,8 @@ class MilvusCommandsForDB extends MilvusCommands {
             }
         }
 
-        DropDatabaseParam param = DropDatabaseParam.newBuilder().withDatabaseName(dbName).build();
-        R<?> result = cmd.getClient().dropDatabase(param);
-        if (result.getStatus() != R.Status.Success.getCode()) {
-            throw new SQLException(result.getMessage());
-        }
+        DropDatabaseReq param = DropDatabaseReq.builder().databaseName(dbName).build();
+        cmd.dropDatabase(param);
 
         receive.responseUpdateCount(request, 0);
         return completed(future);
@@ -108,31 +104,25 @@ class MilvusCommandsForDB extends MilvusCommands {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         readHints(argIndex, request, h.hint());
 
-        R<ListDatabasesResponse> resp = cmd.getClient().listDatabases();
-        if (resp.getStatus() != R.Status.Success.getCode()) {
-            throw new SQLException(resp.getMessage());
-        }
+        ListDatabasesResp resp = cmd.listDatabases();
 
-        List<String> listResult = resp.getData() == null ? Collections.emptyList() : resp.getData().getDbNamesList();
+        List<String> listResult = resp == null ? Collections.emptyList() : resp.getDatabaseNames();
 
         receive.responseResult(request, listResult(request, COL_DATABASE_STRING, listResult));
         return completed(future);
     }
 
-    //
+    // Database lookup for IF [NOT] EXISTS
 
     private static boolean dbExists(MilvusCmd cmd, String dbName) throws SQLException {
-        R<ListDatabasesResponse> resp = cmd.getClient().listDatabases();
-        if (resp.getStatus() != R.Status.Success.getCode()) {
-            throw new SQLException(resp.getMessage());
-        }
+        ListDatabasesResp resp = cmd.listDatabases();
 
-        ListDatabasesResponse data = resp.getData();
+        ListDatabasesResp data = resp;
         if (data == null) {
             return false;
         }
 
-        for (String name : data.getDbNamesList()) {
+        for (String name : data.getDatabaseNames()) {
             if (StringUtils.equals(name, dbName)) {
                 return true;
             }
