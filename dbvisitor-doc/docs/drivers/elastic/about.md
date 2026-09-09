@@ -2,30 +2,41 @@
 id: about
 sidebar_position: 1
 title: 简介
-description: jdbc-elastic 是一个 ElasticSearch 的 JDBC 驱动适配器，它允许开发者使用标准的 JDBC 接口和 ElasticSearch 原生 REST API 风格的命令来操作 ElasticSearch。
+description: jdbc-elastic 的 JDBC 能力、架构、依赖与文档入口。
 ---
 
-jdbc-elastic 是一个 ElasticSearch 的 JDBC 驱动适配器，它允许开发者使用标准的 JDBC 接口和 ElasticSearch 原生 REST API 风格的命令来操作 ElasticSearch。
-目的是通过熟悉 JDBC 编程模型，使开发者能够无缝地集成和使用 ElasticSearch。
+## 介绍
+jdbc-elastic 是 Elasticsearch 的 JDBC 驱动适配器，允许开发者使用标准 JDBC 接口和原生 REST 风格命令操作 Elasticsearch。
 
-## 核心特性
+核心价值：
+- 使用标准 JDBC API（Connection、Statement、PreparedStatement、ResultSet）。
+- 使用原生 REST 风格命令映射到 Elasticsearch 操作。
+- 通过 dbVisitor 为异构数据源提供统一的编码风格。
 
-- **原生命令支持**：支持 ElasticSearch 的常用 REST API 命令，包括 `GET`, `POST`, `PUT`, `DELETE`, `HEAD`。
-- **JDBC 标准接口**：支持 `Connection`, `Statement`, `PreparedStatement`, `ResultSet` 等标准接口。
-- **参数占位符**：支持在 URL 路径和 JSON Body 中使用 `?` 占位符，并使用 `PreparedStatement` 设置参数。
-- **结果集映射**：自动将 ElasticSearch 的 JSON 响应映射为 JDBC `ResultSet`。
-- **自动主键返回**：支持 `Statement.RETURN_GENERATED_KEYS`，在执行插入操作时自动返回生成的 `_id`。
-- **多命令支持**：支持 `_mget`, `_msearch` 等批量操作。
-- **索引管理**：支持索引的创建、删除、Mapping 设置、Settings 设置、别名管理等。
-- **预读优化**：支持大结果集的预读配置，优化读取性能。
-- **多版本兼容**：无需调整依赖，同时兼容 ES6/ES7/ES8/ES9。
+## 特性
+- 实现 JDBC 核心接口并支持 `PreparedStatement` 占位符。
+- 支持 REST 风格命令，支持多条命令以分号顺序执行。
+- 支持搜索/统计/批量查询、文档 CRUD、索引管理与 `_cat` 查询。
+- 支持 `HEAD` 请求并返回 `STATUS` 列。
+- 结果映射：搜索类响应映射为 `_ID` 与 `_DOC` 列；预读模式下会展开字段列。
+- 预读模式支持阈值、最大文件大小、缓存目录配置。
+- 可选 `indexRefresh` 在写入时追加 `refresh=true`。
+- dbVisitor 提供 Elastic6/Elastic7 方言与 realdb 场景化测试（`Elastic6Dialect`、`Elastic7Dialect`、`realdb/elastic6|elastic7`）。
 
-## 架构设计
+## JDBC 与内部实现
 
-jdbc-elastic 内部通过解析 QueryDSL 命令，将其转换为底层的 REST 请求，并使用 ElasticSearch 官方 REST Client 进行通信。
+ANTLR4 解析命令，再通过官方客户端执行；公共 JDBC 层负责 Connection、Statement、PreparedStatement、ResultSet 与类型转换。支持多命令和标准 JDBC 多结果访问，但不意味着支持任意 ORM SQL、事务、JDBC batch 或完整 DatabaseMetaData。ResultSet 只读、向前遍历；可按兼容类型使用 getInt/getString 或 BLOB/CLOB/NCLOB 读取。INSERT 可通过 getGeneratedKeys 获取适配器返回的 `_id`，不能据此推断所有通用 Mapper 回填方式都适用。
 
-## 适用场景
+## 兼容性
+- JDK 17+
+- Elasticsearch REST Client：`elasticsearch-rest-client` 7.17.10
+- Jackson：`jackson-databind` 2.18.0
+- dbVisitor 含 Elastic6/Elastic7 方言与 ES6/ES7 realdb 场景化测试。
 
-- 需要在 Java 项目中以统一的方式（JDBC）访问 ElasticSearch。
-- 希望使用原生 REST API 风格操作 ElasticSearch，但又想利用 JDBC 的便利性。
-- 需要将 ElasticSearch 集成到现有的基于 JDBC 的数据处理流程中。
+## 文档导航
+
+- [安装与使用](./usecase.mdx)：依赖、JDBC 连接、参数化读写和多结果访问。
+- [连接参数](./params.md)：认证、超时、自定义客户端和预读。
+- [命令参考](./commands.md)：命令覆盖、Hint 和限制。
+- [向量查询指南](./vectors.mdx)：Mapping、Lambda、原生 DSL、参数绑定和调优。
+- [dbVisitor API](../../features/elastic/usage.mdx)：JdbcTemplate、Mapper 与构造器用法。

@@ -57,25 +57,27 @@ The following table summarizes API support and dialect feature differences acros
 | ElasticSearch 6 | elastic6 | ✅ | ❌ | ❌ |  ✅   | ✅ | | | | |
 | ElasticSearch 7 | elastic7 | ✅ | ❌ | ❌ |  ✅   | ✅ | | | ✅ | |
 | ElasticSearch 8 | elastic8 | ✅ | ❌ | ❌ |  ✅   | ✅ | | | ✅ | |
-| Milvus | milvus | ✅ | ❌ | ❌ |  ❌   | ✅ | | | ✅ | |
+| Milvus | milvus | ✅ | ❌ | ❌ | ✅ ² | ✅ | | | ✅ | |
 
 > ✅ Supported &nbsp; ❌ Not Supported
 >
 > ¹ Requires primary key
+
+> ² Current-source Milvus JDBC INSERT/UPSERT supports generated keys, not a claim for older releases or every generic Mapper/Builder backfill path. See the [version and support scope](../drivers/milvus/compatibility.md).
 >
 > **⚠️ Hive**: Although `PageSqlDialect` is implemented, both `countSql` and `pageSql` throw `UnsupportedOperationException`, making pagination effectively unusable.
 
 :::info[JDBC Feature Support]
-For non-relational database drivers (Mongo, Elastic), dbVisitor implements the `Statement.RETURN_GENERATED_KEYS` feature.
-This means that when using `JdbcTemplate` or `Statement` to execute insert operations, the generated `_id` can be automatically retrieved.
+For non-relational database drivers (Mongo, Elastic, Milvus), dbVisitor implements the `Statement.RETURN_GENERATED_KEYS` feature.
+Supported JDBC insert/key-retrieval calls expose server-returned IDs. Milvus uses the collection's primary field name, not a fixed `_id` column.
 :::
 
 ### Non-Relational Data Source Guides
 
-- **[Redis](./redis)** — Supports [140+ commands](../drivers/redis/commands), 5 data type operations; Builder API and object mapping not supported
-- **[MongoDB](./mongo)** — Full CRUD support, ObjectId auto-mapping, paginated queries; batch and stored procedures not supported
-- **[ElasticSearch](./elastic)** — Full CRUD support, REST DSL-based; batch and stored procedures not supported
-- **[Milvus](./milvus)** — SQL-style syntax for vector databases, full CRUD support, KNN nearest neighbor search and range search; batch and stored procedures not supported
+- **[Redis](./redis/about.md)** — Supports [140+ commands](../drivers/redis/commands), 5 data type operations; Builder API and object mapping not supported
+- **[MongoDB](./mongo/about.md)** — Full CRUD support, ObjectId auto-mapping, paginated queries; batch and stored procedures not supported
+- **[ElasticSearch](./elastic/about.md)** — Full CRUD support, REST DSL-based; batch and stored procedures not supported
+- **[Milvus](./milvus/about.md)** — SQL subset, vector/Hybrid search, paged Partial UPDATE, generated keys, multi-row writes and Import; JDBC batch, transactions and stored procedures are unsupported.
 
 ---
 

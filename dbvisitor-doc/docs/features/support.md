@@ -57,7 +57,7 @@ dbVisitor 具备智能的方言推断能力，会自动根据 JDBC URL 识别目
 | ElasticSearch 6 | elastic6 | ✅ | ❌ | ❌ |  ✅   | ✅ | | | | |
 | ElasticSearch 7 | elastic7 | ✅ | ❌ | ❌ |  ✅   | ✅ | | | ✅ | |
 | ElasticSearch 8 | elastic8 | ✅ | ❌ | ❌ |  ✅   | ✅ | | | ✅ | |
-| Milvus | milvus | ✅ | ❌ | ❌ |  ❌   | ✅ | | | ✅ | |
+| Milvus | milvus | ✅ | ❌ | ❌ | ✅ ² | ✅ | | | ✅ | |
 
 > ✅ 支持 &nbsp; ❌ 不支持
 >
@@ -66,16 +66,18 @@ dbVisitor 具备智能的方言推断能力，会自动根据 JDBC URL 识别目
 > **⚠️ Hive**：虽然实现了 `PageSqlDialect`，但 `countSql` 和 `pageSql` 均会抛出 `UnsupportedOperationException`，实际不可用。
 
 :::info[JDBC 特性支持]
-对于非关系型数据库驱动（Mongo、Elastic），dbVisitor 实现了 `Statement.RETURN_GENERATED_KEYS` 特性。
-这意味着在使用 `JdbcTemplate` 或 `Statement` 执行插入操作时，可以自动获取生成的 `_id`。
+对于非关系型数据库驱动（Mongo、Elastic、Milvus），dbVisitor 实现了 `Statement.RETURN_GENERATED_KEYS` 特性。
+使用支持的 JDBC 插入及主键回传接口，可以读取服务端返回的主键；Milvus 的列名取集合主键字段名，不固定为 `_id`。
 :::
+
+> ² Milvus 当前源码的 JDBC INSERT/UPSERT 支持主键回传；不代表旧发布版或每种通用 Mapper/构造器回填方式均已验证。参见[版本与支持范围](../drivers/milvus/compatibility.md)。
 
 ### 非关系型数据源指南
 
-- **[Redis](./redis)** — 支持 [140+ 命令](../drivers/redis/commands)，5 种数据类型操作；不支持构造器 API 和对象映射
-- **[MongoDB](./mongo)** — 完整 CRUD 支持，ObjectId 自动映射，分页查询；不支持批量和存储过程
-- **[ElasticSearch](./elastic)** — 完整 CRUD 支持，基于 REST DSL；不支持批量和存储过程
-- **[Milvus](./milvus)** — SQL 风格语法操作向量数据库，完整 CRUD 支持，KNN 近邻搜索与范围搜索；不支持批量和存储过程
+- **[Redis](./redis/about.md)** — 支持 [140+ 命令](../drivers/redis/commands)，5 种数据类型操作；不支持构造器 API 和对象映射
+- **[MongoDB](./mongo/about.md)** — 完整 CRUD 支持，ObjectId 自动映射，分页查询；不支持批量和存储过程
+- **[ElasticSearch](./elastic/about.md)** — 完整 CRUD 支持，基于 REST DSL；不支持批量和存储过程
+- **[Milvus](./milvus/about.md)** — SQL 子集、向量/Hybrid 搜索、分页 Partial UPDATE、主键回传、多行写入和 Import；不支持 JDBC batch、事务及存储过程。
 
 ---
 

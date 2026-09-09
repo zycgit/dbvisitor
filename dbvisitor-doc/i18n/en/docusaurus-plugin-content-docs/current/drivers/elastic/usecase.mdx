@@ -1,103 +1,123 @@
 ---
 id: usecase
 sidebar_position: 2
-title: Install & Configure
-description: Learn how to add the jdbc-elastic dependency and configure JDBC connections.
+title: Install and Use
+description: jdbc-elastic dependencies, connections, read/write examples and JDBC results.
 ---
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-import Vars from '@site/plugins/projectVars';
-export const Highlight = ({children, color}) => (
-    <span style={{ backgroundColor: color, borderRadius: '2px', color: '#fff', padding: '0.2rem', }}>{children}</span>
-);
 
-## Add Dependency
+## Dependencies and Versions
 
-Before using `jdbc-elastic`, you need to add the corresponding Maven dependency to your project. Current version: <Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>
+This page describes current `6.7.1-SNAPSHOT` source and requires Java 17+ to build and run. It is not a capability claim for older artifacts. For releases, use the actual POM, classifier and matching documentation.
 
-<Tabs>
-  <TabItem value="maven" label="Maven" default>
-    ```xml
-    <dependency>
-        <groupId>net.hasor</groupId>
-        <artifactId>jdbc-elastic</artifactId>
-        <version>6.4.0</version>
-    </dependency>
-    ```
-  </TabItem>
-  <TabItem value="gradle" label="Gradle">
-    ```groovy
-    implementation 'net.hasor:jdbc-elastic:6.4.0'
-    ```
-  </TabItem>
-</Tabs>
+Current source publishes an `all` classifier (relocated ANTLR, with other dependencies still transitive). Install locally from the repository root first:
 
-## JDBC Connection
-
-Connect to ElasticSearch using the standard JDBC URL format:
-
-```text
-jdbc:dbvisitor:elastic://<host>:<port>?<parameters>
+```bash
+./gradlew :dbvisitor-driver:publishToMavenLocal :jdbc-elastic:publishToMavenLocal
 ```
 
-- `host`: ElasticSearch server address.
-- `port`: ElasticSearch server port (default 9200).
-- `parameters`: Connection parameters, see [Connection Parameters](./params) for details.
+```xml
+<dependency>
+    <groupId>net.hasor</groupId>
+    <artifactId>jdbc-elastic</artifactId>
+    <version>6.7.1-SNAPSHOT</version>
+    <classifier>all</classifier>
+</dependency>
+```
 
-### Example Code
+```groovy
+repositories { mavenLocal(); mavenCentral() }
+dependencies { implementation 'net.hasor:jdbc-elastic:6.7.1-SNAPSHOT:all' }
+```
 
-#### 1. Execute Search
+The local-install example does not assert that the SNAPSHOT is published on Maven Central.
 
+## JDBC Connection
 ```java
 String url = "jdbc:dbvisitor:elastic://127.0.0.1:9200";
 Properties props = new Properties();
-props.setProperty("username", "elastic");
+props.setProperty("user", "elastic");
 props.setProperty("password", "changeme");
+props.setProperty("connectTimeout", "5000");
+props.setProperty("socketTimeout", "10000");
+Connection conn = DriverManager.getConnection(url, props);
+```
 
-try (Connection conn = DriverManager.getConnection(url, props)) {
-    try (Statement stmt = conn.createStatement()) {
-        String dsl = "POST /my_index/_search { \"query\": { \"match_all\": {} } }";
-        try (ResultSet rs = stmt.executeQuery(dsl)) {
-            while (rs.next()) {
-                System.out.println("ID: " + rs.getString("_ID"));
-                System.out.println("Source: " + rs.getString("_DOC"));
-            }
-        }
-    }
+JDBC URL format:
+```
+jdbc:dbvisitor:elastic://{host}:{port}
+```
+
+Cluster example (multiple hosts):
+```
+jdbc:dbvisitor:elastic://host1:9200;host2:9200
+```
+
+Parameters may be supplied in the URL or Properties; see [Connection Parameters](./params.md). The driver class is `net.hasor.dbvisitor.driver.JdbcDriver`. Fragments below assume an open `Connection conn` and imports `java.sql.*` and `java.util.*`; close the connection when finished.
+
+## Code Examples
+
+### 1) Create index and mapping (DDL)
+```java
+try (Statement stmt = conn.createStatement()) {
+    stmt.execute("PUT /my_index");
+    stmt.execute("PUT /my_index/_mapping { \"properties\": { \"title\": { \"type\": \"text\" } } }");
 }
 ```
 
-#### 2. Using PreparedStatement (with Parameters)
+### 2) Insert document (DML)
+```java
+try (Statement stmt = conn.createStatement()) {
+    stmt.executeUpdate("POST /my_index/_doc/1 { \"user\": \"kimchy\", \"message\": \"hello\" }");
+}
+```
 
-`jdbc-elastic` supports `?` placeholders in URL paths, JSON Body, and Hints.
-
+### 3) Search with `PreparedStatement` (DQL)
 ```java
 String dsl = "POST /my_index/_search { \"query\": { \"term\": { \"user\": ? } } }";
 try (PreparedStatement pstmt = conn.prepareStatement(dsl)) {
     pstmt.setString(1, "kimchy");
     try (ResultSet rs = pstmt.executeQuery()) {
         while (rs.next()) {
-            // ...
+            rs.getString("_ID");
+            rs.getString("_DOC");
         }
     }
 }
 ```
 
-#### 3. Insert/Update Documents
-
+### 4) Path placeholder `{?}`
 ```java
-String insertSql = "POST /my_index/_doc/1 { \"user\": \"kimchy\", \"post_date\": \"2009-11-15T14:12:12\", \"message\": \"trying out Elasticsearch\" }";
-try (Statement stmt = conn.createStatement()) {
-    stmt.executeUpdate(insertSql);
+try (PreparedStatement pstmt = conn.prepareStatement("GET /my_index/_doc/{?}")) {
+    pstmt.setString(1, "1");
+    pstmt.executeQuery();
 }
 ```
 
-#### 4. Index Management
+### 5) `_cat` nodes
+```java
+try (Statement stmt = conn.createStatement()) {
+    stmt.executeQuery("GET /_cat/nodes");
+}
+```
+
+## Multiple Commands and JDBC Results
 
 ```java
 try (Statement stmt = conn.createStatement()) {
-    stmt.execute("PUT /new_index");
-    stmt.execute("PUT /new_index/_mapping { \"properties\": { \"field1\": { \"type\": \"text\" } } }");
-    stmt.execute("DELETE /new_index");
+    boolean hasResult = stmt.execute("GET /my_index/_count; HEAD /my_index");
+    while (true) {
+        if (hasResult) {
+            try (ResultSet rs = stmt.getResultSet()) {
+                while (rs.next()) System.out.println(rs.getObject(1));
+            }
+        } else {
+            long count = stmt.getLargeUpdateCount();
+            if (count == -1) break;
+            System.out.println("updated=" + count);
+        }
+        hasResult = stmt.getMoreResults(Statement.CLOSE_CURRENT_RESULT);
+    }
 }
 ```
+
+Use executeQuery for reads and executeUpdate or execute for writes. Semicolon-separated commands are consumed through execute/getMoreResults, not JDBC batch or a transaction. Hints go before the command; see [Command Reference](./commands.md) for all hints and limitations.

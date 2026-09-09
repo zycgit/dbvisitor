@@ -11,24 +11,28 @@ description: Detailed usage of each API mode and vector search for Milvus data s
 dbVisitor accesses the Milvus vector database via the [JDBC-Milvus](../../drivers/milvus/about) driver, based on the JDBC protocol.
 Unlike the native command style of MongoDB/ElasticSearch, the Milvus adapter uses **SQL-style syntax** (`CREATE TABLE`, `INSERT`, `SELECT`, `DELETE`, etc.), resulting in a lower learning curve.
 
+This page shows how dbVisitor APIs execute the adapter's SQL subset. See [Install and Use](../../drivers/milvus/usecase.mdx) for dependencies, connections, TLS and a complete JDBC program, and the [support matrix](../../drivers/milvus/compatibility.md) for versions and unverified environments. Examples use two-dimensional FloatVector fields; the application supplies dataSource, connection, entity accessors and Session.
+
 **Supported capabilities:**
+
 - Operate data using SQL-style commands ([supported command list](../../drivers/milvus/commands))
 - [JdbcTemplate](#exec-command), [Builder API](#exec-lambda), [BaseMapper](#exec-mapper), [Method Annotations](#exec-annotation), [Mapper File](#exec-file)
 - Object mapping, result set mapping, [rules](../../guides/rules/about), [parameter passing](../../guides/args/about), [ResultSetExtractor/RowMapper](../../guides/result/about)
 - **Vector Search**: KNN nearest neighbor search (`ORDER BY field <-> vector`), range search (`vector_range()`)
 
-**Not supported:** executeBatch, Stored Procedures, `Statement.RETURN_GENERATED_KEYS`
+**Unsupported:** transactions/savepoints, JDBC executeBatch, stored procedures and updatable ResultSets. INSERT/UPSERT supports multiple VALUES, lazy Iterable/Iterator inputs and [JDBC generated keys](../../drivers/milvus/usecase.mdx#typed-values); these are not JDBC batch.
 
 ## Concept Analogy
 
-The Milvus adapter uses standard SQL-style syntax, with behavior very close to traditional relational database JDBC:
+The Milvus adapter uses JDBC calls but accepts only the SQL subset defined in the syntax manual:
+
 - **DDL** — `CREATE TABLE`, `DROP TABLE`, `CREATE INDEX`, etc., executed via `executeUpdate`
 - **DML** — `INSERT`, `UPDATE`, `DELETE`, obtain affected row count via `executeUpdate`
 - **DQL** — `SELECT` queries return standard `ResultSet`, column names map one-to-one with collection fields
 
 :::info[Milvus Special Requirements]
 Milvus requires collections to be **loaded into memory** before querying; first execute `LOAD TABLE table_name`.
-Additionally, Milvus Updates are essentially "Search-to-Upsert" (search then write); full-table Updates on massive data are not recommended.
+UPDATE selects keys in pages and submits only SET fields through native Partial Upsert. No fixed total is imposed without LIMIT, but pages are not transactional; confirmed pages are not rolled back and a failed page may have taken effect.
 :::
 
 ---
@@ -39,7 +43,7 @@ Use JdbcTemplate to execute SQL-style commands to operate Milvus. Make sure the 
 
 :::tip[Tip]
 For more usage patterns, see the [JdbcTemplate class](../../guides/core/jdbc/about#guide). The following two features are unavailable due to driver limitations:
-- Batch operations
+- JDBC addBatch/executeBatch (use the driver's multi-row write syntax instead)
 - Stored procedures
 :::
 
@@ -55,7 +59,7 @@ jdbc.execute("CREATE TABLE book_vectors ("
     + "book_id INT64 PRIMARY KEY, "
     + "title VARCHAR(256) NOT NULL, "
     + "word_count INT32 DEFAULT 0, "
-    + "book_intro FLOAT_VECTOR(128)"
+    + "book_intro FLOAT_VECTOR(2)"
     + ")");
 
 // Create vector index
@@ -69,11 +73,11 @@ jdbc.execute("LOAD TABLE book_vectors");
 ```java title='Insert data'
 // Direct insert
 jdbc.execute("INSERT INTO book_vectors (book_id, title, word_count, book_intro) "
-    + "VALUES (1, 'Thinking in Java', 1000, [0.1, 0.2, ...])");
+    + "VALUES (1, 'Thinking in Java', 1000, [0.1, 0.2])");
 // Parameterized insert (recommended)
 jdbc.execute("INSERT INTO book_vectors (book_id, title, word_count, book_intro) "
     + "VALUES (?, ?, ?, ?)",
-    new Object[] { 2L, "Design Patterns", 500, Arrays.asList(0.3f, 0.4f, ...) });
+    new Object[] { 2L, "Design Patterns", 500, Arrays.asList(0.3f, 0.4f) });
 ```
 
 ```java title='Scalar conditional query'
@@ -89,27 +93,31 @@ Map<String, Object> book = jdbc.queryForMap(
 List<Map<String, Object>> results = jdbc.queryForList(
     "SELECT book_id, title FROM book_vectors "
     + "ORDER BY book_intro <-> ? LIMIT 5",
-    new Object[] { Arrays.asList(0.1f, 0.2f, ...) });
+    new Object[] { Arrays.asList(0.1f, 0.2f) });
 ```
 
 ```java title='Vector range search'
 // Approach 1: vector_range function (recommended)
 List<Map<String, Object>> results = jdbc.queryForList(
     "SELECT * FROM book_vectors WHERE vector_range(book_intro, ?, 0.8)",
-    new Object[] { Arrays.asList(0.1f, 0.2f, ...) });
+    new Object[] { Arrays.asList(0.1f, 0.2f) });
 
 // Approach 2: comparison expression
 List<Map<String, Object>> results = jdbc.queryForList(
     "SELECT * FROM book_vectors WHERE book_intro <-> ? < 0.8",
-    new Object[] { Arrays.asList(0.1f, 0.2f, ...) });
+    new Object[] { Arrays.asList(0.1f, 0.2f) });
 ```
 
-```java title='Hybrid query (scalar filter + vector search)'
+### Filtered Vector Search {#hybrid-query}
+
+This is a single filtered search path. Use [native HYBRID syntax](../../drivers/milvus/commands.md#hybrid) for multiple candidate paths and fused ranking.
+
+```java title='Scalar filter + vector search'
 List<Map<String, Object>> results = jdbc.queryForList(
     "SELECT book_id, title FROM book_vectors "
     + "WHERE word_count > 500 "
     + "ORDER BY book_intro <-> ? LIMIT 3",
-    new Object[] { Arrays.asList(0.1f, 0.2f, ...) });
+    new Object[] { Arrays.asList(0.1f, 0.2f) });
 ```
 
 ```java title='Update and delete'
@@ -123,7 +131,7 @@ jdbc.execute("DELETE FROM book_vectors WHERE book_id = 1");
 
 ## Builder API (LambdaTemplate) {#exec-lambda}
 
-The Builder API provides a type-safe, fluent way to operate Milvus with the same usage as RDBMS. For details, see [Builder API](../../guides/core/lambda/about).
+The Builder API provides a type-safe, fluent way to operate Milvus subject to the Milvus SQL subset. Do not use JOINs, scalar ordering, column aliases or cross-database qualified names. For details, see [Builder API](../../guides/core/lambda/about).
 
 ```java title='Initialize'
 LambdaTemplate lambda = new LambdaTemplate(dataSource);
@@ -185,7 +193,7 @@ List<BookVector> page2 = lambda.query(BookVector.class)
 
 ## BaseMapper Interface {#exec-mapper}
 
-`BaseMapper` provides generic CRUD methods with the same usage as RDBMS. For details, see [BaseMapper](../../guides/core/mapper/about).
+`BaseMapper` provides CRUD entry points, but generated SQL, transactions and batching remain subject to adapter limitations. For details, see [BaseMapper](../../guides/core/mapper/about).
 
 ```java title='Define object'
 @Table("book_vectors")
@@ -228,7 +236,7 @@ mapper.deleteById(1L);
 ## Annotation Mode {#exec-annotation}
 
 :::tip[Tip]
-For the [Core API annotations](../../guides/core/mapper/about), all annotations work normally on Milvus except `@Call`.
+[Core API annotations](../../guides/core/mapper/about) can execute supported Milvus commands, such as @Insert/@Query/@Delete below. @Call is unsupported; annotations do not extend the driver's SQL or transaction capabilities.
 Milvus uses SQL-style syntax, so command syntax in annotations is very close to traditional SQL.
 :::
 
@@ -268,6 +276,8 @@ Session session = config.newSession(dataSource);
 
 BookVectorMapper mapper = session.createMapper(BookVectorMapper.class);
 ```
+
+### Consistency Level {#consistency}
 
 :::info[Consistency Level]
 Milvus's default consistency level may prevent newly inserted data from being immediately queryable. It is recommended to add `consistencyLevel=Strong` to the JDBC connection URL to ensure immediate visibility:
@@ -397,7 +407,7 @@ List<BookVector> results = lambda.query(BookVector.class)
 
 ### Range Search (vectorBy*)
 
-Use `vectorByL2` / `vectorByCosine` / `vectorByIP` to filter records whose distance is less than a threshold — they are WHERE conditions and can be freely combined with other conditions:
+`vectorByL2` means L2 distance below the threshold. Only one vector range combined with scalar predicates using AND is supported, not vector ranges under OR/NOT, multiple ranges or simultaneous ORDER BY. The current MilvusDialect range builder always emits `<`, so `vectorByCosine` / `vectorByIP` cannot express the required similarity range here. Use prepared SQL `field <=> ? > ?` / `field <#> ? > ?` instead.
 
 ```java title='L2 distance range filter'
 List<Float> target = Arrays.asList(0.1f, 0.2f);
@@ -423,8 +433,8 @@ List<BookVector> results = lambda.query(BookVector.class)
 | KNN Sort | `orderByIP(property, vector)` | Sort by inner product distance |
 | KNN Sort | `orderByMetric(MetricType, property, vector)` | Generic metric interface |
 | Range Filter | `vectorByL2(property, vector, threshold)` | L2 distance < threshold |
-| Range Filter | `vectorByCosine(property, vector, threshold)` | Cosine distance < threshold |
-| Range Filter | `vectorByIP(property, vector, threshold)` | Inner product distance < threshold |
+| COSINE Range | Prepared SQL: `field <=> ? > ?` | Similarity above threshold |
+| IP Range | Prepared SQL: `field <#> ? > ?` | Inner product above threshold |
 
 :::tip[SQL Command Mode]
 To use SQL-style syntax directly for vector search (e.g., `ORDER BY field <-> vector`, `vector_range()`, etc.), see the [supported command list](../../drivers/milvus/commands#dql).

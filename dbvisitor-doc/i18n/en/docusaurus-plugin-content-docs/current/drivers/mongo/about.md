@@ -2,29 +2,36 @@
 id: about
 sidebar_position: 1
 title: Introduction
-description: jdbc-mongo is a MongoDB JDBC driver adapter that allows developers to operate data using standard JDBC interfaces and MongoDB commands.
+description: jdbc-mongo JDBC capabilities, architecture, dependencies and documentation.
 ---
-jdbc-mongo is a MongoDB JDBC driver adapter that allows developers to operate data using standard JDBC interfaces and MongoDB commands.
-Its purpose is to enable developers to seamlessly use MongoDB through the familiar JDBC programming model.
 
-## Core Features
+## Introduction
+jdbc-mongo is a JDBC driver adapter for MongoDB. It allows developers to operate MongoDB using standard JDBC interfaces and native-command style Mongo commands.
 
-- JDBC compatible — implements standard JDBC interfaces for seamless integration with any JDBC-compatible framework.
-- Rich command set — supports commonly used MongoDB commands, including collection, database management, index management, user management, and more.
-- Supports command parameter placeholder `?`, with parameters set via `PreparedStatement`.
-- Supports multi-command execution with results retrieved through standard JDBC methods.
-- Supports `Statement` properties: `maxRows`, `fetchSize`, `timeoutSec`.
-- Supports `Statement.RETURN_GENERATED_KEYS`, automatically returning the generated `_id` on insert operations.
-- Supports command interceptors for logging, performance monitoring, and similar scenarios.
-- Supports type conversion — for example, when result set returns `LONG` type, data can be retrieved via `ResultSet.getInt` or `ResultSet.getString`.
-- Supports `BLOB`, `CLOB`, `NCLOB` reading.
+Core value:
+- Use standard JDBC APIs (Connection, Statement, PreparedStatement, ResultSet).
+- Use native-command style command text that maps to MongoDB operations.
+- Provide a unified programming style for heterogeneous data sources via dbVisitor.
 
-## Architecture Design
+## Features
+- Implements the JDBC core interfaces and supports `PreparedStatement` placeholders.
+- Supports native-command style Mongo commands and multiple commands separated by semicolons.
+- Supports collection, index, user, and database management commands.
+- `find` supports method chaining: `limit(...)`, `skip(...)`, `sort(...)`, `hint(...)`.
+- Result mapping: `find` returns `_ID` and `_JSON` columns; when pre-read is enabled, document fields are also expanded as columns.
+- Pre-read mode for large result sets with configurable threshold, max file size, and cache directory.
 
-jdbc-mongo internally uses the official MongoDB driver for communication, parses commands via ANTLR4, and converts them to MongoDB BSON operations.
+## JDBC and Implementation
 
-## Use Cases
+ANTLR4 parses commands and the official client executes them. The shared JDBC layer handles Connection, Statement, PreparedStatement, ResultSet and type conversion. Multiple commands and JDBC multi-result access do not imply arbitrary ORM SQL, transactions, JDBC batch or complete DatabaseMetaData. ResultSets are read-only and forward-only; compatible values support getInt/getString and BLOB/CLOB/NCLOB reads. INSERT can expose adapter-returned `_id` values through getGeneratedKeys, not a guarantee for every generic Mapper backfill path.
 
-- Accessing MongoDB in a unified way (JDBC) within Java projects.
-- Operating MongoDB using native command syntax.
-- Integrating MongoDB into existing JDBC-based data processing pipelines.
+## Compatibility
+- JDK 17+
+- MongoDB Java driver: `mongodb-driver-sync` 5.6.1 (compatible with the server versions supported by this driver)
+
+## Documentation
+
+- [Install and Use](./usecase.mdx): dependencies, JDBC connections, prepared operations and multiple results.
+- [Connection Parameters](./params.md): authentication, timeouts, custom clients and pre-read.
+- [Command Reference](./commands.md): coverage, hints and limitations.
+- [dbVisitor APIs](../../features/mongo/usage.mdx): JdbcTemplate, Mapper and Builder usage.

@@ -1,10 +1,10 @@
 ---
 id: params
 sidebar_position: 3
-hide_table_of_contents: true
 title: Connection Parameters
-description: JDBC parameters configurable for the jdbc-redis driver.
+description: Redis JDBC properties, timeout units, cluster settings and command separators.
 ---
+
 ```text title='JDBC URL Format'
 jdbc:dbvisitor:jedis://server?database=0&param1=value1&param2=value2
 ```
@@ -17,7 +17,7 @@ jdbc:dbvisitor:jedis://server?database=0&param1=value1&param2=value2
 | database | int | 0 | Default database |
 | connectTimeout | int | 5000 | Connection timeout (milliseconds) |
 | socketTimeout | int | 10 | Socket timeout (seconds) |
-| timeZone | string | | Local timezone used by the driver when processing time types. |
+| timeZone | string | UTC | Driver time zone for time type conversion, for example `+08:00`. |
 | clientName | string | Jedis-JDBC-Client | Client name |
 | uncheckNumKeys | boolean | false | Whether to disable key count checking. When set to true, the driver will not check the number of keys required by the executed command, such as numfields in HEXPIRE/HTTL, and numkeys in ZMPOP. |
 | separatorChar | char | '\n' | Command separator. Default is '\n'. Can be set to (\n, ";" semicolon). The driver will split multiple commands by this character, e.g., `SET mykey hello; GET mykey`. |
@@ -35,3 +35,9 @@ jdbc:dbvisitor:jedis://server?database=0&param1=value1&param2=value2
   - LMPOP, BLMPOP, SINTERCARD
 - When separatorChar is set to ";" (semicolon):
   - Content containing semicolons must be enclosed in double quotes to avoid script parsing errors.
+
+`user` is the registered property; `username` is an alias, with user taking precedence. `adapterName` and `server` normally come from the URL. socketTimeout uses seconds, unlike connectTimeout in milliseconds.
+
+Multiple hosts create JedisCluster, not broadcast writes to independent Redis instances. database cannot bypass Redis Cluster's database restrictions. The default client does not enable TLS; use customJedis for advanced client settings. The JDBC connection closes the returned client.
+
+The current implementation applies testWhileIdle only when minIdle is also supplied; setting testWhileIdle alone leaves the pool default in effect.

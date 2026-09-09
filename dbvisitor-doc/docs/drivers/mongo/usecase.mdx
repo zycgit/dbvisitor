@@ -1,77 +1,120 @@
 ---
 id: usecase
 sidebar_position: 2
-title: 安装与配置
-description: 介绍如何引入 jdbc-mongo 依赖以及配置 JDBC 连接。
+title: 安装与使用
+description: jdbc-mongo 的依赖、连接、读写示例与 JDBC 结果访问。
 ---
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-import Vars from '@site/plugins/projectVars';
 
-export const Highlight = ({children, color}) => (
-    <span style={{ backgroundColor: color, borderRadius: '2px', color: '#fff', padding: '0.2rem', }}>{children}</span>
-);
+## 依赖与版本
 
-## 引入依赖
+本文对应当前 `6.7.1-SNAPSHOT` 源码，构建与运行要求 Java 17+，不是旧发布制品的能力承诺。使用发布版时，以实际 POM、classifier 和对应版本文档为准。
 
-在使用 `jdbc-mongo` 之前，需要在项目中引入相应的 Maven 依赖。当前版本：<Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>
+当前源码使用 `all` classifier（重定位 ANTLR，其他依赖仍需传递引入）。先在仓库根目录安装：
 
-<Tabs>
-  <TabItem value="maven" label="Maven" default>
-    ```xml
-    <dependency>
-        <groupId>net.hasor</groupId>
-        <artifactId>jdbc-mongo</artifactId>
-        <version>6.3.0</version> <!-- 请使用最新版本 -->
-    </dependency>
-    ```
-  </TabItem>
-  <TabItem value="gradle" label="Gradle">
-    ```groovy
-    implementation 'net.hasor:jdbc-mongo:6.3.0' // 请使用最新版本
-    ```
-  </TabItem>
-</Tabs>
-
-## JDBC 连接
-
-使用标准的 JDBC URL 格式进行连接。
-
-```text
-jdbc:dbvisitor:mongo://<host>:<port>/<database>?<parameters>
+```bash
+./gradlew :dbvisitor-driver:publishToMavenLocal :jdbc-mongo:publishToMavenLocal
 ```
 
-- `host`: MongoDB 服务器地址。
-- `port`: MongoDB 服务器端口（默认 27017）。
-- `database`: 数据库名称。
-- `parameters`: 连接参数，详见 [连接参数](./params)。
+```xml
+<dependency>
+    <groupId>net.hasor</groupId>
+    <artifactId>jdbc-mongo</artifactId>
+    <version>6.7.1-SNAPSHOT</version>
+    <classifier>all</classifier>
+</dependency>
+```
 
-### 示例代码
+```groovy
+repositories { mavenLocal(); mavenCentral() }
+dependencies { implementation 'net.hasor:jdbc-mongo:6.7.1-SNAPSHOT:all' }
+```
 
+本地安装示例不表示 SNAPSHOT 已发布到 Maven Central。
+
+## JDBC 连接
 ```java
-public class MongoJdbcExample {
-    public static void main(String[] args) throws Exception {
-        String url = "jdbc:dbvisitor:mongo://127.0.0.1:27017/testdb";
-        try (Connection conn = DriverManager.getConnection(url)) {
-            // Statement Example
-            try (Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("db.my_collection.find().limit(10)")) {
-                    while (rs.next()) {
-                        System.out.println(rs.getString("name"));
-                    }
-                }
-            }
+String url = "jdbc:dbvisitor:mongo://127.0.0.1:27017/testdb?socketTimeout=5000";
+Properties props = new Properties();
+props.setProperty("user", "root");
+props.setProperty("password", "123456");
+props.setProperty("mechanism", "SCRAM-SHA-256");
+Connection conn = DriverManager.getConnection(url, props);
+```
 
-            // PreparedStatement Example
-            try (PreparedStatement pstmt = conn.prepareStatement("db.my_collection.find({name:?})")) {
-                pstmt.setString(1, "mali");
-                try (ResultSet rs = pstmt.executeQuery()) {
-                    while (rs.next()) {
-                        System.out.println(rs.getString("name"));
-                    }
-                }
-            }
+JDBC URL 格式：
+```
+jdbc:dbvisitor:mongo://{host}:{port}/{database}?{param1=value1&param2=value2}
+```
+
+集群示例（多主机）：
+```
+jdbc:dbvisitor:mongo://host1:27017;host2:27017/mydb
+```
+
+参数可在 URL 或 Properties 中配置，完整定义见[连接参数](./params.md)。驱动类为 `net.hasor.dbvisitor.driver.JdbcDriver`。以下片段假定已打开 `Connection conn`，Java 导入为 `java.sql.*` 和 `java.util.*`；应用完成后应关闭连接。
+
+请替换示例账号和密码，并确认账号的认证库与 URL 中的数据库一致。以下操作会创建集合并修改示例数据，请在测试环境执行。
+
+## 常用操作示例
+
+### 1) 创建集合（DDL）
+```java
+try (Statement stmt = conn.createStatement()) {
+    stmt.execute("use mydb");
+    stmt.executeUpdate("db.createCollection('capped_col', { capped: true, size: 1024, max: 100 })");
+}
+```
+
+### 2) 插入与更新（DML）
+```java
+try (Statement stmt = conn.createStatement()) {
+    stmt.executeUpdate("db.mycol.insert({name:'zhangsan'})");
+    stmt.executeUpdate("db.mycol.update({name:'zhangsan'}, {$set:{age:20}})");
+}
+```
+
+这里的 `db.mycol` 使用当前数据库；指定其他库时可写成 `mydb1.mycol.insert(...)`，后续查询或更新也应使用相同的数据库。
+
+### 3) 使用 `ObjectId(?)` 查询（DQL）
+```java
+try (PreparedStatement ps = conn.prepareStatement("db.complex_order.find({_id: ObjectId(?)})")) {
+    ps.setString(1, "69399ba1c488515851cecdfb");
+    try (ResultSet rs = ps.executeQuery()) {
+        while (rs.next()) {
+            rs.getString("_JSON");
         }
     }
 }
 ```
+
+### 4) 带参数的聚合
+```java
+try (PreparedStatement ps = conn.prepareStatement(
+        "db.mycol.aggregate([{$match: {}}], { allowDiskUse: ?, batchSize: ? })")) {
+    ps.setBoolean(1, true);
+    ps.setInt(2, 100);
+    ps.executeQuery();
+}
+```
+
+## 多命令与 JDBC 结果
+
+```java
+try (Statement stmt = conn.createStatement()) {
+    boolean hasResult = stmt.execute("db.mycol.find({}).limit(2); db.mycol.count({})");
+    while (true) {
+        if (hasResult) {
+            try (ResultSet rs = stmt.getResultSet()) {
+                while (rs.next()) System.out.println(rs.getObject(1));
+            }
+        } else {
+            long count = stmt.getLargeUpdateCount();
+            if (count == -1) break;
+            System.out.println("updated=" + count);
+        }
+        hasResult = stmt.getMoreResults(Statement.CLOSE_CURRENT_RESULT);
+    }
+}
+```
+
+查询使用 executeQuery；写入使用 executeUpdate 或 execute。多个命令以分号分隔，通过 execute/getMoreResults 读取，不等于 JDBC batch，也不构成事务。Hint 必须放在命令开头；完整 Hint 与限制见[命令参考](./commands.md)。

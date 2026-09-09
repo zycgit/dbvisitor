@@ -1,59 +1,41 @@
 ---
 id: params
 sidebar_position: 4
-hide_table_of_contents: true
 title: Connection Parameters
-description: List of JDBC connection parameters supported by jdbc-mongo.
+description: jdbc-mongo connection properties, aliases, pre-read and custom clients.
 ---
-`jdbc-mongo` supports configuring various parameters in the JDBC URL to control connection behavior, authentication, timeout settings, and more.
 
-```text title='JDBC URL Format'
-jdbc:dbvisitor:mongo://server:port?database=0&param1=value1&param2=value2
-```
-
-- Server address format: `ip` or `ip:port`. If no port is specified, `27017` is used as the default port. Cluster mode: `ip:port;ip:port` or `ip;ip;ip`
-
-## Basic Parameters
+## Connection Parameters
 
 | Parameter | Description | Default |
-|---|---|---|
-| username | Database username | None |
-| password | Database password | None |
-| mechanism | Authentication mechanism, supports `PLAIN`, `SCRAM-SHA-1`, `SCRAM-SHA-256`, `GSSAPI`, `X-509` | None, auto-negotiated |
-| clientName | Client name, displayed in MongoDB server logs | `Mongo-JDBC-Client` |
+| --- | --- | --- |
+| `server` | Host segment from the JDBC URL. Supports `host:port` or `host1:port;host2:port`. | From URL |
+| `database` | Default database when URL path is empty. | None |
+| `user` / `username` | Username for authentication. | None |
+| `password` | Password for authentication. | Empty |
+| `mechanism` | Authentication mechanism: `PLAIN`, `SCRAM-SHA-1`, `SCRAM-SHA-256`, `GSSAPI`, `X-509`. Empty means `createCredential`. | Empty |
+| `clientName` | MongoDB application name. | `Mongo-JDBC-Client` |
+| `socketTimeout` | Socket read timeout (ms). | Driver default |
+| `socketSndBuffer` | Socket send buffer size (bytes). | Driver default |
+| `socketRcvBuffer` | Socket receive buffer size (bytes). | Driver default |
+| `retryWrites` | Enable retry writes. | Driver default |
+| `retryReads` | Enable retry reads. | Driver default |
+| `timeZone` | Driver time zone used for type conversion (for example `+08:00`). | `UTC` |
+| `customMongo` | Fully qualified class name implementing `CustomMongo`. | None |
+| `connectTimeout` | Declared parameter but not applied by this adapter. | Not applied |
+| `preRead` | Enable pre-read mode. | `true` |
+| `preReadThreshold` | Pre-read threshold size. Accepts `B/KB/MB/GB`. | `5MB` |
+| `preReadMaxFileSize` | Maximum pre-read file size. Accepts `B/KB/MB/GB`. | `20MB` |
+| `preReadCacheDir` | Cache directory for pre-read mode. | `java.io.tmpdir` |
 
-## Network & Timeout
+`user` is the registered property; `username` is a compatibility alias. When both are supplied, user takes precedence. `server`/`adapterName` normally come from the URL. Separate hosts with semicolons; the default port is 27017. Arbitrary vendor-client URI options are not automatically passed through.
 
-| Parameter | Description | Default |
-|---|---|---|
-| connectTimeout | Connection timeout (milliseconds) | Driver default |
-| socketTimeout | Socket read timeout (milliseconds) | Driver default |
-| socketSndBuffer | Socket send buffer size (bytes) | Driver default |
-| socketRcvBuffer | Socket receive buffer size (bytes) | Driver default |
+## Pre-Read and Result Columns
 
-## Read/Write Strategy
+`preRead=true` reads ahead and expands document fields while retaining `_ID`/`_JSON`. With pre-read disabled, use the dedicated raw-document columns rather than assuming expanded fields exist. preReadThreshold/preReadMaxFileSize support B/KB/MB/GB and default to MB without a unit; the cache directory defaults to java.io.tmpdir. Pre-read may increase memory, disk use and time to first row; it is not a server-side pagination limit.
 
-| Parameter | Description | Default |
-|---|---|---|
-| retryWrites | Whether to enable retry writes | `true` |
-| retryReads | Whether to enable retry reads | `true` |
+## Custom Client
 
-## Pre-Read Configuration
+`customMongo` names a factory implementing `net.hasor.dbvisitor.adapter.mongo.CustomMongo`, with method `createMongoClient(String jdbcUrl, Map<String, String> props)`. The JDBC connection uses and closes the returned client. The factory owns advanced client configuration; Milvus TLS properties do not apply here.
 
-These parameters control pre-read behavior for large files or large volumes of data. When pre-read is enabled, the query result set will display all fields in the document, rather than only the `_ID` and `_JSON` fields.
-
-| Parameter | Description | Default |
-|---|---|---|
-| preRead | Whether to enable pre-read. When enabled, query result sets will display all fields in the document. | `true` |
-| preReadThreshold | Threshold for swapping pre-read data to disk. | `5mb` |
-| preReadMaxFileSize | Maximum pre-read data file size (MB) | `20mb` |
-| preReadCacheDir | Pre-read cache directory | (System cache directory) |
-
-- preReadMaxFileSize can be followed by unit suffixes `b`, `kb`, `mb`, `gb`, e.g., `10mb`. When no unit is specified, MB is used by default.
-
-## Other Parameters
-
-| Parameter | Description | Default |
-|---|---|---|
-| timeZone | Local timezone used by the driver when processing timezone-sensitive data. | `UTC` |
-| customMongo | Custom MongoDB client creation. Must implement `net.hasor.dbvisitor.adapter.mongo.CustomMongo` interface. | None |
+The URL database path takes precedence over database and is also used as the default authentication database. The db prefix requires a selected database. connectTimeout is declared but not applied by the current factory; configure it through a custom client when needed. Selecting X-509 authentication does not itself enable TLS.

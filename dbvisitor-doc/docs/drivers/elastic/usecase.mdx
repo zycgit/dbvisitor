@@ -1,110 +1,123 @@
 ---
 id: usecase
 sidebar_position: 2
-title: 安装与配置
-description: 介绍如何引入 jdbc-elastic 依赖以及配置 JDBC 连接。
+title: 安装与使用
+description: jdbc-elastic 的依赖、连接、读写示例与 JDBC 结果访问。
 ---
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-import Vars from '@site/plugins/projectVars';
 
-export const Highlight = ({children, color}) => (
-    <span style={{ backgroundColor: color, borderRadius: '2px', color: '#fff', padding: '0.2rem', }}>{children}</span>
-);
+## 依赖与版本
 
-## 引入依赖
+本文对应当前 `6.7.1-SNAPSHOT` 源码，构建与运行要求 Java 17+，不是旧发布制品的能力承诺。使用发布版时，以实际 POM、classifier 和对应版本文档为准。
 
-在使用 `jdbc-elastic` 之前，需要在项目中引入相应的 Maven 依赖。当前版本：<Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>
+当前源码使用 `all` classifier（重定位 ANTLR，其他依赖仍需传递引入）。先在仓库根目录安装：
 
-<Tabs>
-  <TabItem value="maven" label="Maven" default>
-    ```xml
-    <dependency>
-        <groupId>net.hasor</groupId>
-        <artifactId>jdbc-elastic</artifactId>
-        <version>6.4.0</version>
-    </dependency>
-    ```
-  </TabItem>
-  <TabItem value="gradle" label="Gradle">
-    ```groovy
-    implementation 'net.hasor:jdbc-elastic:6.4.0'
-    ```
-  </TabItem>
-</Tabs>
-
-## JDBC 连接
-
-使用标准的 JDBC URL 格式连接 ElasticSearch：
-
-```text
-jdbc:dbvisitor:elastic://<host>:<port>?<parameters>
+```bash
+./gradlew :dbvisitor-driver:publishToMavenLocal :jdbc-elastic:publishToMavenLocal
 ```
 
-- `host`: ElasticSearch 服务器地址。
-- `port`: ElasticSearch 服务器端口（默认 9200）。
-- `parameters`: 连接参数，详见 [连接参数](./params)。
+```xml
+<dependency>
+    <groupId>net.hasor</groupId>
+    <artifactId>jdbc-elastic</artifactId>
+    <version>6.7.1-SNAPSHOT</version>
+    <classifier>all</classifier>
+</dependency>
+```
 
-### 示例代码
+```groovy
+repositories { mavenLocal(); mavenCentral() }
+dependencies { implementation 'net.hasor:jdbc-elastic:6.7.1-SNAPSHOT:all' }
+```
 
-#### 1. 执行查询 (Search)
+本地安装示例不表示 SNAPSHOT 已发布到 Maven Central。
 
+## JDBC 连接
 ```java
 String url = "jdbc:dbvisitor:elastic://127.0.0.1:9200";
 Properties props = new Properties();
-props.setProperty("username", "elastic");
+props.setProperty("user", "elastic");
 props.setProperty("password", "changeme");
+props.setProperty("connectTimeout", "5000");
+props.setProperty("socketTimeout", "10000");
+Connection conn = DriverManager.getConnection(url, props);
+```
 
-try (Connection conn = DriverManager.getConnection(url, props)) {
-    try (Statement stmt = conn.createStatement()) {
-        // 执行 DSL 查询
-        String dsl = "POST /my_index/_search { \"query\": { \"match_all\": {} } }";
-        try (ResultSet rs = stmt.executeQuery(dsl)) {
-            while (rs.next()) {
-                System.out.println("ID: " + rs.getString("_ID"));
-                System.out.println("Source: " + rs.getString("_DOC")); // _DOC 返回原始 JSON
-            }
-        }
-    }
+JDBC URL 格式：
+```
+jdbc:dbvisitor:elastic://{host}:{port}
+```
+
+集群示例（多主机）：
+```
+jdbc:dbvisitor:elastic://host1:9200;host2:9200
+```
+
+参数可在 URL 或 Properties 中配置，完整定义见[连接参数](./params.md)。驱动类为 `net.hasor.dbvisitor.driver.JdbcDriver`。以下片段假定已打开 `Connection conn`，Java 导入为 `java.sql.*` 和 `java.util.*`；应用完成后应关闭连接。
+
+## 常用操作示例
+
+### 1) 创建索引与 Mapping（DDL）
+```java
+try (Statement stmt = conn.createStatement()) {
+    stmt.execute("PUT /my_index");
+    stmt.execute("PUT /my_index/_mapping { \"properties\": { \"title\": { \"type\": \"text\" } } }");
 }
 ```
 
-#### 2. 使用 PreparedStatement (带参数)
+### 2) 插入文档（DML）
+```java
+try (Statement stmt = conn.createStatement()) {
+    stmt.executeUpdate("POST /my_index/_doc/1 { \"user\": \"kimchy\", \"message\": \"hello\" }");
+}
+```
 
-`jdbc-elastic` 支持在 URL 路径、JSON Body 以及 Hint 中使用 `?` 作为占位符。
-
+### 3) 使用 `PreparedStatement` 查询（DQL）
 ```java
 String dsl = "POST /my_index/_search { \"query\": { \"term\": { \"user\": ? } } }";
 try (PreparedStatement pstmt = conn.prepareStatement(dsl)) {
     pstmt.setString(1, "kimchy");
     try (ResultSet rs = pstmt.executeQuery()) {
         while (rs.next()) {
-            // ...
+            rs.getString("_ID");
+            rs.getString("_DOC");
         }
     }
 }
 ```
 
-#### 3. 插入/更新文档
-
+### 4) 路径占位符 `{?}`
 ```java
-String insertSql = "POST /my_index/_doc/1 { \"user\": \"kimchy\", \"post_date\": \"2009-11-15T14:12:12\", \"message\": \"trying out Elasticsearch\" }";
-try (Statement stmt = conn.createStatement()) {
-    stmt.executeUpdate(insertSql);
+try (PreparedStatement pstmt = conn.prepareStatement("GET /my_index/_doc/{?}")) {
+    pstmt.setString(1, "1");
+    pstmt.executeQuery();
 }
 ```
 
-#### 4. 索引管理
+### 5) `_cat` 节点
+```java
+try (Statement stmt = conn.createStatement()) {
+    stmt.executeQuery("GET /_cat/nodes");
+}
+```
+
+## 多命令与 JDBC 结果
 
 ```java
 try (Statement stmt = conn.createStatement()) {
-    // 创建索引
-    stmt.execute("PUT /new_index");
-    
-    // 设置 Mapping
-    stmt.execute("PUT /new_index/_mapping { \"properties\": { \"field1\": { \"type\": \"text\" } } }");
-    
-    // 删除索引
-    stmt.execute("DELETE /new_index");
+    boolean hasResult = stmt.execute("GET /my_index/_count; HEAD /my_index");
+    while (true) {
+        if (hasResult) {
+            try (ResultSet rs = stmt.getResultSet()) {
+                while (rs.next()) System.out.println(rs.getObject(1));
+            }
+        } else {
+            long count = stmt.getLargeUpdateCount();
+            if (count == -1) break;
+            System.out.println("updated=" + count);
+        }
+        hasResult = stmt.getMoreResults(Statement.CLOSE_CURRENT_RESULT);
+    }
 }
 ```
+
+查询使用 executeQuery；写入使用 executeUpdate 或 execute。多个命令以分号分隔，通过 execute/getMoreResults 读取，不等于 JDBC batch，也不构成事务。Hint 必须放在命令开头；完整 Hint 与限制见[命令参考](./commands.md)。

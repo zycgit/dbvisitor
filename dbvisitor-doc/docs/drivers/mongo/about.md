@@ -2,30 +2,36 @@
 id: about
 sidebar_position: 1
 title: 简介
-description: jdbc-mongo 是一个 MongoDB 的 JDBC 驱动适配器，它允许开发者使用标准的 JDBC 接口和 MongoDB 命令的方式来操作数据。
+description: jdbc-mongo 的 JDBC 能力、架构、依赖与文档入口。
 ---
 
-jdbc-mongo 是一个 MongoDB 的 JDBC 驱动适配器，它允许开发者使用标准的 JDBC 接口和 MongoDB 命令的方式来操作数据。
-目的是通过熟悉 JDBC 编程模型，使开发者能够无缝地使用 MongoDB。
+## 介绍
+jdbc-mongo 是 MongoDB 的 JDBC 驱动适配器，允许开发者使用标准 JDBC 接口和原生命令风格命令操作 MongoDB。
 
-## 核心特性
+核心价值：
+- 使用标准 JDBC API（Connection、Statement、PreparedStatement、ResultSet）。
+- 使用原生命令风格的命令文本映射到 MongoDB 操作。
+- 通过 dbVisitor 为异构数据源提供统一的编码风格。
 
-- JDBC 兼容，实现了标准的 JDBC 接口，可以无缝集成到任何支持 JDBC 的框架中。
-- 丰富的命令集，支持 MongoDB 的常用命令，包括 [集合](./commands#collection)、[数据库管理](./commands#database)、[索引管理](./commands#index)、[用户管理](./commands#user) 等。
-- 支持 命令参数占位符 “?”，并使用 `PreparedStatement` 设置参数。
-- 支持 多命令执行并通过 JDBC 标准方法获取多命令执行结果。
-- 支持 `Statement` 的 `maxRows`、`fetchSize`、`timeoutSec` 属性设置。
-- 支持 `Statement.RETURN_GENERATED_KEYS`，在执行插入操作时自动返回生成的 `_id`。
-- 支持 指令拦截器，可用于日志记录、性能监控等场景。
-- 支持 类型转换，例如 结果集返回为 `LONG` 类型时，可通过 `ResultSet.getInt` 或 `ResultSet.getString` 获取数据。
-- 支持 `BLOB`、`CLOB`、`NCLOB` 方式读取。
+## 特性
+- 实现 JDBC 核心接口并支持 `PreparedStatement` 占位符。
+- 支持原生命令风格 Mongo 命令，支持多条命令以分号顺序执行。
+- 覆盖集合、索引、用户、数据库管理类操作。
+- `find` 支持链式调用 `limit(...)`、`skip(...)`、`sort(...)`、`hint(...)`。
+- 结果映射：`find` 返回 `_ID` 与 `_JSON` 列；预读模式下会把文档字段展开为列。
+- 预读模式可通过阈值、最大文件大小、缓存目录进行配置。
 
-## 架构设计
+## JDBC 与内部实现
 
-jdbc-mongo 内部使用 MongoDB 官方驱动进行通信，通过 ANTLR4 解析命令，并将其转换为 MongoDB 的 BSON 操作。
+ANTLR4 解析命令，再通过官方客户端执行；公共 JDBC 层负责 Connection、Statement、PreparedStatement、ResultSet 与类型转换。支持多命令和标准 JDBC 多结果访问，但不意味着支持任意 ORM SQL、事务、JDBC batch 或完整 DatabaseMetaData。ResultSet 只读、向前遍历；可按兼容类型使用 getInt/getString 或 BLOB/CLOB/NCLOB 读取。INSERT 可通过 getGeneratedKeys 获取适配器返回的 `_id`，不能据此推断所有通用 Mapper 回填方式都适用。
 
-## 适用场景
+## 兼容性
+- JDK 17+
+- MongoDB Java Driver：`mongodb-driver-sync` 5.6.1（服务端兼容性需结合具体部署验证）
 
-- 需要在 Java 项目中以统一的方式（JDBC）访问 MongoDB。
-- 希望使用原始命令语法操作 MongoDB。
-- 需要将 MongoDB 集成到现有的基于 JDBC 的数据处理流程中。
+## 文档导航
+
+- [安装与使用](./usecase.mdx)：依赖、JDBC 连接、参数化读写和多结果访问。
+- [连接参数](./params.md)：认证、超时、自定义客户端和预读。
+- [命令参考](./commands.md)：命令覆盖、Hint 和限制。
+- [dbVisitor API](../../features/mongo/usage.mdx)：JdbcTemplate、Mapper 与构造器用法。

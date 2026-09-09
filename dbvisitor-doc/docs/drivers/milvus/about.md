@@ -2,37 +2,32 @@
 id: about
 sidebar_position: 1
 title: 简介
-description: jdbc-milvus 是一个 Milvus 向量数据库的 JDBC 驱动适配器，它允许开发者使用标准的 JDBC 接口和 SQL 风格命令来操作 Milvus。
+description: 使用 JDBC 和 SQL 子集访问 Milvus，涵盖参数化读写、向量检索、集合管理和导入任务。
 ---
 
-jdbc-milvus 是一个 Milvus 向量数据库的 JDBC 驱动适配器，它允许开发者使用标准的 JDBC 接口和 SQL 风格命令来操作 Milvus。
-目的是通过熟悉 JDBC 编程模型，使开发者能够无缝地使用 Milvus 向量数据库。
+jdbc-milvus 将 SQL 风格命令映射为 Milvus 官方 Java SDK 或 Import REST 调用，通过 `Connection`、`Statement`、`PreparedStatement`、`ResultSet` 访问。它采用 Apache 2.0 许可证，可独立使用，也可配合 dbVisitor 的 JdbcTemplate、Mapper 和构造器 API。
 
-## 核心特性
+## 主要能力
 
-- JDBC 兼容，实现了标准的 JDBC 接口，可以无缝集成到任何支持 JDBC 的框架中。
-- SQL 风格语法，使用 `CREATE TABLE`、`INSERT`、`SELECT`、`DELETE` 等标准 SQL 结构操作 Milvus。
-- 向量搜索支持，通过 `ORDER BY field <-> vector` 表达 KNN 搜索，通过 `WHERE` 子句表达范围搜索。
-- 丰富的命令集，支持 [数据库管理](./commands#database)、[表管理](./commands#table)、[索引管理](./commands#index)、[分区管理](./commands#partition)、[用户与权限管理](./commands#user) 等。详见 [语法手册](./commands)。
-- 支持命令参数占位符 `?`，并使用 `PreparedStatement` 设置参数。
-- 完整的 DDL 支持，包括集合创建（含向量字段定义）、索引创建（含索引类型和参数）、分区和别名管理。
-- 支持 `Statement.RETURN_GENERATED_KEYS`，在执行插入操作时自动返回生成的主键。
-- 支持 SQL Hint，可覆盖查询的 `LIMIT`、`OFFSET`，或将查询转换为 Count 操作。
-- 对 `IMPORT FROM`、`LOAD TABLE`、`RELEASE TABLE` 等异步 Milvus 操作提供默认同步等待，并支持通过 `sync`、`timeout` Hint 调整等待策略。
-- 支持指令拦截器，可用于日志记录、性能监控等场景。
-- 向量格式灵活，支持 JSON 数组字面量、`?` 参数绑定（`List<Float>`、`float[]` 等）、批量向量搜索。
+- 集合、数据库、索引、分区、别名及用户/角色/权限管理。
+- 参数化 INSERT/UPSERT、原生 Partial UPDATE、标量/KNN/范围 DELETE，以及分页写入的有界重试与失败进度。
+- 标量、KNN、范围 SELECT 的按需分页；单查询向量的普通距离排序，以及服务端多路 Hybrid Search、RRF/Weighted rerank。
+- Float/Binary/FP16/BF16/Sparse 向量、nullable/DEFAULT/Array schema 和 JDBC 主键回传。
+- BM25/TextEmbedding schema 函数；多行写入、Import 提交及任务状态/失败观察。
+- 单端口 SDK/REST 连接、TLS/双向证书、token/API key 和 Zilliz Cloud 标准端点配置。
 
-## 架构设计
+上面是当前源码已接入的能力，实际可用性仍受服务端版本、索引、配置和权限约束。不是官方 SDK 全功能清单，也不是性能或云环境验收承诺。
 
-jdbc-milvus 内部使用 Milvus Java SDK 进行通信，通过 ANTLR4 解析 SQL 风格命令，并将其转换为 Milvus SDK 的 API 调用。
+## 版本与边界
 
-## 适用场景
+当前源码 `6.7.1-SNAPSHOT`：Java 17+、Milvus Java SDK 2.6.22，服务端最低基线 Milvus 2.6.2。向量 nullable 要求 2.6.18+；2.5 及更早版本不在范围内，3.0 尚未建立支持承诺。发布版与源码版本的区别见[发布与支持矩阵](./compatibility.md)。
 
-- 需要在 Java 项目中以统一的方式（JDBC）访问 Milvus 向量数据库。
-- 希望使用 SQL 风格语法操作 Milvus，降低学习成本。
-- 需要将 Milvus 集成到现有的基于 JDBC 的数据处理流程中。
+这是 SQL 子集，不是关系数据库模拟器。事务、JDBC batch、存储过程、可更新 ResultSet、JOIN/GROUP BY、列别名及标量 ORDER BY 不支持。接入 JDBC 框架时，应核对它实际使用的接口与 SQL，不能假设任意 ORM、BI 或迁移工具自动兼容。
 
-## 兼容性
+## 从这里开始
 
-- JDK：8+
-- Milvus：建议 2.3.x 或更高版本（部分特性如 `COUNT` 需要 2.2+）
+- [安装与使用](./usecase.mdx)：依赖、完整可运行程序、分页、类型绑定、主键回传、Hybrid 和 Import。
+- [连接参数与 TLS](./params.md)：全部连接属性、证书组合、Cloud 和自定义客户端。
+- [语法手册](./commands.md)：精确语法、参数约束、命令返回列和 JDBC 多结果访问。
+- [发布与支持矩阵](./compatibility.md)：版本、功能门槛、验证边界和发布核对。
+- [dbVisitor API 用法](../../features/milvus/usage.mdx)：JdbcTemplate、构造器、BaseMapper、注解和 Mapper 文件。

@@ -1,0 +1,227 @@
+---
+id: vectors
+sidebar_position: 5
+title: 向量查询指南
+description: Elasticsearch 向量 Mapping、Lambda 与原生 DSL、参数绑定、结果读取、版本限制和调优。
+---
+
+本指南涵盖 KNN 排序、范围过滤、标量过滤与向量组合、参数化查询和向量读取。驱动转发 REST 命令；dbVisitor 的 Lambda API 负责生成 DSL。两者不是同一层能力，也不代表任何 Elasticsearch 版本都支持所有查询。
+
+## 版本与查询方式 {#versions}
+
+当前源码要求 Java 17+，jdbc-elastic 使用 REST Client 7.17.10。客户端依赖版本不是服务端功能支持矩阵；具体服务端、Mapping、脚本上下文和权限均须验证。
+
+| 查询方式 | 实现与边界 |
+| --- | --- |
+| 原生 script_score | 精确计算候选文档的向量评分；本页采用 ES 7.17 文档语法，需要 dense_vector 和可用的脚本函数。 |
+| 原生 knn | 近似搜索，需支持相应 API 的 ES 8.x；本页使用 ES 8.4 的 `/_search` + knn 形式，不适用于 ES 7。 |
+| Elastic7Dialect | 向量排序生成 `_script` sort，范围生成 script filter，不自动转成原生 knn。 |
+| Elastic8Dialect | 排序生成顶层 knn；当前 k=10、num_candidates=100，initPage 不会同步改写这两个候选参数。需要自定义候选量时使用原生 DSL。 |
+
+API 版本应分开看：[ES 7.17 script_score](https://www.elastic.co/guide/en/elasticsearch/reference/7.17/query-dsl-script-score-query.html)、[ES 8.0 的独立 _knn_search API](https://www.elastic.co/guide/en/elasticsearch/reference/8.0/knn-search-api.html)、[ES 8.4 knn 搜索](https://www.elastic.co/guide/en/elasticsearch/reference/8.4/knn-search.html)。REST 请求能够传递，不等于目标服务端能够执行。使用 Lambda 还需引入匹配版本的 dbVisitor 并选择与服务端匹配的方言。
+
+## Mapping 与数据准备 {#mapping}
+
+下面是 ES 8.4 风格的向量索引；已有索引不要重复创建。示例向量统一为 3 维，不能将三维查询用于 dims=128 的字段。
+
+```text
+PUT /product_index
+{
+  "mappings": {
+    "properties": {
+      "name": { "type": "text" },
+      "category": { "type": "keyword" },
+      "embedding": {
+        "type": "dense_vector",
+        "dims": 3,
+        "index": true,
+        "similarity": "cosine"
+      }
+    }
+  }
+}
+```
+
+ES 7 的脚本查询按该版本要求声明 dense_vector/dims，不照搬 ES 8 的 index/similarity 选项。向量由应用或模型预先生成并写入；这里不提供 embedding 服务。
+
+similarity 可按部署支持选择 cosine、l2_norm 或 dot_product；具体归一化、维度和数值要求以目标版本为准。该 Mapping 使用 cosine，不能假设后续 Lambda 的 L2 排序会修改索引的相似度。
+
+## Lambda API {#lambda}
+
+以下类展示 `query`、`orderByL2`、`vectorByL2` 和 `initPage` 的用法。Product 的 embedding 按 JDBC 返回的 JSON 字符串映射；若应用希望映射为 List，应配置相应 TypeHandler。
+
+```java
+import java.sql.Connection;
+import java.util.Arrays;
+import java.util.List;
+import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.mapping.Column;
+import net.hasor.dbvisitor.mapping.Table;
+
+public class ElasticVectorExample {
+    @Table("product_index")
+    public static class Product {
+        @Column("_ID")
+        private String id;
+        @Column("name")
+        private String name;
+        @Column("category")
+        private String category;
+        @Column("embedding")
+        private String embedding;
+        public String getId() { return id; }
+        public void setId(String id) { this.id = id; }
+        public String getName() { return name; }
+        public void setName(String name) { this.name = name; }
+        public String getCategory() { return category; }
+        public void setCategory(String category) { this.category = category; }
+        public String getEmbedding() { return embedding; }
+        public void setEmbedding(String embedding) { this.embedding = embedding; }
+    }
+
+    public static void run(Connection conn) throws Exception {
+        LambdaTemplate lambda = new LambdaTemplate(conn);
+        List<Float> vector = Arrays.asList(0.1F, 0.2F, 0.3F);
+        List<Product> nearest = lambda.query(Product.class)
+                .orderByL2(Product::getEmbedding, vector)
+                .initPage(10, 0).queryForList();
+        List<Product> inRange = lambda.query(Product.class)
+                .vectorByL2(Product::getEmbedding, vector, 0.8)
+                .queryForList();
+        List<Product> filtered = lambda.query(Product.class)
+                .eq(Product::getCategory, "electronics")
+                .orderByL2(Product::getEmbedding, vector)
+                .initPage(5, 0).queryForList();
+    }
+}
+```
+
+L2 范围含义为距离小于 0.8；标量 eq 条件与向量条件组合。Elastic7Dialect 的 COSINE 范围使用 `1 - cosineSimilarity < threshold`，不是相似度大于同一数值。脚本排序/过滤的生成能力与服务端可执行性应分别验收；向量函数在脚本上下文中的可用性不能由 Java 编译通过证明。
+
+## 原生 DSL 与参数化向量 {#native}
+
+下列片段假定已有 Connection conn，导入 java.sql.*、java.util.*。向量通过 `setObject` 绑定数值 List（或 JSON 序列化支持的数组），不要把用户输入拼入 Painless 源码。
+
+### 近似 KNN 与前置过滤
+
+```java
+String knn = "POST /product_index/_search {"
+        + "\"size\": 10, \"knn\": {"
+        + "\"field\": \"embedding\", \"query_vector\": ?,"
+        + "\"k\": 10, \"num_candidates\": 100,"
+        + "\"filter\": {\"term\": {\"category\": \"electronics\"}}"
+        + "}, \"_source\": [\"name\", \"embedding\"] }";
+try (PreparedStatement ps = conn.prepareStatement(knn)) {
+    ps.setObject(1, Arrays.asList(0.1, 0.2, 0.3));
+    try (ResultSet rs = ps.executeQuery()) {
+        while (rs.next()) {
+            System.out.println(rs.getString("_ID") + " " + rs.getString("_DOC"));
+        }
+    }
+}
+```
+
+无分类过滤时删除 knn.filter。k 控制候选输出，num_candidates 控制每个分片搜索的候选量；结果总量还受 size 影响。不能只改 size 就认为候选数也变了。
+
+### 精确评分与混合条件
+
+```java
+String dsl = "POST /product_index/_search {"
+        + "\"size\": 10, \"query\": {\"script_score\": {"
+        + "\"query\": {\"bool\": {\"filter\": ["
+        + "{\"term\": {\"category\": \"electronics\"}},"
+        + "{\"exists\": {\"field\": \"embedding\"}}]}},"
+        + "\"script\": {"
+        + "\"source\": \"cosineSimilarity(params.vec, 'embedding') + 1.0\","
+        + "\"params\": {\"vec\": ?}}}}}";
+try (PreparedStatement ps = conn.prepareStatement(dsl)) {
+    ps.setObject(1, Arrays.asList(0.1, 0.2, 0.3));
+    try (ResultSet rs = ps.executeQuery()) {
+        while (rs.next()) System.out.println(rs.getString("_DOC"));
+    }
+}
+```
+
+这里“混合”是标量筛选加向量评分，并非多路 rerank。去掉 term 条件、保留 exists 可以对所有有向量的文档评分。脚本用 cosineSimilarity + 1.0 保持非负评分；若增加顶层 `min_score: 1.8`，表示相似度至少 0.8，不能把评分阈值直接当成原始距离。批量查询需要合适的 API，不等同于 JDBC batch。
+
+## 结果映射与向量读取 {#results}
+
+搜索结果提供 `_ID` 和 `_DOC`（原始 _source JSON）；preRead=true 时额外展开字段。当前 parseHit 把嵌套对象和数组序列化为 JSON 字符串，因此 `getObject("embedding")` 不是直接返回 List/基本类型数组。_source 必须保留要读取的字段；关闭 preRead 时从 _DOC 解析向量。
+
+```java
+try (Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery(
+                "POST /product_index/_search { \"_source\": [\"embedding\", \"name\"] }")) {
+    if (rs.next()) {
+        String json = rs.getString("embedding"); // preRead=true
+        com.fasterxml.jackson.databind.JsonNode vector =
+                new com.fasterxml.jackson.databind.ObjectMapper().readTree(json);
+        System.out.println(vector.get(0).doubleValue());
+    }
+}
+```
+
+JDBC _ID 是文档 ID；除非 _source 真有 id 字段，否则不能使用 getString("id") 替代。示例显式使用原始文档列读取结果，避免混淆字段名。
+
+## 方言生成的 DSL 形态 {#generated}
+
+以下片段用于理解当前 Elastic7Dialect 生成方式，不是对所有 ES 版本或脚本上下文的执行保证。L2 排序大致生成：
+
+```json
+{
+  "sort": [{
+    "_script": {
+      "type": "number",
+      "script": {
+        "source": "doc['embedding'].size() == 0 ? 0 : l2norm(params.vector, doc['embedding'])",
+        "params": { "vector": [0.1, 0.2, 0.3] }
+      },
+      "order": "asc"
+    }
+  }]
+}
+```
+
+L2 范围条件生成的 script filter 形态：
+
+```json
+{
+  "query": {
+    "bool": {
+      "must": [{
+        "script": {
+          "script": {
+            "source": "l2norm(params.vector, doc['embedding']) < 0.8",
+            "params": { "vector": [0.1, 0.2, 0.3] }
+          }
+        }
+      }]
+    }
+  }
+}
+```
+
+当前排序脚本把缺失向量映射为 0；使用前需确保文档有向量并验证排序行为。需要服务端明确支持的精确评分时，优先使用上文完整 script_score 查询。方言源码位于 [Elastic7Dialect](https://github.com/zycgit/dbvisitor/blob/main/dbvisitor/src/main/java/net/hasor/dbvisitor/dialect/provider/Elastic7Dialect.java) 和 [Elastic8Dialect](https://github.com/zycgit/dbvisitor/blob/main/dbvisitor/src/main/java/net/hasor/dbvisitor/dialect/provider/Elastic8Dialect.java)。
+
+## 测试与性能 {#validation}
+
+仓库根目录离线回归：
+
+```bash
+./gradlew :jdbc-elastic:test --no-daemon --offline
+```
+
+真实 ES7 合同测试位于 dbvisitor-test 的 realdb/elastic7，需要先配置环境：
+
+```bash
+./gradlew :dbvisitor-test:test -Pnxn.env=elastic7 --no-daemon
+```
+
+默认适配器 test 排除 realdb，编译、离线测试和真实服务端行为不能互相替代。
+
+- 大数据量可评估原生近似 KNN，但要接受召回率与索引成本权衡，不能无条件保证其性能最佳。
+- num_candidates=100、k=10 是示例值，不是固定调优比例；按召回率、延迟、内存和分片数压测。
+- index=true 用于支持索引向量的服务端；只有精确脚本搜索时按版本选择索引配置。
+- 常见维度如 128/256/512/768/1536 来自模型与业务，需同时匹配 Mapping、写入和查询向量。
+
+更多参数见[连接配置](./params.md)，命令入口见[REST 命令参考](./commands.md)。另可参考 [Dense Vector](https://www.elastic.co/guide/en/elasticsearch/reference/current/dense-vector.html) 和 [Solon AI Elasticsearch 集成](https://gitee.com/noear/solon-ai/tree/main/solon-ai-rag-repositorys/solon-ai-repo-elasticsearch)，第三方实现不是本驱动的支持承诺。

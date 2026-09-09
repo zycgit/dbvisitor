@@ -56,17 +56,19 @@ The table below summarizes API support and dialect feature differences for each 
 | ElasticSearch 6 | elastic6 | ✅ | ❌ | ❌ | ✅ | ✅ | | | | |
 | ElasticSearch 7 | elastic7 | ✅ | ❌ | ❌ | ✅ | ✅ | | | ✅ | |
 | ElasticSearch 8 | elastic8 | ✅ | ❌ | ❌ | ✅ | ✅ | | | ✅ | |
-| Milvus | milvus | ✅ | ❌ | ❌ | ❌ | ✅ | | | ✅ | |
+| Milvus | milvus | ✅ | ❌ | ❌ | ✅ ² | ✅ | | | ✅ | |
 
 > ✅ Supported &nbsp; ❌ Not supported
 >
 > ¹ Requires primary key
+
+> ² Current-source Milvus JDBC INSERT/UPSERT supports generated keys, not a claim for older releases or every generic Mapper/Builder backfill path. See the [version and support scope](../../../drivers/milvus/compatibility.md).
 >
 > **⚠️ Hive**: Although it implements `PageSqlDialect`, both `countSql` and `pageSql` throw `UnsupportedOperationException`, making it effectively unusable.
 
 :::info[JDBC Feature Support]
-For non-relational database drivers (Mongo, Elastic), dbVisitor implements the `Statement.RETURN_GENERATED_KEYS` feature.
-This means when using `JdbcTemplate` or `Statement` for insert operations, the generated `_id` can be automatically retrieved.
+For non-relational database drivers (Mongo, Elastic, Milvus), dbVisitor implements the `Statement.RETURN_GENERATED_KEYS` feature.
+Supported JDBC insert/key-retrieval calls expose server-returned IDs. Milvus uses the collection's primary field name, not a fixed `_id` column.
 :::
 
 ### Non-Relational Datasource Guides
@@ -74,7 +76,7 @@ This means when using `JdbcTemplate` or `Statement` for insert operations, the g
 - **[Redis](./redis)** — supports [140+ commands](../../../drivers/redis/commands), 5 data type operations; does not support Fluent API or Object Mapping
 - **[MongoDB](./mongo)** — full CRUD support, automatic ObjectId mapping, paginated queries; does not support batch and stored procedures
 - **[ElasticSearch](./elastic)** — full CRUD support, based on REST DSL; does not support batch and stored procedures
-- **[Milvus](./milvus)** — SQL-style syntax for vector database operations, full CRUD support, KNN nearest-neighbor search and range search; does not support batch and stored procedures
+- **[Milvus](./milvus)** — SQL subset, vector/Hybrid search, paged Partial UPDATE, generated keys, multi-row writes and Import; JDBC batch, transactions and stored procedures are unsupported.
 
 ---
 

@@ -1,75 +1,112 @@
 ---
 id: usecase
 sidebar_position: 1
-hide_table_of_contents: true
-title: Install & Configure
-description: Learn how to use jdbc-redis to access Redis database via JDBC.
+title: Install and Use
+description: Redis JDBC dependencies, connections, prepared commands and JDBC limitations.
 ---
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-import Vars from '@site/plugins/projectVars';
-export const Highlight = ({children, color}) => (
-    <span style={{backgroundColor: color, borderRadius: '2px', color: '#fff', padding: '0.2rem',}}>{children}</span>
-);
 
-### Add Dependency
+## Dependencies and Versions
 
-Before using `jdbc-redis`, you need to add the corresponding Maven dependency to your project. Current version: <Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>
+This page describes current `6.7.1-SNAPSHOT` source and requires Java 17+ to build and run. It is not a capability claim for older artifacts. For releases, use the actual POM, classifier and matching documentation.
 
-<Tabs>
-    <TabItem value="maven" label="Maven" default>
-        ```xml
-        <dependency>
-            <groupId>net.hasor</groupId>
-            <artifactId>jdbc-redis</artifactId>
-            <version>6.1.0</version>
-            <!-- Please use the latest version -->
-        </dependency>
-        ```
-    </TabItem>
-    <TabItem value="gradle" label="Gradle">
-        ```groovy
-        implementation 'net.hasor:jdbc-redis:6.1.0' // Please use the latest version
-        ```
-    </TabItem>
-</Tabs>
+Current source publishes an `all` classifier (relocated ANTLR, with other dependencies still transitive). Install locally from the repository root first:
 
-## JDBC Connection
-
-Connect using the standard JDBC URL format.
-
-```text
-jdbc:dbvisitor:jedis://<host>:<port>?database=<database>&<parameters>
+```bash
+./gradlew :dbvisitor-driver:publishToMavenLocal :jdbc-redis:publishToMavenLocal
 ```
 
-- `host`: Redis server address.
-- `port`: Redis server port (default 6379).
-- `database`: Database index (default 0).
-- `parameters`: Connection parameters, see [Connection Parameters](./params) for details.
+```xml
+<dependency>
+    <groupId>net.hasor</groupId>
+    <artifactId>jdbc-redis</artifactId>
+    <version>6.7.1-SNAPSHOT</version>
+    <classifier>all</classifier>
+</dependency>
+```
 
-### Example Code
+```groovy
+repositories { mavenLocal(); mavenCentral() }
+dependencies { implementation 'net.hasor:jdbc-redis:6.7.1-SNAPSHOT:all' }
+```
+
+The local-install example does not assert that the SNAPSHOT is published on Maven Central.
+
+## JDBC Connection and Example
+
+The `jdbc-redis` URL prefix is **jedis**, not redis. Use `?database=0`, not `/0`, for the database index. The default standalone port is 6379; cluster hosts use `host1:6379;host2:6379`. See [Connection Parameters](./params.md) for authentication and all properties.
+
+This example reads/overwrites `jdbc_demo:key` and `jdbc_demo:hash`. Use a test environment or change the key names. SET/HSET return update counts; GET returns a result set.
 
 ```java
+import java.sql.*;
+import java.util.Properties;
+
 public class RedisJdbcExample {
     public static void main(String[] args) throws Exception {
-        String url = "jdbc:dbvisitor:jedis://127.0.0.1:6379/0";
-        try (Connection conn = DriverManager.getConnection(url)) {
-            // Statement Example
-            try (Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("GET mykey")) {
-                    while (rs.next()) {
-                        System.out.println(rs.getString(1));
-                    }
+        String url = args.length == 0
+                ? "jdbc:dbvisitor:jedis://127.0.0.1:6379?database=0"
+                : args[0];
+        Properties props = new Properties();
+        props.setProperty("connectTimeout", "5000");
+        props.setProperty("socketTimeout", "10");
+        // For authenticated servers:
+        // props.setProperty("username", "YOUR_USER");
+        // props.setProperty("password", "YOUR_PASSWORD");
+        Class.forName("net.hasor.dbvisitor.driver.JdbcDriver");
+        try (Connection conn = DriverManager.getConnection(url, props)) {
+            try (PreparedStatement ps = conn.prepareStatement("SET ? ?")) {
+                ps.setString(1, "jdbc_demo:key");
+                ps.setString(2, "hello");
+                System.out.println("updated=" + ps.executeUpdate());
+            }
+            try (PreparedStatement ps = conn.prepareStatement("GET ?")) {
+                ps.setString(1, "jdbc_demo:key");
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) System.out.println(rs.getString("VALUE"));
                 }
             }
-
-            // PreparedStatement Example
-            try (PreparedStatement pstmt = conn.prepareStatement("SET ? ?")) {
-                pstmt.setString(1, "acc");
-                pstmt.setString(2, "123");
-                pstmt.executeUpdate();
+            try (PreparedStatement ps = conn.prepareStatement("HSET ? ? ?")) {
+                ps.setString(1, "jdbc_demo:hash");
+                ps.setString(2, "field1");
+                ps.setString(3, "value1");
+                int updated = ps.executeUpdate();
+                System.out.println("fields=" + updated);
             }
         }
     }
 }
 ```
+
+## Multiple Commands and Statement Settings
+
+Newlines separate commands by default. Semicolons are separators only with connection property `separatorChar=;`. Quote values containing semicolons or bind them as parameters. This fragment uses the default newline separator and an open `conn`.
+
+```java
+try (Statement stmt = conn.createStatement()) {
+    boolean hasResult = stmt.execute("GET jdbc_demo:key\nHGETALL jdbc_demo:hash");
+    while (true) {
+        if (hasResult) {
+            try (ResultSet rs = stmt.getResultSet()) {
+                while (rs.next()) System.out.println(rs.getObject(1));
+            }
+        } else {
+            long count = stmt.getLargeUpdateCount();
+            if (count == -1) break;
+            System.out.println("updated=" + count);
+        }
+        hasResult = stmt.getMoreResults(Statement.CLOSE_CURRENT_RESULT);
+    }
+}
+```
+
+`Statement.setMaxRows` bounds returned rows, `setFetchSize` supplies a fetch hint, and `setQueryTimeout` uses seconds (there is no JDBC method named timeoutSec). Native Redis command arguments still determine fetching behavior. Use supported getInt/getString conversions or getBlob/getClob/getNClob for compatible values.
+
+## JDBC Limitations
+
+- Only TYPE_FORWARD_ONLY, CONCUR_READ_ONLY, HOLD_CURSORS_OVER_COMMIT and FETCH_FORWARD are supported; no ResultSet.update/insert/deleteXXX.
+- Redis has no generated primary keys; getGeneratedKeys is empty. Use NO_GENERATED_KEYS for ordinary calls. Do not depend on complete DatabaseMetaData.
+- Generated-key overloads with int[] columnIndexes or String[] columnNames are unsupported.
+- SQLXML, REF_CURSOR, RowId, Ref, Struct and DISTINCT are unsupported.
+- JDBC addBatch/clearBatch/executeBatch, transactions and savepoints are unsupported; multiple commands do not implicitly become MULTI/EXEC.
+
+See [Command Reference](./commands.md) for return kinds, columns and row counts.

@@ -1,173 +1,287 @@
 ---
 id: usecase
 sidebar_position: 2
-title: Install & Configure
-description: Learn how to add the jdbc-milvus dependency and configure JDBC connections.
+title: Install and Use
+description: Dependencies, runnable JDBC examples, paging, typed values, generated keys, Hybrid Search and Import.
 ---
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-import Vars from '@site/plugins/projectVars';
-export const Highlight = ({children, color}) => (
-    <span style={{ backgroundColor: color, borderRadius: '2px', color: '#fff', padding: '0.2rem', }}>{children}</span>
-);
 
-## Add Dependency
+## 1. Versions and Dependencies
 
-Before using `jdbc-milvus`, you need to add the corresponding Maven dependency to your project. Current version: <Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>
+This document describes the current `6.7.1-SNAPSHOT` workspace:
 
-<Tabs>
-  <TabItem value="maven" label="Maven" default>
-    ```xml
-    <dependency>
-        <groupId>net.hasor</groupId>
-        <artifactId>jdbc-milvus</artifactId>
-        <version>6.7.0</version> <!-- Please use the latest version -->
-    </dependency>
-    ```
-  </TabItem>
-  <TabItem value="gradle" label="Gradle">
-    ```groovy
-    implementation 'net.hasor:jdbc-milvus:6.7.0' // Please use the latest version
-    ```
-  </TabItem>
-</Tabs>
+- Java: **17 or later**; the current build targets Java 17.
+- Java SDK: `io.milvus:milvus-sdk-java:2.6.22`.
+- Minimum Milvus server baseline: **2.6.2**. Version 2.5.x and earlier are not supported. This does not mean all later versions, such as 3.0, have passed real-cluster validation.
+- Workspace changes are not necessarily available in published releases. Use documentation matching the source of your chosen release.
 
-## JDBC Connection
+The current Gradle publication uses the adapter JAR with the `all` classifier. It includes relocated ANTLR; other dependencies are still transitive, not bundled. Maven:
 
-Connect using the standard JDBC URL format.
-
-```text
-jdbc:dbvisitor:milvus://<host>:<port>/<database>?<parameters>
+```xml
+<dependency>
+    <groupId>net.hasor</groupId>
+    <artifactId>jdbc-milvus</artifactId>
+    <version>6.7.1-SNAPSHOT</version>
+    <classifier>all</classifier>
+</dependency>
 ```
 
-- `host`: Milvus server address.
-- `port`: Milvus gRPC port (default 19530).
-- `database`: Database name (default `default`).
-- `parameters`: Connection parameters, see [Connection Parameters](./params) for details.
+Gradle:
 
-In cluster mode, multiple hosts are separated by `;` and can include health check ports:
-
-```text
-jdbc:dbvisitor:milvus://host1:19530:9091;host2:19530:9091/default
+```groovy
+repositories { mavenLocal(); mavenCentral() }
+dependencies { implementation 'net.hasor:jdbc-milvus:6.7.1-SNAPSHOT:all' }
 ```
 
-### Example Code
+This SNAPSHOT example does not imply availability on Central. To use the current source, install locally from the repository root before running your Java project:
 
-#### 1. Create Collection and Index
+```bash
+./gradlew :dbvisitor-driver:publishToMavenLocal :jdbc-milvus:publishToMavenLocal
+```
+
+For a release, use its actual published version and classifier. Do not copy the unrelocated ordinary JAR alone and omit its runtime dependencies.
+
+## 2. Complete Getting-Started Example
+
+Prerequisites: Milvus is running, the `default` database is accessible, and your user can create collections/indexes, load, read and write. The example creates a new `books_demo` collection with a two-dimensional FloatVector and an L2 index.
+
+Save as `MilvusJdbcExample.java` and run in a Java project with the dependency above. It connects locally by default; pass a JDBC URL as the first program argument to override it. Before rerunning, choose a different collection name or clean up the demonstration collection yourself. The example does not automatically delete existing data.
 
 ```java
-String url = "jdbc:dbvisitor:milvus://127.0.0.1:19530/default";
-try (Connection conn = DriverManager.getConnection(url)) {
-    try (Statement stmt = conn.createStatement()) {
-        // Create Collection
-        stmt.executeUpdate("CREATE TABLE book_vectors ("
-                + "book_id int64 PRIMARY KEY, "
-                + "word_count int64, "
-                + "book_intro float_vector(2)"
-                + ")");
+import java.sql.*;
+import java.util.Properties;
 
-        // Create Vector Index
-        stmt.executeUpdate("CREATE INDEX idx_book_intro ON book_vectors (book_intro) "
-                + "USING \"IVF_FLAT\" WITH (nlist = 1024, metric_type = \"L2\")");
+public class MilvusJdbcExample {
+    public static void main(String[] args) throws Exception {
+        String url = args.length == 0
+                ? "jdbc:dbvisitor:milvus://127.0.0.1:19530/default"
+                : args[0];
+        Properties props = new Properties();
+        props.setProperty("consistencyLevel", "Strong");
+        props.setProperty("connectTimeout", "10000");
+        props.setProperty("maxRetry", "3");
+        // If authentication is enabled:
+        // props.setProperty("token", "YOUR_TOKEN");
 
-        // Load Collection into Memory (must be done before searching)
-        stmt.executeUpdate("LOAD TABLE book_vectors");
+        Class.forName("net.hasor.dbvisitor.driver.JdbcDriver");
+        try (Connection conn = DriverManager.getConnection(url, props)) {
+            try (Statement stmt = conn.createStatement()) {
+                stmt.executeUpdate("CREATE TABLE books_demo (" +
+                        "book_id INT64 PRIMARY KEY, title VARCHAR(200), " +
+                        "word_count INT32 DEFAULT 0, book_intro FLOAT_VECTOR(2))");
+                stmt.executeUpdate("CREATE INDEX idx_intro ON books_demo (book_intro) " +
+                        "USING 'FLAT' WITH (metric_type='L2')");
+                stmt.executeUpdate("LOAD TABLE books_demo");
+            }
+
+            String insert = "INSERT INTO books_demo " +
+                    "(book_id, title, word_count, book_intro) VALUES (?, ?, ?, ?)";
+            try (PreparedStatement ps = conn.prepareStatement(insert)) {
+                ps.setLong(1, 1L);
+                ps.setString(2, "A book");
+                ps.setInt(3, 1000);
+                ps.setObject(4, new float[] {0.1F, 0.2F});
+                System.out.println("inserted=" + ps.executeUpdate());
+            }
+
+            String search = "SELECT book_id, title, score FROM books_demo " +
+                    "WHERE word_count >= ? ORDER BY book_intro <-> ? LIMIT ?";
+            try (PreparedStatement ps = conn.prepareStatement(search)) {
+                ps.setInt(1, 100);
+                ps.setObject(2, new float[] {0.1F, 0.2F});
+                ps.setInt(3, 5);
+                ps.setFetchSize(128);
+                ps.setQueryTimeout(30);
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        System.out.printf("%d %s %.4f%n", rs.getLong("book_id"),
+                                rs.getString("title"), rs.getFloat("score"));
+                    }
+                }
+            }
+        }
     }
 }
 ```
 
-#### 2. Insert Data with PreparedStatement
+`score` is the distance/similarity result column, not a stored field. Smaller L2 scores are nearer. `Class.forName` explicitly registers the driver; normal classpath environments can also use JDBC service discovery.
+
+For authentication, TLS/mTLS, Zilliz Cloud and all connection properties, see [Connection Parameters](./params.md). See [Release and Support Matrix](./compatibility.md) for server requirements and validation scope.
+
+## 3. Common Reads and Writes
+
+In these fragments, `conn` is an open JDBC Connection and `books_demo` is the collection created above.
+
+### UPSERT, UPDATE and DELETE
 
 ```java
-String insertSql = "INSERT INTO book_vectors (book_id, word_count, book_intro) VALUES (?, ?, ?)";
-try (PreparedStatement ps = conn.prepareStatement(insertSql)) {
+try (PreparedStatement ps = conn.prepareStatement(
+        "UPSERT INTO books_demo (book_id, title, word_count, book_intro) VALUES (?, ?, ?, ?)")) {
     ps.setLong(1, 1L);
-    ps.setLong(2, 1000L);
-    ps.setObject(3, Arrays.asList(0.1f, 0.2f)); // Use List<Float> for vectors
+    ps.setString(2, "Revised book");
+    ps.setInt(3, 1200);
+    ps.setObject(4, new double[] {0.1, 0.2});
     ps.executeUpdate();
 }
+try (PreparedStatement ps = conn.prepareStatement(
+        "UPDATE books_demo SET word_count = ? WHERE book_id = ? LIMIT ?")) {
+    ps.setInt(1, 1500);
+    ps.setLong(2, 1L);
+    ps.setInt(3, 1);
+    ps.setFetchSize(128);
+    System.out.println(ps.executeLargeUpdate());
+}
+try (PreparedStatement ps = conn.prepareStatement(
+        "DELETE FROM books_demo WHERE book_id = ? LIMIT ?")) {
+    ps.setLong(1, 1L);
+    ps.setInt(2, 1);
+    System.out.println(ps.executeLargeUpdate());
+}
 ```
 
-#### 3. Vector Search (KNN)
+UPSERT performs ordinary entity insertion/replacement; provide the necessary entity fields. UPDATE selects primary keys page by page and submits only the primary key plus SET fields, without rewriting other fields. Primary keys cannot be updated. Pages do not provide transactions, whole-operation rollback or exactly-once execution.
 
-Use `ORDER BY vector_field <-> vector LIMIT n` syntax to perform nearest neighbor search.
+INSERT/UPSERT supports multiple VALUES tuples or VALUES ? bound to an Iterable/Iterator, grouped using fetchSize. Counts reflect SDK acknowledgements. Request Statement.RETURN_GENERATED_KEYS and read getGeneratedKeys() for returned keys; JDBC addBatch/executeBatch remains unsupported.
+
+### On-Demand Page Reads
 
 ```java
-String searchSql = "SELECT book_id, word_count FROM book_vectors "
-        + "ORDER BY book_intro <-> ? LIMIT 5";
-try (PreparedStatement ps = conn.prepareStatement(searchSql)) {
-    ps.setObject(1, Arrays.asList(0.1f, 0.2f));
+try (PreparedStatement ps = conn.prepareStatement(
+        "SELECT book_id, title FROM books_demo WHERE word_count >= ?")) {
+    ps.setInt(1, 100);
+    ps.setFetchSize(256);
+    ps.setMaxRows(1000);
+    ps.setQueryTimeout(30);
     try (ResultSet rs = ps.executeQuery()) {
         while (rs.next()) {
-            System.out.println("ID: " + rs.getLong("book_id")
-                    + ", Count: " + rs.getLong("word_count"));
+            System.out.println(rs.getLong("book_id") + ": " + rs.getString("title"));
         }
     }
 }
 ```
 
-#### 4. Vector Range Search
+This SQL has no LIMIT. maxRows limits returned rows to 1000 and fetchSize controls pages of at most 256. Removing setMaxRows keeps reading matching data without a fixed fallback total cap. Large results, unlimited queries and queries with OFFSET use official iterators. Bounded, single-page queries without OFFSET retain a single Query/Search request.
 
-Use `WHERE vector_field <-> vector < radius` or the `vector_range` function for range search.
+execute establishes the query and the SDK may prefetch initial data. The driver subsequently pulls pages as JDBC advances and retains only the current page. The limit, EOF, result close, Statement reexecution/close, or Connection close releases the iterator. Later errors may arise from `ResultSet.next()`; always close partially consumed results too.
+
+### Parameter Types
+
+- FloatVector: bind a numeric List or a one-dimensional `byte[]/short[]/int[]/long[]/float[]/double[]` using `setObject`. Values are converted to Float and may lose precision. Each distance expression accepts only one query vector.
+- `byte[]` means signed numeric elements here, not BinaryVector. boolean[], char[], boxed arrays and multidimensional arrays are not supported FloatVector representations.
+- Bind scalar strings with `setString` or `setObject`, including explicit `Types.VARCHAR` / `JDBCType.VARCHAR`. WHERE placeholders become Milvus templates with values sent separately through SDK `filterTemplateValues`, never concatenated into the filter. Do not concatenate user input yourself.
+- Comparisons, LIKE, IN and function arguments use the same binding. `IN ?` accepts Lists, Java arrays and JDBC Arrays; `IN (?, 'fixed', ?)` binds one array template. Elements must satisfy the SDK's homogeneous-type rules. Byte/Short become Long, Float/BigDecimal become Double (potentially losing precision), and BigInteger must fit Int64. Quotes, backslashes, wildcards and question marks remain data; LIKE wildcards still retain their matching semantics.
+- SDK filter templates do not support null; use `IS NULL` / `IS NOT NULL` in WHERE. Non-finite numbers and unsupported objects fail with SQLException, without falling back to expression concatenation. Null values in INSERT/UPSERT/UPDATE SET still follow the field schema.
+- Schema distinguishes JSON from vectors. INSERT/UPSERT JSON fields accept JSON strings, Maps, Lists or JsonElements. See the [syntax manual](./commands.md) for other statement/type boundaries.
+
+Binding follows the [official filter templating mechanism](https://milvus.io/docs/v2.6.x/filtering-templating.md). Query vectors, write entities, LIMIT/OFFSET and search options use their own structured SDK fields, not filter templates. Collection names, field names and operators remain part of the SQL structure.
+
+### Hints and Search Parameters
+
+Hints belong at the start of each SQL command. Only the listed commands consume these settings; unknown hints are not general SDK options.
+
+| Hint | Applicable commands and behavior |
+| --- | --- |
+| `overwrite_find_limit` | SELECT; positive integer overriding SQL LIMIT. Positive maxRows further caps results. |
+| `overwrite_find_skip` | SELECT; nonnegative integer overriding OFFSET. |
+| `overwrite_find_as_count` | SELECT; switches to COUNT based on presence, even when set to false. Remove the hint to disable it. |
+| `sync` | IMPORT/LOAD/RELEASE; default true, false skips waiting for completion. |
+| `timeout` | IMPORT/LOAD/RELEASE; synchronous wait in milliseconds, default 60000. |
+
+Query consistency uses the connection property `consistencyLevel`, **not** `/*+ consistency_level=Strong */`. CREATE TABLE's `WITH (consistency_level='Strong')` is a separate supported collection-creation option. Use SELECT's trailing WITH for search parameters such as nprobe/ef; DDL WITH values and placeholder rules are detailed in the manual.
+
+### Failures, Cancellation and Retries
+
+maxRetry applies only to recognized transient write failures; permanent/unknown errors are not automatically retried. Backoff starts at 100ms and doubles up to 1000ms per wait, checking cancellation and timeout. Next-page reads, ordinary INSERT/UPSERT and Import creation do not automatically use this policy.
+
+Paged DML errors retain the phase, page number, confirmed rows/pages, cause and suppressed failures. Successful pages cannot be rolled back; a failing page may also have partially taken effect.
+
+`Statement.cancel()` cancels this Statement execution only, not other Statements on the connection. Timeout includes caller pauses while reading and is checked before and after page reads. Cancellation/close does not guarantee interruption of an in-flight SDK RPC; its returned page is discarded and the iterator released.
+
+## 4. Other Commands and JDBC Results
+
+- SELECT, COUNT, SHOW: use `executeQuery` and consume a result set.
+- INSERT/UPSERT, UPDATE/DELETE, DDL, GRANT/REVOKE, IMPORT without RETURNING, LOAD/RELEASE, FLUSH: use `executeUpdate` or `executeLargeUpdate`.
+- Separate multiple SQL statements with semicolons and use `execute` + `getMoreResults`, not JDBC batch. See the [complete result loop](./commands.md#jdbc-results).
+- The [syntax manual](./commands.md) documents exact database, collection, partition, index, permission, alias, import and progress syntax and result columns.
+
+## 5. Vectors, Array and Generated Keys {#typed-values}
+
+Field schema determines encoding; Java array shape alone does not. Mappings cover INSERT/UPSERT, UPDATE SET and corresponding KNN/range conditions.
+
+| Milvus field | setObject input | getObject / JDBC read | Distance operators |
+| --- | --- | --- | --- |
+| FloatVector | Numeric List or six numeric primitive arrays | List&lt;Float> / getArray | `<->` L2, `<=>` COSINE, `<#>` IP |
+| BinaryVector | byte[], ByteBuffer, byte List (-128…255) | byte[] / getBytes | `~=` HAMMING, `<%>` JACCARD |
+| Float16Vector / BFloat16Vector | Numeric List/arrays or packed byte[]/ByteBuffer | Little-endian byte[] / getBytes | L2, COSINE, IP |
+| SparseFloatVector | Nonempty Map&lt;Number,Number>, nonnegative integer indices and finite weights | SortedMap&lt;Long,Float> | `<#>` IP; `<?>` BM25 accepts text |
+| Array | java.sql.Array, List, Java array | List / getArray with element JDBC type | Scalar filters |
+
+ByteBuffer uses remaining bytes without changing its position. FP16/BF16 packed data uses two bytes per dimension; numeric inputs use SDK Float16Utils. Dimensions, finite values and metrics are checked. Array supports BOOL/integer/float/VARCHAR elements; boolean[] is a BOOL Array, whereas char[] is not a VARCHAR Array.
+
+Fragments assume Connection conn. Ordinary INSERT/UPSERT is not automatically retried. fetchSize=0 uses the SDK page default; larger values are capped at the SDK page maximum, without limiting total rows. VALUES ? accepts a lazy Iterator; caller-owned input resources are not closed by the driver.
 
 ```java
-// Method 1: Comparison expression
-String rangeSql1 = "SELECT * FROM book_vectors WHERE book_intro <-> [0.1, 0.2] < 0.5";
-
-// Method 2: vector_range function (recommended)
-String rangeSql2 = "SELECT * FROM book_vectors WHERE vector_range(book_intro, [0.1, 0.2], 0.5)";
-
-try (Statement stmt = conn.createStatement()) {
-    try (ResultSet rs = stmt.executeQuery(rangeSql2)) {
-        while (rs.next()) {
-            System.out.println("ID: " + rs.getLong("book_id"));
-        }
+String create = "CREATE TABLE typed_demo (id INT64 PRIMARY KEY AUTO_ID, " +
+        "tags ARRAY<VARCHAR(30)>(8) NULL, embedding FLOAT16_VECTOR(2))";
+try (Statement stmt = conn.createStatement()) { stmt.executeUpdate(create); }
+String insert = "INSERT INTO typed_demo (tags, embedding) VALUES ?";
+List<Object[]> rows = Arrays.asList(
+        new Object[] {new String[] {"java"}, new float[] {1, 2}},
+        new Object[] {null, new float[] {3, 4}});
+try (PreparedStatement ps = conn.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS)) {
+    ps.setFetchSize(256);
+    ps.setObject(1, rows.iterator());
+    System.out.println(ps.executeLargeUpdate());
+    try (ResultSet keys = ps.getGeneratedKeys()) {
+        while (keys.next()) System.out.println(keys.getObject("id"));
     }
 }
 ```
 
-#### 5. Scalar Filter Query
+Keys are SDK-returned Int64/VarChar IDs, including explicit keys and AutoID; ordinary UPSERT also trusts returned IDs. maxRows does not truncate keys. Unrequested keys are not accumulated; requesting every key requires O(number of keys) memory. Failures report phase, confirmedPages, confirmedRows and currentPageRows. Confirmed pages are not rolled back, and failed writes may have taken effect: do not blindly replay them.
+
+## 6. Hybrid, BM25 and Import
+
+This SQL creates BM25 schema/indexes and fuses two single-query searches on the server. Candidate LIMITs control each ANN request; outer LIMIT/OFFSET applies to one fused ResultSet, not multiple query-vector groups or JDBC batch.
+
+```sql
+CREATE TABLE search_demo (
+    id INT64 PRIMARY KEY,
+    body VARCHAR(2000) WITH (enable_analyzer=true),
+    dense FLOAT_VECTOR(2), sparse SPARSE_FLOAT_VECTOR,
+    FUNCTION bm25_fn USING BM25 (body) INTO (sparse)
+);
+CREATE INDEX dense_idx ON search_demo(dense) USING FLAT WITH (metric_type=L2);
+CREATE INDEX sparse_idx ON search_demo(sparse) USING SPARSE_INVERTED_INDEX
+    WITH (metric_type=BM25, bm25_k1=1.2, bm25_b=0.75);
+LOAD TABLE search_demo;
+INSERT INTO search_demo (id,body,dense) VALUES (1,'vector search',[1,2]);
+SELECT id,score FROM search_demo ORDER BY HYBRID (
+    dense <-> [1,2] LIMIT 20,
+    sparse <?> 'vector search' LIMIT 20
+) LIMIT 5 WITH (reranker='rrf',k=60);
+```
+
+Alternatively use WITH (reranker='weighted',weights='[0.7,0.3]'), one finite [0,1] weight per candidate. Ordinary ORDER BY still accepts one vector. Hybrid has no native iterator and requires explicit LIMIT; server search-window limits apply. fetchSize does not paginate server fusion. Milvus computes function outputs; omit them in writes. See the manual for TextEmbedding provider/model parameters and server configuration.
+
+Import neither loads data files into Java memory nor uploads local files. Prepare/upload JSON/Parquet/NumPy using official BulkWriter or other tools, then submit and inspect using JDBC:
 
 ```java
-try (Statement stmt = conn.createStatement()) {
-    try (ResultSet rs = stmt.executeQuery(
-            "SELECT book_id, word_count FROM book_vectors WHERE word_count > 500 LIMIT 10")) {
-        while (rs.next()) {
-            System.out.println("ID: " + rs.getLong("book_id"));
-        }
+String submitSql = "/*+ sync=false */ IMPORT FROM ? INTO search_demo " +
+        "WITH (timeout='2h') RETURNING JOB_ID";
+String jobId;
+try (PreparedStatement ps = conn.prepareStatement(submitSql)) {
+    ps.setObject(1, Arrays.asList(Collections.singletonList("prepared/a.parquet"),
+            Collections.singletonList("prepared/b.parquet")));
+    try (ResultSet rs = ps.executeQuery()) { rs.next(); jobId = rs.getString("JOB_ID"); }
+}
+try (PreparedStatement ps = conn.prepareStatement("SHOW IMPORT ?")) {
+    ps.setString(1, jobId);
+    try (ResultSet rs = ps.executeQuery()) {
+        while (rs.next()) System.out.println(rs.getString("STATE") + " " + rs.getString("REASON"));
     }
 }
 ```
 
-#### 6. Hybrid Query (Scalar Filter + Vector Search)
+SHOW IMPORT/SHOW IMPORTS returns JOB_ID, STATE, PROGRESS, TOTAL_ROWS, IMPORTED_ROWS, REASON and DETAILS (raw JSON including per-file details). Missing progress is SQL NULL, not zero. List jobs with SHOW IMPORTS FROM search_demo WITH (page_size=20,current_page=1); pagination support depends on the target REST version. Default IMPORT waits synchronously: hint timeout=60000 is the client wait in milliseconds, whereas WITH timeout='2h' is a server job deadline. Timeout/cancellation does not cancel the server job. Waiting failures retain the known Job ID and last progress without resubmitting. If the create response itself is lost, the ID may be unknown: reconcile through the job list.
 
-```java
-String sql = "SELECT book_id FROM book_vectors "
-        + "WHERE word_count > 500 "
-        + "ORDER BY book_intro <-> [0.1, 0.2] LIMIT 3";
-try (Statement stmt = conn.createStatement()) {
-    try (ResultSet rs = stmt.executeQuery(sql)) {
-        while (rs.next()) {
-            System.out.println("ID: " + rs.getLong("book_id"));
-        }
-    }
-}
-```
-
-#### 7. Using Hints
-
-Override query behavior through SQL Hints.
-
-```java
-try (Statement stmt = conn.createStatement()) {
-    // Override LIMIT and OFFSET
-    ResultSet rs = stmt.executeQuery(
-            "/*+ overwrite_find_limit=5, overwrite_find_skip=10 */ "
-            + "SELECT * FROM book_vectors WHERE word_count > 0");
-
-    // Convert query to COUNT
-    ResultSet countRs = stmt.executeQuery(
-            "/*+ overwrite_find_as_count=true */ "
-            + "SELECT * FROM book_vectors WHERE word_count > 500");
-}
-```
+`IMPORT ... RETURNING JOB_ID` returns a result set; use `executeQuery`. See the [support matrix](./compatibility.md#boundaries) for SQL and non-transactional boundaries.

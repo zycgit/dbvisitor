@@ -1,43 +1,34 @@
 ---
 id: params
 sidebar_position: 4
-hide_table_of_contents: true
 title: Connection Parameters
-description: List of JDBC connection parameters supported by jdbc-elastic.
+description: jdbc-elastic connection properties, aliases, pre-read and custom clients.
 ---
-`jdbc-elastic` supports configuring various parameters in the JDBC URL to control connection behavior, authentication, timeout settings, and more.
 
-```text title='JDBC URL Format'
-jdbc:dbvisitor:elastic://host:port?param1=value1&param2=value2
-```
-
-## Basic Parameters
+## Connection Parameters
 
 | Parameter | Description | Default |
 | --- | --- | --- |
-| `username` | Authentication username | None |
-| `password` | Authentication password | None |
+| `server` | Host segment from the JDBC URL. Supports `host:port` or `host1:port;host2:port`. | From URL |
+| `user` / `username` | Username for authentication. | None |
+| `password` | Password for authentication. | Empty |
+| `connectTimeout` | Connection timeout (ms). | Driver default |
+| `socketTimeout` | Socket read timeout (ms). | Driver default |
+| `timeZone` | Driver time zone used for type conversion (for example `+08:00`). | `UTC` |
+| `indexRefresh` | Append `refresh=true` for write operations. | `false` |
+| `preRead` | Enable pre-read mode. | `true` |
+| `preReadThreshold` | Pre-read threshold size. Accepts `B/KB/MB/GB`. | `5MB` |
+| `preReadMaxFileSize` | Maximum pre-read file size. Accepts `B/KB/MB/GB`. | `20MB` |
+| `preReadCacheDir` | Cache directory for pre-read mode. | `java.io.tmpdir` |
+| `customElastic` | Fully qualified class name implementing `CustomElastic`. | None |
+| `clientName` | Declared parameter but not applied by this adapter. | Not applied |
 
-## Network & Timeout
+`user` is the registered property; `username` is a compatibility alias. When both are supplied, user takes precedence. `server`/`adapterName` normally come from the URL. Separate hosts with semicolons; the default port is 9200. Arbitrary vendor-client URI options are not automatically passed through.
 
-| Parameter | Description | Default |
-| --- | --- | --- |
-| `connectTimeout` | Connection timeout (milliseconds) | - |
-| `socketTimeout` | Socket read timeout (milliseconds) | - |
+## Pre-Read and Result Columns
 
-## Behavior Control
+`preRead=true` reads ahead and expands document fields while retaining `_ID`/`_DOC`. With pre-read disabled, use the dedicated raw-document columns rather than assuming expanded fields exist. preReadThreshold/preReadMaxFileSize support B/KB/MB/GB and default to MB without a unit; the cache directory defaults to java.io.tmpdir. Pre-read may increase memory, disk use and time to first row; it is not a server-side pagination limit.
 
-| Parameter | Description | Default |
-| --- | --- | --- |
-| `indexRefresh` | Whether to automatically refresh the index after write operations | `false` |
+## Custom Client
 
-## Pre-Read Configuration
-
-These parameters control pre-read behavior for large files or large volumes of data. When pre-read is enabled, the query result set will display all fields in the document, rather than only the `_ID` and `_DOC` fields.
-
-| Parameter | Description | Default |
-| --- | --- | --- |
-| `preRead` | Whether to enable pre-read | `true` |
-| `preReadThreshold` | Pre-read threshold (bytes); triggers file caching when exceeded | `5MB` |
-| `preReadMaxFileSize` | Maximum pre-read file size | `20MB` |
-| `preReadCacheDir` | Pre-read cache directory | System temp directory |
+`customElastic` names a factory implementing `net.hasor.dbvisitor.adapter.elastic.CustomElastic`, with method `createElasticClient(String jdbcUrl, Map<String, String> props)`. The JDBC connection uses and closes the returned client. The factory owns advanced client configuration; Milvus TLS properties do not apply here.

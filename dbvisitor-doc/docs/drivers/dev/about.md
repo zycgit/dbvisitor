@@ -166,7 +166,7 @@ public interface AdapterReceive {
 | **jdbc-redis** | Jedis | `jdbc:dbvisitor:redis//` | 命令行风格 (ANTLR4) |
 | **jdbc-mongo** | MongoDB Java Driver | `jdbc:dbvisitor:mongo//` | JS Shell 风格 (ANTLR4) |
 | **jdbc-elastic** | Elasticsearch RestClient | `jdbc:dbvisitor:elastic//` | JSON 风格 (ANTLR4) |
-| **jdbc-milvus** | Milvus Java SDK | `jdbc:dbvisitor:milvus//` | SQL-like 风格 (ANTLR4) |
+| **jdbc-milvus** | Milvus Java SDK | `jdbc:dbvisitor:milvus://` | SQL-like 风格 (ANTLR4) |
 
 每个适配器模块的标准目录结构：
 

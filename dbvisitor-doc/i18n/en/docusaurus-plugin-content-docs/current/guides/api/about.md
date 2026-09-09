@@ -3,7 +3,7 @@ id: about
 sidebar_position: 1
 hide_table_of_contents: true
 title: 4.1 API Selection Guide
-description: Choose a dbVisitor API from three perspectives: whether to hand-write SQL, whether to use Mapper interfaces, and whether object mapping is needed.
+description: "Choose a dbVisitor API from three perspectives: whether to hand-write SQL, whether to use Mapper interfaces, and whether object mapping is needed."
 ---
 
 # 4.1 API Selection Guide

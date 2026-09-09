@@ -1,174 +1,287 @@
 ---
 id: usecase
 sidebar_position: 2
-title: 安装与配置
-description: 介绍如何引入 jdbc-milvus 依赖以及配置 JDBC 连接。
+title: 安装与使用
+description: jdbc-milvus 的依赖、可运行 JDBC 示例、分页、类型绑定、主键回传及 Hybrid 和 Import 用法。
 ---
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-import Vars from '@site/plugins/projectVars';
 
-export const Highlight = ({children, color}) => (
-    <span style={{ backgroundColor: color, borderRadius: '2px', color: '#fff', padding: '0.2rem', }}>{children}</span>
-);
+## 1. 版本与依赖
 
-## 引入依赖
+本文对应当前 `6.7.1-SNAPSHOT` 工作区：
 
-在使用 `jdbc-milvus` 之前，需要在项目中引入相应的 Maven 依赖。当前版本：<Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>
+- Java：**17 及以上**，当前构建按 Java 17 编译。
+- Java SDK：`io.milvus:milvus-sdk-java:2.6.22`。
+- Milvus 服务端最低基线：**2.6.2**，不支持 2.5.x 及更早版本；不代表所有后续版本（例如 3.0）都已通过真集群验证。
+- 工作区修复不等于已发布版本行为。使用发布版时应选择与其源码对应的文档。
 
-<Tabs>
-  <TabItem value="maven" label="Maven" default>
-    ```xml
-    <dependency>
-        <groupId>net.hasor</groupId>
-        <artifactId>jdbc-milvus</artifactId>
-        <version>6.7.0</version> <!-- 请使用最新版本 -->
-    </dependency>
-    ```
-  </TabItem>
-  <TabItem value="gradle" label="Gradle">
-    ```groovy
-    implementation 'net.hasor:jdbc-milvus:6.7.0' // 请使用最新版本
-    ```
-  </TabItem>
-</Tabs>
+当前 Gradle 发布配置使用带 `all` classifier 的适配器 JAR（内含重定位的 ANTLR，其他依赖仍需传递引入），Maven 用法：
 
-## JDBC 连接
-
-使用标准的 JDBC URL 格式进行连接。
-
-```text
-jdbc:dbvisitor:milvus://<host>:<port>/<database>?<parameters>
+```xml
+<dependency>
+    <groupId>net.hasor</groupId>
+    <artifactId>jdbc-milvus</artifactId>
+    <version>6.7.1-SNAPSHOT</version>
+    <classifier>all</classifier>
+</dependency>
 ```
 
-- `host`：Milvus 服务器地址。
-- `port`：Milvus gRPC 端口（默认 19530）。
-- `database`：数据库名称（默认 `default`）。
-- `parameters`：连接参数，详见 [连接参数](./params)。
+Gradle 用法：
 
-集群模式下多个主机用 `;` 分隔，可附带健康检测端口：
-
-```text
-jdbc:dbvisitor:milvus://host1:19530:9091;host2:19530:9091/default
+```groovy
+repositories { mavenLocal(); mavenCentral() }
+dependencies { implementation 'net.hasor:jdbc-milvus:6.7.1-SNAPSHOT:all' }
 ```
 
-### 示例代码
+以上 SNAPSHOT 不是已发布到 Central 的承诺。使用当前源码时，先在仓库根目录本地安装，再运行自己的 Java 工程：
 
-#### 1. 创建集合与索引
+```bash
+./gradlew :dbvisitor-driver:publishToMavenLocal :jdbc-milvus:publishToMavenLocal
+```
+
+发布版的版本号和 classifier 以实际发布制品为准。不要单独复制未重定位的普通 JAR 后遗漏其运行时依赖。
+
+## 2. 完整入门示例
+
+前提：Milvus 已启动，`default` 数据库可访问；当前用户有建表、索引、加载和读写权限。示例创建新的 `books_demo` 集合，使用二维 FloatVector 和 L2 索引。
+
+保存为 `MilvusJdbcExample.java`，在已引入上面依赖的 Java 工程中运行。默认连接本机；也可通过程序第一个参数传入 JDBC URL。重复运行前请换集合名或自行清理演示集合，示例不会自动删除已有数据。
 
 ```java
-String url = "jdbc:dbvisitor:milvus://127.0.0.1:19530/default";
-try (Connection conn = DriverManager.getConnection(url)) {
-    try (Statement stmt = conn.createStatement()) {
-        // 创建集合（Collection）
-        stmt.executeUpdate("CREATE TABLE book_vectors ("
-                + "book_id int64 PRIMARY KEY, "
-                + "word_count int64, "
-                + "book_intro float_vector(2)"
-                + ")");
+import java.sql.*;
+import java.util.Properties;
 
-        // 创建向量索引
-        stmt.executeUpdate("CREATE INDEX idx_book_intro ON book_vectors (book_intro) "
-                + "USING \"IVF_FLAT\" WITH (nlist = 1024, metric_type = \"L2\")");
+public class MilvusJdbcExample {
+    public static void main(String[] args) throws Exception {
+        String url = args.length == 0
+                ? "jdbc:dbvisitor:milvus://127.0.0.1:19530/default"
+                : args[0];
+        Properties props = new Properties();
+        props.setProperty("consistencyLevel", "Strong");
+        props.setProperty("connectTimeout", "10000");
+        props.setProperty("maxRetry", "3");
+        // If authentication is enabled:
+        // props.setProperty("token", "YOUR_TOKEN");
 
-        // 加载集合到内存（搜索前必须执行）
-        stmt.executeUpdate("LOAD TABLE book_vectors");
+        Class.forName("net.hasor.dbvisitor.driver.JdbcDriver");
+        try (Connection conn = DriverManager.getConnection(url, props)) {
+            try (Statement stmt = conn.createStatement()) {
+                stmt.executeUpdate("CREATE TABLE books_demo (" +
+                        "book_id INT64 PRIMARY KEY, title VARCHAR(200), " +
+                        "word_count INT32 DEFAULT 0, book_intro FLOAT_VECTOR(2))");
+                stmt.executeUpdate("CREATE INDEX idx_intro ON books_demo (book_intro) " +
+                        "USING 'FLAT' WITH (metric_type='L2')");
+                stmt.executeUpdate("LOAD TABLE books_demo");
+            }
+
+            String insert = "INSERT INTO books_demo " +
+                    "(book_id, title, word_count, book_intro) VALUES (?, ?, ?, ?)";
+            try (PreparedStatement ps = conn.prepareStatement(insert)) {
+                ps.setLong(1, 1L);
+                ps.setString(2, "A book");
+                ps.setInt(3, 1000);
+                ps.setObject(4, new float[] {0.1F, 0.2F});
+                System.out.println("inserted=" + ps.executeUpdate());
+            }
+
+            String search = "SELECT book_id, title, score FROM books_demo " +
+                    "WHERE word_count >= ? ORDER BY book_intro <-> ? LIMIT ?";
+            try (PreparedStatement ps = conn.prepareStatement(search)) {
+                ps.setInt(1, 100);
+                ps.setObject(2, new float[] {0.1F, 0.2F});
+                ps.setInt(3, 5);
+                ps.setFetchSize(128);
+                ps.setQueryTimeout(30);
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        System.out.printf("%d %s %.4f%n", rs.getLong("book_id"),
+                                rs.getString("title"), rs.getFloat("score"));
+                    }
+                }
+            }
+        }
     }
 }
 ```
 
-#### 2. 使用 PreparedStatement 插入数据
+`score` 是距离/相似度结果列：本例 L2 越小越近。它不是存储字段。`Class.forName` 是显式注册示例；正常 classpath 下也可依赖 JDBC 服务发现。
+
+连接认证、TLS/双向证书、Zilliz Cloud 以及全部连接属性见[连接参数](./params.md)。服务端版本要求与验证范围见[发布与支持矩阵](./compatibility.md)。
+
+## 3. 常用读写
+
+下列片段中的 `conn` 是已经打开的 JDBC Connection，`books_demo` 来自入门示例。
+
+### UPSERT、UPDATE 和 DELETE
 
 ```java
-String insertSql = "INSERT INTO book_vectors (book_id, word_count, book_intro) VALUES (?, ?, ?)";
-try (PreparedStatement ps = conn.prepareStatement(insertSql)) {
+try (PreparedStatement ps = conn.prepareStatement(
+        "UPSERT INTO books_demo (book_id, title, word_count, book_intro) VALUES (?, ?, ?, ?)")) {
     ps.setLong(1, 1L);
-    ps.setLong(2, 1000L);
-    ps.setObject(3, Arrays.asList(0.1f, 0.2f)); // 向量使用 List<Float>
+    ps.setString(2, "Revised book");
+    ps.setInt(3, 1200);
+    ps.setObject(4, new double[] {0.1, 0.2});
     ps.executeUpdate();
 }
+try (PreparedStatement ps = conn.prepareStatement(
+        "UPDATE books_demo SET word_count = ? WHERE book_id = ? LIMIT ?")) {
+    ps.setInt(1, 1500);
+    ps.setLong(2, 1L);
+    ps.setInt(3, 1);
+    ps.setFetchSize(128);
+    System.out.println(ps.executeLargeUpdate());
+}
+try (PreparedStatement ps = conn.prepareStatement(
+        "DELETE FROM books_demo WHERE book_id = ? LIMIT ?")) {
+    ps.setLong(1, 1L);
+    ps.setInt(2, 1);
+    System.out.println(ps.executeLargeUpdate());
+}
 ```
 
-#### 3. 向量搜索（KNN）
+UPSERT 是普通实体插入/覆盖，应提供所需实体字段；UPDATE 则分页选择主键并仅提交主键和 SET 字段，不回写其他字段，也不能修改主键。跨页操作不具备事务、整体回滚或精确一次执行保证。
 
-使用 `ORDER BY vector_field <-> vector LIMIT n` 语法执行最近邻搜索。
+INSERT/UPSERT 支持多行 VALUES 和 `VALUES ?` 绑定 Iterable/Iterator，按 `fetchSize` 分组，返回 SDK 确认的实际行数。指定 `Statement.RETURN_GENERATED_KEYS` 后通过 `getGeneratedKeys()` 读取主键；JDBC addBatch/executeBatch 仍不支持。
+
+### 按需分页读取
 
 ```java
-String searchSql = "SELECT book_id, word_count FROM book_vectors "
-        + "ORDER BY book_intro <-> ? LIMIT 5";
-try (PreparedStatement ps = conn.prepareStatement(searchSql)) {
-    ps.setObject(1, Arrays.asList(0.1f, 0.2f));
+try (PreparedStatement ps = conn.prepareStatement(
+        "SELECT book_id, title FROM books_demo WHERE word_count >= ?")) {
+    ps.setInt(1, 100);
+    ps.setFetchSize(256);
+    ps.setMaxRows(1000);
+    ps.setQueryTimeout(30);
     try (ResultSet rs = ps.executeQuery()) {
         while (rs.next()) {
-            System.out.println("ID: " + rs.getLong("book_id")
-                    + ", Count: " + rs.getLong("word_count"));
+            System.out.println(rs.getLong("book_id") + ": " + rs.getString("title"));
         }
     }
 }
 ```
 
-#### 4. 向量范围搜索
+这里 SQL 无 LIMIT，maxRows 将返回量限制为 1000，fetchSize 每页最多 256。删除 setMaxRows 后会持续读取符合条件的数据，不以某个固定常量截断。大结果、无 LIMIT 或带 OFFSET 的查询使用官方迭代器；一页内且无 OFFSET 的有界查询保留单次 Query/Search。
 
-使用 `WHERE vector_field <-> vector < radius` 或 `vector_range` 函数执行范围搜索。
+查询在 execute 时建立，SDK 可能预取首批数据；驱动随后随 JDBC 游标读取取页，只保留当前页。达到上限、EOF、关闭结果、Statement 重执行/关闭或 Connection 关闭都会释放迭代器。后续错误可能从 `ResultSet.next()` 抛出，未读完也要关闭。
+
+### 参数类型
+
+- FloatVector：`setObject` 绑定数值 List，或一维 `byte[]/short[]/int[]/long[]/float[]/double[]`；转换为 Float，可能损失精度。每个距离表达式只接受一个查询向量。
+- `byte[]` 在此表示有符号数字序列，不是 BinaryVector。boolean[]、char[]、包装数组和多维数组不作为 FloatVector 支持。
+- 标量字符串使用 `setString` 或 `setObject`，也支持显式 `Types.VARCHAR` / `JDBCType.VARCHAR` 绑定。WHERE 中的 `?` 转为 Milvus 模板占位符，值通过 SDK `filterTemplateValues` 单独传递，不拼入 filter；不要自行拼接用户输入。
+- 比较、LIKE、IN 和函数参数均使用上述绑定方式。`IN ?` 支持 List、Java 数组和 JDBC Array；`IN (?, 'fixed', ?)` 合并为一个数组模板。数组成员须满足 SDK 的同类型约束；Byte/Short 转为 Long，Float/BigDecimal 转为 Double（可能损失精度），BigInteger 必须在 Int64 范围内。字符串中的引号、反斜杠、通配符和问号保留为数据；LIKE 通配符仍按 LIKE 规则匹配。
+- SDK 过滤模板不支持 null；WHERE 判断空值请写 `IS NULL` / `IS NOT NULL`。非有限数值和不支持的对象类型会报 SQLException，不回退到表达式拼接。INSERT/UPSERT/UPDATE SET 的 null 仍按字段 schema 处理。
+- JSON 与向量按字段 schema 区分；INSERT/UPSERT 的 JSON 可绑定 JSON 字符串、Map、List 或 JsonElement。其他语句和类型边界见[语法手册](./commands.md)。
+
+上述绑定遵循[官方过滤模板机制](https://milvus.io/docs/v2.6.x/filtering-templating.md)。查询向量、写入实体、LIMIT/OFFSET 和搜索选项分别使用 SDK 的结构化字段，不作为过滤表达式模板值；集合名、字段名和运算符仍来自 SQL 结构。
+
+### Hint 与搜索参数
+
+Hint 位于每条 SQL 开头。只有下表的对应命令消费这些参数，不应把未知 Hint 当作通用 SDK 参数：
+
+| Hint | 适用命令与含义 |
+| --- | --- |
+| `overwrite_find_limit` | SELECT，正整数，覆盖 SQL LIMIT；正值 maxRows 再限制返回量。 |
+| `overwrite_find_skip` | SELECT，非负整数，覆盖 OFFSET。 |
+| `overwrite_find_as_count` | SELECT，按“是否出现”切换为 COUNT；即使写 false 也会触发。需要关闭时应删除此 Hint。 |
+| `sync` | IMPORT/LOAD/RELEASE，默认 true；false 表示不等待完成。 |
+| `timeout` | IMPORT/LOAD/RELEASE，同步等待毫秒数，默认 60000。 |
+
+查询一致性使用连接参数 `consistencyLevel`，**不是** `/*+ consistency_level=Strong */`。CREATE TABLE 的 `WITH (consistency_level='Strong')` 则是已支持的建表选项，两者不同。搜索参数如 nprobe/ef 使用 SELECT 尾部 WITH，DDL 的 WITH 取值及占位符规则见手册。
+
+### 失败、取消和重试
+
+maxRetry 仅对已识别的临时写入错误生效；永久/未知错误不自动重试。退避从 100ms 翻倍至单次最多 1000ms，期间检查取消和超时。读取下一页、普通 INSERT/UPSERT、Import 创建不自动套用重试。
+
+分页 DML 失败会保留阶段、页号、已确认行数/页数及 cause/suppressed。成功过的页面不会回滚，失败页面也可能已有部分写入生效。
+
+`Statement.cancel()` 仅取消该 Statement 本次执行，不影响同连接其他 Statement。超时包含调用方读取停顿，在后续取页前后检查；取消/关闭不保证强制打断在途 SDK RPC，返回后丢弃该页并释放。
+
+## 4. 更多命令与 JDBC 返回方式
+
+- SELECT、COUNT、SHOW：使用 `executeQuery` 读取结果集。
+- INSERT/UPSERT、UPDATE/DELETE、DDL、GRANT/REVOKE、无 RETURNING 的 IMPORT、LOAD/RELEASE、FLUSH：使用 `executeUpdate` 或 `executeLargeUpdate`。
+- 多条 SQL 用分号分隔，使用 `execute` + `getMoreResults`，不是 JDBC batch；完整循环见[手册 JDBC 用法](./commands.md#jdbc-results)。
+- 数据库、集合、分区、索引、权限、别名、导入和进度命令的精确语法及返回列见[语法手册](./commands.md)。
+
+## 5. 向量、Array 与主键回传 {#typed-values}
+
+参数由字段 schema 决定，不从 Java 数组猜类型；均可用于 INSERT/UPSERT、UPDATE SET、对应的 KNN/范围条件。
+
+| Milvus 字段 | setObject 输入 | getObject / JDBC 读取 | 距离算子 |
+| --- | --- | --- | --- |
+| FloatVector | 数值 List 或六种数值基本类型数组 | List&lt;Float> / getArray | `<->` L2、`<=>` COSINE、`<#>` IP |
+| BinaryVector | byte[]、ByteBuffer 或字节 List（-128…255） | byte[] / getBytes | `~=` HAMMING、`<%>` JACCARD |
+| Float16Vector / BFloat16Vector | 数值 List/数组，或已编码 byte[]/ByteBuffer | 小端编码 byte[] / getBytes | L2、COSINE、IP |
+| SparseFloatVector | Map&lt;Number,Number>，非空、非负整数索引、有限权重 | SortedMap&lt;Long,Float> | `<#>` IP；`<?>` BM25 支持文本 |
+| Array | java.sql.Array、List、Java 数组 | List / getArray，保留元素 JDBC 类型 | 标量过滤 |
+
+ByteBuffer 使用 remaining，不改变调用方位置；FP16/BF16 的 byte[] 是每维两字节，其他数值输入使用 SDK Float16Utils 转换。向量维度、有限值和 metric 不匹配会报错。Array 支持 BOOL/整数/浮点/VARCHAR 元素；boolean[] 是合法 BOOL Array，char[] 不是 VARCHAR Array。
+
+下面片段假定已有 `Connection conn`。普通 INSERT/UPSERT 不自动重试；fetchSize=0 沿用 SDK 默认页大小，超过 SDK 单页上限时截到该上限；不限制总写入量。VALUES ? 支持惰性 Iterator，不先积攒全部实体。输入 Iterator 由调用方拥有，驱动不负责关闭它背后的文件/流。
 
 ```java
-// 方式 1：比较表达式
-String rangeSql1 = "SELECT * FROM book_vectors WHERE book_intro <-> [0.1, 0.2] < 0.5";
-
-// 方式 2：vector_range 函数（推荐）
-String rangeSql2 = "SELECT * FROM book_vectors WHERE vector_range(book_intro, [0.1, 0.2], 0.5)";
-
-try (Statement stmt = conn.createStatement()) {
-    try (ResultSet rs = stmt.executeQuery(rangeSql2)) {
-        while (rs.next()) {
-            System.out.println("ID: " + rs.getLong("book_id"));
-        }
+String create = "CREATE TABLE typed_demo (id INT64 PRIMARY KEY AUTO_ID, " +
+        "tags ARRAY<VARCHAR(30)>(8) NULL, embedding FLOAT16_VECTOR(2))";
+try (Statement stmt = conn.createStatement()) { stmt.executeUpdate(create); }
+String insert = "INSERT INTO typed_demo (tags, embedding) VALUES ?";
+List<Object[]> rows = Arrays.asList(
+        new Object[] {new String[] {"java"}, new float[] {1, 2}},
+        new Object[] {null, new float[] {3, 4}});
+try (PreparedStatement ps = conn.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS)) {
+    ps.setFetchSize(256);
+    ps.setObject(1, rows.iterator());
+    System.out.println(ps.executeLargeUpdate());
+    try (ResultSet keys = ps.getGeneratedKeys()) {
+        while (keys.next()) System.out.println(keys.getObject("id"));
     }
 }
 ```
 
-#### 5. 标量过滤查询
+getGeneratedKeys 返回 SDK 的 Int64/VarChar ID，包括显式主键及 AutoID；普通 UPSERT 也以 SDK 返回 ID 为准。主键不受 maxRows 截断。未请求时不累积，请求全部主键则需 O(主键数) 内存。分页失败报告 phase、confirmedPages、confirmedRows、currentPageRows；已确认页不回滚，失败页可能生效，不能盲目重放。
+
+## 6. Hybrid、BM25 与 Import
+
+以下 SQL 先建立 BM25 函数、索引，再由服务端融合两路单向量搜索。每路 LIMIT 是候选数，外层 LIMIT/OFFSET 控制融合后的一个 ResultSet；不等于一次返回多个查询向量结果，也不是 JDBC batch。
+
+```sql
+CREATE TABLE search_demo (
+    id INT64 PRIMARY KEY,
+    body VARCHAR(2000) WITH (enable_analyzer=true),
+    dense FLOAT_VECTOR(2), sparse SPARSE_FLOAT_VECTOR,
+    FUNCTION bm25_fn USING BM25 (body) INTO (sparse)
+);
+CREATE INDEX dense_idx ON search_demo(dense) USING FLAT WITH (metric_type=L2);
+CREATE INDEX sparse_idx ON search_demo(sparse) USING SPARSE_INVERTED_INDEX
+    WITH (metric_type=BM25, bm25_k1=1.2, bm25_b=0.75);
+LOAD TABLE search_demo;
+INSERT INTO search_demo (id,body,dense) VALUES (1,'vector search',[1,2]);
+SELECT id,score FROM search_demo ORDER BY HYBRID (
+    dense <-> [1,2] LIMIT 20,
+    sparse <?> 'vector search' LIMIT 20
+) LIMIT 5 WITH (reranker='rrf',k=60);
+```
+
+也可 `WITH (reranker='weighted',weights='[0.7,0.3]')`，每路一个 [0,1] 有限权重。普通 ORDER BY 仍只允许一个向量。Hybrid 无原生 Iterator，必须显式 LIMIT，服务端搜索窗口限制仍适用；fetchSize 不会让服务端融合变成分页。函数输出由 Milvus 计算，INSERT/UPSERT 省略它。TextEmbedding 函数的 provider/model 参数和服务端配置见手册。
+
+Import 不将大文件载入 Java 内存，也不上传本地文件；先用官方 BulkWriter/其他工具准备并上传 JSON/Parquet/NumPy。下面仍只通过 JDBC 提交和观察：
 
 ```java
-try (Statement stmt = conn.createStatement()) {
-    try (ResultSet rs = stmt.executeQuery(
-            "SELECT book_id, word_count FROM book_vectors WHERE word_count > 500 LIMIT 10")) {
-        while (rs.next()) {
-            System.out.println("ID: " + rs.getLong("book_id"));
-        }
+String submitSql = "/*+ sync=false */ IMPORT FROM ? INTO search_demo " +
+        "WITH (timeout='2h') RETURNING JOB_ID";
+String jobId;
+try (PreparedStatement ps = conn.prepareStatement(submitSql)) {
+    ps.setObject(1, Arrays.asList(Collections.singletonList("prepared/a.parquet"),
+            Collections.singletonList("prepared/b.parquet")));
+    try (ResultSet rs = ps.executeQuery()) { rs.next(); jobId = rs.getString("JOB_ID"); }
+}
+try (PreparedStatement ps = conn.prepareStatement("SHOW IMPORT ?")) {
+    ps.setString(1, jobId);
+    try (ResultSet rs = ps.executeQuery()) {
+        while (rs.next()) System.out.println(rs.getString("STATE") + " " + rs.getString("REASON"));
     }
 }
 ```
 
-#### 6. 混合查询（标量过滤 + 向量搜索）
+SHOW IMPORT/SHOW IMPORTS 返回 JOB_ID、STATE、PROGRESS、TOTAL_ROWS、IMPORTED_ROWS、REASON、DETAILS（原始 JSON，包含服务端文件明细）。缺失的进度不是 0，而是 SQL NULL。`SHOW IMPORTS FROM search_demo WITH (page_size=20,current_page=1)` 查询列表；分页参数能否生效取决于目标 REST 版本。默认 IMPORT 同步等待，`/*+ timeout=60000 */` 是客户端毫秒等待期限，WITH timeout='2h' 是服务端任务期限。超时/取消不撤销任务；已取得 Job ID 的等待失败会保留 ID 和最后进度，不重提任务。创建请求本身丢失响应时可能没有 Job ID，需查询任务列表核实。
 
-```java
-String sql = "SELECT book_id FROM book_vectors "
-        + "WHERE word_count > 500 "
-        + "ORDER BY book_intro <-> [0.1, 0.2] LIMIT 3";
-try (Statement stmt = conn.createStatement()) {
-    try (ResultSet rs = stmt.executeQuery(sql)) {
-        while (rs.next()) {
-            System.out.println("ID: " + rs.getLong("book_id"));
-        }
-    }
-}
-```
-
-#### 7. 使用 Hint
-
-通过 SQL Hint 覆盖查询行为。
-
-```java
-try (Statement stmt = conn.createStatement()) {
-    // 覆盖 LIMIT 和 OFFSET
-    ResultSet rs = stmt.executeQuery(
-            "/*+ overwrite_find_limit=5, overwrite_find_skip=10 */ "
-            + "SELECT * FROM book_vectors WHERE word_count > 0");
-
-    // 将查询转换为 COUNT
-    ResultSet countRs = stmt.executeQuery(
-            "/*+ overwrite_find_as_count=true */ "
-            + "SELECT * FROM book_vectors WHERE word_count > 500");
-}
-```
+`IMPORT ... RETURNING JOB_ID` 返回结果集，使用 `executeQuery`。驱动支持范围和非事务语义见[支持矩阵](./compatibility.md#boundaries)。

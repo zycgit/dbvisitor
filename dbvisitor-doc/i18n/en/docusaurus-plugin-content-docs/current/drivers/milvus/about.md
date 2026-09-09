@@ -2,36 +2,32 @@
 id: about
 sidebar_position: 1
 title: Introduction
-description: jdbc-milvus is a Milvus vector database JDBC driver adapter that allows developers to operate Milvus using standard JDBC interfaces and SQL-style commands.
+description: Access Milvus through JDBC and a SQL subset, including prepared writes, vector retrieval, collection management and Import jobs.
 ---
-jdbc-milvus is a Milvus vector database JDBC driver adapter that allows developers to operate Milvus using standard JDBC interfaces and SQL-style commands.
-Its purpose is to enable developers to seamlessly use Milvus vector database through the familiar JDBC programming model.
 
-## Core Features
+jdbc-milvus maps SQL-style commands to the official Milvus Java SDK or Import REST calls, exposed through `Connection`, `Statement`, `PreparedStatement` and `ResultSet`. Apache 2.0 licensed; use it standalone or with dbVisitor's JdbcTemplate, Mapper and Builder APIs.
 
-- JDBC compatible — implements standard JDBC interfaces for seamless integration with any JDBC-compatible framework.
-- SQL-style syntax — operates Milvus using standard SQL structures like `CREATE TABLE`, `INSERT`, `SELECT`, `DELETE`.
-- Vector search support — expresses KNN search via `ORDER BY field <-> vector`, and range search via `WHERE` clauses.
-- Rich command set — supports database management, table management, index management, partition management, user and permission management, and more. See the Syntax Manual for details.
-- Supports command parameter placeholder `?`, with parameters set via `PreparedStatement`.
-- Full DDL support — includes collection creation (with vector field definitions), index creation (with index types and parameters), partition and alias management.
-- Supports `Statement.RETURN_GENERATED_KEYS`, automatically returning the generated primary key on insert operations.
-- Supports SQL Hints to override query `LIMIT`, `OFFSET`, or convert queries to Count operations.
-- Provides blocking wait semantics for asynchronous Milvus operations such as `IMPORT FROM`, `LOAD TABLE`, and `RELEASE TABLE`; use `sync` and `timeout` hints to tune the wait behavior.
-- Supports command interceptors for logging, performance monitoring, and similar scenarios.
-- Flexible vector formats — supports JSON array literals, `?` parameter binding (`List<Float>`, `float[]`, etc.), and batch vector search.
+## Main Capabilities
 
-## Architecture Design
+- Collection, database, index, partition, alias, user, role and permission management.
+- Prepared INSERT/UPSERT, native Partial UPDATE and scalar/KNN/range DELETE, with bounded retries and failure progress for paged writes.
+- On-demand scalar, KNN and range SELECT paging; single-vector distance ordering and server-side Hybrid Search with RRF/Weighted reranking.
+- Float/Binary/FP16/BF16/Sparse vectors, nullable/DEFAULT/Array schemas and JDBC generated keys.
+- BM25/TextEmbedding schema functions, multi-row writes and Import submission/status/failure inspection.
+- Single-port SDK/REST connections, TLS/mTLS certificates, token/API key authentication and standard Zilliz Cloud endpoint configuration.
 
-jdbc-milvus internally uses the Milvus Java SDK for communication, parses SQL-style commands via ANTLR4, and converts them to Milvus SDK API calls.
+These are capabilities integrated into the current source. Actual availability depends on server version, indexes, configuration and permissions. This is neither an exhaustive SDK wrapper nor a performance or cloud-acceptance claim.
 
-## Use Cases
+## Versions and Boundaries
 
-- Accessing Milvus vector database in a unified way (JDBC) within Java projects.
-- Operating Milvus with SQL-style syntax to reduce the learning curve.
-- Integrating Milvus into existing JDBC-based data processing pipelines.
+Current source `6.7.1-SNAPSHOT`: Java 17+, Milvus Java SDK 2.6.22, minimum Milvus server baseline 2.6.2. Nullable vectors require 2.6.18+. Versions 2.5 and earlier are outside scope; no 3.0 support commitment has been established. See the [release and support matrix](./compatibility.md) for source versus published versions.
 
-## Compatibility
+This is a SQL subset, not a relational database emulator. Transactions, JDBC batch, stored procedures, updatable ResultSets, JOIN/GROUP BY, column aliases and scalar ORDER BY are unsupported. Verify the actual JDBC interfaces and SQL used by a framework; arbitrary ORM, BI and migration tools are not automatically compatible.
 
-- JDK: 8+
-- Milvus: 2.3.x or higher recommended (some features like `COUNT` require 2.2+)
+## Start Here
+
+- [Install and Use](./usecase.mdx): dependencies, a complete runnable program, paging, typed values, generated keys, Hybrid and Import.
+- [Connection Parameters and TLS](./params.md): all connection properties, certificates, Cloud and custom clients.
+- [Syntax Manual](./commands.md): exact syntax, parameters, result columns and JDBC multi-result access.
+- [Release and Support Matrix](./compatibility.md): versions, feature requirements, validation scope and release checks.
+- [dbVisitor API Usage](../../features/milvus/usage.mdx): JdbcTemplate, Builder, BaseMapper, annotations and Mapper files.

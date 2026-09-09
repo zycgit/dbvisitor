@@ -1,10 +1,10 @@
 ---
 id: commands
 sidebar_position: 3
-hide_table_of_contents: true
-title: Supported Commands
-description: jdbc-mongo supports commonly used MongoDB commands, covering database management, collection operations, index management, user management, and more.
+title: Command Reference
+description: jdbc-mongo commands, chained queries, hints and limitations.
 ---
+
 `jdbc-mongo` parses raw Command instructions and converts them to underlying API calls. Below is the list of supported commands.
 
 :::tip[Command Enhancement]
@@ -18,7 +18,7 @@ Regarding the `db.` prefix enhancement for raw MongoDB commands:
 
 | Command | Description | Official Docs |
 |---|---|---|
-| `find` | Query documents, supports `limit`, `skip`, `sort`, `explain`, `hint` | [find](https://www.mongodb.com/docs/manual/reference/command/find/) |
+| `find` | Query documents, supports `limit`, `skip`, `sort`, `hint` | [find](https://www.mongodb.com/docs/manual/reference/command/find/) |
 | `findOne` | Query a single document | [findOne](https://www.mongodb.com/docs/manual/reference/method/db.collection.findOne/) |
 | `insert` | Insert documents | [insert](https://www.mongodb.com/docs/manual/reference/command/insert/) |
 | `insertOne` | Insert a single document | [insertOne](https://www.mongodb.com/docs/manual/reference/method/db.collection.insertOne/) |
@@ -36,6 +36,7 @@ Regarding the `db.` prefix enhancement for raw MongoDB commands:
 | `bulkWrite` | Bulk write operations | [bulkWrite](https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/) |
 | `renameCollection` | Rename collection | [renameCollection](https://www.mongodb.com/docs/manual/reference/command/renameCollection/) |
 | `drop` | Drop collection | [drop](https://www.mongodb.com/docs/manual/reference/command/drop/) |
+| `stats` | Get collection statistics | [collStats](https://www.mongodb.com/docs/manual/reference/command/collStats/) |
 
 ## Database Management {#database}
 
@@ -73,16 +74,30 @@ Regarding the `db.` prefix enhancement for raw MongoDB commands:
 ## Other Commands {#other}
 
 - `use <database>`: Switch current database.
-- `show dbs`: Show all databases.
+- `show dbs` / `show databases`: Show all databases.
 - `show collections`: Show all collections in the current database.
 - `show tables`: Same as `show collections`.
+- `show users`: Show users.
+- `show roles`: Show roles.
+- `show profile`: Query profiling records.
 
 ## Hint Support
+Hints must appear at the beginning of the command text. Format: `/*+ name=value */`. Multiple hint blocks are allowed.
 
-jdbc-mongo supports overriding or enhancing query behavior through SQL Hints. The Hint format is `/*+ hint_name=value */` and must be placed at the beginning of the SQL statement.
+Supported hints:
 
-| Hint Name | Description | Example |
+| Hint | Description | Example |
 | --- | --- | --- |
-| `overwrite_find_limit` | Override the query's `limit` parameter for pagination or limiting returned rows. | `/*+ overwrite_find_limit=10 */ db.collection.find({})` |
-| `overwrite_find_skip` | Override the query's `skip` parameter to skip a specified number of rows for pagination. | `/*+ overwrite_find_skip=20 */ db.collection.find({})` |
-| `overwrite_find_as_count` | Convert the query to a Count operation, ignoring returned document content and returning only the match count. | `/*+ overwrite_find_as_count */ db.collection.find({})` |
+| `overwrite_find_limit` | Overrides the `limit` applied to `find` / `findOne`. | `/*+ overwrite_find_limit=10 */ db.mycol.find({})` |
+| `overwrite_find_skip` | Overrides the `skip` applied to `find` / `findOne`. | `/*+ overwrite_find_skip=20 */ db.mycol.find({})` |
+| `overwrite_find_as_count` | Converts `find` into a `countDocuments` result. | `/*+ overwrite_find_as_count */ db.mycol.find({})` |
+
+## Limitations
+- `db.createCollection(...)` does not support the `viewOn` option.
+- `createIndex(...)` requires the `name` option; missing it causes an error.
+- `runCommand(...)` requires the first argument to be a `Document` object.
+- `find` method chaining only supports `limit`, `skip`, `sort`, `hint`. Other method calls (for example `explain`) are rejected.
+- Using `db` without selecting a database (URL path or `use <db>`) causes “No database selected”.
+- `connectTimeout` is declared but not applied in MongoClient settings.
+
+`runCommand({...})` exposes native commands, not a complete mongosh JavaScript runtime.

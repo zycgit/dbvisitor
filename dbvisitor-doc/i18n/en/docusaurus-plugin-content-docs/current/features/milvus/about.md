@@ -15,23 +15,24 @@ dbVisitor accesses the Milvus vector database via the [JDBC-Milvus](../../driver
 | Concern | Milvus Behavior |
 |--------|------------|
 | API Support | JdbcTemplate, Builder API, BaseMapper, Annotations, Mapper File |
-| Primary Key Generation | `RETURN_GENERATED_KEYS` not supported (generate PKs application-side) |
-| Pagination | `LIMIT ? OFFSET ?` |
-| Batch Writes | executeBatch not supported |
+| Primary Key Generation | JDBC INSERT/UPSERT supports `RETURN_GENERATED_KEYS`, exposing SDK Int64/VarChar IDs |
+| Pagination | LIMIT/OFFSET and maxRows bound results; fetchSize controls on-demand page size |
+| Multi-row Writes | Multiple VALUES or Iterable/Iterator inputs; JDBC executeBatch is unsupported |
 | Stored Procedures | Not supported |
-| Vector Search | KNN nearest neighbor search (L2/Cosine/IP) + range search |
+| Vector Search | Type-compatible KNN/range search; Hybrid fuses candidates into one result set |
 
-**Not supported:** executeBatch, Stored Procedures, `Statement.RETURN_GENERATED_KEYS`
+**Unsupported:** transactions/savepoints, JDBC executeBatch, stored procedures and updatable ResultSets. API usage remains subject to the driver's SQL subset; arbitrary generic operations or SQL are not guaranteed.
 
 ## Concept Analogy
 
-The Milvus adapter uses standard SQL-style syntax:
+The Milvus adapter uses a SQL-style command subset:
+
 - **DDL** — `CREATE TABLE`, `DROP TABLE`, `CREATE INDEX`, executed via `executeUpdate`
 - **DML** — `INSERT`, `UPDATE`, `DELETE`, obtain affected row count via `executeUpdate`
 - **DQL** — `SELECT` queries return standard `ResultSet`
 
 :::info[Milvus Special Requirements]
-Milvus requires collections to be **loaded into memory** before querying; first execute `LOAD TABLE table_name`. Updates are essentially "Search-to-Upsert"; full-table Updates are not recommended.
+Create the required index and execute `LOAD TABLE table_name` before querying. UPDATE selects keys page by page and uses native Partial Upsert for SET fields only. Without LIMIT it continues over matching entities, but provides no cross-page transaction, whole-operation rollback or exactly-once guarantee.
 :::
 
 ## Detailed Usage
@@ -40,10 +41,12 @@ For complete JdbcTemplate, Builder API, BaseMapper, Annotation, and Mapper File 
 
 ## Core Topics
 
-- [Vector Search](./usage#vector-search): KNN nearest neighbor search (`orderByL2`/`orderByCosine`/`orderByIP`) + range search (`vectorByL2`/`vectorByCosine`/`vectorByIP`)
-- [Hybrid Queries](./usage#hybrid-query): Scalar filtering + vector search
+- [Vector Search](./usage#vector-search): single-vector KNN, the L2 range builder and SQL threshold rules for COSINE/IP.
+- [Filtered vector search](./usage#hybrid-query): distinct from [native multi-path Hybrid fusion](../../drivers/milvus/commands.md#hybrid).
 - [Consistency Level](./usage#consistency): `consistencyLevel=Strong` for immediate visibility
 
 ## Relationship to General Documentation
 
 For general API usage, see [Core API](../../guides/overview). For vector query API, see [Vector Queries](../../guides/core/vector_query/about).
+
+Current source requires Java 17+, SDK 2.6.22 and a minimum Milvus 2.6.2 baseline. See the [release and support matrix](../../drivers/milvus/compatibility.md) for feature requirements, published versions and validation scope, and [typed values and generated keys](../../drivers/milvus/usecase.mdx#typed-values) for JDBC examples.

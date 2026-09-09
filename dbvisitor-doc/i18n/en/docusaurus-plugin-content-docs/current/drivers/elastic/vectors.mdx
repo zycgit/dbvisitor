@@ -1,0 +1,227 @@
+---
+id: vectors
+sidebar_position: 5
+title: Vector Search Guide
+description: Elasticsearch vector mappings, Lambda and native DSL, parameter binding, result decoding, version boundaries and tuning.
+---
+
+This guide covers KNN ordering, range filtering, scalar/vector combinations, prepared queries and vector reads. The driver forwards REST commands; dbVisitor's Lambda API generates DSL. These are separate layers, not a promise that every Elasticsearch version accepts every query.
+
+## Versions and Query Paths {#versions}
+
+Current source requires Java 17+ and uses REST Client 7.17.10. The client dependency is not a server feature matrix; verify the actual server, mapping, script context and permissions.
+
+| Query path | Implementation and boundary |
+| --- | --- |
+| Native script_score | Exact scoring of candidate documents; examples follow ES 7.17 and require dense_vector and supported script functions. |
+| Native knn | Approximate search on a compatible ES 8.x server. Examples use ES 8.4 `/_search` + knn, not ES 7. |
+| Elastic7Dialect | Vector ordering generates `_script` sort; ranges generate script filters, not automatic native knn. |
+| Elastic8Dialect | Generates top-level knn with current k=10 and num_candidates=100. initPage does not rewrite these candidate parameters; use native DSL to control them. |
+
+Distinguish [ES 7.17 script_score](https://www.elastic.co/guide/en/elasticsearch/reference/7.17/query-dsl-script-score-query.html), the [ES 8.0 standalone _knn_search API](https://www.elastic.co/guide/en/elasticsearch/reference/8.0/knn-search-api.html), and [ES 8.4 knn search](https://www.elastic.co/guide/en/elasticsearch/reference/8.4/knn-search.html). Forwarding a REST request does not establish server execution support. Lambda also requires a matching dbVisitor dependency and an appropriate server dialect.
+
+## Mapping and Data Preparation {#mapping}
+
+This is an ES 8.4-style vector index; do not recreate an existing index. All example vectors have three dimensions, and must not be queried against dims=128 fields.
+
+```text
+PUT /product_index
+{
+  "mappings": {
+    "properties": {
+      "name": { "type": "text" },
+      "category": { "type": "keyword" },
+      "embedding": {
+        "type": "dense_vector",
+        "dims": 3,
+        "index": true,
+        "similarity": "cosine"
+      }
+    }
+  }
+}
+```
+
+For ES 7 script queries, declare dense_vector/dims according to that version instead of copying ES 8 index/similarity options. Generate and insert vectors through your application/model first; this driver does not provide an embedding service.
+
+Depending on the deployment, similarity may be cosine, l2_norm or dot_product. Normalization, dimensions and numeric constraints depend on the server. This mapping uses cosine; a subsequent L2 Lambda call does not change the index similarity.
+
+## Lambda API {#lambda}
+
+This class demonstrates query/orderByL2/vectorByL2/initPage. Product maps embedding to the JSON string returned by JDBC. Configure a TypeHandler if your application needs a List property.
+
+```java
+import java.sql.Connection;
+import java.util.Arrays;
+import java.util.List;
+import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.mapping.Column;
+import net.hasor.dbvisitor.mapping.Table;
+
+public class ElasticVectorExample {
+    @Table("product_index")
+    public static class Product {
+        @Column("_ID")
+        private String id;
+        @Column("name")
+        private String name;
+        @Column("category")
+        private String category;
+        @Column("embedding")
+        private String embedding;
+        public String getId() { return id; }
+        public void setId(String id) { this.id = id; }
+        public String getName() { return name; }
+        public void setName(String name) { this.name = name; }
+        public String getCategory() { return category; }
+        public void setCategory(String category) { this.category = category; }
+        public String getEmbedding() { return embedding; }
+        public void setEmbedding(String embedding) { this.embedding = embedding; }
+    }
+
+    public static void run(Connection conn) throws Exception {
+        LambdaTemplate lambda = new LambdaTemplate(conn);
+        List<Float> vector = Arrays.asList(0.1F, 0.2F, 0.3F);
+        List<Product> nearest = lambda.query(Product.class)
+                .orderByL2(Product::getEmbedding, vector)
+                .initPage(10, 0).queryForList();
+        List<Product> inRange = lambda.query(Product.class)
+                .vectorByL2(Product::getEmbedding, vector, 0.8)
+                .queryForList();
+        List<Product> filtered = lambda.query(Product.class)
+                .eq(Product::getCategory, "electronics")
+                .orderByL2(Product::getEmbedding, vector)
+                .initPage(5, 0).queryForList();
+    }
+}
+```
+
+L2 range means distance below 0.8, combined with scalar eq conditions. Elastic7Dialect COSINE ranges use `1 - cosineSimilarity < threshold`, not similarity above the same value. DSL generation and server execution must be accepted separately; successful Java compilation does not prove vector functions work in every script context.
+
+## Native DSL and Prepared Vectors {#native}
+
+Fragments assume an open Connection conn and java.sql.* / java.util.* imports. Bind numeric Lists (or JSON-serializable arrays) with setObject rather than concatenating user input into Painless source.
+
+### Approximate KNN and Pre-Filtering
+
+```java
+String knn = "POST /product_index/_search {"
+        + "\"size\": 10, \"knn\": {"
+        + "\"field\": \"embedding\", \"query_vector\": ?,"
+        + "\"k\": 10, \"num_candidates\": 100,"
+        + "\"filter\": {\"term\": {\"category\": \"electronics\"}}"
+        + "}, \"_source\": [\"name\", \"embedding\"] }";
+try (PreparedStatement ps = conn.prepareStatement(knn)) {
+    ps.setObject(1, Arrays.asList(0.1, 0.2, 0.3));
+    try (ResultSet rs = ps.executeQuery()) {
+        while (rs.next()) {
+            System.out.println(rs.getString("_ID") + " " + rs.getString("_DOC"));
+        }
+    }
+}
+```
+
+Remove knn.filter to omit the category restriction. k and per-shard num_candidates control candidates, while size also constrains returned hits. Changing size alone does not change candidate counts.
+
+### Exact Scoring and Combined Conditions
+
+```java
+String dsl = "POST /product_index/_search {"
+        + "\"size\": 10, \"query\": {\"script_score\": {"
+        + "\"query\": {\"bool\": {\"filter\": ["
+        + "{\"term\": {\"category\": \"electronics\"}},"
+        + "{\"exists\": {\"field\": \"embedding\"}}]}},"
+        + "\"script\": {"
+        + "\"source\": \"cosineSimilarity(params.vec, 'embedding') + 1.0\","
+        + "\"params\": {\"vec\": ?}}}}}";
+try (PreparedStatement ps = conn.prepareStatement(dsl)) {
+    ps.setObject(1, Arrays.asList(0.1, 0.2, 0.3));
+    try (ResultSet rs = ps.executeQuery()) {
+        while (rs.next()) System.out.println(rs.getString("_DOC"));
+    }
+}
+```
+
+“Combined” means scalar filtering plus vector scoring, not multi-path reranking. Remove the term clause but keep exists to score all documents with vectors. cosineSimilarity + 1.0 keeps scores nonnegative. A top-level `min_score: 1.8` means cosine similarity at least 0.8, not a raw distance threshold. Multi-query APIs are also distinct from JDBC batch.
+
+## Result Mapping and Vector Reads {#results}
+
+Search exposes _ID and _DOC (raw _source JSON); preRead=true additionally expands fields. Current parseHit serializes nested objects/arrays to JSON strings, so getObject("embedding") does not directly return a List or primitive array. Keep the required fields in _source; with pre-read disabled, decode the vector from _DOC.
+
+```java
+try (Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery(
+                "POST /product_index/_search { \"_source\": [\"embedding\", \"name\"] }")) {
+    if (rs.next()) {
+        String json = rs.getString("embedding"); // preRead=true
+        com.fasterxml.jackson.databind.JsonNode vector =
+                new com.fasterxml.jackson.databind.ObjectMapper().readTree(json);
+        System.out.println(vector.get(0).doubleValue());
+    }
+}
+```
+
+_ID is the document ID. getString("id") works only if _source actually has an id field; it is not a replacement for _ID.
+
+## Generated DSL Shapes {#generated}
+
+These fragments illustrate current Elastic7Dialect generation, not an execution guarantee for all ES versions or script contexts. L2 ordering generates this shape:
+
+```json
+{
+  "sort": [{
+    "_script": {
+      "type": "number",
+      "script": {
+        "source": "doc['embedding'].size() == 0 ? 0 : l2norm(params.vector, doc['embedding'])",
+        "params": { "vector": [0.1, 0.2, 0.3] }
+      },
+      "order": "asc"
+    }
+  }]
+}
+```
+
+L2 ranges produce this script-filter shape:
+
+```json
+{
+  "query": {
+    "bool": {
+      "must": [{
+        "script": {
+          "script": {
+            "source": "l2norm(params.vector, doc['embedding']) < 0.8",
+            "params": { "vector": [0.1, 0.2, 0.3] }
+          }
+        }
+      }]
+    }
+  }
+}
+```
+
+Current sorting maps missing vectors to zero; ensure vectors exist and verify ordering before use. For explicitly supported exact scoring, prefer the complete script_score example above. See [Elastic7Dialect](https://github.com/zycgit/dbvisitor/blob/main/dbvisitor/src/main/java/net/hasor/dbvisitor/dialect/provider/Elastic7Dialect.java) and [Elastic8Dialect](https://github.com/zycgit/dbvisitor/blob/main/dbvisitor/src/main/java/net/hasor/dbvisitor/dialect/provider/Elastic8Dialect.java) for the implementation.
+
+## Tests and Performance {#validation}
+
+Offline adapter regression from the repository root:
+
+```bash
+./gradlew :jdbc-elastic:test --no-daemon --offline
+```
+
+Live ES7 contracts are under dbvisitor-test's realdb/elastic7 and require environment configuration:
+
+```bash
+./gradlew :dbvisitor-test:test -Pnxn.env=elastic7 --no-daemon
+```
+
+Ordinary adapter tests exclude realdb. Compilation, offline tests and real-server behavior are distinct.
+
+- For large datasets, evaluate approximate KNN while measuring recall and indexing cost; it is not unconditionally the fastest choice.
+- num_candidates=100 and k=10 are examples, not a fixed tuning ratio. Measure recall, latency, memory and shard-count effects.
+- index=true requires a server supporting indexed vectors; select version-appropriate settings for exact-script-only workloads.
+- Model/application dimensions such as 128/256/512/768/1536 must match mapping, inserts and query vectors.
+
+See [Connection Parameters](./params.md), [REST Commands](./commands.md), [Dense Vector](https://www.elastic.co/guide/en/elasticsearch/reference/current/dense-vector.html) and the [Solon AI Elasticsearch integration](https://gitee.com/noear/solon-ai/tree/main/solon-ai-rag-repositorys/solon-ai-repo-elasticsearch). Third-party implementations do not define this driver's support guarantees.

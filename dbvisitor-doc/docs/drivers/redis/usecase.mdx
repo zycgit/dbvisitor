@@ -1,76 +1,112 @@
 ---
 id: usecase
 sidebar_position: 1
-hide_table_of_contents: true
-title: 安装与配置
-description: 展示如何使用 jdbc-redis 以 JDBC 的方式访问 Redis 数据库。
+title: 安装与使用
+description: Redis JDBC 依赖、连接、参数化命令和 JDBC 限制。
 ---
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-import Vars from '@site/plugins/projectVars';
 
-export const Highlight = ({children, color}) => (
-    <span style={{backgroundColor: color, borderRadius: '2px', color: '#fff', padding: '0.2rem',}}>{children}</span>
-);
+## 依赖与版本
 
-### 引入依赖
+本文对应当前 `6.7.1-SNAPSHOT` 源码，构建与运行要求 Java 17+，不是旧发布制品的能力承诺。使用发布版时，以实际 POM、classifier 和对应版本文档为准。
 
-在使用 `jdbc-redis` 之前，需要在项目中引入相应的 Maven 依赖。当前版本：<Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>
+当前源码使用 `all` classifier（重定位 ANTLR，其他依赖仍需传递引入）。先在仓库根目录安装：
 
-<Tabs>
-    <TabItem value="maven" label="Maven" default>
-        ```xml
-        <dependency>
-            <groupId>net.hasor</groupId>
-            <artifactId>jdbc-redis</artifactId>
-            <version>6.1.0</version>
-            <!-- 请使用最新版本 -->
-        </dependency>
-        ```
-    </TabItem>
-    <TabItem value="gradle" label="Gradle">
-        ```groovy
-        implementation 'net.hasor:jdbc-redis:6.1.0' // 请使用最新版本
-        ```
-    </TabItem>
-</Tabs>
-
-## JDBC 连接
-
-使用标准的 JDBC URL 格式进行连接。
-
-```text
-jdbc:dbvisitor:jedis://<host>:<port>?database=<database>&<parameters>
+```bash
+./gradlew :dbvisitor-driver:publishToMavenLocal :jdbc-redis:publishToMavenLocal
 ```
 
-- `host`: Redis 服务器地址。
-- `port`: Redis 服务器端口（默认 6379）。
-- `database`: 数据库索引（默认 0）。
-- `parameters`: 连接参数，详见 [连接参数](./params)。
+```xml
+<dependency>
+    <groupId>net.hasor</groupId>
+    <artifactId>jdbc-redis</artifactId>
+    <version>6.7.1-SNAPSHOT</version>
+    <classifier>all</classifier>
+</dependency>
+```
 
-### 示例代码
+```groovy
+repositories { mavenLocal(); mavenCentral() }
+dependencies { implementation 'net.hasor:jdbc-redis:6.7.1-SNAPSHOT:all' }
+```
+
+本地安装示例不表示 SNAPSHOT 已发布到 Maven Central。
+
+## JDBC 连接与示例
+
+`jdbc-redis` 的 URL 前缀是 **jedis**，不是 redis。数据库索引使用 `?database=0`，不写成 `/0`。单机默认 6379；集群使用 `host1:6379;host2:6379`。认证及全部参数见[连接参数](./params.md)。
+
+下例读取/覆盖 `jdbc_demo:key` 和 `jdbc_demo:hash`，请在测试环境使用，或者换成自己的键名。SET/HSET 返回更新数，GET 返回结果集。
 
 ```java
+import java.sql.*;
+import java.util.Properties;
+
 public class RedisJdbcExample {
     public static void main(String[] args) throws Exception {
-        String url = "jdbc:dbvisitor:jedis://127.0.0.1:6379/0";
-        try (Connection conn = DriverManager.getConnection(url)) {
-            // Statement Example
-            try (Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("GET mykey")) {
-                    while (rs.next()) {
-                        System.out.println(rs.getString(1));
-                    }
+        String url = args.length == 0
+                ? "jdbc:dbvisitor:jedis://127.0.0.1:6379?database=0"
+                : args[0];
+        Properties props = new Properties();
+        props.setProperty("connectTimeout", "5000");
+        props.setProperty("socketTimeout", "10");
+        // For authenticated servers:
+        // props.setProperty("username", "YOUR_USER");
+        // props.setProperty("password", "YOUR_PASSWORD");
+        Class.forName("net.hasor.dbvisitor.driver.JdbcDriver");
+        try (Connection conn = DriverManager.getConnection(url, props)) {
+            try (PreparedStatement ps = conn.prepareStatement("SET ? ?")) {
+                ps.setString(1, "jdbc_demo:key");
+                ps.setString(2, "hello");
+                System.out.println("updated=" + ps.executeUpdate());
+            }
+            try (PreparedStatement ps = conn.prepareStatement("GET ?")) {
+                ps.setString(1, "jdbc_demo:key");
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) System.out.println(rs.getString("VALUE"));
                 }
             }
-
-            // PreparedStatement Example
-            try (PreparedStatement pstmt = conn.prepareStatement("SET ? ?")) {
-                pstmt.setString(1, "acc");
-                pstmt.setString(2, "123");
-                pstmt.executeUpdate();
+            try (PreparedStatement ps = conn.prepareStatement("HSET ? ? ?")) {
+                ps.setString(1, "jdbc_demo:hash");
+                ps.setString(2, "field1");
+                ps.setString(3, "value1");
+                int updated = ps.executeUpdate();
+                System.out.println("fields=" + updated);
             }
         }
     }
 }
 ```
+
+## 多命令与 Statement 设置
+
+默认用换行分隔命令；若连接参数设为 `separatorChar=;`，才使用分号分隔。参数值含分号时用双引号，或者绑定参数。下例用默认换行，且 `conn` 是已打开的连接。
+
+```java
+try (Statement stmt = conn.createStatement()) {
+    boolean hasResult = stmt.execute("GET jdbc_demo:key\nHGETALL jdbc_demo:hash");
+    while (true) {
+        if (hasResult) {
+            try (ResultSet rs = stmt.getResultSet()) {
+                while (rs.next()) System.out.println(rs.getObject(1));
+            }
+        } else {
+            long count = stmt.getLargeUpdateCount();
+            if (count == -1) break;
+            System.out.println("updated=" + count);
+        }
+        hasResult = stmt.getMoreResults(Statement.CLOSE_CURRENT_RESULT);
+    }
+}
+```
+
+`Statement.setMaxRows` 控制返回行数，`setFetchSize` 提供取数提示，`setQueryTimeout` 单位为秒（不是名为 timeoutSec 的 JDBC 方法）。Redis 原生命令参数仍决定具体取数行为。可通过 `getInt`/`getString` 做受支持的类型转换，或使用 `getBlob`/`getClob`/`getNClob` 读取兼容值。
+
+## JDBC 限制
+
+- 结果集仅支持 TYPE_FORWARD_ONLY、CONCUR_READ_ONLY、HOLD_CURSORS_OVER_COMMIT 与 FETCH_FORWARD；不提供 ResultSet.update/insert/deleteXXX。
+- Redis 无生成主键，getGeneratedKeys 返回空结果；普通调用使用 NO_GENERATED_KEYS。不要依赖完整 DatabaseMetaData。
+- 不支持指定 int[] columnIndexes 或 String[] columnNames 的生成键重载。
+- 不支持 SQLXML、REF_CURSOR、RowId、Ref、Struct、DISTINCT 类型。
+- 不支持 JDBC addBatch/clearBatch/executeBatch、事务或 savepoint；多命令不会自动成为 MULTI/EXEC。
+
+每条命令的返回类型、列名、行数见[命令参考](./commands.md)。

@@ -1,9 +1,8 @@
 ---
 id: commands
 sidebar_position: 3
-hide_table_of_contents: true
-title: 支持的命令
-description: jdbc-mongo 支持常用的 MongoDB 命令，涵盖数据库管理、集合操作、索引管理、用户管理等。
+title: 命令参考
+description: jdbc-mongo 命令、链式查询、Hint 与限制。
 ---
 
 `jdbc-mongo` 通过解析原始 Command 命令将其转换为底层的 API 调用。以下是支持的命令列表。
@@ -19,7 +18,7 @@ description: jdbc-mongo 支持常用的 MongoDB 命令，涵盖数据库管理�
 
 | 命令 | 描述 | 官方文档 |
 |---|---|---|
-| `find` | 查询文档，支持 `limit`, `skip`, `sort`, `explain`, `hint` | [find](https://www.mongodb.com/docs/manual/reference/command/find/) |
+| `find` | 查询文档，支持 `limit`, `skip`, `sort`, `hint` | [find](https://www.mongodb.com/docs/manual/reference/command/find/) |
 | `findOne` | 查询单个文档 | [findOne](https://www.mongodb.com/docs/manual/reference/method/db.collection.findOne/) |
 | `insert` | 插入文档 | [insert](https://www.mongodb.com/docs/manual/reference/command/insert/) |
 | `insertOne` | 插入单个文档 | [insertOne](https://www.mongodb.com/docs/manual/reference/method/db.collection.insertOne/) |
@@ -37,6 +36,7 @@ description: jdbc-mongo 支持常用的 MongoDB 命令，涵盖数据库管理�
 | `bulkWrite` | 批量写入操作 | [bulkWrite](https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/) |
 | `renameCollection` | 重命名集合 | [renameCollection](https://www.mongodb.com/docs/manual/reference/command/renameCollection/) |
 | `drop` | 删除集合 | [drop](https://www.mongodb.com/docs/manual/reference/command/drop/) |
+| `stats` | 获取集合统计信息 | [collStats](https://www.mongodb.com/docs/manual/reference/command/collStats/) |
 
 ## 数据库管理 (Database Management) {#database}
 
@@ -74,16 +74,30 @@ description: jdbc-mongo 支持常用的 MongoDB 命令，涵盖数据库管理�
 ## 其他命令 {#other}
 
 - `use <database>`: 切换当前数据库。
-- `show dbs`: 显示所有数据库。
+- `show dbs` / `show databases`: 显示所有数据库。
 - `show collections`: 显示当前数据库的所有集合。
 - `show tables`: 同 `show collections`。
+- `show users`: 显示用户。
+- `show roles`: 显示角色。
+- `show profile`: 查询性能分析记录。
 
 ## Hint 支持
+Hint 必须位于命令开头，格式为 `/*+ name=value */`，支持多个 Hint 块。
 
-jdbc-mongo 支持通过 SQL Hint 方式来覆盖或增强查询行为。Hint 格式为 `/*+ hint_name=value */`，必须位于 SQL 语句的开头。
+支持的 Hint：
 
-| Hint 名称 | 说明 | 示例 |
+| Hint | 说明 | 示例 |
 | --- | --- | --- |
-| `overwrite_find_limit` | 覆盖查询的 `limit` 参数，用于分页或限制返回条数。 | `/*+ overwrite_find_limit=10 */ db.collection.find({})` |
-| `overwrite_find_skip` | 覆盖查询的 `skip` 参数，用于分页跳过指定条数。 | `/*+ overwrite_find_skip=20 */ db.collection.find({})` |
-| `overwrite_find_as_count` | 将查询转换为 Count 操作，忽略返回的文档内容，仅返回匹配数量。 | `/*+ overwrite_find_as_count */ db.collection.find({})` |
+| `overwrite_find_limit` | 覆盖 `find` / `findOne` 的 `limit`。 | `/*+ overwrite_find_limit=10 */ db.mycol.find({})` |
+| `overwrite_find_skip` | 覆盖 `find` / `findOne` 的 `skip`。 | `/*+ overwrite_find_skip=20 */ db.mycol.find({})` |
+| `overwrite_find_as_count` | 将 `find` 转换为 `countDocuments` 结果。 | `/*+ overwrite_find_as_count */ db.mycol.find({})` |
+
+## 限制与注意事项
+- `db.createCollection(...)` 不支持 `viewOn` 选项。
+- `createIndex(...)` 必须提供 `name` 选项，否则会报错。
+- `runCommand(...)` 的第一个参数必须是 `Document` 对象。
+- `find` 链式调用仅支持 `limit`、`skip`、`sort`、`hint`，其他方法（例如 `explain`）会被拒绝。
+- 未选择数据库（URL 路径或 `use <db>`）时使用 `db` 会抛出 “No database selected”。
+- `connectTimeout` 已声明但未应用到 MongoClient 设置中。
+
+`runCommand({...})` 允许原生命令，不代表驱动解析完整 mongosh JavaScript。
