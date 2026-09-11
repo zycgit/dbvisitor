@@ -14,25 +14,13 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.adapter.milvus.commands.write;
-import static net.hasor.dbvisitor.adapter.milvus.MilvusRequest.checkActive;
-import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandUtils.*;
-import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusExpression.parseTerm;
-import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusExpression.parseWhere;
-import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusVector.*;
-import static net.hasor.dbvisitor.adapter.milvus.mapping.MilvusSchema.collectionFields;
-import static net.hasor.dbvisitor.adapter.milvus.mapping.MilvusSchema.convertFieldValue;
-
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-
-import org.antlr.v4.runtime.Token;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-
 import io.milvus.grpc.FieldSchema;
 import io.milvus.orm.iterator.QueryIterator;
 import io.milvus.orm.iterator.SearchIteratorV2;
@@ -59,6 +47,14 @@ import net.hasor.dbvisitor.adapter.milvus.mapping.MilvusVectorCodec;
 import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser.*;
 import net.hasor.dbvisitor.driver.AdapterReceive;
 import net.hasor.dbvisitor.driver.AdapterRequest;
+import org.antlr.v4.runtime.Token;
+import static net.hasor.dbvisitor.adapter.milvus.MilvusRequest.checkActive;
+import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandUtils.*;
+import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusExpression.parseTerm;
+import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusExpression.parseWhere;
+import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusVector.*;
+import static net.hasor.dbvisitor.adapter.milvus.mapping.MilvusSchema.collectionFields;
+import static net.hasor.dbvisitor.adapter.milvus.mapping.MilvusSchema.convertFieldValue;
 
 public final class MilvusCommandsForData extends MilvusCommands {
     private MilvusCommandsForData() {
@@ -239,9 +235,13 @@ public final class MilvusCommandsForData extends MilvusCommands {
         }
 
         // Without LIMIT, a scalar filter can be deleted directly by the server.
-        Filter expr = parseWhere(c.expression(), argIndex, request);
-        if (StringUtils.isBlank(expr.expression())) {
-            throw new SQLException("DELETE must have a WHERE clause.");
+        Filter expr;
+        if (c.expression() == null) {
+            // Primary keys cannot be NULL. Unlike a constant true expression, this filter also works on 2.6.2.
+            String primaryKey = getPrimaryKeyName(cmd, collectionName);
+            expr = new Filter(primaryKey + " is not null", Collections.emptyMap());
+        } else {
+            expr = parseWhere(c.expression(), argIndex, request);
         }
 
         if (c.limit != null) {

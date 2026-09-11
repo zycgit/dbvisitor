@@ -32,8 +32,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
 import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.searchHits;
+import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
 import static org.junit.Assert.*;
 
 /** Exercise lazy reads through public JDBC methods and intercepted official SDK iterators. */
@@ -110,7 +110,7 @@ public class MilvusStreamingTest {
 
     private static final class Pages {
         private final QueryIterator    query  = Mockito.mock(QueryIterator.class);
-        private final SearchIteratorV2   search = Mockito.mock(SearchIteratorV2.class);
+        private final SearchIteratorV2 search = Mockito.mock(SearchIteratorV2.class);
         private final AtomicInteger    reads  = new AtomicInteger();
         private final AtomicInteger    closes = new AtomicInteger();
         private final int              batch;
@@ -163,6 +163,77 @@ public class MilvusStreamingTest {
             if (closeFailure != null) {
                 throw closeFailure;
             }
+        }
+    }
+
+    @Test
+    public void searchOptionsUseDedicatedFieldsWithAndWithoutPaging() throws Exception {
+        for (int fetchSize : new int[] { 1, 10 }) {
+            for (String select : SELECTS.subList(1, SELECTS.size())) {
+                String sql = select + " LIMIT 2 WITH (round_decimal=?, ignore_growing=?, ef=20)";
+                try (Connection conn = connect(); PreparedStatement statement = conn.prepareStatement(sql)) {
+                    statement.setFetchSize(fetchSize);
+                    statement.setInt(1, 3);
+                    statement.setBoolean(2, true);
+                    try (ResultSet result = statement.executeQuery()) {
+                        assertTrue(result.next());
+                        Object call = calls.get(calls.size() - 1);
+                        Map<String, Object> params;
+                        if (fetchSize == 1) {
+                            SearchIteratorReqV2 query = (SearchIteratorReqV2) call;
+                            assertEquals(3, query.getRoundDecimal());
+                            assertTrue(query.isIgnoreGrowing());
+                            params = query.getSearchParams();
+                        } else {
+                            SearchReq query = (SearchReq) call;
+                            assertEquals(3, query.getRoundDecimal());
+                            assertTrue(query.isIgnoreGrowing());
+                            params = query.getSearchParams();
+                        }
+                        assertFalse(params.containsKey(MilvusCommandKeys.ROUND_DECIMAL));
+                        assertFalse(params.containsKey(MilvusCommandKeys.IGNORE_GROWING));
+                        assertEquals(20, ((Number) params.get("ef")).intValue());
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    public void omittedSearchOptionsPreserveSdkDefaults() throws Exception {
+        for (int fetchSize : new int[] { 1, 10 }) {
+            try (Connection conn = connect(); Statement statement = conn.createStatement()) {
+                statement.setFetchSize(fetchSize);
+                try (ResultSet result = statement.executeQuery(SELECTS.get(1) + " LIMIT 2")) {
+                    assertTrue(result.next());
+                    Object call = calls.get(calls.size() - 1);
+                    if (fetchSize == 1) {
+                        SearchIteratorReqV2 query = (SearchIteratorReqV2) call;
+                        assertEquals(-1, query.getRoundDecimal());
+                        assertFalse(query.isIgnoreGrowing());
+                    } else {
+                        SearchReq query = (SearchReq) call;
+                        assertEquals(-1, query.getRoundDecimal());
+                        assertFalse(query.isIgnoreGrowing());
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    public void malformedSearchOptionsFailBeforeSearch() throws Exception {
+        String[] options = { "round_decimal=1.5", "round_decimal='3'", "round_decimal=2147483648", "ignore_growing='true'", "ignore_growing=1" };
+        try (Connection conn = connect(); Statement statement = conn.createStatement()) {
+            for (String option : options) {
+                try {
+                    statement.executeQuery("SELECT id FROM t ORDER BY v <-> [1,2] LIMIT 2 WITH (" + option + ")");
+                    fail(option);
+                } catch (SQLException expected) {
+                    assertTrue(expected.getMessage(), expected.getMessage().contains("requires"));
+                }
+            }
+            assertTrue(calls.isEmpty());
         }
     }
 

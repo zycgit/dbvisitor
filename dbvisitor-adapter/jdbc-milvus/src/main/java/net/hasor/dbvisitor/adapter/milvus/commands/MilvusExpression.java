@@ -22,6 +22,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import io.milvus.v2.utils.VectorUtils;
+import net.hasor.dbvisitor.adapter.milvus.mapping.MilvusSchema;
 import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser.*;
 import net.hasor.dbvisitor.driver.AdapterRequest;
 import net.hasor.dbvisitor.driver.AdapterType;
@@ -68,7 +69,10 @@ public final class MilvusExpression {
         }
 
         if (ctx instanceof NotExpressionContext) {
-            return "not " + rebuildExpression(argIndex, request, ((NotExpressionContext) ctx).expression(), parameters);
+            ExpressionContext operand = ((NotExpressionContext) ctx).expression();
+            String expression = rebuildExpression(argIndex, request, operand, parameters);
+            // Milvus NOT binds more tightly than SQL NOT; keep the SQL predicate as its operand.
+            return operand instanceof ParenExpressionContext ? "not " + expression : "not (" + expression + ")";
         }
 
         if (ctx instanceof BinaryExpressionContext binaryCtx) {
@@ -80,6 +84,8 @@ public final class MilvusExpression {
             String op = compCtx.getChild(1).getText();
             if ("=".equals(op)) {
                 op = "==";
+            } else if ("<>".equals(op)) {
+                op = "!=";
             }
             return rebuildExpression(argIndex, request, compCtx.expression(0), parameters) + " " + op + " " + rebuildExpression(argIndex, request, compCtx.expression(1), parameters);
         }
@@ -111,7 +117,8 @@ public final class MilvusExpression {
                 }
                 val = list;
             }
-            return field + " in " + renderValue(val, firstArg, argIndex, parameters);
+            String operator = inCtx.NOT() == null ? " in " : " not in ";
+            return field + operator + renderValue(val, firstArg, argIndex, parameters);
         }
 
         if (ctx instanceof LikeExpressionContext likeCtx) {
@@ -124,6 +131,16 @@ public final class MilvusExpression {
                 val = getIdentifier(likeCtx.pattern.getText());
             }
             return field + " like " + renderValue(val, firstArg, argIndex, parameters);
+        }
+
+        if (ctx instanceof BetweenExpressionContext between) {
+            String field = between.fieldName.getText();
+            String lower = rebuildTerm(argIndex, request, between.lower, parameters);
+            String upper = rebuildTerm(argIndex, request, between.upper, parameters);
+            if (between.NOT() != null) {
+                return "(" + field + " < " + lower + " OR " + field + " > " + upper + ")";
+            }
+            return "(" + field + " >= " + lower + " AND " + field + " <= " + upper + ")";
         }
 
         if (ctx instanceof FuncExpressionContext funcCtx) {
@@ -218,7 +235,7 @@ public final class MilvusExpression {
         try {
             // Explicit VARCHAR bindings are text even when the supplied Java object is not String.
             if (value != null && AdapterType.String.equals(argument.getType())) {
-                value = String.valueOf(value);
+                value = value instanceof java.util.Date date ? MilvusSchema.temporalText(date) : String.valueOf(value);
             }
             return templateValue(value);
         } catch (IllegalArgumentException | ArithmeticException e) {
@@ -229,6 +246,9 @@ public final class MilvusExpression {
     private static Object templateValue(Object value) throws SQLException {
         if (value == null) {
             throw new SQLException("Milvus filter templates do not support null; use IS NULL or IS NOT NULL.");
+        }
+        if (value instanceof java.util.Date date) {
+            return MilvusSchema.temporalText(date);
         }
         if (value instanceof String || value instanceof Boolean || value instanceof Integer || value instanceof Long) {
             return value;

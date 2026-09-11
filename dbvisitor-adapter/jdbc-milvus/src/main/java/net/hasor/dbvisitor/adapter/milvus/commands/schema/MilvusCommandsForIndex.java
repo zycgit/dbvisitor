@@ -24,6 +24,7 @@ import io.milvus.v2.common.IndexParam.MetricType;
 import io.milvus.v2.service.index.request.CreateIndexReq;
 import io.milvus.v2.service.index.request.DescribeIndexReq;
 import io.milvus.v2.service.index.request.DropIndexReq;
+import io.milvus.v2.service.index.request.ListIndexesReq;
 import io.milvus.v2.service.index.response.DescribeIndexResp;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.concurrent.future.Future;
@@ -40,6 +41,7 @@ import net.hasor.dbvisitor.driver.AdapterReceive;
 import net.hasor.dbvisitor.driver.AdapterRequest;
 import net.hasor.dbvisitor.driver.AdapterType;
 import net.hasor.dbvisitor.driver.JdbcColumn;
+import static net.hasor.dbvisitor.adapter.milvus.MilvusRequest.checkActive;
 import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandUtils.*;
 
 public final class MilvusCommandsForIndex extends MilvusCommands {
@@ -158,34 +160,24 @@ public final class MilvusCommandsForIndex extends MilvusCommands {
         String collectionName = readName(c.collectionName);
         String indexName = c.indexName != null ? readName(c.indexName) : null;
 
-        DescribeIndexResp resp = cmd//
-                .describeIndex(DescribeIndexReq.builder().databaseName(cmd.getCatalog())//
-                        .collectionName(collectionName)//
-                        .indexName(indexName == null ? "" : indexName)//
-                        .build());
-
         List<Map<String, Object>> result = new ArrayList<>();
-        DescribeIndexResp data = resp;
-
-        if (data != null) {
-            for (DescribeIndexResp.IndexDesc info : data.getIndexDescriptions()) {
-                if (StringUtils.isNotBlank(indexName) && !indexName.equals(info.getIndexName())) {
-                    continue;
-                }
-                Map<String, Object> row = new LinkedHashMap<>();
-                row.put(COL_INDEX_STRING.name, info.getIndexName());
-                row.put(COL_FIELD_STRING.name, info.getFieldName());
-                row.put(COL_ID_LONG.name, info.getId());
-
-                Map<String, Object> params = new LinkedHashMap<>();
-                params.put(MilvusCommandKeys.INDEX_TYPE, info.getIndexType());
-                params.put(MilvusCommandKeys.METRIC_TYPE, info.getMetricType());
-                params.putAll(info.getExtraParams());
-                StringJoiner description = new StringJoiner(", ");
-                params.forEach((key, value) -> description.add(key + "=" + value));
-                row.put(COL_PARAMS_STRING.name, description.toString());
-                result.add(row);
+        for (DescribeIndexResp.IndexDesc info : describeIndexes(cmd, collectionName, indexName, request)) {
+            if (StringUtils.isNotBlank(indexName) && !indexName.equals(info.getIndexName())) {
+                continue;
             }
+            Map<String, Object> row = new LinkedHashMap<>();
+            row.put(COL_INDEX_STRING.name, info.getIndexName());
+            row.put(COL_FIELD_STRING.name, info.getFieldName());
+            row.put(COL_ID_LONG.name, info.getId());
+
+            Map<String, Object> params = new LinkedHashMap<>();
+            params.put(MilvusCommandKeys.INDEX_TYPE, info.getIndexType());
+            params.put(MilvusCommandKeys.METRIC_TYPE, info.getMetricType());
+            params.putAll(info.getExtraParams());
+            StringJoiner description = new StringJoiner(", ");
+            params.forEach((key, value) -> description.add(key + "=" + value));
+            row.put(COL_PARAMS_STRING.name, description.toString());
+            result.add(row);
         }
 
         List<JdbcColumn> columns = Arrays.asList(COL_INDEX_STRING, COL_FIELD_STRING, COL_ID_LONG, COL_PARAMS_STRING);
@@ -205,14 +197,26 @@ public final class MilvusCommandsForIndex extends MilvusCommands {
         String collectionName = readName(c.collectionName);
         String indexName = c.indexName != null ? readName(c.indexName) : null;
 
-        DescribeIndexResp response = cmd.describeIndex(DescribeIndexReq.builder().databaseName(cmd.getCatalog()).collectionName(collectionName).indexName(indexName == null ? "" : indexName).build());
         long total = 0;
         long indexed = 0;
-        for (DescribeIndexResp.IndexDesc index : response.getIndexDescriptions()) {
+        for (DescribeIndexResp.IndexDesc index : describeIndexes(cmd, collectionName, indexName, request)) {
             total += index.getTotalRows();
             indexed += index.getIndexedRows();
         }
         receive.responseResult(request, twoResult(request, COL_TOTAL_LONG, total, COL_INDEXED_LONG, indexed));
         return completed(future);
+    }
+
+    private static List<DescribeIndexResp.IndexDesc> describeIndexes(MilvusCmd cmd, String collection, String indexName, AdapterRequest request) throws SQLException {
+        checkActive(request);
+        List<String> names = indexName == null ? cmd.listIndexes(ListIndexesReq.builder().databaseName(cmd.getCatalog()).collectionName(collection).build()) : Collections.singletonList(indexName);
+        List<DescribeIndexResp.IndexDesc> indexes = new ArrayList<>();
+        for (String name : names) {
+            checkActive(request);
+            DescribeIndexResp response = cmd.describeIndex(DescribeIndexReq.builder().databaseName(cmd.getCatalog()).collectionName(collection).indexName(name).build());
+            indexes.addAll(response.getIndexDescriptions());
+        }
+        checkActive(request);
+        return indexes;
     }
 }

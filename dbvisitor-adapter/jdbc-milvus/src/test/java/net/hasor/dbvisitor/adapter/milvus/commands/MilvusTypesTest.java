@@ -1,15 +1,8 @@
 package net.hasor.dbvisitor.adapter.milvus.commands;
 
-import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
-import static org.junit.Assert.*;
-
 import java.nio.ByteBuffer;
 import java.sql.*;
 import java.util.*;
-
-import org.junit.After;
-import org.junit.Test;
-
 import io.milvus.grpc.*;
 import io.milvus.v2.client.MilvusClientV2;
 import io.milvus.v2.service.collection.request.CreateCollectionReq;
@@ -26,6 +19,10 @@ import net.hasor.dbvisitor.adapter.milvus.MilvusCommandInterceptor;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
+import org.junit.After;
+import org.junit.Test;
+import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
+import static org.junit.Assert.*;
 
 /** JDBC -> official SDK -> protobuf -> SDK -> JDBC, without a running server. */
 public class MilvusTypesTest extends AbstractJdbcTest {
@@ -112,10 +109,42 @@ public class MilvusTypesTest extends AbstractJdbcTest {
     }
 
     @Test
+    public void jdbcTemporalValuesShouldRoundTripAsStableVarcharText() throws Exception {
+        java.sql.Date date = java.sql.Date.valueOf("2026-09-10");
+        Time time = Time.valueOf("08:09:10");
+        Timestamp timestamp = Timestamp.valueOf("2026-09-10 08:09:10.123456789");
+        java.util.Date utilDate = new java.util.Date(timestamp.getTime());
+        try (Connection conn = connect(); Statement statement = conn.createStatement()) {
+            statement.executeUpdate("CREATE TABLE t (id INT64 PRIMARY KEY,d VARCHAR(128),tm VARCHAR(128),ts VARCHAR(128),u VARCHAR(128))");
+            for (String operation : Arrays.asList("INSERT", "UPSERT")) {
+                try (PreparedStatement insert = conn.prepareStatement(operation + " INTO t (id,d,tm,ts,u) VALUES (1,?,?,?,?)")) {
+                    insert.setDate(1, date);
+                    insert.setTime(2, time);
+                    insert.setTimestamp(3, timestamp);
+                    insert.setObject(4, utilDate);
+                    assertEquals(1, insert.executeUpdate());
+                }
+                try (ResultSet rows = statement.executeQuery("SELECT id,d,tm,ts,u FROM t LIMIT 1")) {
+                    assertTrue(rows.next());
+                    assertEquals(date.toString(), rows.getString("d"));
+                    assertEquals(time.toString(), rows.getString("tm"));
+                    assertEquals(timestamp.toString(), rows.getString("ts"));
+                    assertEquals(new Timestamp(utilDate.getTime()).toString(), rows.getString("u"));
+                    assertEquals(date, rows.getDate("d"));
+                    assertEquals(time, rows.getTime("tm"));
+                    assertEquals(timestamp, rows.getTimestamp("ts"));
+                    assertEquals(utilDate.getTime(), rows.getTimestamp("u").getTime());
+                    assertEquals(Types.VARCHAR, rows.getMetaData().getColumnType(4));
+                }
+            }
+        }
+    }
+
+    @Test
     public void allVectorFormatsRoundTripThroughOfficialWireEncoder() throws Exception {
-        String[] types = { "BINARY_VECTOR(16)", "FLOAT16_VECTOR(2)", "BFLOAT16_VECTOR(2)", "SPARSE_FLOAT_VECTOR" };
-        Object[] values = { new byte[] { 1, -1 }, new float[] { 1, -2 }, new double[] { 1, -2 }, Map.of(3, 1F, 900L, -2F) };
-        PlaceholderType[] placeholders = { PlaceholderType.BinaryVector, PlaceholderType.Float16Vector, PlaceholderType.BFloat16Vector, PlaceholderType.SparseFloatVector };
+        String[] types = { "BINARY_VECTOR(16)", "FLOAT16_VECTOR(2)", "BFLOAT16_VECTOR(2)", "SPARSE_FLOAT_VECTOR", "INT8_VECTOR(2)" };
+        Object[] values = { new byte[] { 1, -1 }, new float[] { 1, -2 }, new double[] { 1, -2 }, Map.of(3, 1F, 900L, -2F), new byte[] { -128, 127 } };
+        PlaceholderType[] placeholders = { PlaceholderType.BinaryVector, PlaceholderType.Float16Vector, PlaceholderType.BFloat16Vector, PlaceholderType.SparseFloatVector, PlaceholderType.Int8Vector };
         for (int i = 0; i < types.length; i++) {
             try (Connection conn = connect(); Statement stmt = conn.createStatement()) {
                 stmt.executeUpdate("CREATE TABLE t (id INT64 PRIMARY KEY, v " + types[i] + ")");
@@ -133,7 +162,7 @@ public class MilvusTypesTest extends AbstractJdbcTest {
                                 assertEquals(Types.OTHER, rs.getMetaData().getColumnType(2));
                             } else {
                                 byte[] bytes = rs.getBytes("v");
-                                assertEquals(i == 0 ? 2 : 4, bytes.length);
+                                assertEquals(i == 0 || i == 4 ? 2 : 4, bytes.length);
                                 if (i == 0) {
                                     assertArrayEquals(new byte[] { 1, -1 }, bytes);
                                 }
@@ -142,6 +171,10 @@ public class MilvusTypesTest extends AbstractJdbcTest {
                                 }
                                 if (i == 2) {
                                     assertArrayEquals(new byte[] { -128, 63, 0, -64 }, bytes);
+                                }
+                                if (i == 4) {
+                                    assertArrayEquals(new byte[] { -128, 127 }, bytes);
+                                    assertEquals(Types.VARBINARY, rs.getMetaData().getColumnType(2));
                                 }
                                 // Packed bytes are accepted unchanged by both write and search paths.
                                 values[i] = ByteBuffer.wrap(bytes);
@@ -246,6 +279,60 @@ public class MilvusTypesTest extends AbstractJdbcTest {
                 }
                 assertTrue(stored.isEmpty());
             }
+        }
+    }
+
+    @Test
+    public void int8InputsShouldPreserveSignedBytesAndBufferWindow() throws Exception {
+        try (Connection conn = connect(); Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate("CREATE TABLE t (id INT64 PRIMARY KEY, int8_vector INT8_VECTOR(2))");
+            try (ResultSet ddl = stmt.executeQuery("SHOW CREATE TABLE t")) {
+                assertTrue(ddl.next());
+                assertTrue(ddl.getString("CREATE SCRIPT").toLowerCase(Locale.ROOT).contains("int8_vector(2)"));
+            }
+            ByteBuffer buffer = ByteBuffer.wrap(new byte[] { 42, -128, 127, 42 });
+            buffer.position(1);
+            buffer.limit(3);
+            Object[] inputs = { buffer, List.of(-128, 127), new byte[] { -128, 127 }, new short[] { -128, 127 }, new int[] { -128, 127 }, new long[] { -128, 127 }, new float[] { -128, 127 }, new double[] { -128, 127 } };
+            for (Object input : inputs) {
+                try (PreparedStatement insert = conn.prepareStatement("INSERT INTO t (id,int8_vector) VALUES (1,?)")) {
+                    insert.setObject(1, input);
+                    assertEquals(1, insert.executeUpdate());
+                }
+                FieldData vector = stored.stream().filter(field -> field.getFieldName().equals("int8_vector")).findFirst().orElseThrow();
+                assertArrayEquals(new byte[] { -128, 127 }, vector.getVectors().getInt8Vector().toByteArray());
+                for (String metric : List.of("<->", "<=>", "<#>")) {
+                    try (PreparedStatement search = conn.prepareStatement("SELECT id FROM t ORDER BY int8_vector " + metric + " ? LIMIT 1")) {
+                        search.setObject(1, input);
+                        try (ResultSet ignored = search.executeQuery()) {
+                            PlaceholderValue query = PlaceholderGroup.parseFrom(searched.getPlaceholderGroup()).getPlaceholders(0);
+                            assertEquals(PlaceholderType.Int8Vector, query.getType());
+                            assertArrayEquals(new byte[] { -128, 127 }, query.getValues(0).toByteArray());
+                        }
+                    }
+                }
+            }
+            assertEquals(1, buffer.position());
+            assertEquals(3, buffer.limit());
+        }
+    }
+
+    @Test
+    public void int8InputsShouldRejectOutOfRangeFractionalAndNonNumericValues() throws Exception {
+        try (Connection conn = connect(); Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate("CREATE TABLE t (id INT64 PRIMARY KEY, v INT8_VECTOR(2))");
+            Object[] invalid = { List.of(128, 0), List.of(-129, 0), List.of(1.5, 0), List.of(Double.NaN, 0), List.of(Double.POSITIVE_INFINITY, 0), List.of("1", "2"), Arrays.asList(null, 1), List.of(List.of(1, 2), List.of(3, 4)), new boolean[] { true, false }, new char[] { 'a', 'b' }, new byte[0], new byte[] { 1 }, new byte[] { 1, 2, 3 } };
+            for (Object value : invalid) {
+                for (String sql : List.of("INSERT INTO t(id,v) VALUES (1,?)", "SELECT id FROM t ORDER BY v <-> ? LIMIT 1")) {
+                    try (PreparedStatement statement = conn.prepareStatement(sql)) {
+                        statement.setObject(1, value);
+                        assertThrows(SQLException.class, statement::execute);
+                    }
+                }
+            }
+            assertTrue(stored.isEmpty());
+            assertNull(searched);
+            assertThrows(SQLException.class, () -> stmt.executeQuery("SELECT id FROM t ORDER BY v ~= [1,2] LIMIT 1"));
         }
     }
 

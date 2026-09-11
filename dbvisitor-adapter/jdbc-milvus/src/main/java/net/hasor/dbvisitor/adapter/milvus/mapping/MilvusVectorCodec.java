@@ -34,6 +34,11 @@ public final class MilvusVectorCodec {
                 encoded = floats;
                 dimension = floats.size();
                 break;
+            case Int8Vector:
+                byte[] signed = int8Bytes(value);
+                encoded = signed;
+                dimension = signed.length;
+                break;
             case BinaryVector:
                 byte[] binary = bytes(value);
                 encoded = binary;
@@ -111,6 +116,8 @@ public final class MilvusVectorCodec {
                 return new Float16Vec((byte[]) encoded);
             case BFloat16Vector:
                 return new BFloat16Vec((byte[]) encoded);
+            case Int8Vector:
+                return new Int8Vec((byte[]) encoded);
             case SparseFloatVector:
                 return new SparseFloatVec((SortedMap<Long, Float>) encoded);
             default:
@@ -148,6 +155,37 @@ public final class MilvusVectorCodec {
             }
         } catch (IllegalArgumentException | ArithmeticException e) {
             throw new SQLException("Invalid SparseFloatVector: " + e.getMessage(), e);
+        }
+        return result;
+    }
+
+    private static byte[] int8Bytes(Object value) throws SQLException {
+        if (value instanceof byte[] || value instanceof ByteBuffer) {
+            return bytes(value);
+        }
+        List<?> values;
+        if (value instanceof List<?>) {
+            values = (List<?>) value;
+        } else if (value.getClass().isArray() && value.getClass().getComponentType().isPrimitive()) {
+            int length = java.lang.reflect.Array.getLength(value);
+            List<Object> elements = new ArrayList<>(length);
+            for (int i = 0; i < length; i++) {
+                elements.add(java.lang.reflect.Array.get(value, i));
+            }
+            values = elements;
+        } else {
+            throw new SQLException("Int8Vector requires byte[], ByteBuffer, a numeric primitive array or a numeric List.");
+        }
+        byte[] result = new byte[values.size()];
+        for (int i = 0; i < values.size(); i++) {
+            try {
+                if (!(values.get(i) instanceof Number number)) {
+                    throw new IllegalArgumentException("Element must be a number");
+                }
+                result[i] = new BigDecimal(number.toString()).byteValueExact();
+            } catch (IllegalArgumentException | ArithmeticException e) {
+                throw new SQLException("Int8Vector requires integers in -128..127; invalid element at index " + i, e);
+            }
         }
         return result;
     }

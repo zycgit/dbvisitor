@@ -453,6 +453,10 @@ public class MappingRegistry {
             Map<String, Map<String, TableMapping<?>>> tableMap = schemaMap.get(schema);
             if (tableMap != null) {
                 Map<String, TableMapping<?>> values = tableMap.get(table);
+                if (values == null) {
+                    return null;
+                }
+
                 if (specifyName != null) {
                     return (TableMapping<T>) values.get(specifyName);
                 } else {

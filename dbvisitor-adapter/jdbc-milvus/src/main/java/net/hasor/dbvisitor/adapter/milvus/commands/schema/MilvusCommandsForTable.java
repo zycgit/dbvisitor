@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.adapter.milvus.commands.schema;
-import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandUtils.*;
-import static net.hasor.dbvisitor.adapter.milvus.mapping.MilvusSchema.collectionFields;
-
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import io.milvus.grpc.DataType;
 import io.milvus.grpc.FieldSchema;
 import io.milvus.param.ParamUtils;
-import io.milvus.v2.common.ConsistencyLevel;
 import io.milvus.v2.service.collection.request.*;
 import io.milvus.v2.service.collection.response.DescribeCollectionResp;
 import io.milvus.v2.service.collection.response.ListCollectionsResp;
@@ -40,20 +35,26 @@ import net.hasor.dbvisitor.driver.AdapterReceive;
 import net.hasor.dbvisitor.driver.AdapterRequest;
 import net.hasor.dbvisitor.driver.AdapterType;
 import net.hasor.dbvisitor.driver.JdbcColumn;
+import static net.hasor.dbvisitor.adapter.milvus.MilvusRequest.checkActive;
+import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandUtils.readHints;
+import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandUtils.readName;
+import static net.hasor.dbvisitor.adapter.milvus.mapping.MilvusSchema.collectionFields;
 
 public final class MilvusCommandsForTable extends MilvusCommands {
     private MilvusCommandsForTable() {
     }
 
-    private static final JdbcColumn COL_CREATE_STRING      = new JdbcColumn("CREATE SCRIPT", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
-    private static final JdbcColumn COL_DIMENSION_INTEGER  = new JdbcColumn("DIMENSION", AdapterType.Int, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
-    private static final JdbcColumn COL_PRIMARY_BOOL       = new JdbcColumn("PRIMARY", AdapterType.Boolean, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
-    private static final JdbcColumn COL_AUTO_ID_BOOL       = new JdbcColumn("AUTO_ID", AdapterType.Boolean, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
-    private static final JdbcColumn COL_DESCRIPTION_STRING = new JdbcColumn("DESCRIPTION", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
-    private static final JdbcColumn COL_NULLABLE_BOOL      = new JdbcColumn("NULLABLE", AdapterType.Boolean, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
-    private static final JdbcColumn COL_ELEMENT_STRING     = new JdbcColumn("ELEMENT_TYPE", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
-    private static final JdbcColumn COL_CAPACITY_INT       = new JdbcColumn("MAX_CAPACITY", AdapterType.Int, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
-    private static final JdbcColumn COL_LENGTH_INT         = new JdbcColumn("MAX_LENGTH", AdapterType.Int, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    private static final JdbcColumn COL_CREATE_STRING       = new JdbcColumn("CREATE SCRIPT", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    private static final JdbcColumn COL_DIMENSION_INTEGER   = new JdbcColumn("DIMENSION", AdapterType.Int, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    private static final JdbcColumn COL_PRIMARY_BOOL        = new JdbcColumn("PRIMARY", AdapterType.Boolean, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    private static final JdbcColumn COL_AUTO_ID_BOOL        = new JdbcColumn("AUTO_ID", AdapterType.Boolean, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    private static final JdbcColumn COL_DESCRIPTION_STRING  = new JdbcColumn("DESCRIPTION", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    private static final JdbcColumn COL_NULLABLE_BOOL       = new JdbcColumn("NULLABLE", AdapterType.Boolean, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    private static final JdbcColumn COL_ELEMENT_STRING      = new JdbcColumn("ELEMENT_TYPE", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    private static final JdbcColumn COL_CAPACITY_INT        = new JdbcColumn("MAX_CAPACITY", AdapterType.Int, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    private static final JdbcColumn COL_LENGTH_INT          = new JdbcColumn("MAX_LENGTH", AdapterType.Int, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    private static final JdbcColumn COL_PARTITION_KEY_BOOL  = new JdbcColumn("PARTITION_KEY", AdapterType.Boolean, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    private static final JdbcColumn COL_CLUSTERING_KEY_BOOL = new JdbcColumn("CLUSTERING_KEY", AdapterType.Boolean, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
 
     // Collection creation and lifecycle
 
@@ -73,25 +74,6 @@ public final class MilvusCommandsForTable extends MilvusCommands {
                 .collectionName(collectionName)//
                 .description("");
 
-        if (c.withOptionList() != null) {
-            for (WithOptionContext opt : c.withOptionList().withOption()) {
-                String key = getIdentifier(opt.identifier(0).getText());
-                String value = null;
-
-                if (opt.STRING_LITERAL() != null) {
-                    value = getIdentifier(opt.STRING_LITERAL().getText());
-                } else if (opt.INTEGER() != null) {
-                    value = opt.INTEGER().getText();
-                } else if (opt.identifier().size() > 1) {
-                    value = getIdentifier(opt.identifier(1).getText());
-                }
-
-                if (MilvusCommandKeys.COLLECTION_CONSISTENCY_LEVEL.equalsIgnoreCase(key) && StringUtils.isNotBlank(value)) {
-                    builder.consistencyLevel(ConsistencyLevel.valueOf(value.toUpperCase()));
-                }
-            }
-        }
-
         CreateCollectionReq.CollectionSchema schema = CreateCollectionReq.CollectionSchema.builder().build();
         for (FieldDefinitionContext fieldCtx : c.fieldDefinition()) {
             CreateCollectionReq.FieldSchema field = SchemaUtils.convertFromGrpcFieldSchema(ParamUtils.ConvertField(MilvusFieldDefinition.readFieldDefinition(fieldCtx)));
@@ -101,6 +83,7 @@ public final class MilvusCommandsForTable extends MilvusCommands {
         MilvusFunctions.addFunctions(schema, c.functionDefinition(), argIndex, request);
         schema.setEnableDynamicField(false);
         builder.collectionSchema(schema).enableDynamicField(false);
+        MilvusCollectionOptions.apply(builder, schema, c.propertiesList(), argIndex, request);
 
         cmd.createCollection(builder.build());
 
@@ -130,16 +113,37 @@ public final class MilvusCommandsForTable extends MilvusCommands {
         return completed(future);
     }
 
+    public static Future<?> execTruncate(Future<Object> future, MilvusCmd cmd, HintCommandContext h, TruncateCmdContext c, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
+        readHints(new AtomicInteger(startArgIdx), request, h.hint());
+        String collectionName = truncateName(c.collectionName);
+        String databaseName = c.dbName == null ? cmd.getCatalog() : truncateName(c.dbName);
+        TruncateCollectionReq truncate = TruncateCollectionReq.builder().databaseName(databaseName).collectionName(collectionName).build();
+        checkActive(request);
+        cmd.truncateCollection(truncate);
+        checkActive(request);
+        receive.responseUpdateCount(request, 0);
+        return completed(future);
+    }
+
+    private static String truncateName(IdentifierContext name) throws SQLException {
+        String value = readName(name);
+        if (name.ARG() != null || value == null || value.trim().isEmpty()) {
+            throw new SQLException("TRUNCATE requires non-empty collection and database names, not value parameters.");
+        }
+        return value;
+    }
+
     public static Future<?> execRenameCmd(Future<Object> future, MilvusCmd cmd, HintCommandContext h, RenameCmdContext c,//
             AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         readHints(argIndex, request, h.hint());
-        String oldName = getIdentifier(c.collectionName.getText());
-        String newName = getIdentifier(c.newName.getText());
+        String oldName = readName(c.collectionName);
+        String newName = readName(c.newName);
 
         RenameCollectionReq param = RenameCollectionReq.builder().databaseName(cmd.getCatalog())//
                 .collectionName(oldName)//
                 .newCollectionName(newName)//
+                .targetDbName(readName(c.targetDatabase))//
                 .build();
 
         cmd.renameCollection(param);
@@ -200,6 +204,8 @@ public final class MilvusCommandsForTable extends MilvusCommands {
             row.put(COL_DIMENSION_INTEGER.name, StringUtils.isBlank(dim) ? 0 : Integer.parseInt(dim));
             row.put(COL_PRIMARY_BOOL.name, field.getIsPrimaryKey());
             row.put(COL_AUTO_ID_BOOL.name, field.getAutoID());
+            row.put(COL_PARTITION_KEY_BOOL.name, field.getIsPartitionKey());
+            row.put(COL_CLUSTERING_KEY_BOOL.name, field.getIsClusteringKey());
             row.put(COL_DESCRIPTION_STRING.name, field.getDescription());
             row.put(COL_NULLABLE_BOOL.name, field.getNullable());
             row.put(COL_ELEMENT_STRING.name, field.getDataType() == DataType.Array ? field.getElementType().name() : null);
@@ -225,7 +231,9 @@ public final class MilvusCommandsForTable extends MilvusCommands {
             COL_NULLABLE_BOOL,
             COL_ELEMENT_STRING,
             COL_CAPACITY_INT,
-            COL_LENGTH_INT
+            COL_LENGTH_INT,
+            COL_PARTITION_KEY_BOOL,
+            COL_CLUSTERING_KEY_BOOL
         ), result));
         // @formatter:on
         return completed(future);
@@ -304,6 +312,9 @@ public final class MilvusCommandsForTable extends MilvusCommands {
                 case BFloat16Vector:
                     sql.append("bfloat16_vector(").append(dim).append(")");
                     break;
+                case Int8Vector:
+                    sql.append("int8_vector(").append(dim).append(")");
+                    break;
                 case SparseFloatVector:
                     sql.append("sparse_float_vector");
                     break;
@@ -325,6 +336,12 @@ public final class MilvusCommandsForTable extends MilvusCommands {
             if (field.getAutoID()) {
                 sql.append(" AUTO_ID");
             }
+            if (field.getIsPartitionKey()) {
+                sql.append(" PARTITION KEY");
+            }
+            if (field.getIsClusteringKey()) {
+                sql.append(" CLUSTERING KEY");
+            }
             sql.append(field.getNullable() ? " NULL" : " NOT NULL");
             if (field.hasDefaultValue()) {
                 Object value = io.milvus.param.ParamUtils.valueFieldToObject(field.getDefaultValue(), field.getDataType());
@@ -345,6 +362,7 @@ public final class MilvusCommandsForTable extends MilvusCommands {
         }
         MilvusFunctions.appendFunctions(sql, resp.getCollectionSchema());
         sql.append(")");
+        MilvusCollectionOptions.append(sql, resp);
 
         receive.responseResult(request, twoResult(request, COL_TABLE_STRING, collectionName, COL_CREATE_STRING, sql.toString()));
         return completed(future);

@@ -3,17 +3,42 @@ import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicInteger;
 import io.milvus.grpc.DataType;
+import io.milvus.param.ParamUtils;
 import io.milvus.param.collection.FieldType;
+import io.milvus.v2.service.collection.request.AddCollectionFieldReq;
+import io.milvus.v2.service.collection.request.CreateCollectionReq;
+import io.milvus.v2.utils.SchemaUtils;
 import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser.FieldConstraintContext;
 import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser.FieldDefinitionContext;
 import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser.FieldTypeContext;
+import net.hasor.dbvisitor.driver.AdapterRequest;
 import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandUtils.getIdentifier;
 import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandUtils.readName;
 
 /** SQL column types, constraints and defaults used by collection definitions. */
 final class MilvusFieldDefinition {
     private MilvusFieldDefinition() {
+    }
+
+    static AddCollectionFieldReq readAddedField(FieldDefinitionContext context, AtomicInteger argIndex, AdapterRequest request) throws SQLException {
+        CreateCollectionReq.FieldSchema field = SchemaUtils.convertFromGrpcFieldSchema(ParamUtils.ConvertField(readFieldDefinition(context)));
+        if (Boolean.TRUE.equals(field.getIsPartitionKey()) || Boolean.TRUE.equals(field.getIsClusteringKey())) {
+            throw new SQLException("ADD COLUMN cannot add a partition key or a clustering key.");
+        }
+        if (!Boolean.TRUE.equals(field.getIsNullable())) {
+            throw new SQLException("ADD COLUMN requires a nullable field; declare NULL explicitly.");
+        }
+        if (Boolean.TRUE.equals(field.getIsPrimaryKey()) || Boolean.TRUE.equals(field.getAutoID())) {
+            throw new SQLException("ADD COLUMN cannot add a primary key or an AUTO_ID field.");
+        }
+        MilvusFunctions.configureField(field, context.propertiesList(), argIndex, request);
+        AddCollectionFieldReq.AddCollectionFieldReqBuilder builder = AddCollectionFieldReq.builder().fieldName(field.getName()).description(field.getDescription()).dataType(field.getDataType()).isNullable(field.getIsNullable()).maxLength(field.getMaxLength()).dimension(field.getDimension()).elementType(field.getElementType()).maxCapacity(field.getMaxCapacity()).enableAnalyzer(field.getEnableAnalyzer()).analyzerParams(field.getAnalyzerParams()).enableMatch(field.getEnableMatch()).typeParams(field.getTypeParams());
+        if (field.getDefaultValue() != null) {
+            builder.defaultValue(field.getDefaultValue());
+        }
+        return builder.build();
     }
 
     // Schema field definitions and defaults
@@ -55,6 +80,9 @@ final class MilvusFieldDefinition {
         } else if (typeCtx.BFLOAT16_VECTOR() != null) {
             fieldBuilder.withDataType(DataType.BFloat16Vector);
             fieldBuilder.withDimension(Integer.parseInt(typeCtx.INTEGER().getText()));
+        } else if (typeCtx.INT8_VECTOR() != null) {
+            fieldBuilder.withDataType(DataType.Int8Vector);
+            fieldBuilder.withDimension(Integer.parseInt(typeCtx.INTEGER().getText()));
         } else if (typeCtx.SPARSE_FLOAT_VECTOR() != null) {
             fieldBuilder.withDataType(DataType.SparseFloatVector);
         } else if (typeCtx.ARRAY() != null) {
@@ -79,6 +107,12 @@ final class MilvusFieldDefinition {
             if (constraint.PRIMARY() != null && constraint.KEY() != null) {
                 fieldBuilder.withPrimaryKey(true);
             }
+            if (constraint.PARTITION() != null) {
+                fieldBuilder.withPartitionKey(true);
+            }
+            if (constraint.CLUSTERING() != null) {
+                fieldBuilder.withClusteringKey(true);
+            }
             if (constraint.AUTO_ID() != null) {
                 fieldBuilder.withAutoID(true);
             }
@@ -99,6 +133,9 @@ final class MilvusFieldDefinition {
         FieldType fieldType = fieldBuilder.build();
         if (fieldType.isPrimaryKey() && Boolean.TRUE.equals(nullable)) {
             throw new SQLException("Primary keys cannot be nullable.");
+        }
+        if (fieldType.isPartitionKey() && Boolean.TRUE.equals(nullable)) {
+            throw new SQLException("Partition keys cannot be nullable.");
         }
         boolean hasDefault = false;
         for (FieldConstraintContext constraint : fieldCtx.fieldConstraint()) {

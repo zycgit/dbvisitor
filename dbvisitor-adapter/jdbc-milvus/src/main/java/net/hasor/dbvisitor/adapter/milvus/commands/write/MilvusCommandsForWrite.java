@@ -1,15 +1,9 @@
 package net.hasor.dbvisitor.adapter.milvus.commands.write;
-import static net.hasor.dbvisitor.adapter.milvus.MilvusRequest.checkActive;
-import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandUtils.*;
-import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusExpression.parseTerm;
-
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-
 import io.milvus.grpc.FieldSchema;
 import io.milvus.param.Constant;
 import io.milvus.v2.service.vector.request.InsertReq;
@@ -19,6 +13,7 @@ import io.milvus.v2.service.vector.response.InsertResp;
 import io.milvus.v2.service.vector.response.UpsertResp;
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCmd;
+import net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandKeys;
 import net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommands;
 import net.hasor.dbvisitor.adapter.milvus.commands.MilvusRetry;
 import net.hasor.dbvisitor.adapter.milvus.mapping.MilvusSchema;
@@ -26,6 +21,9 @@ import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser.*;
 import net.hasor.dbvisitor.driver.AdapterReceive;
 import net.hasor.dbvisitor.driver.AdapterRequest;
 import net.hasor.dbvisitor.driver.AdapterResultCursor;
+import static net.hasor.dbvisitor.adapter.milvus.MilvusRequest.checkActive;
+import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandUtils.*;
+import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusExpression.parseTerm;
 
 /** Row encoding and bounded INSERT/UPSERT batches; UPDATE selection belongs to Data. */
 public final class MilvusCommandsForWrite extends MilvusCommands {
@@ -44,7 +42,12 @@ public final class MilvusCommandsForWrite extends MilvusCommands {
 
     private static Future<?> write(Future<Object> future, MilvusCmd cmd, HintCommandContext hint, IdentifierContext table, IdentifierContext partition, IdentifiersContext columns, ValuesClauseContext values, AdapterRequest request, AdapterReceive receive, int start, boolean upsert) throws SQLException {
         AtomicInteger args = new AtomicInteger(start);
-        readHints(args, request, hint.hint());
+        Map<String, Object> hints = readHints(args, request, hint.hint());
+        Object partial = hints.get(MilvusCommandKeys.PARTIAL_UPDATE);
+        if (hints.containsKey(MilvusCommandKeys.PARTIAL_UPDATE) && (!upsert || !(partial instanceof Boolean))) {
+            throw new SQLException("partial_update requires a boolean value and an UPSERT statement.");
+        }
+        boolean partialUpdate = Boolean.TRUE.equals(partial);
         String collection = readName(table);
         String part = partition == null ? "" : readName(partition);
         Map<String, FieldSchema> fields = cmd.describeFields(collection, request);
@@ -108,7 +111,7 @@ public final class MilvusCommandsForWrite extends MilvusCommands {
                 List<Object> ids;
                 long count;
                 if (upsert) {
-                    UpsertResp result = cmd.upsert(UpsertReq.builder().databaseName(cmd.getCatalog()).collectionName(collection).partitionName(part).data(new ArrayList<>(page)).build());
+                    UpsertResp result = cmd.upsert(UpsertReq.builder().databaseName(cmd.getCatalog()).collectionName(collection).partitionName(part).partialUpdate(partialUpdate).data(new ArrayList<>(page)).build());
                     count = result.getUpsertCnt();
                     ids = result.getPrimaryKeys();
                 } else {

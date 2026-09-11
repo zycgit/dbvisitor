@@ -15,6 +15,7 @@ configurations {
 dependencies {
     api project(':dbvisitor-driver')
     api 'io.milvus:milvus-sdk-java:2.6.22'
+    implementation 'com.google.protobuf:protobuf-java-util:3.25.5'
     api 'com.fasterxml.jackson.core:jackson-databind:2.18.0'
 
     antlr "org.antlr:antlr4:${property('lib.antlr')}"

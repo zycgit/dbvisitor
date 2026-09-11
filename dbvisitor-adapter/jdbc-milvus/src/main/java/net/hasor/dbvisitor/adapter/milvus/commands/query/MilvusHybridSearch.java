@@ -21,15 +21,15 @@ import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser.AnnClauseContext;
 import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser.HybridClauseContext;
 import net.hasor.dbvisitor.driver.AdapterRequest;
 import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandUtils.*;
-import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusVector.readVectorValue;
-import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusVector.vectorMetric;
+import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusExpression.parseWhere;
+import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusVector.*;
 
 /** Multiple ANN candidates, one server-ranked result group (NQ is always one). */
 final class MilvusHybridSearch {
     private MilvusHybridSearch() {
     }
 
-    record Candidate(String field, Object vector, MetricType metric, long limit, Map<String, Object> params) {
+    record Candidate(String field, Object vector, Filter filter, MetricType metric, long limit, String timezone, Map<String, Object> params) {
     }
 
     static List<Candidate> bind(HybridClauseContext clause, AtomicInteger args, AdapterRequest request) throws SQLException {
@@ -40,9 +40,20 @@ final class MilvusHybridSearch {
         for (AnnClauseContext ann : clause.annClause()) {
             String field = readName(ann.fieldName);
             Object vector = readVectorValue(ann.vectorValue(), args, request);
+            if (isVectorRange(ann.expression())) {
+                throw new SQLException("Hybrid ANN WHERE requires a scalar filter.");
+            }
+            Filter filter = parseWhere(ann.expression(), args, request);
             long limit = readLimit(ann.limit, args, request);
             MetricType metric = vectorMetric(ann.distanceOperator());
             Map<String, Object> params = readProperties(args, request, ann.propertiesList());
+            String timezone = MilvusQueryOptions.extractTimezone(params);
+            if (params.containsKey(MilvusCommandKeys.ROUND_DECIMAL)) {
+                throw new SQLException("Hybrid round_decimal belongs to the outer WITH clause, not an ANN candidate.");
+            }
+            if (MilvusSearchGrouping.isSpecified(params)) {
+                throw new SQLException("Hybrid grouping options belong to the outer WITH clause, not an ANN candidate.");
+            }
             if (params.containsKey(MilvusCommandKeys.OFFSET)) {
                 throw new SQLException("Hybrid candidates do not support OFFSET.");
             }
@@ -50,17 +61,31 @@ final class MilvusHybridSearch {
                 throw new SQLException("Candidate " + MilvusCommandKeys.METRIC_TYPE + " must agree with its distance operator.");
             }
             params.put(MilvusCommandKeys.METRIC_TYPE, metric.name());
-            candidates.add(new Candidate(field, vector, metric, limit, params));
+            candidates.add(new Candidate(field, vector, filter, metric, limit, timezone, params));
         }
         return candidates;
     }
 
-    static HybridSearchReq build(MilvusCmd cmd, String collection, String partition, Filter filter, List<String> outputs, Map<String, FieldSchema> fields, List<Candidate> candidates, long limit, long offset, Map<String, Object> properties, MilvusRequest request) throws SQLException {
+    static HybridSearchReq build(MilvusCmd cmd, String collection, String partition, Filter filter, List<String> outputs, Map<String, FieldSchema> fields, List<Candidate> candidates, Long limit, long offset, Map<String, Object> properties, MilvusSearchGrouping grouping, MilvusRequest request) throws SQLException {
         List<AnnSearchReq> searches = new ArrayList<>();
         for (Candidate candidate : candidates) {
-            searches.add(AnnSearchReq.builder().vectorFieldName(candidate.field()).filter(filter.expression()).filterTemplateValues(filter.parameters()).limit(candidate.limit()).vectors(Collections.singletonList(MilvusVectorCodec.searchValue(fields.get(candidate.field()), candidate.vector(), candidate.metric()))).metricType(candidate.metric()).params(propertiesToJson(candidate.params())).build());
+            Filter combined = filter.and(candidate.filter());
+            AnnSearchReq.AnnSearchReqBuilder search = AnnSearchReq.builder().vectorFieldName(candidate.field()).filter(combined.expression()).filterTemplateValues(combined.parameters()).limit(candidate.limit()).vectors(Collections.singletonList(MilvusVectorCodec.searchValue(fields.get(candidate.field()), candidate.vector(), candidate.metric()))).metricType(candidate.metric()).params(propertiesToJson(candidate.params()));
+            if (candidate.timezone() != null) {
+                search.timezone(candidate.timezone());
+            }
+            searches.add(search.build());
         }
-        HybridSearchReq.HybridSearchReqBuilder builder = HybridSearchReq.builder().databaseName(cmd.getCatalog()).collectionName(collection).searchRequests(searches).limit(limit).offset(offset).outFields(outputs).ranker(ranker(properties, searches.size()));
+        Integer roundDecimal = MilvusQueryOptions.extractRoundDecimal(properties);
+        HybridSearchReq.HybridSearchReqBuilder builder = HybridSearchReq.builder().databaseName(cmd.getCatalog()).collectionName(collection).searchRequests(searches).outFields(outputs).ranker(ranker(properties, searches.size()));
+        if (roundDecimal != null) {
+            builder.roundDecimal(roundDecimal);
+        }
+        if (grouping == null) {
+            builder.limit(limit).offset(offset);
+        } else {
+            grouping.apply(builder);
+        }
         if (partition != null) {
             builder.partitionNames(Collections.singletonList(partition));
         }

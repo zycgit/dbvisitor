@@ -20,14 +20,12 @@ import java.math.RoundingMode;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
+import java.sql.Date;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.OffsetTime;
 import java.time.ZonedDateTime;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.io.IOUtils;
 
@@ -471,8 +469,23 @@ class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
 
     @Override
     public void setArray(int parameterIndex, Array x) throws SQLException {
+        this.checkOpen();
         this.checkParameterIndex(parameterIndex);
-        this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.Array, x);
+        // Materialize while the caller-owned Array is still open. Type handlers may free it after binding.
+        List<Object> elements = null;
+        if (x != null) {
+            Object array = x.getArray();
+            if (array == null || !array.getClass().isArray()) {
+                throw new SQLException("SQL Array.getArray() must return a Java array.");
+            }
+
+            int length = java.lang.reflect.Array.getLength(array);
+            elements = new ArrayList<>(length);
+            for (int index = 0; index < length; index++) {
+                elements.add(java.lang.reflect.Array.get(array, index));
+            }
+        }
+        this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.Array, elements);
     }
 
     @Override

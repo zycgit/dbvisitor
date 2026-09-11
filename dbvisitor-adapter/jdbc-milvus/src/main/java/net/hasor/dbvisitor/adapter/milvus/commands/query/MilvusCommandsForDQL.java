@@ -14,16 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.adapter.milvus.commands.query;
-import static net.hasor.dbvisitor.adapter.milvus.MilvusRequest.checkActive;
-import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandUtils.*;
-import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusExpression.parseWhere;
-import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusVector.*;
-
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-
 import io.milvus.grpc.DataType;
 import io.milvus.grpc.FieldSchema;
 import io.milvus.orm.iterator.QueryIterator;
@@ -47,6 +41,10 @@ import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser.*;
 import net.hasor.dbvisitor.driver.AdapterReceive;
 import net.hasor.dbvisitor.driver.AdapterRequest;
 import net.hasor.dbvisitor.driver.JdbcColumn;
+import static net.hasor.dbvisitor.adapter.milvus.MilvusRequest.checkActive;
+import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandUtils.*;
+import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusExpression.parseWhere;
+import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusVector.*;
 
 public final class MilvusCommandsForDQL extends MilvusCommands {
     private MilvusCommandsForDQL() {
@@ -85,41 +83,48 @@ public final class MilvusCommandsForDQL extends MilvusCommands {
         Long sqlLimit = readLimit(c.limit, argIndex, request);
         Long sqlOffset = readBound(c.offset, argIndex, request, "OFFSET", 0);
         Map<String, Object> properties = readProperties(argIndex, request, c.propertiesList());
+        MilvusSearchGrouping grouping = MilvusSearchGrouping.extract(properties);
         QueryWindow window = new QueryWindow(sqlLimit, sqlOffset, hints, request);
 
         if (hints.containsKey(MilvusCommandKeys.OVERWRITE_FIND_AS_COUNT)) {
-            if (range != null || !candidates.isEmpty()) {
-                throw new SQLException("COUNT of a vector range is not supported.");
+            if (range != null || !candidates.isEmpty() || grouping != null) {
+                throw new SQLException("COUNT of a vector range, hybrid or grouped search is not supported.");
             }
-            return execCountQuery(future, cmd, collectionName, partitionName, filter, request, receive);
+            return execCountQuery(future, cmd, collectionName, partitionName, filter, MilvusQueryOptions.extract(properties, false), request, receive);
         }
 
         int batchSize = window.batchSize;
         boolean iterator = window.useIterator;
         boolean vectorSearch = range != null || sort != null || !candidates.isEmpty();
+        if (grouping != null && !vectorSearch) {
+            throw new SQLException("Grouped search requires vector ORDER BY; it is not scalar GROUP BY.");
+        }
+        MilvusQueryOptions scalarOptions = vectorSearch ? null : MilvusQueryOptions.extract(properties, false);
         Map<String, FieldSchema> fields = cmd.describeFields(collectionName, request);
         MilvusResultCursor.SourceFactory source;
         if (!candidates.isEmpty()) {
-            if (sqlLimit == null) {
+            if (sqlLimit == null && grouping == null) {
                 throw new SQLException("Hybrid Search requires an explicit LIMIT; the SDK has no hybrid iterator.");
             }
             List<String> storedFields = outFields.stream().filter(name -> !"score".equals(name)).collect(Collectors.toList());
-            HybridSearchReq query = MilvusHybridSearch.build(cmd, collectionName, partitionName, filter, storedFields, fields, candidates, window.limit, window.offset, properties, (MilvusRequest) request);
+            HybridSearchReq query = MilvusHybridSearch.build(cmd, collectionName, partitionName, filter, storedFields, fields, candidates, window.limit, window.offset, properties, grouping, (MilvusRequest) request);
             source = () -> singlePage(searchRows(cmd.hybridSearch(query)));
-            iterator = false; // OFFSET is applied by the server to the fused result.
+            iterator = false; // No hybrid iterator; grouped SQL row OFFSET is handled below.
         } else if (range != null || sort != null) {
             String field = range != null ? range.fieldName : getIdentifier(sort.fieldName.getText());
             MetricType metric = range != null ? range.metricType : vectorMetric(sort.distanceOperator());
             BaseVector vector = MilvusVectorCodec.searchValue(fields.get(field), range != null ? range.vectorValue : rawVector, metric);
             validateSearchProperties(properties, metric, range);
             List<String> storedFields = outFields.stream().filter(name -> !"score".equals(name)).collect(Collectors.toList());
-            source = searchSource(cmd, collectionName, partitionName, filter, storedFields, field, vector, metric, properties, window, request);
+            source = searchSource(cmd, collectionName, partitionName, filter, storedFields, field, vector, metric, properties, grouping, window, request);
         } else {
-            source = querySource(cmd, collectionName, partitionName, filter, outFields, window, request);
+            source = querySource(cmd, collectionName, partitionName, filter, outFields, scalarOptions, window, request);
         }
 
         List<JdbcColumn> columns = resultColumns(fields, collectionName, cmd.getCatalog(), outFields, vectorSearch);
-        MilvusResultCursor cursor = new MilvusResultCursor((MilvusRequest) request, columns, batchSize, window.limit, iterator ? window.offset : 0, source);
+        // Grouped search returns one native group window; SQL OFFSET still skips rows within it.
+        long rowOffset = iterator || grouping != null ? window.offset : 0;
+        MilvusResultCursor cursor = new MilvusResultCursor((MilvusRequest) request, columns, batchSize, window.limit, rowOffset, source);
         receive.responseResult(request, cursor);
         return completed(future);
     }
@@ -143,9 +148,11 @@ public final class MilvusCommandsForDQL extends MilvusCommands {
         }
     }
 
-    private static MilvusResultCursor.SourceFactory searchSource(MilvusCmd cmd, String collectionName, String partitionName, Filter filter, List<String> outFields, String field, BaseVector vector, MetricType metric, Map<String, Object> properties, QueryWindow window, AdapterRequest request) throws SQLException {
-        if (window.useIterator) {
+    private static MilvusResultCursor.SourceFactory searchSource(MilvusCmd cmd, String collectionName, String partitionName, Filter filter, List<String> outFields, String field, BaseVector vector, MetricType metric, Map<String, Object> properties, MilvusSearchGrouping grouping, QueryWindow window, AdapterRequest request) throws SQLException {
+        MilvusQueryOptions options = MilvusQueryOptions.extract(properties, true);
+        if (grouping == null && window.useIterator) {
             SearchIteratorReqV2.SearchIteratorReqV2Builder builder = SearchIteratorReqV2.builder().databaseName(cmd.getCatalog()).collectionName(collectionName).filter(filter.expression()).filterTemplateValues(filter.parameters()).vectorFieldName(field).vectors(Collections.singletonList(vector)).metricType(metric).outputFields(outFields).searchParams(new LinkedHashMap<>(properties)).batchSize(window.batchSize);
+            options.apply(builder);
             if (StringUtils.isNotBlank(partitionName)) {
                 builder.partitionNames(Collections.singletonList(partitionName));
             }
@@ -164,7 +171,13 @@ public final class MilvusCommandsForDQL extends MilvusCommands {
             };
         }
 
-        SearchReq.SearchReqBuilder builder = SearchReq.builder().databaseName(cmd.getCatalog()).collectionName(collectionName).filter(filter.expression()).filterTemplateValues(filter.parameters()).annsField(field).data(Collections.singletonList(vector)).metricType(metric).topK(window.limit.intValue()).outputFields(outFields).searchParams(properties).offset(window.offset);
+        SearchReq.SearchReqBuilder builder = SearchReq.builder().databaseName(cmd.getCatalog()).collectionName(collectionName).filter(filter.expression()).filterTemplateValues(filter.parameters()).annsField(field).data(Collections.singletonList(vector)).metricType(metric).outputFields(outFields).searchParams(properties);
+        if (grouping == null) {
+            builder.topK(window.limit.intValue()).offset(window.offset);
+        } else {
+            grouping.apply(builder);
+        }
+        options.apply(builder);
         applyConsistencyLevel(((MilvusRequest) request).getConsistencyLevel(), builder);
         if (StringUtils.isNotBlank(partitionName)) {
             builder.partitionNames(Collections.singletonList(partitionName));
@@ -183,9 +196,10 @@ public final class MilvusCommandsForDQL extends MilvusCommands {
         return response.getSearchResults().isEmpty() ? Collections.emptyList() : rowMaps(searchRecords(response.getSearchResults().get(0)));
     }
 
-    private static MilvusResultCursor.SourceFactory querySource(MilvusCmd cmd, String collectionName, String partitionName, Filter filter, List<String> outFields, QueryWindow window, AdapterRequest request) throws SQLException {
+    private static MilvusResultCursor.SourceFactory querySource(MilvusCmd cmd, String collectionName, String partitionName, Filter filter, List<String> outFields, MilvusQueryOptions options, QueryWindow window, AdapterRequest request) throws SQLException {
         if (window.useIterator) {
             QueryIteratorReq.QueryIteratorReqBuilder builder = QueryIteratorReq.builder().databaseName(cmd.getCatalog()).collectionName(collectionName).expr(filter.expression()).filterTemplateValues(filter.parameters()).outputFields(outFields).batchSize(window.batchSize);
+            options.apply(builder);
             if (StringUtils.isNotBlank(partitionName)) {
                 builder.partitionNames(Collections.singletonList(partitionName));
             }
@@ -205,6 +219,7 @@ public final class MilvusCommandsForDQL extends MilvusCommands {
         }
 
         QueryReq.QueryReqBuilder builder = QueryReq.builder().databaseName(cmd.getCatalog()).collectionName(collectionName).filter(filter.expression()).filterTemplateValues(filter.parameters()).outputFields(outFields).limit(window.limit).offset(window.offset);
+        options.apply(builder);
         applyConsistencyLevel(((MilvusRequest) request).getConsistencyLevel(), builder);
         if (StringUtils.isNotBlank(partitionName)) {
             builder.partitionNames(Collections.singletonList(partitionName));
@@ -257,12 +272,14 @@ public final class MilvusCommandsForDQL extends MilvusCommands {
         String collectionName = getIdentifier(c.collectionName.getText());
         String partitionName = c.partitionName != null ? getIdentifier(c.partitionName.getText()) : null;
         Filter filter = parseWhere(c.expression(), argIndex, request);
-        return execCountQuery(future, cmd, collectionName, partitionName, filter, request, receive);
+        Map<String, Object> properties = readProperties(argIndex, request, c.propertiesList());
+        return execCountQuery(future, cmd, collectionName, partitionName, filter, MilvusQueryOptions.extract(properties, false), request, receive);
     }
 
     private static Future<?> execCountQuery(Future<Object> future, MilvusCmd cmd, String collectionName, String partitionName, //
-            Filter expr, AdapterRequest request, AdapterReceive receive) throws SQLException {
+            Filter expr, MilvusQueryOptions options, AdapterRequest request, AdapterReceive receive) throws SQLException {
         QueryReq.QueryReqBuilder builder = QueryReq.builder().databaseName(cmd.getCatalog()).collectionName(collectionName).filter(expr.expression()).filterTemplateValues(expr.parameters()).outputFields(Collections.singletonList("count(*)"));
+        options.apply(builder);
         applyConsistencyLevel(((MilvusRequest) request).getConsistencyLevel(), builder);
         if (StringUtils.isNotBlank(partitionName)) {
             builder.partitionNames(Collections.singletonList(partitionName));

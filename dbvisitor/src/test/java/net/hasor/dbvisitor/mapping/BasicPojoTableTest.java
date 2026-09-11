@@ -27,6 +27,20 @@ import org.junit.Test;
 
 public class BasicPojoTableTest {
     @Test
+    public void missingTableMappingReturnsNull() {
+        MappingRegistry registry = new MappingRegistry();
+        TableMapping<?> mapping = registry.loadEntityAsTable(PojoBean1.class, "registered_table");
+
+        assert registry.findByTable("registered_table") == mapping;
+        assert registry.findByTable("missing_table") == null;
+        assert registry.findByTable(null, null, "missing_table") == null;
+        assert registry.findByTable(null, null, "missing_table", PojoBean1.class.getName()) == null;
+        assert registry.findByTable(null, null, "registered_table", "missing_mapping") == null;
+        assert registry.findByTable("missing_catalog", null, "registered_table") == null;
+        assert registry.findByTable(null, "missing_schema", "registered_table") == null;
+    }
+
+    @Test
     public void pojoBean_1() {
         Options options = Options.of().mapUnderscoreToCamelCase(true).catalog("master").schema("dbo");
         MappingRegistry registry = new MappingRegistry(null, TypeHandlerRegistry.DEFAULT, options);

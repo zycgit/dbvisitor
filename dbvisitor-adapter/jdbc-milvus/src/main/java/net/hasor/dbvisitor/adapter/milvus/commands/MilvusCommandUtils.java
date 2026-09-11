@@ -127,6 +127,18 @@ public final class MilvusCommandUtils {
         }
     }
 
+    public static Map<String, String> readStringProperties(AtomicInteger argIndex, AdapterRequest request, PropertiesListContext propertiesList) throws SQLException {
+        Map<String, String> properties = new LinkedHashMap<>();
+        for (Map.Entry<String, Object> entry : readProperties(argIndex, request, propertiesList).entrySet()) {
+            if (entry.getValue() == null) {
+                throw new SQLException("Property '" + entry.getKey() + "' cannot be null; use DROP PROPERTIES to remove it.");
+            }
+            properties.put(entry.getKey(), String.valueOf(entry.getValue()));
+        }
+
+        return properties;
+    }
+
     public static Map<String, Object> readProperties(AtomicInteger argIndex, AdapterRequest request, PropertiesListContext propertiesList) throws SQLException {
         Map<String, Object> properties = new LinkedHashMap<>();
         if (propertiesList == null) {

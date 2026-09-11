@@ -1,7 +1,4 @@
 package net.hasor.dbvisitor.adapter.milvus.commands;
-import net.hasor.dbvisitor.adapter.milvus.parser.MilvusLexer;
-import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser;
-
 import java.io.File;
 import java.net.URI;
 import java.net.URL;
@@ -32,6 +29,8 @@ import net.hasor.dbvisitor.adapter.milvus.MilvusCommandInterceptor;
 import net.hasor.dbvisitor.adapter.milvus.MilvusConnFactory;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
+import net.hasor.dbvisitor.adapter.milvus.parser.MilvusLexer;
+import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser;
 import net.hasor.dbvisitor.driver.JdbcDriver;
 import org.antlr.v4.runtime.*;
 import org.junit.After;
@@ -67,6 +66,7 @@ public class MilvusDocumentationTest {
                 case "describeCollection":
                     return v2Response(method.getName(), DescribeCollectionResponse.newBuilder().setSchema(schema).build());
                 case "createCollection":
+                case "updatePassword":
                 case "createIndex":
                 case "loadCollection":
                     return null;
@@ -195,7 +195,7 @@ public class MilvusDocumentationTest {
                 }
             }
             examples.addAll(blocks(document(language, "commands.md"), "java"));
-            assertEquals(3, examples.size());
+            assertEquals(4, examples.size());
             Properties props = new Properties();
             props.setProperty(MilvusKeys.CONSISTENCY_LEVEL, "Strong");
             try (Connection conn = DriverManager.getConnection(interceptedUrl(), props)) {
@@ -208,6 +208,13 @@ public class MilvusDocumentationTest {
         }
         assertEquals(4, partialUpdates);
         assertEquals(2, deletions);
+        List<io.milvus.v2.service.rbac.request.UpdatePasswordReq> passwords = requests.stream().filter(io.milvus.v2.service.rbac.request.UpdatePasswordReq.class::isInstance).map(io.milvus.v2.service.rbac.request.UpdatePasswordReq.class::cast).collect(java.util.stream.Collectors.toList());
+        assertEquals(2, passwords.size());
+        for (io.milvus.v2.service.rbac.request.UpdatePasswordReq password : passwords) {
+            assertEquals("app_user", password.getUserName());
+            assertEquals("test-old-password", password.getPassword());
+            assertEquals("test-new-password", password.getNewPassword());
+        }
     }
 
     @Test
@@ -303,7 +310,8 @@ public class MilvusDocumentationTest {
 
     private static String fragment(String code) {
         String argument = code.startsWith("Properties props") ? "Connection unused" : "Connection conn";
-        return "import java.sql.*; import java.util.*;\npublic class DocumentationFragment {\n" + "public static void run(" + argument + ") throws Exception {\n" + code + "\n}\n}";
+        String passwords = "String oldPassword = \"test-old-password\"; String newPassword = \"test-new-password\";\n";
+        return "import java.sql.*; import java.util.*;\npublic class DocumentationFragment {\n" + "public static void run(" + argument + ") throws Exception {\n" + passwords + code + "\n}\n}";
     }
 
     private URLClassLoader compile(String className, String source) throws Exception {

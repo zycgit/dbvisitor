@@ -14,8 +14,10 @@ import net.hasor.dbvisitor.adapter.milvus.MilvusCommandInterceptor;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
+import org.junit.After;
 import org.junit.Test;
 import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
+import static org.junit.Assert.*;
 
 public class MilvusUpsertTest extends AbstractJdbcTest {
 
@@ -26,8 +28,7 @@ public class MilvusUpsertTest extends AbstractJdbcTest {
         return new JdbcDriver().connect("jdbc:dbvisitor:milvus://xxxxxx:19530", prop);
     }
 
-    @Test
-    public void testUpsertCommand() throws SQLException {
+    private Ref<UpsertReq> installInterceptor() {
         // 1. Setup Interceptor
         final Ref<UpsertReq> capturedParam = new Ref<>();
         MilvusCommandInterceptor.resetInterceptor();
@@ -46,6 +47,17 @@ public class MilvusUpsertTest extends AbstractJdbcTest {
             }
             return null;
         });
+        return capturedParam;
+    }
+
+    @After
+    public void cleanupInterceptor() {
+        MilvusCommandInterceptor.resetInterceptor();
+    }
+
+    @Test
+    public void testUpsertCommand() throws SQLException {
+        Ref<UpsertReq> capturedParam = installInterceptor();
 
         // 2. Execute SQL
         String sql = "UPSERT INTO test_collection (id, name, vector) VALUES (?, ?, ?)";
@@ -71,6 +83,33 @@ public class MilvusUpsertTest extends AbstractJdbcTest {
         if (!"test_collection".equals(param.getCollectionName())) {
             throw new RuntimeException("Collection name mismatch");
         }
+        assertFalse(param.isPartialUpdate());
+    }
+
+    @Test
+    public void partialUpsertShouldBindHintBeforeValuesAndOmitUntouchedFields() throws SQLException {
+        Ref<UpsertReq> captured = installInterceptor();
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement("/*+ partial_update=? */ UPSERT INTO test_collection (id, name) VALUES (?, ?)")) {
+            ps.setBoolean(1, true);
+            ps.setLong(2, 100);
+            ps.setString(3, "changed'\"\\value");
+            assertEquals(1, ps.executeUpdate());
+        }
+        assertTrue(captured.get().isPartialUpdate());
+        assertEquals(100, captured.get().getData().get(0).get("id").getAsLong());
+        assertEquals("changed'\"\\value", captured.get().getData().get(0).get("name").getAsString());
+        assertFalse(captured.get().getData().get(0).has("vector"));
+    }
+
+    @Test
+    public void partialUpdateHintShouldRejectWrongTypeAndInsert() throws SQLException {
+        Ref<UpsertReq> captured = installInterceptor();
+        for (String sql : new String[] { "/*+ partial_update='invalid' */ UPSERT INTO test_collection (id) VALUES (1)", "/*+ partial_update=true */ INSERT INTO test_collection (id) VALUES (1)" }) {
+            try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+                assertThrows(SQLException.class, ps::executeUpdate);
+            }
+        }
+        assertNull(captured.get());
     }
 
     // Simple container for capturing

@@ -19,20 +19,27 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import com.google.gson.Gson;
 import io.milvus.grpc.LoadState;
+import io.milvus.v2.service.collection.request.GetCollectionStatsReq;
 import io.milvus.v2.service.collection.request.GetLoadStateReq;
 import io.milvus.v2.service.collection.request.LoadCollectionReq;
 import io.milvus.v2.service.collection.request.ReleaseCollectionReq;
+import io.milvus.v2.service.collection.response.GetCollectionStatsResp;
 import io.milvus.v2.service.collection.response.GetLoadStateResp;
+import io.milvus.v2.service.partition.request.GetPartitionStatsReq;
 import io.milvus.v2.service.partition.request.LoadPartitionsReq;
 import io.milvus.v2.service.partition.request.ReleasePartitionsReq;
-import io.milvus.v2.service.utility.request.FlushReq;
+import io.milvus.v2.service.partition.response.GetPartitionStatsResp;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCmd;
 import net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandKeys;
 import net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommands;
-import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser.*;
+import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser.HintCommandContext;
+import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser.LoadCmdContext;
+import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser.ReleaseCmdContext;
+import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser.ShowCmdContext;
 import net.hasor.dbvisitor.driver.AdapterReceive;
 import net.hasor.dbvisitor.driver.AdapterRequest;
 import net.hasor.dbvisitor.driver.AdapterType;
@@ -46,23 +53,27 @@ public final class MilvusCommandsForMaintenance extends MilvusCommands {
 
     private static final long       DEFAULT_WAIT_TIMEOUT_MS  = 60_000L;
     private static final long       DEFAULT_WAIT_INTERVAL_MS = 100L;
-    // Preserve the previous synchronous flush timeout instead of V2\'s unlimited wait.
-    private static final long       FLUSH_WAIT_TIMEOUT_MS    = 60_000L;
     private static final JdbcColumn COL_PROGRESS             = new JdbcColumn("PROGRESS", AdapterType.Long, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    private static final JdbcColumn COL_NUM_ENTITIES         = new JdbcColumn("NUM_ENTITIES", AdapterType.Long, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    private static final JdbcColumn COL_STATS                = new JdbcColumn("STATS", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    private static final Gson       JSON                     = new Gson();
 
-    public static Future<?> execFlushCmd(Future<Object> future, MilvusCmd cmd, HintCommandContext h, FlushCmdContext c,//
-            AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
-        AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        readHints(argIndex, request, h.hint());
-        String collectionName = readName(c.collectionName);
-
-        FlushReq param = FlushReq.builder().databaseName(cmd.getCatalog()).waitFlushedTimeoutMs(FLUSH_WAIT_TIMEOUT_MS)//
-                .collectionNames(Collections.singletonList(collectionName))//
-                .build();
-
-        cmd.flush(param);
-
-        receive.responseUpdateCount(request, 0);
+    public static Future<?> execShowStats(Future<Object> future, MilvusCmd cmd, HintCommandContext h, ShowCmdContext c, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
+        readHints(new AtomicInteger(startArgIdx), request, h.hint());
+        String collection = readName(c.collectionName);
+        Long count;
+        Map<String, String> stats;
+        if (c.partitionName == null) {
+            GetCollectionStatsResp result = cmd.getCollectionStats(GetCollectionStatsReq.builder().databaseName(cmd.getCatalog()).collectionName(collection).build());
+            count = result.getNumOfEntities();
+            stats = result.getStats();
+        } else {
+            GetPartitionStatsResp result = cmd.getPartitionStats(GetPartitionStatsReq.builder().databaseName(cmd.getCatalog()).collectionName(collection).partitionName(readName(c.partitionName)).build());
+            count = result.getNumOfEntities();
+            stats = result.getStats();
+        }
+        // Statistics are not a filtered logical COUNT and do not trigger an implicit flush or scan.
+        receive.responseResult(request, twoResult(request, COL_NUM_ENTITIES, count, COL_STATS, JSON.toJson(stats)));
         return completed(future);
     }
 
@@ -94,27 +105,27 @@ public final class MilvusCommandsForMaintenance extends MilvusCommands {
             AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         Map<String, Object> hints = readHints(argIndex, request, h.hint());
-        String collectionName = getIdentifier(c.collectionName.getText());
-        String partitionName = null;
+        String collectionName = readName(c.collectionName);
+        String partitionName = readName(c.partitionName);
+        MilvusLoadOptions options = MilvusLoadOptions.read(c.loadOptions(), argIndex, request);
+        boolean sync = hintAsBoolean(hints, MilvusCommandKeys.SYNC, true);
+        long timeout = hintAsLong(hints, MilvusCommandKeys.TIMEOUT, DEFAULT_WAIT_TIMEOUT_MS);
+        if (timeout <= 0) {
+            throw new SQLException("LOAD timeout must be greater than zero milliseconds.");
+        }
 
+        checkActive(request);
         if (c.partitionName != null) {
-            partitionName = getIdentifier(c.partitionName.getText());
-            LoadPartitionsReq param = LoadPartitionsReq.builder().databaseName(cmd.getCatalog()).sync(false)//
-                    .collectionName(collectionName)//
-                    .partitionNames(Collections.singletonList(partitionName))//
-                    .build();
-
-            cmd.loadPartitions(param);
+            LoadPartitionsReq.LoadPartitionsReqBuilder builder = LoadPartitionsReq.builder().databaseName(cmd.getCatalog()).collectionName(collectionName).partitionNames(Collections.singletonList(partitionName)).sync(sync).timeout(timeout);
+            options.apply(builder);
+            cmd.loadPartitions(builder.build());
         } else {
-            LoadCollectionReq param = LoadCollectionReq.builder().databaseName(cmd.getCatalog()).sync(false)//
-                    .collectionName(collectionName)//
-                    .build();
-
-            cmd.loadCollection(param);
+            LoadCollectionReq.LoadCollectionReqBuilder builder = LoadCollectionReq.builder().databaseName(cmd.getCatalog()).collectionName(collectionName).sync(sync).timeout(timeout);
+            options.apply(builder);
+            cmd.loadCollection(builder.build());
         }
-        if (hintAsBoolean(hints, MilvusCommandKeys.SYNC, true)) {
-            waitForLoadState(cmd, collectionName, partitionName, LoadState.LoadStateLoaded, request, hintAsLong(hints, MilvusCommandKeys.TIMEOUT, DEFAULT_WAIT_TIMEOUT_MS));
-        }
+        // SDK sync waits distinguish refresh progress from an already Loaded collection.
+        checkActive(request);
 
         receive.responseUpdateCount(request, 0);
         return completed(future);
@@ -151,7 +162,7 @@ public final class MilvusCommandsForMaintenance extends MilvusCommands {
         return completed(future);
     }
 
-    // Polling for synchronous load/release hints
+    // Release has no SDK sync option; retain driver-side polling for the release hint.
 
     private static void waitForLoadState(MilvusCmd cmd, String collectionName, String partitionName, LoadState expectedState, AdapterRequest request, long timeoutMillis) throws SQLException {
         long endTime = System.currentTimeMillis() + timeoutMillis;

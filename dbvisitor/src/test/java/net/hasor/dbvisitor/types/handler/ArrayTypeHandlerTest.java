@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types.handler;
-import java.sql.Connection;
-import java.sql.JDBCType;
+import java.sql.*;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -24,8 +23,52 @@ import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.handler.array.ArrayTypeHandler;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.*;
 
 public class ArrayTypeHandlerTest {
+    @Test
+    public void primitiveArraysAreBoxedForJdbcWithoutChangingElements() throws SQLException {
+        Object[] arrays = { new boolean[] { true, false }, new byte[] { -1, 2 }, new short[] { -3, 4 }, new int[] { -5, 6 }, new long[] { Long.MIN_VALUE, Long.MAX_VALUE }, new float[] { 0.5f, -1.25f }, new double[] { Math.PI, -2.5 }, new char[] { 'a', '中' }, new float[0] };
+        String[] sqlTypes = { "BOOLEAN", "TINYINT", "SMALLINT", "INTEGER", "BIGINT", "FLOAT", "DOUBLE", "CHAR", "FLOAT" };
+        for (int index = 0; index < arrays.length; index++) {
+            Object input = arrays[index];
+            Object[] expected = new Object[java.lang.reflect.Array.getLength(input)];
+            for (int element = 0; element < expected.length; element++) {
+                expected[element] = java.lang.reflect.Array.get(input, element);
+            }
+            Connection connection = mock(Connection.class);
+            PreparedStatement statement = mock(PreparedStatement.class);
+            Array array = mock(Array.class);
+            when(statement.getConnection()).thenReturn(connection);
+            when(connection.createArrayOf(eq(sqlTypes[index]), any(Object[].class))).thenAnswer(invocation -> {
+                assertArrayEquals(expected, invocation.getArgument(1));
+                return array;
+            });
+            new ArrayTypeHandler().setParameter(statement, 1, input, JDBCType.ARRAY.getVendorTypeNumber());
+            verify(statement).setArray(1, array);
+            verify(array).free();
+        }
+    }
+
+    @Test
+    public void failedBindingFreesOwnedArrayButDoesNotFreeCallerArray() throws SQLException {
+        Connection connection = mock(Connection.class);
+        PreparedStatement statement = mock(PreparedStatement.class);
+        Array array = mock(Array.class);
+        when(statement.getConnection()).thenReturn(connection);
+        when(connection.createArrayOf(eq("INTEGER"), any(Object[].class))).thenReturn(array);
+        doThrow(new SQLException("bind failed")).when(statement).setArray(1, array);
+        assertThrows(SQLException.class, () -> new ArrayTypeHandler().setParameter(statement, 1, new int[] { 1, 2 }, java.sql.Types.ARRAY));
+        verify(array).free();
+
+        Array callerArray = mock(Array.class);
+        new ArrayTypeHandler().setParameter(statement, 2, callerArray, java.sql.Types.ARRAY);
+        verify(statement).setArray(2, callerArray);
+        verify(callerArray, never()).free();
+    }
+
     @Test
     public void testArrayTypeHandler_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {

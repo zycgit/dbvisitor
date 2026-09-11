@@ -42,17 +42,18 @@ import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
 import static org.junit.Assert.*;
 
 public class MilvusLimitArgsTest extends AbstractJdbcTest {
-    private final List<QueryReq>          queryParams           = new ArrayList<>();
-    private final List<SearchReq>         searchParams          = new ArrayList<>();
-    private final List<DeleteReq>         deleteParams          = new ArrayList<>();
-    private final List<QueryIteratorReq>  queryIteratorParams   = new ArrayList<>();
+    private final List<QueryReq>            queryParams           = new ArrayList<>();
+    private final List<SearchReq>           searchParams          = new ArrayList<>();
+    private final List<DeleteReq>           deleteParams          = new ArrayList<>();
+    private final List<QueryIteratorReq>    queryIteratorParams   = new ArrayList<>();
     private final List<SearchIteratorReqV2> searchIteratorParams  = new ArrayList<>();
-    private final List<UpsertReq>         partialUpsertRequests = new ArrayList<>();
-    private       QueryResults            queryResult;
-    private       QueryIterator           queryIterator;
+    private final List<UpsertReq>           partialUpsertRequests = new ArrayList<>();
+    private       QueryResults              queryResult;
+    private       QueryIterator             queryIterator;
     private       SearchIteratorV2          searchIterator;
-    private       int                     upsertFailuresRemaining;
-    private       int                     deleteFailuresRemaining;
+    private       int                       upsertFailuresRemaining;
+    private       int                       deleteFailuresRemaining;
+    private       DataType                  primaryKeyType;
 
     private Connection getConnection() throws SQLException {
         return this.getConnection(null);
@@ -84,6 +85,7 @@ public class MilvusLimitArgsTest extends AbstractJdbcTest {
         this.searchIterator = PowerMockito.mock(SearchIteratorV2.class);
         this.upsertFailuresRemaining = 0;
         this.deleteFailuresRemaining = 0;
+        this.primaryKeyType = DataType.Int64;
         PowerMockito.when(this.queryIterator.next()).thenReturn(new ArrayList<>());
         PowerMockito.when(this.searchIterator.next()).thenReturn(new ArrayList<>());
         MilvusCommandInterceptor.addInterceptor(MilvusClientV2.class, (proxy, method, args) -> {
@@ -110,7 +112,7 @@ public class MilvusLimitArgsTest extends AbstractJdbcTest {
             if ("describeCollection".equals(method.getName())) {
                 CollectionSchema schema = CollectionSchema.newBuilder()//
                         .setName("book_vectors")//
-                        .addFields(FieldSchema.newBuilder().setName("book_id").setDataType(DataType.Int64).setIsPrimaryKey(true))//
+                        .addFields(FieldSchema.newBuilder().setName("book_id").setDataType(this.primaryKeyType).setIsPrimaryKey(true))//
                         .addFields(FieldSchema.newBuilder().setName("word_count").setDataType(DataType.Int32))//
                         .addFields(FieldSchema.newBuilder().setName("book_intro").setDataType(DataType.FloatVector))//
                         .build();
@@ -153,6 +155,65 @@ public class MilvusLimitArgsTest extends AbstractJdbcTest {
     @After
     public void cleanupInterceptor() {
         MilvusCommandInterceptor.resetInterceptor();
+    }
+
+    @Test
+    public void testDeleteWithoutWhereUsesActualPrimaryKeyAndNativeDelete() throws Exception {
+        for (DataType type : Arrays.asList(DataType.Int64, DataType.VarChar)) {
+            this.installInterceptor();
+            this.primaryKeyType = type;
+            try (Connection conn = this.getConnection(); PreparedStatement ps = conn.prepareStatement("DELETE FROM book_vectors PARTITION selected_partition")) {
+                assertEquals(1, ps.executeUpdate());
+            }
+            assertEquals(1, this.deleteParams.size());
+            DeleteReq request = this.deleteParams.get(0);
+            assertEquals("book_id is not null", request.getFilter());
+            assertTrue(request.getFilterTemplateValues().isEmpty());
+            assertEquals("selected_partition", request.getPartitionName());
+            assertTrue(this.queryParams.isEmpty());
+            assertTrue(this.queryIteratorParams.isEmpty());
+            assertTrue(this.searchIteratorParams.isEmpty());
+        }
+    }
+
+    @Test
+    public void testDeleteWithoutWhereKeepsLimitFetchSizeAndBoundPrimaryKeys() throws Exception {
+        for (Object key : Arrays.asList(-1L, "quoted\"key")) {
+            this.installInterceptor();
+            this.primaryKeyType = key instanceof String ? DataType.VarChar : DataType.Int64;
+            QueryResultsWrapper.RowRecord row = new QueryResultsWrapper.RowRecord();
+            row.put("book_id", key);
+            PowerMockito.when(this.queryIterator.next()).thenReturn(List.of(row), new ArrayList<>());
+            try (Connection conn = this.getConnection(); PreparedStatement ps = conn.prepareStatement("DELETE FROM book_vectors PARTITION selected_partition LIMIT ?")) {
+                ps.setFetchSize(1);
+                ps.setInt(1, 1);
+                assertEquals(1, ps.executeUpdate());
+            }
+            assertEquals(1, this.queryIteratorParams.size());
+            QueryIteratorReq selection = this.queryIteratorParams.get(0);
+            assertEquals("book_id is not null", selection.getExpr());
+            assertEquals(1L, selection.getLimit());
+            assertEquals(1L, selection.getBatchSize());
+            assertEquals(List.of("selected_partition"), selection.getPartitionNames());
+            assertEquals(1, this.deleteParams.size());
+            DeleteReq deletion = this.deleteParams.get(0);
+            assertEquals("selected_partition", deletion.getPartitionName());
+            assertEquals("book_id in {ids}", deletion.getFilter());
+            assertEquals(java.util.Map.of("ids", List.of(key)), deletion.getFilterTemplateValues());
+        }
+    }
+
+    @Test
+    public void testExplicitConstantWhereIsNotReplacedByDeleteAllFilter() throws Exception {
+        this.installInterceptor();
+        try (Connection conn = this.getConnection(); PreparedStatement ps = conn.prepareStatement("DELETE FROM book_vectors WHERE 1=1")) {
+            ps.executeUpdate();
+        }
+        assertEquals(1, this.deleteParams.size());
+        String filter = this.deleteParams.get(0).getFilter();
+        assertTrue(filter.contains("1"));
+        assertFalse(filter.contains("is not null"));
+        assertTrue(this.queryIteratorParams.isEmpty());
     }
 
     @Test

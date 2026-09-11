@@ -14,8 +14,7 @@ import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser.IdentifierContext;
 import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser.IdentifiersContext;
 import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser.PropertiesListContext;
 import net.hasor.dbvisitor.driver.AdapterRequest;
-import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandUtils.readName;
-import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandUtils.readProperties;
+import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandUtils.*;
 
 /** Analyzer settings and server-generated function fields in collection schemas. */
 final class MilvusFunctions {
@@ -65,24 +64,14 @@ final class MilvusFunctions {
         Set<String> names = new HashSet<>();
         Set<String> generated = new HashSet<>();
         for (FunctionDefinitionContext definition : definitions) {
-            String name = readName(definition.name);
+            CreateCollectionReq.Function function = readFunction(definition, args, request);
+            String name = function.getName();
             if (!names.add(name)) {
                 throw new SQLException("Duplicate function: " + name);
             }
-            FunctionType type;
-            try {
-                type = FunctionType.valueOf(readName(definition.type).toUpperCase(Locale.ROOT));
-            } catch (IllegalArgumentException e) {
-                throw new SQLException("Unknown function type: " + readName(definition.type), e);
-            }
-            if (type != FunctionType.BM25 && type != FunctionType.TEXTEMBEDDING) {
-                throw new SQLException("Collection functions support BM25 and TEXTEMBEDDING.");
-            }
-            List<String> inputs = fieldNames(definition.inputs);
-            List<String> outputs = fieldNames(definition.outputs);
-            if (inputs.size() != 1 || outputs.size() != 1) {
-                throw new SQLException(type + " requires one input and one output field.");
-            }
+            FunctionType type = function.getFunctionType();
+            List<String> inputs = function.getInputFieldNames();
+            List<String> outputs = function.getOutputFieldNames();
             CreateCollectionReq.FieldSchema input = fields.get(inputs.get(0));
             CreateCollectionReq.FieldSchema output = fields.get(outputs.get(0));
             if (input == null || output == null || input.getDataType() != DataType.VarChar || input.getIsNullable()) {
@@ -98,16 +87,90 @@ final class MilvusFunctions {
             if (!generated.add(output.getName())) {
                 throw new SQLException("Multiple functions cannot write the same field: " + output.getName());
             }
-            Map<String, String> params = new LinkedHashMap<>();
-            readProperties(args, request, definition.propertiesList()).forEach((key, value) -> params.put(key, String.valueOf(value)));
-            schema.getFunctionList().add(CreateCollectionReq.Function.builder().name(name).functionType(type).inputFieldNames(inputs).outputFieldNames(outputs).params(params).build());
+            schema.getFunctionList().add(function);
         }
     }
 
-    private static List<String> fieldNames(IdentifiersContext fields) {
+    /** Parse the shared CREATE/ALTER definition; existing collection constraints are validated by Milvus. */
+    static CreateCollectionReq.Function readFunction(FunctionDefinitionContext definition, AtomicInteger args, AdapterRequest request) throws SQLException {
+        String name = functionIdentifier(definition.name);
+        String typeName = functionIdentifier(definition.type);
+        FunctionType type;
+        try {
+            type = FunctionType.valueOf(typeName.toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException e) {
+            throw new SQLException("Unknown function type: " + typeName, e);
+        }
+        if (type != FunctionType.BM25 && type != FunctionType.TEXTEMBEDDING) {
+            throw new SQLException("Collection functions support BM25 and TEXTEMBEDDING.");
+        }
+        List<String> inputs = fieldNames(definition.inputs);
+        List<String> outputs = fieldNames(definition.outputs);
+        if (inputs.size() != 1 || outputs.size() != 1) {
+            throw new SQLException(type + " requires one input and one output field.");
+        }
+        String description = "";
+        if (definition.description != null) {
+            String token = definition.description.getText();
+            Object value = "?".equals(token) ? getArg(args, request) : descriptionLiteral(token);
+            if (!(value instanceof String)) {
+                throw new SQLException("Function DESCRIPTION requires a non-null string.");
+            }
+            description = (String) value;
+        }
+        Map<String, String> params = new LinkedHashMap<>();
+        readProperties(args, request, definition.propertiesList()).forEach((key, value) -> params.put(key, String.valueOf(value)));
+        return CreateCollectionReq.Function.builder().name(name).description(description).functionType(type).inputFieldNames(inputs).outputFieldNames(outputs).params(params).build();
+    }
+
+    static String functionIdentifier(IdentifierContext identifier) throws SQLException {
+        String name = readName(identifier);
+        if (name == null || name.trim().isEmpty() || "?".equals(name)) {
+            throw new SQLException("Collection, function and field names must be non-empty identifiers, not parameters.");
+        }
+        return name;
+    }
+
+    private static String descriptionLiteral(String token) {
+        char quote = token.charAt(0);
+        StringBuilder value = new StringBuilder();
+        for (int i = 1; i < token.length() - 1; i++) {
+            char current = token.charAt(i);
+            if (current == '\\' && i + 1 < token.length() - 1) {
+                char escaped = token.charAt(++i);
+                switch (escaped) {
+                    case 'n':
+                        value.append('\n');
+                        break;
+                    case 'r':
+                        value.append('\r');
+                        break;
+                    case 't':
+                        value.append('\t');
+                        break;
+                    case '\\':
+                    case '\'':
+                    case '"':
+                        value.append(escaped);
+                        break;
+                    default:
+                        value.append('\\').append(escaped);
+                        break;
+                }
+            } else {
+                value.append(current);
+                if (current == quote && i + 1 < token.length() - 1 && token.charAt(i + 1) == quote) {
+                    i++;
+                }
+            }
+        }
+        return value.toString();
+    }
+
+    private static List<String> fieldNames(IdentifiersContext fields) throws SQLException {
         List<String> names = new ArrayList<>();
         for (IdentifierContext field : fields.identifier()) {
-            names.add(readName(field));
+            names.add(functionIdentifier(field));
         }
         return names;
     }
@@ -125,6 +188,10 @@ final class MilvusFunctions {
     static void appendFunctions(StringBuilder sql, CreateCollectionReq.CollectionSchema schema) {
         for (CreateCollectionReq.Function function : schema.getFunctionList()) {
             sql.append(", FUNCTION ").append(function.getName()).append(" USING ").append(function.getFunctionType().name()).append(" (").append(String.join(", ", function.getInputFieldNames())).append(") INTO (").append(String.join(", ", function.getOutputFieldNames())).append(')');
+            if (function.getDescription() != null && !function.getDescription().isEmpty()) {
+                String description = function.getDescription().replace("\\", "\\\\").replace("'", "''").replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t");
+                sql.append(" DESCRIPTION '").append(description).append('\'');
+            }
             appendOptions(sql, function.getParams(), false);
         }
     }

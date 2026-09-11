@@ -16,9 +16,9 @@
 package net.hasor.dbvisitor.adapter.milvus;
 import java.sql.SQLException;
 import net.hasor.cobble.concurrent.future.Future;
-import net.hasor.dbvisitor.adapter.milvus.commands.admin.MilvusCommandsForMaintenance;
-import net.hasor.dbvisitor.adapter.milvus.commands.admin.MilvusCommandsForUser;
+import net.hasor.dbvisitor.adapter.milvus.commands.admin.*;
 import net.hasor.dbvisitor.adapter.milvus.commands.imports.MilvusCommandsForImport;
+import net.hasor.dbvisitor.adapter.milvus.commands.query.MilvusCommandsForAnalyzer;
 import net.hasor.dbvisitor.adapter.milvus.commands.query.MilvusCommandsForDQL;
 import net.hasor.dbvisitor.adapter.milvus.commands.schema.*;
 import net.hasor.dbvisitor.adapter.milvus.commands.write.MilvusCommandsForData;
@@ -56,6 +56,9 @@ public class MilvusDistributeCall {
             if (command.deleteCmd() != null) {
                 return MilvusCommandsForData.execDeleteCmd(sync, milvusCmd, h, command.deleteCmd(), request, receive, startArgIdx);
             }
+            if (command.truncateCmd() != null) {
+                return MilvusCommandsForTable.execTruncate(sync, milvusCmd, h, command.truncateCmd(), request, receive, startArgIdx);
+            }
             if (command.grantCmd() != null) {
                 return MilvusCommandsForUser.execGrantCmd(sync, milvusCmd, h, command.grantCmd(), request, receive, startArgIdx);
             }
@@ -81,7 +84,16 @@ public class MilvusDistributeCall {
                 return MilvusCommandsForDQL.execCountCmd(sync, milvusCmd, h, command.countCmd(), request, receive, startArgIdx);
             }
             if (command.flushCmd() != null) {
-                return MilvusCommandsForMaintenance.execFlushCmd(sync, milvusCmd, h, command.flushCmd(), request, receive, startArgIdx);
+                return MilvusCommandsForFlush.execFlush(sync, milvusCmd, h, command.flushCmd(), request, receive, startArgIdx);
+            }
+            if (command.compactCmd() != null) {
+                return MilvusCommandsForCompaction.execCompact(sync, milvusCmd, h, command.compactCmd(), request, receive, startArgIdx);
+            }
+            if (command.transferCmd() != null) {
+                return MilvusCommandsForResourceGroups.execTransfer(sync, milvusCmd, h, command.transferCmd(), request, receive, startArgIdx);
+            }
+            if (command.analyzeCmd() != null) {
+                return MilvusCommandsForAnalyzer.execAnalyze(sync, milvusCmd, h, command.analyzeCmd(), request, receive, startArgIdx);
             }
 
             sync.failed(new SQLException("unknown command."));
@@ -93,6 +105,12 @@ public class MilvusDistributeCall {
     }
 
     private static Future<?> execCreateCmd(Future<Object> future, MilvusCmd milvusCmd, MilvusParser.HintCommandContext h, MilvusParser.CreateCmdContext createCmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
+        if (createCmd.PRIVILEGE() != null) {
+            return MilvusCommandsForPrivilegeGroups.execCreate(future, milvusCmd, h, createCmd, request, receive, startArgIdx);
+        }
+        if (createCmd.RESOURCE() != null) {
+            return MilvusCommandsForResourceGroups.execCreate(future, milvusCmd, h, createCmd, request, receive, startArgIdx);
+        }
         if (createCmd.DATABASE() != null) {
             return MilvusCommandsForDB.execCreateDatabase(future, milvusCmd, h, createCmd, request, receive, startArgIdx);
         } else if (createCmd.USER() != null) {
@@ -113,16 +131,30 @@ public class MilvusDistributeCall {
     }
 
     private static Future<?> execAlterCmd(Future<Object> future, MilvusCmd milvusCmd, MilvusParser.HintCommandContext h, MilvusParser.AlterCmdContext alterCmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
-        if (alterCmd.DATABASE() != null) {
-            return MilvusCommandsForDB.execAlterDatabase(future, milvusCmd, h, alterCmd, request, receive, startArgIdx);
-        } else if (alterCmd.ALIAS() != null) {
+        if (alterCmd.PRIVILEGE() != null) {
+            return MilvusCommandsForPrivilegeGroups.execAlter(future, milvusCmd, h, alterCmd, request, receive, startArgIdx);
+        }
+        if (alterCmd.RESOURCE() != null) {
+            return MilvusCommandsForResourceGroups.execAlter(future, milvusCmd, h, alterCmd, request, receive, startArgIdx);
+        }
+        if (alterCmd.ALIAS() != null) {
             return MilvusCommandsForAlias.execAlterAlias(future, milvusCmd, h, alterCmd, request, receive, startArgIdx);
+        } else if (alterCmd.ROLE() != null || (alterCmd.USER() != null && alterCmd.password == null)) {
+            return MilvusCommandsForUser.execAlterDescription(future, milvusCmd, h, alterCmd, request, receive, startArgIdx);
+        } else if (alterCmd.USER() != null) {
+            return MilvusCommandsForUser.execUpdatePassword(future, milvusCmd, h, alterCmd, request, receive, startArgIdx);
         } else {
-            throw new SQLException("Unknown ALTER command");
+            return MilvusCommandsForSchemaAlter.execAlter(future, milvusCmd, h, alterCmd, request, receive, startArgIdx);
         }
     }
 
     private static Future<?> execDropCmd(Future<Object> future, MilvusCmd milvusCmd, MilvusParser.HintCommandContext h, MilvusParser.DropCmdContext dropCmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
+        if (dropCmd.PRIVILEGE() != null) {
+            return MilvusCommandsForPrivilegeGroups.execDrop(future, milvusCmd, h, dropCmd, request, receive, startArgIdx);
+        }
+        if (dropCmd.RESOURCE() != null) {
+            return MilvusCommandsForResourceGroups.execDrop(future, milvusCmd, h, dropCmd, request, receive, startArgIdx);
+        }
         if (dropCmd.DATABASE() != null) {
             return MilvusCommandsForDB.execDropDatabase(future, milvusCmd, h, dropCmd, request, receive, startArgIdx);
         } else if (dropCmd.USER() != null) {
@@ -144,14 +176,36 @@ public class MilvusDistributeCall {
 
     public static Future<?> execShowCmd(Future<Object> future, MilvusCmd milvusCmd, MilvusParser.HintCommandContext h, MilvusParser.ShowCmdContext showCmd,//
             AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
+        if (showCmd.VERSION() != null || showCmd.HEALTH() != null || showCmd.SEGMENTS() != null || showCmd.REPLICAS() != null) {
+            return MilvusCommandsForDiagnostics.execShow(future, milvusCmd, h, showCmd, request, receive, startArgIdx);
+        }
+        if (showCmd.PRIVILEGE() != null) {
+            return MilvusCommandsForPrivilegeGroups.execShow(future, milvusCmd, h, showCmd, request, receive, startArgIdx);
+        }
         if (showCmd.IMPORT() != null || showCmd.IMPORTS() != null) {
             return MilvusCommandsForImport.execShowImport(future, milvusCmd, h, showCmd, request, receive, startArgIdx);
+        } else if (showCmd.COMPACTION() != null) {
+            return MilvusCommandsForCompaction.execShow(future, milvusCmd, h, showCmd, request, receive, startArgIdx);
+        } else if (showCmd.FLUSH() != null) {
+            return MilvusCommandsForFlush.execShow(future, milvusCmd, h, showCmd, request, receive, startArgIdx);
+        } else if (showCmd.RESOURCE() != null) {
+            return MilvusCommandsForResourceGroups.execShow(future, milvusCmd, h, showCmd, request, receive, startArgIdx);
         } else if (showCmd.DATABASES() != null) {
             return MilvusCommandsForDB.execShowDatabases(future, milvusCmd, h, request, receive, startArgIdx);
+        } else if (showCmd.DATABASE() != null && showCmd.ROLE() == null) {
+            return MilvusCommandsForDB.execShowDatabase(future, milvusCmd, h, showCmd, request, receive, startArgIdx);
+        } else if (showCmd.STATS() != null) {
+            return MilvusCommandsForMaintenance.execShowStats(future, milvusCmd, h, showCmd, request, receive, startArgIdx);
+        } else if (showCmd.ALIAS() != null || showCmd.ALIASES() != null) {
+            return MilvusCommandsForAlias.execShowAlias(future, milvusCmd, h, showCmd, request, receive, startArgIdx);
         } else if (showCmd.USERS() != null) {
             return MilvusCommandsForUser.execShowUsers(future, milvusCmd, h, showCmd, request, receive, startArgIdx);
+        } else if (showCmd.USER() != null && showCmd.GRANTS() == null) {
+            return MilvusCommandsForUser.execShowUser(future, milvusCmd, h, showCmd, request, receive, startArgIdx);
         } else if (showCmd.ROLES() != null) {
             return MilvusCommandsForUser.execShowRoles(future, milvusCmd, h, showCmd, request, receive, startArgIdx);
+        } else if (showCmd.ROLE() != null && showCmd.GRANTS() == null) {
+            return MilvusCommandsForUser.execShowRole(future, milvusCmd, h, showCmd, request, receive, startArgIdx);
         } else if (showCmd.GRANTS() != null) {
             return MilvusCommandsForUser.execShowGrants(future, milvusCmd, h, showCmd, request, receive, startArgIdx);
         } else if (showCmd.PROGRESS() != null) {

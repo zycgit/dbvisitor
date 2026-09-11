@@ -23,6 +23,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import io.milvus.grpc.DataType;
 import io.milvus.grpc.FieldSchema;
+import io.milvus.v2.service.collection.request.CreateCollectionReq;
 import io.milvus.v2.service.collection.response.DescribeCollectionResp;
 import io.milvus.v2.utils.SchemaUtils;
 import net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandKeys;
@@ -40,6 +41,9 @@ public final class MilvusSchema {
         }
         String fieldName = field.getName();
         DataType dataType = field.getDataType();
+        if (dataType == DataType.VarChar && value instanceof java.util.Date date) {
+            return temporalText(date);
+        }
         if (MilvusVectorCodec.isVector(dataType)) {
             return MilvusVectorCodec.writeValue(field, value);
         }
@@ -73,47 +77,39 @@ public final class MilvusSchema {
                 throw new SQLException("Invalid JSON value for field '" + fieldName + "'.", e);
             }
         }
+
         return value;
     }
 
     // JDBC type mapping
 
+    /** Stable JDBC text for VARCHAR storage and filter templates, not a native Milvus temporal type. */
+    public static String temporalText(java.util.Date value) {
+        if (value instanceof java.sql.Date || value instanceof java.sql.Time || value instanceof java.sql.Timestamp) {
+            return value.toString();
+        }
+        return new java.sql.Timestamp(value.getTime()).toString();
+    }
+
     public static String adapterType(DataType type) {
         if (type == null) {
             return AdapterType.Unknown;
         }
-        switch (type) {
-            case Bool:
-                return AdapterType.Boolean;
-            case Int8:
-                return AdapterType.Byte;
-            case Int16:
-                return AdapterType.Short;
-            case Int32:
-                return AdapterType.Int;
-            case Int64:
-                return AdapterType.Long;
-            case Float:
-                return AdapterType.Float;
-            case Double:
-                return AdapterType.Double;
-            case String:
-            case VarChar:
-                return AdapterType.String;
-            case JSON:
-                return "JSON";
-            case Array:
-            case FloatVector:
-                return AdapterType.Array;
-            case BinaryVector:
-            case Float16Vector:
-            case BFloat16Vector:
-                return AdapterType.Bytes;
-            case SparseFloatVector:
-                return "SPARSE_FLOAT_VECTOR";
-            default:
-                return AdapterType.Unknown;
-        }
+        return switch (type) {
+            case Bool -> AdapterType.Boolean;
+            case Int8 -> AdapterType.Byte;
+            case Int16 -> AdapterType.Short;
+            case Int32 -> AdapterType.Int;
+            case Int64 -> AdapterType.Long;
+            case Float -> AdapterType.Float;
+            case Double -> AdapterType.Double;
+            case String, VarChar -> AdapterType.String;
+            case JSON -> "JSON";
+            case Array, FloatVector -> AdapterType.Array;
+            case BinaryVector, Float16Vector, BFloat16Vector, Int8Vector -> AdapterType.Bytes;
+            case SparseFloatVector -> "SPARSE_FLOAT_VECTOR";
+            default -> AdapterType.Unknown;
+        };
     }
 
     // Collection metadata is shared by DDL, writes and JDBC result columns.
@@ -202,7 +198,7 @@ public final class MilvusSchema {
 
     public static List<FieldSchema> collectionFields(DescribeCollectionResp description) {
         List<FieldSchema> fields = new ArrayList<>();
-        for (io.milvus.v2.service.collection.request.CreateCollectionReq.FieldSchema field : description.getCollectionSchema().getFieldSchemaList()) {
+        for (CreateCollectionReq.FieldSchema field : description.getCollectionSchema().getFieldSchemaList()) {
             fields.add(SchemaUtils.convertToGrpcFieldSchema(field));
         }
         return fields;

@@ -1,14 +1,7 @@
 package net.hasor.dbvisitor.adapter.milvus.commands;
 
-import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
-import static org.junit.Assert.*;
-
 import java.sql.*;
 import java.util.*;
-
-import org.junit.After;
-import org.junit.Test;
-
 import io.milvus.grpc.*;
 import io.milvus.v2.client.MilvusClientV2;
 import io.milvus.v2.service.collection.request.CreateCollectionReq;
@@ -25,14 +18,18 @@ import net.hasor.dbvisitor.adapter.milvus.MilvusCommandInterceptor;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
+import org.junit.After;
+import org.junit.Test;
+import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
+import static org.junit.Assert.*;
 
 public class MilvusHybridTest extends AbstractJdbcTest {
-    private CreateCollectionReq.CollectionSchema schema;
-    private HybridSearchRequest                  hybrid;
-    private SearchRequest                        search;
-    private InsertRequest                        insert;
-    private CreateIndexReq                       index;
-    private static final String                  DDL = """
+    private              CreateCollectionReq.CollectionSchema schema;
+    private              HybridSearchRequest                  hybrid;
+    private              SearchRequest                        search;
+    private              InsertRequest                        insert;
+    private              CreateIndexReq                       index;
+    private static final String                               DDL = """
             CREATE TABLE docs (id INT64 PRIMARY KEY, body VARCHAR(1000) WITH (enable_analyzer=true, analyzer_params='{"type":"standard"}'),
             dense FLOAT_VECTOR(2), sparse SPARSE_FLOAT_VECTOR, FUNCTION bm25_fn USING BM25 (body) INTO (sparse))
             """;
@@ -168,6 +165,97 @@ public class MilvusHybridTest extends AbstractJdbcTest {
                 } catch (SQLException expected) {
                     assertNotNull(expected.getMessage());
                 }
+            }
+            assertNull(hybrid);
+        }
+    }
+
+    @Test
+    public void perCandidateFiltersTimezoneAndFinalPrecisionShouldReachOfficialProtocol() throws Exception {
+        try (Connection conn = connect(); Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate(DDL);
+            try (PreparedStatement ps = conn.prepareStatement("""
+                    SELECT id,score FROM docs WHERE body = ? ORDER BY HYBRID (
+                        dense <-> ? WHERE id > ? OR body = ? LIMIT ? WITH(timezone=?,nprobe=?),
+                        sparse <?> ? WHERE id IN ? LIMIT ? WITH(timezone=?)
+                    ) LIMIT ? OFFSET ? WITH(reranker='rrf',round_decimal=?)
+                    """)) {
+                ps.setString(1, "tenant\" OR id > 0");
+                ps.setObject(2, new float[] { 1, 2 });
+                ps.setLong(3, 5);
+                ps.setString(4, "local\" OR id > 0");
+                ps.setInt(5, 20);
+                ps.setString(6, "UTC");
+                ps.setInt(7, 8);
+                ps.setString(8, "hybrid search");
+                ps.setObject(9, new long[] { 8, 9 });
+                ps.setInt(10, 30);
+                ps.setString(11, "Asia/Shanghai");
+                ps.setInt(12, 2);
+                ps.setInt(13, 1);
+                ps.setInt(14, 3);
+                try (ResultSet rows = ps.executeQuery()) {
+                    assertTrue(rows.next());
+                    assertEquals(8L, rows.getLong("id"));
+                }
+                assertFalse(ps.getMoreResults());
+            }
+            SearchRequest first = hybrid.getRequests(0);
+            SearchRequest second = hybrid.getRequests(1);
+            assertTrue(first.getDsl(), first.getDsl().startsWith("(body == {arg1}) && ("));
+            assertTrue(first.getDsl().contains("id > {arg3}"));
+            assertTrue(first.getDsl().contains("body == {arg4}"));
+            assertFalse(first.getDsl().contains("tenant"));
+            assertFalse(first.getDsl().contains("local"));
+            assertEquals(new HashSet<>(Arrays.asList("arg1", "arg3", "arg4")), first.getExprTemplateValuesMap().keySet());
+            assertEquals(new HashSet<>(Arrays.asList("arg1", "arg9")), second.getExprTemplateValuesMap().keySet());
+            assertEquals("tenant\" OR id > 0", second.getExprTemplateValuesOrThrow("arg1").getStringVal());
+            assertEquals("local\" OR id > 0", first.getExprTemplateValuesOrThrow("arg4").getStringVal());
+            assertEquals("(body == {arg1}) && (id in {arg9})", second.getDsl());
+            Map<String, String> firstParams = new HashMap<>();
+            first.getSearchParamsList().forEach(p -> firstParams.put(p.getKey(), p.getValue()));
+            Map<String, String> secondParams = new HashMap<>();
+            second.getSearchParamsList().forEach(p -> secondParams.put(p.getKey(), p.getValue()));
+            assertEquals("UTC", firstParams.get(MilvusCommandKeys.TIMEZONE));
+            assertEquals("Asia/Shanghai", secondParams.get(MilvusCommandKeys.TIMEZONE));
+            assertFalse(firstParams.get("params").contains(MilvusCommandKeys.TIMEZONE));
+            Map<String, String> ranks = new HashMap<>();
+            hybrid.getRankParamsList().forEach(p -> ranks.put(p.getKey(), p.getValue()));
+            assertEquals("3", ranks.get(MilvusCommandKeys.ROUND_DECIMAL));
+            assertEquals("2", ranks.get("limit"));
+            assertEquals("1", ranks.get(MilvusCommandKeys.OFFSET));
+        }
+    }
+
+    @Test
+    public void absentSharedFilterAndEmptyTimezoneShouldRetainSdkDefaults() throws Exception {
+        try (Connection conn = connect(); Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate(DDL);
+            try (ResultSet rows = stmt.executeQuery("""
+                    SELECT id FROM docs ORDER BY HYBRID (
+                        dense <-> [1,2] WHERE id > 5 LIMIT 20 WITH(timezone=''),
+                        sparse <?> 'text' LIMIT 30
+                    ) LIMIT 2 WITH(reranker='rrf')
+                    """)) {
+                assertTrue(rows.next());
+            }
+            assertEquals("id > 5", hybrid.getRequests(0).getDsl());
+            assertEquals("", hybrid.getRequests(1).getDsl());
+            for (SearchRequest request : hybrid.getRequestsList()) {
+                assertFalse(request.getSearchParamsList().stream().anyMatch(p -> p.getKey().equals(MilvusCommandKeys.TIMEZONE)));
+                assertTrue(request.getExprTemplateValuesMap().isEmpty());
+            }
+            assertEquals("-1", hybrid.getRankParamsList().stream().filter(p -> p.getKey().equals(MilvusCommandKeys.ROUND_DECIMAL)).findFirst().orElseThrow().getValue());
+        }
+    }
+
+    @Test
+    public void misplacedOrInvalidHybridOptionsShouldFailBeforeSearch() throws Exception {
+        try (Connection conn = connect(); Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate(DDL);
+            String base = "SELECT id FROM docs ORDER BY HYBRID (dense <-> [1,2] %s LIMIT 10 %s, sparse <?> 'text' LIMIT 10) LIMIT 2 WITH(reranker='rrf'%s)";
+            for (String sql : Arrays.asList(String.format(base, "WHERE dense <-> [1,2] < 3", "", ""), String.format(base, "", "WITH(timezone=5)", ""), String.format(base, "", "WITH(round_decimal=2)", ""), String.format(base, "", "", ",round_decimal='2'"), String.format(base, "", "", ",round_decimal=2.5"), String.format(base, "", "", ",round_decimal=2147483648"), String.format(base, "", "", ",timezone='UTC'"))) {
+                assertThrows(sql, SQLException.class, () -> stmt.executeQuery(sql));
             }
             assertNull(hybrid);
         }

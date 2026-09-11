@@ -88,9 +88,23 @@ public class ArrayTypeHandler extends AbstractTypeHandler<Object> {
             }
             Class<?> componentType = parameter.getClass().getComponentType();
             String arrayTypeName = resolveTypeName(componentType);
-            Array array = ps.getConnection().createArrayOf(arrayTypeName, (Object[]) parameter);
-            ps.setArray(i, array);
-            array.free();
+            Object[] elements;
+            if (parameter instanceof Object[]) {
+                elements = (Object[]) parameter;
+            } else {
+                // JDBC createArrayOf accepts Object[], while primitive Java arrays cannot be cast to it.
+                elements = new Object[java.lang.reflect.Array.getLength(parameter)];
+                for (int index = 0; index < elements.length; index++) {
+                    elements[index] = java.lang.reflect.Array.get(parameter, index);
+                }
+            }
+
+            Array array = ps.getConnection().createArrayOf(arrayTypeName, elements);
+            try {
+                ps.setArray(i, array);
+            } finally {
+                array.free();
+            }
         }
     }
 
@@ -214,7 +228,7 @@ public class ArrayTypeHandler extends AbstractTypeHandler<Object> {
             array.free();
         }
     }
-    
+
     /** 根据 SQL 数组基础类型名称创建空的强类型数组 */
     private Object createTypedEmptyArray(String baseTypeName) {
         if (baseTypeName == null) {
@@ -232,7 +246,7 @@ public class ArrayTypeHandler extends AbstractTypeHandler<Object> {
             default -> new Object[0];
         };
     }
-    
+
     /** 根据 SQL 类型创建指定长度的强类型数组（所有元素为 null） */
     private Object createTypedArrayFromSqlType(String baseTypeName, int length) {
         if (baseTypeName == null || length == 0) {

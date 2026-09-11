@@ -1,18 +1,9 @@
 package net.hasor.dbvisitor.adapter.milvus.commands;
 
-import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
-import static org.junit.Assert.*;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.*;
 import java.util.*;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
-
 import io.milvus.grpc.*;
 import io.milvus.orm.iterator.QueryIterator;
 import io.milvus.orm.iterator.SearchIteratorV2;
@@ -29,12 +20,18 @@ import net.hasor.dbvisitor.adapter.milvus.MilvusCommandInterceptor;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
+import static org.junit.Assert.*;
 
 /** Public JDBC binding -> intercepted official SDK requests -> typed wire values. */
 public class MilvusParameterBindingTest {
-    private static final String PAYLOAD  = "\"x\" || id > 0 \\ \n\t\u0000 {arg2} 中文";
-    private final List<Object>  requests = new ArrayList<>();
-    private QueryIterator       queryIterator;
+    private static final String        PAYLOAD  = "\"x\" || id > 0 \\ \n\t\u0000 {arg2} 中文";
+    private final        List<Object>  requests = new ArrayList<>();
+    private              QueryIterator queryIterator;
 
     @Before
     public void install() {
@@ -167,6 +164,58 @@ public class MilvusParameterBindingTest {
             DeleteRequest wire = new DataUtils().ConvertToGrpcDeleteRequest((DeleteReq) request);
             assertEquals("title == {arg1}", wire.getExpr());
             assertEquals(PAYLOAD, wire.getExprTemplateValuesOrThrow("arg1").getStringVal());
+        }
+    }
+
+    @Test
+    public void betweenPreservesInclusiveBoundsAndSqlParameterOrder() throws Exception {
+        execute("DELETE FROM t WHERE n BETWEEN ? AND ? OR title = ?", 2, 5, PAYLOAD);
+        BoundFilter bound = filter(requests.get(0));
+        assertEquals("(n >= {arg1} AND n <= {arg2}) OR title == {arg3}", bound.expression());
+        assertEquals(Map.of("arg1", 2, "arg2", 5, "arg3", PAYLOAD), bound.values());
+
+        execute("DELETE FROM t WHERE n NOT BETWEEN 2 AND ? AND title = ?", 5, PAYLOAD);
+        bound = filter(requests.get(1));
+        assertEquals("(n < 2 OR n > {arg1}) AND title == {arg2}", bound.expression());
+        assertEquals(Map.of("arg1", 5, "arg2", PAYLOAD), bound.values());
+    }
+
+    @Test
+    public void notShouldWrapItsSqlPredicateWithoutConsumingFollowingAndOr() throws Exception {
+        execute("DELETE FROM t WHERE NOT n = ? AND title = ? OR n = ?", 25, PAYLOAD, 30);
+        BoundFilter bound = filter(requests.get(0));
+        assertEquals("not (n == {arg1}) AND title == {arg2} OR n == {arg3}", bound.expression());
+        assertEquals(Map.of("arg1", 25, "arg2", PAYLOAD, "arg3", 30), bound.values());
+
+        execute("DELETE FROM t WHERE NOT n IN (?, ?) AND NOT NOT n + 1 > ?", 25, 30, 10);
+        bound = filter(requests.get(1));
+        assertEquals("not (n in {arg1}) AND not (not (n + 1 > {arg3}))", bound.expression());
+        assertEquals(Map.of("arg1", Arrays.asList(25, 30), "arg3", 10), bound.values());
+
+        execute("DELETE FROM t WHERE n <> ? AND title != ?", 25, PAYLOAD);
+        bound = filter(requests.get(2));
+        assertEquals("n != {arg1} AND title != {arg2}", bound.expression());
+        assertEquals(Map.of("arg1", 25, "arg2", PAYLOAD), bound.values());
+    }
+
+    @Test
+    public void jdbcTemporalFilterValuesShouldUseTheSameTextAsVarcharWrites() throws Exception {
+        Timestamp timestamp = Timestamp.valueOf("2026-09-10 08:09:10.123456789");
+        try (Connection conn = connect(); PreparedStatement statement = conn.prepareStatement("DELETE FROM t WHERE title = ?")) {
+            statement.setTimestamp(1, timestamp);
+            statement.executeUpdate();
+            statement.setDate(1, java.sql.Date.valueOf("2026-09-10"));
+            statement.executeUpdate();
+            statement.setTime(1, Time.valueOf("08:09:10"));
+            statement.executeUpdate();
+            statement.setObject(1, new java.util.Date(timestamp.getTime()), Types.VARCHAR);
+            statement.executeUpdate();
+        }
+        List<String> expected = Arrays.asList(timestamp.toString(), "2026-09-10", "08:09:10", new Timestamp(timestamp.getTime()).toString());
+        for (int i = 0; i < expected.size(); i++) {
+            DeleteRequest wire = new DataUtils().ConvertToGrpcDeleteRequest((DeleteReq) requests.get(i));
+            assertEquals("title == {arg1}", wire.getExpr());
+            assertEquals(expected.get(i), wire.getExprTemplateValuesOrThrow("arg1").getStringVal());
         }
     }
 

@@ -133,4 +133,42 @@ public class MilvusExpressionEscapingTest extends AbstractJdbcTest {
         assertEquals("title == {arg1}", this.deleteParams.get(0).getFilter());
         assertEquals("x\" or book_id > 0 or title == \"y", this.deleteParams.get(0).getFilterTemplateValues().get("arg1"));
     }
+
+    @Test
+    public void testNotInSupportsBoundListsAndIndividualParameters() throws Exception {
+        this.installInterceptor();
+        List<String> values = Arrays.asList("safe", "x\"] or book_id > 0 or title in [\"y");
+        for (String listSql : new String[] { "?", "(?, ?)", "[?, ?]" }) {
+            try (Connection conn = this.getConnection(); PreparedStatement ps = conn.prepareStatement("SELECT * FROM book_vectors WHERE title NOT IN " + listSql)) {
+                if ("?".equals(listSql)) {
+                    ps.setObject(1, values);
+                } else {
+                    ps.setString(1, values.get(0));
+                    ps.setString(2, values.get(1));
+                }
+                ps.executeQuery();
+            }
+        }
+        assertEquals(3, this.queryParams.size());
+        for (QueryIteratorReq request : this.queryParams) {
+            assertEquals("title not in {arg1}", request.getExpr());
+            assertEquals(values, request.getFilterTemplateValues().get("arg1"));
+        }
+    }
+
+    @Test
+    public void testNotInDeletePreservesExclusionAndFollowingParameter() throws Exception {
+        this.installInterceptor();
+        try (Connection conn = this.getConnection(); PreparedStatement ps = conn.prepareStatement("DELETE FROM book_vectors WHERE book_id NOT IN (?, ?) AND word_count > ?")) {
+            ps.setLong(1, 1);
+            ps.setLong(2, 3);
+            ps.setInt(3, 100);
+            ps.executeUpdate();
+        }
+        assertEquals(1, this.deleteParams.size());
+        DeleteReq request = this.deleteParams.get(0);
+        assertEquals("book_id not in {arg1} AND word_count > {arg3}", request.getFilter());
+        assertEquals(Arrays.asList(1L, 3L), request.getFilterTemplateValues().get("arg1"));
+        assertEquals(100, request.getFilterTemplateValues().get("arg3"));
+    }
 }

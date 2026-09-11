@@ -14,12 +14,18 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dialect.provider;
+import java.util.List;
+import java.util.Map;
+import java.util.StringJoiner;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
 import net.hasor.dbvisitor.dialect.SqlDialect;
+import net.hasor.dbvisitor.dialect.features.InsertSqlDialect;
 import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
 import net.hasor.dbvisitor.dialect.features.VectorSqlDialect;
+import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
+import net.hasor.dbvisitor.lambda.GeneratedKeyStrategy;
 import net.hasor.dbvisitor.lambda.core.MetricType;
 
 /**
@@ -27,7 +33,7 @@ import net.hasor.dbvisitor.lambda.core.MetricType;
  * @author 赵永春 (zyc@hasor.net)
  * @version 2024-02-02
  */
-public class MilvusDialect extends AbstractSqlDialect implements PageSqlDialect, VectorSqlDialect {
+public class MilvusDialect extends AbstractSqlDialect implements PageSqlDialect, VectorSqlDialect, InsertSqlDialect {
     public static final SqlDialect DEFAULT = new MilvusDialect();
 
     @Override
@@ -47,6 +53,37 @@ public class MilvusDialect extends AbstractSqlDialect implements PageSqlDialect,
         } else {
             return fmtName(useQualifier, schema) + "." + fmtName(useQualifier, table);
         }
+    }
+
+    // --- InsertSqlDialect impl ---
+
+    @Override
+    public GeneratedKeyStrategy generatedKeyStrategy(List<String> primaryKey, List<String> columns, List<String> returnColumns, DuplicateKeyStrategy strategy) {
+        return GeneratedKeyStrategy.OneByOne;
+    }
+
+    @Override
+    public boolean supportDuplicateStrategy(List<String> primaryKey, List<String> columns, List<String> returnColumns, DuplicateKeyStrategy strategy) {
+        if (strategy == null || strategy == DuplicateKeyStrategy.Into) {
+            return true;
+        }
+        return strategy == DuplicateKeyStrategy.Update && primaryKey.size() == 1 && columns.contains(primaryKey.get(0));
+    }
+
+    @Override
+    public String insertSql(DuplicateKeyStrategy strategy, GeneratedKeyStrategy generatedStrategy, boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, List<String> returnColumns, int insertRows, Map<String, String> columnValueTerms) {
+        if (!supportDuplicateStrategy(primaryKey, columns, returnColumns, strategy)) {
+            throw new UnsupportedOperationException("Milvus insert strategy requires Into or Update with an explicit primary key.");
+        }
+        StringJoiner names = new StringJoiner(", ");
+        StringJoiner values = new StringJoiner(", ");
+        for (String column : columns) {
+            names.add(fmtName(useQualifier, column));
+            String term = columnValueTerms == null ? null : columnValueTerms.get(column);
+            values.add(StringUtils.isBlank(term) ? "?" : term);
+        }
+        String command = strategy == DuplicateKeyStrategy.Update ? "/*+ partial_update=true */ UPSERT INTO " : "INSERT INTO ";
+        return command + tableName(useQualifier, catalog, schema, table) + " (" + names + ") VALUES (" + values + ")";
     }
 
     // --- PageSqlDialect impl ---
@@ -129,7 +166,9 @@ public class MilvusDialect extends AbstractSqlDialect implements PageSqlDialect,
         this.whereConditions.addSegment((d, dia) -> formatColumn(d, dia, col, colTerm));
         this.whereConditions.addSegment((d, dia) -> finalOperator);
         this.whereConditions.addSegment((d, dia) -> formatValue(dia, vector, vectorTerm));
-        this.whereConditions.addSegment((d, dia) -> "<");
+        // Milvus uses similarity scores for these metrics, not pgvector distances.
+        boolean similarity = metricType == MetricType.COSINE || metricType == MetricType.IP || metricType == MetricType.BM25;
+        this.whereConditions.addSegment((d, dia) -> similarity ? ">" : "<");
         this.whereConditions.addSegment((d, dia) -> formatValue(dia, threshold, thresholdTerm));
     }
 }
