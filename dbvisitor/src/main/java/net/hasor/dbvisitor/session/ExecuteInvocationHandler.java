@@ -1,17 +1,9 @@
 /*
  * Copyright 2015-2022 the original author or authors.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.session;
 import java.lang.annotation.Annotation;
@@ -35,6 +27,7 @@ import net.hasor.dbvisitor.mapper.BaseMapper;
 import net.hasor.dbvisitor.mapper.Param;
 import net.hasor.dbvisitor.mapper.Segment;
 import net.hasor.dbvisitor.mapper.StatementDef;
+import net.hasor.dbvisitor.mapper.def.InsertConfig;
 import net.hasor.dbvisitor.mapping.MappingHelper;
 import net.hasor.dbvisitor.page.Page;
 import net.hasor.dbvisitor.page.PageResult;
@@ -45,13 +38,14 @@ import net.hasor.dbvisitor.page.PageResult;
  * @version 2021-10-30
  */
 class ExecuteInvocationHandler implements InvocationHandler {
-    private static final Logger                            logger        = LoggerFactory.getLogger(ExecuteInvocationHandler.class);
     private static final ClassValue<ConcurrentMap<Method, MethodHandle>> defaultMethodHandleCache = new ClassValue<>() {
         @Override
         protected ConcurrentMap<Method, MethodHandle> computeValue(Class<?> type) {
             return new ConcurrentHashMap<>();
         }
     };
+
+    private static final Logger                            logger        = LoggerFactory.getLogger(ExecuteInvocationHandler.class);
     private final        String                            space;
     private final        Session                           session;
     private final        Map<String, FacadeStatement>      dynamicSqlMap = new HashMap<>();
@@ -199,7 +193,23 @@ class ExecuteInvocationHandler implements InvocationHandler {
         boolean pageResult = method.getReturnType() == PageResult.class;
 
         return this.session.jdbc().execute((ConnectionCallback<Object>) con -> {
-            return execute.execute(con, extractData(dynamicId, objects), page, pageResult);
+            Map<String, Object> data = extractData(dynamicId, objects);
+            Object result = execute.execute(con, data, page, pageResult);
+            // MergedMap writes new keys locally. Return generated keys to a lone Map argument,
+            // just as bean properties and direct Session statement parameters are updated.
+            if (objects != null && objects.length == 1 && objects[0] instanceof Map<?, ?> original) {
+                StatementDef definition = this.session.getConfiguration().getMapperRegistry().findStatement(this.space, dynamicId);
+                if (definition.getConfig() instanceof InsertConfig insert && insert.isUseGeneratedKeys() && StringUtils.isNotBlank(insert.getKeyProperty())) {
+                    for (String property : insert.getKeyProperty().split(",")) {
+                        String key = property.trim();
+                        if (data.containsKey(key)) {
+                            ((Map<String, Object>) original).put(key, data.get(key));
+                        }
+                    }
+                }
+            }
+
+            return result;
         });
     }
 
