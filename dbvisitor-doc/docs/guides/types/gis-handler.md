@@ -5,7 +5,9 @@ title: 8.6 地理信息类型处理器
 description: dbVisitor 基于 JTS 处理 OpenGIS 地理信息类型（WKT/WKB）的类型处理器。
 ---
 
-# 地理信息类型处理器
+<span id="地理信息类型处理器" />
+
+# 8.6 地理信息类型处理器
 
 地理信息类型处理器位于 `net.hasor.dbvisitor.types.handler.geo` 包中，使用前需引入 JTS 依赖：
 

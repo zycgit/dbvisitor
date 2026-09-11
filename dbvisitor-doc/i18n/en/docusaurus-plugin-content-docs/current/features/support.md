@@ -59,11 +59,12 @@ The following table summarizes API support and dialect feature differences acros
 | ElasticSearch 6 | elastic6 | ✅ | ✅ | | | | |
 | ElasticSearch 7 | elastic7 | ✅ | ✅ | | | ✅ | |
 | ElasticSearch 8 | elastic8 | ✅ | ✅ | | | ✅ | |
-| Milvus | milvus | ✅ | ✅ | | | ✅ | |
+| Milvus | milvus | ✅ | ✅ | Update¹ | | ✅ | |
 
 > ✅ Supported &nbsp; ❌ Not Supported
 >
 > ¹ Requires primary key
+> Milvus Update requires a single explicit primary key in the inserted columns and uses partial UPSERT; it is not a transaction guarantee.
 
 > **⚠️ Hive**: Although `PageSqlDialect` is implemented, both `countSql` and `pageSql` throw `UnsupportedOperationException`, making pagination effectively unusable.
 
@@ -87,11 +88,11 @@ For non-relational database drivers (Mongo, Elastic, Milvus), dbVisitor implemen
 Supported JDBC insert/key-retrieval calls expose server-returned IDs. Milvus uses the collection's primary field name, not a fixed `_id` column.
 :::
 
-When requesting keys in Mapper annotations/XML, omit `keyColumn` to avoid the unsupported column-name array overload. A single key can be assigned by position using `keyProperty`. Lambda/BaseMapper entity backfill with `KeyType.Auto` uses that array overload and cannot be directly applied to these adapters; use the JDBC flag overload or the Mapper configuration above. See [Milvus version requirements](../drivers/milvus/compatibility.md).
+When requesting keys in Mapper annotations/XML, omit `keyColumn` to avoid the unsupported column-name array overload. A single key can be assigned by position using `keyProperty`. Lambda/BaseMapper entity backfill with `KeyType.Auto` uses that array overload and cannot be directly applied to these adapters; use the JDBC flag overload or the Mapper configuration above. See [Milvus version requirements](./milvus/compatibility.md).
 
 ### Non-Relational Data Source Guides
 
-- **[Redis](./redis/about.md)** — Supports [140+ commands](../drivers/redis/commands), 5 data type operations; no Builder API; map results with RowMapper or a JSON TypeHandler
+- **[Redis](./redis/about.md)** — Supports [140+ commands](./redis/commands), 5 data type operations; no Builder API; map results with RowMapper or a JSON TypeHandler
 - **[MongoDB](./mongo/about.md)** — Full CRUD support, ObjectId auto-mapping, paginated queries; JDBC Batch and stored procedures not supported
 - **[ElasticSearch](./elastic/about.md)** — Full CRUD support, REST DSL-based; JDBC Batch and stored procedures not supported
 - **[Milvus](./milvus/about.md)** — SQL subset, multi-statement execution, vector/Hybrid search, paged Partial UPDATE, generated keys, multi-row writes and Import; JDBC Batch, transactions and stored procedures are unsupported.

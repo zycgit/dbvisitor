@@ -5,7 +5,9 @@ title: 6.2 Named Arguments
 description: Use :name, &name, or #{...} to name arguments in SQL.
 ---
 
-# Named Arguments
+<span id="named-arguments" />
+
+# 6.2 Named Arguments
 
 Use `:name`, `&name`, or `#{...}` to name arguments in SQL.
 

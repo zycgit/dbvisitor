@@ -6,7 +6,9 @@ title: Milvus Features
 description: Milvus vector database capability scope, API support, and vector search methods in dbVisitor.
 ---
 
-# Milvus Data Source Features
+<span id="milvus-data-source-features" />
+
+# Milvus Features
 
 dbVisitor accesses the Milvus vector database via the [JDBC-Milvus](../../drivers/milvus/about) driver, based on the JDBC protocol. Unlike the native command style of MongoDB/ElasticSearch, the Milvus adapter uses **SQL-style syntax** (`CREATE TABLE`, `INSERT`, `SELECT`, `DELETE`, etc.), resulting in a lower learning curve.
 
@@ -42,11 +44,18 @@ For complete JdbcTemplate, Builder API, BaseMapper, Annotation, and Mapper File 
 ## Core Topics
 
 - [Vector Search](./usage#vector-search): single-vector KNN, the L2 range builder and SQL threshold rules for COSINE/IP.
-- [Filtered vector search](./usage#hybrid-query): distinct from [native multi-path Hybrid fusion](../../drivers/milvus/commands.md#hybrid).
+- [Filtered vector search](./usage#hybrid-query): distinct from [native multi-path Hybrid fusion](./commands.md#hybrid).
 - [Consistency Level](./usage#consistency): `consistencyLevel=Strong` for immediate visibility
 
 ## Relationship to General Documentation
 
 For general API usage, see [Core API](../../guides/overview). For vector query API, see [Vector Queries](../../guides/core/vector_query/about).
 
-Current source requires Java 17+, SDK 2.6.22 and a minimum Milvus 2.6.2 baseline. See the [Versions and Support](../../drivers/milvus/compatibility.md) for version and feature requirements, and [typed values and generated keys](../../drivers/milvus/usecase.mdx#typed-values) for JDBC examples.
+Current source requires Java 17+, SDK 2.6.22 and a minimum Milvus 2.6.2 baseline. See the [Versions and Support](./compatibility.md) for version and feature requirements, and [typed values and generated keys](./jdbc.mdx#typed-values) for JDBC examples.
+
+## Documentation
+
+- [JDBC installation and connection](../../drivers/milvus/connection.mdx)
+- [JDBC operations](./jdbc.mdx)
+- [Command reference](./commands.md)
+- [dbVisitor API usage](./usage.mdx)

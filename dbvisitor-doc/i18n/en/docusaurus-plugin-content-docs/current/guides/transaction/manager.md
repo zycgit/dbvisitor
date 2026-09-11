@@ -5,7 +5,9 @@ title: 10.4 Transaction Manager
 description: Understand TransactionManager, TransactionStatus, the transaction stack, suspension, and savepoints.
 ---
 
-# Transaction Manager
+<span id="transaction-manager" />
+
+# 10.4 Transaction Manager
 
 `TransactionManager` is the core transaction interface. Annotation-based transactions and templates ultimately call its `begin`, `commit`, and `rollBack` methods.
 

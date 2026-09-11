@@ -5,7 +5,9 @@ title: 8.6 Geospatial Type Handler
 description: Type handlers in dbVisitor for reading/writing OpenGIS geospatial data (WKT/WKB) based on JTS.
 ---
 
-# Geospatial Type Handlers
+<span id="geospatial-type-handlers" />
+
+# 8.6 Geospatial Type Handler
 
 Geospatial type handlers are located in the `net.hasor.dbvisitor.types.handler.geo` package. Add the JTS dependency before use:
 

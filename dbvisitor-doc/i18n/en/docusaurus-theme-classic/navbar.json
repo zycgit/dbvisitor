@@ -7,8 +7,8 @@
     "message": "dbVisitor Logo",
     "description": "The alt text of navbar logo"
   },
-  "item.label.驱动适配器": {
-    "message": "Driver Adapters",
+  "item.label.JDBC 驱动": {
+    "message": "JDBC Drivers",
     "description": "Navbar item with label 驱动适配器"
   },
   "item.label.版本记录": {

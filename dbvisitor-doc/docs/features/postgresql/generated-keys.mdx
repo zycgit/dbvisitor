@@ -6,7 +6,9 @@ title: 自增主键回填
 description: PostgreSQL 下使用 dbVisitor 处理 SERIAL、identity、RETURNING 和 generated keys 的方式。
 ---
 
-# PostgreSQL 自增主键回填
+<span id="postgresql-自增主键回填" />
+
+# 自增主键回填
 
 PostgreSQL 支持 JDBC generated keys，也支持原生 `INSERT ... RETURNING <column>`。对于单行 INSERT，两种方式通常都可以工作；对于多行 INSERT 后需要逐行回填主键，`RETURNING` 更适合表达 PostgreSQL 的原生能力。
 

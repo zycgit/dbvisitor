@@ -5,7 +5,9 @@ title: 8.1 Java/JDBC 类型关系
 description: dbVisitor ORM 工具 Java类型映射表介绍。
 ---
 
-# Java/JDBC 类型关系
+<span id="javajdbc-类型关系" />
+
+# 8.1 Java/JDBC 类型关系
 
 在没有明确指定 JDBC 类型时，dbVisitor 会根据下面表格中的映射自动选择 Java 类型对应的 JDBC 类型作为参数。
 

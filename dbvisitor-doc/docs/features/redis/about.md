@@ -6,7 +6,9 @@ title: Redis 特性
 description: Redis 数据源使用 dbVisitor 的能力范围、API 支持和使用方式。
 ---
 
-# Redis 数据源特性
+<span id="redis-数据源特性" />
+
+# Redis 特性
 
 dbVisitor 通过 [JDBC-Redis](../../drivers/redis/about) 驱动，基于 JDBC 协议访问 Redis 数据源。
 
@@ -46,4 +48,11 @@ Redis 支持三种使用方式：
 
 ## 与通用文档的关系
 
-通用 API 用法见 [核心API](../../guides/overview)。Redis 命令语法见 [驱动适配器命令列表](../../drivers/redis/commands)。
+通用 API 用法见 [核心API](../../guides/overview)。Redis 命令语法见 [驱动适配器命令列表](./commands)。
+
+## 文档导航
+
+- [JDBC 驱动安装与连接](../../drivers/redis/connection.mdx)
+- [JDBC 操作用法](./jdbc.mdx)
+- [命令参考](./commands.md)
+- [dbVisitor API 用法](./usage.mdx)

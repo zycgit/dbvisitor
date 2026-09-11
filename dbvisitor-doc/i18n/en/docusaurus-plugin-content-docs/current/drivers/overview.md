@@ -1,14 +1,18 @@
 ---
 id: about
+sidebar_label: Driver Adapter Introduction
 sidebar_position: 0
 hide_table_of_contents: true
-title: Driver Adapters
+title: Driver Adapter Introduction
 description: JDBC driver adapters based on dbvisitor-driver that integrate non-relational databases via standard JDBC interfaces.
 ---
+
 JDBC driver adapters are a set of JDBC drivers implemented on the `dbvisitor-driver` framework. They integrate non-relational databases via standard JDBC interfaces.
 
 Each adapter is an independent JDBC driver. It can be used directly through JDBC or integrated with Spring JDBC, MyBatis and dbVisitor. Adapters support data-source-specific commands and a subset of JDBC; before integrating another framework, check that its SQL, metadata and transaction requirements are within the [supported scope](./limited).
+
 They address the following core problems:
+
 - **Simplified driver implementation**: By abstracting the complexity of JDBC interfaces, developers can more easily implement JDBC-compatible layers for various data sources.
 - **Non-relational database integration**: Allows non-relational databases (NoSQL) to be accessed through standardized JDBC interfaces.
 - **Unified access**: Reuses JDBC connections, parameter binding and result reading to reduce interface differences between data sources.
@@ -18,7 +22,7 @@ They address the following core problems:
 - Available Adapters
   - **[jdbc-redis](./redis/about)** is a JDBC driver adapter for Redis, allowing developers to operate the database using standard JDBC interfaces and Redis commands.
   - **[jdbc-mongo](./mongo/about)** is a JDBC driver adapter for MongoDB, allowing developers to operate the database using standard JDBC interfaces and MongoDB commands.
-  - **[jdbc-elastic](./elastic/about)** is a JDBC driver adapter for ElasticSearch, allowing developers to operate data using standard JDBC interfaces and ElasticSearch native QueryDSL commands.
+  - **[jdbc-elastic](./elastic/about)** is a JDBC driver adapter for Elasticsearch, allowing developers to operate data using standard JDBC interfaces and Elasticsearch native QueryDSL commands.
   - **[jdbc-milvus](./milvus/about)** is a JDBC driver adapter for Milvus vector database, allowing developers to operate Milvus using standard JDBC interfaces and SQL-style commands.
 - Developing New Adapters
   - **[Custom Adapter](./dev/about)** Learn how to develop a custom JDBC driver adapter to implement a JDBC-compatible layer for your own database.

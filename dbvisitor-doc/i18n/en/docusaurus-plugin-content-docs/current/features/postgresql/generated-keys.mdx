@@ -6,7 +6,9 @@ title: Auto-generated Key Backfill
 description: How to handle SERIAL, identity, RETURNING, and generated keys in PostgreSQL with dbVisitor.
 ---
 
-# PostgreSQL Auto-generated Key Backfill
+<span id="postgresql-auto-generated-key-backfill" />
+
+# Auto-generated Key Backfill
 
 PostgreSQL supports JDBC generated keys and also native `INSERT ... RETURNING <column>`. For single-row INSERTs, both methods usually work; for multi-row INSERTs requiring per-row primary key backfill, `RETURNING` better expresses PostgreSQL's native capabilities.
 

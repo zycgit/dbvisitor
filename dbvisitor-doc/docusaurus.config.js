@@ -84,7 +84,7 @@ const config = {
                     type: 'docSidebar',
                     sidebarId: 'drivers',
                     position: 'left',
-                    label: '驱动适配器',
+                    label: 'JDBC 驱动',
                 },
                 {
                     type: 'doc',
@@ -128,6 +128,7 @@ const config = {
         },
     },
     plugins: [
+        require('./plugins/document-redirects'),
         analyticsPlugin
     ],
     themes: [

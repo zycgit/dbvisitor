@@ -5,7 +5,9 @@ title: 8.4 Enum Type Handler
 description: Usage and custom mapping of the dbVisitor enum type handler.
 ---
 
-# Enum Type Handler
+<span id="enum-type-handler" />
+
+# 8.4 Enum Type Handler
 
 dbVisitor automatically selects `EnumTypeHandler` for enum types, so no intervention is usually needed.
 

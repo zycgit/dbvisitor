@@ -5,7 +5,9 @@ title: 字节数组类型
 description: dbVisitor 处理字节数组类型的类型处理器。
 ---
 
-# 字节数组类型处理器
+<span id="字节数组类型处理器" />
+
+# 字节数组类型
 
 字节数组类型处理器位于 `net.hasor.dbvisitor.types.handler.bytes` 包中。
 

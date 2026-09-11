@@ -2,7 +2,7 @@
 id: limited
 sidebar_position: 1
 hide_table_of_contents: true
-title: 使用限制
+title: 适配器限制
 description: 基于 dbvisitor-driver 的 JDBC 适配器在 JDBC 接口支持上的使用限制。
 ---
 

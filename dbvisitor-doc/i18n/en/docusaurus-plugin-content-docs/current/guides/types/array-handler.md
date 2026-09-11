@@ -5,7 +5,9 @@ title: 8.8 Array Type Handler
 description: Type handlers for array types and PostgreSQL pgvector in dbVisitor.
 ---
 
-# Array Type Handlers
+<span id="array-type-handlers" />
+
+# 8.8 Array Type Handler
 
 Array type handlers are located in the `net.hasor.dbvisitor.types.handler.array` package.
 
@@ -27,7 +29,7 @@ public class EmbeddingEntity {
 ```
 
 :::caution
-When given Java arrays, both SQL ARRAY handlers use Object[]. Pass object arrays such as Integer[], not primitive arrays such as int[]. Milvus JDBC vector parameter support for primitive arrays follows a separate path; see [Milvus Usage](../../drivers/milvus/usecase).
+When given Java arrays, both SQL ARRAY handlers use Object[]. Pass object arrays such as Integer[], not primitive arrays such as int[]. Milvus JDBC vector parameter support for primitive arrays follows a separate path; see [Milvus Usage](../../features/milvus/jdbc).
 
 The general ArrayTypeHandler converts non-empty arrays of Double elements to Float arrays when reading. To preserve double precision, use JDBC getArray() with your own conversion or a dedicated handler. Callers are responsible for freeing SQL Array inputs they supply.
 :::

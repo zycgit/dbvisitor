@@ -5,7 +5,9 @@ title: Boolean Types
 description: Type handler for boolean types in dbVisitor.
 ---
 
-# Boolean Type Handler
+<span id="boolean-type-handler" />
+
+# Boolean Types
 
 Boolean type handlers are located in the `net.hasor.dbvisitor.types.handler.bool` package.
 

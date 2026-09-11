@@ -6,7 +6,9 @@ title: ElasticSearch 特性
 description: ElasticSearch 数据源使用 dbVisitor 的能力范围、API 支持和使用方式。
 ---
 
-# ElasticSearch 数据源特性
+<span id="elasticsearch-数据源特性" />
+
+# ElasticSearch 特性
 
 dbVisitor 通过 [JDBC-Elastic](../../drivers/elastic/about) 驱动，基于 JDBC 协议访问 ElasticSearch 数据源。
 
@@ -19,7 +21,7 @@ dbVisitor 通过 [JDBC-Elastic](../../drivers/elastic/about) 驱动，基于 JDB
 | 分页 | 通过 Page 对象分页（from/size） |
 | 批量写入 | 不支持 executeBatch |
 | 存储过程 | 不支持 |
-| 向量搜索 | 原生 DSL 可使用 script_score / kNN；方言的版本差异见[向量指南](../../drivers/elastic/vectors.mdx)|
+| 向量搜索 | 原生 DSL 可使用 script_score / kNN；方言的版本差异见[向量指南](./vectors.mdx)|
 
 **不支持：** JDBC addBatch/executeBatch、事务、存储过程
 
@@ -41,4 +43,11 @@ dbVisitor 通过 [JDBC-Elastic](../../drivers/elastic/about) 驱动，基于 JDB
 
 ## 与通用文档的关系
 
-通用 API 用法见 [核心API](../../guides/overview)。ES 命令语法见 [驱动适配器命令列表](../../drivers/elastic/commands)。
+通用 API 用法见 [核心API](../../guides/overview)。ES 命令语法见 [驱动适配器命令列表](./commands)。
+
+## 文档导航
+
+- [JDBC 驱动安装与连接](../../drivers/elastic/connection.mdx)
+- [JDBC 操作用法](./jdbc.mdx)
+- [命令参考](./commands.md)
+- [dbVisitor API 用法](./usage.mdx)

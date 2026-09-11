@@ -5,7 +5,9 @@ title: 9.4 ResultSetExtractor
 description: Use the ResultSetExtractor interface to customize how a ResultSet is processed.
 ---
 
-# ResultSetExtractor
+<span id="resultsetextractor" />
+
+# 9.4 ResultSetExtractor
 
 `ResultSetExtractor` provides **full control** over the `ResultSet`, suitable for scenarios that require custom traversal logic (such as converting to Map, aggregation statistics, etc.).
 Unlike RowMapper which is called per row, ResultSetExtractor takes over the entire ResultSet directly.

@@ -5,7 +5,9 @@ title: 时间类型
 description: dbVisitor 处理时间类型的类型处理器。
 ---
 
-# 时间类型处理器
+<span id="时间类型处理器" />
+
+# 时间类型
 
 时间类型处理器位于 `net.hasor.dbvisitor.types.handler.time` 包中。
 

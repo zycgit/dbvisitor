@@ -5,7 +5,9 @@ title: 10.6 Isolation Levels
 description: Transaction isolation levels in dbVisitor.
 ---
 
-# Isolation Levels
+<span id="isolation-levels" />
+
+# 10.6 Isolation Levels
 
 Isolation determines what concurrent transactions can observe when reading and writing the same data. dbVisitor's Isolation maps to JDBC Connection#setTransactionIsolation(int).
 

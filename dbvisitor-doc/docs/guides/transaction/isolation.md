@@ -5,7 +5,9 @@ title: 10.6 隔离级别
 description: dbVisitor 事务隔离级别详解。
 ---
 
-# 隔离级别
+<span id="隔离级别" />
+
+# 10.6 隔离级别
 
 隔离级别决定多个事务并发读写同一批数据时，能看到什么结果。dbVisitor 的 `Isolation` 最终会映射到 JDBC `Connection#setTransactionIsolation(int)`。
 

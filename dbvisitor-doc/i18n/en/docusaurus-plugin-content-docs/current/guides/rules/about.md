@@ -5,7 +5,9 @@ hide_table_of_contents: true
 title: Introduction to Rules System
 description: The dbVisitor rules system aims to solve complex dynamic SQL assembly problems through concise embedded syntax.
 ---
-# Rules System
+<span id="rules-system" />
+
+# Introduction to Rules System
 
 In dbVisitor, **Rules** are a set of lightweight DSL (Domain Specific Language) embedded in SQL, invoked via the `@{...}` syntax.
 Its emergence is intended to replace cumbersome XML tags (such as `<if>`, `<where>`), allowing developers to write dynamic queries in a way that is closer to native SQL.

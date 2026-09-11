@@ -5,7 +5,9 @@ title: 9.4 ResultSetExtractor
 description: 使用 ResultSetExtractor 接口，自定义 ResultSet 结果集的处理。
 ---
 
-# ResultSetExtractor
+<span id="resultsetextractor" />
+
+# 9.4 ResultSetExtractor
 
 `ResultSetExtractor` 接口提供对 `ResultSet` 的**完全控制**，适用于需要自定义遍历逻辑的场景（如转换为 Map、聚合统计等）。
 与 RowMapper 每行调用不同，ResultSetExtractor 直接接管整个 ResultSet。

@@ -2,41 +2,32 @@
 id: about
 sidebar_position: 1
 title: Introduction
-description: jdbc-elastic JDBC capabilities, architecture, dependencies and documentation.
+description: Elasticsearch JDBC driver setup, connections and usage.
 ---
 
-## Introduction
-jdbc-elastic is a JDBC driver adapter for Elasticsearch. It allows developers to operate Elasticsearch using standard JDBC interfaces and native REST-style commands.
-
-Core value:
-- Use standard JDBC APIs (Connection, Statement, PreparedStatement, ResultSet).
-- Use native REST-style command text that maps to Elasticsearch operations.
-- Provide a unified programming style for heterogeneous data sources via dbVisitor.
+`jdbc-elastic` is an independent JDBC driver. Access Elasticsearch with REST-style commands for document reads and writes, searches and index management. Use `Connection`, `PreparedStatement` and `ResultSet` directly; dbVisitor APIs are optional.
 
 ## Features
-- Implements the JDBC core interfaces and supports `PreparedStatement` placeholders.
-- Supports REST-style commands and multiple commands separated by semicolons.
-- Supports search/count/multi-search/multi-get, document CRUD, index management, and `_cat` queries.
-- Supports `HEAD` requests and returns a `STATUS` column.
-- Result mapping: search-like responses map to `_ID` and `_DOC` columns; pre-read expands fields as columns.
-- Pre-read mode for large result sets with configurable threshold, max file size, and cache directory.
-- Optional `indexRefresh` to append `refresh=true` for write operations.
-- Elasticsearch 6/7 scenarios are covered by dbVisitor dialects and realdb tests (see `Elastic6Dialect`, `Elastic7Dialect`, and `realdb/elastic6|elastic7`).
 
-## JDBC and Implementation
+- Bind request parameters with PreparedStatement and read search results through ResultSet.
+- Read and write documents, manage indexes, search, count and run `_cat` queries.
+- Expand document fields into result columns and configure pre-read thresholds and cache storage.
 
-ANTLR4 parses commands and the official client executes them. The shared JDBC layer handles Connection, Statement, PreparedStatement, ResultSet and type conversion. Multiple commands and JDBC multi-result access do not imply arbitrary ORM SQL, transactions, JDBC batch or complete DatabaseMetaData. ResultSets are read-only and forward-only; compatible values support getInt/getString and BLOB/CLOB/NCLOB reads. INSERT can expose adapter-returned `_id` values through getGeneratedKeys, not a guarantee for every generic Mapper backfill path.
+## Get Connected
 
-## Compatibility
-- JDK 17+
-- Elasticsearch REST client: `elasticsearch-rest-client` 7.17.10
-- Jackson: `jackson-databind` 2.18.0
-- dbVisitor includes Elastic6/Elastic7 dialects and realdb test suites for ES6/ES7 scenarios.
+1. [Add dependencies](./dependencies.mdx): Maven or Gradle configuration.
+2. [Connect to the database](./connection.mdx): JDBC URL, credentials and connection examples.
+3. [Configure parameters](./params.md): names, defaults and units.
+4. [Usage limitations](./limitations.md): JDBC support and database-specific restrictions.
 
-## Documentation
+## Before You Connect
 
-- [Install and Use](./usecase.mdx): dependencies, JDBC connections, prepared operations and multiple results.
-- [Connection Parameters](./params.md): authentication, timeouts, custom clients and pre-read.
-- [Command Reference](./commands.md): coverage, hints and limitations.
-- [Vector Search Guide](./vectors.mdx): mapping, Lambda, native DSL, parameters and tuning.
-- [dbVisitor APIs](../../features/elastic/usage.mdx): JdbcTemplate, Mapper and Builder usage.
+- Requires Java 17 or later.
+- Commands must use the syntax supported by this driver; arbitrary relational SQL is not translated.
+- JDBC batch and transactions are not supported. Check the [shared JDBC limitations](../limited.md) before integrating a connection pool, ORM or other JDBC tool.
+
+When using dbVisitor APIs, Elastic6 and Elastic7 dialects are available.
+
+[Command reference](../../features/elastic/commands.md) · [dbVisitor API usage](../../features/elastic/usage.mdx)
+
+[Vector searches](../../features/elastic/vectors.mdx)

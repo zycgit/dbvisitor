@@ -5,7 +5,9 @@ title: Type Aliases
 description: Built-in short names and their target types.
 ---
 
-# Type aliases
+<span id="type-aliases" />
+
+# Type Aliases
 
 Built-in short names and their corresponding types:
 

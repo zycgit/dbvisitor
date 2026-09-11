@@ -5,7 +5,9 @@ title: 8.5 JSON 序列化处理器
 description: dbVisitor 内置支持 Jackson、Gson、Fastjson、Fastjson2 四种 JSON 序列化方案，以及 BSON 序列化。
 ---
 
-# JSON 序列化处理器
+<span id="json-序列化处理器" />
+
+# 8.5 JSON 序列化处理器
 
 JSON 序列化处理器位于 `net.hasor.dbvisitor.types.handler.json` 包中。通过序列化处理器可以将 Java 对象以 JSON 格式存储在数据库的文本字段中。
 

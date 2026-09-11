@@ -2,36 +2,28 @@
 id: about
 sidebar_position: 1
 title: Introduction
-description: jdbc-mongo JDBC capabilities, architecture, dependencies and documentation.
+description: MongoDB JDBC driver setup, connections and usage.
 ---
 
-## Introduction
-jdbc-mongo is a JDBC driver adapter for MongoDB. It allows developers to operate MongoDB using standard JDBC interfaces and native-command style Mongo commands.
-
-Core value:
-- Use standard JDBC APIs (Connection, Statement, PreparedStatement, ResultSet).
-- Use native-command style command text that maps to MongoDB operations.
-- Provide a unified programming style for heterogeneous data sources via dbVisitor.
+`jdbc-mongo` is an independent JDBC driver. Access MongoDB collections with commands for document reads and writes, aggregation and index management. Use `Connection`, `PreparedStatement` and `ResultSet` directly; dbVisitor APIs are optional.
 
 ## Features
-- Implements the JDBC core interfaces and supports `PreparedStatement` placeholders.
-- Supports native-command style Mongo commands and multiple commands separated by semicolons.
-- Supports collection, index, user, and database management commands.
-- `find` supports method chaining: `limit(...)`, `skip(...)`, `sort(...)`, `hint(...)`.
-- Result mapping: `find` returns `_ID` and `_JSON` columns; when pre-read is enabled, document fields are also expanded as columns.
-- Pre-read mode for large result sets with configurable threshold, max file size, and cache directory.
 
-## JDBC and Implementation
+- Work with collections, documents and indexes, and run aggregation queries.
+- Bind parameters through PreparedStatement and use query options such as pagination and sorting.
+- Retrieve generated `_id` values, expand document fields and configure pre-reading.
 
-ANTLR4 parses commands and the official client executes them. The shared JDBC layer handles Connection, Statement, PreparedStatement, ResultSet and type conversion. Multiple commands and JDBC multi-result access do not imply arbitrary ORM SQL, transactions, JDBC batch or complete DatabaseMetaData. ResultSets are read-only and forward-only; compatible values support getInt/getString and BLOB/CLOB/NCLOB reads. INSERT can expose adapter-returned `_id` values through getGeneratedKeys, not a guarantee for every generic Mapper backfill path.
+## Get Connected
 
-## Compatibility
-- JDK 17+
-- MongoDB Java driver: `mongodb-driver-sync` 5.6.1 (compatible with the server versions supported by this driver)
+1. [Add dependencies](./dependencies.mdx): Maven or Gradle configuration.
+2. [Connect to the database](./connection.mdx): JDBC URL, credentials and connection examples.
+3. [Configure parameters](./params.md): names, defaults and units.
+4. [Usage limitations](./limitations.md): JDBC support and database-specific restrictions.
 
-## Documentation
+## Before You Connect
 
-- [Install and Use](./usecase.mdx): dependencies, JDBC connections, prepared operations and multiple results.
-- [Connection Parameters](./params.md): authentication, timeouts, custom clients and pre-read.
-- [Command Reference](./commands.md): coverage, hints and limitations.
-- [dbVisitor APIs](../../features/mongo/usage.mdx): JdbcTemplate, Mapper and Builder usage.
+- Requires Java 17 or later.
+- Commands must use the syntax supported by this driver; arbitrary relational SQL is not translated.
+- JDBC batch and transactions are not supported. Check the [shared JDBC limitations](../limited.md) before integrating a connection pool, ORM or other JDBC tool.
+
+[Command reference](../../features/mongo/commands.md) · [dbVisitor API usage](../../features/mongo/usage.mdx)

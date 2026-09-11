@@ -133,14 +133,14 @@ public class ChildEntity extends ParentEntity {
 | typeHandler        | <TagGray/> 指定使用的 typeHandler 处理类型的读写                                                                                                  |
 | keyType            | <TagGray/> 仅对 [构造器 API](../lambda/about) 有效。表示当属性值为 null 时所采用的数据生成算法。详细请了解 [主键生成器](./key_generator#anno)。                                   |
 | primary            | <TagGray/> 是否为主键，默认为 false，表示不是主键                                                                                                     |
-| insert             | <TagGray/> 仅对 [构造器 API](../../core/lambda/about) 有效。表示当在 insert 操作时是否参与新增。详细请了解 [写入策略](./write_policy)。                               |
-| update             | <TagGray/> 仅对 [构造器 API](../../core/lambda/about) 有效。表示当在 update 操作时是否参与更新。详细请了解 [写入策略](./write_policy)。                               |
-| selectTemplate     | <TagGray/> 仅对 [构造器 API](../../core/lambda/about) 有效。当用作 select 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/statement_template)。                |
-| insertTemplate     | <TagGray/> 仅对 [构造器 API](../../core/lambda/about) 有效。当用作 insert 语句时参数写法，默认是 ?。详细请了解 [语句模版](../mapping/statement_template)。                       |
-| setValueTemplate   | <TagGray/> 仅对 [构造器 API](../../core/lambda/about) 有效。当用作 update set 语句时参数写法，默认是 ?。详细请了解 [语句模版](../mapping/statement_template)。                   |
-| whereColTemplate   | <TagGray/> 仅对 [构造器 API](../../core/lambda/about) 有效。当用作 update/delete 的 where 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/statement_template)。 |
-| whereValueTemplate | <TagGray/> 仅对 [构造器 API](../../core/lambda/about) 有效。当用作 update/delete 的 where 语句时参数写法，默认是 ?。详细请了解 [语句模版](../mapping/statement_template)。        |
-| orderByColTemplate | <TagGray/> 仅对 [构造器 API](../../core/lambda/about) 有效。当用作 order by 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/statement_template)。              |
+| insert             | <TagGray/> 仅对 [构造器 API](../lambda/about) 有效。表示当在 insert 操作时是否参与新增。详细请了解 [写入策略](./write_policy)。                               |
+| update             | <TagGray/> 仅对 [构造器 API](../lambda/about) 有效。表示当在 update 操作时是否参与更新。详细请了解 [写入策略](./write_policy)。                               |
+| selectTemplate     | <TagGray/> 仅对 [构造器 API](../lambda/about) 有效。当用作 select 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](./statement_template)。                |
+| insertTemplate     | <TagGray/> 仅对 [构造器 API](../lambda/about) 有效。当用作 insert 语句时参数写法，默认是 ?。详细请了解 [语句模版](./statement_template)。                       |
+| setValueTemplate   | <TagGray/> 仅对 [构造器 API](../lambda/about) 有效。当用作 update set 语句时参数写法，默认是 ?。详细请了解 [语句模版](./statement_template)。                   |
+| whereColTemplate   | <TagGray/> 仅对 [构造器 API](../lambda/about) 有效。当用作 update/delete 的 where 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](./statement_template)。 |
+| whereValueTemplate | <TagGray/> 仅对 [构造器 API](../lambda/about) 有效。当用作 update/delete 的 where 语句时参数写法，默认是 ?。详细请了解 [语句模版](./statement_template)。        |
+| orderByColTemplate | <TagGray/> 仅对 [构造器 API](../lambda/about) 有效。当用作 order by 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](./statement_template)。              |
 
 ### @Primary 注解
 

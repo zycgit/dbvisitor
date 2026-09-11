@@ -5,7 +5,9 @@ title: 8.7 流类型处理器
 description: dbVisitor 处理流类型的类型处理器。
 ---
 
-# 流类型处理器
+<span id="流类型处理器" />
+
+# 8.7 流类型处理器
 
 流类型处理器位于 `net.hasor.dbvisitor.types.handler.io` 包中。
 

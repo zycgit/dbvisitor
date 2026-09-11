@@ -1,0 +1,403 @@
+---
+id: jdbc
+sidebar_position: 2
+title: JDBC 操作用法
+---
+
+先完成[独立 JDBC 驱动的安装与连接](../../drivers/milvus/connection.mdx)。本页直接使用 JDBC，不要求使用 dbVisitor 上层 API。除示例自行创建连接外，`conn` 表示应用已打开并负责关闭的 JDBC 连接。
+
+## 完整入门示例 {#2-完整入门示例}
+
+前提：Milvus 已启动，`default` 数据库可访问；当前用户有建表、索引、加载和读写权限。示例创建新的 `books_demo` 集合，使用二维 FloatVector 和 L2 索引。
+
+保存为 `MilvusJdbcExample.java`，在已引入[驱动依赖](../../drivers/milvus/connection.mdx)的 Java 工程中运行。默认连接本机；也可通过程序第一个参数传入 JDBC URL。重复运行前请换集合名或自行清理演示集合，示例不会自动删除已有数据。
+
+```java
+import java.sql.*;
+import java.util.Properties;
+
+public class MilvusJdbcExample {
+    public static void main(String[] args) throws Exception {
+        String url = args.length == 0
+                ? "jdbc:dbvisitor:milvus://127.0.0.1:19530/default"
+                : args[0];
+        Properties props = new Properties();
+        props.setProperty("consistencyLevel", "Strong");
+        props.setProperty("connectTimeout", "10000");
+        props.setProperty("maxRetry", "3");
+        // If authentication is enabled:
+        // props.setProperty("token", "YOUR_TOKEN");
+
+        Class.forName("net.hasor.dbvisitor.driver.JdbcDriver");
+        try (Connection conn = DriverManager.getConnection(url, props)) {
+            try (Statement stmt = conn.createStatement()) {
+                stmt.executeUpdate("CREATE TABLE books_demo (" +
+                        "book_id INT64 PRIMARY KEY, title VARCHAR(200), " +
+                        "word_count INT32 DEFAULT 0, book_intro FLOAT_VECTOR(2))");
+                stmt.executeUpdate("CREATE INDEX idx_intro ON books_demo (book_intro) " +
+                        "USING 'FLAT' WITH (metric_type='L2')");
+                stmt.executeUpdate("LOAD TABLE books_demo");
+            }
+
+            String insert = "INSERT INTO books_demo " +
+                    "(book_id, title, word_count, book_intro) VALUES (?, ?, ?, ?)";
+            try (PreparedStatement ps = conn.prepareStatement(insert)) {
+                ps.setLong(1, 1L);
+                ps.setString(2, "A book");
+                ps.setInt(3, 1000);
+                ps.setObject(4, new float[] {0.1F, 0.2F});
+                System.out.println("inserted=" + ps.executeUpdate());
+            }
+
+            String search = "SELECT book_id, title, score FROM books_demo " +
+                    "WHERE word_count >= ? ORDER BY book_intro <-> ? LIMIT ?";
+            try (PreparedStatement ps = conn.prepareStatement(search)) {
+                ps.setInt(1, 100);
+                ps.setObject(2, new float[] {0.1F, 0.2F});
+                ps.setInt(3, 5);
+                ps.setFetchSize(128);
+                ps.setQueryTimeout(30);
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        System.out.printf("%d %s %.4f%n", rs.getLong("book_id"),
+                                rs.getString("title"), rs.getFloat("score"));
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
+`score` 是距离/相似度结果列：本例 L2 越小越近。它不是存储字段。`Class.forName` 是显式注册示例；正常 classpath 下也可依赖 JDBC 服务发现。
+
+连接认证、TLS/双向证书、Zilliz Cloud 以及全部连接属性见[连接参数](../../drivers/milvus/params.md)。服务端版本要求与验证范围见[发布与支持矩阵](./compatibility.md)。
+
+### 连接池与 Session {#pool-session}
+
+可以将 Milvus JDBC DataSource 传给 dbVisitor 的 `Configuration.newSession(dataSource)`、`newJdbc(dataSource)` 或 `newLambda(dataSource)`。Session 可创建 BaseMapper，多种实体或多个 Session 可共用同一配置；这不会使操作成为事务。
+
+同一 Session 可以混用 `createMapper` 创建的注解 Mapper、XML RefMapper 和 `createBaseMapper`。先通过 `Configuration.loadMapper` 注册 XML 或 Mapper 接口后，可用 `session.executeStatement("命名空间.statementId", params)` 执行 DML，用 `queryStatement` 获取映射结果列表；BaseMapper 也提供相同的 statement 转发入口。SQL 必须属于 Milvus 支持的语法，注册成功不代表其中的 JOIN、标量 ORDER BY 或关系型函数可执行。简单主键重复删除可能仍返回 1，不应据此判断删除前是否存在实体，见[返回计数边界](./commands.md#jdbc-results)。
+
+使用 HikariCP 时，需显式设置 `connectionTestQuery` 为 `SHOW TABLES`，因为当前公共驱动未实现 `Connection.isValid()`；不要使用不受支持的 `SELECT 1`。保持自动提交模式，不配置事务隔离级别。连接 URL、认证和 TLS 仍按普通 JDBC 连接配置，应用结束时关闭连接池。
+
+实体必须符合集合 schema：Milvus 只有单字段主键，不支持复合主键；必需的向量字段应由应用提交，或由集合中已定义的原生函数生成。Session 不会自动补造缺失字段，也不会将 VARCHAR 日期文本变成原生日期类型。
+
+### 实体与集合映射 {#entity-mapping}
+
+dbVisitor 的注解、XML 和 `MappingRegistry` 可以定义实体属性与集合字段的映射。若需要将实体用于另一个已存在的集合，可在创建 BaseMapper 之前调用 `configuration.getMappingRegistry().loadEntityAsTable(Entity.class, "target_collection")`，随后使用同一 `Configuration` 创建 Session 和 BaseMapper。目标集合名应来自可信配置，实体的字段和单字段主键必须与目标 schema 匹配。
+
+此调用注册实体映射，不会创建或重命名集合；不要在同一配置中重复注册同一个实体。命名空间、字段别名、类型处理器等配置元数据可以使用，但映射中能描述某种索引、方言或 DDL 策略，不等于 Milvus 能执行它。集合 schema、索引和原生函数仍需按 [Milvus 命令](./commands.md) 管理。
+
+### 字段类型处理器 {#field-type-handlers}
+
+字段映射支持 `@Column` 重命名、插入/更新排除策略、只读字段、`@Ignore` 和显式列映射。按实体映射查询 Map 时，键使用属性名，未映射的返回列会被忽略；集合可以保留未映射的向量字段。这与直接读取全部列的 JdbcTemplate Map 查询不同。显式写入 NULL 要求目标字段 nullable，映射不会改变集合 schema。
+
+实体字段可以通过 `@Column(typeHandler=YourTypeHandler.class)` 指定自定义类型处理器，通过 `jdbcType=Types.VARCHAR` / `Types.INTEGER` 指定 JDBC 绑定类型，也可以通过 `specialJavaType=String.class` 为 `CharSequence` 等声明类型指定实际映射类型。未指定时仍使用 dbVisitor 的默认处理器。
+
+类型处理器作用于参数绑定和结果映射，不修改 Milvus 集合的字段类型。自定义处理器转换后的值必须符合 schema；例如字符串转大写是在应用侧处理，不是 Milvus SQL 函数。`jdbcType` 不会让服务端支持原生 DATE、任意对象或其他尚不支持的类型。
+
+### 标量类型边界 {#scalar-types}
+
+Java Byte/Short/Integer/Long 可映射到对应 INT8/INT16/INT32/INT64，Float/Double 映射 FLOAT/DOUBLE，Boolean 映射 BOOL，字符串与单字符映射 VARCHAR。nullable 字段可以保存 NULL；VARCHAR 的空字符串与 NULL 不同，Unicode 文本受 max_length 字节数约束。
+
+BigInteger 仅应映射 Int64 范围内的值。BigDecimal 写入 DOUBLE 时会转换为双精度浮点数，可能丢失精度；能够将结果读取为 BigDecimal 不代表原生 DECIMAL 或任意精度计算。需要精确小数时，应由应用选择并明确设计存储表示，驱动不会自动模拟 DECIMAL。Milvus 2.6.2 没有关系型 BIT/CAST 语义，BOOL 不能替代该能力。
+
+### 枚举映射 {#enum-mapping}
+
+枚举由 dbVisitor 类型处理器转换为 Milvus 原生标量，不需要原生 ENUM 字段：
+
+- 普通 Java enum 使用枚举名称，对应 VARCHAR，例如 `ACTIVE`。
+- 实现 `net.hasor.dbvisitor.types.handler.string.EnumOfCode` 的枚举使用 `codeName()` 返回的字符串，对应 VARCHAR。
+- 实现 `net.hasor.dbvisitor.types.handler.string.EnumOfValue` 的枚举使用 `codeValue()` 返回的整数，对应 INT32；不是自动使用 `ordinal()`。
+
+JdbcTemplate 的参数数组可以直接传入这些枚举对象，用于 INSERT、UPDATE 和 WHERE 值绑定；读取时将枚举类传给 `queryForObject`。例如 `jdbcTemplate.queryForObject("SELECT status FROM docs WHERE id=?", new Object[] { id }, Status.class)`，其中 `status` 的字段类型及存储值必须与 `Status` 的映射方式一致。
+
+nullable 标量列的 NULL 映射为 null。普通枚举遇到不存在的名称会报错；自定义代码的未知值行为取决于 `valueOfCode` 实现，可能返回 null 或抛出异常。这里验证的是 dbVisitor/JdbcTemplate 的转换，不表示裸 JDBC `PreparedStatement.setObject` 接受任意枚举，也不会替集合补充必需的向量字段。
+
+### Map 模式读写 {#map-access}
+
+Milvus 集合也可通过 dbVisitor 的映射 Map、自由 Map 和 BaseMapper Map 方法读写。三种方式的 Map 键含义不同：
+
+| 模式 | 入口示例 | Map 键 |
+| --- | --- | --- |
+| 映射 Map | `lambda.insert(UserInfo.class).asMap().applyMap(values)`；`lambda.query(UserInfo.class).asMap()` | 实体属性名，例如 `createTime`，由实体映射转换为集合字段 `create_time` |
+| 自由 Map | `lambda.insertFreedom("user_info").applyMap(values)`；`lambda.queryFreedom("user_info")` | 集合字段名，例如 `create_time`，不依赖实体类 |
+| BaseMapper Map | `mapper.updateByMap(values)`、`mapper.replaceByMap(values)`、`mapper.deleteByMap(keys)` | 已注册实体的属性名；主键属性提供更新或删除条件 |
+
+`lambda` 是使用 Milvus DataSource 创建的 LambdaTemplate，`mapper` 是相应实体的 BaseMapper。插入构造器以 `executeSumResult()` 执行；查询可使用 `eq("id", id).queryForMap()` 或 `queryForObject()` 获取单个 Map，条件更新/删除构造器分别以 `doUpdate()` / `doDelete()` 执行。集合及实体映射须预先存在；例如 `UserInfo.createTime` 需映射到真实的 `create_time` 字段。使用 Map 不会跳过 schema 约束，必需的向量仍须提供或由原生函数生成。
+
+BaseMapper 的 `updateByMap` 忽略 NULL 值和未提供的属性，适用于局部更新。`replaceByMap` 则替换实体映射中可更新的非主键字段：显式 NULL 和未提供的属性都可能被写为 NULL，须提供所有希望保留的字段，且被清空的字段必须允许 NULL。`upsertByMap` 沿用 dbVisitor 的先查询、再插入或替换更新流程，不是驱动 SQL UPSERT 的直接别名，不能据此认为并发检查与写入是原子操作。`deleteListByMap` 将多个主键 Map 合并为删除条件，不是 JDBC addBatch/executeBatch；也不提供事务回滚保证。
+
+表名、列名和 Map 键应来自应用定义或白名单，外部输入只作为条件值和写入值传入。自由 Map 不会扩展 Milvus 的 SQL 能力；不要将子查询、排序表达式或其他 SQL 片段塞入字段名，也不要依赖一次非法输入被拒绝来保证任意拼接 SQL 的安全性。
+
+### Mapper 参数与结果处理 {#xml-results}
+
+实体命名支持驼峰到下划线映射、`@Column` 覆盖和方法引用解析；集合名称保留大小写，大小写不同的集合可分别访问。Freedom Map 的 `caseInsensitive` 选项控制返回键的查找，不改变服务端字段名或 SQL 大小写。当前 Milvus 方言没有标识符引用符，不能将 `useDelimited` 当作反引号/双引号引用或关键字自动转义支持；建议使用普通字母、数字与下划线命名。
+
+注解 Mapper 会传播 SQL 解析错误及集合/字段不存在等执行错误；集合删除后，已有 Mapper 的查询同样会报错。INSERT 不以主键重复作为错误，按主键 DELETE 的确认计数也不保证等于实际存在的实体数，不应套用关系数据库的重复键异常或未命中删除计数预期。
+
+XML Mapper 可设置 `statementType="PREPARED"`（绑定值参数）或 `STATEMENT`（执行无绑定参数的 SQL），并结合 `fetchSize`、`timeout`、`resultSetType="FORWARD_ONLY"`。STATEMENT 不会把文本替换变成安全值绑定；可滚动结果集类型会被驱动拒绝。
+
+XML 的 `<where>/<if>/<choose>/<when>/<otherwise>/<foreach>` 可以组合原生标量条件与向量排序，`<set>/<if>` 可生成局部 UPDATE。`@{and}` 与 `@{in}` 规则同样可用，但生成后的 SQL 仍须符合 Milvus 语法。必须保留的权限或业务范围应写成固定条件，不要放在可省略的分支中；不要用 `WHERE 1=1` 作为 Milvus 条件组合的通用前缀。动态标签只控制 SQL 生成，不提供事务或服务端不支持的表达式。
+
+注解 Mapper 可通过单个 Bean 的属性或 `@Param` 命名参数绑定值，也可使用位置参数 `?`；多参数方法只绑定 SQL 引用的参数。`@{in, :ages}` 可展开数组或 List 生成占位符，元素仍作为值绑定。参数中的日期通过类型处理器映射到 VARCHAR，不表示服务端日期运算支持；不要在 Milvus INSERT 中使用关系型 `CURRENT_TIMESTAMP` 宏替代显式日期参数。
+
+XML Mapper 可为 Milvus SELECT 配置实体、Map 或标量 `resultType`、命名 `resultMap`、`resultRowMapper` 和 `resultSetExtractor`。`ColumnMapRowMapper`、`ColumnMapResultSetExtractor` 与 `PairsResultSetExtractor` 都处理驱动返回的列；Pairs 需要投影键和值两列，其 Map 作为 Session.queryStatement 返回列表中的一个元素。`<sql>/<include>` 可以复用原生查询片段，但不会增加 SQL 语法支持。结果类型或处理器也不能把标量 ORDER BY、JOIN 等不支持的语法变成可用功能。
+
+注解 Mapper 同样支持 `@Query(resultRowMapper=...)` 和 `resultSetExtractor=...`，可结合 fetchSize、timeout；跨页读取继续使用同一个处理器，RowMapper 行号从 0 连续递增。SQL 仍须使用原生语法，可滚动 ResultSet 不在支持范围内。
+
+普通注解查询可映射完整或部分实体、单行及列表 Map，以及单列标量（包括 COUNT 与日期字段）。没有匹配行时，单对象查询返回 null、列表查询返回空列表；可空字段保留 null。返回类型不会扩展服务端语法：包含 DISTINCT、MAX/GROUP BY、标量排序或当前版本不支持的 LIKE 参数模板的查询，不能仅靠改变 Mapper 返回类型执行。
+
+### Lambda 条件与列选择 {#lambda-query}
+
+Lambda 插入的 `onDuplicateStrategy(DuplicateKeyStrategy.Update)` 使用[原生部分 Upsert](./commands.md#upsert)，要求实体映射具有单个主键且本次提供该主键值。新键插入、旧键只更新本次写入字段；被映射规则省略的字段不清空。Into/默认策略仍是 INSERT，不提供重复键拒绝保证。Ignore 没有原生等价保证，会明确报不支持；不会静默退回 INSERT 或先查后写模拟。插入与生成键采用逐条执行策略，不启用 JDBC batch。
+
+条件也可使用字符串属性名，例如 `in("age", values)`、`notIn("age", values)`、`isNull("email")`、`isNotNull("email")`、`between("age", 20, 30)` 和 `notBetween("age", 20, 30)`。`eqBySampleMap` 按实体属性映射生成相等条件；这里的名称是 Java 属性名，不是任意 SQL 片段。集合包含 NULL 元素时，不应假定具有关系数据库的 NOT IN 三值逻辑。
+
+Lambda 可用 `applyEntity(List)` 插入多行、`in` 条件更新多个字段（包括写入 NULL），以及 `notIn` 查询或删除。`updateTo(false, ...)` 不修改该字段。需要分段删除时，可用范围条件与 `initPage(pageSize, 0)` 反复选取一页主键，再按 IN 删除；每次删除后重新读取第一页，不递增 offset。该方式不要求标量排序，也不提供事务或并发快照保证，调用方应检查进度并限定操作范围。
+
+Lambda 默认拒绝无 WHERE 的 UPDATE/DELETE；只有显式调用 `allowEmptyWhere()` 才关闭这一保护。允许后，UPDATE 可以更新全部记录，DELETE 可以删除全部记录。无 WHERE 的标量 DELETE 由驱动根据实际主键生成 `主键 IS NOT NULL` 过滤条件，无须手写 `1=1`；已有 WHERE 不会被替换。直接使用 JDBC/原生命令执行无 WHERE 的写入没有 Lambda 层的保护，请自行确认范围。未命中 UPDATE 返回 0；简单主键 DELETE 的计数是服务端确认的提交键数，不能用它判断记录原先是否存在。
+
+原生查询结果可以通过 Lambda 的 Map/标量转换、RowMapper、RowCallbackHandler、ResultSetExtractor、Pairs 和 FilterResultSetExtractor 处理。需要稳定顺序时使用匹配索引的向量排序；处理器内的转换、过滤或聚合发生在客户端，不增加服务端投影表达式、标量排序或 GROUP BY 能力。空查询不会调用逐行处理器。
+
+`iteratorByBatch(batchSize)` 和 `iteratorForLimit(limit, batchSize, transform)` 支持分页迭代、结果转换及空结果处理；负 limit 表示遍历全部。需要确定顺序时应显式使用向量排序和匹配的索引。这是 Lambda 按 LIMIT/OFFSET 逐页查询，每页读取后释放 JDBC 结果集，不是持有单个服务端快照；并发数据变更可能影响跨页一致性。不要把 batchSize 等同于 JDBC Batch，也不要据此推定高吞吐性能。
+
+向量查询可使用 `orderByL2`、`orderByCosine`、`orderByIP` 或 `orderByMetric` 排序，并用 `initPage(k, 0)` 限制 Top-K。范围过滤使用 `vectorByL2`、`vectorByCosine`、`vectorByIP`，可以通过 AND 与 `eq` 等标量条件组合。阈值遵循 Milvus 原生含义：L2 为平方欧氏距离且小于阈值；COSINE/IP 为相似度且大于阈值，不采用 PostgreSQL 的余弦距离或负内积。字段索引的 metric 必须与查询一致；一个字段不能靠切换查询算子同时使用不同 metric 的索引。范围过滤不与向量 ORDER BY 叠加。
+
+通过 `configuration.newLambda(dataSource)` 创建 LambdaTemplate 后，可以使用 `eq`、`in`、`and`、`or`、`nested`、`ifTrue` 组合条件，并用 `select` 选择实体属性。单列可通过 `queryForList(String.class)` 返回标量；多列可映射为 Map 或 DTO。动态条件为 false 时不加入 SQL；`apply` 接受可信 SQL 片段，外部值仍应使用 `?` 参数。
+
+Lambda 生成的 SQL 同样受 Milvus 语法限制：不将 DISTINCT、GROUP BY、SUM/MAX 或标量 ORDER BY 转成客户端计算。2.6.2 不支持 `LIKE ?`，且原生 SDK 的整数模板比较被 NOT 包裹时可能触发服务端断言（包括双重 NOT）；驱动不拼接参数或消除 NOT 兜底。普通 `ne` / `<>` / `!=` 比较、字面量 NOT 和 `NOT (field IS NULL)` 不属于该模板问题。
+
+无匹配记录时，`queryForList()` 和 `queryForMapList()` 返回非 NULL 的空列表，`queryForCount()` 返回 0；`usePage(PageObject.of(1, 10))` 的空页总记录数与总页数均为 0。`initPage(0, 0)` 在 Lambda API 中表示不启用分页，不等同于 SQL `LIMIT 0`。
+
+允许 NULL 且没有默认值的 VARCHAR 字段可区分空字符串与 NULL：分别用 `eq(UserInfo::getName, "")` 和 `isNull(UserInfo::getName)` 查询。必需向量仍须提供或由原生函数生成，不要为了生成向量而把本应允许 NULL 的业务字段设成必填。空字符串不会使 Lambda `like` 绕过 2.6.2 的参数化 LIKE 限制；没有匹配记录也不使 DISTINCT 或聚合变成受支持的查询。
+
+条件值中的引号、分号及 SQL 关键字应通过 `eq`、`eqBySample` 或 `apply("name = ?", value)` 绑定；从数据库读回的文本再次参与查询时也一样。参数绑定保护值，不保护 `apply` 的 SQL 片段本身。2.6.2 会拒绝字段条件与常量条件的组合，例如 `.in(UserInfo::getId, ids).apply("1=1")`；驱动传播该错误，不删掉条件重试，也不会继续执行同一批 SQL 中后续的删除语句。需要可选条件时使用 `ifTrue` 等条件构造接口，避免附加恒真表达式，见[原生边界](./compatibility.md#boundaries)。
+
+## 常用读写 {#3-常用读写}
+
+下列片段中的 `conn` 是已经打开的 JDBC Connection，`books_demo` 来自入门示例。
+
+### UPSERT、UPDATE 和 DELETE
+
+```java
+try (PreparedStatement ps = conn.prepareStatement(
+        "UPSERT INTO books_demo (book_id, title, word_count, book_intro) VALUES (?, ?, ?, ?)")) {
+    ps.setLong(1, 1L);
+    ps.setString(2, "Revised book");
+    ps.setInt(3, 1200);
+    ps.setObject(4, new double[] {0.1, 0.2});
+    ps.executeUpdate();
+}
+try (PreparedStatement ps = conn.prepareStatement(
+        "UPDATE books_demo SET word_count = ? WHERE book_id = ? LIMIT ?")) {
+    ps.setInt(1, 1500);
+    ps.setLong(2, 1L);
+    ps.setInt(3, 1);
+    ps.setFetchSize(128);
+    System.out.println(ps.executeLargeUpdate());
+}
+try (PreparedStatement ps = conn.prepareStatement(
+        "DELETE FROM books_demo WHERE book_id = ? LIMIT ?")) {
+    ps.setLong(1, 1L);
+    ps.setInt(2, 1);
+    System.out.println(ps.executeLargeUpdate());
+}
+```
+
+UPSERT 是普通实体插入/覆盖，应提供所需实体字段；UPDATE 则分页选择主键并仅提交主键和 SET 字段，不回写其他字段，也不能修改主键。跨页操作不具备事务、整体回滚或精确一次执行保证。
+
+INSERT/UPSERT 支持多行 VALUES 和 `VALUES ?` 绑定 Iterable/Iterator，按 `fetchSize` 分组，返回 SDK 确认的实际行数。指定 `Statement.RETURN_GENERATED_KEYS` 后通过 `getGeneratedKeys()` 读取主键；JDBC addBatch/executeBatch 仍不支持。
+
+### 按需分页读取
+
+```java
+try (PreparedStatement ps = conn.prepareStatement(
+        "SELECT book_id, title FROM books_demo WHERE word_count >= ?")) {
+    ps.setInt(1, 100);
+    ps.setFetchSize(256);
+    ps.setMaxRows(1000);
+    ps.setQueryTimeout(30);
+    try (ResultSet rs = ps.executeQuery()) {
+        while (rs.next()) {
+            System.out.println(rs.getLong("book_id") + ": " + rs.getString("title"));
+        }
+    }
+}
+```
+
+这里 SQL 无 LIMIT，maxRows 将返回量限制为 1000，fetchSize 每页最多 256。删除 setMaxRows 后会持续读取符合条件的数据，不以某个固定常量截断。大结果、无 LIMIT 或带 OFFSET 的查询使用官方迭代器；一页内且无 OFFSET 的有界查询保留单次 Query/Search。
+
+查询在 execute 时建立，SDK 可能预取首批数据；驱动随后随 JDBC 游标读取取页，只保留当前页。达到上限、EOF、关闭结果、Statement 重执行/关闭或 Connection 关闭都会释放迭代器。后续错误可能从 `ResultSet.next()` 抛出，未读完也要关闭。
+
+### 参数类型 {#parameter-types}
+
+- FloatVector：`setObject` 绑定数值 List，或一维 `byte[]/short[]/int[]/long[]/float[]/double[]`；转换为 Float，可能损失精度。每个距离表达式只接受一个查询向量。
+- `byte[]` 在此表示有符号数字序列，不是 BinaryVector。boolean[]、char[]、包装数组和多维数组不作为 FloatVector 支持。
+- 标量字符串使用 `setString` 或 `setObject`，也支持显式 `Types.VARCHAR` / `JDBCType.VARCHAR` 绑定。WHERE 中的 `?` 转为 Milvus 模板占位符，值通过 SDK `filterTemplateValues` 单独传递，不拼入 filter；不要自行拼接用户输入。
+- VARCHAR 日期文本：无 Calendar 的 `setDate`、`setTime`、`setTimestamp` 使用 JDBC 日期/时间字符串，Timestamp 保留小数秒；`setObject(java.util.Date)` 使用毫秒精度的 Timestamp 文本。读取可用对应的 `getDate`、`getTime`、`getTimestamp`，过滤参数使用相同文本。这不是原生 DATE/TIMESTAMP；不表示时区、Calendar 重载或服务端日期运算已支持，也不会自动转换旧的地区格式文本。
+- 比较、LIKE、IN 和函数参数均使用上述绑定方式。`IN ?` 支持 List、Java 数组和 JDBC Array；`IN (?, 'fixed', ?)` 合并为一个数组模板。数组成员须满足 SDK 的同类型约束；Byte/Short 转为 Long，Float/BigDecimal 转为 Double（可能损失精度），BigInteger 必须在 Int64 范围内。字符串中的引号、反斜杠、通配符和问号保留为数据；LIKE 通配符仍按 LIKE 规则匹配。
+- SDK 过滤模板不支持 null；WHERE 判断空值请写 `IS NULL` / `IS NOT NULL`。非有限数值和不支持的对象类型会报 SQLException，不回退到表达式拼接。INSERT/UPSERT/UPDATE SET 的 null 仍按字段 schema 处理。
+- 版本边界：Milvus 2.6.2 会拒绝 LIKE 右侧的模板参数；整数模板比较被 NOT 包裹时也存在上述原生断言问题。驱动不会改为拼接参数或重写查询规避。普通比较和 IN 的绑定可用，固定的 SQL LIKE 字面量不受 LIKE 模板限制影响。
+- JSON 与向量按字段 schema 区分；INSERT/UPSERT 的 JSON 可绑定 JSON 字符串、Map、List 或 JsonElement。其他语句和类型边界见[语法手册](./commands.md)。
+
+上述绑定遵循[官方过滤模板机制](https://milvus.io/docs/v2.6.x/filtering-templating.md)。查询向量、写入实体、LIMIT/OFFSET 和搜索选项分别使用 SDK 的结构化字段，不作为过滤表达式模板值；集合名、字段名和运算符仍来自 SQL 结构。
+
+### Hint 与搜索参数
+
+Hint 位于每条 SQL 开头。只有下表的对应命令消费这些参数，不应把未知 Hint 当作通用 SDK 参数：
+
+| Hint | 适用命令与含义 |
+| --- | --- |
+| `overwrite_find_limit` | SELECT，正整数，覆盖 SQL LIMIT；正值 maxRows 再限制返回量。 |
+| `overwrite_find_skip` | SELECT，非负整数，覆盖 OFFSET。 |
+| `overwrite_find_as_count` | SELECT，按“是否出现”切换为 COUNT；即使写 false 也会触发。需要关闭时应删除此 Hint。 |
+| `sync` | IMPORT/LOAD/RELEASE，默认 true；false 表示不等待完成。 |
+| `timeout` | IMPORT/LOAD/RELEASE，同步等待毫秒数，默认 60000。 |
+
+查询一致性使用连接参数 `consistencyLevel`，**不是** `/*+ consistency_level=Strong */`。CREATE TABLE 的 `WITH (consistency_level='Strong')` 则是已支持的建表选项，两者不同。搜索参数如 nprobe/ef 使用 SELECT 尾部 WITH，DDL 的 WITH 取值及占位符规则见手册。
+
+### 失败、取消和重试
+
+maxRetry 仅对已识别的临时写入错误生效；永久/未知错误不自动重试。退避从 100ms 翻倍至单次最多 1000ms，期间检查取消和超时。读取下一页、普通 INSERT/UPSERT、Import 创建不自动套用重试。
+
+分页 DML 失败会保留阶段、页号、已确认行数/页数及 cause/suppressed。成功过的页面不会回滚，失败页面也可能已有部分写入生效。
+
+`Statement.cancel()` 仅取消该 Statement 本次执行，不影响同连接其他 Statement。超时包含调用方读取停顿，在后续取页前后检查；取消/关闭不保证强制打断在途 SDK RPC，返回后丢弃该页并释放。
+
+## 更多命令与 JDBC 返回方式 {#4-更多命令与-jdbc-返回方式}
+
+- SELECT、COUNT、SHOW：使用 `executeQuery` 读取结果集。
+- INSERT/UPSERT、UPDATE/DELETE、DDL、GRANT/REVOKE、无 RETURNING 的 IMPORT、LOAD/RELEASE、FLUSH：使用 `executeUpdate` 或 `executeLargeUpdate`。
+- 多条 SQL 用分号分隔，使用 `execute` + `getMoreResults`，不是 JDBC batch；完整循环见[手册 JDBC 用法](./commands.md#jdbc-results)。
+- 数据库、集合、分区、索引、权限、别名、导入和进度命令的精确语法及返回列见[语法手册](./commands.md)。
+
+## 向量、Array 与主键回传 {#typed-values}
+
+除了 Milvus AutoID，实体可使用 dbVisitor 的 `@Column(keyType=KeyType.UUID32)` 或 `UUID36`：值在 INSERT 前由客户端生成并回填实体。用于主键时还需 `primary=true`，集合主键定义为容量足够的 VARCHAR，并关闭 AutoID。列表插入也可使用这一策略，但它不是服务端序列或 JDBC Batch；不能用 UUID 配置替代 AutoID 集合的主键规则。
+
+JSON 实体字段可使用 `JsonTypeHandler`，并通过 `@Column(specialJavaType=LinkedHashMap.class)`、`LinkedList.class` 或 `HashSet.class` 指定反序列化类型。JSON 与原生 Array 是不同的字段类型：整数数组实体字段可直接使用 `Integer[]`，集合 schema 应定义为 `ARRAY<INT32>(容量)`。
+
+JsonTypeHandler 也能将嵌套 Bean、Map 或集合序列化到 VARCHAR；读取时可使用 `JsonType.jsonMap()`、`JsonType.jsonList()`、`JsonType.jsonSet()` 或带类型绑定注解的 Bean。位置参数、命名参数及 NULL 均适用，但 VARCHAR 中保存的 JSON 文本不具备原生 JSON 字段的路径过滤能力。
+
+注解 Mapper 的 `@Insert` 与 XML `<insert>` 可使用 `useGeneratedKeys=true`、`keyProperty="id"` 回填 Milvus AutoID；Int64 主键接收属性应使用 Long，Map 参数必须可写。对于单个 Map 参数，原先没有 id 键也可接收回填。不要指定 `keyColumn`：公共驱动尚不支持 `prepareStatement(sql, String[] columnNames)`，会在写入前抛出 SQLFeatureNotSupportedException；这不影响不指定列名的 RETURN_GENERATED_KEYS 路径。Milvus 不提供关系型 sequence/last_insert_id，不应用 selectKey 模拟这些机制。
+
+参数由字段 schema 决定，不从 Java 数组猜类型；均可用于 INSERT/UPSERT、UPDATE SET、对应的 KNN/范围条件。
+
+| Milvus 字段 | setObject 输入 | getObject / JDBC 读取 | 距离算子 |
+| --- | --- | --- | --- |
+| FloatVector | 数值 List 或六种数值基本类型数组 | List&lt;Float> / getArray | `<->` L2、`<=>` COSINE、`<#>` IP |
+| BinaryVector | byte[]、ByteBuffer 或字节 List（-128…255） | byte[] / getBytes | `~=` HAMMING、`<%>` JACCARD |
+| Int8Vector | byte[]、ByteBuffer、数值 List 或六种数值基本类型数组；元素必须为 -128～127 的整数 | byte[] / getBytes | `<->` L2、`<=>` COSINE、`<#>` IP |
+| Float16Vector / BFloat16Vector | 数值 List/数组，或已编码 byte[]/ByteBuffer | 小端编码 byte[] / getBytes | L2、COSINE、IP |
+| SparseFloatVector | Map&lt;Number,Number>，非空、非负整数索引、有限权重 | SortedMap&lt;Long,Float> | `<#>` IP；`<?>` BM25 支持文本 |
+| Array | java.sql.Array、List、Java 数组 | List / getArray，保留元素 JDBC 类型 | 标量过滤 |
+
+ByteBuffer 使用 remaining，不改变调用方位置；FP16/BF16 的 byte[] 是每维两字节，其他数值输入使用 SDK Float16Utils 转换。向量维度、有限值和 metric 不匹配会报错。Array 支持 BOOL/整数/浮点/VARCHAR 元素；boolean[] 是合法 BOOL Array，char[] 不是 VARCHAR Array。
+
+Int8Vector 用 `INT8_VECTOR(dim)` 声明，每维一个有符号字节，与 BinaryVector 的位向量不同。按[官方类型说明](https://milvus.io/docs/dense-vector.md)，使用 HNSW 索引，例如 `CREATE INDEX idx_v ON items(v) USING HNSW WITH (metric_type=L2, M=8, efConstruction=200)`。驱动不会截断小数、接受无符号 128～255 或自动量化浮点向量；输入须与模型的量化方式一致。
+
+通过 dbVisitor 读取 Array 时，`JdbcTemplate.queryForObject` 可指定 `Integer[].class`、`Float[].class` 或 `String[].class`。写入可使用 JDBC `createArrayOf`/`setArray`，或 `new SqlArg(values, Types.ARRAY, new ArrayTypeHandler())`，后者也适用于命名参数和 UPDATE。实体字段支持默认数组映射、`jdbcType=Types.ARRAY`、显式 ArrayTypeHandler，以及通过 `specialJavaType=Integer[].class` 映射 Number[]；集合中的元素类型、max_capacity 和 nullable 仍须符合原生 schema。
+
+JdbcTemplate.executeBatch 可以调用，但在该驱动上由公共 JdbcTemplate 逐条执行语句，不调用 JDBC addBatch/executeBatch，不提供批量原子性，也不等同于高吞吐多行写入。
+
+该路径支持位置参数和命名参数的插入、更新与删除。Milvus INSERT 不拒绝重复主键，因此重复键不会像关系数据库唯一约束那样触发批量失败；需要按主键覆盖时应明确使用 UPSERT。驱动不会为了判重额外查询，也不会自动把 INSERT 改成 UPSERT。
+
+下面片段假定已有 `Connection conn`。普通 INSERT/UPSERT 不自动重试；fetchSize=0 沿用 SDK 默认页大小，超过 SDK 单页上限时截到该上限；不限制总写入量。VALUES ? 支持惰性 Iterator，不先积攒全部实体。输入 Iterator 由调用方拥有，驱动不负责关闭它背后的文件/流。
+
+```java
+String create = "CREATE TABLE typed_demo (id INT64 PRIMARY KEY AUTO_ID, " +
+        "tags ARRAY<VARCHAR(30)>(8) NULL, embedding FLOAT16_VECTOR(2))";
+try (Statement stmt = conn.createStatement()) { stmt.executeUpdate(create); }
+String insert = "INSERT INTO typed_demo (tags, embedding) VALUES ?";
+List<Object[]> rows = Arrays.asList(
+        new Object[] {new String[] {"java"}, new float[] {1, 2}},
+        new Object[] {null, new float[] {3, 4}});
+try (PreparedStatement ps = conn.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS)) {
+    ps.setFetchSize(256);
+    ps.setObject(1, rows.iterator());
+    System.out.println(ps.executeLargeUpdate());
+    try (ResultSet keys = ps.getGeneratedKeys()) {
+        while (keys.next()) {
+            System.out.println(keys.getObject("id"));
+        }
+    }
+}
+```
+
+getGeneratedKeys 返回 SDK 的 Int64/VarChar ID，包括显式主键及 AutoID；普通 UPSERT 也以 SDK 返回 ID 为准。主键不受 maxRows 截断。未请求时不累积，请求全部主键则需 O(主键数) 内存。分页失败报告 phase、confirmedPages、confirmedRows、currentPageRows；已确认页不回滚，失败页可能生效，不能盲目重放。
+
+## Hybrid、BM25 与 Import {#6-hybridbm25-与-import}
+
+以下 SQL 先建立 BM25 函数、索引，再由服务端融合两路单向量搜索。每路 LIMIT 是候选数，外层 LIMIT/OFFSET 控制融合后的一个 ResultSet；不等于一次返回多个查询向量结果，也不是 JDBC batch。
+
+```sql
+CREATE TABLE search_demo (
+    id INT64 PRIMARY KEY,
+    body VARCHAR(2000) WITH (enable_analyzer=true),
+    dense FLOAT_VECTOR(2), sparse SPARSE_FLOAT_VECTOR,
+    FUNCTION bm25_fn USING BM25 (body) INTO (sparse)
+);
+CREATE INDEX dense_idx ON search_demo(dense) USING FLAT WITH (metric_type=L2);
+CREATE INDEX sparse_idx ON search_demo(sparse) USING SPARSE_INVERTED_INDEX
+    WITH (metric_type=BM25, bm25_k1=1.2, bm25_b=0.75);
+LOAD TABLE search_demo;
+INSERT INTO search_demo (id,body,dense) VALUES (1,'vector search',[1,2]);
+SELECT id,score FROM search_demo ORDER BY HYBRID (
+    dense <-> [1,2] LIMIT 20,
+    sparse <?> 'vector search' LIMIT 20
+) LIMIT 5 WITH (reranker='rrf',k=60);
+```
+
+也可 `WITH (reranker='weighted',weights='[0.7,0.3]')`，每路一个 [0,1] 有限权重。普通 ORDER BY 仍只允许一个向量。普通 Hybrid 无原生 Iterator，必须显式 LIMIT；[分组搜索](./commands.md#grouping)改用显式 group_limit 限定组数，SQL LIMIT 仍限定行数。服务端搜索窗口限制仍适用，fetchSize 不会让服务端融合变成分页。函数输出由 Milvus 计算，INSERT/UPSERT 省略它。TextEmbedding 函数的 provider/model 参数和服务端配置见手册。
+
+Import 不将大文件载入 Java 内存，也不上传本地文件；先用官方 BulkWriter/其他工具准备并上传 JSON/Parquet/NumPy。下面仍只通过 JDBC 提交和观察：
+
+```java
+String submitSql = "/*+ sync=false */ IMPORT FROM ? INTO search_demo " +
+        "WITH (timeout='2h') RETURNING JOB_ID";
+String jobId;
+try (PreparedStatement ps = conn.prepareStatement(submitSql)) {
+    ps.setObject(1, Arrays.asList(Collections.singletonList("prepared/a.parquet"),
+            Collections.singletonList("prepared/b.parquet")));
+    try (ResultSet rs = ps.executeQuery()) { rs.next(); jobId = rs.getString("JOB_ID"); }
+}
+try (PreparedStatement ps = conn.prepareStatement("SHOW IMPORT ?")) {
+    ps.setString(1, jobId);
+    try (ResultSet rs = ps.executeQuery()) {
+        while (rs.next()) {
+            System.out.println(rs.getString("STATE") + " " + rs.getString("REASON"));
+        }
+    }
+}
+```
+
+SHOW IMPORT/SHOW IMPORTS 返回 JOB_ID、STATE、PROGRESS、TOTAL_ROWS、IMPORTED_ROWS、REASON、DETAILS（原始 JSON，包含服务端文件明细）。缺失的进度不是 0，而是 SQL NULL。`SHOW IMPORTS FROM search_demo WITH (page_size=20,current_page=1)` 查询列表；分页参数能否生效取决于目标 REST 版本。默认 IMPORT 同步等待，`/*+ timeout=60000 */` 是客户端毫秒等待期限，WITH timeout='2h' 是服务端任务期限。超时/取消不撤销任务；已取得 Job ID 的等待失败会保留 ID 和最后进度，不重提任务。创建请求本身丢失响应时可能没有 Job ID，需查询任务列表核实。
+
+`IMPORT ... RETURNING JOB_ID` 返回结果集，使用 `executeQuery`。驱动支持范围和非事务语义见[支持矩阵](./compatibility.md#boundaries)。
+
+## 一致性与执行控制 {#execution-controls}
+
+SDK 2.6.22 的路径要求）。SDK 与 HTTPS 均校验该名称，不关闭证书校验。 |
+| `consistencyLevel` | 查询请求的一致性：Strong、Bounded、Session、Eventually。不设置则沿用 SDK/集合默认；QueryIterator 路径存在下述 SDK 限制。 |
+| `connectTimeout` | SDK 连接超时，毫秒；正数覆盖 SDK 默认，也用于 Import HTTP 建连。 |
+| `rpcDeadline` | 单次 RPC 截止时间，毫秒；正数覆盖 SDK 默认，也参与 Import HTTP 请求超时。 |
+| `keepAliveTime`、`keepAliveTimeout`、`idleTimeout` | SDK 连接配置，毫秒；正数覆盖 SDK 默认。 |
+| `keepAliveWithoutCalls` | 是否在无调用时发送 keep-alive，true/false。 |
+| `maxRetry` | 默认 3；初次写入失败后最多重试次数，0 禁用。适用于分页 UPDATE Partial Upsert 和 DELETE 写调用。 |
+| `customMilvus` | 实现 CustomMilvus 的工厂类全名，见下节。 |
+| `interceptor` | InvocationHandler 类全名，具有可实例化的无参构造器；接收 V2 SDK 方法，负责返回 SDK 响应或委托调用。 |
+| `adapterName`、`server` | 通常由 URL 设置，无需单独传入。 |
+| `timeZone` | 公共驱动属性，不是 Milvus 服务端时区设置。 |
+
+`timeout` 是 SQL Hint，不是连接参数。
+
+SDK 2.6.22 的 `QueryIterator` 在发送请求时强制使用集合默认一致性。因此，走该路径的分页 SELECT 和 DML 数据选取，不能仅靠连接参数 `consistencyLevel=Strong` 保证写后立即可见。需要这种语义时，创建集合应设置 `WITH (consistency_level=Strong)`。驱动不会隐式修改集合的一致性配置。
+
+不要混淆四个控制项：
+
+- `connectTimeout` / `rpcDeadline`：连接或单次 RPC 超时，毫秒。
+- `Statement.setQueryTimeout(seconds)`：本次执行的时间预算，涵盖重试及后续 ResultSet 取页，单位秒。
+- SQL Hint `timeout`：IMPORT/LOAD/RELEASE 同步等待，毫秒，默认 60000；不是所有命令的通用超时。
+- `Statement.setFetchSize(rows)`：执行前设置单页大小；不是 JDBC URL 参数，也不是返回总量上限。

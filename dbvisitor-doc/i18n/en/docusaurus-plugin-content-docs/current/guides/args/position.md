@@ -5,7 +5,9 @@ title: 6.1 Positional Arguments
 description: Bind values to question-mark placeholders in order, distinguishing Java container indexes from JDBC parameter indexes.
 ---
 
-# Positional Arguments
+<span id="positional-arguments" />
+
+# 6.1 Positional Arguments
 
 dbVisitor binds `?` placeholders in array/List order. Container indexes and arg0/arg1 names start at 0; direct JDBC `PreparedStatement.setXxx(index, value)` indexes start at 1.
 

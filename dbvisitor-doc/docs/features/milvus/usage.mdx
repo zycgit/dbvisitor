@@ -2,25 +2,27 @@
 id: usage
 sidebar_position: 1
 hide_table_of_contents: true
-title: Milvus 使用指南
+title: dbVisitor API 用法
 description: Milvus 数据源各 API 方式和向量搜索的详细用法。
 ---
 
-# Milvus 数据源特性
+<span id="milvus-数据源特性" />
+
+# dbVisitor API 用法
 
 dbVisitor 通过 [JDBC-Milvus](../../drivers/milvus/about) 驱动，基于 JDBC 协议访问 Milvus 向量数据库。
 与 MongoDB/ElasticSearch 的原生命令风格不同，Milvus 适配器采用 **SQL 风格语法**（`CREATE TABLE`、`INSERT`、`SELECT`、`DELETE` 等），学习成本更低。
 
-本页介绍 dbVisitor API 如何执行适配器支持的 SQL；依赖、连接、TLS 和完整 JDBC 程序统一见[安装与使用](../../drivers/milvus/usecase.mdx)。版本要求与功能边界见[支持矩阵](../../drivers/milvus/compatibility.md)。下面示例使用二维 FloatVector；片段中的 dataSource、connection、实体访问器和 Session 由应用提供。
+本页介绍 dbVisitor API 如何执行适配器支持的 SQL。依赖与连接见[安装与连接](../../drivers/milvus/connection.mdx)，TLS 见[连接参数](../../drivers/milvus/params.md)，完整程序见[JDBC 操作用法](./jdbc.mdx)。版本要求与功能边界见[支持范围](./compatibility.md)。下面示例使用二维 FloatVector；片段中的 dataSource、connection、实体访问器和 Session 由应用提供。
 
 **支持的能力：**
 
-- 使用 SQL 风格命令操作数据（[支持的命令列表](../../drivers/milvus/commands)）
+- 使用 SQL 风格命令操作数据（[支持的命令列表](./commands)）
 - [JdbcTemplate](#exec-command)、[构造器 API](#exec-lambda)、[BaseMapper](#exec-mapper)、[方法注解](#exec-annotation)、[Mapper 文件](#exec-file)
 - 对象映射、结果集映射、[规则](../../guides/rules/about)、[参数传递](../../guides/args/about)、[ResultSetExtractor/RowMapper](../../guides/result/about)
 - **向量搜索**：KNN 近邻搜索（`ORDER BY field <-> vector`）、范围搜索（`vector_range()`）
 
-**不支持：** 事务/savepoint、JDBC executeBatch、存储过程、可更新 ResultSet。INSERT/UPSERT 支持多行 VALUES、惰性 Iterable/Iterator 和 [JDBC 主键回传](../../drivers/milvus/usecase.mdx#typed-values)；这些不是 JDBC batch。
+**不支持：** 事务/savepoint、JDBC executeBatch、存储过程、可更新 ResultSet。INSERT/UPSERT 支持多行 VALUES、惰性 Iterable/Iterator 和 [JDBC 主键回传](./jdbc.mdx#typed-values)；这些不是 JDBC batch。
 
 ## 概念类比
 
@@ -39,7 +41,7 @@ UPDATE 分页选取主键并通过原生 Partial Upsert 只提交 SET 字段。�
 
 ## 命令方式（JdbcTemplate）{#exec-command}
 
-使用 JdbcTemplate 可以直接执行 SQL 风格命令操作 Milvus，在此之前请确保已经正确配置好 Milvus 数据源，具体请参考 [Milvus 驱动使用指南](../../drivers/milvus/usecase)。
+使用 JdbcTemplate 可以直接执行 SQL 风格命令操作 Milvus，在此之前请确保已经正确配置好 Milvus 数据源，具体请参考 [Milvus 驱动使用指南](./jdbc)。
 
 :::tip[提示]
 更多使用方式请参考 [JdbcTemplate 类](../../guides/core/jdbc/about#guide)，在使用过程中下面两个特性由于驱动原因无法支持：
@@ -110,7 +112,7 @@ List<Map<String, Object>> results = jdbc.queryForList(
 
 ### 标量过滤 + 向量搜索 {#hybrid-query}
 
-这是单路过滤搜索；需要多路候选及融合排名时使用[原生 HYBRID 语法](../../drivers/milvus/commands.md#hybrid)。
+这是单路过滤搜索；需要多路候选及融合排名时使用[原生 HYBRID 语法](./commands.md#hybrid)。
 
 ```java title='标量过滤 + 向量搜索'
 List<Map<String, Object>> results = jdbc.queryForList(
@@ -439,5 +441,5 @@ List<BookVector> results = lambda.query(BookVector.class)
 | IP 范围 | 参数化 SQL：`field <#> ? > ?` | 内积大于阈值 |
 
 :::tip[SQL 命令方式]
-如需直接使用 SQL 风格语法进行向量搜索（如 `ORDER BY field <-> vector`、`vector_range()` 等），请参考 [支持的命令列表](../../drivers/milvus/commands#dql)。
+如需直接使用 SQL 风格语法进行向量搜索（如 `ORDER BY field <-> vector`、`vector_range()` 等），请参考 [支持的命令列表](./commands#dql)。
 :::

@@ -1,0 +1,89 @@
+---
+id: connection
+sidebar_position: 2
+title: Connect to the Database
+---
+
+<span id="dependencies-and-versions" />
+
+<span id="jdbc-connection" />
+
+Use `DriverManager.getConnection(...)` to open a JDBC connection:
+
+Replace the endpoint with your database address. For an authenticated service, uncomment the credential settings and supply your own values from application configuration; do not hard-code real secrets.
+
+```java
+String url = "jdbc:dbvisitor:elastic://127.0.0.1:9200";
+java.util.Properties properties = new java.util.Properties();
+properties.setProperty("connectTimeout", "5000");
+// Enable these settings when authentication is required:
+// properties.setProperty("user", "elastic");
+// properties.setProperty("password", "YOUR_PASSWORD");
+try (java.sql.Connection connection = java.sql.DriverManager.getConnection(url, properties)) {
+    // Execute JDBC commands here; the connection is closed automatically.
+}
+```
+
+The default port is `9200`; select the index in commands, not in the JDBC URL database path. For multiple hosts, use `jdbc:dbvisitor:elastic://host1:9200;host2:9200`. For advanced client configuration, see `customElastic` in [Connection Parameters](./params.md).
+
+## Configure Connection Parameters
+
+Set options with `properties.setProperty("name", "value")`, or append `?name=value&other=value` to the URL (use `&` if a query string already exists). For the same key, URL values override `Properties`. The URL parser does not percent-decode values; put passwords, tokens and values containing `&` in `Properties`, and avoid logging credentials.
+
+See [Connection Parameters](./params.md) for names, defaults, units and restrictions. Only documented adapter parameters apply; they are not a pass-through for all vendor SDK options.
+
+After connecting, see [JDBC Operations](../../features/elastic/jdbc.mdx) for command execution and result handling.
+
+
+## Username and Password
+
+Set `user` and `password` in `Properties` to use HTTP Basic authentication. For encrypted transport, use the TLS configuration below; authentication alone does not enable HTTPS.
+
+## Multiple Nodes
+
+Use `jdbc:dbvisitor:elastic://host1:9200;host2:9200` to provide nodes from the same cluster. The REST client manages requests to these nodes; this is not a read/write splitting configuration.
+
+## TLS and Certificates {#tls}
+
+The default client uses HTTP. To use HTTPS, supply a `customElastic` factory that creates a REST client with an HTTPS host, authentication and a trusted SSL context. The example uses JVM trust settings; replace the host and port with your endpoint.
+
+```java
+public class SecureElasticFactory implements net.hasor.dbvisitor.adapter.elastic.CustomElastic {
+    @Override
+    public org.elasticsearch.client.RestClient createElasticClient(
+            String jdbcUrl, java.util.Map<String, String> props) {
+        org.apache.http.impl.client.BasicCredentialsProvider credentials =
+                new org.apache.http.impl.client.BasicCredentialsProvider();
+        credentials.setCredentials(org.apache.http.auth.AuthScope.ANY,
+                new org.apache.http.auth.UsernamePasswordCredentials(
+                        props.get("user"), props.get("password")));
+        return org.elasticsearch.client.RestClient.builder(
+                new org.apache.http.HttpHost("es.example.com", 9243, "https"))
+                .setHttpClientConfigCallback(builder -> builder
+                        .setSSLContext(org.apache.http.ssl.SSLContexts.createSystemDefault())
+                        .setDefaultCredentialsProvider(credentials))
+                .build();
+    }
+}
+```
+
+Register the factory when opening the JDBC connection:
+
+```java
+java.util.Properties properties = new java.util.Properties();
+properties.setProperty("customElastic", SecureElasticFactory.class.getName());
+properties.setProperty("user", "YOUR_USER");
+properties.setProperty("password", "YOUR_PASSWORD");
+try (java.sql.Connection connection = java.sql.DriverManager.getConnection(
+        "jdbc:dbvisitor:elastic://es.example.com:9243", properties)) {
+    // Execute JDBC commands here.
+}
+```
+
+For a private CA, configure the JVM trust store or a trusted SSL context in the factory. For mutual TLS, also configure the client certificate and private key. Keep certificate and hostname verification enabled. There are no built-in JDBC PEM parameters for this driver.
+
+## Custom Client {#custom-client}
+
+`customElastic` names a factory implementing `net.hasor.dbvisitor.adapter.elastic.CustomElastic`, with method `createElasticClient(String jdbcUrl, Map<String, String> props)`. The JDBC connection uses and closes the returned client. The factory owns advanced client configuration; Milvus TLS properties do not apply here.
+
+The factory class must be on the application classpath and have an accessible no-argument constructor. It owns endpoint, authentication, TLS and timeout settings; JDBC properties are passed to the factory but are not automatically applied to its client. Return a separate client for each connection rather than sharing one that another JDBC connection may close.

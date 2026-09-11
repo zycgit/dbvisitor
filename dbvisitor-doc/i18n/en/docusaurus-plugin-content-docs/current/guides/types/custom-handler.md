@@ -5,7 +5,9 @@ title: 8.2 Custom Type Handlers
 description: When the type handlers provided by dbVisitor do not meet your needs, you can create your own custom type handler.
 ---
 
-# Custom Type Handlers
+<span id="custom-type-handlers" />
+
+# 8.2 Custom Type Handlers
 
 When the type handlers provided by dbVisitor do not meet your needs, you can create your own custom type handler.
 

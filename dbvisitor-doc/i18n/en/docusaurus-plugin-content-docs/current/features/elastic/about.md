@@ -6,7 +6,9 @@ title: ElasticSearch Features
 description: ElasticSearch data source capability scope, API support, and usage patterns in dbVisitor.
 ---
 
-# ElasticSearch Data Source Features
+<span id="elasticsearch-data-source-features" />
+
+# ElasticSearch Features
 
 dbVisitor accesses ElasticSearch data sources via the [JDBC-Elastic](../../drivers/elastic/about) driver, based on the JDBC protocol.
 
@@ -41,4 +43,11 @@ For complete JdbcTemplate, Builder API, BaseMapper, Annotation, and Mapper File 
 
 ## Relationship to General Documentation
 
-For general API usage, see [Core API](../../guides/overview). For ES command syntax, see [Driver Adapter Command List](../../drivers/elastic/commands).
+For general API usage, see [Core API](../../guides/overview). For ES command syntax, see [Driver Adapter Command List](./commands).
+
+## Documentation
+
+- [JDBC installation and connection](../../drivers/elastic/connection.mdx)
+- [JDBC operations](./jdbc.mdx)
+- [Command reference](./commands.md)
+- [dbVisitor API usage](./usage.mdx)

@@ -5,7 +5,9 @@ title: String/Char Types
 description: Type handlers for string and character types in dbVisitor.
 ---
 
-# String/Char Type Handlers
+<span id="stringchar-type-handlers" />
+
+# String/Char Types
 
 String/char type handlers are located in the `net.hasor.dbvisitor.types.handler.string` package.
 

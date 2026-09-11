@@ -2,18 +2,20 @@
 id: usage
 sidebar_position: 1
 hide_table_of_contents: true
-title: Redis Usage Guide
+title: dbVisitor API Usage
 description: Detailed usage of each API mode for Redis data source.
 ---
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Redis Data Source Features
+<span id="redis-data-source-features" />
+
+# dbVisitor API Usage
 
 dbVisitor accesses Redis data sources via the [JDBC-Redis](../../drivers/redis/about) driver, based on the JDBC protocol.
 
 **Supported capabilities:**
-- Operate data using Redis commands ([supported command list](../../drivers/redis/commands))
+- Operate data using Redis commands ([supported command list](./commands))
 - Three usage modes: [JdbcTemplate](#exec-command), [Method Annotations](#exec-annotation), [Mapper File](#exec-file)
 - General capabilities like [rules](../../guides/rules/about), [parameter passing](../../guides/args/about), [ResultSetExtractor/RowMapper](../../guides/result/about)
 - [Dynamic SQL](../../guides/core/file/dynamic_sql) tags in Mapper File
@@ -30,7 +32,7 @@ Execution results of different Redis commands fall into two categories:
 
 ## Command Mode (JdbcTemplate) {#exec-command}
 
-Use JdbcTemplate to execute Redis commands directly. Make sure the Redis data source is properly configured first — see [Redis Driver Usage Guide](../../drivers/redis/usecase).
+Use JdbcTemplate to execute Redis commands directly. Make sure the Redis data source is properly configured first — see [Redis Driver Usage Guide](./jdbc).
 
 :::tip[Tip]
 For more usage patterns, see the [JdbcTemplate class](../../guides/core/jdbc/about#guide). The following two features are unavailable due to driver limitations:
@@ -240,7 +242,7 @@ UserInfoMapper mapper = session.createMapper(UserInfoMapper.class);
 Redis has 5 main data types. Below are instructions on how to use dbVisitor to read/write these data types.
 
 :::tip[Tip]
-Redis data type command references: [String](../../drivers/redis/commands#string), [Hash](../../drivers/redis/commands#hash), [List](../../drivers/redis/commands#list), [Set](../../drivers/redis/commands#set), [SortedSet](../../drivers/redis/commands#storeset)
+Redis data type command references: [String](./commands#string), [Hash](./commands#hash), [List](./commands#list), [Set](./commands#set), [SortedSet](./commands#storeset)
 :::
 
 ### String {#string}

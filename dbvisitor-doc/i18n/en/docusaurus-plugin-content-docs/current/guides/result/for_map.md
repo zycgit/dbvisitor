@@ -5,7 +5,9 @@ title: 9.2 List/Map
 description: List/Map is a common structure that represents datasets as collections of maps, making it adaptable to varying shapes.
 ---
 
-# Receive Data with List/Map
+<span id="receive-data-with-listmap" />
+
+# 9.2 List/Map
 
 Using `Map` to receive query results is the most versatile approach. Each row is represented as a `Map<String, Object>` mapping column names to values, without needing to predefine entity classes.
 

@@ -1,7 +1,8 @@
 ---
 id: guide
 sidebar_position: 1
-title: 实现指南
+title: 自定义驱动
+sidebar_label: 自定义驱动
 description: 以接入 NewDB 为例，手把手实现一个 dbVisitor 适配器。
 ---
 

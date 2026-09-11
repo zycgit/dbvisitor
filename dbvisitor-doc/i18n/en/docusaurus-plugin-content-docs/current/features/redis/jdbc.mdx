@@ -1,39 +1,14 @@
 ---
-id: usecase
-sidebar_position: 1
-title: Install and Use
-description: Redis JDBC dependencies, connections, prepared commands and JDBC limitations.
+id: jdbc
+sidebar_position: 2
+title: JDBC Operations
 ---
 
-## Dependencies and Versions
-
-This page applies to `6.7.1-SNAPSHOT` and requires Java 17+ to build and run. For other versions, read the corresponding documentation.
-
-Current source publishes an `all` classifier (relocated ANTLR, with other dependencies still transitive). Install locally from the repository root first:
-
-```bash
-./gradlew :dbvisitor-driver:publishToMavenLocal :jdbc-redis:publishToMavenLocal
-```
-
-```xml
-<dependency>
-    <groupId>net.hasor</groupId>
-    <artifactId>jdbc-redis</artifactId>
-    <version>6.7.1-SNAPSHOT</version>
-    <classifier>all</classifier>
-</dependency>
-```
-
-```groovy
-repositories { mavenLocal(); mavenCentral() }
-dependencies { implementation 'net.hasor:jdbc-redis:6.7.1-SNAPSHOT:all' }
-```
-
-The SNAPSHOT dependency above is resolved from your local Maven repository.
+Install and configure the [independent JDBC driver](../../drivers/redis/connection.mdx) first. These examples use JDBC directly and do not require dbVisitor's upper-level APIs. Unless the example opens its own connection, `conn` denotes an open JDBC connection owned and closed by the application.
 
 ## JDBC Connection and Example
 
-The `jdbc-redis` URL prefix is **jedis**, not redis. Use `?database=0`, not `/0`, for the database index. The default standalone port is 6379; cluster hosts use `host1:6379;host2:6379`. See [Connection Parameters](./params.md) for authentication and all properties.
+The `jdbc-redis` URL prefix is **jedis**, not redis. Use `?database=0`, not `/0`, for the database index. The default standalone port is 6379; cluster hosts use `host1:6379;host2:6379`. See [Connection Parameters](../../drivers/redis/params.md) for authentication and all properties.
 
 This example reads/overwrites `jdbc_demo:key` and `jdbc_demo:hash`. Use a test environment or change the key names. SET/HSET return update counts; GET returns a result set.
 

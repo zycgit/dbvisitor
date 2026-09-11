@@ -2,13 +2,13 @@
 id: overview
 sidebar_position: 0
 hide_table_of_contents: true
-title: Data Source Features
+title: Data Sources
 description: Explains how dbVisitor handles types, dialects, primary key backfill, functions, procedures, and proprietary capabilities for each specific data source.
 ---
 
-# Data Source Features
+# Data Sources
 
-`Database Access` focuses on dbVisitor's overall capabilities such as ORM, Mapper, Lambda, transactions, and TypeHandler. `Driver Adapters` focuses on JDBC adapters and driver-layer behavior based on `dbvisitor-driver`.
+`Database Access` focuses on dbVisitor's overall capabilities such as ORM, Mapper, Lambda, transactions, and TypeHandler. `JDBC Drivers` focuses on JDBC adapters and driver-layer behavior based on `dbvisitor-driver`.
 
 This section focuses on the usage patterns and differences for specific data sources, including:
 
@@ -43,6 +43,10 @@ To compare support differences across data sources for Builder API, pagination, 
 
 ## Reading Suggestions
 
-To learn dbVisitor's general capabilities, read [Core APIs](../guides/overview) first. If you're interested in JDBC driver adapters for MongoDB, Redis, Elasticsearch, Milvus, etc., read [Driver Adapters](../drivers/about).
+To learn dbVisitor's general capabilities, read [Core APIs](../guides/overview) first. If you're interested in JDBC driver adapters for MongoDB, Redis, Elasticsearch, Milvus, etc., read [JDBC Drivers](../drivers/about).
 
 When a database behaves differently from the general documentation, the data-source-specific notes in this section take precedence.
+
+## Independent JDBC use
+
+MongoDB, Elasticsearch, Redis and Milvus can be accessed through independent [JDBC drivers](../drivers/about), without using dbVisitor APIs. For relational databases such as MySQL, use the vendor JDBC driver.

@@ -1,58 +1,10 @@
 ---
-id: usecase
+id: jdbc
 sidebar_position: 2
-title: Install and Use
-description: jdbc-elastic dependencies, connections, read/write examples and JDBC results.
+title: JDBC Operations
 ---
 
-## Dependencies and Versions
-
-This page applies to `6.7.1-SNAPSHOT` and requires Java 17+ to build and run. For other versions, read the corresponding documentation.
-
-Current source publishes an `all` classifier (relocated ANTLR, with other dependencies still transitive). Install locally from the repository root first:
-
-```bash
-./gradlew :dbvisitor-driver:publishToMavenLocal :jdbc-elastic:publishToMavenLocal
-```
-
-```xml
-<dependency>
-    <groupId>net.hasor</groupId>
-    <artifactId>jdbc-elastic</artifactId>
-    <version>6.7.1-SNAPSHOT</version>
-    <classifier>all</classifier>
-</dependency>
-```
-
-```groovy
-repositories { mavenLocal(); mavenCentral() }
-dependencies { implementation 'net.hasor:jdbc-elastic:6.7.1-SNAPSHOT:all' }
-```
-
-The SNAPSHOT dependency above is resolved from your local Maven repository.
-
-## JDBC Connection
-```java
-String url = "jdbc:dbvisitor:elastic://127.0.0.1:9200";
-Properties props = new Properties();
-props.setProperty("user", "elastic");
-props.setProperty("password", "changeme");
-props.setProperty("connectTimeout", "5000");
-props.setProperty("socketTimeout", "10000");
-Connection conn = DriverManager.getConnection(url, props);
-```
-
-JDBC URL format:
-```
-jdbc:dbvisitor:elastic://{host}:{port}
-```
-
-Cluster example (multiple hosts):
-```
-jdbc:dbvisitor:elastic://host1:9200;host2:9200
-```
-
-Parameters may be supplied in the URL or Properties; see [Connection Parameters](./params.md). The driver class is `net.hasor.dbvisitor.driver.JdbcDriver`. Fragments below assume an open `Connection conn` and imports `java.sql.*` and `java.util.*`; close the connection when finished.
+Install and configure the [independent JDBC driver](../../drivers/elastic/connection.mdx) first. These examples use JDBC directly and do not require dbVisitor's upper-level APIs. Unless the example opens its own connection, `conn` denotes an open JDBC connection owned and closed by the application.
 
 ## Code Examples
 
@@ -125,3 +77,7 @@ try (Statement stmt = conn.createStatement()) {
 ```
 
 Use executeQuery for reads and executeUpdate or execute for writes. Semicolon-separated commands are consumed through execute/getMoreResults, not JDBC batch or a transaction. Hints go before the command; see [Command Reference](./commands.md) for all hints and limitations.
+
+## Pre-Read and Result Columns {#pre-read}
+
+`preRead=true` reads ahead and expands document fields while retaining `_ID`/`_DOC`. With pre-read disabled, use the dedicated raw-document columns rather than assuming expanded fields exist. preReadThreshold/preReadMaxFileSize support B/KB/MB/GB and default to MB without a unit; the cache directory defaults to java.io.tmpdir. Pre-read may increase memory, disk use and time to first row; it is not a server-side pagination limit.

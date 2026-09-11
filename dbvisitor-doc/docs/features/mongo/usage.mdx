@@ -2,16 +2,18 @@
 id: usage
 sidebar_position: 1
 hide_table_of_contents: true
-title: MongoDB 使用指南
+title: dbVisitor API 用法
 description: MongoDB 数据源各 API 方式的详细用法。
 ---
 
-# MongoDB 数据源特性
+<span id="mongodb-数据源特性" />
+
+# dbVisitor API 用法
 
 dbVisitor 通过 [JDBC-Mongo](../../drivers/mongo/about) 驱动，基于 JDBC 协议访问 MongoDB 数据源。
 
 **支持的能力：**
-- 使用 MongoDB 命令操作数据（[支持的命令列表](../../drivers/mongo/commands)）
+- 使用 MongoDB 命令操作数据（[支持的命令列表](./commands)）
 - [JdbcTemplate](#exec-command)、[构造器 API](#exec-lambda)、[BaseMapper](#exec-mapper)、[方法注解](#exec-annotation)、[Mapper 文件](#exec-file)
 - 对象映射、结果集映射、[规则](../../guides/rules/about)、[参数传递](../../guides/args/about)、[ResultSetExtractor/RowMapper](../../guides/result/about)
 - Mapper File 中的[动态 SQL](../../guides/core/file/dynamic_sql) 标签、`Statement.RETURN_GENERATED_KEYS`（自动获取 `_id`）
@@ -28,7 +30,7 @@ dbVisitor 通过 [JDBC-Mongo](../../drivers/mongo/about) 驱动，基于 JDBC �
 
 ## 命令方式（JdbcTemplate）{#exec-command}
 
-使用 JdbcTemplate 可以直接执行 MongoDB 命令，在此之前请确保已经正确配置好 MongoDB 数据源，具体请参考 [MongoDB 驱动使用指南](../../drivers/mongo/usecase)。
+使用 JdbcTemplate 可以直接执行 MongoDB 命令，在此之前请确保已经正确配置好 MongoDB 数据源，具体请参考 [MongoDB 驱动使用指南](./jdbc)。
 
 :::tip[提示]
 更多使用方式请参考 [JdbcTemplate 类](../../guides/core/jdbc/about#guide)，在使用过程中下面两个特性由于驱动原因无法支持：

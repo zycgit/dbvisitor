@@ -5,7 +5,9 @@ title: Basic Type Handlers
 description: Overview of dbVisitor basic type handlers and naming conventions.
 ---
 
-## Basic Type Handlers
+<span id="basic-type-handlers" />
+
+# Basic Type Handlers
 
 dbVisitor has a rich set of type handlers. To make them easy to understand, they follow a unified naming convention with three patterns:
 
@@ -13,7 +15,7 @@ dbVisitor has a rich set of type handlers. To make them easy to understand, they
 2. `<JDBCTypeName>As<JavaTypeName>TypeHandler` or `<OneType>As<AnotherType>TypeHandler` — cross-type conversion
 3. `<xxx>TypeHandler` — special type handling (prefix `Pg` indicates PostgreSQL-specific, prefix `Oracle` indicates Oracle-specific)
 
-### Combo types (highest priority) {#mix_type}
+## Combo types (highest priority) {#mix_type}
 
 :::info
 Both Java and JDBC types must match to select a handler in this table.
@@ -50,7 +52,7 @@ Both Java and JDBC types must match to select a handler in this table.
 | DATALINK                                                                  | java.net.URI        | StringAsUriTypeHandler         |
 | DATALINK                                                                  | java.net.URL        | StringAsUrlTypeHandler         |
 
-### Single types (second priority) {#single_type}
+## Single types (second priority) {#single_type}
 
 :::info
 Matching either the Java type or the JDBC type is enough to activate a handler in this table.

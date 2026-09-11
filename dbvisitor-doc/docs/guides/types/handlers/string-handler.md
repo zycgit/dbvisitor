@@ -5,7 +5,9 @@ title: 字符类型
 description: dbVisitor 处理字符类型的类型处理器。
 ---
 
-# 字符类型处理器
+<span id="字符类型处理器" />
+
+# 字符类型
 
 字符类型处理器位于 `net.hasor.dbvisitor.types.handler.string` 包中。
 

@@ -1,0 +1,81 @@
+---
+id: connection
+sidebar_position: 2
+title: Connect to the Database
+---
+
+<span id="dependencies-and-versions" />
+
+<span id="jdbc-connection" />
+
+Use `DriverManager.getConnection(...)` to open a JDBC connection:
+
+Replace the endpoint with your database address. For an authenticated service, uncomment the credential settings and supply your own values from application configuration; do not hard-code real secrets.
+
+```java
+String url = "jdbc:dbvisitor:mongo://127.0.0.1:27017/testdb";
+java.util.Properties properties = new java.util.Properties();
+properties.setProperty("socketTimeout", "5000");
+// Enable these settings when authentication is required:
+// properties.setProperty("user", "YOUR_USER");
+// properties.setProperty("password", "YOUR_PASSWORD");
+// properties.setProperty("mechanism", "SCRAM-SHA-256");
+try (java.sql.Connection connection = java.sql.DriverManager.getConnection(url, properties)) {
+    // Execute JDBC commands here; the connection is closed automatically.
+}
+```
+
+The `/testdb` path selects the database and is also used as the default authentication database; match it to the account. For multiple hosts, use `jdbc:dbvisitor:mongo://host1:27017;host2:27017/testdb`. This is the adapter URL, not an arbitrary MongoDB client URI.
+
+## Configure Connection Parameters
+
+Set options with `properties.setProperty("name", "value")`, or append `?name=value&other=value` to the URL (use `&` if a query string already exists). For the same key, URL values override `Properties`. The URL parser does not percent-decode values; put passwords, tokens and values containing `&` in `Properties`, and avoid logging credentials.
+
+See [Connection Parameters](./params.md) for names, defaults, units and restrictions. Only documented adapter parameters apply; they are not a pass-through for all vendor SDK options.
+
+After connecting, see [JDBC Operations](../../features/mongo/jdbc.mdx) for command execution and result handling.
+
+
+## Username and Password
+
+Set `user`, `password` and, when needed, `mechanism=SCRAM-SHA-256` in `Properties`. The database in the JDBC URL is also the authentication database. When the account belongs to `admin` but commands use `testdb`, configure a native URI with `authSource=admin` through `customMongo`; adding `authSource` to the JDBC URL does not configure authentication.
+
+## Multiple Nodes
+
+Use `jdbc:dbvisitor:mongo://host1:27017;host2:27017/testdb` to supply seed addresses for the MongoDB client. Do not combine unrelated databases. Configure options such as a required replica-set name or a `mongodb+srv://` URI through `customMongo`.
+
+## TLS and Certificates {#tls}
+
+The default client does not enable TLS. Use `customMongo` to configure a native client URI or `MongoClientSettings`. In the example, supply `MONGODB_URI` through application configuration, for example `mongodb://USER:PASSWORD@mongo.example.com:27017/testdb?authSource=admin&tls=true`. Encode credential characters according to MongoDB URI rules and never log the URI. The JDBC database path still selects the database used by commands.
+
+```java
+public class SecureMongoFactory implements net.hasor.dbvisitor.adapter.mongo.CustomMongo {
+    @Override
+    public com.mongodb.client.MongoClient createMongoClient(
+            String jdbcUrl, java.util.Map<String, String> props) {
+        String uri = System.getenv("MONGODB_URI");
+        return com.mongodb.client.MongoClients.create(uri);
+    }
+}
+```
+
+Register the factory when opening the JDBC connection:
+
+```java
+java.util.Properties properties = new java.util.Properties();
+properties.setProperty("customMongo", SecureMongoFactory.class.getName());
+try (java.sql.Connection connection = java.sql.DriverManager.getConnection(
+        "jdbc:dbvisitor:mongo://mongo.example.com:27017/testdb", properties)) {
+    // Execute JDBC commands here.
+}
+```
+
+For a private CA, configure the JVM trust store or a trusted SSL context in the factory. For mutual TLS, also configure the client certificate and private key. Keep certificate and hostname verification enabled. There are no built-in JDBC PEM parameters for this driver.
+
+## Custom Client {#custom-client}
+
+`customMongo` names a factory implementing `net.hasor.dbvisitor.adapter.mongo.CustomMongo`, with method `createMongoClient(String jdbcUrl, Map<String, String> props)`. The JDBC connection uses and closes the returned client. The factory owns advanced client configuration; Milvus TLS properties do not apply here.
+
+The URL database path takes precedence over database and is also used as the default authentication database. The db prefix requires a selected database. Configure connection timeouts through `customMongo`; the `connectTimeout` connection property has no effect. Selecting X-509 authentication does not itself enable TLS.
+
+The factory class must be on the application classpath and have an accessible no-argument constructor. It owns endpoint, authentication, TLS and timeout settings; JDBC properties are passed to the factory but are not automatically applied to its client. Return a separate client for each connection rather than sharing one that another JDBC connection may close.

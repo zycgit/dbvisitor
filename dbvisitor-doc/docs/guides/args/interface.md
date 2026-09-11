@@ -5,7 +5,9 @@ title: 6.5 接口方式
 description: dbVisitor 提供了 SqlArgSource、PreparedStatement 两种接口方式进行传参。
 ---
 
-# 接口方式
+<span id="接口方式" />
+
+# 6.5 接口方式
 
 dbVisitor 提供了两种接口方式进行传参。
 - [SqlArgSource](./interface#source)，参数容器

@@ -5,7 +5,9 @@ title: 10.1 Annotation-Based Transactions
 description: Declare transaction boundaries on methods or classes with @Transactional.
 ---
 
-# Annotation-Based Transactions
+<span id="annotation-based-transactions" />
+
+# 10.1 Annotation-Based Transactions
 
 Annotation-based transactions place boundaries on methods or classes, removing manual `begin`, `commit`, and `rollBack` calls from business code. This is the usual approach in the Service layer.
 

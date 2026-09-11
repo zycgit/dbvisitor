@@ -2,6 +2,7 @@
 id: about
 sidebar_position: 0
 title: 架构设计
+sidebar_label: 架构设计
 description: dbvisitor-driver 适配器层的核心架构、组件职责和执行流程。
 ---
 

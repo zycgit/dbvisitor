@@ -1,0 +1,84 @@
+---
+id: connection
+sidebar_position: 2
+title: 建立连接
+---
+
+<span id="依赖与版本" />
+
+<span id="jdbc-连接" />
+
+使用 `DriverManager.getConnection(...)` 建立 JDBC 连接：
+
+将地址替换为实际数据库地址；启用认证时，取消认证配置的注释，并从应用配置中提供自己的凭据，不要将真实密码写入源码。
+
+```java
+String url = "jdbc:dbvisitor:jedis://127.0.0.1:6379?database=0";
+java.util.Properties properties = new java.util.Properties();
+properties.setProperty("connectTimeout", "5000");
+// 服务端启用认证时配置：
+// properties.setProperty("user", "YOUR_USER");
+// properties.setProperty("password", "YOUR_PASSWORD");
+try (java.sql.Connection connection = java.sql.DriverManager.getConnection(url, properties)) {
+    // 在此通过 JDBC 执行命令；退出代码块时自动关闭连接。
+}
+```
+
+URL 前缀是 `jedis`，不是 `redis`；数据库索引使用 `?database=0`，不写成 `/0`。多主机如 `jdbc:dbvisitor:jedis://host1:6379;host2:6379` 会创建 Redis Cluster 客户端，并非连接多个独立单机。默认客户端不启用 TLS，高级配置见[连接参数](./params.md)中的 `customJedis`。
+
+## 配置连接参数
+
+参数可通过 `properties.setProperty("参数名", "参数值")` 配置，也可放在 URL 的 `?name=value&other=value` 部分；已有查询参数时用 `&` 追加。同名参数以 URL 为准，覆盖 `Properties`。URL 解析不会执行百分号解码；密码、token 以及包含 `&` 的值应放在 `Properties` 中，并避免记录到日志。
+
+参数名称、默认值、单位及限制见[连接参数](./params.md)。只使用适配器文档列出的参数，不能将厂商 SDK 的任意选项直接当作 JDBC 参数。
+
+连接建立后的命令执行与结果读取见[JDBC 操作用法](../../features/redis/jdbc.mdx)。
+
+## 用户名与密码
+
+仅密码认证时，只设置 `password`，不设置 `user`。使用 Redis ACL 账号时，同时设置 `user` 和 `password`。凭据放在 `Properties` 中，连接写法与上方示例一致。
+
+## Redis Cluster
+
+Redis Cluster 使用 `jdbc:dbvisitor:jedis://host1:6379;host2:6379?database=0`。单地址创建单机 `Jedis`，分号分隔的多地址创建 `JedisCluster`。Cluster 使用数据库 `0`；节点列表不是 Sentinel 地址列表，也不是独立单机的故障转移配置。
+
+## TLS 与证书 {#tls}
+
+默认客户端不启用 TLS。通过 `customJedis` 返回启用 TLS 的 `Jedis` 或 `JedisCluster`。下例创建使用 JVM 信任配置的单机 TLS 客户端，主机和端口需替换为实际端点。
+
+```java
+public class SecureJedisFactory implements net.hasor.dbvisitor.adapter.redis.CustomJedis {
+    @Override
+    public Object createJedisCmd(String jdbcUrl, java.util.Map<String, String> props) {
+        redis.clients.jedis.DefaultJedisClientConfig config =
+                redis.clients.jedis.DefaultJedisClientConfig.builder()
+                        .ssl(true)
+                        .user(props.get("user"))
+                        .password(props.get("password"))
+                        .build();
+        return new redis.clients.jedis.Jedis(
+                new redis.clients.jedis.HostAndPort("redis.example.com", 6380), config);
+    }
+}
+```
+
+建立 JDBC 连接时注册工厂：
+
+```java
+java.util.Properties properties = new java.util.Properties();
+properties.setProperty("customJedis", SecureJedisFactory.class.getName());
+properties.setProperty("user", "YOUR_USER");
+properties.setProperty("password", "YOUR_PASSWORD");
+try (java.sql.Connection connection = java.sql.DriverManager.getConnection(
+        "jdbc:dbvisitor:jedis://redis.example.com:6380?database=0", properties)) {
+    // 在此通过 JDBC 执行命令。
+}
+```
+
+使用私有 CA 时，在 JVM 信任库或工厂的 SSL 上下文中配置信任证书；双向 TLS 还需配置客户端证书与私钥。保留证书和主机名校验，不要使用跳过校验的方式连接。本驱动没有内置的 JDBC PEM 证书参数。
+
+## 自定义客户端 {#custom-client}
+
+`customJedis` 指定实现 `net.hasor.dbvisitor.adapter.redis.CustomJedis` 的工厂类。`createJedisCmd(String jdbcUrl, Map<String, String> props)` 必须返回 `Jedis` 或 `JedisCluster`，不能返回连接池或 Sentinel 包装对象。JDBC 连接关闭时会关闭返回的客户端。
+
+工厂类须位于应用类路径中，并提供可访问的无参构造方法。工厂自行处理地址、认证、TLS 和超时；JDBC 参数会传给工厂，但不会自动应用到工厂创建的客户端。每次调用应返回独立客户端，避免多个 JDBC 连接共享同一客户端后相互关闭。

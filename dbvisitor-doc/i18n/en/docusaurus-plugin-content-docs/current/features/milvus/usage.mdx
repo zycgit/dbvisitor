@@ -2,25 +2,27 @@
 id: usage
 sidebar_position: 1
 hide_table_of_contents: true
-title: Milvus Usage Guide
+title: dbVisitor API Usage
 description: Detailed usage of each API mode and vector search for Milvus data source.
 ---
 
-# Milvus Data Source Features
+<span id="milvus-data-source-features" />
+
+# dbVisitor API Usage
 
 dbVisitor accesses the Milvus vector database via the [JDBC-Milvus](../../drivers/milvus/about) driver, based on the JDBC protocol.
 Unlike the native command style of MongoDB/ElasticSearch, the Milvus adapter uses **SQL-style syntax** (`CREATE TABLE`, `INSERT`, `SELECT`, `DELETE`, etc.), resulting in a lower learning curve.
 
-This page shows how dbVisitor APIs execute the adapter's SQL subset. See [Install and Use](../../drivers/milvus/usecase.mdx) for dependencies, connections, TLS and a complete JDBC program, and the [support matrix](../../drivers/milvus/compatibility.md) for version requirements and feature boundaries. Examples use two-dimensional FloatVector fields; the application supplies dataSource, connection, entity accessors and Session.
+This page shows how dbVisitor APIs execute the adapter's SQL subset. See [Installation and Connection](../../drivers/milvus/connection.mdx) for dependencies and connections, [Connection Parameters](../../drivers/milvus/params.md) for TLS, and [JDBC Operations](./jdbc.mdx) for a complete program. See [Supported Scope](./compatibility.md) for version requirements and feature boundaries. Examples use two-dimensional FloatVector fields; the application supplies dataSource, connection, entity accessors and Session.
 
 **Supported capabilities:**
 
-- Operate data using SQL-style commands ([supported command list](../../drivers/milvus/commands))
+- Operate data using SQL-style commands ([supported command list](./commands))
 - [JdbcTemplate](#exec-command), [Builder API](#exec-lambda), [BaseMapper](#exec-mapper), [Method Annotations](#exec-annotation), [Mapper File](#exec-file)
 - Object mapping, result set mapping, [rules](../../guides/rules/about), [parameter passing](../../guides/args/about), [ResultSetExtractor/RowMapper](../../guides/result/about)
 - **Vector Search**: KNN nearest neighbor search (`ORDER BY field <-> vector`), range search (`vector_range()`)
 
-**Unsupported:** transactions/savepoints, JDBC executeBatch, stored procedures and updatable ResultSets. INSERT/UPSERT supports multiple VALUES, lazy Iterable/Iterator inputs and [JDBC generated keys](../../drivers/milvus/usecase.mdx#typed-values); these are not JDBC batch.
+**Unsupported:** transactions/savepoints, JDBC executeBatch, stored procedures and updatable ResultSets. INSERT/UPSERT supports multiple VALUES, lazy Iterable/Iterator inputs and [JDBC generated keys](./jdbc.mdx#typed-values); these are not JDBC batch.
 
 ## Concept Analogy
 
@@ -39,7 +41,7 @@ UPDATE selects keys in pages and submits only SET fields through native Partial 
 
 ## Command Mode (JdbcTemplate) {#exec-command}
 
-Use JdbcTemplate to execute SQL-style commands to operate Milvus. Make sure the Milvus data source is properly configured first — see [Milvus Driver Usage Guide](../../drivers/milvus/usecase).
+Use JdbcTemplate to execute SQL-style commands to operate Milvus. Make sure the Milvus data source is properly configured first — see [Milvus Driver Usage Guide](./jdbc).
 
 :::tip[Tip]
 For more usage patterns, see the [JdbcTemplate class](../../guides/core/jdbc/about#guide). The following two features are unavailable due to driver limitations:
@@ -110,7 +112,7 @@ List<Map<String, Object>> results = jdbc.queryForList(
 
 ### Filtered Vector Search {#hybrid-query}
 
-This is a single filtered search path. Use [native HYBRID syntax](../../drivers/milvus/commands.md#hybrid) for multiple candidate paths and fused ranking.
+This is a single filtered search path. Use [native HYBRID syntax](./commands.md#hybrid) for multiple candidate paths and fused ranking.
 
 ```java title='Scalar filter + vector search'
 List<Map<String, Object>> results = jdbc.queryForList(
@@ -439,5 +441,5 @@ List<BookVector> results = lambda.query(BookVector.class)
 | IP Range | Prepared SQL: `field <#> ? > ?` | Inner product above threshold |
 
 :::tip[SQL Command Mode]
-To use SQL-style syntax directly for vector search (e.g., `ORDER BY field <-> vector`, `vector_range()`, etc.), see the [supported command list](../../drivers/milvus/commands#dql).
+To use SQL-style syntax directly for vector search (e.g., `ORDER BY field <-> vector`, `vector_range()`, etc.), see the [supported command list](./commands#dql).
 :::

@@ -5,7 +5,9 @@ title: 10.3 Programmatic Transactions
 description: Use TransactionManager directly to begin, commit, and roll back transactions.
 ---
 
-# Programmatic Transactions
+<span id="programmatic-transactions" />
+
+# 10.3 Programmatic Transactions
 
 Programmatic transactions use TransactionManager directly. This provides the most flexibility but is also easier to misuse; use it when precise control over transaction state is needed.
 

@@ -1,58 +1,10 @@
 ---
-id: usecase
+id: jdbc
 sidebar_position: 2
-title: 安装与使用
-description: jdbc-elastic 的依赖、连接、读写示例与 JDBC 结果访问。
+title: JDBC 操作用法
 ---
 
-## 依赖与版本
-
-本文适用于 `6.7.1-SNAPSHOT`，构建与运行要求 Java 17+。使用其他版本时，请参阅对应版本文档。
-
-当前源码使用 `all` classifier（重定位 ANTLR，其他依赖仍需传递引入）。先在仓库根目录安装：
-
-```bash
-./gradlew :dbvisitor-driver:publishToMavenLocal :jdbc-elastic:publishToMavenLocal
-```
-
-```xml
-<dependency>
-    <groupId>net.hasor</groupId>
-    <artifactId>jdbc-elastic</artifactId>
-    <version>6.7.1-SNAPSHOT</version>
-    <classifier>all</classifier>
-</dependency>
-```
-
-```groovy
-repositories { mavenLocal(); mavenCentral() }
-dependencies { implementation 'net.hasor:jdbc-elastic:6.7.1-SNAPSHOT:all' }
-```
-
-上述 SNAPSHOT 依赖从本地 Maven 仓库读取。
-
-## JDBC 连接
-```java
-String url = "jdbc:dbvisitor:elastic://127.0.0.1:9200";
-Properties props = new Properties();
-props.setProperty("user", "elastic");
-props.setProperty("password", "changeme");
-props.setProperty("connectTimeout", "5000");
-props.setProperty("socketTimeout", "10000");
-Connection conn = DriverManager.getConnection(url, props);
-```
-
-JDBC URL 格式：
-```
-jdbc:dbvisitor:elastic://{host}:{port}
-```
-
-集群示例（多主机）：
-```
-jdbc:dbvisitor:elastic://host1:9200;host2:9200
-```
-
-参数可在 URL 或 Properties 中配置，完整定义见[连接参数](./params.md)。驱动类为 `net.hasor.dbvisitor.driver.JdbcDriver`。以下片段假定已打开 `Connection conn`，Java 导入为 `java.sql.*` 和 `java.util.*`；应用完成后应关闭连接。
+先完成[独立 JDBC 驱动的安装与连接](../../drivers/elastic/connection.mdx)。本页直接使用 JDBC，不要求使用 dbVisitor 上层 API。除示例自行创建连接外，`conn` 表示应用已打开并负责关闭的 JDBC 连接。
 
 ## 常用操作示例
 
@@ -125,3 +77,7 @@ try (Statement stmt = conn.createStatement()) {
 ```
 
 查询使用 executeQuery；写入使用 executeUpdate 或 execute。多个命令以分号分隔，通过 execute/getMoreResults 读取，不等于 JDBC batch，也不构成事务。Hint 必须放在命令开头；完整 Hint 与限制见[命令参考](./commands.md)。
+
+## 预读与结果列 {#pre-read}
+
+`preRead=true` 默认预读结果并展开文档字段，同时保留 `_ID`/`_DOC`。关闭时按专用列读取原始文档；不要继续假设存在展开字段。preReadThreshold/preReadMaxFileSize 支持 B/KB/MB/GB；无单位按 MB，缓存目录默认 java.io.tmpdir。预读可能增加内存、磁盘和首行等待成本，并不是服务端分页上限。

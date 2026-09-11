@@ -2,16 +2,18 @@
 id: usage
 sidebar_position: 1
 hide_table_of_contents: true
-title: MongoDB Usage Guide
+title: dbVisitor API Usage
 description: Detailed usage of each API mode for MongoDB data source.
 ---
 
-# MongoDB Data Source Features
+<span id="mongodb-data-source-features" />
+
+# dbVisitor API Usage
 
 dbVisitor accesses MongoDB data sources via the [JDBC-Mongo](../../drivers/mongo/about) driver, based on the JDBC protocol.
 
 **Supported capabilities:**
-- Operate data using MongoDB commands ([supported command list](../../drivers/mongo/commands))
+- Operate data using MongoDB commands ([supported command list](./commands))
 - [JdbcTemplate](#exec-command), [Builder API](#exec-lambda), [BaseMapper](#exec-mapper), [Method Annotations](#exec-annotation), [Mapper File](#exec-file)
 - Object mapping, result set mapping, [rules](../../guides/rules/about), [parameter passing](../../guides/args/about), [ResultSetExtractor/RowMapper](../../guides/result/about)
 - [Dynamic SQL](../../guides/core/file/dynamic_sql) tags in Mapper File, `Statement.RETURN_GENERATED_KEYS` (auto-retrieve `_id`)
@@ -28,7 +30,7 @@ Execution results of different MongoDB commands fall into two categories:
 
 ## Command Mode (JdbcTemplate) {#exec-command}
 
-Use JdbcTemplate to execute MongoDB commands directly. Make sure the MongoDB data source is properly configured first — see [MongoDB Driver Usage Guide](../../drivers/mongo/usecase).
+Use JdbcTemplate to execute MongoDB commands directly. Make sure the MongoDB data source is properly configured first — see [MongoDB Driver Usage Guide](./jdbc).
 
 :::tip[Tip]
 For more usage patterns, see the [JdbcTemplate class](../../guides/core/jdbc/about#guide). The following two features are unavailable due to driver limitations:

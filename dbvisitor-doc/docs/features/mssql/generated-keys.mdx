@@ -6,7 +6,9 @@ title: 自增主键回填
 description: SQL Server 下使用 dbVisitor 处理自增主键、默认值主键和 OUTPUT INSERTED 的方式。
 ---
 
-# SQL Server 自增主键回填
+<span id="sql-server-自增主键回填" />
+
+# 自增主键回填
 
 SQL Server 的 generated keys 行为和 MySQL、H2 等数据库不完全一致。对于一些默认值主键或 sequence default 主键，JDBC `Statement#getGeneratedKeys()` 不一定能稳定返回业务主键列。SQL Server 原生更常见的方式是使用 `OUTPUT INSERTED.<column>`。
 

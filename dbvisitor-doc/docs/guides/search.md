@@ -5,7 +5,9 @@ title: 2. 快速查找
 description: 按使用场景组织常用手册入口，便于快速定位对应功能。
 ---
 
-# 快速查找
+<span id="快速查找" />
+
+# 2. 快速查找
 
 :::info[说明]
 以下入口按使用场景组织，便于快速定位对应功能。
@@ -101,7 +103,7 @@ description: 按使用场景组织常用手册入口，便于快速定位对应�
 - 对于 [InputStream/Reader 类型](./types/stream-handler) 或 [数组类型](./types/array-handler) dbVisitor 也有一定的支持。
 
 ### Redis 支持
-- 了解 dbVisitor 对 Redis [支持的 140+ 命令](../drivers/redis/commands)。
+- 了解 dbVisitor 对 Redis [支持的 140+ 命令](../features/redis/commands)。
 - 简单了解 dbVisitor 如何操作 Redis 不同类型的数据（[字符串](../features/redis/usage#string)、[哈希](../features/redis/usage#hash)、
   [列表](../features/redis/usage#list)、[集合](../features/redis/usage#set)、[有序集合](../features/redis/usage#sorted_set)）
 - 使用 JdbcTemplate [执行命令方式](../features/redis/usage#exec-command) 读写 Redis 数据。
@@ -109,7 +111,7 @@ description: 按使用场景组织常用手册入口，便于快速定位对应�
 - 在 [Mapper 文件](../features/redis/usage#exec-file) 中通过标签配置执行命令。
 
 ### MongoDB 支持
-- 了解 dbVisitor 对 MongoDB [支持的命令](../drivers/mongo/commands)。
+- 了解 dbVisitor 对 MongoDB [支持的命令](../features/mongo/commands)。
 - 使用 JdbcTemplate [执行命令方式](../features/mongo/usage#exec-command) 读写 MongoDB 数据。
 - 使用 [构造器方式](../features/mongo/usage#exec-lambda) 读写 MongoDB 数据。
 - 使用 [通用 Mapper 方式](../features/mongo/usage#exec-mapper) 读写 MongoDB 数据。
@@ -117,7 +119,7 @@ description: 按使用场景组织常用手册入口，便于快速定位对应�
 - 在 [Mapper 文件](../features/mongo/usage#exec-file) 中通过标签配置执行命令。
 
 ### ElasticSearch 支持
-- 了解 dbVisitor 对 ElasticSearch [支持的命令](../drivers/elastic/commands)。
+- 了解 dbVisitor 对 ElasticSearch [支持的命令](../features/elastic/commands)。
 - 使用 JdbcTemplate [执行命令方式](../features/elastic/usage#exec-command) 读写 ElasticSearch 数据。
 - 使用 [构造器方式](../features/elastic/usage#exec-lambda) 读写 ElasticSearch 数据。
 - 使用 [通用 Mapper 方式](../features/elastic/usage#exec-mapper) 读写 ElasticSearch 数据。

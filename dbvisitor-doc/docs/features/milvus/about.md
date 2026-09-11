@@ -6,7 +6,9 @@ title: Milvus 特性
 description: Milvus 向量数据库使用 dbVisitor 的能力范围、API 支持和向量搜索方式。
 ---
 
-# Milvus 数据源特性
+<span id="milvus-数据源特性" />
+
+# Milvus 特性
 
 dbVisitor 通过 [JDBC-Milvus](../../drivers/milvus/about) 驱动，基于 JDBC 协议访问 Milvus 向量数据库。与 MongoDB/ElasticSearch 的原生命令风格不同，Milvus 适配器采用 **SQL 风格语法**（`CREATE TABLE`、`INSERT`、`SELECT`、`DELETE` 等），学习成本更低。
 
@@ -42,11 +44,18 @@ Milvus 适配器使用 SQL 风格的命令子集：
 ## 核心话题
 
 - [向量搜索](./usage#vector-search)：单向量 KNN、L2 范围构造器与 COSINE/IP 的 SQL 阈值规则。
-- [标量过滤 + 向量搜索](./usage#hybrid-query)：与[原生 Hybrid 多路融合](../../drivers/milvus/commands.md#hybrid)不同。
+- [标量过滤 + 向量搜索](./usage#hybrid-query)：与[原生 Hybrid 多路融合](./commands.md#hybrid)不同。
 - [一致性级别](./usage#consistency)：`consistencyLevel=Strong` 确保即时可见
 
 ## 与通用文档的关系
 
 通用 API 用法见 [核心API](../../guides/overview)。向量查询 API 见 [向量查询](../../guides/core/vector_query/about)。
 
-当前开发版要求 Java 17+、SDK 2.6.22、Milvus 最低 2.6.2；服务端功能门槛、发布版区别及功能边界见[版本与支持范围](../../drivers/milvus/compatibility.md)。JDBC 主键用法见[类型绑定与主键回传](../../drivers/milvus/usecase.mdx#typed-values)。
+当前开发版要求 Java 17+、SDK 2.6.22、Milvus 最低 2.6.2；服务端功能门槛、发布版区别及功能边界见[版本与支持范围](./compatibility.md)。JDBC 主键用法见[类型绑定与主键回传](./jdbc.mdx#typed-values)。
+
+## 文档导航
+
+- [JDBC 驱动安装与连接](../../drivers/milvus/connection.mdx)
+- [JDBC 操作用法](./jdbc.mdx)
+- [命令参考](./commands.md)
+- [dbVisitor API 用法](./usage.mdx)

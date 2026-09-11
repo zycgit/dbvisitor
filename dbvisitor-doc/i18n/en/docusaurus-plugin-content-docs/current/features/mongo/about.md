@@ -6,7 +6,9 @@ title: MongoDB Features
 description: MongoDB data source capability scope, API support, and usage patterns in dbVisitor.
 ---
 
-# MongoDB Data Source Features
+<span id="mongodb-data-source-features" />
+
+# MongoDB Features
 
 dbVisitor accesses MongoDB data sources via the [JDBC-Mongo](../../drivers/mongo/about) driver, based on the JDBC protocol.
 
@@ -41,4 +43,11 @@ For complete JdbcTemplate, Builder API, BaseMapper, Annotation, and Mapper File 
 
 ## Relationship to General Documentation
 
-For general API usage, see [Core API](../../guides/overview). For MongoDB command syntax, see [Driver Adapter Command List](../../drivers/mongo/commands).
+For general API usage, see [Core API](../../guides/overview). For MongoDB command syntax, see [Driver Adapter Command List](./commands).
+
+## Documentation
+
+- [JDBC installation and connection](../../drivers/mongo/connection.mdx)
+- [JDBC operations](./jdbc.mdx)
+- [Command reference](./commands.md)
+- [dbVisitor API usage](./usage.mdx)

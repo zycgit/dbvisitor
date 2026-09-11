@@ -5,7 +5,9 @@ title: Numeric Types
 description: Type handlers for numeric values in dbVisitor.
 ---
 
-# Numeric Type Handlers
+<span id="numeric-type-handlers" />
+
+# Numeric Types
 
 Numeric type handlers are located in the `net.hasor.dbvisitor.types.handler.number` package.
 

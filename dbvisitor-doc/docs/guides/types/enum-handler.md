@@ -5,7 +5,9 @@ title: 8.4 枚举类型处理器
 description: dbVisitor 枚举类型处理器的使用方式和自定义映射。
 ---
 
-# 枚举类型处理器
+<span id="枚举类型处理器" />
+
+# 8.4 枚举类型处理器
 
 dbVisitor 对于枚举类型会自动选择 `EnumTypeHandler` 进行处理，一般无需干预。
 

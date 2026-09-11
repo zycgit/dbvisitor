@@ -2,7 +2,7 @@
 id: limited
 sidebar_position: 1
 hide_table_of_contents: true
-title: Usage Limits
+title: Adapter Limitations
 description: Usage limits of JDBC adapters based on dbvisitor-driver regarding JDBC interface support.
 ---
 JDBC adapters based on dbvisitor-driver have the following usage limits regarding JDBC interface support:

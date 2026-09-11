@@ -1,0 +1,34 @@
+---
+id: dependencies
+sidebar_position: 1
+title: 引入依赖
+---
+
+<span id="依赖与版本" />
+
+运行环境要求 Java 17 或更高版本。Maven 和 Gradle 任选一种。
+
+## Maven
+
+在项目 POM 中设置 `dbvisitor.version` 属性，值为所使用的驱动版本号。
+
+```xml
+<dependency>
+    <groupId>net.hasor</groupId>
+    <artifactId>jdbc-mongo</artifactId>
+    <version>${dbvisitor.version}</version>
+    <classifier>all</classifier>
+</dependency>
+```
+
+## Gradle
+
+在项目的 `gradle.properties` 中设置 `dbvisitorVersion`，值为所使用的驱动版本号。
+
+```groovy
+repositories { mavenCentral() }
+dependencies { implementation "net.hasor:jdbc-mongo:${dbvisitorVersion}:all" }
+```
+
+
+引入依赖后，[建立数据库连接](./connection.mdx)。

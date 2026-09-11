@@ -6,7 +6,9 @@ title: Redis Features
 description: Redis data source capability scope, API support, and usage patterns in dbVisitor.
 ---
 
-# Redis Data Source Features
+<span id="redis-data-source-features" />
+
+# Redis Features
 
 dbVisitor accesses Redis data sources via the [JDBC-Redis](../../drivers/redis/about) driver, based on the JDBC protocol.
 
@@ -46,4 +48,11 @@ For complete usage and Redis data type operations (String, Hash, List, Set, Sort
 
 ## Relationship to General Documentation
 
-For general API usage, see [Core API](../../guides/overview). For Redis command syntax, see [Driver Adapter Command List](../../drivers/redis/commands).
+For general API usage, see [Core API](../../guides/overview). For Redis command syntax, see [Driver Adapter Command List](./commands).
+
+## Documentation
+
+- [JDBC installation and connection](../../drivers/redis/connection.mdx)
+- [JDBC operations](./jdbc.mdx)
+- [Command reference](./commands.md)
+- [dbVisitor API usage](./usage.mdx)

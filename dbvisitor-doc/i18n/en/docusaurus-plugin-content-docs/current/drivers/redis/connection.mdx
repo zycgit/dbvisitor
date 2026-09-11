@@ -1,0 +1,84 @@
+---
+id: connection
+sidebar_position: 2
+title: Connect to the Database
+---
+
+<span id="dependencies-and-versions" />
+
+<span id="jdbc-connection" />
+
+Use `DriverManager.getConnection(...)` to open a JDBC connection:
+
+Replace the endpoint with your database address. For an authenticated service, uncomment the credential settings and supply your own values from application configuration; do not hard-code real secrets.
+
+```java
+String url = "jdbc:dbvisitor:jedis://127.0.0.1:6379?database=0";
+java.util.Properties properties = new java.util.Properties();
+properties.setProperty("connectTimeout", "5000");
+// Enable these settings when authentication is required:
+// properties.setProperty("user", "YOUR_USER");
+// properties.setProperty("password", "YOUR_PASSWORD");
+try (java.sql.Connection connection = java.sql.DriverManager.getConnection(url, properties)) {
+    // Execute JDBC commands here; the connection is closed automatically.
+}
+```
+
+The URL prefix is `jedis`, not `redis`; select a database with `?database=0`, not `/0`. Multiple hosts such as `jdbc:dbvisitor:jedis://host1:6379;host2:6379` create a Redis Cluster client, not a set of independent standalone servers. The default client does not enable TLS; see `customJedis` in [Connection Parameters](./params.md).
+
+## Configure Connection Parameters
+
+Set options with `properties.setProperty("name", "value")`, or append `?name=value&other=value` to the URL (use `&` if a query string already exists). For the same key, URL values override `Properties`. The URL parser does not percent-decode values; put passwords, tokens and values containing `&` in `Properties`, and avoid logging credentials.
+
+See [Connection Parameters](./params.md) for names, defaults, units and restrictions. Only documented adapter parameters apply; they are not a pass-through for all vendor SDK options.
+
+After connecting, see [JDBC Operations](../../features/redis/jdbc.mdx) for command execution and result handling.
+
+## Username and Password
+
+For password-only authentication, set `password` and omit `user`. For Redis ACL authentication, set both `user` and `password`. Put credentials in `Properties`, as in the connection example above.
+
+## Redis Cluster
+
+Use `jdbc:dbvisitor:jedis://host1:6379;host2:6379?database=0` for Redis Cluster. A single address creates a standalone `Jedis` client, while semicolon-separated addresses create `JedisCluster`. Cluster connections use database `0`; the node list is not a Sentinel list or standalone failover configuration.
+
+## TLS and Certificates {#tls}
+
+The default client does not enable TLS. Use `customJedis` to create a TLS-enabled `Jedis` or `JedisCluster`. This example creates a standalone TLS client using JVM trust settings; replace the host and port with your endpoint.
+
+```java
+public class SecureJedisFactory implements net.hasor.dbvisitor.adapter.redis.CustomJedis {
+    @Override
+    public Object createJedisCmd(String jdbcUrl, java.util.Map<String, String> props) {
+        redis.clients.jedis.DefaultJedisClientConfig config =
+                redis.clients.jedis.DefaultJedisClientConfig.builder()
+                        .ssl(true)
+                        .user(props.get("user"))
+                        .password(props.get("password"))
+                        .build();
+        return new redis.clients.jedis.Jedis(
+                new redis.clients.jedis.HostAndPort("redis.example.com", 6380), config);
+    }
+}
+```
+
+Register the factory when opening the JDBC connection:
+
+```java
+java.util.Properties properties = new java.util.Properties();
+properties.setProperty("customJedis", SecureJedisFactory.class.getName());
+properties.setProperty("user", "YOUR_USER");
+properties.setProperty("password", "YOUR_PASSWORD");
+try (java.sql.Connection connection = java.sql.DriverManager.getConnection(
+        "jdbc:dbvisitor:jedis://redis.example.com:6380?database=0", properties)) {
+    // Execute JDBC commands here.
+}
+```
+
+For a private CA, configure the JVM trust store or a trusted SSL context in the factory. For mutual TLS, also configure the client certificate and private key. Keep certificate and hostname verification enabled. There are no built-in JDBC PEM parameters for this driver.
+
+## Custom Client {#custom-client}
+
+`customJedis` names a factory implementing `net.hasor.dbvisitor.adapter.redis.CustomJedis`. Its `createJedisCmd(String jdbcUrl, Map<String, String> props)` method must return `Jedis` or `JedisCluster`, not a pool or Sentinel wrapper. The JDBC connection closes the returned client.
+
+The factory class must be on the application classpath and have an accessible no-argument constructor. It owns endpoint, authentication, TLS and timeout settings; JDBC properties are passed to the factory but are not automatically applied to its client. Return a separate client for each connection rather than sharing one that another JDBC connection may close.

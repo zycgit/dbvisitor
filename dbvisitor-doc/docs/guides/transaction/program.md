@@ -5,7 +5,9 @@ title: 10.3 编程式事务
 description: 直接使用 TransactionManager 手动控制事务的开启、提交和回滚。
 ---
 
-# 编程式事务
+<span id="编程式事务" />
+
+# 10.3 编程式事务
 
 编程式事务直接使用 `TransactionManager`。它最灵活，也最容易写错，适合需要精确控制事务状态的场景。
 

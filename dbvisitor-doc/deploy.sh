@@ -1,41 +1,19 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-# Ensure we are in the script's directory
-cd "$(dirname "$0")"
+cd -- "$(dirname -- "${BASH_SOURCE[0]}")"
 
-# Check if pip3 is installed
-if ! command -v pip3 &> /dev/null; then
-    echo "Error: pip3 is not installed. Please install Python3 and pip3 first."
-    exit 1
-fi
+for command_name in python3 npm; do
+    if ! command -v "$command_name" >/dev/null 2>&1; then
+        echo "Error: $command_name is required." >&2
+        exit 1
+    fi
+done
 
-# Install required Python packages
-echo "Installing/Updating required Python libraries..."
-# oss2 for deploy_to_oss.py
-# aliyun-python-sdk-core and aliyun-python-sdk-cdn for refresh_website_cdn.py
-pip3 install oss2 aliyun-python-sdk-core aliyun-python-sdk-cdn --disable-pip-version-check
+# Keep deployment dependencies separate from the system Python environment.
+python3 -m venv .deploy-venv
+.deploy-venv/bin/python -m pip install --disable-pip-version-check -r requirements-deploy.txt
 
-if [ $? -ne 0 ]; then
-    echo "Error: Failed to install python dependencies."
-    exit 1
-fi
+.deploy-venv/bin/python deploy.py
 
-# Run the deployment script
-echo "Starting deployment process..."
-python3 deploy_to_oss.py
-
-if [ $? -ne 0 ]; then
-    echo "Error: Deployment failed."
-    exit 1
-fi
-
-# Run the CDN refresh script
-echo "Starting CDN refresh..."
-python3 refresh_website_cdn.py
-
-if [ $? -ne 0 ]; then
-    echo "Error: CDN refresh failed."
-    exit 1
-fi
-
-echo "Deployment and CDN refresh completed successfully."
+echo "Documentation uploaded and CDN refresh submitted successfully."

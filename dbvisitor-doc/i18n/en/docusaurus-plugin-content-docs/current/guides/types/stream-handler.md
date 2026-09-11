@@ -5,7 +5,9 @@ title: 8.7 Stream Type Handler
 description: Type handlers for stream types in dbVisitor.
 ---
 
-# Stream Type Handlers
+<span id="stream-type-handlers" />
+
+# 8.7 Stream Type Handler
 
 Stream type handlers are located in the `net.hasor.dbvisitor.types.handler.io` package.
 

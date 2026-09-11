@@ -5,7 +5,9 @@ title: 10.5 Propagation
 description: Transaction propagation in dbVisitor.
 ---
 
-# Transaction Propagation
+<span id="transaction-propagation" />
+
+# 10.5 Propagation
 
 When transactional methods call one another on the same thread, propagation determines how their transaction scopes interact.
 

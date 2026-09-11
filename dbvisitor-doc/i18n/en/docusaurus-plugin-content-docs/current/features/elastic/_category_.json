@@ -1,0 +1,8 @@
+{
+  "label": "Elasticsearch",
+  "position": 32,
+  "link": {
+    "type": "doc",
+    "id": "about"
+  }
+}

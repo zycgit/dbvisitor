@@ -1,7 +1,8 @@
 ---
 id: guide
+sidebar_label: Custom Drivers
 sidebar_position: 1
-title: Implementation Guide
+title: Custom Drivers
 description: Implement a dbVisitor adapter using NewDB as an example.
 ---
 

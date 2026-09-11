@@ -4,7 +4,9 @@ sidebar_position: 5
 title: 7.4 Custom Rules
 description: When dbVisitor built-in rules cannot meet your needs, you can extend the required rules through custom methods.
 ---
-# Custom Rules
+<span id="custom-rules" />
+
+# 7.4 Custom Rules
 
 When dbVisitor built-in rules cannot meet your needs, you can extend with custom rules by implementing the `SqlRule` interface.
 

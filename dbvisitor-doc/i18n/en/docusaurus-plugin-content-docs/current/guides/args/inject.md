@@ -5,7 +5,9 @@ title: 6.3 SQL Text Substitution
 description: Use ${...} to fetch named arguments and inject the result into SQL text.
 ---
 
-# SQL Text Substitution
+<span id="sql-text-substitution" />
+
+# 6.3 SQL Text Substitution
 
 :::warning[Please note]
 `${...}` substitutes text directly; it is not PreparedStatement binding. For table names, columns and ordering, map application allowlist choices to fixed SQL fragments rather than accepting raw user input.

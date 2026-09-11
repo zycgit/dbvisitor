@@ -5,7 +5,9 @@ title: 9.2 List/Map
 description: 使用 Map 接收查询结果是最通用的方式，每行数据用 Map 表示列名到值的映射，无需定义实体类。
 ---
 
-# 使用 List/Map 接收数据
+<span id="使用-listmap-接收数据" />
+
+# 9.2 List/Map
 
 使用 `Map` 接收查询结果是最通用的方式，每行数据以 `Map<String, Object>` 表示列名到值的映射，无需预先定义实体类。
 

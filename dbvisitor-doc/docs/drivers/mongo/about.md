@@ -1,37 +1,29 @@
 ---
 id: about
 sidebar_position: 1
-title: 简介
-description: jdbc-mongo 的 JDBC 能力、架构、依赖与文档入口。
+title: 介绍
+description: MongoDB JDBC 驱动的接入、连接和使用。
 ---
 
-## 介绍
-jdbc-mongo 是 MongoDB 的 JDBC 驱动适配器，允许开发者使用标准 JDBC 接口和原生命令风格命令操作 MongoDB。
+`jdbc-mongo` 是可独立使用的 JDBC 驱动，使用 MongoDB 命令访问集合，支持文档读写、聚合和索引管理。可以直接使用 `Connection`、`PreparedStatement` 和 `ResultSet`，不要求使用 dbVisitor API。
 
-核心价值：
-- 使用标准 JDBC API（Connection、Statement、PreparedStatement、ResultSet）。
-- 使用原生命令风格的命令文本映射到 MongoDB 操作。
-- 通过 dbVisitor 为异构数据源提供统一的编码风格。
+## 主要能力
 
-## 特性
-- 实现 JDBC 核心接口并支持 `PreparedStatement` 占位符。
-- 支持原生命令风格 Mongo 命令，支持多条命令以分号顺序执行。
-- 覆盖集合、索引、用户、数据库管理类操作。
-- `find` 支持链式调用 `limit(...)`、`skip(...)`、`sort(...)`、`hint(...)`。
-- 结果映射：`find` 返回 `_ID` 与 `_JSON` 列；预读模式下会把文档字段展开为列。
-- 预读模式可通过阈值、最大文件大小、缓存目录进行配置。
+- 支持集合、文档和索引操作，以及聚合查询。
+- 通过 PreparedStatement 绑定参数，查询支持分页、排序等选项。
+- 支持 `_id` 主键回传和文档字段展开，可配置预读行为。
 
-## JDBC 与内部实现
+## 开始使用
 
-ANTLR4 解析命令，再通过官方客户端执行；公共 JDBC 层负责 Connection、Statement、PreparedStatement、ResultSet 与类型转换。支持多命令和标准 JDBC 多结果访问，但不意味着支持任意 ORM SQL、事务、JDBC batch 或完整 DatabaseMetaData。ResultSet 只读、向前遍历；可按兼容类型使用 getInt/getString 或 BLOB/CLOB/NCLOB 读取。INSERT 可通过 getGeneratedKeys 获取适配器返回的 `_id`，不能据此推断所有通用 Mapper 回填方式都适用。
+1. [引入依赖](./dependencies.mdx)：Maven 或 Gradle 配置。
+2. [建立连接](./connection.mdx)：JDBC URL、认证及连接示例。
+3. [参数配置](./params.md)：参数名称、默认值和单位。
+4. [使用限制](./limitations.md)：JDBC 接口及数据源特有限制。
 
-## 兼容性
-- JDK 17+
-- MongoDB Java Driver：`mongodb-driver-sync` 5.6.1（服务端兼容性需结合具体部署验证）
+## 使用前须知
 
-## 文档导航
+- 运行环境要求 Java 17 或更高版本。
+- 命令必须使用驱动支持的语法，不会自动转换任意关系型 SQL。
+- 不支持 JDBC Batch 和事务。使用连接池、ORM 或其他 JDBC 工具前，请核对[驱动适配器限制](../limited.md)。
 
-- [安装与使用](./usecase.mdx)：依赖、JDBC 连接、参数化读写和多结果访问。
-- [连接参数](./params.md)：认证、超时、自定义客户端和预读。
-- [命令参考](./commands.md)：命令覆盖、Hint 和限制。
-- [dbVisitor API](../../features/mongo/usage.mdx)：JdbcTemplate、Mapper 与构造器用法。
+[命令参考](../../features/mongo/commands.md) · [dbVisitor API 用法](../../features/mongo/usage.mdx)

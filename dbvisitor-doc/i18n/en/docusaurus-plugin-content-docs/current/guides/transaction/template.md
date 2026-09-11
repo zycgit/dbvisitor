@@ -5,7 +5,9 @@ title: 10.2 Transaction Templates
 description: Use TransactionTemplate to commit or roll back a code block automatically.
 ---
 
-# Transaction Templates
+<span id="transaction-templates" />
+
+# 10.2 Transaction Templates
 
 Transaction templates wrap a local code block with standard transaction control: begin first, commit on normal completion, and roll back on an exception or rollback marker.
 

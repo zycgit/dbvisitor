@@ -5,7 +5,9 @@ title: 数字类型
 description: dbVisitor 处理数字类型的类型处理器。
 ---
 
-# 数字类型处理器
+<span id="数字类型处理器" />
+
+# 数字类型
 
 数字类型处理器位于 `net.hasor.dbvisitor.types.handler.number` 包中。
 

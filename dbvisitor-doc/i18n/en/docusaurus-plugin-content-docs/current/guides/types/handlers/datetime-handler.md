@@ -5,7 +5,9 @@ title: Date/Time Types
 description: Type handlers for date and time types in dbVisitor.
 ---
 
-# Date/Time Type Handlers
+<span id="datetime-type-handlers" />
+
+# Date/Time Types
 
 Date/time type handlers are located in the `net.hasor.dbvisitor.types.handler.time` package.
 

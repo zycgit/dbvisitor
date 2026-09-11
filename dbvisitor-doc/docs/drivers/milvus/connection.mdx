@@ -1,0 +1,111 @@
+---
+id: connection
+sidebar_position: 2
+title: 建立连接
+---
+
+<span id="1-版本与依赖" />
+
+<span id="jdbc-连接" />
+
+使用 `DriverManager.getConnection(...)` 建立 JDBC 连接：
+
+将地址替换为实际数据库地址；启用认证时，取消认证配置的注释，并从应用配置中提供自己的凭据，不要将真实密码写入源码。
+
+```java
+String url = "jdbc:dbvisitor:milvus://127.0.0.1:19530/default";
+java.util.Properties properties = new java.util.Properties();
+properties.setProperty("connectTimeout", "5000");
+// 服务端启用认证时配置：
+// properties.setProperty("user", "YOUR_USER");
+// properties.setProperty("password", "YOUR_PASSWORD");
+// properties.setProperty("token", "YOUR_TOKEN");
+try (java.sql.Connection connection = java.sql.DriverManager.getConnection(url, properties)) {
+    // 在此通过 JDBC 执行命令；退出代码块时自动关闭连接。
+}
+```
+
+每个连接使用一个服务地址，默认端口 `19530`；SDK 和 Import REST 共用该地址。`/default` 路径指定数据库。安全连接方式见[TLS 与证书](#tls)和[Zilliz Cloud 连接](#cloud)，不能将明文连接配置直接用于 TLS 端点。
+
+## 配置连接参数
+
+参数可通过 `properties.setProperty("参数名", "参数值")` 配置，也可放在 URL 的 `?name=value&other=value` 部分；已有查询参数时用 `&` 追加。同名参数以 URL 为准，覆盖 `Properties`。URL 解析不会执行百分号解码；密码、token 以及包含 `&` 的值应放在 `Properties` 中，并避免记录到日志。
+
+参数名称、默认值、单位及限制见[连接参数](./params.md)。只使用适配器文档列出的参数，不能将厂商 SDK 的任意选项直接当作 JDBC 参数。
+
+连接建立后的命令执行与结果读取见[JDBC 操作用法](../../features/milvus/jdbc.mdx)。
+
+## 用户名与密码 {#用户名与密码认证}
+
+```java
+Properties props = new Properties();
+props.setProperty("user", "root");
+props.setProperty("password", "YOUR_PASSWORD");
+props.setProperty("consistencyLevel", "Strong");
+// 也可设置 token，非空的 token 优先于用户名和密码。
+try (Connection conn = DriverManager.getConnection(
+        "jdbc:dbvisitor:milvus://127.0.0.1:19530/default", props)) {
+    // 在此通过 JDBC 执行命令。
+}
+```
+
+## TLS 与证书 {#tls}
+
+单向 TLS 使用可信 CA，证书路径建议放在 Properties 中。保留原 JDBC URL 格式；SDK 使用 gRPC TLS，Import 使用 HTTPS，两者访问同一主机和端口：
+
+```java
+Properties props = new Properties();
+props.setProperty("secure", "true");
+props.setProperty("caPemPath", "/absolute/path/ca.crt");
+props.setProperty("serverName", "localhost");
+try (Connection conn = DriverManager.getConnection(
+        "jdbc:dbvisitor:milvus://127.0.0.1:19530/default", props)) {
+    // SDK 和 Import REST 共用 TLS 配置。
+}
+```
+
+双向 TLS 再设置 `clientPemPath=/absolute/path/client.crt` 和 `clientKeyPath=/absolute/path/client.key`，SDK 和 REST 均使用 JDBC URL 指定的端口。不要同时设置 caPemPath/serverPemPath；不要把服务端私钥当作客户端私钥。指定信任文件后仅信任其中的证书，不自动追加系统根证书。
+
+服务端部署须提供对应协议：Milvus 2.6.2 明文支持 gRPC/REST 原生共用端口，但原生 TLS 模式要求内部独立监听。若 TLS 下需要完整 Import 能力，应提供统一入口；例如使用 Envoy 按 ALPN 透传分流 gRPC（HTTP/2）和 REST（HTTP/1.1），不终止 TLS，也不绕过 Milvus 的双向认证。驱动不探测第二个端口，不降级明文，不在提交失败后改用其他接口重复提交。直接连接仅有 gRPC 的 TLS 端口可以使用 SDK 操作，但不能使用 REST Import。此限制来自 [Milvus 2.6.2 监听实现](https://github.com/milvus-io/milvus/blob/v2.6.2/internal/distributed/proxy/listener_manager.go)。
+
+不提供 trust-all、跳过主机名校验或自动明文回退。证书不受信任、名称不匹配、缺少双向认证证书会失败。
+
+服务端配置可参考[Milvus TLS 配置](https://milvus.io/docs/tls.md)。
+
+## Zilliz Cloud {#cloud}
+
+Zilliz Cloud 使用控制台给出的公共端点和 token/API key。把端点的 `https://` 换为 JDBC 前缀，保留其主机和端口，并设置 `secure=true`。无端口的 HTTPS 端点使用 `443`；若端点明确提供 `19530` 等端口则保留。驱动默认端口仍为 19530，不根据域名猜测 Cloud 类型：
+
+```java
+Properties props = new Properties();
+props.setProperty("secure", "true");
+props.setProperty("token", "YOUR_ZILLIZ_API_KEY");
+try (Connection conn = DriverManager.getConnection(
+        "jdbc:dbvisitor:milvus://YOUR_CLUSTER_HOST:443/default", props)) {
+    // 公共 CA 签发的可信证书通常无需额外配置 PEM 文件。
+}
+```
+
+认证信息不要放进 URL 或日志。连接 Cloud 前，请确认端点权限、网络白名单及 Import API 可用性。
+
+端点与认证配置可参考[Zilliz Cloud 连接说明](https://docs.zilliz.com/docs/connect-to-cluster)。
+
+## 自定义客户端 {#custom-client}
+
+需要自定义 SDK 客户端配置时，实现 `CustomMilvus`：
+
+```java
+public class MyMilvusFactory implements net.hasor.dbvisitor.adapter.milvus.CustomMilvus {
+    @Override
+    public io.milvus.v2.client.MilvusClientV2 createMilvusClient(
+            String jdbcUrl, java.util.Map<String, String> props) {
+        return new io.milvus.v2.client.MilvusClientV2(
+                io.milvus.v2.client.ConnectConfig.builder()
+                        .uri("http://127.0.0.1:19530").dbName("default").build());
+    }
+}
+```
+
+用 `props.setProperty("customMilvus", MyMilvusFactory.class.getName())` 注册。工厂负责 SDK 配置；每个 JDBC 连接调用工厂一次，所有命令共享返回的 V2 客户端，连接关闭时释放。驱动将 SDK 内部重试设为单次尝试，避免与 maxRetry 叠加。可通过 `conn.unwrap(MilvusClientV2.class)` 获取客户端，但不要在 JDBC 连接仍使用它时手动关闭或重配。
+
+Import REST 使用 JDBC 地址和认证/TLS 属性，不读取自定义 SDK 客户端的内部配置；自定义工厂也应同步配置这些属性。Cloud 标准连接使用集群端点，不要求公开管理端口。

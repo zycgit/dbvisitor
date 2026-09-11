@@ -5,7 +5,9 @@ title: 10.1 注解式事务
 description: 使用 @Transactional 在方法或类上声明事务边界。
 ---
 
-# 注解式事务
+<span id="注解式事务" />
+
+# 10.1 注解式事务
 
 注解式事务把事务边界放在方法或类上，业务代码里不需要手动写 `begin`、`commit`、`rollBack`。这是 Service 层最常用的事务写法。
 

@@ -5,7 +5,9 @@ title: 10.4 事务管理器
 description: 理解 TransactionManager、TransactionStatus、事务栈、挂起事务和保存点。
 ---
 
-# 事务管理器
+<span id="事务管理器" />
+
+# 10.4 事务管理器
 
 `TransactionManager` 是 dbVisitor 事务能力的核心接口。注解式事务和模板事务最终都会落到它的 `begin`、`commit`、`rollBack` 上。
 

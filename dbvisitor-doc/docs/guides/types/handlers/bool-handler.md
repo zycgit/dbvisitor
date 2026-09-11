@@ -5,7 +5,9 @@ title: 布尔类型
 description: dbVisitor 处理布尔类型的类型处理器。
 ---
 
-# 布尔类型处理器
+<span id="布尔类型处理器" />
+
+# 布尔类型
 
 布尔类型处理器位于 `net.hasor.dbvisitor.types.handler.bool` 包中。
 

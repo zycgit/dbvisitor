@@ -6,7 +6,9 @@ title: Auto-generated Key Backfill
 description: How to handle auto-increment keys, default-value keys, and OUTPUT INSERTED in SQL Server with dbVisitor.
 ---
 
-# SQL Server Auto-generated Key Backfill
+<span id="sql-server-auto-generated-key-backfill" />
+
+# Auto-generated Key Backfill
 
 SQL Server's generated keys behavior is not entirely consistent with databases like MySQL and H2. For some default-value primary keys or sequence default primary keys, JDBC `Statement#getGeneratedKeys()` may not reliably return the business primary key column. SQL Server's more common native approach is to use `OUTPUT INSERTED.<column>`.
 

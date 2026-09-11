@@ -5,7 +5,9 @@ title: 8.5 JSON Serialization Handler
 description: dbVisitor has built-in support for four JSON serialization providers (Jackson, Gson, Fastjson, Fastjson2) and BSON serialization.
 ---
 
-# JSON Serialization Handler
+<span id="json-serialization-handler" />
+
+# 8.5 JSON Serialization Handler
 
 JSON serialization handlers are located in the `net.hasor.dbvisitor.types.handler.json` package. Through serialization handlers, you can store Java objects as JSON in text columns of the database.
 

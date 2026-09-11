@@ -3,13 +3,17 @@
     "message": "Next",
     "description": "The label for version current"
   },
-  "sidebar.drivers.category.JDBC 驱动适配器": {
-    "message": "JDBC Driver Adapters",
-    "description": "The label for category 'JDBC 驱动适配器' in sidebar 'drivers'"
+  "sidebar.drivers.category.JDBC 驱动": {
+    "message": "JDBC Drivers",
+    "description": "The label for category 'JDBC 驱动' in sidebar 'drivers'"
   },
-  "sidebar.drivers.category.自定义适配器": {
-    "message": "Custom Adapter",
-    "description": "The label for category '自定义适配器' in sidebar 'drivers'"
+  "sidebar.drivers.category.驱动适配介绍": {
+    "message": "Driver Adapter Introduction",
+    "description": "The label for category '驱动适配介绍' in sidebar 'drivers'"
+  },
+  "sidebar.drivers.category.自定义驱动开发": {
+    "message": "Custom Driver Development",
+    "description": "The label for category '自定义驱动开发' in sidebar 'drivers'"
   },
   "sidebar.drivers.category.JDBC Elastic": {
     "message": "JDBC Elastic",
@@ -27,9 +31,9 @@
     "message": "JDBC Redis",
     "description": "The label for category 'JDBC Redis' in sidebar 'drivers'"
   },
-  "sidebar.features.category.数据源特性": {
-    "message": "Data Source Features",
-    "description": "The label for category '数据源特性' in sidebar 'features'"
+  "sidebar.features.category.数据源": {
+    "message": "Data Sources",
+    "description": "The label for category '数据源' in sidebar 'features'"
   },
   "sidebar.features.category.ClickHouse": {
     "message": "ClickHouse",

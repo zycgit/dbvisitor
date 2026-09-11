@@ -1,5 +1,6 @@
 ---
 id: about
+sidebar_label: Architecture
 sidebar_position: 0
 title: Architecture
 description: Core architecture, component responsibilities and execution flow of dbvisitor-driver adapters.

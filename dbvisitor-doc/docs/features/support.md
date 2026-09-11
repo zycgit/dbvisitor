@@ -59,11 +59,12 @@ dbVisitor 具备智能的方言推断能力，会自动根据 JDBC URL 识别目
 | ElasticSearch 6 | elastic6 | ✅ | ✅ | | | | |
 | ElasticSearch 7 | elastic7 | ✅ | ✅ | | | ✅ | |
 | ElasticSearch 8 | elastic8 | ✅ | ✅ | | | ✅ | |
-| Milvus | milvus | ✅ | ✅ | | | ✅ | |
+| Milvus | milvus | ✅ | ✅ | Update¹ | | ✅ | |
 
 > ✅ 支持 &nbsp; ❌ 不支持
 >
 > ¹ 需有主键
+> Milvus 的 Update 要求写入列中包含唯一主键，使用 partial UPSERT，不代表具备事务保证。
 >
 > **⚠️ Hive**：虽然实现了 `PageSqlDialect`，但 `countSql` 和 `pageSql` 均会抛出 `UnsupportedOperationException`，实际不可用。
 
@@ -87,11 +88,11 @@ JDBC Batch 与多语句执行是不同能力：多语句通过一次 `Statement.
 使用支持的 JDBC 插入及主键回传接口，可以读取服务端返回的主键；Milvus 的列名取集合主键字段名，不固定为 `_id`。
 :::
 
-Mapper 注解/XML 请求主键时，不要指定 `keyColumn`，以免选择适配器不支持的列名数组重载；单列键可通过 `keyProperty` 按位置回填。Lambda/BaseMapper 的 `KeyType.Auto` 实体回填会使用列名数组重载，因此不能直接套用于这些适配器；需要自动主键时，使用 JDBC 标志重载或上述 Mapper 配置。Milvus 版本要求见[版本与支持范围](../drivers/milvus/compatibility.md)。
+Mapper 注解/XML 请求主键时，不要指定 `keyColumn`，以免选择适配器不支持的列名数组重载；单列键可通过 `keyProperty` 按位置回填。Lambda/BaseMapper 的 `KeyType.Auto` 实体回填会使用列名数组重载，因此不能直接套用于这些适配器；需要自动主键时，使用 JDBC 标志重载或上述 Mapper 配置。Milvus 版本要求见[版本与支持范围](./milvus/compatibility.md)。
 
 ### 非关系型数据源指南
 
-- **[Redis](./redis/about.md)** — 支持 [140+ 命令](../drivers/redis/commands)，常用数据类型操作；不支持构造器 API，可使用 RowMapper 或 JSON TypeHandler 映射结果
+- **[Redis](./redis/about.md)** — 支持 [140+ 命令](./redis/commands)，常用数据类型操作；不支持构造器 API，可使用 RowMapper 或 JSON TypeHandler 映射结果
 - **[MongoDB](./mongo/about.md)** — 完整 CRUD 支持，ObjectId 自动映射，分页查询；不支持 JDBC Batch 和存储过程
 - **[ElasticSearch](./elastic/about.md)** — 完整 CRUD 支持，基于 REST DSL；不支持 JDBC Batch 和存储过程
 - **[Milvus](./milvus/about.md)** — SQL 子集、多语句执行、向量/Hybrid 搜索、分页 Partial UPDATE、主键回传、多行写入和 Import；不支持 JDBC Batch、事务及存储过程。

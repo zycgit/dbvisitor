@@ -33,7 +33,7 @@ public class Users {
 
 ## Reserved words
 
-Set `useDelimited` to add delimiters when the [Fluent API](../../core/lambda/about) generates SQL, avoiding conflicts with reserved words.
+Set `useDelimited` to add delimiters when the [Fluent API](../lambda/about) generates SQL, avoiding conflicts with reserved words.
 
 ```java
 @Table(useDelimited = true)

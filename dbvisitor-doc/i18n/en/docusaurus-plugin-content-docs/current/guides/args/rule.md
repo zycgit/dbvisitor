@@ -4,7 +4,9 @@ sidebar_position: 5
 title: 6.4 Rule Parameters
 description: By using the @{...} syntax in statements, you can leverage the rule mechanism to elegantly handle common dynamic SQL scenarios.
 ---
-# Rule Parameters
+<span id="rule-parameters" />
+
+# 6.4 Rule Parameters
 
 Pass parameters and invoke the built-in rule engine in SQL using the `@{...}` syntax. This allows SQL statements to change dynamically based on parameter values without writing complex `if/else` logic or XML tags.
 

@@ -5,7 +5,9 @@ title: 2. Quick Lookup
 description: This page skips the API overview and organizes links by usage scenarios for quick lookup.
 ---
 
-# Quick Lookup
+<span id="quick-lookup" />
+
+# 2. Quick Lookup
 
 :::info[Note]
 This page skips the API overview and organizes links by usage scenarios for quick lookup.
@@ -101,7 +103,7 @@ This page skips the API overview and organizes links by usage scenarios for quic
 - dbVisitor also supports [InputStream/Reader](./types/stream-handler) and [Array](./types/array-handler) types.
 
 ### Redis support
-- See the 140+ Redis commands supported by dbVisitor: [Commands](../drivers/redis/commands).
+- See the 140+ Redis commands supported by dbVisitor: [Commands](../features/redis/commands).
 - Learn how dbVisitor handles Redis data types ([String](../features/redis/usage#string), [Hash](../features/redis/usage#hash),
   [List](../features/redis/usage#list), [Set](../features/redis/usage#set), [Sorted Set](../features/redis/usage#sorted_set)).
 - Use JdbcTemplate to [Execute commands](../features/redis/usage#exec-command).
@@ -109,7 +111,7 @@ This page skips the API overview and organizes links by usage scenarios for quic
 - Configure commands via tags in [Mapper File](../features/redis/usage#exec-file).
 
 ### MongoDB support
-- See MongoDB commands supported by dbVisitor: [Commands](../drivers/mongo/commands).
+- See MongoDB commands supported by dbVisitor: [Commands](../features/mongo/commands).
 - Use JdbcTemplate to [Execute commands](../features/mongo/usage#exec-command).
 - Use [Fluent API](../features/mongo/usage#exec-lambda).
 - Use [Common Mapper](../features/mongo/usage#exec-mapper).
@@ -117,7 +119,7 @@ This page skips the API overview and organizes links by usage scenarios for quic
 - Configure commands via tags in [Mapper File](../features/mongo/usage#exec-file).
 
 ### ElasticSearch support
-- See ElasticSearch commands supported by dbVisitor: [Commands](../drivers/elastic/commands).
+- See ElasticSearch commands supported by dbVisitor: [Commands](../features/elastic/commands).
 - Use JdbcTemplate to [Execute commands](../features/elastic/usage#exec-command).
 - Use [Fluent API](../features/elastic/usage#exec-lambda).
 - Use [Common Mapper](../features/elastic/usage#exec-mapper).

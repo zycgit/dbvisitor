@@ -1,39 +1,14 @@
 ---
-id: usecase
-sidebar_position: 1
-title: 安装与使用
-description: Redis JDBC 依赖、连接、参数化命令和 JDBC 限制。
+id: jdbc
+sidebar_position: 2
+title: JDBC 操作用法
 ---
 
-## 依赖与版本
-
-本文适用于 `6.7.1-SNAPSHOT`，构建与运行要求 Java 17+。使用其他版本时，请参阅对应版本文档。
-
-当前源码使用 `all` classifier（重定位 ANTLR，其他依赖仍需传递引入）。先在仓库根目录安装：
-
-```bash
-./gradlew :dbvisitor-driver:publishToMavenLocal :jdbc-redis:publishToMavenLocal
-```
-
-```xml
-<dependency>
-    <groupId>net.hasor</groupId>
-    <artifactId>jdbc-redis</artifactId>
-    <version>6.7.1-SNAPSHOT</version>
-    <classifier>all</classifier>
-</dependency>
-```
-
-```groovy
-repositories { mavenLocal(); mavenCentral() }
-dependencies { implementation 'net.hasor:jdbc-redis:6.7.1-SNAPSHOT:all' }
-```
-
-上述 SNAPSHOT 依赖从本地 Maven 仓库读取。
+先完成[独立 JDBC 驱动的安装与连接](../../drivers/redis/connection.mdx)。本页直接使用 JDBC，不要求使用 dbVisitor 上层 API。除示例自行创建连接外，`conn` 表示应用已打开并负责关闭的 JDBC 连接。
 
 ## JDBC 连接与示例
 
-`jdbc-redis` 的 URL 前缀是 **jedis**，不是 redis。数据库索引使用 `?database=0`，不写成 `/0`。单机默认 6379；集群使用 `host1:6379;host2:6379`。认证及全部参数见[连接参数](./params.md)。
+`jdbc-redis` 的 URL 前缀是 **jedis**，不是 redis。数据库索引使用 `?database=0`，不写成 `/0`。单机默认 6379；集群使用 `host1:6379;host2:6379`。认证及全部参数见[连接参数](../../drivers/redis/params.md)。
 
 下例读取/覆盖 `jdbc_demo:key` 和 `jdbc_demo:hash`，请在测试环境使用，或者换成自己的键名。SET/HSET 返回更新数，GET 返回结果集。
 

@@ -5,7 +5,9 @@ title: 6.5 Interface-based
 description: dbVisitor offers SqlArgSource and PreparedStatement-based argument APIs.
 ---
 
-# Interface-based Arguments
+<span id="interface-based-arguments" />
+
+# 6.5 Interface-based
 
 dbVisitor offers two interface-based ways to pass arguments:
 - [SqlArgSource](./interface#source): argument containers

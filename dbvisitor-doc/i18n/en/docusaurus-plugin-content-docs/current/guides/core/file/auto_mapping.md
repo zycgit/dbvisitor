@@ -5,7 +5,9 @@ title: Auto-Mapping
 description: Auto-mapping behavior for mapper XML in dbVisitor.
 ---
 
-# Auto-mapping
+<span id="auto-mapping" />
+
+# Auto-Mapping
 
 `<resultMap>` and `<entity>` tags enable auto-mapping by default via the `autoMapping` attribute.
 With auto-mapping, you do not need to declare a mapping for each column; dbVisitor automatically discovers type properties and maps them to columns based on predefined rules.

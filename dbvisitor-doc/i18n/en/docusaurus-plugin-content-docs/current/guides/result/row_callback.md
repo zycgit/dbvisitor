@@ -5,7 +5,9 @@ title: 9.3 RowCallbackHandler
 description: RowCallbackHandler processes each record in the result set without collecting them—streaming retrieval also depends on JDBC driver configuration.
 ---
 
-# RowCallbackHandler
+<span id="rowcallbackhandler" />
+
+# 9.3 RowCallbackHandler
 
 `RowCallbackHandler` is used to **process each row** of query results rather than collecting them. Unlike RowMapper which returns results, RowCallbackHandler's `processRow` method returns `void`,
 making it suitable for writing files or sending messages row by row. It does not force the JDBC driver to stream data; configure cursors or fetchSize for large queries. The example below collects names to demonstrate callback output; its memory usage grows with the row count and is not suitable for large-volume consumption.
