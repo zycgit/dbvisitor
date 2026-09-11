@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.contract.api.mapper.xml;
 
 import java.sql.SQLException;
@@ -24,7 +31,7 @@ import static org.junit.Assert.assertTrue;
 
 @NxnContract
 public abstract class XmlMapperDynamicSqlContractTest extends AbstractNxnContractTest {
-    private Session session;
+    protected Session session;
 
     @Before
     public void createXmlMapperSession() throws Exception {
@@ -38,10 +45,13 @@ public abstract class XmlMapperDynamicSqlContractTest extends AbstractNxnContrac
         String[] names = { "DynSqlAlice", "DynSqlBob", "DynSqlCarol", "DynSqlDave", "DynSqlEve" };
         int[] ages = { 22, 28, 35, 42, 50 };
         for (int i = 0; i < names.length; i++) {
-            jdbcTemplate.executeUpdate(//
-                    "INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, @{macro, currentTimestamp})", //
-                    new Object[] { baseId() + i + 1, names[i], ages[i], names[i].toLowerCase() + "@test.com" });
+            insertUser(new Object[] { baseId() + i + 1, names[i], ages[i], names[i].toLowerCase() + "@test.com" });
         }
+    }
+
+    protected void insertUser(Object[] values) throws SQLException {
+        jdbcTemplate.executeUpdate(
+                "INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, @{macro, currentTimestamp})", values);
     }
 
     protected int baseId() {
@@ -111,14 +121,18 @@ public abstract class XmlMapperDynamicSqlContractTest extends AbstractNxnContrac
 
     @Test
     @Capability(CapabilityId.MAPPER_XML_DYNAMIC_FOREACH)
-    public void dynamicForeach_shouldSupportInClauseAndBatchValues() throws Exception {
-        requiresNxnFeature(FeatureId.XML_FOREACH_BATCH_INSERT_VALUES);
+    public void dynamicForeach_shouldExpandQueryParameters() throws Exception {
         List<UserInfo> selected = this.session.queryStatement("xmltest.DynamicSqlMapper.selectByIdList", mapOf("ids", Arrays.asList(baseId() + 1, baseId() + 3, baseId() + 5)));
         assertEquals(3, selected.size());
         assertEquals("DynSqlAlice", selected.get(0).getName());
         assertEquals("DynSqlCarol", selected.get(1).getName());
         assertEquals("DynSqlEve", selected.get(2).getName());
+    }
 
+    @Test
+    @Capability(CapabilityId.MAPPER_XML_DYNAMIC_FOREACH_WRITE)
+    public void dynamicForeach_shouldExpandWriteParameters() throws Exception {
+        requiresNxnFeature(FeatureId.XML_FOREACH_BATCH_INSERT_VALUES);
         List<Map<String, Object>> users = new ArrayList<>();
         for (int i = 1; i <= 3; i++) {
             Map<String, Object> user = new HashMap<>();
@@ -135,6 +149,13 @@ public abstract class XmlMapperDynamicSqlContractTest extends AbstractNxnContrac
         assertEquals(3, ((Number) result).intValue());
         assertEquals(3, inserted.size());
         assertEquals("DynSqlBatch1", inserted.get(0).getName());
+        for (int i = 0; i < inserted.size(); i++) {
+            UserInfo user = inserted.get(i);
+            assertEquals(Integer.valueOf(baseId() + 21 + i), user.getId());
+            assertEquals("DynSqlBatch" + (i + 1), user.getName());
+            assertEquals(Integer.valueOf(31 + i), user.getAge());
+            assertEquals("batch" + (i + 1) + "@test.com", user.getEmail());
+        }
     }
 
     @Test
@@ -146,6 +167,13 @@ public abstract class XmlMapperDynamicSqlContractTest extends AbstractNxnContrac
         assertEquals(5, all.size());
         assertEquals(1, alice.size());
         assertEquals("DynSqlAlice", alice.get(0).getName());
+
+        List<UserInfo> over22 = this.session.queryStatement("xmltest.DynamicSqlMapper.selectWithBoundAge", mapOf("minAge", 22));
+        List<UserInfo> over35 = this.session.queryStatement("xmltest.DynamicSqlMapper.selectWithBoundAge", mapOf("minAge", 35));
+        assertEquals(4, over22.size());
+        assertEquals("DynSqlBob", over22.get(0).getName());
+        assertEquals(2, over35.size());
+        assertEquals("DynSqlDave", over35.get(0).getName());
     }
 
     @Test

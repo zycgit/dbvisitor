@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.contract.material.dao.declarative;
 
 import java.util.List;
@@ -19,8 +26,8 @@ public interface AnnotationTestMapper {
     int insertUser(UserInfo user);
 
     /** Multiple @Param parameters */
-    @Insert("INSERT INTO user_info (id, name, age, email, create_time) " +//
-            "VALUES (#{id}, #{name}, #{age}, #{email}, @{macro, currentTimestamp})")
+    @Insert("INSERT INTO user_info (id, name, age, email) " +//
+            "VALUES (#{id}, #{name}, #{age}, #{email})")
     int insertUserWithParams(@Param("id") Integer id, @Param("name") String name, @Param("age") Integer age, @Param("email") String email);
 
     /** Multi-line SQL via value[] array */
@@ -75,10 +82,6 @@ public interface AnnotationTestMapper {
     /** Query with LIKE */
     @Query("SELECT * FROM user_info WHERE name LIKE #{pattern}")
     List<UserInfo> selectByNameLike(@Param("pattern") String pattern);
-
-    /** Query with IN clause using @{in} rule — auto-expands array to (?, ?, ...) */
-    @Query("SELECT * FROM user_info WHERE age IN @{in, :ages}")
-    List<UserInfo> selectByAgeIn(@Param("ages") Integer[] ages);
 
     // ========== @Execute ==========
 

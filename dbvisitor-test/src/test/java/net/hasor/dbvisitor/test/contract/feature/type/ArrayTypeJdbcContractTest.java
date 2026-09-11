@@ -1,7 +1,13 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.contract.feature.type;
 
 import java.sql.Array;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.HashMap;
@@ -9,6 +15,8 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import net.hasor.dbvisitor.jdbc.ConnectionCallback;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.test.contract.material.model.types.ArrayTypesAnnotationModel;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
@@ -36,10 +44,16 @@ public abstract class ArrayTypeJdbcContractTest extends AbstractNxnContractTest 
         int id = baseId() + 1;
         Integer[] expected = new Integer[] { 10, 20, 30, 40, 50 };
 
-        try (Connection conn = dataSource.getConnection()) {
+        jdbcTemplate.execute((ConnectionCallback<Void>) conn -> {
             Array sqlArray = conn.createArrayOf("INTEGER", expected);
-            jdbcTemplate.executeUpdate("INSERT INTO array_types_test (id, int_array) VALUES (?, ?)", new Object[] { id, sqlArray });
-        }
+            try {
+                JdbcTemplate connectionJdbc = new JdbcTemplate(conn);
+                assertEquals(1, connectionJdbc.executeUpdate("INSERT INTO array_types_test (id, int_array) VALUES (?, ?)", new Object[] { id, sqlArray }));
+            } finally {
+                sqlArray.free();
+            }
+            return null;
+        });
 
         Integer[] loaded = jdbcTemplate.queryForObject("SELECT int_array FROM array_types_test WHERE id = ?", new Object[] { id }, Integer[].class);
 
@@ -133,6 +147,14 @@ public abstract class ArrayTypeJdbcContractTest extends AbstractNxnContractTest 
             assertEquals(1, row);
         }
         assertEquals(Integer.valueOf(3), count);
+        Integer[][] expectedInts = { { 1, 2 }, { 3, 4 }, { 5, 6 } };
+        String[][] expectedStrings = { { "A", "B" }, { "C", "D" }, { "E", "F" } };
+        for (int i = 0; i < batchArgs.length; i++) {
+            Integer[] loadedInts = jdbcTemplate.queryForObject("SELECT int_array FROM array_types_test WHERE id = ?", new Object[] { firstId + i }, Integer[].class);
+            String[] loadedStrings = jdbcTemplate.queryForObject("SELECT string_array FROM array_types_test WHERE id = ?", new Object[] { firstId + i }, String[].class);
+            assertArrayEquals(expectedInts[i], loadedInts);
+            assertArrayEquals(expectedStrings[i], loadedStrings);
+        }
     }
 
     @Test

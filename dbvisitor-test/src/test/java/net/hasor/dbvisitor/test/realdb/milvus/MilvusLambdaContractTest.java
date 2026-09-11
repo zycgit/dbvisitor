@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.realdb.milvus;
 
 import java.sql.Connection;
@@ -35,42 +42,31 @@ public class MilvusLambdaContractTest extends AdapterContractTest {
         try (Connection c = newAdapterConnection()) {
             JdbcTemplate jdbc = new JdbcTemplate(c);
 
+            // Recreate this test's fixtures so a previous run cannot retain a different schema/consistency.
+            for (String table : new String[] { "tb_user_info_milvus", "tb_complex_order_milvus", "lambda_page", "lambda_sum" }) {
+                jdbc.execute("DROP TABLE IF EXISTS " + table);
+            }
+
             // 1. UserInfoMilvus
-            initTable(jdbc, "tb_user_info_milvus", "CREATE TABLE IF NOT EXISTS tb_user_info_milvus (uid VARCHAR(64) PRIMARY KEY, name VARCHAR(64), loginName VARCHAR(64), loginPassword VARCHAR(64), v FLOAT_VECTOR(2))");
-            initIndex(jdbc, "idx_user_v", "tb_user_info_milvus", "CREATE INDEX idx_user_v ON TABLE tb_user_info_milvus (v) USING \"IVF_FLAT\" WITH (nlist = 128, metric_type = 'L2')");
+            jdbc.execute("CREATE TABLE IF NOT EXISTS tb_user_info_milvus (uid VARCHAR(64) PRIMARY KEY, name VARCHAR(64), loginName VARCHAR(64), loginPassword VARCHAR(64), v FLOAT_VECTOR(2)) WITH (consistency_level='Strong')");
+            jdbc.execute("CREATE INDEX idx_user_v ON TABLE tb_user_info_milvus (v) USING \"IVF_FLAT\" WITH (nlist = 128, metric_type = 'L2')");
             loadTable(jdbc, "tb_user_info_milvus");
 
             // 2. ComplexOrderMilvus
-            initTable(jdbc, "tb_complex_order_milvus", "CREATE TABLE IF NOT EXISTS tb_complex_order_milvus (id VARCHAR(64) PRIMARY KEY, address JSON, items JSON, v FLOAT_VECTOR(2))");
-            initIndex(jdbc, "idx_order_v", "tb_complex_order_milvus", "CREATE INDEX idx_order_v ON TABLE tb_complex_order_milvus (v) USING \"IVF_FLAT\" WITH (nlist = 128, metric_type = 'L2')");
+            jdbc.execute("CREATE TABLE IF NOT EXISTS tb_complex_order_milvus (id VARCHAR(64) PRIMARY KEY, address JSON, items JSON, v FLOAT_VECTOR(2)) WITH (consistency_level='Strong')");
+            jdbc.execute("CREATE INDEX idx_order_v ON TABLE tb_complex_order_milvus (v) USING \"IVF_FLAT\" WITH (nlist = 128, metric_type = 'L2')");
             loadTable(jdbc, "tb_complex_order_milvus");
 
             // 3. lambda_page
-            initTable(jdbc, "lambda_page", "CREATE TABLE IF NOT EXISTS lambda_page (uid VARCHAR(64) PRIMARY KEY, name VARCHAR(64), group_id VARCHAR(64), seq INT64, v FLOAT_VECTOR(2))");
-            initIndex(jdbc, "idx_page_v", "lambda_page", "CREATE INDEX idx_page_v ON TABLE lambda_page (v) USING \"IVF_FLAT\" WITH (nlist = 128, metric_type = 'L2')");
+            jdbc.execute("CREATE TABLE IF NOT EXISTS lambda_page (uid VARCHAR(64) PRIMARY KEY, name VARCHAR(64), group_id VARCHAR(64), seq INT64, v FLOAT_VECTOR(2)) WITH (consistency_level='Strong')");
+            jdbc.execute("CREATE INDEX idx_page_v ON TABLE lambda_page (v) USING FLAT WITH (metric_type = 'L2')");
             loadTable(jdbc, "lambda_page");
 
             // 4. lambda_sum
-            initTable(jdbc, "lambda_sum", "CREATE TABLE IF NOT EXISTS lambda_sum (uid VARCHAR(64) PRIMARY KEY, group_id VARCHAR(64), amount INT64, v FLOAT_VECTOR(2))");
-            initIndex(jdbc, "idx_sum_v", "lambda_sum", "CREATE INDEX idx_sum_v ON TABLE lambda_sum (v) USING \"IVF_FLAT\" WITH (nlist = 128, metric_type = 'L2')");
+            jdbc.execute("CREATE TABLE IF NOT EXISTS lambda_sum (uid VARCHAR(64) PRIMARY KEY, group_id VARCHAR(64), amount INT64, v FLOAT_VECTOR(2)) WITH (consistency_level='Strong')");
+            jdbc.execute("CREATE INDEX idx_sum_v ON TABLE lambda_sum (v) USING \"IVF_FLAT\" WITH (nlist = 128, metric_type = 'L2')");
             loadTable(jdbc, "lambda_sum");
 
-        }
-    }
-
-    private void initTable(JdbcTemplate jdbc, String tableName, String createSql) {
-        try {
-            jdbc.execute(createSql);
-        } catch (Exception e) {
-            // Table likely exists.
-        }
-    }
-
-    private void initIndex(JdbcTemplate jdbc, String indexName, String tableName, String createSql) {
-        try {
-            jdbc.execute(createSql);
-        } catch (Exception e) {
-            // Index likely exists
         }
     }
 
@@ -253,7 +249,7 @@ public class MilvusLambdaContractTest extends AdapterContractTest {
                 doc.put("name", "name_" + i);
                 doc.put("group_id", groupId);
                 doc.put("seq", (long) i);
-                doc.put("v", sampleVector());
+                doc.put("v", Arrays.asList((float) i, 0.0f));
 
                 int res = lambda.insertFreedom("lambda_page").applyMap(doc).executeSumResult();
                 assertEquals(1, res);
@@ -261,21 +257,26 @@ public class MilvusLambdaContractTest extends AdapterContractTest {
 
             PageObject pageInfo = new PageObject(0, 2);
 
-            // "group_id" eq
+            // Milvus supports vector-distance ordering, not scalar ORDER BY seq.
             List<Map<String, Object>> page1 = lambda.queryFreedom("lambda_page")//
-                    .eq("group_id", groupId).asc("seq").usePage(pageInfo).queryForMapList();
+                    .eq("group_id", groupId).orderByL2("v", new float[] { 0, 0 }).usePage(pageInfo).queryForMapList();
 
             assertEquals(2, page1.size());
+            assertEquals(0L, ((Number) page1.get(0).get("seq")).longValue());
+            assertEquals(1L, ((Number) page1.get(1).get("seq")).longValue());
 
             pageInfo.nextPage();
             List<Map<String, Object>> page2 = lambda.queryFreedom("lambda_page")//
-                    .eq("group_id", groupId).asc("seq").usePage(pageInfo).queryForMapList();
+                    .eq("group_id", groupId).orderByL2("v", new float[] { 0, 0 }).usePage(pageInfo).queryForMapList();
             assertEquals(2, page2.size());
+            assertEquals(2L, ((Number) page2.get(0).get("seq")).longValue());
+            assertEquals(3L, ((Number) page2.get(1).get("seq")).longValue());
 
             pageInfo.nextPage();
             List<Map<String, Object>> page3 = lambda.queryFreedom("lambda_page")//
-                    .eq("group_id", groupId).asc("seq").usePage(pageInfo).queryForMapList();
+                    .eq("group_id", groupId).orderByL2("v", new float[] { 0, 0 }).usePage(pageInfo).queryForMapList();
             assertEquals(1, page3.size());
+            assertEquals(4L, ((Number) page3.get(0).get("seq")).longValue());
         }
     }
 

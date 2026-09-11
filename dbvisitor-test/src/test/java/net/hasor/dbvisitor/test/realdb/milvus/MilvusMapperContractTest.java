@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.realdb.milvus;
 
 import static org.junit.Assert.*;
@@ -96,9 +103,27 @@ public class MilvusMapperContractTest extends AdapterContractTest {
             assertNotNull(loaded);
             assertEquals("u1", loaded.getUid());
 
+            assertEquals("nomo", loaded.getName());
+            assertEquals("nomo", loaded.getLoginName());
+            assertEquals("123456", loaded.getLoginPassword());
+            assertEquals(sampleVector(), loaded.getV());
+            assertNull(mapper.selectUser("missing-user"));
+
+            // Update and read back single-field and multi-field changes.
+            assertEquals(1, mapper.updateName("u1", "updated"));
+            assertEquals("updated", mapper.selectUser("u1").getName());
+            assertEquals("nomo", mapper.selectUser("u1").getLoginName());
+            assertEquals(1, mapper.updateUser("u1", "updated-again", "new-login"));
+            loaded = mapper.selectUser("u1");
+            assertEquals("updated-again", loaded.getName());
+            assertEquals("new-login", loaded.getLoginName());
+            assertEquals("123456", loaded.getLoginPassword());
+            assertEquals(sampleVector(), loaded.getV());
+
             // Delete
             int delResult = mapper.deleteUser("u1");
             assertEquals(1, delResult);
+            assertNull(mapper.selectUser("u1"));
         }
     }
 
@@ -159,9 +184,23 @@ public class MilvusMapperContractTest extends AdapterContractTest {
             assertFalse(users.isEmpty());
             assertTrue(users.stream().anyMatch(u -> "u3".equals(u.getUid())));
 
+            UserInfoMilvus3 loaded = mapper.selectUser("u3");
+            assertEquals("u3", loaded.getUid());
+            assertEquals("nomo3", loaded.getName());
+            assertEquals("nomo3", loaded.getLoginName());
+            assertEquals("123456", loaded.getLoginPassword());
+            assertEquals(sampleVector(), loaded.getV());
+            assertNull(mapper.selectUser("missing-user"));
+
+            // Update through the XML statement and verify the stored values.
+            assertEquals(1, mapper.updateName("u3", "xml-updated"));
+            assertEquals("xml-updated", mapper.selectUser("u3").getName());
+            assertEquals("nomo3", mapper.selectUser("u3").getLoginName());
+
             // Delete
             int delResult = mapper.deleteUser("u3");
             assertEquals(1, delResult);
+            assertNull(mapper.selectUser("u3"));
         }
     }
 

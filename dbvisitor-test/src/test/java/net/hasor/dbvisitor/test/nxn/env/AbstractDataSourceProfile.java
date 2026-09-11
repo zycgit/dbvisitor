@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.nxn.env;
 
 import java.util.Arrays;
@@ -23,6 +30,9 @@ public abstract class AbstractDataSourceProfile implements DataSourceProfile {
 
     @Override
     public SupportStatus support(String capabilityId) {
+        if (capabilityId != null && capabilityId.startsWith("transaction.") && !supportsFeature(FeatureId.TRANSACTION)) {
+            return SupportStatus.UNSUPPORTED_BY_DATABASE;
+        }
         if (CapabilityId.MAPPER_XML_CALLABLE_REFCURSOR.equals(capabilityId)) {
             if (supportsFeature(FeatureId.XML_MAPPER_CALLABLE) && supportsFeature(FeatureId.PROCEDURE_CURSOR_RESULT)) {
                 return SupportStatus.SUPPORTED;
@@ -37,6 +47,23 @@ public abstract class AbstractDataSourceProfile implements DataSourceProfile {
     }
 
     private String requiredFeature(String capabilityId) {
+        if (CapabilityId.MAPPER_XML_KEYGEN_DISTINCT_GENERATED_KEYS.equals(capabilityId)) {
+            return FeatureId.GENERATED_KEYS_NUMERIC;
+        }
+        if (CapabilityId.BASEMAPPER_INSERT_DUPLICATE_KEY.equals(capabilityId)) {
+            return FeatureId.DUPLICATE_PRIMARY_KEY_REJECTED;
+        }
+        if (CapabilityId.BASEMAPPER_INSERT_LENGTH_ERROR.equals(capabilityId)) {
+            return FeatureId.LENGTH_LIMIT_ENFORCED;
+        }
+        if (CapabilityId.LAMBDA_QUERY_LIKE.equals(capabilityId)
+                || CapabilityId.LAMBDA_SPECIAL_UNICODE_LIKE.equals(capabilityId)) {
+            return FeatureId.PARAMETERIZED_LIKE;
+        }
+        if (CapabilityId.LAMBDA_QUERY_ORDER.equals(capabilityId) || CapabilityId.LAMBDA_QUERY_PAGE.equals(capabilityId)
+                || CapabilityId.LAMBDA_BATCH_MUTATION_DELETE_CHUNKS.equals(capabilityId)) {
+            return FeatureId.SCALAR_ORDER_BY;
+        }
         if (capabilityId == null) {
             return null;
         }
@@ -46,7 +73,7 @@ public abstract class AbstractDataSourceProfile implements DataSourceProfile {
         if (capabilityId.startsWith("type.array.")) {
             return FeatureId.ARRAY;
         }
-        if (CapabilityId.TYPE_JSON_NULL.equals(capabilityId)) {
+        if (CapabilityId.TYPE_JSON_NULL.equals(capabilityId) || CapabilityId.TYPE_JSON_NULL_ROW.equals(capabilityId)) {
             return null;
         }
         if (capabilityId.startsWith("type.json.")) {
@@ -58,11 +85,15 @@ public abstract class AbstractDataSourceProfile implements DataSourceProfile {
         if (capabilityId.startsWith("type.binary.")) {
             return FeatureId.BINARY;
         }
-        if (capabilityId.startsWith("type.time.") && !CapabilityId.TYPE_TIME_SQL_DATE.equals(capabilityId) && !CapabilityId.TYPE_TIME_LOCAL_DATE.equals(capabilityId) && !CapabilityId.TYPE_TIME_PARTIAL.equals(capabilityId) && !CapabilityId.TYPE_TIME_JULIAN_DAY.equals(capabilityId) && !CapabilityId.TYPE_TIME_NULL.equals(capabilityId) && !CapabilityId.TYPE_TIME_EXTREME_DATE.equals(capabilityId)) {
+        boolean partialDate = CapabilityId.TYPE_TIME_PARTIAL.equals(capabilityId)
+                || CapabilityId.TYPE_TIME_PARTIAL_YEAR_MONTH.equals(capabilityId)
+                || CapabilityId.TYPE_TIME_PARTIAL_MONTH.equals(capabilityId)
+                || CapabilityId.TYPE_TIME_PARTIAL_MONTH_DAY.equals(capabilityId);
+        if (capabilityId.startsWith("type.time.") && !CapabilityId.TYPE_TIME_SQL_DATE.equals(capabilityId)
+                && !CapabilityId.TYPE_TIME_LOCAL_DATE.equals(capabilityId) && !partialDate
+                && !CapabilityId.TYPE_TIME_JULIAN_DAY.equals(capabilityId) && !CapabilityId.TYPE_TIME_NULL.equals(capabilityId)
+                && !CapabilityId.TYPE_TIME_EXTREME_DATE.equals(capabilityId)) {
             return FeatureId.TIME_ZONE_STABLE_ROUND_TRIP;
-        }
-        if (capabilityId.startsWith("transaction.")) {
-            return FeatureId.TRANSACTION;
         }
         if (capabilityId.startsWith("mapping.annotation.special-type.json")) {
             return FeatureId.JSON;
@@ -82,19 +113,22 @@ public abstract class AbstractDataSourceProfile implements DataSourceProfile {
         if (CapabilityId.KEYGEN_UUID_WRONG_TYPE.equals(capabilityId)) {
             return FeatureId.KEYGEN_UUID_WRONG_TYPE_REJECTED;
         }
-        if (CapabilityId.LAMBDA_EMPTY_STRING_VS_NULL.equals(capabilityId) || CapabilityId.MAPPER_ANNOTATION_PARAM_NAMED.equals(capabilityId) || CapabilityId.MAPPING_ANNOTATION_BASIC_VALUE_ROUND_TRIP.equals(capabilityId)) {
+        if (CapabilityId.LAMBDA_EMPTY_STRING_VS_NULL.equals(capabilityId) || CapabilityId.MAPPER_ANNOTATION_PARAM_EMPTY_STRING.equals(capabilityId) || CapabilityId.MAPPING_ANNOTATION_EMPTY_STRING_ROUND_TRIP.equals(capabilityId)) {
             return FeatureId.DISTINCT_EMPTY_STRING;
         }
-        if (CapabilityId.LAMBDA_PREDICATE_IN_SINGLE_AND_LARGE.equals(capabilityId)) {
+        if (CapabilityId.LAMBDA_PREDICATE_IN_LARGE.equals(capabilityId)) {
             return FeatureId.LARGE_IN_LIST;
         }
         if (CapabilityId.LAMBDA_PREDICATE_NOT_IN_NULL.equals(capabilityId)) {
             return FeatureId.SQL_NOT_IN_NULL_SEMANTICS;
         }
+        if (CapabilityId.LAMBDA_PREDICATE_RANGE_NOT_HALF_OPEN.equals(capabilityId)) {
+            return FeatureId.PARAMETERIZED_NOT_COMPARISON;
+        }
         if (CapabilityId.LAMBDA_SORT_REPEATED_COLUMN.equals(capabilityId)) {
             return FeatureId.REPEATED_ORDER_BY_COLUMN;
         }
-        if (CapabilityId.MAPPER_XML_DYNAMIC_FOREACH.equals(capabilityId)) {
+        if (CapabilityId.MAPPER_XML_DYNAMIC_FOREACH_WRITE.equals(capabilityId)) {
             return FeatureId.XML_FOREACH_BATCH_INSERT_VALUES;
         }
         if (CapabilityId.NAMING_CASE_SENSITIVE_FIELD_MISMATCH.equals(capabilityId) || CapabilityId.NAMING_CASE_SENSITIVE_FREEDOM_MAP.equals(capabilityId)) {
@@ -181,15 +215,12 @@ public abstract class AbstractDataSourceProfile implements DataSourceProfile {
                 return FeatureId.DELIMITED_LOWERCASE_STANDARD_TABLE;
             }
             case CapabilityId.NAMING_CASE_INSENSITIVE_MIXED_CASE_CRUD,  //
-                 CapabilityId.NAMING_CASE_SENSITIVE_FIELD_MISMATCH,  //
                  CapabilityId.NAMING_CASE_SENSITIVE_TABLE_ISOLATION, //
-                 CapabilityId.NAMING_CASE_INSENSITIVE_FREEDOM_MAP,   //
-                 CapabilityId.NAMING_CASE_SENSITIVE_FREEDOM_MAP,//
                  CapabilityId.NAMING_CASE_SENSITIVE_FREEDOM_MIXED_CASE,//
                  CapabilityId.NAMING_CASE_INSENSITIVE_BATCH_MAPPING -> {
                 return FeatureId.CASE_SENSITIVE_IDENTIFIERS;
             }
-            case CapabilityId.JDBC_CRUD_UPSERT_ON_CONFLICT -> {
+            case CapabilityId.ADAPTER_PG_SQL_UPDATE_COUNT -> {
                 return FeatureId.POSTGRES_ON_CONFLICT;
             }
             case CapabilityId.JDBC_JOIN_SELF, CapabilityId.MAPPER_XML_JOIN_SELF -> {

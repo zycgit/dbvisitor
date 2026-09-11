@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.nxn.env;
 
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
@@ -24,6 +31,7 @@ public final class H2Profile extends AbstractDataSourceProfile {
             FeatureId.POSTGRES_ON_CONFLICT,
             FeatureId.TIME_EXTREME_DATE,
             FeatureId.CASE_SENSITIVE_IDENTIFIERS,
+            FeatureId.LOWERCASE_STANDARD_RESULT_COLUMNS,
             FeatureId.MULTIPLE_RESULT_SETS
         };
         // @formatter:on

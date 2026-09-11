@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.contract.api.mapper.basemapper;
 
 import java.sql.SQLException;
@@ -37,6 +44,25 @@ public abstract class BaseMapperMapOperationContractTest extends AbstractNxnCont
 
     @Test
     @Capability(CapabilityId.BASEMAPPER_UPDATE_BY_MAP)
+    public void baseMapperUpdateByMap_shouldUpdateMapFields() {
+        this.mapper.insert(user(baseId() + 91, "BaseMapUpdate", 91, "map@basemapper.com"));
+
+        Map<String, Object> update = new HashMap<>();
+        update.put("id", baseId() + 91);
+        update.put("name", "BaseMapUpdated");
+        update.put("age", 92);
+
+        int result = this.mapper.updateByMap(update);
+        UserInfo loaded = this.mapper.selectById(baseId() + 91);
+
+        assertEquals(1, result);
+        assertEquals("BaseMapUpdated", loaded.getName());
+        assertEquals(Integer.valueOf(92), loaded.getAge());
+        assertEquals("map@basemapper.com", loaded.getEmail());
+    }
+
+    @Test
+    @Capability(CapabilityId.BASEMAPPER_UPDATE_BY_MAP_IGNORE_NULLS)
     public void updateByMap_shouldIgnoreNullFieldsAndUpdateNonNullValues() {
         this.mapper.insert(user(baseId() + 1, "MapUpdate", 25, "before-map-update@test.com"));
 

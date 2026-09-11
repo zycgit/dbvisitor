@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.contract.api.vector_query;
 
 import java.sql.SQLException;
@@ -29,7 +36,7 @@ public abstract class VectorKnnOrderingContractTest extends VectorQuerySupport {
             List<ProductVectorForPg> rows = lambdaTemplate.query(ProductVectorForPg.class)//
                     .ge(ProductVectorForPg::getId, startId)//
                     .le(ProductVectorForPg::getId, startId + 4)//
-                    .orderByL2(ProductVectorForPg::getEmbedding, pgVector(target))//
+                    .orderByL2(ProductVectorForPg::getEmbedding, queryVector(target))//
                     .queryForList();
 
             assertEquals(5, rows.size());
@@ -50,10 +57,11 @@ public abstract class VectorKnnOrderingContractTest extends VectorQuerySupport {
             insertVector(cosineId, "Cos-0", sparseVector(0.1f, 0, 1.0f));
             insertVector(cosineId + 1, "Cos-1", sparseVector(0.1f, 1, 1.0f));
             insertVector(cosineId + 2, "Cos-2", sparseVector(0.1f, 2, 1.0f));
+            prepareMetric(MetricType.COSINE);
             List<ProductVectorForPg> cosineRows = lambdaTemplate.query(ProductVectorForPg.class)//
                     .ge(ProductVectorForPg::getId, cosineId)//
                     .le(ProductVectorForPg::getId, cosineId + 2)//
-                    .orderByCosine(ProductVectorForPg::getEmbedding, pgVector(sparseVector(0.1f, 1, 0.99f)))//
+                    .orderByCosine(ProductVectorForPg::getEmbedding, queryVector(sparseVector(0.1f, 1, 0.99f)))//
                     .queryForList();
             assertEquals(3, cosineRows.size());
             assertEquals(Integer.valueOf(cosineId + 1), cosineRows.get(0).getId());
@@ -61,10 +69,11 @@ public abstract class VectorKnnOrderingContractTest extends VectorQuerySupport {
             insertVector(ipId, "IP-small", constantVector(0.1f));
             insertVector(ipId + 1, "IP-mid", constantVector(0.5f));
             insertVector(ipId + 2, "IP-large", constantVector(0.9f));
+            prepareMetric(MetricType.IP);
             List<ProductVectorForPg> ipRows = lambdaTemplate.query(ProductVectorForPg.class)//
                     .ge(ProductVectorForPg::getId, ipId)//
                     .le(ProductVectorForPg::getId, ipId + 2)//
-                    .orderByIP(ProductVectorForPg::getEmbedding, pgVector(constantVector(1.0f)))//
+                    .orderByIP(ProductVectorForPg::getEmbedding, queryVector(constantVector(1.0f)))//
                     .queryForList();
             assertEquals(3, ipRows.size());
             assertEquals(Integer.valueOf(ipId + 2), ipRows.get(0).getId());
@@ -84,8 +93,9 @@ public abstract class VectorKnnOrderingContractTest extends VectorQuerySupport {
             insertVector(startId + 1, "Metric-1", fixedVector(0.5f, 0.01f));
             insertVector(startId + 2, "Metric-2", fixedVector(0.9f, 0.01f));
 
-            Object target = pgVector(fixedVector(0.5f, 0.01f));
+            Object target = queryVector(fixedVector(0.5f, 0.01f));
             for (MetricType metric : Arrays.asList(MetricType.L2, MetricType.COSINE, MetricType.IP)) {
+                prepareMetric(metric);
                 List<ProductVectorForPg> rows = lambdaTemplate.query(ProductVectorForPg.class)//
                         .ge(ProductVectorForPg::getId, startId)//
                         .le(ProductVectorForPg::getId, startId + 2)//
@@ -113,7 +123,7 @@ public abstract class VectorKnnOrderingContractTest extends VectorQuerySupport {
             List<ProductVectorForPg> rows = lambdaTemplate.query(ProductVectorForPg.class)//
                     .ge(ProductVectorForPg::getId, startId)//
                     .le(ProductVectorForPg::getId, startId + total - 1)//
-                    .orderByL2(ProductVectorForPg::getEmbedding, pgVector(fixedVector(0.35f, 0.005f)))//
+                    .orderByL2(ProductVectorForPg::getEmbedding, queryVector(fixedVector(0.35f, 0.005f)))//
                     .initPage(topK, 0)//
                     .queryForList();
 
@@ -139,7 +149,7 @@ public abstract class VectorKnnOrderingContractTest extends VectorQuerySupport {
             List<ProductVectorForPg> l2Rows = lambdaTemplate.query(ProductVectorForPg.class)//
                     .ge(ProductVectorForPg::getId, l2Id)//
                     .le(ProductVectorForPg::getId, l2Id + 2)//
-                    .orderByL2(ProductVectorForPg::getEmbedding, pgVector(constantVector(1.0f)))//
+                    .orderByL2(ProductVectorForPg::getEmbedding, queryVector(constantVector(1.0f)))//
                     .queryForList();
             assertEquals(Integer.valueOf(l2Id + 1), l2Rows.get(0).getId());
             assertEquals(Integer.valueOf(l2Id), l2Rows.get(1).getId());
@@ -149,10 +159,11 @@ public abstract class VectorKnnOrderingContractTest extends VectorQuerySupport {
             insertVector(cosineId, "CosMath-0", sparseVector(0.01f, 0, 2.0f));
             insertVector(cosineId + 1, "CosMath-1", sparseVector(0.01f, 1, 1.0f));
             insertVector(cosineId + 2, "CosMath-2", sparseVector(0.01f, 60, 5.0f));
+            prepareMetric(MetricType.COSINE);
             List<ProductVectorForPg> cosineRows = lambdaTemplate.query(ProductVectorForPg.class)//
                     .ge(ProductVectorForPg::getId, cosineId)//
                     .le(ProductVectorForPg::getId, cosineId + 2)//
-                    .orderByCosine(ProductVectorForPg::getEmbedding, pgVector(cosineTarget))//
+                    .orderByCosine(ProductVectorForPg::getEmbedding, queryVector(cosineTarget))//
                     .queryForList();
             assertEquals(Integer.valueOf(cosineId), cosineRows.get(0).getId());
             assertEquals(Integer.valueOf(cosineId + 2), cosineRows.get(2).getId());
@@ -161,10 +172,11 @@ public abstract class VectorKnnOrderingContractTest extends VectorQuerySupport {
             insertVector(ipId, "IPMath-0", constantVector(0.3f));
             insertVector(ipId + 1, "IPMath-1", constantVector(0.6f));
             insertVector(ipId + 2, "IPMath-2", constantVector(0.9f));
+            prepareMetric(MetricType.IP);
             List<ProductVectorForPg> ipRows = lambdaTemplate.query(ProductVectorForPg.class)//
                     .ge(ProductVectorForPg::getId, ipId)//
                     .le(ProductVectorForPg::getId, ipId + 2)//
-                    .orderByIP(ProductVectorForPg::getEmbedding, pgVector(constantVector(1.0f)))//
+                    .orderByIP(ProductVectorForPg::getEmbedding, queryVector(constantVector(1.0f)))//
                     .queryForList();
             assertEquals(Integer.valueOf(ipId + 2), ipRows.get(0).getId());
             assertEquals(Integer.valueOf(ipId), ipRows.get(2).getId());

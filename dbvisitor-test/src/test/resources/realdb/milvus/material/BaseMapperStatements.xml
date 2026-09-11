@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="StatementTestMapper">
+    <!-- Name patterns are fixed test data. Literal LIKE keeps result/pagination checks independent
+         of the 2.6.2 SDK templated-LIKE limitation; other field values remain bound parameters. -->
+    <!-- Explicit fixture IDs supply vector coordinates for deterministic native pagination. -->
+
+    <resultMap id="userResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        <result column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+        <result column="email" property="email"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <!-- insert with explicit id -->
+    <insert id="insertUserWithId">
+        INSERT INTO user_info (id, name, age, email, create_time, v)
+        VALUES (#{id}, #{name}, #{age}, #{email}, @{macro, currentTimestamp}, [${id}, 0])
+    </insert>
+
+    <!-- update email by id -->
+    <update id="updateUserEmail">
+        UPDATE user_info SET email = #{email} WHERE id = #{id}
+    </update>
+
+    <!-- delete by id -->
+    <delete id="deleteUserById">
+        DELETE FROM user_info WHERE id = #{id}
+    </delete>
+
+    <!-- delete by name pattern -->
+    <delete id="deleteUsersByName">
+        DELETE FROM user_info WHERE name LIKE ${"'" + name + "'"}
+    </delete>
+
+    <!-- query single by id (resultMap) -->
+    <select id="queryUserById" resultMap="userResultMap">
+        SELECT * FROM user_info WHERE id = #{id}
+    </select>
+
+    <!-- query by name pattern (resultMap) -->
+    <select id="queryUsersByName" resultMap="userResultMap">
+        SELECT * FROM user_info WHERE name LIKE ${"'" + name + "'"} ORDER BY v &lt;-&gt; [0, 0]
+    </select>
+
+    <!-- query all users (resultType) -->
+    <select id="queryAllUsers" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        SELECT * FROM user_info ORDER BY v &lt;-&gt; [0, 0]
+    </select>
+
+</mapper>

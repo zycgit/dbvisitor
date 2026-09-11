@@ -1,25 +1,13 @@
 /*
  * Copyright 2015-2022 the original author or authors.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
 import static org.junit.Assert.*;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.sql.*;
 import java.util.Arrays;
 import java.util.Collections;
@@ -41,12 +29,8 @@ import io.milvus.param.dml.InsertParam;
 import io.milvus.param.dml.QueryParam;
 import io.milvus.param.index.CreateIndexParam;
 import io.milvus.response.QueryResultsWrapper;
-import io.minio.MinioClient;
-import io.minio.RemoveObjectArgs;
-import io.minio.UploadObjectArgs;
-import io.minio.messages.Bucket;
-import net.hasor.cobble.ResourcesUtils;
-import net.hasor.cobble.io.IOUtils;
+import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
+import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
 
 public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
     private static final String STRONG_CONSISTENCY_HINT = "/*+ consistency_level=Strong */ ";
@@ -794,85 +778,47 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
             dropCollection(TEST_COLLECTION);
             createCollection(TEST_COLLECTION);
 
-            // 1. Prepare Data locally
-            File tempFile = File.createTempFile("milvus_import_", ".json");
-            try (InputStream inStream = ResourcesUtils.getResourceAsStream("realdb/milvus/import_data.json");//
-                 OutputStream outStream = new FileOutputStream(tempFile)) {
-                IOUtils.copy(inStream, outStream);
-            }
-
-            // 2. Upload to MinIO
-            MinioClient minioClient = MinioClient.builder()//
-                    .endpoint("http://127.0.0.1:19001")//
-                    .credentials("minioadmin", "minioadmin")//
-                    .build();
-
-            String objectName = "import_test_" + System.currentTimeMillis() + ".json";
-            List<Bucket> buckets = minioClient.listBuckets();
-            if (buckets.isEmpty()) {
-                throw new IllegalStateException("No buckets in MinIO");
-            }
-
-            for (Bucket bucket : buckets) {
-                minioClient.uploadObject(UploadObjectArgs.builder()//
-                        .bucket(bucket.name())//
-                        .object(objectName)//
-                        .filename(tempFile.getAbsolutePath())//
-                        .build());
-                // Try files/ prefix as well, common default rootPath
-                minioClient.uploadObject(UploadObjectArgs.builder()//
-                        .bucket(bucket.name())//
-                        .object("files/" + objectName)//
-                        .filename(tempFile.getAbsolutePath())//
-                        .build());
-            }
-
-            // Cleanup local file
-            tempFile.delete();
-
-            // 3. Execute IMPORT (Server-side via MinIO object path)
-            try (Connection conn = DriverManager.getConnection(MILVUS_URL); Statement stmt = conn.createStatement()) {
-                stmt.execute("/*+ timeout=60000 */ IMPORT FROM '" + objectName + "' INTO " + TEST_COLLECTION);
-            }
-
-            // 4. Verify Import using SDK
-            MilvusServiceClient client = newClient();
-
-            // Create Index & Load (Required for Query)
-            client.createIndex(CreateIndexParam.newBuilder()//
-                    .withCollectionName(TEST_COLLECTION)    //
-                    .withFieldName("book_intro")            //
-                    .withIndexName("idx_book_intro")        //
-                    .withIndexType(IndexType.IVF_FLAT)      //
-                    .withMetricType(MetricType.L2)          //
-                    .withExtraParam("{\"nlist\":1024}")     //
-                    .withSyncMode(Boolean.TRUE)             //
-                    .build());
-
-            try (Connection conn = DriverManager.getConnection(MILVUS_URL); Statement stmt = conn.createStatement()) {
-                stmt.execute("/*+ timeout=60000 */ LOAD TABLE " + TEST_COLLECTION);
-            }
-
-            R<QueryResults> queryRes = client.query(QueryParam.newBuilder()//
-                    .withCollectionName(TEST_COLLECTION)//
-                    .withExpr("book_id > 0")//
-                    .withOutFields(Collections.singletonList("word_count"))//
-                    .build());
-            assertEquals(R.Status.Success.getCode(), (int) queryRes.getStatus());
-            QueryResultsWrapper wrapper = new QueryResultsWrapper(queryRes.getData());
-
-            // Cleanup MinIO finally
-            for (Bucket bucket : buckets) {
-                try {
-                    minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucket.name()).object(objectName).build());
-                    minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucket.name()).object("files/" + objectName).build());
-                } catch (Exception e) {
-                    e.printStackTrace();
+            // Prepared server-side fixture; see docker/README.md. Never upload into arbitrary buckets.
+            String env = MilvusProfile.INSTANCE.env();
+            String file = OneApiDataSourceManager.loadAdapterProperties(env).getProperty("test.import.file");
+            assertNotNull("Configure test.import.file and prepare import_data.json on the server", file);
+            try (Connection conn = OneApiDataSourceManager.getConnection(env); Statement stmt = conn.createStatement()) {
+                String jobId;
+                try (PreparedStatement submit = conn.prepareStatement(
+                        "/*+ timeout=60000 */ IMPORT FROM ? INTO " + TEST_COLLECTION + " RETURNING JOB_ID")) {
+                    submit.setString(1, file);
+                    try (ResultSet result = submit.executeQuery()) {
+                        assertTrue(result.next());
+                        jobId = result.getString("JOB_ID");
+                        assertNotNull(jobId);
+                        assertFalse(result.next());
+                    }
                 }
-            }
 
-            assertFalse("Data should be imported", wrapper.getRowRecords().isEmpty());
-            client.close();
+                try (PreparedStatement progress = conn.prepareStatement("SHOW IMPORT ?")) {
+                    progress.setString(1, jobId);
+                    try (ResultSet result = progress.executeQuery()) {
+                        assertTrue(result.next());
+                        assertEquals(jobId, result.getString("JOB_ID"));
+                        assertEquals("Completed", result.getString("STATE"));
+                        assertEquals(100, result.getLong("PROGRESS"));
+                        assertEquals(2, result.getLong("TOTAL_ROWS"));
+                        assertEquals(2, result.getLong("IMPORTED_ROWS"));
+                        assertFalse(result.next());
+                    }
+                }
+
+                stmt.executeUpdate("CREATE INDEX import_vector ON " + TEST_COLLECTION
+                        + " (book_intro) USING FLAT WITH (metric_type=L2)");
+                stmt.executeUpdate("LOAD TABLE " + TEST_COLLECTION);
+                java.util.Map<Long, Long> imported = new java.util.HashMap<>();
+                try (ResultSet rows = stmt.executeQuery("SELECT book_id, word_count FROM " + TEST_COLLECTION)) {
+                    while (rows.next()) {
+                        assertNull("Duplicate imported primary key", imported.put(rows.getLong(1), rows.getLong(2)));
+                    }
+                }
+                assertEquals(java.util.Map.of(1L, 100L, 2L, 200L), imported);
+            }
 
         } finally {
             dropCollection(TEST_COLLECTION);

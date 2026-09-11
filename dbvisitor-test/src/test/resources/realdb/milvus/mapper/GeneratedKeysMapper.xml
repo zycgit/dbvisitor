@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="milvus.GeneratedKeys">
+    <!-- collection is supplied by the fixture, never by external input. -->
+    <insert id="namedColumn" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO ${collection} (name, v) VALUES (#{name}, #{vector})
+    </insert>
+    <insert id="defaultColumn" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO ${collection} (name, v) VALUES (#{name}, #{vector})
+    </insert>
+</mapper>

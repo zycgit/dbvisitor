@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.realdb.elastic6;
 
 import java.sql.Connection;
@@ -176,6 +183,30 @@ public class Elastic6LambdaContractTest extends AdapterContractTest {
             assertEquals(2, loadedOrder.getItems().size());
             assertEquals("Apple", loadedOrder.getItems().get(0).getItemName());
             assertEquals(10, loadedOrder.getItems().get(0).getQuantity());
+            assertEquals("Banana", loadedOrder.getItems().get(1).getItemName());
+            assertEquals(20, loadedOrder.getItems().get(1).getQuantity());
+        }
+    }
+
+    @Test
+    @Capability(CapabilityId.ADAPTER_ELASTIC_LAMBDA_COUNT)
+    public void filteredCountShouldExcludeOtherRowsAndReturnZeroForNoMatch() throws SQLException {
+        try (Connection connection = newAdapterConnection()) {
+            LambdaTemplate lambda = new LambdaTemplate(connection);
+            String groupId = UUID.randomUUID().toString();
+            for (int i = 0; i < 5; i++) {
+                Map<String, Object> row = new HashMap<>();
+                row.put("uid", groupId + "_" + i);
+                row.put("group", groupId);
+                row.put("kind", i < 3 ? "selected" : "other");
+                lambda.insertFreedom("lambda_count").applyMap(row).executeSumResult();
+            }
+
+            assertEquals(5, lambda.queryFreedom("lambda_count").eq("group", groupId).queryForCount());
+            assertEquals(3, lambda.queryFreedom("lambda_count").eq("group", groupId).eq("kind", "selected").queryForCount());
+            assertEquals(2, lambda.queryFreedom("lambda_count").eq("group", groupId).eq("kind", "other").queryForCount());
+            assertEquals(0, lambda.queryFreedom("lambda_count").eq("group", groupId).eq("kind", "missing").queryForCount());
+            lambda.deleteFreedom("lambda_count").eq("group", groupId).doDelete();
         }
     }
 
@@ -213,6 +244,9 @@ public class Elastic6LambdaContractTest extends AdapterContractTest {
                     .eq("group", groupId).asc("seq").usePage(pageInfo).queryForMapList();
             assertEquals(1, page3.size());
             assertEquals(4, Integer.parseInt(page3.get(0).get("seq").toString()));
+            pageInfo.nextPage();
+            assertTrue(lambda.queryFreedom("lambda_page")//
+                    .eq("group", groupId).asc("seq").usePage(pageInfo).queryForMapList().isEmpty());
         }
     }
 }

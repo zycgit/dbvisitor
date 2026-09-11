@@ -9,6 +9,10 @@
         get #{'user_' + uid}
     </select>
 
+    <update id="updateUser">
+        set #{'user_' + info.uid} #{info}
+    </update>
+
     <delete id="deleteUser">
         del #{'user_' + uid}
     </delete>

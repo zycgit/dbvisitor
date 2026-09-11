@@ -1,7 +1,15 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.contract.api.session;
 
 import java.math.BigDecimal;
 import java.util.List;
+import javax.sql.DataSource;
 
 import org.junit.Test;
 
@@ -16,6 +24,7 @@ import net.hasor.dbvisitor.test.contract.material.model.UserOrder;
 import net.hasor.dbvisitor.test.contract.material.model.UserRole;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
+import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 
@@ -27,6 +36,10 @@ import static org.junit.Assert.assertSame;
 
 @NxnContract
 public abstract class SessionCoreContractTest extends AbstractNxnContractTest {
+    protected DataSource sessionDataSource() {
+        return dataSource;
+    }
+
     protected int baseId() {
         return 609000;
     }
@@ -35,7 +48,7 @@ public abstract class SessionCoreContractTest extends AbstractNxnContractTest {
     @Capability(CapabilityId.SESSION_LIFECYCLE)
     public void session_shouldBindConfigurationAndCloseIdempotently() throws Exception {
         Configuration configuration = newConfiguration();
-        Session session = configuration.newSession(dataSource);
+        Session session = configuration.newSession(sessionDataSource());
 
         assertNotNull(session);
         assertSame(configuration, session.getConfiguration());
@@ -51,7 +64,7 @@ public abstract class SessionCoreContractTest extends AbstractNxnContractTest {
     @Test
     @Capability(CapabilityId.SESSION_COMPONENT_JDBC)
     public void sessionJdbc_shouldExposeUsableJdbcTemplate() throws Exception {
-        Session session = newConfiguration().newSession(dataSource);
+        Session session = newConfiguration().newSession(sessionDataSource());
         JdbcTemplate jdbc = session.jdbc();
 
         assertNotNull(jdbc);
@@ -62,7 +75,7 @@ public abstract class SessionCoreContractTest extends AbstractNxnContractTest {
     @Test
     @Capability(CapabilityId.SESSION_COMPONENT_LAMBDA)
     public void sessionLambda_shouldExposeUsableLambdaTemplate() throws Exception {
-        Session session = newConfiguration().newSession(dataSource);
+        Session session = newConfiguration().newSession(sessionDataSource());
         LambdaTemplate lambda = session.lambda();
 
         assertNotNull(lambda);
@@ -76,7 +89,7 @@ public abstract class SessionCoreContractTest extends AbstractNxnContractTest {
     @Test
     @Capability(CapabilityId.SESSION_BASEMAPPER_CRUD)
     public void sessionBaseMapper_shouldRunCrudThroughCreatedMapper() throws Exception {
-        BaseMapper<UserInfo> mapper = newConfiguration().newSession(dataSource).createBaseMapper(UserInfo.class);
+        BaseMapper<UserInfo> mapper = newConfiguration().newSession(sessionDataSource()).createBaseMapper(UserInfo.class);
         int id = baseId() + 30;
 
         assertEquals(1, mapper.insert(user(id, "SessionCrud", 25)));
@@ -95,7 +108,7 @@ public abstract class SessionCoreContractTest extends AbstractNxnContractTest {
     @Test
     @Capability(CapabilityId.SESSION_BASEMAPPER_MULTI_ENTITY)
     public void sessionBaseMapper_shouldSupportMultipleEntityTypesInOneSession() throws Exception {
-        Session session = newConfiguration().newSession(dataSource);
+        Session session = newConfiguration().newSession(sessionDataSource());
         BaseMapper<UserInfo> userMapper = session.createBaseMapper(UserInfo.class);
         BaseMapper<UserOrder> orderMapper = session.createBaseMapper(UserOrder.class);
         int id = baseId() + 40;
@@ -110,7 +123,8 @@ public abstract class SessionCoreContractTest extends AbstractNxnContractTest {
     @Test
     @Capability(CapabilityId.SESSION_BASEMAPPER_COMPOSITE_KEY)
     public void sessionBaseMapper_shouldSupportCompositeKeyEntity() throws Exception {
-        BaseMapper<UserRole> mapper = newConfiguration().newSession(dataSource).createBaseMapper(UserRole.class);
+        requiresNxnFeature(FeatureId.COMPOSITE_PRIMARY_KEY);
+        BaseMapper<UserRole> mapper = newConfiguration().newSession(sessionDataSource()).createBaseMapper(UserRole.class);
         UserRole role = new UserRole(baseId() + 50, 1, "SessionRole");
 
         assertEquals(1, mapper.insert(role));
@@ -127,7 +141,7 @@ public abstract class SessionCoreContractTest extends AbstractNxnContractTest {
     @Capability(CapabilityId.SESSION_BASEMAPPER_NAMESPACE)
     public void sessionBaseMapper_shouldRegisterEntityInCustomNamespace() throws Exception {
         Configuration configuration = newConfiguration();
-        Session session = configuration.newSession(dataSource);
+        Session session = configuration.newSession(sessionDataSource());
 
         assertNotNull(session.createBaseMapper(UserRole.class, "nxn.session.role"));
         assertNotNull(configuration.findBySpace("nxn.session.role", UserRole.class));
@@ -137,7 +151,7 @@ public abstract class SessionCoreContractTest extends AbstractNxnContractTest {
     @Test
     @Capability(CapabilityId.SESSION_BASEMAPPER_MULTI_INSTANCE)
     public void sessionBaseMapper_shouldCreateDistinctMappersAgainstSameTable() throws Exception {
-        Session session = newConfiguration().newSession(dataSource);
+        Session session = newConfiguration().newSession(sessionDataSource());
         BaseMapper<UserInfo> first = session.createBaseMapper(UserInfo.class);
         BaseMapper<UserInfo> second = session.createBaseMapper(UserInfo.class);
         int id = baseId() + 60;
@@ -180,16 +194,16 @@ public abstract class SessionCoreContractTest extends AbstractNxnContractTest {
         int jdbcId = baseId() + 70;
         int mapperId = baseId() + 71;
 
-        JdbcTemplate jdbc = configuration.newJdbc(dataSource);
+        JdbcTemplate jdbc = configuration.newJdbc(sessionDataSource());
         assertNotNull(jdbc);
         assertEquals(1, jdbc.executeUpdate("INSERT INTO user_info (id, name, age) VALUES (?, ?, ?)", new Object[] { jdbcId, "ConfigJdbc", 28 }));
         assertEquals(Integer.valueOf(1), jdbc.queryForObject("SELECT COUNT(*) FROM user_info WHERE id = ?", new Object[] { jdbcId }, Integer.class));
 
-        LambdaTemplate lambda = configuration.newLambda(dataSource);
+        LambdaTemplate lambda = configuration.newLambda(sessionDataSource());
         assertNotNull(lambda);
         assertNotNull(lambda.jdbc());
 
-        Session session = configuration.newSession(dataSource);
+        Session session = configuration.newSession(sessionDataSource());
         BaseMapper<UserInfo> mapper = session.createBaseMapper(UserInfo.class);
         assertEquals(1, mapper.insert(user(mapperId, "ConfigSession", 40)));
         assertEquals("ConfigSession", mapper.selectById(mapperId).getName());
@@ -199,8 +213,8 @@ public abstract class SessionCoreContractTest extends AbstractNxnContractTest {
     @Capability(CapabilityId.SESSION_MULTI_SESSION)
     public void configuration_shouldCreateDistinctSessionsSharingOneConfiguration() throws Exception {
         Configuration configuration = newConfiguration();
-        Session firstSession = configuration.newSession(dataSource);
-        Session secondSession = configuration.newSession(dataSource);
+        Session firstSession = configuration.newSession(sessionDataSource());
+        Session secondSession = configuration.newSession(sessionDataSource());
 
         assertNotSame(firstSession, secondSession);
         assertSame(firstSession.getConfiguration(), secondSession.getConfiguration());

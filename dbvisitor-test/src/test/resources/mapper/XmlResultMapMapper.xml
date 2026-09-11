@@ -100,7 +100,7 @@
 
     <!-- 所有用户（base） -->
     <select id="selectAllBase" resultMap="baseResultMap">
-        SELECT * FROM user_info WHERE name LIKE 'RmCfg%' ORDER BY id
+        SELECT * FROM user_info WHERE id &gt;= #{firstId} AND id &lt;= #{lastId}
     </select>
 
 </mapper>

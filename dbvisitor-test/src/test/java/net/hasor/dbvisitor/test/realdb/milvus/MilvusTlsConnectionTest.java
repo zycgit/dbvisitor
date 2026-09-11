@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.realdb.milvus;
 
 import static org.junit.Assert.*;
@@ -46,6 +53,13 @@ public class MilvusTlsConnectionTest {
         return new JdbcDriver().connect("jdbc:dbvisitor:milvus://127.0.0.1:" + port + "/default", properties);
     }
 
+    private static void verifyTrustedConnection(boolean mutual) throws SQLException {
+        // A refused or unavailable endpoint must not count as successful certificate validation.
+        try (Connection connection = connect(mutual, properties(mutual))) {
+            assertFalse(connection.isClosed());
+        }
+    }
+
     private void roundTrip(int port, Properties properties) throws Exception {
         String table = "jdbc_tls_" + UUID.randomUUID().toString().replace("-", "");
         try (Connection connection = new JdbcDriver().connect("jdbc:dbvisitor:milvus://127.0.0.1:" + port + "/default", properties); Statement statement = connection.createStatement()) {
@@ -78,11 +92,12 @@ public class MilvusTlsConnectionTest {
         Properties properties = new Properties();
         properties.setProperty(MilvusKeys.CONNECT_TIMEOUT, "2500");
         properties.setProperty(MilvusKeys.RPC_DEADLINE, "5000");
-        roundTrip(2956, properties);
+        roundTrip(2953, properties);
     }
 
     @Test
     public void rejectsWrongServerName() throws Exception {
+        verifyTrustedConnection(false);
         Properties properties = properties(false);
         properties.setProperty(MilvusKeys.SERVER_NAME, "wrong.invalid");
         try (Connection ignored = connect(false, properties)) {
@@ -94,6 +109,7 @@ public class MilvusTlsConnectionTest {
 
     @Test
     public void rejectsMissingClientCertificate() throws Exception {
+        verifyTrustedConnection(true);
         Properties properties = properties(false);
         try (Connection ignored = connect(true, properties)) {
             fail("Expected mutual TLS authentication failure");
@@ -104,6 +120,7 @@ public class MilvusTlsConnectionTest {
 
     @Test
     public void rejectsUntrustedServerAndPlaintext() throws Exception {
+        verifyTrustedConnection(false);
         for (boolean secure : new boolean[] { true, false }) {
             Properties properties = new Properties();
             properties.setProperty(MilvusKeys.SECURE, Boolean.toString(secure));

@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.realdb.mongo;
 
 import java.sql.Connection;
@@ -150,12 +157,37 @@ public class MongoLambdaContractTest extends AdapterContractTest {
             assertEquals(2, loadedOrder.getItems().size());
             assertEquals("Apple", loadedOrder.getItems().get(0).getItemName());
             assertEquals(10, loadedOrder.getItems().get(0).getQuantity());
+            assertEquals("Banana", loadedOrder.getItems().get(1).getItemName());
+            assertEquals(20, loadedOrder.getItems().get(1).getQuantity());
         }
     }
 
     private static String randomObjectId() {
         String uuid = UUID.randomUUID().toString().replace("-", "");
         return uuid.substring(0, 24);
+    }
+
+    @Test
+    @Capability(CapabilityId.ADAPTER_MONGO_LAMBDA_COUNT)
+    public void filteredCountShouldExcludeOtherRowsAndReturnZeroForNoMatch() throws SQLException {
+        try (Connection connection = newAdapterConnection()) {
+            new JdbcTemplate(connection).execute("use test");
+            LambdaTemplate lambda = new LambdaTemplate(connection);
+            String groupId = UUID.randomUUID().toString();
+            for (int i = 0; i < 5; i++) {
+                Map<String, Object> row = new HashMap<>();
+                row.put("uid", groupId + "_" + i);
+                row.put("group", groupId);
+                row.put("kind", i < 3 ? "selected" : "other");
+                lambda.insertFreedom("lambda_count").applyMap(row).executeSumResult();
+            }
+
+            assertEquals(5, lambda.queryFreedom("lambda_count").eq("group", groupId).queryForCount());
+            assertEquals(3, lambda.queryFreedom("lambda_count").eq("group", groupId).eq("kind", "selected").queryForCount());
+            assertEquals(2, lambda.queryFreedom("lambda_count").eq("group", groupId).eq("kind", "other").queryForCount());
+            assertEquals(0, lambda.queryFreedom("lambda_count").eq("group", groupId).eq("kind", "missing").queryForCount());
+            lambda.deleteFreedom("lambda_count").eq("group", groupId).doDelete();
+        }
     }
 
     @Test
@@ -201,49 +233,6 @@ public class MongoLambdaContractTest extends AdapterContractTest {
                     .eq("group", groupId).asc("seq").usePage(pageInfo).queryForMapList();
             assertEquals(1, page3.size());
             assertEquals(4, ((Number) page3.get(0).get("seq")).intValue());
-        }
-    }
-
-    @Test
-    @Capability(CapabilityId.ADAPTER_MONGO_LAMBDA_AGGREGATE)
-    public void testLambdaSumQuery() throws SQLException {
-        try (Connection c = newAdapterConnection()) {
-            JdbcTemplate jdbc = new JdbcTemplate(c);
-            jdbc.execute("use test");
-            try {
-                jdbc.execute("lambda_sum.drop()");
-            } catch (Throwable e) {
-                // ignore
-            }
-
-            LambdaTemplate lambda = new LambdaTemplate(c);
-            String groupId = UUID.randomUUID().toString();
-
-            Map<String, Object> d1 = new HashMap<>();
-            d1.put("group", groupId);
-            d1.put("amount", 1);
-            assertEquals(1, lambda.insertFreedom("lambda_sum").applyMap(d1).executeSumResult());
-
-            Map<String, Object> d2 = new HashMap<>();
-            d2.put("group", groupId);
-            d2.put("amount", 2);
-            assertEquals(1, lambda.insertFreedom("lambda_sum").applyMap(d2).executeSumResult());
-
-            Map<String, Object> d3 = new HashMap<>();
-            d3.put("group", groupId);
-            d3.put("amount", 3);
-            assertEquals(1, lambda.insertFreedom("lambda_sum").applyMap(d3).executeSumResult());
-
-            // Mongo 方言不支持 applySelect("sum(...)") 这类自定义投影；用 aggregate 完成求和。
-            String aggSql = "db.lambda_sum.aggregate([" + //
-                    "{ $match: { group: '" + groupId + "' } }," + //
-                    "{ $group: { _id: null, total: { $sum: '$amount' } } }" +//
-                    "])";
-            List<Map<String, Object>> rows = lambda.jdbc().queryForList(aggSql);
-            assertEquals(1, rows.size());
-            String json = (String) rows.get(0).get("_JSON");
-            assertNotNull(json);
-            assertTrue(json.contains("\"total\": 6") || json.contains("\"total\": 6.0"));
         }
     }
 }

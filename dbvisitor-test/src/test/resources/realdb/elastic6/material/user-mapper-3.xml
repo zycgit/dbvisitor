@@ -13,6 +13,13 @@
         POST /user_info/_search {"query": {"match": {"uid": #{uid}}}}
     </select>
 
+    <update id="updateName">
+        POST /user_info/_update_by_query {
+          "query": {"match": {"uid": #{uid}}},
+          "script": {"source": "ctx._source.name = params.name", "params": {"name": #{name}}}
+        }
+    </update>
+
     <delete id="deleteUser">
         POST /user_info/_delete_by_query {"query": {"match": {"uid": #{uid}}}}
     </delete>

@@ -41,7 +41,8 @@
         {
             "query": {
                 "term": { "name": #{userName} }
-            }
+            },
+            "sort": [{ "uid.keyword": "asc" }]
         }
     </select>
 </mapper>

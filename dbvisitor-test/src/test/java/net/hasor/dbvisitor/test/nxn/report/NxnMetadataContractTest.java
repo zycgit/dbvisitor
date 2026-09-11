@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.nxn.report;
 
 import java.lang.reflect.Method;
@@ -15,12 +22,16 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.junit.Test;
+import org.junit.Before;
 
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
+import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
+import net.hasor.dbvisitor.test.nxn.capability.SupportStatus;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceId;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfileRegistry;
+import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 
@@ -31,6 +42,13 @@ import static org.junit.Assert.assertTrue;
 
 @NxnContract
 public abstract class NxnMetadataContractTest extends AbstractNxnContractTest {
+    @Override
+    @Before
+    public void setup() {
+        // Registry, annotations and report generation do not require a database connection.
+        OneApiDataSourceManager.assumeCurrentDataSource(profile().env());
+    }
+
     @Test
     @Capability(CapabilityId.NXN_METADATA_CAPABILITY_ANNOTATIONS)
     public void nxnMetadata_shouldDeclareCapabilityOnEveryContractTestMethod() throws Exception {
@@ -77,7 +95,7 @@ public abstract class NxnMetadataContractTest extends AbstractNxnContractTest {
 
     @Test
     @Capability(CapabilityId.NXN_METADATA_PROFILE_REGISTRY)
-    public void nxnMetadata_shouldRegisterRelationalProfiles() throws SQLException {
+    public void nxnMetadata_shouldRegisterAllDatasourceProfiles() throws SQLException {
         assertSame(DataSourceId.H2, DataSourceProfileRegistry.find(DataSourceId.H2.env()).id());
         assertSame(DataSourceId.MYSQL, DataSourceProfileRegistry.find(DataSourceId.MYSQL.env()).id());
         assertSame(DataSourceId.PG, DataSourceProfileRegistry.find(DataSourceId.PG.env()).id());
@@ -93,6 +111,19 @@ public abstract class NxnMetadataContractTest extends AbstractNxnContractTest {
 
         DataSourceProfile current = DataSourceProfileRegistry.find(profile().env());
         assertEquals(profile().env(), current.env());
+
+        boolean transactions = current.supportsFeature(FeatureId.TRANSACTION);
+        assertEquals(transactions ? SupportStatus.SUPPORTED : SupportStatus.UNSUPPORTED_BY_DATABASE,
+                current.support(CapabilityId.TRANSACTION_REQUIRED_COMMIT));
+        boolean nestedCommit = transactions && current.supportsFeature(FeatureId.TRANSACTION_RELEASE_SAVEPOINT);
+        for (String capability : new String[] { CapabilityId.TRANSACTION_NESTED_COMMIT, CapabilityId.TRANSACTION_NESTED_OUTER_ROLLBACK,
+                CapabilityId.TRANSACTION_ANNOTATION_NESTED, CapabilityId.TRANSACTION_PROXY_REQUIRED_NESTED }) {
+            assertEquals(capability, nestedCommit ? SupportStatus.SUPPORTED : SupportStatus.UNSUPPORTED_BY_DATABASE,
+                    current.support(capability));
+        }
+        boolean repeatableRead = transactions && current.supportsFeature(FeatureId.TRANSACTION_REPEATABLE_READ);
+        assertEquals(repeatableRead ? SupportStatus.SUPPORTED : SupportStatus.UNSUPPORTED_BY_DATABASE,
+                current.support(CapabilityId.TRANSACTION_ISOLATION_REPEATABLE_READ));
     }
 
     @Test
@@ -111,6 +142,15 @@ public abstract class NxnMetadataContractTest extends AbstractNxnContractTest {
         assertTrue(text.contains("`SUPPORTED`"));
         assertTrue(text.contains("`UNSUPPORTED_BY_DATABASE`"));
         assertTrue(text.contains("`NOT_IMPLEMENTED`"));
+        long profileRows = text.lines().filter(line -> line.startsWith("| `" + CapabilityId.NXN_METADATA_PROFILE_REGISTRY + "` ")).count();
+        assertEquals("Overriding a contract method must not create an additional capability row", 1, profileRows);
+        for (String line : text.split("\n")) {
+            if (line.startsWith("| `")) {
+                assertTrue("Every reported contract must have a datasource binding: " + line,
+                        line.contains("`SUPPORTED`") || line.contains("`UNSUPPORTED_BY_DATABASE`")
+                                || line.contains("`UNSUPPORTED_BY_DRIVER`"));
+            }
+        }
     }
 
     private List<Class<?>> contractClasses() throws Exception {
@@ -189,7 +229,11 @@ public abstract class NxnMetadataContractTest extends AbstractNxnContractTest {
     }
 
     private boolean hasOwnerSpecificCapability(Class<?> realdbClass) {
-        String ownerPrefix = "adapter." + profile().env() + ".";
+        String adapterName = profile().env();
+        if (profile().id() == DataSourceId.ELASTIC6 || profile().id() == DataSourceId.ELASTIC7) {
+            adapterName = "elastic";
+        }
+        String ownerPrefix = "adapter." + adapterName + ".";
         boolean hasTest = false;
         for (Method method : realdbClass.getDeclaredMethods()) {
             if (method.getAnnotation(Test.class) == null) {
@@ -241,6 +285,14 @@ public abstract class NxnMetadataContractTest extends AbstractNxnContractTest {
             className = "ClickHouseNxnMetadataContractTest";
         } else if (DataSourceId.REDIS.env().equals(profile().env())) {
             className = "RedisNxnMetadataContractTest";
+        } else if (DataSourceId.MONGO.env().equals(profile().env())) {
+            className = "MongoNxnMetadataContractTest";
+        } else if (DataSourceId.ELASTIC6.env().equals(profile().env())) {
+            className = "Elastic6NxnMetadataContractTest";
+        } else if (DataSourceId.ELASTIC7.env().equals(profile().env())) {
+            className = "Elastic7NxnMetadataContractTest";
+        } else if (DataSourceId.MILVUS.env().equals(profile().env())) {
+            className = "MilvusNxnMetadataContractTest";
         } else {
             return null;
         }

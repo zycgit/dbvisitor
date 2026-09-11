@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="xmltest.DynamicSqlMapper">
+
+    <!-- At most eight fixture rows. Their increasing IDs provide deterministic native
+         vector order; the far-side query point reverses the five seeded ages. -->
+    <resultMap id="userResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+        <result column="email" property="email"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <insert id="insertUser">
+        INSERT INTO user_info (id, name, age, email, create_time, v)
+        VALUES (#{id}, #{name}, #{age}, #{email}, '2026-09-11 12:00:00', [${id}, 0])
+    </insert>
+
+    <!-- if 标签测试 -->
+    <select id="selectWithIf" resultMap="userResultMap">
+        SELECT * FROM user_info
+        WHERE name LIKE 'DynSql%'
+        <if test="minAge != null">
+            AND age &gt;= #{minAge}
+        </if>
+        <if test="email != null">
+            AND email = #{email}
+        </if>
+        ORDER BY v &lt;-&gt; [0, 0] LIMIT 8 WITH (metric_type=L2)
+    </select>
+
+    <!-- choose/when/otherwise 标签测试 -->
+    <select id="selectWithChoose" resultMap="userResultMap">
+        SELECT * FROM user_info
+        WHERE name LIKE 'DynSql%'
+        ORDER BY
+        <choose>
+            <when test="orderBy == 'name'">
+                v &lt;-&gt; [0, 0]
+            </when>
+            <when test="orderBy == 'age'">
+                v &lt;-&gt; [1000000, 0]
+            </when>
+            <otherwise>
+                v &lt;-&gt; [0, 0]
+            </otherwise>
+        </choose>
+        LIMIT 8 WITH (metric_type=L2)
+    </select>
+
+    <!-- where 标签测试：自动处理 AND/OR 前缀 -->
+    <select id="selectWithWhere" resultMap="userResultMap">
+        SELECT * FROM user_info
+        <where>
+            <if test="name != null">
+                AND name = #{name}
+            </if>
+            <if test="age != null">
+                AND age = #{age}
+            </if>
+            <if test="email != null">
+                AND email = #{email}
+            </if>
+        </where>
+        ORDER BY v &lt;-&gt; [0, 0] LIMIT 8 WITH (metric_type=L2)
+    </select>
+
+    <!-- set 标签测试：自动处理尾部逗号 -->
+    <update id="updateWithSet">
+        UPDATE user_info
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="age != null">
+                age = #{age},
+            </if>
+            <if test="email != null">
+                email = #{email},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- trim 标签测试 -->
+    <select id="selectWithTrim" resultMap="userResultMap">
+        SELECT * FROM user_info
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            <if test="name != null">
+                AND name = #{name}
+            </if>
+            <if test="age != null">
+                AND age = #{age}
+            </if>
+        </trim>
+        ORDER BY v &lt;-&gt; [0, 0] LIMIT 8 WITH (metric_type=L2)
+    </select>
+
+    <!-- foreach 标签测试：IN 子句 -->
+    <select id="selectByIdList" resultMap="userResultMap">
+        SELECT * FROM user_info
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        ORDER BY v &lt;-&gt; [0, 0] LIMIT 8 WITH (metric_type=L2)
+    </select>
+
+    <!-- foreach 标签测试：批量 VALUES 插入 -->
+    <insert id="batchInsert">
+        INSERT INTO user_info (id, name, age, email, create_time, v) VALUES
+        <foreach collection="users" item="u" separator=",">
+            (#{u.id}, #{u.name}, #{u.age}, #{u.email}, '2026-09-11 12:00:00', [${u.id}, 0])
+        </foreach>
+    </insert>
+
+    <!-- These cases exercise XML variables and branches, not JDBC LIKE binding.
+         Labels are fixed test material; the native server requires a literal pattern. -->
+    <!-- bind 标签测试 -->
+    <select id="selectWithBind" resultMap="userResultMap">
+        <bind name="namePattern" value="'%' + name + '%'"/>
+        SELECT * FROM user_info
+        WHERE name LIKE ${"'" + namePattern + "'"}
+        ORDER BY v &lt;-&gt; [0, 0] LIMIT 8 WITH (metric_type=L2)
+    </select>
+
+    <!-- The derived variable is bound through JDBC; no literal substitution here. -->
+    <select id="selectWithBoundAge" resultMap="userResultMap">
+        <bind name="ageFloor" value="minAge + 1"/>
+        SELECT * FROM user_info
+        WHERE name LIKE 'DynSql%' AND age &gt;= #{ageFloor}
+        ORDER BY v &lt;-&gt; [0, 0] LIMIT 8 WITH (metric_type=L2)
+    </select>
+
+    <!-- 组合动态 SQL：where + if + foreach -->
+    <select id="selectComplex" resultMap="userResultMap">
+        SELECT * FROM user_info
+        <where>
+            <if test="name != null">
+                AND name LIKE ${"'" + name + "'"}
+            </if>
+            <if test="ids != null">
+                AND id IN
+                <foreach collection="ids" item="id" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        ORDER BY v &lt;-&gt; [0, 0] LIMIT 8 WITH (metric_type=L2)
+    </select>
+
+    <!-- choose + where 组合 -->
+    <select id="selectByAgeCategory" resultMap="userResultMap">
+        SELECT * FROM user_info
+        <where>
+            AND name LIKE 'DynSql%'
+            <choose>
+                <when test="category == 'young'">
+                    AND age &lt; 30
+                </when>
+                <when test="category == 'middle'">
+                    AND age BETWEEN 30 AND 40
+                </when>
+                <otherwise>
+                    AND age &gt; 40
+                </otherwise>
+            </choose>
+        </where>
+        ORDER BY v &lt;-&gt; [0, 0] LIMIT 8 WITH (metric_type=L2)
+    </select>
+
+</mapper>

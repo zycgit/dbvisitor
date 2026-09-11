@@ -154,12 +154,19 @@ services:
     image: milvusdb/milvus:v2.6.2
     command: ["milvus", "run", "standalone"]
     environment:
+      - DEPLOY_MODE=STANDALONE
       - ETCD_USE_EMBED=true
       - ETCD_DATA_DIR=/var/lib/milvus/etcd
       - COMMON_STORAGETYPE=local
     ports:
       - 2953:19530
       - 2909:9091
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 18
+      start_period: 60s
     restart: always
 
   milvus_tls:
@@ -218,26 +225,6 @@ services:
     depends_on:
       milvus_tls: { condition: service_healthy }
       milvus_mtls: { condition: service_healthy }
-    restart: "no"
-
-  # Isolated plaintext fixture for the same-port tests; leaves the existing milvus service alone.
-  milvus_plain:
-    image: milvusdb/milvus:v2.6.2
-    profiles: ["milvus-tls"]
-    command: ["milvus", "run", "standalone"]
-    environment:
-      - DEPLOY_MODE=STANDALONE
-      - ETCD_USE_EMBED=true
-      - ETCD_DATA_DIR=/var/lib/milvus/etcd
-      - COMMON_STORAGETYPE=local
-    ports:
-      - "127.0.0.1:2956:19530"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
-      interval: 10s
-      timeout: 5s
-      retries: 18
-      start_period: 60s
     restart: "no"
 
   ssh_server:

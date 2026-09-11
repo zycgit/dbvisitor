@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.contract.material.dao;
 
 import java.sql.SQLException;
@@ -27,11 +34,13 @@ public interface XmlRefMapperDao {
 
     List<UserInfo> selectByIds(@Param("ids") List<Integer> ids) throws SQLException;
 
-    List<UserInfo> selectByAgeRange(@Param("minAge") int minAge, @Param("maxAge") int maxAge) throws SQLException;
+    List<UserInfo> selectByAgeRange(@Param("range") Map<String, Object> range) throws SQLException;
 
-    List<UserInfo> selectByBean(@Param("name") String name, @Param("age") int age) throws SQLException;
+    List<UserInfo> selectByBean(@Param("user") UserInfo user) throws SQLException;
 
     List<UserInfo> selectWithOrderBy(@Param("orderColumn") String orderColumn) throws SQLException;
 
     List<Map<String, Object>> selectAgeStats() throws SQLException;
+
+    List<Map<String, Object>> selectAsMaps() throws SQLException;
 }

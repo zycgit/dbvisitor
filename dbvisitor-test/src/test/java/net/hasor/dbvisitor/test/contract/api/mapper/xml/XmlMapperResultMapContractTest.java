@@ -1,6 +1,14 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.contract.api.mapper.xml;
 
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,15 +37,19 @@ public abstract class XmlMapperResultMapContractTest extends AbstractNxnContract
     public void createXmlMapperSession() throws Exception {
         Configuration config = newConfiguration();
         config.loadMapper("/mapper/XmlResultMapMapper.xml");
-        this.session = config.newSession(dataSource);
+        this.session = openSession(config);
+    }
+
+    protected Session openSession(Configuration configuration) throws Exception {
+        return configuration.newSession(dataSource);
     }
 
     @Override
     protected void initData() throws SQLException {
         for (int i = 1; i <= 3; i++) {
             jdbcTemplate.executeUpdate(//
-                    "INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, @{macro, currentTimestamp})", //
-                    new Object[] { baseId() + i, "RmCfg" + i, 25 + i, "rmcfg" + i + "@nxn.test" });
+                    "INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, ?)", //
+                    new Object[] { baseId() + i, "RmCfg" + i, 25 + i, "rmcfg" + i + "@nxn.test", new Date() });
         }
     }
 
@@ -124,8 +136,8 @@ public abstract class XmlMapperResultMapContractTest extends AbstractNxnContract
 
     @Test
     @Capability(CapabilityId.MAPPER_XML_RESULTMAP_RENAMED_MAP)
-    public void resultTypeMap_shouldUseColumnAliasesAsKeys() throws Exception {
-        List<Map<String, Object>> list = this.session.queryStatement("xmltest.ResultMapMapper.selectByIdAsRenamedMap", mapOf("id", baseId() + 3));
+    public void resultTypeMap_shouldUseResultColumnLabelsAsKeys() throws Exception {
+        List<Map<String, Object>> list = queryColumnLabelRows();
 
         assertEquals(1, list.size());
         Map<String, Object> row = list.get(0);
@@ -134,10 +146,17 @@ public abstract class XmlMapperResultMapContractTest extends AbstractNxnContract
         assertEquals(28, number(row, "user_age").intValue());
     }
 
+    /** The SQL material supplies column labels; the contract checks how resultType=map exposes them. */
+    protected List<Map<String, Object>> queryColumnLabelRows() throws Exception {
+        return this.session.queryStatement("xmltest.ResultMapMapper.selectByIdAsRenamedMap", mapOf("id", baseId() + 3));
+    }
+
     @Test
-    @Capability(CapabilityId.MAPPER_XML_RESULTMAP_PARTIAL)
+    @Capability(CapabilityId.MAPPER_XML_RESULTMAP_PARTIAL_LIST)
     public void resultMap_shouldApplyPartialMappingToLists() throws Exception {
-        List<UserInfo> list = this.session.queryStatement("xmltest.ResultMapMapper.selectAllBase", null);
+        Map<String, Object> range = mapOf("firstId", baseId() + 1);
+        range.put("lastId", baseId() + 3);
+        List<UserInfo> list = this.session.queryStatement("xmltest.ResultMapMapper.selectAllBase", range);
 
         assertEquals(3, list.size());
         for (UserInfo user : list) {

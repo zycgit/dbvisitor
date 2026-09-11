@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.contract.api.jdbc;
 
 import java.sql.SQLException;
@@ -24,6 +31,14 @@ public abstract class JdbcMultipleResultSetContractTest extends AbstractNxnContr
         return 690000;
     }
 
+    protected String tableName() {
+        return "user_info";
+    }
+
+    protected String insertSql() {
+        return "INSERT INTO " + tableName() + " (id, name, age, email) VALUES (?, ?, ?, ?)";
+    }
+
     @Test
     @Capability(CapabilityId.JDBC_MULTIPLE_RESULT_SETS)
     public void jdbcMultipleExecute_shouldReturnMultipleResultSets() throws SQLException {
@@ -31,8 +46,10 @@ public abstract class JdbcMultipleResultSetContractTest extends AbstractNxnContr
         seedUsers();
 
         Map<String, Object> resultMap = jdbcTemplate.multipleExecute(//
-                "SELECT id, name, age FROM user_info WHERE id BETWEEN " + (baseId() + 1) + " AND " + (baseId() + 1) + ";\n" + //
-                        "SELECT id, name, age FROM user_info WHERE id BETWEEN " + (baseId() + 2) + " AND " + (baseId() + 3) + ";\n");
+                """
+                SELECT id, name, age FROM %s WHERE id BETWEEN %d AND %d;
+                SELECT id, name, age FROM %s WHERE id BETWEEN %d AND %d;
+                """.formatted(tableName(), baseId() + 1, baseId() + 1, tableName(), baseId() + 2, baseId() + 3));
         List<Object> resultList = new ArrayList<>(resultMap.values());
 
         assertEquals(2, resultList.size());
@@ -47,8 +64,10 @@ public abstract class JdbcMultipleResultSetContractTest extends AbstractNxnContr
         seedUsers();
 
         Map<String, Object> resultMap = jdbcTemplate.multipleExecute(//
-                "SELECT id, name, age FROM user_info WHERE age > ?;\n" + //
-                        "SELECT id, name, age FROM user_info WHERE name LIKE ?;\n", //
+                """
+                SELECT id, name, age FROM %s WHERE age > ?;
+                SELECT id, name, age FROM %s WHERE name = ?;
+                """.formatted(tableName(), tableName()), //
                 new Object[] { 31, "NXN-Multi-2" });
         List<Object> resultList = new ArrayList<>(resultMap.values());
 
@@ -68,8 +87,10 @@ public abstract class JdbcMultipleResultSetContractTest extends AbstractNxnContr
         params.put("ageLimit", 32);
 
         Map<String, Object> resultMap = jdbcTemplate.multipleExecute(//
-                "SELECT id, name, age FROM user_info WHERE age < :ageLimit;\n" + //
-                        "SELECT id, name, age FROM user_info WHERE age >= :ageLimit;\n", //
+                """
+                SELECT id, name, age FROM %s WHERE age < :ageLimit;
+                SELECT id, name, age FROM %s WHERE age >= :ageLimit;
+                """.formatted(tableName(), tableName()), //
                 params);
         List<Object> resultList = new ArrayList<>(resultMap.values());
 
@@ -85,8 +106,10 @@ public abstract class JdbcMultipleResultSetContractTest extends AbstractNxnContr
         seedUsers();
 
         Map<String, Object> resultMap = jdbcTemplate.multipleExecute(//
-                "SELECT * FROM user_info WHERE id = " + (baseId() + 1) + "; @{resultSet,name=youngUsers,javaType=net.hasor.dbvisitor.test.contract.material.model.UserInfo}\n" + //
-                        "SELECT * FROM user_info WHERE id = " + (baseId() + 3) + "; @{resultSet,name=seniorUsers,javaType=net.hasor.dbvisitor.test.contract.material.model.UserInfo}\n");
+                """
+                SELECT * FROM %s WHERE id = %d; @{resultSet,name=youngUsers,javaType=net.hasor.dbvisitor.test.contract.material.model.UserInfo}
+                SELECT * FROM %s WHERE id = %d; @{resultSet,name=seniorUsers,javaType=net.hasor.dbvisitor.test.contract.material.model.UserInfo}
+                """.formatted(tableName(), baseId() + 1, tableName(), baseId() + 3));
 
         assertTrue(resultMap.containsKey("youngUsers"));
         assertTrue(resultMap.containsKey("seniorUsers"));
@@ -100,9 +123,9 @@ public abstract class JdbcMultipleResultSetContractTest extends AbstractNxnContr
         assertEquals("NXN-Multi-3", ((UserInfo) seniorUsers.get(0)).getName());
     }
 
-    private void seedUsers() throws SQLException {
+    protected void seedUsers() throws SQLException {
         for (int i = 1; i <= 3; i++) {
-            jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, email) VALUES (?, ?, ?, ?)", //
+            jdbcTemplate.executeUpdate(insertSql(), //
                     new Object[] { baseId() + i, "NXN-Multi-" + i, 30 + i, "nxn-multi-" + i + "@test.com" });
         }
     }

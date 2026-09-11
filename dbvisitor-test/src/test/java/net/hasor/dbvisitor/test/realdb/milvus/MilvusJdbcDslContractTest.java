@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.realdb.milvus;
 
 import java.sql.Connection;
@@ -59,7 +66,7 @@ public class MilvusJdbcDslContractTest extends AdapterContractTest {
     @Capability(CapabilityId.ADAPTER_MILVUS_JDBC_DSL_CRUD)
     public void testCrud() throws SQLException {
         // 1. Create Table
-        this.jdbcTemplate.execute("CREATE TABLE tb_crud_user (id INT64 PRIMARY KEY, name VARCHAR(20), age INT64, v FLOAT_VECTOR(2))");
+        this.jdbcTemplate.execute("CREATE TABLE tb_crud_user (id INT64 PRIMARY KEY, name VARCHAR(20), age INT64, v FLOAT_VECTOR(2)) WITH (consistency_level='Strong')");
 
         // 2. Insert
         this.jdbcTemplate.execute("INSERT INTO tb_crud_user (id, name, age, v) VALUES (1, 'User1', 10, [0.1, 0.1])");
@@ -76,6 +83,7 @@ public class MilvusJdbcDslContractTest extends AdapterContractTest {
 
         // 4. Query Single
         Map<String, Object> user1 = jdbcTemplate.queryForMap("SELECT * FROM tb_crud_user WHERE id = 1");
+        assertNotNull("The inserted entity must be visible to the iterator query", user1);
         assertEquals(1L, Long.parseLong(user1.get("id").toString()));
         assertEquals("User1", user1.get("name"));
 
@@ -97,7 +105,7 @@ public class MilvusJdbcDslContractTest extends AdapterContractTest {
     @Test
     @Capability(CapabilityId.ADAPTER_MILVUS_VECTOR_FLOAT_VECTOR)
     public void testVectorType() throws SQLException {
-        this.jdbcTemplate.execute("CREATE TABLE tb_vector_type (id INT64 PRIMARY KEY, v FLOAT_VECTOR(2))");
+        this.jdbcTemplate.execute("CREATE TABLE tb_vector_type (id INT64 PRIMARY KEY, v FLOAT_VECTOR(2)) WITH (consistency_level='Strong')");
         this.jdbcTemplate.execute("INSERT INTO tb_vector_type (id, v) VALUES (1, [0.1, 0.2])");
         this.jdbcTemplate.execute("CREATE INDEX idx_vec_type ON TABLE tb_vector_type (v) USING \"IVF_FLAT\" WITH (nlist = 1024, metric_type = 'L2')");
         this.jdbcTemplate.execute("LOAD TABLE tb_vector_type");

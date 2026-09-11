@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.contract.api.lambda;
 
 import java.sql.SQLException;
@@ -115,5 +122,24 @@ public abstract class LambdaSortContractTest extends AbstractNxnContractTest {
         for (int i = 0; i < names.length; i++) {
             assertEquals(names[i], rows.get(i).getName());
         }
+    }
+
+    @Test
+    @Capability(CapabilityId.LAMBDA_QUERY_ORDER)
+    public void lambdaQueryOrder_shouldReturnRowsInRequestedOrder() throws SQLException {
+        int[] ages = { 22, 35, 28, 19 };
+        for (int i = 0; i < ages.length; i++) {
+            insertUser(baseId() + 50 + i, "Ord" + (i + 1), ages[i], "ord" + (i + 1) + "@test.com");
+        }
+
+        List<UserInfo> users = lambdaTemplate.query(UserInfo.class)//
+                .rangeBetween(UserInfo::getId, baseId() + 50, baseId() + 53)//
+                .desc("age")//
+                .queryForList();
+
+        assertEquals(4, users.size());
+        assertEquals(Integer.valueOf(35), users.get(0).getAge());
+        assertEquals(Integer.valueOf(19), users.get(3).getAge());
+        assertEquals(Arrays.asList(35, 28, 22, 19), users.stream().map(UserInfo::getAge).collect(Collectors.toList()));
     }
 }

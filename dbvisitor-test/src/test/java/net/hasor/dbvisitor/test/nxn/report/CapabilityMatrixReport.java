@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.nxn.report;
 
 import java.io.IOException;
@@ -42,6 +49,7 @@ public final class CapabilityMatrixReport {
 
         StringBuilder out = new StringBuilder();
         out.append("# NXN Capability Matrix\n\n");
+        out.append("Declared capability bindings and native limits; this report is not a test execution result.\n\n");
         out.append("- Current env: `").append(currentProfile.env()).append("`\n");
         out.append("- Capability rows: `").append(rows.size()).append("`\n");
         out.append("- Datasources: ");
@@ -97,12 +105,28 @@ public final class CapabilityMatrixReport {
                     if (capability == null) {
                         continue;
                     }
+                    if (inheritsSameCapability(realdbClass, method, capability)) {
+                        continue;
+                    }
                     rows.add(new CapabilityRow(capability.value(), realdbClass, realdbClass.getSimpleName() + "#" + method.getName(), profile.id()));
                 }
             }
         }
         rows.sort(Comparator.comparing((CapabilityRow row) -> row.capabilityId).thenComparing(row -> row.contractMethod));
         return rows;
+    }
+
+    private static boolean inheritsSameCapability(Class<?> realdbClass, Method method, Capability capability) {
+        Class<?> contract = nearestContractSuperclass(realdbClass);
+        if (contract == null) {
+            return false;
+        }
+        try {
+            Capability inherited = contract.getMethod(method.getName(), method.getParameterTypes()).getAnnotation(Capability.class);
+            return inherited != null && inherited.value().equals(capability.value());
+        } catch (NoSuchMethodException ignored) {
+            return false;
+        }
     }
 
     private static String renderStatus(DataSourceProfile profile, CapabilityRow row, Map<Class<?>, Class<?>> realdbBindings) {
@@ -232,6 +256,14 @@ public final class CapabilityMatrixReport {
             className = "ClickHouseNxnMetadataContractTest";
         } else if (DataSourceId.REDIS.equals(profile.id())) {
             className = "RedisNxnMetadataContractTest";
+        } else if (DataSourceId.MONGO.equals(profile.id())) {
+            className = "MongoNxnMetadataContractTest";
+        } else if (DataSourceId.ELASTIC6.equals(profile.id())) {
+            className = "Elastic6NxnMetadataContractTest";
+        } else if (DataSourceId.ELASTIC7.equals(profile.id())) {
+            className = "Elastic7NxnMetadataContractTest";
+        } else if (DataSourceId.MILVUS.equals(profile.id())) {
+            className = "MilvusNxnMetadataContractTest";
         } else {
             return null;
         }

@@ -1,11 +1,19 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.realdb.milvus;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.Statement;
+import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
+import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
 
 import org.junit.After;
 import org.junit.Before;
@@ -33,7 +41,7 @@ public class MilvusCmdForUserTest extends AbstractMilvusCmdForTest {
     }
 
     private void cleanUp() {
-        try (Connection conn = DriverManager.getConnection(MILVUS_URL); Statement stmt = conn.createStatement()) {
+        try (Connection conn = OneApiDataSourceManager.getConnection(MilvusProfile.INSTANCE.env()); Statement stmt = conn.createStatement()) {
             try {
                 stmt.executeUpdate("DROP USER IF EXISTS " + TEST_USER);
             } catch (Exception e) {
@@ -79,7 +87,7 @@ public class MilvusCmdForUserTest extends AbstractMilvusCmdForTest {
 
     @Test
     public void testCreateUser() throws Exception {
-        try (Connection conn = DriverManager.getConnection(MILVUS_URL); Statement stmt = conn.createStatement()) {
+        try (Connection conn = OneApiDataSourceManager.getConnection(MilvusProfile.INSTANCE.env()); Statement stmt = conn.createStatement()) {
             stmt.executeUpdate("CREATE USER " + TEST_USER + " PASSWORD \"123456\"");
 
             // Verify
@@ -89,7 +97,7 @@ public class MilvusCmdForUserTest extends AbstractMilvusCmdForTest {
 
     @Test
     public void testCreateUserIfNotExists() throws Exception {
-        try (Connection conn = DriverManager.getConnection(MILVUS_URL); Statement stmt = conn.createStatement()) {
+        try (Connection conn = OneApiDataSourceManager.getConnection(MilvusProfile.INSTANCE.env()); Statement stmt = conn.createStatement()) {
             stmt.executeUpdate("CREATE USER " + TEST_USER + " PASSWORD \"123456\"");
             assertTrue(hasUserSdk(TEST_USER));
 
@@ -101,7 +109,7 @@ public class MilvusCmdForUserTest extends AbstractMilvusCmdForTest {
 
     @Test
     public void testDropUser() throws Exception {
-        try (Connection conn = DriverManager.getConnection(MILVUS_URL); Statement stmt = conn.createStatement()) {
+        try (Connection conn = OneApiDataSourceManager.getConnection(MilvusProfile.INSTANCE.env()); Statement stmt = conn.createStatement()) {
             stmt.executeUpdate("CREATE USER " + TEST_USER + " PASSWORD \"123456\"");
             assertTrue(hasUserSdk(TEST_USER));
 
@@ -114,7 +122,7 @@ public class MilvusCmdForUserTest extends AbstractMilvusCmdForTest {
 
     @Test
     public void testCreateRole() throws Exception {
-        try (Connection conn = DriverManager.getConnection(MILVUS_URL); Statement stmt = conn.createStatement()) {
+        try (Connection conn = OneApiDataSourceManager.getConnection(MilvusProfile.INSTANCE.env()); Statement stmt = conn.createStatement()) {
             stmt.executeUpdate("CREATE ROLE " + TEST_ROLE);
 
             // Verify
@@ -124,7 +132,7 @@ public class MilvusCmdForUserTest extends AbstractMilvusCmdForTest {
 
     @Test
     public void testDropRole() throws Exception {
-        try (Connection conn = DriverManager.getConnection(MILVUS_URL); Statement stmt = conn.createStatement()) {
+        try (Connection conn = OneApiDataSourceManager.getConnection(MilvusProfile.INSTANCE.env()); Statement stmt = conn.createStatement()) {
             stmt.executeUpdate("CREATE ROLE " + TEST_ROLE);
             assertTrue(hasRoleSdk(TEST_ROLE));
 
@@ -137,7 +145,7 @@ public class MilvusCmdForUserTest extends AbstractMilvusCmdForTest {
 
     @Test
     public void testGrantRole() throws Exception {
-        try (Connection conn = DriverManager.getConnection(MILVUS_URL); Statement stmt = conn.createStatement()) {
+        try (Connection conn = OneApiDataSourceManager.getConnection(MilvusProfile.INSTANCE.env()); Statement stmt = conn.createStatement()) {
             stmt.executeUpdate("CREATE USER " + TEST_USER + " PASSWORD \"123456\"");
             stmt.executeUpdate("CREATE ROLE " + TEST_ROLE);
 
@@ -155,7 +163,7 @@ public class MilvusCmdForUserTest extends AbstractMilvusCmdForTest {
 
     @Test
     public void testGrantPrivilege() throws Exception {
-        try (Connection conn = DriverManager.getConnection(MILVUS_URL); Statement stmt = conn.createStatement()) {
+        try (Connection conn = OneApiDataSourceManager.getConnection(MilvusProfile.INSTANCE.env()); Statement stmt = conn.createStatement()) {
             stmt.executeUpdate("CREATE ROLE " + TEST_ROLE);
 
             // create collection for test
@@ -182,7 +190,7 @@ public class MilvusCmdForUserTest extends AbstractMilvusCmdForTest {
 
     @Test
     public void testRevokePrivilege() throws Exception {
-        try (Connection conn = DriverManager.getConnection(MILVUS_URL); Statement stmt = conn.createStatement()) {
+        try (Connection conn = OneApiDataSourceManager.getConnection(MilvusProfile.INSTANCE.env()); Statement stmt = conn.createStatement()) {
             stmt.executeUpdate("CREATE ROLE " + TEST_ROLE);
 
             // create collection for test
@@ -209,7 +217,7 @@ public class MilvusCmdForUserTest extends AbstractMilvusCmdForTest {
 
     @Test
     public void testGrantGlobalPrivilege() throws Exception {
-        try (Connection conn = DriverManager.getConnection(MILVUS_URL); Statement stmt = conn.createStatement()) {
+        try (Connection conn = OneApiDataSourceManager.getConnection(MilvusProfile.INSTANCE.env()); Statement stmt = conn.createStatement()) {
             stmt.executeUpdate("CREATE ROLE " + TEST_ROLE);
 
             // Grant global privilege (usually objectName='*')

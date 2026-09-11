@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="session.UserSessionMapper">
+    <!-- Explicit fixture IDs supply vector coordinates for deterministic native pagination. -->
+
+    <resultMap id="userInfoMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        <result column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+        <result column="email" property="email"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <resultMap id="orderMap" type="net.hasor.dbvisitor.test.contract.material.model.UserOrder">
+        <result column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="order_no" property="orderNo"/>
+        <result column="amount" property="amount"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+
+    <!-- ========== user_info CRUD ========== -->
+
+    <insert id="insertUser">
+        insert into user_info (id, name, age, email, create_time, v)
+        values (#{id}, #{name}, #{age}, #{email}, @{macro, currentTimestamp}, [${id}, 0])
+    </insert>
+
+    <select id="queryUserById" resultMap="userInfoMap">
+        select * from user_info where id = #{id}
+    </select>
+
+    <select id="queryAllUsers" resultMap="userInfoMap">
+        select * from user_info order by v &lt;-&gt; [0, 0]
+    </select>
+
+    <select id="queryUsersByAge" resultMap="userInfoMap">
+        select * from user_info where age = #{age} order by v &lt;-&gt; [0, 0]
+    </select>
+
+    <select id="countUsers" resultType="int">
+        select count(*) from user_info
+    </select>
+
+    <update id="updateUserEmail">
+        update user_info set email = #{email} where id = #{id}
+    </update>
+
+    <delete id="deleteUserById">
+        delete from user_info where id = #{id}
+    </delete>
+
+    <!-- ========== user_order CRUD ========== -->
+
+    <insert id="insertOrder">
+        insert into user_order (id, user_id, order_no, amount, create_time, v)
+        values (#{id}, #{userId}, #{orderNo}, #{amount}, @{macro, currentTimestamp}, [${id}, 0])
+    </insert>
+
+    <select id="queryOrdersByUserId" resultMap="orderMap">
+        select * from user_order where user_id = #{userId} order by v &lt;-&gt; [0, 0]
+    </select>
+
+    <delete id="deleteOrderById">
+        delete from user_order where id = #{id}
+    </delete>
+
+
+    <!-- ========== 动态条件查询 ========== -->
+
+    <select id="queryUsersByCondition" resultMap="userInfoMap">
+        select * from user_info
+        where id > 0
+        @{and, name = :name}
+        @{and, age = :age}
+        order by v &lt;-&gt; [0, 0]
+    </select>
+
+    <!-- ========== Bean 参数 ========== -->
+
+    <select id="queryUserByBean" resultMap="userInfoMap">
+        select * from user_info where name = #{name} and age = #{age}
+    </select>
+
+</mapper>

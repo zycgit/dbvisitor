@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.realdb.milvus;
 
 import java.sql.Connection;
@@ -30,7 +37,7 @@ public class MilvusUpdateContractTest extends AdapterContractTest {
         try (Connection c = newAdapterConnection()) {
             JdbcTemplate jdbc = new JdbcTemplate(c);
             jdbc.execute("DROP TABLE IF EXISTS tb_user_info_milvus");
-            jdbc.execute("CREATE TABLE tb_user_info_milvus (uid VARCHAR(64) PRIMARY KEY, name VARCHAR(64), loginName VARCHAR(64), loginPassword VARCHAR(64), v FLOAT_VECTOR(2))");
+            jdbc.execute("CREATE TABLE tb_user_info_milvus (uid VARCHAR(64) PRIMARY KEY, name VARCHAR(64), loginName VARCHAR(64), loginPassword VARCHAR(64), v FLOAT_VECTOR(2)) WITH (consistency_level='Strong')");
             jdbc.execute("CREATE INDEX idx_user_v ON TABLE tb_user_info_milvus (v) USING \"IVF_FLAT\" WITH (nlist = 128, metric_type = 'L2')");
             jdbc.execute("LOAD TABLE tb_user_info_milvus");
         }

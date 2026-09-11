@@ -1,9 +1,18 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.contract.api.lambda;
 
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.Test;
 
@@ -71,7 +80,18 @@ public abstract class LambdaSpecialValueContractTest extends AbstractNxnContract
         assertEquals(emoji, loadName(baseId() + 22));
         assertEquals(mixed, loadName(baseId() + 23));
         assertEquals(1, lambdaTemplate.query(UserInfo.class)//
-                .eq(UserInfo::getId, baseId() + 21)//
+                .eq(UserInfo::getName, unicode)//
+                .queryForCount());
+    }
+
+    @Test
+    @Capability(CapabilityId.LAMBDA_SPECIAL_UNICODE_LIKE)
+    public void lambdaSpecialValue_shouldBindUnicodeLikePattern() throws SQLException {
+        insertUser(baseId() + 21, "你好世界 こんにちは 안녕하세요", 30, "unicode1@test.com", new Date());
+        insertUser(baseId() + 22, "Other", 31, "unicode2@test.com", new Date());
+
+        assertEquals(1, lambdaTemplate.query(UserInfo.class)//
+                .in(UserInfo::getId, Arrays.asList(baseId() + 21, baseId() + 22))//
                 .like(UserInfo::getName, "你好%")//
                 .queryForCount());
     }
@@ -90,9 +110,10 @@ public abstract class LambdaSpecialValueContractTest extends AbstractNxnContract
                 .queryForObject().getId());
         List<UserInfo> keywordUsers = lambdaTemplate.query(UserInfo.class)//
                 .in(UserInfo::getId, Arrays.asList(baseId() + 31, baseId() + 32, baseId() + 33))//
-                .orderBy("id")//
                 .queryForList();
         assertEquals(3, keywordUsers.size());
+        assertEquals(new HashSet<>(Arrays.asList("SELECT", "DELETE", "DROP TABLE")),
+                keywordUsers.stream().map(UserInfo::getName).collect(Collectors.toSet()));
         assertEquals(1, lambdaTemplate.query(UserInfo.class)//
                 .eq(UserInfo::getName, "100% Success")//
                 .queryForCount());

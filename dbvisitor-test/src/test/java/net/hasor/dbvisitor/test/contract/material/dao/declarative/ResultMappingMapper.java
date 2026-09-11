@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.contract.material.dao.declarative;
 
 import java.util.Date;
@@ -59,8 +66,8 @@ public interface ResultMappingMapper {
     @Query("SELECT * FROM user_info WHERE age BETWEEN #{minAge} AND #{maxAge}")
     List<UserInfo> selectUsersByAgeRange(@Param("minAge") Integer minAge, @Param("maxAge") Integer maxAge);
 
-    @Query("SELECT name FROM user_info WHERE name LIKE #{pattern}")
-    List<String> selectAllNames(@Param("pattern") String pattern);
+    @Query("SELECT name FROM user_info WHERE id >= #{minId} AND id <= #{maxId}")
+    List<String> selectAllNames(@Param("minId") Integer minId, @Param("maxId") Integer maxId);
 
     @Query("SELECT id FROM user_info WHERE id >= #{minId} AND id <= #{maxId}")
     List<Integer> selectIdRange(@Param("minId") Integer minId, @Param("maxId") Integer maxId);

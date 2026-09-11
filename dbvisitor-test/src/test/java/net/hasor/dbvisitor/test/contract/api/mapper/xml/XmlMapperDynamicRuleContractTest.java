@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.contract.api.mapper.xml;
 
 import java.sql.SQLException;
@@ -21,7 +28,7 @@ import static org.junit.Assert.assertEquals;
 
 @NxnContract
 public abstract class XmlMapperDynamicRuleContractTest extends AbstractNxnContractTest {
-    private Session session;
+    protected Session session;
 
     @Before
     public void createXmlMapperSession() throws Exception {
@@ -36,10 +43,13 @@ public abstract class XmlMapperDynamicRuleContractTest extends AbstractNxnContra
         int[] ages = { 22, 28, 35, 45 };
         String[] emails = { "a@nxn.test", "b@nxn.test", "c@nxn.test", "d@nxn.test" };
         for (int i = 0; i < names.length; i++) {
-            jdbcTemplate.executeUpdate(//
-                    "INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, @{macro, currentTimestamp})", //
-                    new Object[] { baseId() + i + 1, names[i], ages[i], emails[i] });
+            insertUser(new Object[] { baseId() + i + 1, names[i], ages[i], emails[i] });
         }
+    }
+
+    protected void insertUser(Object[] values) throws SQLException {
+        jdbcTemplate.executeUpdate(
+                "INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, @{macro, currentTimestamp})", values);
     }
 
     protected int baseId() {
@@ -117,6 +127,16 @@ public abstract class XmlMapperDynamicRuleContractTest extends AbstractNxnContra
         assertEquals(2, selected.size());
         assertEquals("DynRuleB", selected.get(0).getName());
         assertEquals("DynRuleC", selected.get(1).getName());
+
+        params.remove("name");
+        List<UserInfo> withoutName = this.session.queryStatement("xmltest.DynamicRuleMapper.selectMultipleAndRules", params);
+        assertEquals(2, withoutName.size());
+        assertEquals("DynRuleB", withoutName.get(0).getName());
+        assertEquals("DynRuleC", withoutName.get(1).getName());
+
+        params.put("name", "ZZZ-NoMatch");
+        List<UserInfo> noMatch = this.session.queryStatement("xmltest.DynamicRuleMapper.selectMultipleAndRules", params);
+        assertEquals(0, noMatch.size());
     }
 
     private Map<String, Object> mapOf(String key, Object value) {

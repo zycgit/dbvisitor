@@ -1,7 +1,15 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.contract.api.vector_query;
 
 import java.sql.SQLException;
 import java.util.List;
+import net.hasor.dbvisitor.lambda.core.MetricType;
 import net.hasor.dbvisitor.test.contract.material.model.ProductVectorForPg;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
@@ -29,8 +37,8 @@ public abstract class VectorCombinedQueryContractTest extends VectorQuerySupport
             List<ProductVectorForPg> rows = lambdaTemplate.query(ProductVectorForPg.class)//
                     .ge(ProductVectorForPg::getId, startId)//
                     .le(ProductVectorForPg::getId, startId + 3)//
-                    .likeRight(ProductVectorForPg::getName, "Range-A")//
-                    .vectorByL2(ProductVectorForPg::getEmbedding, target, 6.0)//
+                    .in(ProductVectorForPg::getName, List.of("Range-A-0", "Range-A-2", "Range-A-3"))//
+                    .vectorByL2(ProductVectorForPg::getEmbedding, target, rangeBound(MetricType.L2, 6.0))//
                     .queryForList();
 
             assertFalse(rows.isEmpty());
@@ -58,8 +66,8 @@ public abstract class VectorCombinedQueryContractTest extends VectorQuerySupport
             List<ProductVectorForPg> rows = lambdaTemplate.query(ProductVectorForPg.class)//
                     .ge(ProductVectorForPg::getId, startId)//
                     .le(ProductVectorForPg::getId, startId + 4)//
-                    .likeRight(ProductVectorForPg::getName, "Cat-A")//
-                    .orderByL2(ProductVectorForPg::getEmbedding, pgVector(fixedVector(0.45f, 0.01f)))//
+                    .in(ProductVectorForPg::getName, List.of("Cat-A-0", "Cat-A-2", "Cat-A-4"))//
+                    .orderByL2(ProductVectorForPg::getEmbedding, queryVector(fixedVector(0.45f, 0.01f)))//
                     .queryForList();
 
             assertEquals(3, rows.size());

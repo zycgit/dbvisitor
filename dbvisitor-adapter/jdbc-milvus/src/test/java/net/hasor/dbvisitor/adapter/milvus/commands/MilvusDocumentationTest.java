@@ -145,7 +145,8 @@ public class MilvusDocumentationTest {
 
     private String document(String language, String file) throws Exception {
         String directory = "cn".equals(language) ? "docs" : "i18n/en/docusaurus-plugin-content-docs/current";
-        Path path = repositoryRoot().resolve("dbvisitor-doc").resolve(directory).resolve("drivers/milvus").resolve(file);
+        boolean driverDocument = Arrays.asList("about.md", "params.md", "connection.mdx").contains(file);
+        Path path = repositoryRoot().resolve("dbvisitor-doc").resolve(directory).resolve(driverDocument ? "drivers/milvus" : "features/milvus").resolve(file);
         return Files.readString(path, StandardCharsets.UTF_8);
     }
 
@@ -161,7 +162,7 @@ public class MilvusDocumentationTest {
     @Test
     public void bothWebsiteProgramsCompileAndRunThroughJdbc() throws Exception {
         for (String language : Arrays.asList("cn", "en")) {
-            String source = blocks(document(language, "usecase.mdx"), "java").get(0);
+            String source = blocks(document(language, "jdbc.mdx"), "java").get(0);
             try (URLClassLoader compiled = compile("MilvusJdbcExample", source)) {
                 compiled.loadClass("MilvusJdbcExample").getMethod("main", String[].class).invoke(null, (Object) new String[] { interceptedUrl() });
             }
@@ -176,7 +177,7 @@ public class MilvusDocumentationTest {
     @Test
     public void everyOtherJavaBlockCompiles() throws Exception {
         for (String language : Arrays.asList("cn", "en")) {
-            for (String name : Arrays.asList("usecase.mdx", "params.md", "commands.md")) {
+            for (String name : Arrays.asList("connection.mdx", "jdbc.mdx", "params.md", "commands.md")) {
                 for (String block : blocks(document(language, name), "java")) {
                     if (block.contains("public class MilvusJdbcExample")) {
                         continue;
@@ -196,7 +197,7 @@ public class MilvusDocumentationTest {
     public void documentedWritePagingAndMultiResultFragmentsExecute() throws Exception {
         for (String language : Arrays.asList("cn", "en")) {
             List<String> examples = new ArrayList<>();
-            for (String block : blocks(document(language, "usecase.mdx"), "java")) {
+            for (String block : blocks(document(language, "jdbc.mdx"), "java")) {
                 if (block.startsWith("try (PreparedStatement")) {
                     examples.add(block);
                 }
@@ -235,7 +236,7 @@ public class MilvusDocumentationTest {
         };
         for (String language : Arrays.asList("cn", "en")) {
             List<String> sqlBlocks = new ArrayList<>();
-            for (String name : Arrays.asList("usecase.mdx", "params.md", "commands.md")) {
+            for (String name : Arrays.asList("jdbc.mdx", "params.md", "commands.md")) {
                 sqlBlocks.addAll(blocks(document(language, name), "sql"));
             }
             for (String sql : sqlBlocks) {
@@ -279,10 +280,12 @@ public class MilvusDocumentationTest {
         Set<String> expected = new HashSet<>(Arrays.asList(new MilvusConnFactory().getPropertyNames()));
         for (String language : Arrays.asList("cn", "en")) {
             String parameters = document(language, "params.md");
-            String heading = "cn".equals(language) ? "### 连接参数" : "### Connection Parameters";
-            int start = parameters.indexOf(heading);
+            int start = parameters.indexOf("id=\"properties\"");
             assertTrue("Missing connection properties section: " + language, start >= 0);
-            String section = parameters.substring(start, parameters.indexOf("\n### ", start + heading.length()));
+            Matcher nextHeading = Pattern.compile("(?m)^#{1,6} ").matcher(parameters);
+            nextHeading.region(start, parameters.length());
+            int end = nextHeading.find() ? nextHeading.start() : parameters.length();
+            String section = parameters.substring(start, end);
             Set<String> documented = new HashSet<>();
             for (String line : section.split("\\R")) {
                 if (line.startsWith("| `")) {

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="milvus.ResultHandlers">
+    <resultMap id="user" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+        <result column="email" property="email"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+    <!-- collection is supplied by the fixture, never by external input. -->
+    <sql id="orderedScope">
+        FROM ${collection} WHERE id &gt;= #{minId} ORDER BY v &lt;-&gt; #{vector} LIMIT 10
+    </sql>
+    <sql id="columns">id, name, age, email, create_time</sql>
+    <sql id="ordering">ORDER BY v &lt;-&gt; #{vector} LIMIT 10</sql>
+    <sql id="conditions">
+        <where>
+            id &gt;= #{minId}
+            <if test="name != null">AND name = #{name}</if>
+            <if test="minAge != null">AND age &gt;= #{minAge}</if>
+            <if test="maxAge != null">AND age &lt;= #{maxAge}</if>
+        </where>
+    </sql>
+    <select id="fragmentColumns" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        SELECT <include refid="columns"/> FROM ${collection} WHERE id = #{id}
+    </select>
+    <select id="fragmentConditions" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        SELECT id, name, age FROM ${collection} <include refid="conditions"/>
+        ORDER BY v &lt;-&gt; #{vector} LIMIT 10
+    </select>
+    <select id="fragmentMultiple" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        SELECT <include refid="columns"/> FROM ${collection}
+        <include refid="conditions"/> <include refid="ordering"/>
+    </select>
+    <select id="fragmentOrdering" resultType="string">
+        SELECT name FROM ${collection} <include refid="ordering"/>
+    </select>
+    <select id="entities" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        SELECT id, name, age, email, create_time <include refid="orderedScope"/>
+    </select>
+    <select id="maps" resultType="map">
+        SELECT id, name <include refid="orderedScope"/>
+    </select>
+    <select id="names" resultType="string">
+        SELECT name <include refid="orderedScope"/>
+    </select>
+    <select id="count" resultType="long">
+        COUNT FROM ${collection} WHERE id &gt;= #{minId}
+    </select>
+    <select id="countInt" resultType="int">
+        COUNT FROM ${collection} WHERE id &gt;= #{minId}
+    </select>
+    <select id="mapped" resultMap="user">
+        SELECT id, name, age, email, create_time <include refid="orderedScope"/>
+    </select>
+    <select id="rowMapper" resultRowMapper="net.hasor.dbvisitor.jdbc.mapper.ColumnMapRowMapper">
+        SELECT id, name <include refid="orderedScope"/>
+    </select>
+    <select id="extractor" resultSetExtractor="net.hasor.dbvisitor.jdbc.extractor.ColumnMapResultSetExtractor">
+        SELECT id, name <include refid="orderedScope"/>
+    </select>
+    <select id="pairs" resultSetExtractor="net.hasor.dbvisitor.jdbc.extractor.PairsResultSetExtractor">
+        SELECT id, name <include refid="orderedScope"/>
+    </select>
+    <select id="dynamicTags" resultType="map">
+        SELECT id, name FROM ${collection}
+        <where>
+            AND id &gt;= #{minId}
+            <choose>
+                <when test="name != null">AND name = #{name}</when>
+                <otherwise>
+                    <if test="ids != null">
+                        AND id IN
+                        <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+                    </if>
+                </otherwise>
+            </choose>
+        </where>
+        ORDER BY v &lt;-&gt; #{vector} LIMIT 10
+    </select>
+    <select id="dynamicRules" resultType="map">
+        SELECT id, name FROM ${collection} WHERE id &gt;= #{minId}
+        @{and, name = :name}
+        @{and, id IN @{in, :ids}}
+        ORDER BY v &lt;-&gt; #{vector} LIMIT 10
+    </select>
+    <update id="dynamicUpdate">
+        UPDATE ${collection}
+        <set>
+            <if test="name != null">name = #{name},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+    <select id="preparedAttributes" resultType="string" statementType="PREPARED"
+            fetchSize="1" timeout="30" resultSetType="FORWARD_ONLY">
+        SELECT name <include refid="orderedScope"/>
+    </select>
+    <select id="defaultPreparedAttributes" resultType="string">
+        SELECT name <include refid="orderedScope"/>
+    </select>
+    <select id="timeoutAttribute" resultType="string" timeout="30">
+        SELECT name <include refid="orderedScope"/>
+    </select>
+    <select id="fetchSizeAttribute" resultType="string" fetchSize="1">
+        SELECT name <include refid="orderedScope"/>
+    </select>
+    <select id="statementAttributes" resultType="string" statementType="STATEMENT"
+            fetchSize="1" timeout="30" resultSetType="FORWARD_ONLY">
+        SELECT name FROM ${collection} ORDER BY v &lt;-&gt; [0,0] LIMIT 10
+    </select>
+    <select id="scrollAttributes" resultType="string" resultSetType="SCROLL_INSENSITIVE">
+        SELECT name <include refid="orderedScope"/>
+    </select>
+    <select id="forwardOnlyAttribute" resultType="string" resultSetType="FORWARD_ONLY">
+        SELECT name <include refid="orderedScope"/>
+    </select>
+    <insert id="preparedInsert" statementType="PREPARED" timeout="30">
+        INSERT INTO ${collection} (id, name, v) VALUES (#{id}, #{name}, #{vector})
+    </insert>
+</mapper>

@@ -27,6 +27,6 @@
 
     <!-- 自动分页查询 -->
     <select id="listByUserName" resultMap="userResultMap">
-        test.user_info.find({name: #{userName}})
+        test.user_info.find({name: #{userName}}).sort({uid: 1})
     </select>
 </mapper>

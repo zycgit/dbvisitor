@@ -1,22 +1,28 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.realdb.mongo;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.Properties;
+import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class RealMongoTest {
-    private static final String MONGO_URL = "jdbc:dbvisitor:mongo://127.0.0.1:2701/admin";
+    @BeforeClass
+    public static void assumeDataSource() {
+        OneApiDataSourceManager.assumeCurrentDataSource("mongo");
+    }
 
     @Test
     public void test_01() throws Exception {
-        Properties props = new Properties();
-        props.setProperty("username", "root");
-        props.setProperty("password", "123456");
-
-        try (Connection c = DriverManager.getConnection(MONGO_URL, props)) {
+        try (Connection c = OneApiDataSourceManager.getConnection("mongo")) {
             // 1. clean
             try (Statement s = c.createStatement()) {
                 try {

@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.realdb.milvus;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -70,7 +77,7 @@ public class MilvusCmdForTableTest extends AbstractMilvusCmdForTest {
         try (Connection conn = DriverManager.getConnection(MILVUS_URL); Statement stmt = conn.createStatement()) {
             stmt.executeUpdate("CREATE TABLE " + TEST_COLLECTION + " (book_id INT64 PRIMARY KEY, word_count INT32 DEFAULT 7, book_intro FLOAT_VECTOR(2))");
             stmt.executeUpdate("INSERT INTO " + TEST_COLLECTION + " (book_id,book_intro) VALUES (1,[0.1,0.2])");
-            stmt.executeUpdate("CREATE INDEX default_vector_idx ON TABLE " + TEST_COLLECTION + " (book_intro) USING \"FLAT\"");
+            stmt.executeUpdate("CREATE INDEX default_vector_idx ON TABLE " + TEST_COLLECTION + " (book_intro) USING \"FLAT\" WITH (metric_type=L2)");
             stmt.executeUpdate("LOAD TABLE " + TEST_COLLECTION);
             try (ResultSet result = stmt.executeQuery("SELECT word_count FROM " + TEST_COLLECTION + " WHERE book_id = 1 LIMIT 1")) {
                 assertTrue(result.next());

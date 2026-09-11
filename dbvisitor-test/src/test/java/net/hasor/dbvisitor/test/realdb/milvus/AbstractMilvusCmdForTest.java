@@ -1,9 +1,17 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.realdb.milvus;
 
 import org.junit.Assume;
 import org.junit.Before;
 
 import io.milvus.client.MilvusServiceClient;
+import io.milvus.common.clientenum.ConsistencyLevelEnum;
 import io.milvus.grpc.DataType;
 import io.milvus.grpc.DescribeIndexResponse;
 import io.milvus.grpc.ListDatabasesResponse;
@@ -142,6 +150,7 @@ public class AbstractMilvusCmdForTest {
             CreateCollectionParam createParam = CreateCollectionParam.newBuilder()//
                     .withCollectionName(collectionName)//
                     .withDescription("Test Collection")//
+                    .withConsistencyLevel(ConsistencyLevelEnum.STRONG)//
                     .addFieldType(fieldType1)          //
                     .addFieldType(fieldType2)          //
                     .addFieldType(fieldType3)          //

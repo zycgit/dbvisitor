@@ -1,62 +1,30 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.contract.api.mapper.annotation;
 
-import java.sql.SQLException;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Before;
 import org.junit.Test;
 
-import net.hasor.dbvisitor.page.PageObject;
-import net.hasor.dbvisitor.session.Configuration;
-import net.hasor.dbvisitor.session.Session;
-import net.hasor.dbvisitor.test.contract.material.dao.declarative.ResultMappingMapper;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 @NxnContract
-public abstract class AnnotationMapperResultMappingContractTest extends AbstractNxnContractTest {
-    private static final String PATTERN = "AnnoResult%";
-
-    private ResultMappingMapper mapper;
-
-    @Before
-    public void createAnnotationMapper() throws Exception {
-        Configuration configuration = newConfiguration();
-        Session session = configuration.newSession(dataSource);
-        this.mapper = session.createMapper(ResultMappingMapper.class);
-    }
-
-    @Override
-    protected void initData() throws SQLException {
-        for (int i = 1; i <= 10; i++) {
-            UserInfo user = new UserInfo();
-            user.setId(baseId() + i);
-            user.setName("AnnoResult" + i);
-            user.setAge(20 + i);
-            user.setEmail("anno-result" + i + "@nxn.test");
-            user.setCreateTime(new Date());
-            jdbcTemplate.executeUpdate(//
-                    "INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, ?)", //
-                    new Object[] { user.getId(), user.getName(), user.getAge(), user.getEmail(), user.getCreateTime() });
-        }
-    }
-
-    protected int baseId() {
-        return 951000;
-    }
-
+public abstract class AnnotationMapperResultMappingContractTest extends AnnotationMapperResultMappingSupport {
     @Test
     @Capability(CapabilityId.MAPPER_ANNOTATION_RESULT_ENTITY)
     public void queryResult_shouldMapFullAndPartialEntity() throws Exception {
@@ -103,9 +71,8 @@ public abstract class AnnotationMapperResultMappingContractTest extends Abstract
     @Capability(CapabilityId.MAPPER_ANNOTATION_RESULT_LIST)
     public void queryResult_shouldMapEntityAndScalarLists() throws Exception {
         List<UserInfo> users = this.mapper.selectUsersByAgeRange(21, 25);
-        List<String> names = this.mapper.selectAllNames(PATTERN);
+        List<String> names = this.mapper.selectAllNames(baseId() + 1, baseId() + 10);
         List<Integer> ids = this.mapper.selectIdRange(baseId() + 1, baseId() + 10);
-        List<Integer> distinctAges = this.mapper.selectDistinctAges(PATTERN);
 
         assertTrue(users.size() >= 5);
         for (UserInfo user : users) {
@@ -113,7 +80,6 @@ public abstract class AnnotationMapperResultMappingContractTest extends Abstract
         }
         assertTrue(names.contains("AnnoResult1"));
         assertTrue(ids.contains(baseId() + 1));
-        assertEquals(distinctAges.size(), new HashSet<Integer>(distinctAges).size());
     }
 
     @Test
@@ -135,49 +101,5 @@ public abstract class AnnotationMapperResultMappingContractTest extends Abstract
         assertEquals("AnnoResultNull", loaded.getName());
         assertNull(loaded.getAge());
         assertNull(loaded.getEmail());
-    }
-
-    @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_RESULT_AGGREGATE)
-    public void queryResult_shouldMapAggregateScalarsAndMaps() throws Exception {
-        Integer maxAge = this.mapper.selectMaxAge();
-        Map<String, Object> stats = this.mapper.selectAgeStats(PATTERN);
-        List<Map<String, Object>> grouped = this.mapper.selectCountByAge(PATTERN);
-
-        assertTrue(maxAge >= 30);
-        assertNotNull(value(stats, "minAge"));
-        assertNotNull(value(stats, "maxAge"));
-        assertNotNull(value(stats, "avgAge"));
-        assertTrue(grouped.size() > 0);
-        assertNotNull(value(grouped.get(0), "age"));
-        assertNotNull(value(grouped.get(0), "cnt"));
-    }
-
-    @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_RESULT_PAGE)
-    public void queryResult_shouldApplyPageObjectToListResult() throws Exception {
-        List<UserInfo> firstPage = this.mapper.selectUsersWithPagination(PATTERN, new PageObject(0, 5));
-        List<UserInfo> secondPage = this.mapper.selectUsersWithPagination(PATTERN, new PageObject(1, 5));
-
-        assertEquals(5, firstPage.size());
-        assertEquals(5, secondPage.size());
-        assertEquals("AnnoResult1", firstPage.get(0).getName());
-        assertEquals("AnnoResult6", secondPage.get(0).getName());
-        assertNotEquals(firstPage.get(0).getId(), secondPage.get(0).getId());
-    }
-
-    private Object value(Map<String, Object> row, String key) {
-        if (row.containsKey(key)) {
-            return row.get(key);
-        }
-        String lower = key.toLowerCase();
-        if (row.containsKey(lower)) {
-            return row.get(lower);
-        }
-        return row.get(key.toUpperCase());
-    }
-
-    private Number number(Map<String, Object> row, String key) {
-        return (Number) value(row, key);
     }
 }

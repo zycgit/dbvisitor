@@ -18,7 +18,19 @@
         DELETE FROM tb_mapper_user_milvus WHERE uid = #{uid}
     </delete>
 
+    <update id="updateName">
+        UPDATE tb_mapper_user_milvus SET name = #{name} WHERE uid = #{uid}
+    </update>
+
+    <select id="selectUser" resultMap="userInfoResultMap">
+        /*+ consistency_level=Strong */ SELECT * FROM tb_mapper_user_milvus WHERE uid = #{uid}
+    </select>
+
     <select id="queryAll" resultMap="userInfoResultMap">
         /*+ consistency_level=Strong */ SELECT * FROM tb_mapper_user_milvus limit 10
+    </select>
+
+    <select id="countAll" resultType="int">
+        /*+ consistency_level=Strong */ SELECT COUNT(*) FROM tb_mapper_user_milvus
     </select>
 </mapper>

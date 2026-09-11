@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.contract.api.lambda;
 
 import java.sql.SQLException;
@@ -29,15 +36,15 @@ public abstract class LambdaBatchMutationContractTest extends AbstractNxnContrac
         insertUsers("LBUpdCond", ages(16, 35), baseId() + 10);
 
         int updated = lambdaTemplate.update(UserInfo.class)//
-                .like(UserInfo::getName, "LBUpdCond%")//
+                .rangeBetween(UserInfo::getId, baseId() + 10, baseId() + 29)//
                 .ge(UserInfo::getAge, 20)//
                 .le(UserInfo::getAge, 30)//
                 .updateTo(UserInfo::getAge, 25)//
                 .doUpdate();
 
         assertMutationRows(11, updated);
-        assertEquals(11, countByNameAndAge("LBUpdCond%", 25));
-        assertEquals(20, countByName("LBUpdCond%"));
+        assertEquals(11, countByIdRangeAndAge(10, 29, 25));
+        assertEquals(20, countByIdRange(10, 29));
     }
 
     @Test
@@ -55,7 +62,6 @@ public abstract class LambdaBatchMutationContractTest extends AbstractNxnContrac
         assertMutationRows(3, updated);
         List<UserInfo> users = lambdaTemplate.query(UserInfo.class)//
                 .in(UserInfo::getId, ids)//
-                .orderBy("id")//
                 .queryForList();
         assertEquals(3, users.size());
         for (UserInfo user : users) {
@@ -87,7 +93,7 @@ public abstract class LambdaBatchMutationContractTest extends AbstractNxnContrac
                 .queryForObject();
         assertEquals(Integer.valueOf(31), first.getAge());
         assertEquals(Integer.valueOf(35), last.getAge());
-        assertEquals(5, countByNameAndEmail("LBUpdLoop%", "loop-updated@test.com"));
+        assertEquals(5, countByIdRangeAndEmail(60, 64, "loop-updated@test.com"));
     }
 
     @Test
@@ -96,14 +102,14 @@ public abstract class LambdaBatchMutationContractTest extends AbstractNxnContrac
         insertUsers("LBDelCond", ages(16, 25), baseId() + 80);
 
         int deleted = lambdaTemplate.delete(UserInfo.class)//
-                .like(UserInfo::getName, "LBDelCond%")//
+                .rangeBetween(UserInfo::getId, baseId() + 80, baseId() + 89)//
                 .lt(UserInfo::getAge, 18)//
                 .doDelete();
 
         assertMutationRows(2, deleted);
-        assertEquals(8, countByName("LBDelCond%"));
+        assertEquals(8, countByIdRange(80, 89));
         assertEquals(0, lambdaTemplate.query(UserInfo.class)//
-                .like(UserInfo::getName, "LBDelCond%")//
+                .rangeBetween(UserInfo::getId, baseId() + 80, baseId() + 89)//
                 .lt(UserInfo::getAge, 18)//
                 .queryForCount());
     }
@@ -119,7 +125,7 @@ public abstract class LambdaBatchMutationContractTest extends AbstractNxnContrac
                 .doDelete();
 
         assertMutationRows(4, deleted);
-        assertEquals(6, countByName("LBDelIn%"));
+        assertEquals(6, countByIdRange(100, 109));
         assertEquals(0, lambdaTemplate.query(UserInfo.class)//
                 .in(UserInfo::getId, ids)//
                 .queryForCount());
@@ -131,11 +137,11 @@ public abstract class LambdaBatchMutationContractTest extends AbstractNxnContrac
         insertUsers("LBDelAll", ages(30, 49), baseId() + 120);
 
         int deleted = lambdaTemplate.delete(UserInfo.class)//
-                .like(UserInfo::getName, "LBDelAll%")//
+                .rangeBetween(UserInfo::getId, baseId() + 120, baseId() + 139)//
                 .doDelete();
 
         assertMutationRows(20, deleted);
-        assertEquals(0, countByName("LBDelAll%"));
+        assertEquals(0, countByIdRange(120, 139));
     }
 
     @Test
@@ -146,7 +152,7 @@ public abstract class LambdaBatchMutationContractTest extends AbstractNxnContrac
         int totalDeleted = 0;
         while (true) {
             List<UserInfo> batch = lambdaTemplate.query(UserInfo.class)//
-                    .like(UserInfo::getName, "LBDelChunk%")//
+                    .rangeBetween(UserInfo::getId, baseId() + 160, baseId() + 209)//
                     .orderBy("id")//
                     .initPage(10, 0)//
                     .queryForList();
@@ -165,7 +171,7 @@ public abstract class LambdaBatchMutationContractTest extends AbstractNxnContrac
         }
 
         assertMutationRows(50, totalDeleted);
-        assertEquals(0, countByName("LBDelChunk%"));
+        assertEquals(0, countByIdRange(160, 209));
     }
 
     @Test
@@ -202,11 +208,11 @@ public abstract class LambdaBatchMutationContractTest extends AbstractNxnContrac
                 .isNull(UserInfo::getEmail)//
                 .queryForCount();
         int deleted = lambdaTemplate.delete(UserInfo.class)//
-                .like(UserInfo::getName, "LBNullBoundary%")//
+                .rangeBetween(UserInfo::getId, baseId() + 240, baseId() + 241)//
                 .isNull(UserInfo::getAge)//
                 .doDelete();
         long remaining = lambdaTemplate.query(UserInfo.class)//
-                .like(UserInfo::getName, "LBNullBoundary%")//
+                .rangeBetween(UserInfo::getId, baseId() + 240, baseId() + 241)//
                 .queryForCount();
 
         assertEquals(1, updated);
@@ -235,22 +241,22 @@ public abstract class LambdaBatchMutationContractTest extends AbstractNxnContrac
                 new Object[] { id, name, age, email, new Date() });
     }
 
-    private long countByName(String namePattern) throws SQLException {
+    private long countByIdRange(int firstOffset, int lastOffset) throws SQLException {
         return lambdaTemplate.query(UserInfo.class)//
-                .like(UserInfo::getName, namePattern)//
+                .rangeBetween(UserInfo::getId, baseId() + firstOffset, baseId() + lastOffset)//
                 .queryForCount();
     }
 
-    private long countByNameAndAge(String namePattern, Integer age) throws SQLException {
+    private long countByIdRangeAndAge(int firstOffset, int lastOffset, Integer age) throws SQLException {
         return lambdaTemplate.query(UserInfo.class)//
-                .like(UserInfo::getName, namePattern)//
+                .rangeBetween(UserInfo::getId, baseId() + firstOffset, baseId() + lastOffset)//
                 .eq(UserInfo::getAge, age)//
                 .queryForCount();
     }
 
-    private long countByNameAndEmail(String namePattern, String email) throws SQLException {
+    private long countByIdRangeAndEmail(int firstOffset, int lastOffset, String email) throws SQLException {
         return lambdaTemplate.query(UserInfo.class)//
-                .like(UserInfo::getName, namePattern)//
+                .rangeBetween(UserInfo::getId, baseId() + firstOffset, baseId() + lastOffset)//
                 .eq(UserInfo::getEmail, email)//
                 .queryForCount();
     }

@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.realdb.mongo;
 
 import java.util.List;
@@ -76,6 +83,17 @@ public class MongoMapperContractTest extends AdapterContractTest {
             assertEquals(1, list.size());
             String json = (String) list.get(0).get("_JSON");
             assertTrue(json.contains("\"uid\": \"1111\""));
+
+            // Update through the annotated native command, then read persisted values.
+            assertTrue(infoMapper.updateName("1111", "updated") >= 0);
+            assertEquals("updated", infoMapper.loadUser("1111").getName());
+            assertEquals("login_123", infoMapper.loadUser("1111").getLoginName());
+
+            assertTrue(infoMapper.updateUser("1111", "updated-again", "new-login") >= 0);
+            assertEquals("updated-again", infoMapper.loadUser("1111").getName());
+            assertEquals("new-login", infoMapper.loadUser("1111").getLoginName());
+            assertEquals("password", infoMapper.loadUser("1111").getLoginPassword());
+            assertNull(infoMapper.loadUser("missing-user"));
 
             // delete
             int delStatus = infoMapper.deleteUser("1111");
@@ -171,6 +189,12 @@ public class MongoMapperContractTest extends AdapterContractTest {
             assertEquals("username", info2.getName());
             assertEquals("login_123", info2.getLoginName());
             assertEquals("password", info2.getLoginPassword());
+
+            // Update through the XML native command and verify the stored entity.
+            assertTrue(infoMapper.updateName("3333", "xml-updated") >= 0);
+            assertEquals("xml-updated", infoMapper.loadUser1("3333").getName());
+            assertEquals("login_123", infoMapper.loadUser1("3333").getLoginName());
+            assertNull(infoMapper.loadUser1("missing-user"));
 
             // delete
             int delStatus = infoMapper.deleteUser("3333");
@@ -392,14 +416,21 @@ public class MongoMapperContractTest extends AdapterContractTest {
             PageObject pageInfo = new PageObject(0, 2);
             List<UserInfo5> page1 = infoMapper.listByUserName(userName, pageInfo);
             assertEquals(2, page1.size());
+            assertEquals("u_0", page1.get(0).getUserId());
+            assertEquals("u_1", page1.get(1).getUserId());
 
             pageInfo.nextPage();
             List<UserInfo5> page2 = infoMapper.listByUserName(userName, pageInfo);
             assertEquals(2, page2.size());
+            assertEquals("u_2", page2.get(0).getUserId());
+            assertEquals("u_3", page2.get(1).getUserId());
 
             pageInfo.nextPage();
             List<UserInfo5> page3 = infoMapper.listByUserName(userName, pageInfo);
             assertEquals(1, page3.size());
+            assertEquals("u_4", page3.get(0).getUserId());
+            pageInfo.nextPage();
+            assertTrue(infoMapper.listByUserName(userName, pageInfo).isEmpty());
         }
     }
 

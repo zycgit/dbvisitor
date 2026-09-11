@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="xmltest.CrudMapper">
+    <select id="selectAll" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        SELECT id, name, age, email, create_time FROM user_info ORDER BY v &lt;-&gt; [0, 0]
+    </select>
+    <select id="selectForPage" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        SELECT id, name, age, email, create_time FROM user_info ORDER BY v &lt;-&gt; [0, 0]
+    </select>
+    <select id="selectById" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        SELECT id, name, age, email, create_time FROM user_info WHERE id = #{id}
+    </select>
+    <select id="selectAllAsMap" resultType="java.util.Map">
+        SELECT id, name, age, email, create_time FROM user_info
+    </select>
+    <select id="selectNames" resultType="java.lang.String">
+        SELECT name FROM user_info ORDER BY v &lt;-&gt; [0, 0]
+    </select>
+    <select id="countAll" resultType="java.lang.Integer">COUNT FROM user_info</select>
+    <delete id="deleteByName">DELETE FROM user_info WHERE name = #{name}</delete>
+</mapper>

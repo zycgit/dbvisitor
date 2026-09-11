@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="xmltest.ResultMapMapper">
+    <select id="selectByIdExtended" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        SELECT id, name, age, email, create_time FROM user_info WHERE id = #{id}
+    </select>
+</mapper>

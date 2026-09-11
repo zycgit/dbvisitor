@@ -85,16 +85,32 @@ MySQL、Oracle、PostgreSQL 和 Milvus 共用 `docker/certs` 下的测试 CA、�
 
 `ca.crt`、`ca.p12`、`ca-123456.p12`、`ca.jks` 表示同一个信任锚；`client.crt + client.key`、`client.crt + client.pk8`、`client.p12`、`client.jks` 表示同一个客户端身份。它们可以按数据源或驱动支持的格式择一使用，不需要同时配置。
 
-## Milvus TLS 测试
+## Milvus Import 测试物料
 
-默认 `docker compose up -d` 不启动 TLS 服务；原明文 Milvus 的配置和端口保持不变。在 `x86` 或 `arm64` 目录中按需启动：
+明文 Milvus 2.6.2 服务使用本地存储。`MilvusCmdForDataTest.testImport` 通过 SQL 导入
+`src/test/resources/realdb/milvus/import_data.json`，并验证任务完成状态和两条数据的精确回读。
+在仓库根目录准备服务端文件（容器重建后需要重新复制）：
 
 ```bash
-docker compose --profile milvus-tls up -d milvus_tls_gateway milvus_plain
-docker compose --profile milvus-tls ps milvus_tls_gateway milvus_tls milvus_mtls milvus_plain
+docker compose -f dbvisitor-test/docker/x86/docker-compose.yml cp \
+  dbvisitor-test/src/test/resources/realdb/milvus/import_data.json milvus:/tmp/dbvisitor-import-data.json
 ```
 
-- 网关自动启动并等待两个 TLS 后端健康。三个测试实例各自拥有独立数据，不复用默认 `milvus` 服务的数据目录；`milvus_plain` 提供独立的明文对照入口 `127.0.0.1:2956`，SDK/REST 原生共用，不经过网关。
+ARM64 环境将命令中的 `x86` 替换为 `arm64`。目标路径由
+`src/test/resources/jdbc-milvus.properties` 的 `test.import.file` 指定；这是测试物料配置，
+不是 JDBC URL 参数。远程或对象存储部署应自行准备同一数据文件，并配置服务端可读取的路径。
+测试不上传到任意 bucket、不替代为 INSERT，物料缺失或导入失败会直接报错。
+
+## Milvus TLS 测试
+
+默认 `docker compose up -d` 启动明文 `milvus` 服务，不启动 TLS 服务。普通 SQL 测试和连接测试的明文对照统一使用 `127.0.0.1:2953`。在 `x86` 或 `arm64` 目录中按需启动：
+
+```bash
+docker compose --profile milvus-tls up -d milvus milvus_tls_gateway
+docker compose --profile milvus-tls ps milvus milvus_tls_gateway milvus_tls milvus_mtls
+```
+
+- 网关自动启动并等待两个 TLS 后端健康。TLS、mTLS 后端各自拥有独立数据；明文测试共用默认 `milvus` 容器，SDK/REST 原生共用 `2953` 端口，不经过网关，也不另建明文实例。
 - TLS 后端配置来自 `milvus/tls.yaml`、`milvus/mtls.yaml`，只读挂载为 `user.yaml`；`tlsMode=1` 为单向，`tlsMode=2` 为双向。`DEPLOY_MODE=STANDALONE` 显式指定内嵌 etcd 的部署模式。
 - Milvus 2.6.2 原生 TLS 要求 gRPC 与 REST 在容器内分别监听 19530 和 8080。`milvus_tls_gateway` 使用 `milvus/tls-ingress.yaml`，按 TLS ClientHello 的 ALPN 将 HTTP/2 转发到 gRPC，HTTP/1.1 转发到 REST；驱动的 REST 请求固定使用 HTTP/1.1。该入口不适用于需要 HTTP/2 REST 的其他客户端。
 - 透传网关不解密流量、不挂载证书或私钥；服务端证书与客户端身份仍由客户端和 Milvus 端到端校验。对外每个实例仅一个端口：TLS `2954`，mTLS `2955`，均只绑定 `127.0.0.1`。JDBC URL 填该端口即可，无额外 REST 参数。两个 TLS 后端的 8080、19530 和管理端口 9091 均不映射到宿主机；Compose 健康检查在容器内执行。
@@ -113,7 +129,7 @@ docker compose --profile milvus-tls ps milvus_tls_gateway milvus_tls milvus_mtls
 在对应平台目录中停止可选服务：
 
 ```bash
-docker compose --profile milvus-tls stop milvus_tls_gateway milvus_tls milvus_mtls milvus_plain
+docker compose --profile milvus-tls stop milvus_tls_gateway milvus_tls milvus_mtls
 ```
 
 配置依据：[Milvus TLS 部署说明](https://milvus.io/docs/tls.md)、[Milvus 2.6.2 端口监听实现](https://github.com/milvus-io/milvus/blob/v2.6.2/internal/distributed/proxy/listener_manager.go)、[Envoy TLS Inspector](https://www.envoyproxy.io/docs/envoy/latest/configuration/listeners/listener_filters/tls_inspector)。

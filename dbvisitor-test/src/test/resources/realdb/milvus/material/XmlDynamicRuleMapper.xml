@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="xmltest.DynamicRuleMapper">
+
+    <!-- At most eight fixture rows. Their increasing IDs provide deterministic native
+         vector order; the far-side query point reverses the five seeded ages. -->
+    <resultMap id="userResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+        <result column="email" property="email"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <insert id="insertUser">
+        INSERT INTO user_info (id, name, age, email, create_time, v)
+        VALUES (#{id}, #{name}, #{age}, #{email}, '2026-09-11 12:00:00', [${id}, 0])
+    </insert>
+
+    <!-- @{and} 单条件测试：参数非空时追加 AND，参数为 null 时自动跳过 -->
+    <select id="selectWithAndSingle" resultMap="userResultMap">
+        SELECT * FROM user_info
+        WHERE name LIKE 'DynRule%'
+        @{and, age = :age}
+        ORDER BY v &lt;-&gt; [0, 0] LIMIT 8 WITH (metric_type=L2)
+    </select>
+
+    <!-- @{and} 双条件测试：同时提供两个参数 -->
+    <select id="selectWithAndDouble" resultMap="userResultMap">
+        SELECT * FROM user_info
+        WHERE name LIKE 'DynRule%'
+        @{and, age = :age}
+        @{and, email = :email}
+        ORDER BY v &lt;-&gt; [0, 0] LIMIT 8 WITH (metric_type=L2)
+    </select>
+
+    <!-- @{or} 规则 -->
+    <select id="selectWithOrRule" resultMap="userResultMap">
+        SELECT * FROM user_info
+        WHERE name LIKE 'DynRule%'
+        AND (id &lt; 0
+        @{or, age = :age}
+        @{or, email = :email}
+        )
+        ORDER BY v &lt;-&gt; [0, 0] LIMIT 8 WITH (metric_type=L2)
+    </select>
+
+    <!-- @{in} 列表展开 + @{and} 嵌套 -->
+    <select id="selectWithInRule" resultMap="userResultMap">
+        SELECT * FROM user_info
+        WHERE name LIKE 'DynRule%'
+        @{and, id IN @{in, :ids}}
+        ORDER BY v &lt;-&gt; [0, 0] LIMIT 8 WITH (metric_type=L2)
+    </select>
+
+    <!-- @{and} + <if> + XML 动态标签混合 -->
+    <select id="selectMixed" resultMap="userResultMap">
+        SELECT * FROM user_info
+        WHERE name LIKE 'DynRule%'
+        <if test="minAge != null">@{and, age >= :minAge}</if>
+        <if test="email != null">
+            AND email = #{email}
+        </if>
+        ORDER BY v &lt;-&gt; [0, 0] LIMIT 8 WITH (metric_type=L2)
+    </select>
+
+    <!-- Multiple optional bound predicates: the fixture prefix DynRule% is a lower
+         bound for DynRuleA..D. LIKE is not needed to exercise the rule engine. -->
+    <select id="selectMultipleAndRules" resultMap="userResultMap">
+        SELECT * FROM user_info
+        WHERE id &gt; 0
+        @{and, name &gt;= :name}
+        @{and, age >= :minAge}
+        @{and, age &lt;= :maxAge}
+        ORDER BY v &lt;-&gt; [0, 0] LIMIT 8 WITH (metric_type=L2)
+    </select>
+
+</mapper>

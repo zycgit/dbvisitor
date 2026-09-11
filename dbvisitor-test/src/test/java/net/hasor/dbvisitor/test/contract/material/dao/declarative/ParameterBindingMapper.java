@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.contract.material.dao.declarative;
 
 import java.util.Date;
@@ -15,7 +22,7 @@ public interface ParameterBindingMapper {
 
     // ========== Positional parameters (?) ==========
 
-    @Insert("INSERT INTO user_info (id, name, age, create_time) VALUES (?, ?, ?, @{macro, currentTimestamp})")
+    @Insert("INSERT INTO user_info (id, name, age) VALUES (?, ?, ?)")
     int insertByPosition(Integer id, String name, Integer age);
 
     @Update("UPDATE user_info SET age = ? WHERE id = ?")
@@ -23,8 +30,7 @@ public interface ParameterBindingMapper {
 
     // ========== @Param named parameters ==========
 
-    @Insert("INSERT INTO user_info (id, name, age, email, create_time) " +//
-            "VALUES (#{id}, #{name}, #{age}, #{email}, @{macro, currentTimestamp})")
+    @Insert("INSERT INTO user_info (id, name, age, email) VALUES (#{id}, #{name}, #{age}, #{email})")
     int insertWithParam(@Param("id") Integer id, @Param("name") String name, @Param("age") Integer age, @Param("email") String email);
 
     // ========== Bean property binding ==========
@@ -35,8 +41,7 @@ public interface ParameterBindingMapper {
 
     // ========== Map parameter ==========
 
-    @Insert("INSERT INTO user_info (id, name, age, email, create_time) " +//
-            "VALUES (#{id}, #{name}, #{age}, #{email}, @{macro, currentTimestamp})")
+    @Insert("INSERT INTO user_info (id, name, age, email) VALUES (#{id}, #{name}, #{age}, #{email})")
     int insertByMap(Map<String, Object> params);
 
     // ========== Queries for verification ==========
@@ -60,15 +65,14 @@ public interface ParameterBindingMapper {
     // ========== Mixed: @Param + Bean ==========
 
     @Insert("""
-        INSERT INTO user_info (id, name, age, email, create_time)
-        VALUES (#{user.id}, #{user.name}, #{user.age}, #{email}, @{macro, currentTimestamp})
+        INSERT INTO user_info (id, name, age, email)
+        VALUES (#{user.id}, #{user.name}, #{user.age}, #{email})
         """)
     int insertMixed(@Param("user") UserInfo user, @Param("email") String email);
 
     // ========== Parameter reuse (same param used twice) ==========
 
-    @Insert("INSERT INTO user_info (id, name, age, email, create_time) " +//
-            "VALUES (#{id}, #{name}, 25, #{name}, @{macro, currentTimestamp})")
+    @Insert("INSERT INTO user_info (id, name, age, email) VALUES (#{id}, #{name}, 25, #{name})")
     int insertWithReuse(@Param("id") Integer id, @Param("name") String name);
 
     // ========== Many parameters ==========

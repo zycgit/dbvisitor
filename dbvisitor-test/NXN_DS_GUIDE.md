@@ -281,40 +281,40 @@ RealDB 不应做：
 - Redis：key/hash/list/set/zset 结构。
 - ClickHouse：MergeTree、`join_use_nulls`、OLAP mutation 语义、专有函数。
 
-专有能力仍然要声明 `@Capability`，能力编号应体现 adapter 或数据源域，避免和通用能力混淆。
+专有测试仍然要声明 `@Capability`，能力编号应体现 adapter 或数据源域，避免和通用能力混淆。支持性文档按职责区分：dbVisitor 整合能力统一回填 `NXN_DS_CAPABILITY.md` 的 §2 主表；适配器对数据库 SDK 的命令、参数和返回语义覆盖维护在该数据源的 `dbvisitor-doc` 用户文档中，不在 N×N 文档另设专有能力表。
 
 ## §9 运行方式
 
 单数据源运行：
 
 ```bash
-./run_nxn.sh mysql
-./run_nxn.sh pg
-./run_nxn.sh clickhouse
+./runnxn.sh mysql
+./runnxn.sh pg
+./runnxn.sh milvus
 ```
 
 全量顺序运行：
 
 ```bash
-./run_nxn.sh all
+./runnxn.sh all
 ```
 
 脚本实际执行：
 
 ```bash
-mvn -f "$ROOT/pom.xml" -Pnxn -Dnxn.env="{env}" test
+./gradlew :dbvisitor-test:test -Pnxn.env={env} --rerun-tasks
 ```
 
-`nxn.env` 必须和 `DataSourceProfile.env()` 匹配。`AbstractNxnContractTest` 会在 setup 阶段跳过非当前 env 的测试类，保证一次 Maven 运行只验证一个数据源。
+以上命令在仓库根目录执行。`nxn.env` 必须和 `DataSourceProfile.env()` 匹配。Gradle 按 env 选择 `realdb/{env}` 测试目录，`es6`/`es7` 对应 `elastic6`/`elastic7`；`AbstractNxnContractTest` 还会检查当前 profile。未设置 `nxn.env` 时，`:dbvisitor-test:test` 不执行。`runnxn.sh all` 顺序运行各数据源，需要相应数据库服务均可用。
 
-新增数据源后需要把 env 加入 `run_nxn.sh` 的单数据源分支和 `all` 列表。
+新增数据源后需要把 env 加入 `runnxn.sh` 的数据源列表；若 env 与目录名不同，还应同步 `dbvisitor-test/build.gradle` 的映射。每次运行会更新该模块同一份测试报告，跨数据源对比前需分别保留结果，不能只看最后一次报告。
 
 ## §10 报告和长期文档
 
 后续支持性文档统一使用：
 
 ```text
-NXN_CAPABILITY_MATRIX.md
+NXN_DS_CAPABILITY.md
 ```
 
 这份文档应持续包含：
@@ -322,7 +322,7 @@ NXN_CAPABILITY_MATRIX.md
 - `§2 能力矩阵`：按能力维度聚合，二级项目按业务场景排序。
 - 测试类列：类名后追加测试数量，例如 `JdbcCrudContractTest(6条)`。
 - 二级能力项：使用 `&emsp;` 缩进，区别于一级能力维度。
-- 数据源状态：`✅` 通过、`⚠️` 跳过 feature gate、`❌` 失败/错误、`—` 未实现或不适用。
+- 数据源状态：`✅` 完整契约通过、`⚠️` 部分验证或 feature gate 跳过（注明范围和原因）、`❌` 失败/错误、`—` 没有契约绑定或未验证，不等同于数据库不支持。
 - `§3 跳过清单总览`：按数据源列出 skip 数量和 feature。
 - `§4 当前结论`：按数据源解释当前 fail/error/skip 状态。
 - `§5 下一步改进方向`：按优先级描述哪些应保留不动、哪些值得继续打开。
@@ -365,7 +365,7 @@ src/test/resources/realdb/{env}/...
 DataSourceId
 {Env}Profile
 DataSourceProfileRegistry
-run_nxn.sh
+runnxn.sh
 ```
 
 如果 dbVisitor provider 中没有对应方言或 adapter 能力，需要先补 provider，再接入 N×N。
@@ -405,19 +405,22 @@ src/test/java/net/hasor/dbvisitor/test/nxn/report/metadata/{Env}NxnMetadataContr
 
 ### 11.6 增加专有测试
 
-专有测试放在 `realdb/{env}`，物料放在 `realdb/{env}/material` 或资源目录 `src/test/resources/realdb/{env}`。专有测试也必须使用 `@Capability`，并在矩阵中能解释其支持状态。
+专有测试放在 `realdb/{env}`，物料放在 `realdb/{env}/material` 或资源目录 `src/test/resources/realdb/{env}`。专有测试也必须使用 `@Capability`。其中的 dbVisitor 整合验证可作为主表对应能力的部分覆盖证据，但不能替代完整通用契约通过；纯数据库 SDK/SQL 覆盖及版本限制写入数据源用户文档。
 
 ### 11.7 运行验证
 
 建议顺序：
 
 ```bash
-mvn -Pnxn -Dnxn.env={env} -Dtest=net.hasor.dbvisitor.test.nxn.report.metadata.{Env}NxnMetadataContractTest test
-./run_nxn.sh {env}
-./run_nxn.sh all
+./gradlew :dbvisitor-test:test -Pnxn.env=milvus --tests '*MilvusDiagnosticsSqlContractTest' --rerun-tasks
+./runnxn.sh milvus
+# 所有数据源服务均就绪后，才运行全量：
+./runnxn.sh all
 ```
 
-验证时必须看 Maven 输出、Surefire XML 和矩阵报告。不要只依赖退出码判断覆盖范围。
+按待接入数据源替换示例中的 env 和测试类。验证时必须核对 Gradle 输出、`dbvisitor-test/build/test-results/test/TEST-*.xml`、HTML 报告及矩阵描述，区分通过、跳过和实际未选择的测试。HTML 报告位于 `dbvisitor-test/build/reports/tests/test/index.html`。不要只依赖退出码判断覆盖范围。
+
+默认 Gradle 任务只选择 `realdb` 目录，不执行 `nxn/report/metadata` 下的元数据测试；仅添加 `--tests '*NxnMetadataContractTest'` 不能突破该目录过滤。元数据检查需通过 IDE 单独运行已有的具体元数据测试类（设置 `nxn.env`），或使用明确选择该类的独立测试配置；不能把 SQL 回归成功记为元数据检查通过。
 
 ### 11.8 更新矩阵
 
@@ -449,14 +452,14 @@ mvn -Pnxn -Dnxn.env={env} -Dtest=net.hasor.dbvisitor.test.nxn.report.metadata.{E
 
 - `DataSourceId`、`{Env}Profile`、`DataSourceProfileRegistry` 已补齐。
 - `jdbc-{env}.properties` 和初始化/setup 物料已补齐。
-- `run_nxn.sh {env}` 可以单独运行。
+- `runnxn.sh {env}` 可以单独运行。
 - `realdb/{env}` 下有清晰的数据源实现结构。
 - 支持的通用能力都有 realdb 绑定类。
 - 不支持能力进入 profile/feature gate，并有原因。
 - 专有能力留在 `realdb/{env}`，不污染 `contract`。
 - 每个测试点都有 `@Capability`。
 - 元数据报告类位于 `nxn/report/metadata`。
-- Surefire 和 N×N 报告已检查。
+- Gradle 测试 XML、HTML 和 N×N 报告已检查。
 - `NXN_DS_CAPABILITY.md` 已更新，并能说明当前支持状态。
 
 ## §14 禁止模式

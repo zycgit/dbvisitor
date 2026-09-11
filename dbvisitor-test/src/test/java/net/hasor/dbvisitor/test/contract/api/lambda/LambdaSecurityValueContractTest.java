@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.contract.api.lambda;
 
 import java.sql.SQLException;
@@ -46,17 +53,36 @@ public abstract class LambdaSecurityValueContractTest extends AbstractNxnContrac
     }
 
     @Test
-    @Capability(CapabilityId.LAMBDA_SECURITY_VALUE_LIKE_IN)
-    public void lambdaSecurityValue_shouldParameterizeLikeAndInPayloads() throws SQLException {
+    @Capability(CapabilityId.LAMBDA_SECURITY_VALUE_LIKE)
+    public void lambdaSecurityValue_shouldParameterizeLikePayloads() throws SQLException {
         insertUser(baseId() + 11, "SecLikeTarget", 25);
         insertUser(baseId() + 12, "SecOther", 30);
-        insertUser(baseId() + 13, "SecInTarget", 35);
+
+        assertEquals(1, lambdaTemplate.query(UserInfo.class)//
+                .in(UserInfo::getId, Arrays.asList(baseId() + 11, baseId() + 12))//
+                .like(UserInfo::getName, "SecLikeTarget")//
+                .queryForCount());
 
         List<UserInfo> likeResult = lambdaTemplate.query(UserInfo.class)//
                 .in(UserInfo::getId, Arrays.asList(baseId() + 11, baseId() + 12))//
                 .like(UserInfo::getName, "%' OR '1'='1' --")//
                 .queryForList();
         assertEquals(0, likeResult.size());
+        assertEquals(0, lambdaTemplate.query(UserInfo.class)//
+                .like(UserInfo::getName, "' OR 1=1 --")//
+                .queryForCount());
+        assertEquals("SecLikeTarget", loadName(baseId() + 11));
+        assertEquals("SecOther", loadName(baseId() + 12));
+    }
+
+    @Test
+    @Capability(CapabilityId.LAMBDA_SECURITY_VALUE_IN)
+    public void lambdaSecurityValue_shouldParameterizeInPayloads() throws SQLException {
+        insertUser(baseId() + 13, "SecInTarget", 35);
+
+        assertEquals(1, lambdaTemplate.query(UserInfo.class)//
+                .in(UserInfo::getName, Arrays.asList("SecInTarget", "Absent"))//
+                .queryForCount());
 
         List<Object> namePayloads = Arrays.<Object>asList("SecInTarget' OR '1'='1", "x'; DROP TABLE users; --");
         List<UserInfo> inResult = lambdaTemplate.query(UserInfo.class)//
@@ -142,7 +168,7 @@ public abstract class LambdaSecurityValueContractTest extends AbstractNxnContrac
         assertEquals(Integer.valueOf(baseId() + 41), result.getId());
 
         assertEquals(0, lambdaTemplate.query(UserInfo.class)//
-                .like(UserInfo::getName, "' OR 1=1 --")//
+                .eq(UserInfo::getName, "' OR 1=1 --")//
                 .queryForCount());
     }
 

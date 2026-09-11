@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.realdb.mongo;
 
 import java.sql.Connection;
@@ -60,6 +67,7 @@ public class MongoBsonContractTest extends AdapterContractTest {
             assertNotNull(selected.getListValue());
             assertEquals(2, selected.getListValue().size());
             assertTrue(selected.getListValue().contains("Item 1"));
+            assertEquals(dto.getListValue(), selected.getListValue());
             assertNotNull(selected.getMapValue());
             assertEquals("value1", selected.getMapValue().get("key1"));
             assertTrue(Integer.valueOf(100).equals(selected.getMapValue().get("key2")) || Long.valueOf(100).equals(selected.getMapValue().get("key2")));
@@ -83,6 +91,7 @@ public class MongoBsonContractTest extends AdapterContractTest {
             assertEquals("Updated String", updated.getStringValue());
             assertEquals(Integer.valueOf(54321), updated.getIntValue());
             assertEquals(3, updated.getListValue().size());
+            assertEquals(dto.getListValue(), updated.getListValue());
             assertEquals(Boolean.TRUE, updated.getMapValue().get("key3"));
 
             assertEquals(1, lambda.delete(BsonTypesDto.class).eq(BsonTypesDto::getId, dto.getId()).doDelete());

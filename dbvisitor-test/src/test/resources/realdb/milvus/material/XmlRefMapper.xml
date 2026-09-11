@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="net.hasor.dbvisitor.test.realdb.milvus.material.MilvusXmlRefMapperDao">
+
+    <resultMap id="userResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+        <result column="email" property="email"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <!-- CRUD -->
+    <insert id="insertUser">
+        INSERT INTO user_info (id, name, age, email, create_time, v, v_age)
+        VALUES (#{id}, #{name}, #{age}, #{email}, '2026-09-11 12:00:00', [${id}, 0], [${age}, 0])
+    </insert>
+
+    <select id="selectById" resultMap="userResultMap">
+        SELECT * FROM user_info WHERE id = #{id}
+    </select>
+
+    <select id="selectAll" resultMap="userResultMap">
+        SELECT * FROM user_info WHERE name LIKE 'RefMap%' ORDER BY v &lt;-&gt; [0, 0] LIMIT 8 WITH (metric_type=L2)
+    </select>
+
+    <update id="updateEmail">
+        UPDATE user_info SET email = #{email} WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM user_info WHERE id = #{id}
+    </delete>
+
+    <!-- Fixed trusted labels exercise the XML where/if branches using native literal LIKE.
+         Map/Bean parameters below remain JDBC-bound and do not use text interpolation. -->
+    <select id="selectByCondition" resultMap="userResultMap">
+        SELECT * FROM user_info
+        <where>
+            <if test="name != null">
+                AND name LIKE ${"'" + name + "'"}
+            </if>
+            <if test="minAge != null">
+                AND age &gt;= #{minAge}
+            </if>
+        </where>
+        ORDER BY v &lt;-&gt; [0, 0] LIMIT 8 WITH (metric_type=L2)
+    </select>
+
+    <!-- foreach IN 查询 -->
+    <select id="selectByIds" resultMap="userResultMap">
+        SELECT * FROM user_info WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        ORDER BY v &lt;-&gt; [0, 0] LIMIT 8 WITH (metric_type=L2)
+    </select>
+
+    <!-- Map 参数 -->
+    <select id="selectByAgeRange" resultMap="userResultMap">
+        SELECT * FROM user_info
+        WHERE age BETWEEN #{range.minAge} AND #{range.maxAge}
+        ORDER BY v &lt;-&gt; [0, 0] LIMIT 8 WITH (metric_type=L2)
+    </select>
+
+    <!-- Bean 参数 -->
+    <select id="selectByBean" resultMap="userResultMap">
+        SELECT * FROM user_info
+        WHERE name &gt;= #{user.name} AND age &gt;= #{user.age}
+        ORDER BY v &lt;-&gt; [0, 0] LIMIT 8 WITH (metric_type=L2)
+    </select>
+
+    <!-- ${} 文本替换 -->
+    <select id="selectWithOrderBy" resultMap="userResultMap">
+        SELECT * FROM user_info
+        WHERE name LIKE 'RefMap%'
+        ORDER BY ${orderColumn} LIMIT 8 WITH (metric_type=L2)
+    </select>
+
+    <select id="selectAsMaps" resultType="map">
+        SELECT id, name, age, email, create_time FROM user_info
+        WHERE name LIKE 'RefMap%' ORDER BY v &lt;-&gt; [0, 0] LIMIT 8 WITH (metric_type=L2)
+    </select>
+
+    <!-- Retained aggregate fixture: the corresponding case is gated on this server baseline. -->
+    <select id="selectAgeStats" resultType="map">
+        SELECT age, COUNT(*) AS cnt
+        FROM user_info
+        WHERE name LIKE 'RefMap%'
+        GROUP BY age
+        ORDER BY age
+    </select>
+
+</mapper>

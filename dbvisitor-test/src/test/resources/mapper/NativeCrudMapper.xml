@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="xmltest.CrudMapper">
+    <resultMap id="user" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        <result column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+        <result column="email" property="email"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <insert id="insertUser">@{macro, nxnCrudInsertXml}</insert>
+    <select id="selectById" resultMap="user">@{macro, nxnCrudSelect}</select>
+    <update id="updateEmail">@{macro, nxnCrudUpdateEmail}</update>
+    <delete id="deleteById">@{macro, nxnCrudDelete}</delete>
+</mapper>

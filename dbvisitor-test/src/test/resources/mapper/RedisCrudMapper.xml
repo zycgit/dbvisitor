@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="xmltest.CrudMapper">
+    <insert id="insertUser">@{macro, nxnRedisCrudInsert}</insert>
+    <select id="selectById" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo"
+            resultTypeHandler="net.hasor.dbvisitor.types.handler.json.JsonTypeHandler">
+        @{macro, nxnRedisCrudSelect}
+    </select>
+    <update id="updateEmail">@{macro, nxnRedisCrudUpdate}</update>
+    <delete id="deleteById">@{macro, nxnRedisCrudDelete}</delete>
+</mapper>

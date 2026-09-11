@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.contract.feature.keygen;
 
 import java.util.Arrays;
@@ -120,6 +127,7 @@ public abstract class InsertDialectStrategyContractTest extends AbstractNxnContr
             case ORACLE -> JdbcHelper.ORACLE;
             case DB2 -> JdbcHelper.DB2;
             case CLICKHOUSE -> JdbcHelper.CLICKHOUSE;
+            case MILVUS -> JdbcHelper.MILVUS;
             default -> throw new IllegalStateException("Data source '" + id + "' is not an InsertSqlDialect target.");
         };
     }

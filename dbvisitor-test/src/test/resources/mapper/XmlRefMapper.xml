@@ -59,14 +59,14 @@
     <!-- Map 参数 -->
     <select id="selectByAgeRange" resultMap="userResultMap">
         SELECT * FROM user_info
-        WHERE age BETWEEN #{minAge} AND #{maxAge}
+        WHERE age BETWEEN #{range.minAge} AND #{range.maxAge}
         ORDER BY id
     </select>
 
     <!-- Bean 参数 -->
     <select id="selectByBean" resultMap="userResultMap">
         SELECT * FROM user_info
-        WHERE name LIKE #{name} AND age &gt;= #{age}
+        WHERE name &gt;= #{user.name} AND age &gt;= #{user.age}
         ORDER BY id
     </select>
 
@@ -75,6 +75,11 @@
         SELECT * FROM user_info
         WHERE name LIKE 'RefMap%'
         ORDER BY ${orderColumn}
+    </select>
+
+    <select id="selectAsMaps" resultType="map">
+        SELECT id, name, age, email, create_time FROM user_info
+        WHERE name LIKE 'RefMap%' ORDER BY id
     </select>
 
     <!-- resultType map 查询 -->

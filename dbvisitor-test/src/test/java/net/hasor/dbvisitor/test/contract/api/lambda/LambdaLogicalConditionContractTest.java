@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.contract.api.lambda;
 
 import java.sql.SQLException;
@@ -60,27 +67,33 @@ public abstract class LambdaLogicalConditionContractTest extends AbstractNxnCont
     }
 
     @Test
-    @Capability(CapabilityId.LAMBDA_LOGIC_MARKER_AND_NOT)
-    public void lambdaLogic_shouldApplyNoArgAndAndNotMarkers() throws SQLException {
+    @Capability(CapabilityId.LAMBDA_LOGIC_MARKER_AND)
+    public void lambdaLogic_shouldApplyNoArgAndMarker() throws SQLException {
         insertUser(baseId() + 21, "NXN-Logic-Marker-And-1", 25, "marker@nxn.test");
         insertUser(baseId() + 22, "NXN-Logic-Marker-And-2", 30, "marker@nxn.test");
         insertUser(baseId() + 23, "NXN-Logic-Marker-And-3", 25, "other@nxn.test");
-        insertUser(baseId() + 24, "NXN-Logic-Marker-Not-1", 25, "marker@nxn.test");
-        insertUser(baseId() + 25, "NXN-Logic-Marker-Not-2", 30, "marker@nxn.test");
-        insertUser(baseId() + 26, "NXN-Logic-Marker-Not-3", 35, "marker@nxn.test");
 
         long explicitAnd = lambdaTemplate.query(UserInfo.class)//
                 .in(UserInfo::getId, ids(21, 22, 23))//
                 .and()//
                 .eq(UserInfo::getAge, 25)//
                 .queryForCount();
+        assertEquals(2, explicitAnd);
+    }
+
+    @Test
+    @Capability(CapabilityId.LAMBDA_LOGIC_MARKER_NOT)
+    public void lambdaLogic_shouldApplyNoArgNotMarker() throws SQLException {
+        insertUser(baseId() + 24, "NXN-Logic-Marker-Not-1", 25, "marker@nxn.test");
+        insertUser(baseId() + 25, "NXN-Logic-Marker-Not-2", 30, "marker@nxn.test");
+        insertUser(baseId() + 26, "NXN-Logic-Marker-Not-3", 35, "marker@nxn.test");
+
         long explicitNot = lambdaTemplate.query(UserInfo.class)//
                 .in(UserInfo::getId, ids(24, 25, 26))//
                 .not()//
                 .eq(UserInfo::getAge, 25)//
                 .queryForCount();
 
-        assertEquals(2, explicitAnd);
         assertEquals(2, explicitNot);
     }
 
@@ -120,14 +133,11 @@ public abstract class LambdaLogicalConditionContractTest extends AbstractNxnCont
     }
 
     @Test
-    @Capability(CapabilityId.LAMBDA_LOGIC_DYNAMIC_NOT_NESTED)
-    public void lambdaLogic_shouldApplyNotAndNestedConsumerOnlyWhenEnabled() throws SQLException {
+    @Capability(CapabilityId.LAMBDA_LOGIC_DYNAMIC_NOT)
+    public void lambdaLogic_shouldApplyNotConsumerOnlyWhenEnabled() throws SQLException {
         insertUser(baseId() + 41, "NXN-Logic-Dyn-Not-1", 20, "dyn@nxn.test");
         insertUser(baseId() + 42, "NXN-Logic-Dyn-Not-2", 25, "dyn@nxn.test");
         insertUser(baseId() + 43, "NXN-Logic-Dyn-Not-3", 30, "dyn@nxn.test");
-        insertUser(baseId() + 44, "NXN-Logic-Dyn-Nested-1", 20, "group-a@nxn.test");
-        insertUser(baseId() + 45, "NXN-Logic-Dyn-Nested-2", 25, "group-a@nxn.test");
-        insertUser(baseId() + 46, "NXN-Logic-Dyn-Nested-3", 30, "group-b@nxn.test");
 
         long notEnabled = lambdaTemplate.query(UserInfo.class)//
                 .in(UserInfo::getId, ids(41, 42, 43))//
@@ -137,6 +147,17 @@ public abstract class LambdaLogicalConditionContractTest extends AbstractNxnCont
                 .in(UserInfo::getId, ids(41, 42, 43))//
                 .not(false, q -> q.eq(UserInfo::getAge, 25))//
                 .queryForCount();
+        assertEquals(2, notEnabled);
+        assertEquals(3, notDisabled);
+    }
+
+    @Test
+    @Capability(CapabilityId.LAMBDA_LOGIC_DYNAMIC_NESTED)
+    public void lambdaLogic_shouldApplyNestedConsumerOnlyWhenEnabled() throws SQLException {
+        insertUser(baseId() + 44, "NXN-Logic-Dyn-Nested-1", 20, "group-a@nxn.test");
+        insertUser(baseId() + 45, "NXN-Logic-Dyn-Nested-2", 25, "group-a@nxn.test");
+        insertUser(baseId() + 46, "NXN-Logic-Dyn-Nested-3", 30, "group-b@nxn.test");
+
         long nestedEnabled = lambdaTemplate.query(UserInfo.class)//
                 .in(UserInfo::getId, ids(44, 45, 46))//
                 .nested(true, q -> q.eq(UserInfo::getEmail, "group-a@nxn.test")//
@@ -148,8 +169,6 @@ public abstract class LambdaLogicalConditionContractTest extends AbstractNxnCont
                         .ge(UserInfo::getAge, 25))//
                 .queryForCount();
 
-        assertEquals(2, notEnabled);
-        assertEquals(3, notDisabled);
         assertEquals(1, nestedEnabled);
         assertEquals(3, nestedDisabled);
     }
@@ -250,7 +269,6 @@ public abstract class LambdaLogicalConditionContractTest extends AbstractNxnCont
         Integer age = 25;
         long count = lambdaTemplate.query(UserInfo.class)//
                 .in(UserInfo::getId, ids(91, 92, 93))//
-                .like(UserInfo::getName, "DynamicValue")//
                 .eq(absentName != null, UserInfo::getName, absentName)//
                 .eq(age != null, UserInfo::getAge, age)//
                 .queryForCount();

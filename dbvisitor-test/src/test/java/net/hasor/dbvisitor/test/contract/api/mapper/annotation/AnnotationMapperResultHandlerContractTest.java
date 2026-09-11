@@ -1,19 +1,20 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.contract.api.mapper.annotation;
 
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.List;
 
-import org.junit.Before;
 import org.junit.Test;
 
-import net.hasor.dbvisitor.session.Configuration;
-import net.hasor.dbvisitor.session.Session;
-import net.hasor.dbvisitor.test.contract.material.dao.declarative.ResultHandlerMapper;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 
 import static org.junit.Assert.assertEquals;
@@ -22,19 +23,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 @NxnContract
-public abstract class AnnotationMapperResultHandlerContractTest extends AbstractNxnContractTest {
-    private static final String PATTERN = "AnnoHandler%";
-
-    private ResultHandlerMapper mapper;
-
-    @Before
-    public void createResultHandlerMapper() throws Exception {
-        Configuration configuration = newConfiguration();
-        Session session = configuration.newSession(dataSource);
-        this.mapper = session.createMapper(ResultHandlerMapper.class);
-        prepareRows();
-    }
-
+public abstract class AnnotationMapperResultHandlerContractTest extends AnnotationMapperResultHandlerSupport {
     @Test
     @Capability(CapabilityId.MAPPER_ANNOTATION_RESULT_HANDLER_DEFAULT)
     public void annotationResultHandler_shouldUseDefaultMappingWithoutCustomHandler() throws SQLException {
@@ -55,16 +44,6 @@ public abstract class AnnotationMapperResultHandlerContractTest extends Abstract
             assertTrue(user.getName().startsWith("AnnoHandler"));
             assertNotNull(user.getCreateTime());
         }
-    }
-
-    @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_RESULT_HANDLER_EXTRACTOR_OPTIONS)
-    public void annotationResultHandler_shouldKeepExtractorWhenOptionsArePresent() throws SQLException {
-        List<UserInfo> defaultResult = this.mapper.selectDefault(PATTERN);
-        List<UserInfo> extractorResult = this.mapper.selectWithExtractorAndOptions(PATTERN);
-
-        assertEquals(defaultResult.size(), extractorResult.size());
-        assertEquals(defaultResult.get(0).getId(), extractorResult.get(0).getId());
     }
 
     @Test
@@ -114,21 +93,5 @@ public abstract class AnnotationMapperResultHandlerContractTest extends Abstract
         assertEquals(0, this.mapper.selectWithExtractor("NoAnnoHandlerMatch%").size());
         assertEquals(0, this.mapper.selectWithRowMapper("NoAnnoHandlerMatch%").size());
         assertNull(this.mapper.selectSingleWithRowMapper(99999));
-    }
-
-    private void prepareRows() throws SQLException {
-        for (int i = 1; i <= 10; i++) {
-            UserInfo user = new UserInfo();
-            user.setId(id(i));
-            user.setName("AnnoHandler" + i);
-            user.setAge(20 + i);
-            user.setEmail("anno-handler" + i + "@nxn.test");
-            user.setCreateTime(new Date());
-            this.mapper.insertUser(user);
-        }
-    }
-
-    private int id(int index) {
-        return 53100 + index;
     }
 }

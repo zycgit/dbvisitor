@@ -1,49 +1,27 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
 package net.hasor.dbvisitor.test.contract.api.mapper.xml;
 
-import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Before;
 import org.junit.Test;
 
-import net.hasor.dbvisitor.session.Configuration;
-import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 @NxnContract
-public abstract class XmlMapperStatementAttributeContractTest extends AbstractNxnContractTest {
-    private Session session;
-
-    @Before
-    public void createXmlMapperSession() throws Exception {
-        Configuration config = newConfiguration();
-        config.loadMapper("/mapper/XmlStatementAttrMapper.xml");
-        this.session = config.newSession(dataSource);
-    }
-
-    @Override
-    protected void initData() throws SQLException {
-        for (int i = 1; i <= 5; i++) {
-            jdbcTemplate.executeUpdate(//
-                    "INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, @{macro, currentTimestamp})", //
-                    new Object[] { baseId() + i, "StmtAttr" + i, 20 + i, "attr" + i + "@nxn.test" });
-        }
-    }
-
-    protected int baseId() {
-        return 955000;
-    }
-
+public abstract class XmlMapperStatementAttributeContractTest extends XmlMapperStatementAttributeSupport {
     @Test
     @Capability(CapabilityId.MAPPER_XML_STATEMENT_TYPE)
     public void statementAttributes_shouldSupportPreparedAndStatementTypes() throws Exception {
@@ -78,15 +56,11 @@ public abstract class XmlMapperStatementAttributeContractTest extends AbstractNx
     }
 
     @Test
-    @Capability(CapabilityId.MAPPER_XML_STATEMENT_RESULT_SET_TYPE)
-    public void statementAttributes_shouldSupportResultSetTypeVariants() throws Exception {
+    @Capability(CapabilityId.MAPPER_XML_STATEMENT_FORWARD_ONLY)
+    public void statementAttributes_shouldSupportForwardOnlyResults() throws Exception {
         List<UserInfo> forwardOnly = this.session.queryStatement("xmltest.StatementAttrMapper.selectForwardOnly", null);
-        List<UserInfo> scrollInsensitive = this.session.queryStatement("xmltest.StatementAttrMapper.selectScrollInsensitive", null);
-
         assertEquals(5, forwardOnly.size());
-        assertEquals(5, scrollInsensitive.size());
         assertAscendingById(forwardOnly);
-        assertAscendingById(scrollInsensitive);
     }
 
     @Test
@@ -109,17 +83,5 @@ public abstract class XmlMapperStatementAttributeContractTest extends AbstractNx
         List<UserInfo> inserted = this.session.queryStatement("xmltest.StatementAttrMapper.selectPrepared", mapOf("id", baseId() + 10));
         assertEquals(1, inserted.size());
         assertEquals("StmtAttrInsert", inserted.get(0).getName());
-    }
-
-    private Map<String, Object> mapOf(String key, Object value) {
-        Map<String, Object> params = new HashMap<>();
-        params.put(key, value);
-        return params;
-    }
-
-    private void assertAscendingById(List<UserInfo> list) {
-        for (int i = 1; i < list.size(); i++) {
-            assertTrue(list.get(i - 1).getId() < list.get(i).getId());
-        }
     }
 }

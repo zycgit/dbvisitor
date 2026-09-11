@@ -121,6 +121,14 @@
         ORDER BY id
     </select>
 
+    <!-- A bound variable is passed as a JDBC value, independently of pattern syntax. -->
+    <select id="selectWithBoundAge" resultMap="userResultMap">
+        <bind name="ageFloor" value="minAge + 1"/>
+        SELECT * FROM user_info
+        WHERE name LIKE 'DynSql%' AND age &gt;= #{ageFloor}
+        ORDER BY id
+    </select>
+
     <!-- 组合动态 SQL：where + if + foreach -->
     <select id="selectComplex" resultMap="userResultMap">
         SELECT * FROM user_info
