@@ -22,7 +22,6 @@ public final class OracleProfile extends AbstractDataSourceProfile {
         // @formatter:off
         return new String[] {
             FeatureId.ARRAY,
-            FeatureId.SEQUENCE,
             FeatureId.KNN,
             FeatureId.PROCEDURE_RESULT_SET,
             FeatureId.XML_MAPPER_CALLABLE,

@@ -21,6 +21,17 @@ import org.junit.Test;
  */
 public class Dialect4SqlServerTest extends AbstractDialectTest {
 
+    @Test
+    public void dialect_sequence() {
+        SqlServerDialect dialect = findDialect();
+        assert dialect.selectSeq(false, null, null, "user_seq").equals("SELECT NEXT VALUE FOR user_seq");
+        assert dialect.selectSeq(false, null, "app", "user_seq").equals("SELECT NEXT VALUE FOR app.user_seq");
+        assert dialect.selectSeq(false, "db", null, "user_seq").equals("SELECT NEXT VALUE FOR db.dbo.user_seq");
+        assert dialect.selectSeq(true, "db", "app", "User Sequence").equals("SELECT NEXT VALUE FOR [db].[app].[User Sequence]");
+        assert dialect.selectSeq(true, "db", null, "user_seq").equals("SELECT NEXT VALUE FOR [db].dbo.[user_seq]");
+        assert dialect.selectSeq(false, null, "dbo", "select").equals("SELECT NEXT VALUE FOR dbo.[select]");
+    }
+
     @Override
     protected SqlServerDialect findDialect() {
         return (SqlServerDialect) SqlDialectRegister.findOrCreate(JdbcHelper.SQL_SERVER);

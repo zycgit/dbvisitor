@@ -18,6 +18,7 @@ import java.sql.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import javax.tools.*;
 import io.milvus.grpc.*;
 import io.milvus.orm.iterator.QueryIterator;
@@ -145,9 +146,27 @@ public class MilvusDocumentationTest {
 
     private String document(String language, String file) throws Exception {
         String directory = "cn".equals(language) ? "docs" : "i18n/en/docusaurus-plugin-content-docs/current";
-        boolean driverDocument = Arrays.asList("about.md", "params.md", "connection.mdx").contains(file);
+        boolean driverDocument = Arrays.asList("about.md", "params.md", "connection.mdx", "execution.mdx", "parameters.mdx", "results.md").contains(file);
         Path path = repositoryRoot().resolve("dbvisitor-doc").resolve(directory).resolve(driverDocument ? "drivers/milvus" : "features/milvus").resolve(file);
         return Files.readString(path, StandardCharsets.UTF_8);
+    }
+
+    private List<String> referenceDocuments(String language) throws Exception {
+        String directory = "cn".equals(language) ? "docs" : "i18n/en/docusaurus-plugin-content-docs/current";
+        Path reference = repositoryRoot().resolve("dbvisitor-doc").resolve(directory).resolve("features/milvus");
+        List<String> documents = new ArrayList<>();
+        try (Stream<Path> paths = Files.walk(reference)) {
+            paths.filter(Files::isRegularFile)
+                    .filter(path -> Arrays.asList("basics", "types", "query", "write", "ddl", "show", "admin").contains(reference.relativize(path).getName(0).toString()))
+                    .filter(path -> {
+                return path.toString().endsWith(".md") || path.toString().endsWith(".mdx");
+            }).sorted().forEach(path -> {
+                documents.add(reference.relativize(path).toString().replace(File.separatorChar, '/'));
+            });
+        }
+        assertFalse("Missing SQL reference chapters: " + language, documents.isEmpty());
+        documents.addAll(Arrays.asList("execution.mdx", "parameters.mdx", "results.md"));
+        return documents;
     }
 
     private static List<String> blocks(String document, String language) {
@@ -162,7 +181,7 @@ public class MilvusDocumentationTest {
     @Test
     public void bothWebsiteProgramsCompileAndRunThroughJdbc() throws Exception {
         for (String language : Arrays.asList("cn", "en")) {
-            String source = blocks(document(language, "jdbc.mdx"), "java").get(0);
+            String source = blocks(document(language, "execution.mdx"), "java").get(0);
             try (URLClassLoader compiled = compile("MilvusJdbcExample", source)) {
                 compiled.loadClass("MilvusJdbcExample").getMethod("main", String[].class).invoke(null, (Object) new String[] { interceptedUrl() });
             }
@@ -177,7 +196,9 @@ public class MilvusDocumentationTest {
     @Test
     public void everyOtherJavaBlockCompiles() throws Exception {
         for (String language : Arrays.asList("cn", "en")) {
-            for (String name : Arrays.asList("connection.mdx", "jdbc.mdx", "params.md", "commands.md")) {
+            List<String> documents = new ArrayList<>(Arrays.asList("connection.mdx", "params.md"));
+            documents.addAll(referenceDocuments(language));
+            for (String name : documents) {
                 for (String block : blocks(document(language, name), "java")) {
                     if (block.contains("public class MilvusJdbcExample")) {
                         continue;
@@ -197,12 +218,13 @@ public class MilvusDocumentationTest {
     public void documentedWritePagingAndMultiResultFragmentsExecute() throws Exception {
         for (String language : Arrays.asList("cn", "en")) {
             List<String> examples = new ArrayList<>();
-            for (String block : blocks(document(language, "jdbc.mdx"), "java")) {
+            for (String block : blocks(document(language, "execution.mdx"), "java")) {
                 if (block.startsWith("try (PreparedStatement")) {
                     examples.add(block);
                 }
             }
-            examples.addAll(blocks(document(language, "commands.md"), "java"));
+            examples.addAll(blocks(document(language, "admin/users.md"), "java"));
+            examples.addAll(blocks(document(language, "results.md"), "java"));
             assertEquals(4, examples.size());
             Properties props = new Properties();
             props.setProperty(MilvusKeys.CONSISTENCY_LEVEL, "Strong");
@@ -236,7 +258,9 @@ public class MilvusDocumentationTest {
         };
         for (String language : Arrays.asList("cn", "en")) {
             List<String> sqlBlocks = new ArrayList<>();
-            for (String name : Arrays.asList("jdbc.mdx", "params.md", "commands.md")) {
+            List<String> documents = new ArrayList<>(Arrays.asList("dbvisitor/usage.mdx", "dbvisitor/generated-keys.mdx", "params.md"));
+            documents.addAll(referenceDocuments(language));
+            for (String name : documents) {
                 sqlBlocks.addAll(blocks(document(language, name), "sql"));
             }
             for (String sql : sqlBlocks) {

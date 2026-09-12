@@ -22,7 +22,6 @@ public final class MsSqlProfile extends AbstractDataSourceProfile {
         // @formatter:off
         return new String[] {
             FeatureId.ARRAY,
-            FeatureId.SEQUENCE,
             FeatureId.KNN,
             FeatureId.PROCEDURE_CURSOR_RESULT,
             FeatureId.XML_MAPPER_CALLABLE,

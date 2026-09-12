@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="doc.returning">
+    <insert id="insertUser" useGeneratedKeys="true"
+            keyProperty="id,createTime" keyColumn="id,create_time" generatedKeySource="resultSet">
+        INSERT INTO doc_returning (name, age) OUTPUT INSERTED.id, INSERTED.create_time VALUES (#{name}, #{age})
+    </insert>
+</mapper>

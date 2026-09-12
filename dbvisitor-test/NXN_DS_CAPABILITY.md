@@ -148,6 +148,9 @@
 | &emsp;特殊值（超长字符串/特殊字符）（Lambda） | `LambdaSpecialValueContractTest(9条)` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ⚠️ 8/9 | — | — | — | — | ⚠️ 8/9 |
 | &emsp;自由 Map 模式标识符安全（Map 模式） | `FreedomMapIdentifierSecurityContractTest(8条)` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | — | — | ✅ |
 | **类型系统与对象映射能力** | | | | | | | | | | | | | |
+| &emsp;按字段名读取 Date（TypeHandler，原生命令） | `NativeNamedFieldTypeContractTest.date_shouldRoundTripByFieldName` | — | — | — | — | — | — | — | — | ✅ | ✅ | ✅ | — |
+| &emsp;按字段名读取枚举名称（TypeHandler，原生命令） | `NativeNamedFieldTypeContractTest.enum_shouldRoundTripByFieldName` | — | — | — | — | — | — | — | — | ✅ | ✅ | ✅ | — |
+| &emsp;按字段名读取 true/false（TypeHandler，原生命令） | `NativeNamedFieldTypeContractTest.boolean_shouldRoundTripByFieldName` | — | — | — | — | — | — | — | — | ✅ | ✅ | ✅ | — |
 | &emsp;整型与浮点数往返（TypeHandler） | `BasicNumericTypeJdbcContractTest(1条)` / `RedisBasicTypeContractTest` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | &emsp;高精度小数往返（TypeHandler） | `BasicDecimalTypeJdbcContractTest(1条)` / `RedisBasicTypeContractTest` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ |
 | &emsp;大整数往返（TypeHandler） | `BasicBigIntegerTypeJdbcContractTest(1条)` / `RedisBasicTypeContractTest` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ |
@@ -196,7 +199,7 @@
 | &emsp;数据库生成主键回填（主键） | `DatabaseGeneratedKeyContractTest(4条)` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | — | — | — | — | ❌ |
 | &emsp;客户端 UUID 生成（主键） | `UuidKeyContractTest(5条)` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | — | — | ✅ |
 | &emsp;自定义主键处理器（主键） | `CustomKeyHolderContractTest(7条)` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ⚠️ 6/7 | — | — | — | — | ⚠️ 6/7 |
-| &emsp;序列键配置与执行（主键） | `SequenceKeyContractTest(3条)` | ✅ | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ | — | — | — | — | ❌ |
+| &emsp;序列键配置与执行（主键） | `SequenceKeyContractTest(3条)` | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | — | — | — | — | ❌ |
 | &emsp;方言生成键策略（主键） | `InsertDialectStrategyContractTest(5条)` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | — | — | ✅ |
 | &emsp;字段命名转换与注解覆盖（对象映射） | `NamingConversionContractTest(9条)` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | — | — | ✅ |
 | &emsp;结果列名大小写匹配（对象映射） | `ResultColumnCaseContractTest(3条)` | ⚠️ 1/3 | ✅ | ✅ | ⚠️ 1/3 | ✅ | ⚠️ 1/3 | ✅ | — | — | — | — | ✅ |

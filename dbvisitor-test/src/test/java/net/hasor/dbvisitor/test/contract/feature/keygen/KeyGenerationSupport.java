@@ -15,6 +15,7 @@ import net.hasor.dbvisitor.dialect.provider.Db2Dialect;
 import net.hasor.dbvisitor.dialect.provider.H2Dialect;
 import net.hasor.dbvisitor.dialect.provider.OracleDialect;
 import net.hasor.dbvisitor.dialect.provider.PostgreSqlDialect;
+import net.hasor.dbvisitor.dialect.provider.SqlServerDialect;
 import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyAutoUser;
 import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyNoneUser;
 import net.hasor.dbvisitor.test.contract.material.model.keygen.KeySequenceUser;
@@ -110,6 +111,8 @@ public abstract class KeyGenerationSupport extends AbstractNxnContractTest {
                 return OracleDialect.DEFAULT;
             case DB2:
                 return Db2Dialect.DEFAULT;
+            case MSSQL:
+                return SqlServerDialect.DEFAULT;
             default:
                 throw new IllegalStateException("Sequence is unsupported by " + profile().env());
         }

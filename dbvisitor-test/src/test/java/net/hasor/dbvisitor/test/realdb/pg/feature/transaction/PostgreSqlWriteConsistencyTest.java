@@ -5,21 +5,15 @@
  * See the LICENSE.txt file for the full license.
  * https://www.apache.org/licenses/LICENSE-2.0
  */
-package net.hasor.dbvisitor.test.realdb.pg.api.vector_query;
+package net.hasor.dbvisitor.test.realdb.pg.feature.transaction;
 
-import java.util.List;
-import net.hasor.dbvisitor.test.contract.api.vector_query.VectorKnnOrderingContractTest;
+import net.hasor.dbvisitor.test.scenario.WriteConsistencyScenario;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.PostgreSqlProfile;
 
-public class PostgreSqlVectorKnnOrderingContractTest extends VectorKnnOrderingContractTest {
+public class PostgreSqlWriteConsistencyTest extends WriteConsistencyScenario {
     @Override
     protected DataSourceProfile profile() {
         return PostgreSqlProfile.INSTANCE;
-    }
-
-    @Override
-    protected Object queryVector(List<Float> vector) {
-        return vector;
     }
 }

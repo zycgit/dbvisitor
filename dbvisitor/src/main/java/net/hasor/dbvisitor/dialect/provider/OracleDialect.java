@@ -16,6 +16,7 @@ import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.features.InsertSqlDialect;
 import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
+import net.hasor.dbvisitor.dialect.features.SeqSqlDialect;
 import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
 import net.hasor.dbvisitor.lambda.GeneratedKeyStrategy;
 
@@ -24,7 +25,7 @@ import net.hasor.dbvisitor.lambda.GeneratedKeyStrategy;
  * @author 赵永春 (zyc@hasor.net)
  * @version 2020-10-31
  */
-public class OracleDialect extends AbstractSqlDialect implements PageSqlDialect, InsertSqlDialect {
+public class OracleDialect extends AbstractSqlDialect implements PageSqlDialect, InsertSqlDialect, SeqSqlDialect {
     public static final SqlDialect DEFAULT = new OracleDialect();
 
     @Override
@@ -40,6 +41,15 @@ public class OracleDialect extends AbstractSqlDialect implements PageSqlDialect,
     @Override
     protected String defaultQualifier() {
         return "\"";
+    }
+
+    @Override
+    public String selectSeq(boolean useQualifier, String catalog, String schema, String seqName) {
+        StringBuilder sql = new StringBuilder("SELECT ");
+        if (StringUtils.isNotBlank(schema)) {
+            sql.append(fmtName(useQualifier, schema)).append(".");
+        }
+        return sql.append(fmtName(useQualifier, seqName)).append(".NEXTVAL FROM dual").toString();
     }
 
     @Override

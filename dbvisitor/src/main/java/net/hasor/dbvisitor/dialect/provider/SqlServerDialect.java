@@ -17,6 +17,7 @@ import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.features.InsertSqlDialect;
 import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
+import net.hasor.dbvisitor.dialect.features.SeqSqlDialect;
 import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
 import net.hasor.dbvisitor.lambda.GeneratedKeyStrategy;
 
@@ -25,7 +26,7 @@ import net.hasor.dbvisitor.lambda.GeneratedKeyStrategy;
  * @author 赵永春 (zyc@hasor.net)
  * @since 2016-11-10
  */
-public class SqlServerDialect extends AbstractSqlDialect implements PageSqlDialect, InsertSqlDialect {
+public class SqlServerDialect extends AbstractSqlDialect implements PageSqlDialect, InsertSqlDialect, SeqSqlDialect {
     public static final SqlDialect DEFAULT = new SqlServerDialect();
 
     @Override
@@ -63,6 +64,11 @@ public class SqlServerDialect extends AbstractSqlDialect implements PageSqlDiale
 
         strBuilder.append(fmtName(useQualifier, table));
         return strBuilder.toString();
+    }
+
+    @Override
+    public String selectSeq(boolean useQualifier, String catalog, String schema, String seqName) {
+        return "SELECT NEXT VALUE FOR " + tableName(useQualifier, catalog, schema, seqName);
     }
 
     // --- PageSqlDialect impl ---

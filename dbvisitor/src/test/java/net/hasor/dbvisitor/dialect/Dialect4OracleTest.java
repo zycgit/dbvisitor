@@ -16,6 +16,7 @@ import net.hasor.dbvisitor.jdbc.JdbcHelper;
 import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
 import net.hasor.dbvisitor.lambda.GeneratedKeyStrategy;
 import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 /***
  * Oracle 方言
@@ -23,6 +24,15 @@ import org.junit.Test;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class Dialect4OracleTest extends AbstractDialectTest {
+
+    @Test
+    public void dialect_oracle_sequence() {
+        OracleDialect dialect = findDialect();
+        assertEquals("SELECT user_seq.NEXTVAL FROM dual", dialect.selectSeq(false, null, null, "user_seq"));
+        assertEquals("SELECT app.user_seq.NEXTVAL FROM dual", dialect.selectSeq(false, "ignored", "app", "user_seq"));
+        assertEquals("SELECT \"App\".\"UserSeq\".NEXTVAL FROM dual", dialect.selectSeq(true, null, "App", "UserSeq"));
+        assertEquals("SELECT user_seq.NEXTVAL FROM dual", dialect.selectSeq(false, null, "  ", "user_seq"));
+    }
 
     @Override
     protected OracleDialect findDialect() {

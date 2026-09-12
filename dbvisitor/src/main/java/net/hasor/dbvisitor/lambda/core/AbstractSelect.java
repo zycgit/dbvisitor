@@ -177,6 +177,7 @@ public abstract class AbstractSelect<R, T, P> extends BasicQueryCompare<R, T, P>
 
     protected R addOrderByVector(P property, Object vector, MetricType metricType) {
         String propName = getPropertyName(property);
+        Object vectorValue = wrapValue(propName, vector);
         String colName;
         String colTerm;
         if (isFreedom()) {
@@ -187,7 +188,8 @@ public abstract class AbstractSelect<R, T, P> extends BasicQueryCompare<R, T, P>
             colName = mapping != null ? mapping.getColumn() : propName;
             colTerm = mapping != null ? mapping.getOrderByColTemplate() : null;
         }
-        this.cmdBuilder.addVectorByOrder(colName, colTerm, vector, null, metricType);
+
+        this.cmdBuilder.addVectorByOrder(colName, colTerm, vectorValue, null, metricType);
         return this.getSelf();
     }
 
