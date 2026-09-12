@@ -1,0 +1,39 @@
+---
+id: mapping
+sidebar_position: 5
+hide_table_of_contents: true
+title: 跨库表映射
+---
+
+# 跨库表映射
+
+假设连接使用的数据库与目标表不同，实际要访问的是 `appdb.sales.user_info`。在实体上同时指定数据库和 schema：
+
+```java
+import net.hasor.dbvisitor.mapping.Table;
+import net.hasor.dbvisitor.mapping.Column;
+
+@Table(value = "user_info", catalog = "appdb", schema = "sales",
+        useDelimited = true)
+public class UserInfo {
+    @Column(primary = true)
+    private Integer id;
+    private String name;
+
+    // 省略 getter 和 setter
+}
+```
+
+```java
+UserInfo user = lambda.query(UserInfo.class)
+        .eq(UserInfo::getId, 1001)
+        .queryForObject();
+```
+
+这次查询访问 `[appdb].[sales].[user_info]`。
+
+:::caution[注意]
+只设置 `catalog` 而省略 `schema` 时，dbVisitor 使用 `dbo`。上例如果漏掉 `schema="sales"`，就会访问错误的表，因此应明确配置。
+:::
+
+访问当前数据库中的表时，可以省略 `catalog`，保留 `schema`。通用映射配置见[对象映射](../../guides/core/mapping/type_mapping.md)。

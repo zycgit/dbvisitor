@@ -31,9 +31,9 @@ try (java.sql.Connection connection = java.sql.DriverManager.getConnection(url, 
 
 参数可通过 `properties.setProperty("参数名", "参数值")` 配置，也可放在 URL 的 `?name=value&other=value` 部分；已有查询参数时用 `&` 追加。同名参数以 URL 为准，覆盖 `Properties`。URL 解析不会执行百分号解码；密码、token 以及包含 `&` 的值应放在 `Properties` 中，并避免记录到日志。
 
-参数名称、默认值、单位及限制见[连接参数](./params.md)。只使用适配器文档列出的参数，不能将厂商 SDK 的任意选项直接当作 JDBC 参数。
+参数名称、默认值、单位及限制见[连接参数](params.md)。只使用适配器文档列出的参数，不能将厂商 SDK 的任意选项直接当作 JDBC 参数。
 
-连接建立后的命令执行与结果读取见[JDBC 操作用法](../../features/milvus/jdbc.mdx)。
+连接建立后，见[执行命令](execution.mdx)和[读取结果](results.md)。
 
 ## 用户名与密码 {#用户名与密码认证}
 
@@ -109,3 +109,7 @@ public class MyMilvusFactory implements net.hasor.dbvisitor.adapter.milvus.Custo
 用 `props.setProperty("customMilvus", MyMilvusFactory.class.getName())` 注册。工厂负责 SDK 配置；每个 JDBC 连接调用工厂一次，所有命令共享返回的 V2 客户端，连接关闭时释放。驱动将 SDK 内部重试设为单次尝试，避免与 maxRetry 叠加。可通过 `conn.unwrap(MilvusClientV2.class)` 获取客户端，但不要在 JDBC 连接仍使用它时手动关闭或重配。
 
 Import REST 使用 JDBC 地址和认证/TLS 属性，不读取自定义 SDK 客户端的内部配置；自定义工厂也应同步配置这些属性。Cloud 标准连接使用集群端点，不要求公开管理端口。
+
+## 连接池
+
+使用 HikariCP 时，需显式设置 `connectionTestQuery` 为 `SHOW TABLES`，因为当前公共驱动未实现 `Connection.isValid()`；不要使用不受支持的 `SELECT 1`。保持自动提交模式，不配置事务隔离级别。连接 URL、认证和 TLS 仍按普通 JDBC 连接配置，应用结束时关闭连接池。

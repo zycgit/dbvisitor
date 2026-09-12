@@ -1,0 +1,53 @@
+---
+id: pagination
+sidebar_position: 2
+title: 分页查询
+description: SQL Server 分页原理、dbVisitor 用法和注意事项。
+---
+
+# 分页查询
+
+分页按行号范围取出记录。页码从 0 开始，每页 20 条时，第一页取第 1–20 行，第二页取第 21–40 行。
+
+**分页语句**
+
+```sql
+WITH selectTemp AS (
+    SELECT TOP 100 PERCENT
+           ROW_NUMBER() OVER (ORDER BY id) AS __row_number__,
+           id, name
+    FROM user_info
+)
+SELECT * FROM selectTemp
+WHERE __row_number__ BETWEEN 1 AND 20
+ORDER BY __row_number__
+```
+
+行号上下界由页码和每页条数计算后写入 SQL。
+
+**查询总数**
+
+需要总记录数时，dbVisitor 移除原查询的 `ORDER BY` 后另行执行：
+
+```sql
+SELECT COUNT(*) FROM (
+    SELECT id, name FROM user_info
+) AS TEMP_T
+```
+
+## dbVisitor 用法
+
+```java
+List<UserInfo> rows = lambda.query(UserInfo.class)
+        .orderBy(UserInfo::getId)
+        .initPage(20, 0)
+        .queryForList();
+```
+
+`initPage(每页条数, 页码)` 的页码从 0 开始。需要复用分页状态时，可改用 `usePage(PageObject.of(页码, 每页条数))`；Mapper 方法也可以接收 `Page` 参数。分页对象、总数读取和各 API 的接入方式见 [9.5 分页](../../guides/result/page_object.mdx)。
+
+## 注意事项
+
+- 原查询的 `ORDER BY` 用于 `ROW_NUMBER()`；排序应包含唯一的决胜列。
+- 没有业务排序时使用 `CURRENT_TIMESTAMP`，不保证稳定翻页。
+- 结果包含 `__row_number__` 列；计数与取页也不是同一查询。

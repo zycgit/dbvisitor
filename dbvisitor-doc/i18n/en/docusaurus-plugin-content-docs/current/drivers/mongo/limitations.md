@@ -12,4 +12,4 @@ JDBC Batch, transactions, savepoints and updatable ResultSets are not supported.
 
 The database path in the URL is also used as the default authentication database. Selecting X-509 authentication does not enable TLS. Configure connection timeouts through `customMongo`; the `connectTimeout` connection property has no effect.
 
-For exact command syntax and result semantics, see the [command reference](../../features/mongo/commands.md).
+For exact command syntax and result semantics, see the [command reference](../../features/mongo/syntax/index.md).

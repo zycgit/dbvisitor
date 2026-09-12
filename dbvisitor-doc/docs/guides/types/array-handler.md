@@ -29,7 +29,7 @@ public class EmbeddingEntity {
 ```
 
 :::caution
-这两个 SQL ARRAY 处理器接收 Java 数组时使用 `Object[]`，应传 `Integer[]` 等对象数组，不能直接传 `int[]` 等基础类型数组。Milvus JDBC 驱动对向量参数的基础类型数组支持是另一条处理路径，见 [Milvus 用法](../../features/milvus/jdbc)。
+这两个 SQL ARRAY 处理器接收 Java 数组时使用 `Object[]`，应传 `Integer[]` 等对象数组，不能直接传 `int[]` 等基础类型数组。Milvus JDBC 驱动对向量参数的基础类型数组支持是另一条处理路径，见 [Milvus 参数绑定](../../drivers/milvus/parameters.mdx#typed-values)。
 
 通用 ArrayTypeHandler 读取非空的 Double 元素数组时会转成 Float 数组；需要保留双精度时，请直接使用 JDBC `getArray()` 并自行转换，或配置专用处理器。调用者提供的 SQL Array 由调用者负责 `free()`。
 :::

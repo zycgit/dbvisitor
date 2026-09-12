@@ -1,0 +1,43 @@
+---
+id: pagination
+slug: /features/milvus/pagination
+sidebar_position: 2
+title: 分页查询
+---
+
+# 分页查询
+
+普通标量查询使用 `LIMIT/OFFSET` 限定范围，计数独立执行：
+```sql
+SELECT * FROM book_vectors WHERE word_count > 0 LIMIT 10 OFFSET 10;
+SELECT COUNT(*) FROM book_vectors WHERE word_count > 0;
+```
+Milvus 不提供普通字段的 ORDER BY；不要把不同请求的分页视为稳定快照。
+
+## dbVisitor 用法
+
+在 Mapper 方法中增加 Page 参数。实体映射见[数据读写](usage.mdx)。
+
+```java
+@Query("SELECT * FROM book_vectors WHERE word_count > 0")
+List<BookVector> findPage(Page page);
+```
+
+```java
+Page page = new PageObject(1, 10);
+List<BookVector> rows = mapper.findPage(page);
+```
+
+页码从 0 开始。 Page 在原命令末尾追加 LIMIT/OFFSET，因此原命令不要已有分页、结尾分号或 WITH 选项。带 WITH 的查询直接在命令中指定分页，不再传 Page。
+
+## 注意事项
+
+Page 控制本次返回范围，fetchSize 控制内部取页。KNN 的总数不是 TopK 数量；向量范围查询不要请求自动计数。完整规则见 [SELECT](../query/select.md#pagination)。
+
+总数和取页是两次请求，并发写入可能使两次结果不一致。公共 API 见 [9.5 分页](../../../guides/result/page_object.mdx)。
+
+## 构造器迭代查询
+
+iteratorByBatch 和 iteratorForLimit 按 LIMIT/OFFSET 分次查询，每页读取后释放结果集。各页不共享服务端快照，并发写入可能影响后续页；iteratorForLimit 的 limit 为负数时表示不限制总量。
+
+分批选取主键再删除时，每次重新读取第一页。删除后继续递增 OFFSET 会跳过记录。

@@ -318,7 +318,32 @@ try (Connection conn = DriverManager.getConnection(
 }
 ```
 
-SPI 注册只解决 JDBC 驱动接入。若要支持 LambdaTemplate 或 BaseMapper 自动生成命令，还需实现并注册相应的数据库方言，参见[自定义方言](../../features/support.md#custom-dialect)。
+SPI 注册解决 JDBC 驱动接入。若要支持 LambdaTemplate 或 BaseMapper 自动生成命令，还需实现并注册相应的数据库方言。
+
+### 自定义方言 {#custom-dialect}
+
+如果内置方言不满足需求，可以通过继承 `AbstractDialect` 并实现所需接口来自定义方言。下表列出主要方言接口，`SqlDialect` 是公共基础接口：
+
+| 接口 | 职责 |
+|------|------|
+| `SqlDialect` | 基础接口，管理关键词清单、生成表名/列名/排序列名 |
+| `ConditionSqlDialect` | 条件相关的 SQL 生成（如 LIKE 语句） |
+| `InsertSqlDialect` | 高级 INSERT 语句生成（如 [写入冲突策略](../../guides/core/lambda/insert#conflict)） |
+| `PageSqlDialect` | 分页语句生成（`countSql` + `pageSql`） |
+| `SeqSqlDialect` | 序列查询语句生成 |
+| `VectorSqlDialect` | 向量排序与范围条件生成 |
+
+:::info[提示]
+继承 `AbstractDialect` 抽象类并实现 `PageSqlDialect` 接口即可自定义分页方言。
+- `countSql` — 生成计算 count 的 SQL 语句
+- `pageSql` — 生成分页 SQL 语句
+:::
+
+```java title='注册自定义方言'
+SqlDialectRegister.registerDialectAlias(JdbcHelper.MYSQL, MyDialect.class);
+```
+
+显式配置的方言优先；未配置时，dbVisitor 根据连接元数据中的 JDBC URL、驱动名称和数据库版本查找方言，未匹配时使用默认方言。配置值可以是方言别名或全限定类名。
 
 ## 步骤 9：测试
 

@@ -1,0 +1,35 @@
+---
+id: pagination
+sidebar_position: 2
+title: 分页查询
+---
+
+# 分页查询
+
+MongoDB 的 `find` 使用 `skip` 跳过记录、`limit` 限制条数。查询总数使用相同过滤条件的 `countDocuments`：
+```text
+test.user_info.find({name: 'mali'}).sort({_id: 1}).skip(10).limit(10)
+test.user_info.countDocuments({name: 'mali'})
+```
+
+## dbVisitor 用法
+
+在 Mapper 方法中增加 Page 参数。实体映射见[数据读写](./usage.mdx)。
+
+```java
+@Query("test.user_info.find({name: #{name}}).sort({_id: 1})")
+List<UserInfo> findByName(@Param("name") String name, Page page);
+```
+
+```java
+Page page = new PageObject(1, 10);
+List<UserInfo> rows = mapper.findByName("mali", page);
+```
+
+页码从 0 开始。 Page 会覆盖 find 的 skip/limit；请求总数时另行计数。此方式不适用于 aggregate，聚合分页需要自行编写 `$skip`、`$limit`。
+
+## 注意事项
+
+使用唯一字段排序，避免相同排序值导致翻页顺序变化。`fetchSize` 不是页大小，`preRead=false` 也不会自动把查询改成分页。
+
+总数和取页是两次请求，并发写入可能使两次结果不一致。公共 API 见 [9.5 分页](../../guides/result/page_object.mdx)。

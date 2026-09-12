@@ -31,9 +31,9 @@ The `/testdb` path selects the database and is also used as the default authenti
 
 Set options with `properties.setProperty("name", "value")`, or append `?name=value&other=value` to the URL (use `&` if a query string already exists). For the same key, URL values override `Properties`. The URL parser does not percent-decode values; put passwords, tokens and values containing `&` in `Properties`, and avoid logging credentials.
 
-See [Connection Parameters](./params.md) for names, defaults, units and restrictions. Only documented adapter parameters apply; they are not a pass-through for all vendor SDK options.
+See [Connection Parameters](params.md) for names, defaults, units and restrictions. Only documented adapter parameters apply; they are not a pass-through for all vendor SDK options.
 
-After connecting, see [JDBC Operations](../../features/mongo/jdbc.mdx) for command execution and result handling.
+After connecting, see [Data Reads and Writes](../../features/mongo/usage.mdx) for command execution and result handling.
 
 
 ## Username and Password

@@ -1,0 +1,39 @@
+---
+id: mapping
+sidebar_position: 5
+hide_table_of_contents: true
+title: Cross-Database Table Mapping
+---
+
+# Cross-Database Table Mapping
+
+Suppose the connection uses one database, while the required table is `appdb.sales.user_info`. Set both the database and schema on the entity:
+
+```java
+import net.hasor.dbvisitor.mapping.Table;
+import net.hasor.dbvisitor.mapping.Column;
+
+@Table(value = "user_info", catalog = "appdb", schema = "sales",
+        useDelimited = true)
+public class UserInfo {
+    @Column(primary = true)
+    private Integer id;
+    private String name;
+
+    // Getters and setters omitted
+}
+```
+
+```java
+UserInfo user = lambda.query(UserInfo.class)
+        .eq(UserInfo::getId, 1001)
+        .queryForObject();
+```
+
+The query accesses `[appdb].[sales].[user_info]`.
+
+:::caution[Note]
+If you set `catalog` but omit `schema`, dbVisitor uses `dbo`. For the example above, omitting `schema="sales"` would access the wrong table. Keep the explicit schema.
+:::
+
+For tables in the connected database, omit `catalog` and keep `schema`. See [Object Mapping](../../guides/core/mapping/type_mapping.md) for common mapping options.

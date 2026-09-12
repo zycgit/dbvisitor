@@ -12,4 +12,4 @@ title: 使用限制
 
 Redis Cluster 连接不能通过 `database` 切换到非零数据库。默认客户端不启用 TLS；如需设置，使用 `customJedis` 自定义客户端。
 
-命令语法与返回值约定见[命令参考](../../features/redis/commands.md)。
+命令语法与返回值约定见[命令参考](../../features/redis/syntax/index.md)。

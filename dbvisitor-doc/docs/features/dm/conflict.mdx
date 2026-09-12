@@ -1,0 +1,58 @@
+---
+id: conflict
+sidebar_position: 3
+title: 插入冲突
+description: 达梦插入冲突的处理方式、dbVisitor 用法和注意事项。
+---
+
+# 插入冲突
+
+冲突处理用于决定插入数据与已有主键重复时应当报错、忽略还是更新，常见于任务重放、数据同步、重复导入和“存在则更新”场景。它属于 INSERT 的执行策略，不等同于单独执行普通 UPDATE。
+
+## 处理方式
+
+| 策略 | 达梦语句 | 结果 |
+|------|----------|------|
+| Into | `INSERT INTO ... VALUES (...)` | 冲突时由数据库报错 |
+| Ignore | `INSERT /*+ IGNORE_ROW_ON_DUPKEY_INDEX(...) */ INTO ...` | 跳过指定唯一约束上的重复行 |
+| Update | `MERGE ... WHEN MATCHED THEN UPDATE ... WHEN NOT MATCHED THEN INSERT` | 已匹配记录更新，未匹配记录插入 |
+
+Ignore 使用主键映射生成 Hint；Update 使用主键列构造 `MERGE` 匹配条件。
+
+## 如何使用
+
+假设 `UserInfo` 映射到下表，`id` 配置为实体主键。表中已经有一条 Alice：
+
+```sql
+CREATE TABLE user_info (
+    id INTEGER NOT NULL PRIMARY KEY,
+    name VARCHAR(64),
+    age INTEGER
+);
+INSERT INTO user_info (id, name, age) VALUES (1001, 'Alice', 18);
+```
+
+再次提交相同 ID，但将名字改为 Bob：
+
+```java
+UserInfo user = new UserInfo();
+user.setId(1001);
+user.setName("Bob");
+user.setAge(20);
+
+int rows = lambda.insert(UserInfo.class)
+        .onDuplicateStrategy(DuplicateKeyStrategy.Ignore)
+        .applyEntity(user)
+        .executeSumResult();
+```
+
+使用 `Ignore` 时，Alice 保持不变，不会插入 Bob。改为 `Update` 后，1001 这条记录变为 Bob、20 岁。
+
+将策略改为 `Update` 可在匹配时更新非主键列；省略配置或使用 `Into` 则执行普通 INSERT。通用 API 说明见[新增操作](../../guides/core/lambda/insert.md#conflict)。
+
+## 注意事项
+
+- Ignore 必须有主键映射，且映射列应对应数据库中的唯一约束。
+- Update 必须有主键映射，并至少提供一个可更新的非主键列。
+- Ignore 只处理指定约束上的重复键，不会忽略其他写入错误。
+- 返回值是数据库更新计数，不是生成主键数量。

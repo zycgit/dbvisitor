@@ -18,8 +18,6 @@ Vector Query finds similar records by vector distance on data sources that suppo
 
 ## Not Suitable For
 
-- The data source or dialect does not support vector SQL; calls fail with `Vector not supported by this dialect.`.
-- dbVisitor is expected to create vector indexes, tune index parameters, or generate embeddings; those belong to the database or model layer.
 - Complex hybrid ranking requires full SQL control; use [JdbcTemplate](../jdbc/about).
 
 ## Query Styles
@@ -65,7 +63,7 @@ Vector fields are commonly represented as `List<Float>` in Java and converted to
 | SQL position | `ORDER BY` | `WHERE` |
 | Typical question | Find the N most similar records | Find all records under a distance threshold |
 | Result count | Usually fixed with `initPage` | Depends on threshold and data distribution |
-| Vector argument | Database-recognizable type, such as `PGobject` | Converted by mapping TypeHandler, such as `List<Float>` |
+| Vector argument | Converted by the field mapping TypeHandler | Converted by the field mapping TypeHandler |
 | Condition composition | Sorts after ordinary WHERE predicates | Is itself a WHERE predicate |
 
 ## Database Support

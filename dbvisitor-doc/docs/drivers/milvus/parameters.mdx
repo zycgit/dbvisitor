@@ -1,0 +1,55 @@
+---
+id: parameters
+sidebar_position: 4
+title: 参数绑定
+---
+
+使用 `PreparedStatement` 为 `?` 绑定值，参数序号从 1 开始。表名和字段名直接写在命令中。
+
+## 标量参数 {#scalar-types}
+
+整数使用 `setByte / setShort / setInt / setLong`，浮点数使用 `setFloat / setDouble`，布尔值使用 `setBoolean`，字符串使用 `setString`；也可以使用 `setObject` 传入对应的 Java 值。
+
+向可空字段写入空值时使用 `setNull`。字符串直接传入原文，不需要自行添加引号或转义。
+
+:::info[说明]
+`BigInteger` 的值须在 INT64 范围内；`BigDecimal` 写入 DOUBLE 时可能丢失精度。
+:::
+
+## 向量与数组参数 {#typed-values}
+
+使用 `setObject` 绑定，输入格式由目标字段类型决定。
+
+| 字段类型 | 可传入的 Java 值 |
+| --- | --- |
+| `FLOAT_VECTOR(n)` | 数值 List 或数值基本类型数组。 |
+| `BINARY_VECTOR(n)` | `byte[]`、`ByteBuffer` 或字节值 List（-128～255）。 |
+| `INT8_VECTOR(n)` | `byte[]`、`ByteBuffer`、数值 List 或数值基本类型数组；每个元素须为 -128～127 的整数。 |
+| `FLOAT16_VECTOR(n)` | 数值 List 或数值基本类型数组；已编码数据使用 `byte[]` 或 `ByteBuffer`。 |
+| `BFLOAT16_VECTOR(n)` | 数值 List 或数值基本类型数组；已编码数据使用 `byte[]` 或 `ByteBuffer`。 |
+| `SPARSE_FLOAT_VECTOR` | 非空 Map，键为非负整数维度索引，值为有限浮点权重。 |
+| `ARRAY<BOOL>(capacity)` | `boolean[]`、Boolean List 或 `java.sql.Array`。 |
+| `ARRAY<INT32>(capacity)` | `int[]`、Integer List 或 `java.sql.Array`。 |
+| `ARRAY<VARCHAR(length)>(capacity)` | `String[]`、String List 或 `java.sql.Array`。 |
+
+数值基本类型数组包括 `byte[] / short[] / int[] / long[] / float[] / double[]`。其他 ARRAY 元素类型按同样方式绑定，元素须符合字段定义，不能为 null。
+
+:::info[编码字节]
+FLOAT16_VECTOR、BFLOAT16_VECTOR 的 `byte[]` 是小端编码数据，每维占两个字节，不是逐维数值。传入 `float[]` 时由驱动完成编码。`ByteBuffer` 只读取 position 到 limit 之间的数据，不改变其位置。
+:::
+
+## 绑定示例
+
+以下片段使用已打开的 `conn`，假定 `items` 已有 `id INT64`、`tags ARRAY<VARCHAR(30)>(8)` 和 `embedding FLOAT_VECTOR(2)` 字段。
+
+```java
+String sql = "INSERT INTO items (id, tags, embedding) VALUES (?, ?, ?)";
+try (PreparedStatement ps = conn.prepareStatement(sql)) {
+    ps.setLong(1, 1L);
+    ps.setObject(2, new String[] {"java", "milvus"});
+    ps.setObject(3, new float[] {0.1F, 0.2F});
+    ps.executeUpdate();
+}
+```
+
+查询中的向量参数也使用 `setObject`，示例见[执行命令](execution.mdx)。多行输入的绑定格式见 [INSERT](../../features/milvus/write/insert.md#generated-keys)。

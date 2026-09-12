@@ -8,24 +8,36 @@ description: Oracle dialect capabilities, primary key backfill, IDENTITY, sequen
 
 # Oracle
 
-Oracle can use all of dbVisitor's general capabilities including JDBC, Mapper, Lambda, BaseMapper, transactions, functions, procedures, and sequences.
+Oracle supports JdbcTemplate, annotation/XML Mapper, Lambda, BaseMapper, object mapping and JDBC transactions. Handwritten SQL retains Oracle semantics. Builders generate SQL through the Oracle dialect, but not every general interface applies.
+
+## API Support and Boundaries
+
+| Capability | Boundary |
+| --- | --- |
+| CRUD and pagination | Supported; builder pagination generates nested ROWNUM queries, with slicing performed by the database |
+| Entity and Map mapping | Supported; unquoted column names commonly return uppercase, so do not assume raw Map keys are lowercase |
+| Strings | Oracle treats empty character strings as NULL; empty strings and null need not round-trip distinctly |
+| Generated keys | Auto uses generated keys; Sequence with @KeySeq obtains the value before insertion |
+| Batch inserts | Lambda/BaseMapper use individual execution, including inserts without key backfill; this does not mean Oracle JDBC lacks batching |
+| Transactions | Supports commit and rollback; isolation levels and savepoint release depend on Oracle JDBC, so not every database transaction option is portable |
+| Arrays, cursors and specialized types | Use the corresponding Oracle JDBC registration, retrieval, and type-handling conventions |
 
 ## Quick Overview of Differences
 
 | Concern | Oracle Behavior |
 |--------|------------|
-| Primary Key Generation | `IDENTITY` (12c+) or sequence; recommend `selectKey` to get value before INSERT |
+| Primary Key Generation | `IDENTITY` (12c+) or sequence |
 | Pagination | `ROWNUM` nested query |
 | Write Conflicts | `MERGE INTO ... WHEN MATCHED ... WHEN NOT MATCHED ...` |
-| Batch Writes | Supported, but falls back to row-by-row when primary key backfill is needed |
+| Batch Writes | Lambda/BaseMapper inserts execute individually; native JDBC Batch is a separate call path |
 | Stored Procedures | Supported |
 | Sequences | Supports `seq.NEXTVAL` |
 
-## Primary Key Backfill
+## Key Generation
 
 Oracle 12c+ `IDENTITY` columns are backfilled via JDBC generated keys. **Critical configuration**: `keyColumn` must be explicitly specified, otherwise the Oracle JDBC driver only returns `ROWID` instead of the business primary key column.
 
-Recommended approach: for sequence scenarios, use `selectKey` to get the sequence value before INSERT, then pass it into the INSERT:
+Mapper files can use `selectKey` to obtain a sequence value before INSERT:
 
 ```xml
 <insert id="insertUser">
@@ -36,24 +48,18 @@ Recommended approach: for sequence scenarios, use `selectKey` to get the sequenc
 </insert>
 ```
 
-The current Oracle dialect does not implement `SeqSqlDialect`; do not use `KeyType.Sequence` + `@KeySeq` directly. Use `selectKey` above or read the sequence yourself.
-
-## RETURNING INTO
-
-Oracle's `RETURNING ... INTO` is an OUT parameter model, not equivalent to PostgreSQL `RETURNING`. **Do not** use `generatedKeySource="resultSet"` with Oracle `RETURNING INTO` in Mapper XML.
-
-## Write Conflict Strategies
-
-| Strategy | Oracle Implementation |
-|------|------------|
-| Ignore | `MERGE INTO ... WHEN NOT MATCHED THEN INSERT` (requires PK) |
-| Update | `MERGE INTO ... WHEN MATCHED THEN UPDATE ... WHEN NOT MATCHED THEN INSERT` (requires PK) |
+The Fluent API supports `KeyType.Sequence` + `@KeySeq` for automatic sequence assignment. See [Key Generation](./generated-keys.mdx).
 
 ## Special Topics
 
-- [Auto-generated Key Backfill](./generated-keys): Detailed configuration for `IDENTITY`, sequence, `keyColumn`, `selectKey`, and `RETURNING INTO`.
-- [Dialect Details](./dialect-details): Low-level implementation of ROWNUM pagination, MERGE syntax, and all-OneByOne strategy.
+- [Data Backfill](./backfill.mdx): return inserted, updated, or deleted field values with `RETURNING INTO`.
+- [Key Generation](./generated-keys): `IDENTITY`, sequences, `keyColumn`, and `selectKey`.
+- [Pagination](./pagination.mdx): Pagination principles, usage and notes.
+- [Multiple-Write Consistency](./write.mdx): handling partial failures with transactions.
+- [Insert Conflicts](./conflict.mdx): Conflict scenarios, strategies, usage and notes.
 
-## Relationship to General Documentation
+## Related Documentation
 
-For general API usage, see [Core API](../../guides/overview). The following content supplements specific differences and recommended practices for Oracle.
+For common usage, see [Core API](../../guides/overview).
+
+- [Type Support](./types.md): Java values, storage choices and readback boundaries.

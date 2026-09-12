@@ -1,0 +1,60 @@
+---
+id: generated-keys
+slug: /features/milvus/generated-keys
+sidebar_position: 3
+title: Key Generation
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Key Generation
+
+## Use a Generated ID
+
+Define AUTO_ID on the collection primary key, then omit that column on insert:
+
+```sql
+CREATE TABLE auto_books (
+    id INT64 PRIMARY KEY AUTO_ID,
+    title VARCHAR(256),
+    book_intro FLOAT_VECTOR(2)
+);
+```
+
+Provide a writable Long id property on AutoBook. The following Mapper definitions fill it after insertion:
+
+<Tabs>
+<TabItem value="annotation" label="Method Annotations" default>
+
+```java
+@Insert(value = "INSERT INTO auto_books (title, book_intro) VALUES (#{title}, #{bookIntro})",
+        useGeneratedKeys = true, keyProperty = "id")
+int insert(AutoBook item);
+```
+
+</TabItem>
+<TabItem value="xml" label="Mapper File">
+
+```xml
+<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO auto_books (title, book_intro) VALUES (#{title}, #{bookIntro})
+</insert>
+```
+
+</TabItem>
+</Tabs>
+
+After mapper.insert(item), read item.getId(). These examples pass one entity argument, not an argument wrapped in @Param.
+
+:::caution[Note]
+Do not specify keyColumn. The adapter supports RETURN_GENERATED_KEYS, but not the JDBC column-name overload used by Fluent API KeyType.Auto. Use the Mapper definitions above for generated keys; assign application keys explicitly when using the Fluent API.
+:::
+
+## Use an Assigned ID
+
+For a collection without AUTO_ID, supply the primary-key value on insert. INSERT is not a unique-key conflict check; to overwrite by primary key, use [UPSERT](../write/upsert.md#upsert).
+
+## Generate a UUID
+
+For a VARCHAR primary key with AutoID disabled, use KeyType.UUID32 or KeyType.UUID36 in the entity mapping. dbVisitor generates and assigns the value before INSERT. Reserve at least 32 or 36 characters in the field; see [Key Generators](../../../guides/core/mapping/key_generator.md).

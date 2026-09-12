@@ -9,6 +9,8 @@ dependency-reduced-pom.xml
 .gradle
 /.gradle/
 .deploy-venv/
+__pycache__/
+*.pyc
 
 # nodejs
 package-lock.json

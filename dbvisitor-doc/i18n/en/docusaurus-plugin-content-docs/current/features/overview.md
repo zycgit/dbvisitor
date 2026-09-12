@@ -8,7 +8,7 @@ description: Explains how dbVisitor handles types, dialects, primary key backfil
 
 # Data Sources
 
-`Database Access` focuses on dbVisitor's overall capabilities such as ORM, Mapper, Lambda, transactions, and TypeHandler. `JDBC Drivers` focuses on JDBC adapters and driver-layer behavior based on `dbvisitor-driver`.
+Choose a data source to learn which dbVisitor APIs are available, what database operations they perform, and how types, keys, pagination and writes differ. Database-specific capabilities are also described here, including whether to access them through native commands or vendor clients.
 
 This section focuses on the usage patterns and differences for specific data sources, including:
 
@@ -27,7 +27,7 @@ This section focuses on the usage patterns and differences for specific data sou
 - [SQL Server](./mssql/about): `OUTPUT INSERTED`, `MERGE`, `ROW_NUMBER` pagination, `ORDER BY` deduplication
 - [DB2](./db2/about): `IDENTITY`, sequence, batch generated keys limitation, `MERGE` conflict strategy
 - [Dameng](./dm/about): Auto-increment columns, `IGNORE_ROW_ON_DUPKEY_INDEX`, `MERGE`, sequences
-- [H2](./h2/about): `IDENTITY`, sequence, `MERGE`, recommended for testing
+- [H2](./h2/about): `IDENTITY`, sequence, `MERGE`, Java aliases
 - [ClickHouse](./clickhouse/about): Application-side ID generation, JDBC batch, analytical write model
 
 ## Non-Relational Databases
@@ -35,7 +35,7 @@ This section focuses on the usage patterns and differences for specific data sou
 - [Redis](./redis/about): Three modes — JdbcTemplate + Annotations + Mapper File; String/Hash/List/Set/Sorted Set operations
 - [MongoDB](./mongo/about): Five modes — JdbcTemplate + Builder + BaseMapper + Annotations + Mapper File; `_id` backfill
 - [ElasticSearch](./elastic/about): JdbcTemplate + Builder + BaseMapper + Annotations + Mapper File; DSL style
-- [Milvus](./milvus/about): SQL-style syntax; KNN nearest neighbor search + range search; `LOAD TABLE` prerequisite
+- [Milvus](./milvus/about): SQL syntax, KNN/range/Hybrid search, Partial Update, schema functions and Import
 
 ## Data Source Support Matrix
 

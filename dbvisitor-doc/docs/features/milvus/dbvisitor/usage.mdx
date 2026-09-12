@@ -1,0 +1,205 @@
+---
+id: usage
+slug: /features/milvus/usage
+sidebar_position: 4
+title: 数据读写
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# 数据读写
+
+dbVisitor 执行的是 JDBC-Milvus 支持的 SQL 命令。构造器 API 和 Mapper 都可使用，但不会为 Milvus 增加 JOIN、事务等关系型能力。 连接配置见 [JDBC Milvus](../../../drivers/milvus/connection.mdx).
+
+## 先准备并加载集合
+
+运行读写示例前，在空环境创建集合及索引：
+
+```sql
+CREATE TABLE book_vectors (
+    book_id INT64 PRIMARY KEY,
+    title VARCHAR(256),
+    word_count INT32,
+    book_intro FLOAT_VECTOR(2)
+) WITH (consistency_level='Strong');
+CREATE INDEX idx_intro ON book_vectors (book_intro)
+USING "AUTOINDEX" WITH (metric_type="L2");
+LOAD TABLE book_vectors;
+```
+
+查询前需要加载集合。这里设置 Strong，便于写入后查询；使用迭代查询时，应在集合上配置该级别，不能只依赖连接参数。
+
+## 实体映射
+
+FLOAT_VECTOR 字段可直接使用 `List<Float>`，列表长度须与字段维度一致。其它向量类型见[类型支持](types.md)。
+
+```java
+@Table("book_vectors")
+public class BookVector {
+    @Column(value = "book_id", primary = true)
+    private Long bookId;
+    private String title;
+    @Column("word_count")
+    private Integer wordCount;
+    @Column("book_intro")
+    private List<Float> bookIntro;
+    // 省略 getter 和 setter
+}
+```
+
+主键由应用赋值或由集合 AutoID 生成，见[主键生成](generated-keys.mdx)。多条写入不是事务，失败前成功的页面不会回滚。
+
+## 执行命令 {#exec-command}
+
+使用对应数据源创建 JdbcTemplate：
+
+```java
+JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+
+jdbc.executeUpdate(
+        "INSERT INTO book_vectors (book_id, title, word_count, book_intro) VALUES (?, ?, ?, ?)",
+        new Object[] { 1001L, "mali", 100, List.of(0.1f, 0.2f) });
+
+List<BookVector> rows = jdbc.queryForList(
+        "SELECT * FROM book_vectors WHERE book_id = ?",
+        new Object[] { 1001L }, BookVector.class);
+
+jdbc.executeUpdate(
+        "UPDATE book_vectors SET title = ? WHERE book_id = ?",
+        new Object[] { "new title", 1001L });
+
+jdbc.executeUpdate(
+        "DELETE FROM book_vectors WHERE book_id = ?",
+        new Object[] { 1001L });
+```
+
+## 不同 API 如何查询
+
+<Tabs>
+<TabItem value="fluent" label="构造器 API" default>
+
+```java
+LambdaTemplate lambda = new LambdaTemplate(dataSource);
+BookVector item = lambda.query(BookVector.class)
+        .eq(BookVector::getBookId, 1001L)
+        .queryForObject();
+```
+
+构造器操作对应以下数据库动作：
+
+| 操作 | 数据库动作 |
+| --- | --- |
+| 查询 | 原生 Query；向量搜索使用 Search |
+| 修改指定属性 | 分页选取主键，再用 Partial Upsert 提交修改字段 |
+| 删除匹配记录 | 标量无 LIMIT 使用原生 Delete；需选取记录时分页删除 |
+
+BaseMapper 的 CRUD 复用相同操作。
+
+</TabItem>
+<TabItem value="annotation" label="方法注解">
+
+```java
+@SimpleMapper
+public interface BookVectorMapper {
+    @Query("SELECT * FROM book_vectors WHERE book_id = #{id}")
+    BookVector findById(@Param("id") Long id);
+}
+```
+
+```java
+Session session = new Configuration().newSession(dataSource);
+BookVectorMapper mapper = session.createMapper(BookVectorMapper.class);
+BookVector item = mapper.findById(1001L);
+```
+
+</TabItem>
+<TabItem value="xml" label="Mapper 文件">
+
+```xml
+<mapper namespace="com.example.BookVectorMapper">
+    <select id="findById" resultType="com.example.BookVector">
+        SELECT * FROM book_vectors WHERE book_id = #{id}
+    </select>
+</mapper>
+```
+
+```java
+@RefMapper("/mapper/milvus-user.xml")
+public interface BookVectorMapper {
+    BookVector findById(@Param("id") Long id);
+}
+```
+
+XML 保存到 @RefMapper 指定的资源路径；示例类位于 com.example 包。通过 Session 创建 Mapper，方式与方法注解相同。
+
+</TabItem>
+</Tabs>
+
+## 向量查询 {#vector-query}
+
+### 加载集合并匹配度量
+
+搜索前创建索引并执行 LOAD TABLE。查询度量必须与索引的 metric_type 一致，不能直接用 L2 索引执行 COSINE 查询。
+
+```java
+LambdaTemplate lambda = new LambdaTemplate(dataSource);
+List<Float> target = List.of(0.1f, 0.2f);
+List<BookVector> rows = lambda.query(BookVector.class)
+        .gt(BookVector::getWordCount, 500)
+        .orderByL2(BookVector::getBookIntro, target)
+        .initPage(5, 0)
+        .queryForList();
+```
+
+这会执行带标量过滤的 Search 请求，取最近的 5 个候选。一次 ORDER BY 只接收一个查询向量，不接收多个查询向量组成的列表。
+
+### 余弦与内积阈值
+
+Milvus 的 COSINE、IP 返回相似度分数，越大越相似。要求分数大于 0.8 时使用 >，不是负数阈值，也不是 1 - 0.8：
+
+```java
+List<BookVector> rows = jdbc.queryForList(
+        "SELECT * FROM book_vectors WHERE book_intro <=> ? > ? LIMIT 10",
+        new Object[] { target, 0.8 }, BookVector.class);
+```
+
+此例需要 COSINE 索引；IP 使用 `<#>` 和 IP 索引。构造器范围方法目前生成 `<`，因此 COSINE/IP 范围使用上述参数化命令；vectorByL2 的距离小于阈值语义则可直接使用。
+
+一个向量范围可通过 AND 组合标量条件，不与 OR、NOT、另一个向量范围或向量 ORDER BY 同用。
+
+### 多路向量检索
+
+标量过滤加单路向量检索不是多路融合。需要合并多路候选时，使用 HYBRID 命令选择各检索路径和重排方式：
+
+- [HYBRID 与重排](../query/hybrid.md)
+- [BM25 与函数](../ddl/functions.md)
+- [搜索限制与返回列](../query/select.md)
+
+公共构造器 API 用法见[向量查询](../../../guides/core/vector_query/about.md)。
+
+## 多条修改中途失败
+
+无 LIMIT 的 UPDATE 不会只修改固定数量的记录，但需要分页执行。遇到失败时，已经写入的页面不会回滚；错误会携带已确认进度。处理方式和重试范围见[UPDATE 与 DELETE](../write/update.md)。
+
+返回列的读取见[结果读取](../../../drivers/milvus/results.md)。多条命令不等于 JDBC batch，也不会自动构成事务。
+
+## Map 读写
+
+| 入口 | Map 键的含义 |
+| --- | --- |
+| 实体映射的 asMap() | Java 属性名 |
+| insertFreedom / queryFreedom | Milvus 字段名 |
+| BaseMapper 的 Map 方法 | 已注册实体的属性名 |
+
+updateByMap 忽略 NULL 和未提供的属性。replaceByMap 替换所有可更新的映射属性，未提供的值可能被写为 NULL；须提供要保留的值，并确保被清空字段允许 NULL。
+
+BaseMapper 的 upsertByMap 先查询再插入或替换，不等同于 SQL UPSERT，也不是原子操作。JdbcTemplate.executeBatch 在该驱动上逐条执行，不使用 JDBC Batch。
+
+## 构造器写入差异
+
+onDuplicateStrategy(Update) 使用部分 Upsert，提交数据必须带主键。新主键插入，已有主键只修改本次提供的字段；不支持 Ignore。
+
+构造器默认拒绝无条件 UPDATE/DELETE，只有显式调用 allowEmptyWhere() 才放行；直接执行 SQL 没有这一保护。Milvus 2.6.2 组合条件时不要附加 WHERE 1=1，使用条件分支控制是否加入条件。参数化 LIKE、NOT 的限制见[运算符](../basics/operators.md)。
+
+Session、Mapper 的建立方式见核心 [Mapper API](../../../guides/core/mapper/about.md)，向量条件的 Milvus 特有行为见上文。

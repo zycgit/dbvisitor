@@ -1,0 +1,55 @@
+---
+id: parameters
+sidebar_position: 4
+title: Parameter Binding
+---
+
+Use `PreparedStatement` to bind values to `?`. Parameter indexes start at 1. Write collection and field names directly in the command.
+
+## Scalar Parameters {#scalar-types}
+
+Use `setByte / setShort / setInt / setLong` for integers, `setFloat / setDouble` for floating-point values, `setBoolean` for booleans, and `setString` for strings. You can also pass the corresponding Java value with `setObject`.
+
+Use `setNull` to write null to a nullable field. Pass strings as-is, without adding quotes or escaping them yourself.
+
+:::info[Note]
+`BigInteger` values must fit in INT64. Writing `BigDecimal` to DOUBLE may lose precision.
+:::
+
+## Vector and Array Parameters {#typed-values}
+
+Bind these values with `setObject`. The target field type determines the input format.
+
+| Field type | Accepted Java values |
+| --- | --- |
+| `FLOAT_VECTOR(n)` | Numeric List or numeric primitive array. |
+| `BINARY_VECTOR(n)` | `byte[]`, `ByteBuffer`, or a List of byte values (-128 to 255). |
+| `INT8_VECTOR(n)` | `byte[]`, `ByteBuffer`, numeric List, or numeric primitive array; each element must be an integer from -128 to 127. |
+| `FLOAT16_VECTOR(n)` | Numeric List or numeric primitive array; use `byte[]` or `ByteBuffer` for encoded data. |
+| `BFLOAT16_VECTOR(n)` | Numeric List or numeric primitive array; use `byte[]` or `ByteBuffer` for encoded data. |
+| `SPARSE_FLOAT_VECTOR` | Nonempty Map with nonnegative integer dimension indexes as keys and finite floating-point weights as values. |
+| `ARRAY<BOOL>(capacity)` | `boolean[]`, Boolean List, or `java.sql.Array`. |
+| `ARRAY<INT32>(capacity)` | `int[]`, Integer List, or `java.sql.Array`. |
+| `ARRAY<VARCHAR(length)>(capacity)` | `String[]`, String List, or `java.sql.Array`. |
+
+Numeric primitive arrays are `byte[] / short[] / int[] / long[] / float[] / double[]`. Bind other ARRAY element types in the same way. Elements must match the field definition and cannot be null.
+
+:::info[Encoded Bytes]
+For FLOAT16_VECTOR and BFLOAT16_VECTOR, `byte[]` contains little-endian encoded data, with two bytes per dimension, not individual numeric values. The driver encodes `float[]` inputs for you. A `ByteBuffer` is read from position to limit without changing its position.
+:::
+
+## Binding Example
+
+This fragment uses an open `conn` and assumes that `items` has fields `id INT64`, `tags ARRAY<VARCHAR(30)>(8)`, and `embedding FLOAT_VECTOR(2)`.
+
+```java
+String sql = "INSERT INTO items (id, tags, embedding) VALUES (?, ?, ?)";
+try (PreparedStatement ps = conn.prepareStatement(sql)) {
+    ps.setLong(1, 1L);
+    ps.setObject(2, new String[] {"java", "milvus"});
+    ps.setObject(3, new float[] {0.1F, 0.2F});
+    ps.executeUpdate();
+}
+```
+
+Vector parameters in queries also use `setObject`; see [Executing Commands](execution.mdx). For multi-row input formats, see [INSERT](../../features/milvus/write/insert.md#generated-keys).

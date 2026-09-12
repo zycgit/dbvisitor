@@ -1,0 +1,60 @@
+---
+id: generated-keys
+slug: /features/milvus/generated-keys
+sidebar_position: 3
+title: 主键生成
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# 主键生成
+
+## 使用自动生成 ID
+
+集合主键声明 AUTO_ID 后，插入时省略该字段：
+
+```sql
+CREATE TABLE auto_books (
+    id INT64 PRIMARY KEY AUTO_ID,
+    title VARCHAR(256),
+    book_intro FLOAT_VECTOR(2)
+);
+```
+
+AutoBook 提供可写的 Long id 属性，下面的 Mapper 配置会在插入后回填该属性：
+
+<Tabs>
+<TabItem value="annotation" label="方法注解" default>
+
+```java
+@Insert(value = "INSERT INTO auto_books (title, book_intro) VALUES (#{title}, #{bookIntro})",
+        useGeneratedKeys = true, keyProperty = "id")
+int insert(AutoBook item);
+```
+
+</TabItem>
+<TabItem value="xml" label="Mapper 文件">
+
+```xml
+<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO auto_books (title, book_intro) VALUES (#{title}, #{bookIntro})
+</insert>
+```
+
+</TabItem>
+</Tabs>
+
+调用 mapper.insert(item) 后，通过 item.getId() 读取主键。这里使用单个实体参数，不额外加 @Param 包装。
+
+:::caution[注意]
+不要指定 keyColumn。适配器支持 RETURN_GENERATED_KEYS，但不支持构造器 KeyType.Auto 使用的列名式 JDBC 重载。自动回填使用上面的 Mapper 配置；使用构造器时由应用赋主键。
+:::
+
+## 使用已有 ID
+
+未启用 AUTO_ID 的集合，插入时提供主键值。INSERT 不是唯一键冲突检查；需要按主键覆盖时，使用 [UPSERT](../write/upsert.md#upsert)。
+
+## 使用 UUID
+
+集合采用 VARCHAR 主键且关闭 AutoID 时，可在实体映射中使用 KeyType.UUID32 或 KeyType.UUID36。dbVisitor 在 INSERT 前生成并赋值，字段长度分别至少预留 32 或 36 个字符。配置见[主键生成器](../../../guides/core/mapping/key_generator.md)。

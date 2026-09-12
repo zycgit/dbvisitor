@@ -1,83 +1,36 @@
 ---
 id: jdbc
-sidebar_position: 2
-title: JDBC Operations
+sidebar_position: 6
+title: Result Reading
 ---
 
-Install and configure the [independent JDBC driver](../../drivers/elastic/connection.mdx) first. These examples use JDBC directly and do not require dbVisitor's upper-level APIs. Unless the example opens its own connection, `conn` denotes an open JDBC connection owned and closed by the application.
+# Result Reading
 
-## Code Examples
+Document queries expose the original document in _DOC. With the default preRead=true, fields are also expanded for entity mapping.
 
-### 1) Create index and mapping (DDL)
-```java
-try (Statement stmt = conn.createStatement()) {
-    stmt.execute("PUT /my_index");
-    stmt.execute("PUT /my_index/_mapping { \"properties\": { \"title\": { \"type\": \"text\" } } }");
-}
-```
+## Read a Field by Name {#pre-read}
 
-### 2) Insert document (DML)
-```java
-try (Statement stmt = conn.createStatement()) {
-    stmt.executeUpdate("POST /my_index/_doc/1 { \"user\": \"kimchy\", \"message\": \"hello\" }");
-}
-```
-
-### 3) Search with `PreparedStatement` (DQL)
-```java
-String dsl = "POST /my_index/_search { \"query\": { \"term\": { \"user\": ? } } }";
-try (PreparedStatement pstmt = conn.prepareStatement(dsl)) {
-    pstmt.setString(1, "kimchy");
-    try (ResultSet rs = pstmt.executeQuery()) {
-        while (rs.next()) {
-            rs.getString("_ID");
-            rs.getString("_DOC");
-        }
-    }
-}
-```
-
-### 4) Path placeholder `{?}`
-```java
-try (PreparedStatement pstmt = conn.prepareStatement("GET /my_index/_doc/{?}")) {
-    pstmt.setString(1, "1");
-    pstmt.executeQuery();
-}
-```
-
-### 5) `_cat` nodes
-```java
-try (Statement stmt = conn.createStatement()) {
-    stmt.executeQuery("GET /_cat/nodes");
-}
-```
-
-## Multiple Commands and JDBC Results
+The first column is _ID, not the first business field. When reading one value, specify its column name instead of relying on column order:
 
 ```java
-try (Statement stmt = conn.createStatement()) {
-    boolean hasResult = stmt.execute("GET /my_index/_count; HEAD /my_index");
-    while (true) {
-        if (hasResult) {
-            try (ResultSet rs = stmt.getResultSet()) {
-                while (rs.next()) {
-                    System.out.println(rs.getObject(1));
-                }
-            }
-        } else {
-            long count = stmt.getLargeUpdateCount();
-            if (count == -1) {
-                break;
-            }
-            System.out.println("updated=" + count);
-        }
-        hasResult = stmt.getMoreResults(Statement.CLOSE_CURRENT_RESULT);
-    }
-}
+List<String> names = jdbc.queryForList(
+        "POST /user_info/_search {\"query\":{\"term\":{\"uid\": ?}}}",
+        new Object[] { "1001" },
+        (rs, rowNum) -> rs.getString("name"));
 ```
 
-Use executeQuery for reads and executeUpdate or execute for writes. Semicolon-separated commands are consumed through execute/getMoreResults, not JDBC batch or a transaction. Hints go before the command; see [Command Reference](./commands.md) for all hints and limitations.
+With preRead=false, read the original document instead of expecting expanded columns:
 
-## Pre-Read and Result Columns {#pre-read}
+```java
+List<String> documents = jdbc.queryForList(
+        "POST /user_info/_search {\"size\":10,\"query\":{\"match_all\":{}}}",
+        (rs, rowNum) -> rs.getString("_DOC"));
+```
 
-`preRead=true` reads ahead and expands document fields while retaining `_ID`/`_DOC`. With pre-read disabled, use the dedicated raw-document columns rather than assuming expanded fields exist. preReadThreshold/preReadMaxFileSize support B/KB/MB/GB and default to MB without a unit; the cache directory defaults to java.io.tmpdir. Pre-read may increase memory, disk use and time to first row; it is not a server-side pagination limit.
+Nested objects and arrays remain JSON strings. Configure JSON mapping when the entity uses structured Java properties.
+
+## Limit the Returned Data
+
+The driver reads only this REST response. Set size or use [Pagination](./pagination.mdx); queryForList does not automatically fetch all search pages.
+
+For JSON-to-object mapping, see [JSON Field Mapping](../../guides/core/mapping/json-field.md).

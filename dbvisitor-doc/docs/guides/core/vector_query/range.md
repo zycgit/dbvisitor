@@ -7,7 +7,7 @@ description: 使用 vectorByL2、vectorByCosine、vectorByIP 等方法按向量�
 
 # 距离范围过滤
 
-距离范围过滤用于按距离阈值筛选记录。下面的完整范围查询示例以 PostgreSQL pgvector 为背景；Milvus 范围搜索由 ANN 搜索实现，不能据此承诺穷尽全部实体，且不同度量的阈值方向和组合限制不同，参阅 [Milvus 向量查询](../../../features/milvus/usage#vector-search)。dbVisitor 使用 `vectorBy*` 生成向量距离条件，该条件位于 SQL 的 `WHERE` 部分。
+距离范围过滤用于按距离阈值筛选记录。下面的完整范围查询示例以 PostgreSQL pgvector 为背景；Milvus 范围搜索由 ANN 搜索实现，不能据此承诺穷尽全部实体，且不同度量的阈值方向和组合限制不同，参阅 [Milvus 向量查询](../../../features/milvus/dbvisitor/usage.mdx#vector-query)。dbVisitor 使用 `vectorBy*` 生成向量距离条件，该条件位于 SQL 的 `WHERE` 部分。
 
 ## 适合场景
 
@@ -17,7 +17,7 @@ description: 使用 vectorByL2、vectorByCosine、vectorByIP 等方法按向量�
 
 ## 不适合场景
 
-- 需要固定返回最相似的 N 条记录；应使用 [KNN 近邻排序](./knn)。
+- 需要固定返回最相似的 N 条记录；应使用 [KNN 近邻排序](knn)。
 - 阈值难以确定，只希望拿到排序后的候选集。
 - 数据源不支持向量范围过滤 SQL。
 
@@ -95,6 +95,6 @@ List<ProductVector> rows = lambda.query(ProductVector.class)
 
 ## 深入阅读
 
-- [向量类型映射](./mapping) — TypeHandler 和查询参数准备。
-- [KNN 近邻排序](./knn) — 返回固定数量的近邻结果。
-- [组合查询](./combined) — 普通条件与向量范围过滤组合。
+- [向量类型映射](mapping) — TypeHandler 和查询参数准备。
+- [KNN 近邻排序](knn) — 返回固定数量的近邻结果。
+- [组合查询](combined) — 普通条件与向量范围过滤组合。

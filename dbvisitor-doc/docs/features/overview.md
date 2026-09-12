@@ -8,7 +8,7 @@ description: 按具体数据源说明 dbVisitor 在类型、方言、主键回�
 
 # 数据源
 
-**核心API** 侧重介绍 dbVisitor 的 ORM、Mapper、Lambda、事务、TypeHandler 等整体能力；**JDBC 驱动** 侧重介绍基于 **dbvisitor-driver** 的 JDBC 适配器和驱动层行为。
+选择数据源后，可以在这里了解哪些 dbVisitor API 可用、相同调用最终执行什么数据库操作，以及类型、主键、分页和写入行为的差异。数据库专有能力也按数据源介绍，并说明通过原生命令还是厂商客户端使用。
 
 本栏目专注于某个具体数据源下的使用方式和差异，包括：
 
@@ -27,7 +27,7 @@ description: 按具体数据源说明 dbVisitor 在类型、方言、主键回�
 - [SQL Server](./mssql/about)：`OUTPUT INSERTED`、`MERGE`、`ROW_NUMBER()` 分页、`ORDER BY` 去重
 - [DB2](./db2/about)：`IDENTITY`、sequence、batch generated keys 限制、`MERGE` 冲突策略
 - [达梦](./dm/about)：自增列、`IGNORE_ROW_ON_DUPKEY_INDEX`、`MERGE`、序列
-- [H2](./h2/about)：`IDENTITY`、sequence、`MERGE`、测试场景推荐
+- [H2](./h2/about)：`IDENTITY`、sequence、`MERGE`、Java Alias
 - [ClickHouse](./clickhouse/about)：应用侧生成 ID、JDBC batch、分析型写入模型
 
 ## 非关系型数据库
@@ -35,7 +35,7 @@ description: 按具体数据源说明 dbVisitor 在类型、方言、主键回�
 - [Redis](./redis/about)：JdbcTemplate + 注解 + Mapper File 三种方式；String/Hash/List/Set/Sorted Set 操作
 - [MongoDB](./mongo/about)：JdbcTemplate + 构造器 + BaseMapper + 注解 + Mapper File 五种方式；`_id` 回填
 - [ElasticSearch](./elastic/about)：JdbcTemplate + 构造器 + BaseMapper + 注解 + Mapper File；DSL 风格
-- [Milvus](./milvus/about)：SQL 风格语法；KNN 近邻搜索 + 范围搜索；`LOAD TABLE` 前置步骤
+- [Milvus](./milvus/about)：SQL 语法、KNN/范围/Hybrid 搜索、Partial Update、schema 函数与 Import
 
 ## 数据源支持矩阵
 
@@ -43,7 +43,7 @@ description: 按具体数据源说明 dbVisitor 在类型、方言、主键回�
 
 ## 阅读建议
 
-如果你想学习 dbVisitor 的通用能力，请先阅读 [核心API](../guides/overview)。如果你关注 MongoDB、Redis、Elasticsearch、Milvus 等 JDBC JDBC 驱动本身，请阅读 [JDBC 驱动](../drivers/about)。
+如果你想学习 dbVisitor 的通用能力，请先阅读 [核心API](../guides/overview)。如果你关注 MongoDB、Redis、Elasticsearch、Milvus 等 JDBC 驱动本身，请阅读 [JDBC 驱动](../drivers/about)。
 
 当某个数据库和通用文档行为不完全一致时，以本栏目中的数据源说明为准。
 

@@ -1,0 +1,58 @@
+---
+id: conflict
+sidebar_position: 3
+title: Insert Conflicts
+description: PostgreSQL insert-conflict strategies, dbVisitor usage, and limitations.
+---
+
+# Insert Conflicts
+
+Conflict handling decides whether an INSERT encountering a primary-key or unique-constraint conflict should fail, be ignored, or update the existing row. Typical scenarios include replayed jobs, data synchronization, repeated imports, and insert-or-update operations. PostgreSQL performs detection and writing in one statement; a preliminary query is unnecessary.
+
+## Strategies
+
+| Strategy | PostgreSQL statement | Result |
+|----------|----------------------|--------|
+| Into | `INSERT INTO ... VALUES (...)` | The database reports a conflict |
+| Ignore | `INSERT ... ON CONFLICT DO NOTHING` | Do not insert when a handled uniqueness conflict occurs |
+| Update | `INSERT ... ON CONFLICT (primary-key columns) DO UPDATE SET ...` | Update non-primary-key columns on a primary-key conflict |
+
+Ignore does not specify a conflict target. Update uses mapped primary-key columns as the conflict target.
+
+## Usage
+
+Assume `UserInfo` maps to this table, with `id` marked as the entity primary key. Alice already exists:
+
+```sql
+CREATE TABLE user_info (
+    id INTEGER NOT NULL PRIMARY KEY,
+    name VARCHAR(64),
+    age INTEGER
+);
+INSERT INTO user_info (id, name, age) VALUES (1001, 'Alice', 18);
+```
+
+Submit the same ID with a new name:
+
+```java
+UserInfo user = new UserInfo();
+user.setId(1001);
+user.setName("Bob");
+user.setAge(20);
+
+int rows = lambda.insert(UserInfo.class)
+        .onDuplicateStrategy(DuplicateKeyStrategy.Update)
+        .applyEntity(user)
+        .executeSumResult();
+```
+
+With `Update`, row 1001 becomes Bob, age 20. With `Ignore`, Alice remains unchanged. Default `Into` reports the duplicate key.
+
+Use `Ignore` to skip a conflicting row. Omitting the strategy or selecting `Into` produces a regular INSERT. To use another unique key, a condition, or a custom update expression, write complete `ON CONFLICT` SQL with Mapper or JdbcTemplate. See [Insert Operations](../../guides/core/lambda/insert.md#conflict) for the common API.
+
+## Notes
+
+- Update requires an entity primary-key mapping and at least one updatable non-primary-key column.
+- Mapped primary-key columns must correspond to a valid PostgreSQL uniqueness constraint usable by `ON CONFLICT`.
+- dbVisitor does not infer another business unique key or choose a conditional update rule.
+- Ignore returns 0 when the row is not inserted. Update counts do not distinguish insertion from update.

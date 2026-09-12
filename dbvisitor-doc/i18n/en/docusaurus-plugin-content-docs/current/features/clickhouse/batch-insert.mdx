@@ -1,0 +1,31 @@
+---
+id: batch-insert
+sidebar_position: 5
+hide_table_of_contents: true
+title: Batch Inserts
+description: Insert a list of ClickHouse events through the Fluent API.
+---
+
+# Batch Inserts
+
+For an event import, collect the records and submit them together instead of calling insert for each event. Use the table and `EventLog` mapping from [Key Generation](./generated-keys.mdx):
+
+```java
+EventLog first = new EventLog();
+first.setEventName("login");
+EventLog second = new EventLog();
+second.setEventName("logout");
+
+lambda.insert(EventLog.class)
+        .applyEntity(first, second)
+        .executeSumResult();
+
+String firstId = first.getId();
+String secondId = second.getId();
+```
+
+With `KeyType.UUID32`, each event receives an application-generated ID before insertion. Without database-generated columns to retrieve, dbVisitor submits the inserts through JDBC batch.
+
+:::caution[Note]
+This groups the writes, but does not add an all-or-nothing transaction. If the call fails, check what was stored before retrying; repeated IDs are not rejected by MergeTree. See [Duplicate Records](./conflict.mdx).
+:::

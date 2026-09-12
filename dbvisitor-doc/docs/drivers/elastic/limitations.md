@@ -12,6 +12,6 @@ title: 使用限制
 
 请求使用 REST 风格命令，不支持将任意关系型 SQL 自动转换成 Elasticsearch 查询。默认预读会展开文档字段，关闭预读后应按 `_ID`、`_DOC` 等返回列读取。
 
-命令语法与返回值约定见[命令参考](../../features/elastic/commands.md)。
+命令语法与返回值约定见[命令参考](../../features/elastic/syntax/index.md)。
 
 `clientName` 连接参数不生效；高级客户端配置通过 `customElastic` 提供。

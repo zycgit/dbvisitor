@@ -1,0 +1,57 @@
+---
+id: generated-keys
+sidebar_position: 3
+title: 主键生成
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# 主键生成
+
+## 使用自动生成 ID
+
+POST 请求不带文档 ID 时，Elasticsearch 生成 _id；它与 _source 中的 id、uid 等业务字段不是一回事。
+
+
+
+UserInfo 提供可写的 String id 属性，下面的 Mapper 配置会在插入后回填该属性：
+
+<Tabs>
+<TabItem value="annotation" label="方法注解" default>
+
+```java
+@Insert(value = "POST /user_info/_doc {\"name\": #{name}}",
+        useGeneratedKeys = true, keyProperty = "id")
+int insert(UserInfo item);
+```
+
+</TabItem>
+<TabItem value="xml" label="Mapper 文件">
+
+```xml
+<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+    POST /user_info/_doc {"name": #{name}}
+</insert>
+```
+
+</TabItem>
+</Tabs>
+
+调用 mapper.insert(item) 后，通过 item.getId() 读取主键。这里使用单个实体参数，不额外加 @Param 包装。
+
+:::caution[注意]
+不要指定 keyColumn。适配器支持 RETURN_GENERATED_KEYS，但不支持构造器 KeyType.Auto 使用的列名式 JDBC 重载。自动回填使用上面的 Mapper 配置；使用构造器时由应用赋主键。
+:::
+
+## 使用已有 ID
+
+由应用指定 ID 时，将它放到请求路径中：
+
+```java
+jdbc.executeUpdate(
+        "PUT /user_info/_doc/{?}?refresh=wait_for {\"name\": ?}",
+        new Object[] { "1001", "mali" });
+```
+
+相同文档 ID 再次写入会覆盖文档内容；只改部分字段使用 _update。实体中的业务 uid 属性不会自动控制这个 ID。

@@ -10,24 +10,20 @@ title: 引入依赖
 
 ## Maven
 
-在项目 POM 中设置 `dbvisitor.version` 属性，值为所使用的驱动版本号。
-
 ```xml
 <dependency>
     <groupId>net.hasor</groupId>
     <artifactId>jdbc-milvus</artifactId>
-    <version>${dbvisitor.version}</version>
+    <version>@project.docsVersion@</version>
     <classifier>all</classifier>
 </dependency>
 ```
 
 ## Gradle
 
-在项目的 `gradle.properties` 中设置 `dbvisitorVersion`，值为所使用的驱动版本号。
-
 ```groovy
 repositories { mavenCentral() }
-dependencies { implementation "net.hasor:jdbc-milvus:${dbvisitorVersion}:all" }
+dependencies { implementation "net.hasor:jdbc-milvus:@project.docsVersion@:all" }
 ```
 
 

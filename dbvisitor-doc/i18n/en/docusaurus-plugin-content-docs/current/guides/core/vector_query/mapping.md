@@ -111,15 +111,13 @@ List<Float> vector = loaded.getEmbedding();
 
 ## Argument Types
 
-`vectorBy*` vector arguments are converted through the TypeHandler in entity mapping, so `List<Float>` can usually be passed directly. `orderBy*` vector arguments go directly into SQL parameter binding; PostgreSQL pgvector commonly uses `PGobject`.
+Both `vectorBy*` and `orderBy*` convert vector arguments through the entity field mapping TypeHandler. After a PostgreSQL field is configured with `PgVectorTypeHandler`, pass `List<Float>` directly.
 
 ```java title='pgvector query argument'
-PGobject target = new PGobject();
-target.setType("vector");
-target.setValue("[0.1,0.2,0.3]");
+List<Float> target = List.of(0.1f, 0.2f, 0.3f);
 ```
 
-If the database driver provides a dedicated vector type, use that type as the query argument.
+Without entity mapping or a field TypeHandler, use `SqlArg` to specify the handler explicitly, or pass the database driver's dedicated vector type.
 
 ## Further Reading
 

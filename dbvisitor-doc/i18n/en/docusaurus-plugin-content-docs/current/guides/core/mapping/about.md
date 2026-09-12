@@ -7,151 +7,40 @@ description: dbVisitor only does Object Mapping, mapping Java objects to databas
 
 # 5.7 Object Mapping
 
-dbVisitor only does **Object Mapping**, not relational mapping (one-to-one, one-to-many, many-to-many, etc.). Java objects map directly to database tables, and database dialect differences can be abstracted away with the [Fluent API](../../api/lambda).
+dbVisitor maps Java entities to a database with @Table and @Column: an entity usually represents one row and its properties represent columns. A property can also be an entire object stored in one column; this is not a related-table or one-to-many relationship mapping.
 
-## When It Is Required
-
-| Usage | Is object mapping required? | Notes |
-|---------|:-----:|------|
-| JdbcTemplate | No | SQL can be executed directly; results can still map to Beans when needed. |
-| Mapper method annotations | Not mandatory | SQL comes from annotations; Bean results can use result mapping when needed. |
-| Mapper File resultMap | Depends | Recommended for complex results, joins, aliases, or function columns. |
-| BaseMapper | Yes | Needs table, column, and primary-key metadata to generate CRUD SQL. |
-| LambdaTemplate Entity / Map mode | Yes | Needs mapping metadata to generate SQL. |
-| Map Query Mode (Freedom Map) | No | Uses table names, column names, and Map values directly. |
-
-## Minimal Mapping
+## Minimal Example
 
 ```java
+import net.hasor.dbvisitor.mapping.Column;
+import net.hasor.dbvisitor.mapping.Table;
+
 @Table("users")
 public class User {
-    @Column(name = "id", primary = true, keyType = KeyType.Auto)
-    private Long id;
+    @Column(primary = true)
+    private Integer id;
 
-    @Column("name")
+    @Column("user_name")
     private String name;
 
-    @Column("age")
-    private Integer age;
-
-    @Column(value = "create_time", insert = false, update = false)
-    private Date createTime;
+    // Getters and setters omitted
 }
 ```
 
-## Mapping Approaches
+User maps to the users table, id to the primary-key column and name to user_name. The table must already exist; declaring a mapping does not create it.
 
-Two ways to define object mapping, which can be mixed:
+BaseMapper and LambdaTemplate entity mode use these mappings to generate CRUD statements. Executing native commands directly with JdbcTemplate does not require an entity.
 
-| Approach | Description | Entry |
-|------|------|------|
-| Annotation-based | `@Table` + `@Column` declared directly on entity classes; most common | [Annotation-based](./table) |
-| File-based | `<entity>` tag in Mapper XML describes mapping; avoids code intrusion | [File-based](../file/entity_map) |
+## Find Your Use Case
 
-## Core Configuration
-
-### Primary Key Generation
-
-`keyType` determines how primary keys are generated. Support varies by database:
-
-| keyType | Description | Use case |
-|---------|------|---------|
-| `KeyType.Auto` | Database auto-increment / IDENTITY | MySQL AUTO_INCREMENT, PG SERIAL |
-| `KeyType.Sequence` | Database sequence | Dialects implementing SeqSqlDialect, such as PostgreSQL, DB2 and H2 (with `@KeySeq`) |
-| `KeyType.UUID32` | App-side 32-char UUID | Databases without auto-increment PK |
-| `KeyType.UUID36` | App-side 36-char UUID | Same as above |
-
-```java
-// Auto-increment primary key
-@Column(value = "id", primary = true, keyType = KeyType.Auto)
-private Long id;
-
-// Sequence-based primary key
-@KeySeq("user_info_seq")
-@Column(value = "id", primary = true, keyType = KeyType.Sequence)
-private Long id;
-
-// App-side UUID
-@Column(value = "id", primary = true, keyType = KeyType.UUID32)
-private String id;
-```
-
-See [Key Generators](./key_generator) and [Data Source Features](../../../features/overview) for details.
-
-### Type Mapping
-
-The `typeHandler` attribute on `@Column` specifies a custom type handler:
-
-```java
-// JSON serialization
-@Column(value = "extra_info", typeHandler = JsonTypeHandler.class)
-private Map<String, Object> extraInfo;
-
-// Enum mapping
-@Column("status")
-private OrderStatus status; // Uses EnumTypeHandler automatically
-```
-
-See [Type Mapping](./type_mapping) for details.
-
-### Write Policy
-
-Controls property behavior during INSERT/UPDATE:
-
-```java
-@Column(value = "create_time", insert = true, update = false)
-private Date createTime; // Only written on INSERT
-
-@Column(value = "update_time", insert = true, update = true)
-private Date updateTime; // Written on both INSERT and UPDATE
-```
-
-See [Write Policy](./write_policy) for details.
-
-## Common Configuration
-
-### Camel Case
-
-If column names follow snake_case (e.g., `user_name`) and Java properties use camelCase (`userName`), enable auto-mapping:
-
-```java
-@Table(value = "user_info", mapUnderscoreToCamelCase = true)
-public class UserInfo { ... }
-```
-
-See [Camel Case](./camel_case) for details.
-
-### Name Sensitivity
-
-When column names are case-sensitive or reserved keywords:
-
-```java
-@Table(value = "orders", useDelimited = true)
-public class OrderRow {
-    @Column("order")
-    private Integer order; // The dialect adds column delimiters
-}
-```
-
-See [Name Sensitivity](./name_sensitivity) for details.
-
-### Statement Templates
-
-Controls how column values are expressed in SQL generated by the Fluent API. Example with MySQL `POINT` type:
-
-```java
-@Column(value = "location", whereValueTemplate = "ST_GeomFromText(?)")
-private String location;
-```
-
-See [Statement Templates](./statement_template) for details.
-
-## Further Reading
-
-- [Annotation-based](./table): complete usage of `@Table`, `@Column`, `@Primary`, `@KeySeq`
-- [Key Generators](./key_generator): sequence, UUID, auto-increment backfill strategies
-- [Type Mapping](./type_mapping): enum, JSON, special JDBC types
-- [Write Policy](./write_policy): control INSERT/UPDATE column participation
-- [Camel Case](./camel_case): automatic `user_name` → `userName` mapping
-- [Name Sensitivity](./name_sensitivity): case sensitivity, keyword escaping
-- [Statement Templates](./statement_template): customize column value expressions in generated SQL
+| What you need | Read |
+| --- | --- |
+| Specify table and column names, or ignore properties | [Map a Table](./table) |
+| Define mappings without annotating Java classes | [File-Based Entity Mapping](../file/entity_map) |
+| Match names such as user_name and userName | [Camel Case](./camel_case) |
+| Handle case-sensitive or keyword names | [Name Sensitivity](./name_sensitivity) |
+| Control which properties participate in writes | [Write Policy](./write_policy) |
+| Configure enums, abstract types and special conversions | [Type Mapping and Handlers](./type_mapping) |
+| Store an object, Map or List as one JSON field | [JSON Field Mapping](./json-field.md) |
+| Customize SQL expressions for column values | [Statement Templates](./statement_template) |
+| Configure auto-increment, sequence or UUID keys | [Key Generators](./key_generator) |

@@ -5,6 +5,8 @@ const {themes} = require('prism-react-renderer');
 const lightCodeTheme = themes.github;
 const darkCodeTheme = themes.dracula;
 const analyticsPlugin = require('./plugins/analytics.js');
+const projectVars = require('./plugins/projectVars.js');
+const remarkProjectVars = require('./plugins/remark-project-vars.js');
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -13,6 +15,13 @@ const config = {
     url: 'https://www.dbvisitor.net',
     baseUrl: '/',
     onBrokenLinks: 'throw',
+    markdown: {
+        preprocessor: ({fileContent}) => remarkProjectVars.replaceVariables(fileContent, projectVars),
+        parseFrontMatter: ({filePath, fileContent, defaultParseFrontMatter}) => defaultParseFrontMatter({
+            filePath,
+            fileContent: remarkProjectVars.replaceVariables(fileContent, projectVars),
+        }),
+    },
     favicon: 'img/favicon.ico',
     organizationName: 'zycgit', // Usually your GitHub org/user name.
     projectName: 'dbVisitor',   // Usually your repo name.
@@ -26,10 +35,12 @@ const config = {
             /** @type {import('@docusaurus/preset-classic').Options} */
             {
                 docs: {
+                    remarkPlugins: [[remarkProjectVars, projectVars]],
                     sidebarPath: require.resolve('./sidebars.js'),
                     editUrl: 'https://gitee.com/zycgit/dbvisitor/blob/main/dbvisitor-doc/',
                 },
                 blog: {
+                    remarkPlugins: [[remarkProjectVars, projectVars]],
                     showReadingTime: true,
                     blogSidebarCount: 10,
                     postsPerPage: 10,
@@ -128,7 +139,6 @@ const config = {
         },
     },
     plugins: [
-        require('./plugins/document-redirects'),
         analyticsPlugin
     ],
     themes: [

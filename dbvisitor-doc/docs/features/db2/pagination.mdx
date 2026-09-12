@@ -1,0 +1,68 @@
+---
+id: pagination
+sidebar_position: 2
+title: 分页查询
+description: DB2 分页原理、dbVisitor 用法和注意事项。
+---
+
+# 分页查询
+
+分页按行号范围取出记录。页码从 0 开始，每页 20 条时，第一页取第 1–20 行，第二页取第 21–40 行。
+
+**分页语句**
+
+```sql
+SELECT * FROM (
+    SELECT TMP_PAGE.*, ROWNUMBER() OVER() AS ROW_ID
+    FROM (
+        SELECT id, name FROM user_info
+    ) AS TMP_PAGE
+) TMP_PAGE
+WHERE ROW_ID BETWEEN ? AND ?
+```
+
+两个参数是目标页的起始行号和结束行号，均包含在结果范围内。
+
+**查询总数**
+
+需要总记录数时，dbVisitor 另行执行：
+
+```sql
+SELECT COUNT(*) FROM (
+    SELECT id, name FROM user_info
+) AS TEMP_T
+```
+
+## dbVisitor 用法
+
+需要按 ID 稳定翻页时，同时指定行号排序和最终结果排序：
+
+```java
+String sql = """
+        SELECT id, name FROM (
+            SELECT id, name, ROW_NUMBER() OVER(ORDER BY id) AS rn
+            FROM user_info
+        ) AS paged
+        WHERE rn BETWEEN ? AND ?
+        ORDER BY rn
+        """;
+List<UserInfo> rows = jdbcTemplate.queryForList(
+        sql, new Object[] { 1, 20 }, UserInfo.class);
+```
+
+第二页使用 `{21, 40}`。总数单独查询：
+
+```java
+Long total = jdbcTemplate.queryForObject(
+        "SELECT COUNT(*) FROM user_info", Long.class);
+```
+
+:::caution[注意]
+DB2 内置 `initPage` 的行号窗口没有指定排序，不应依赖它保证翻页顺序。上面的 SQL 已包含分页范围，不要再叠加 `initPage`。
+:::
+
+公共分页 API 见 [9.5 分页](../../guides/result/page_object.mdx)。
+
+## 注意事项
+
+总数和取页是两次查询，并发写入可能让两次查询看到不同数据。

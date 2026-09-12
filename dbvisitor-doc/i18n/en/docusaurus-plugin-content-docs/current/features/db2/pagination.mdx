@@ -1,0 +1,68 @@
+---
+id: pagination
+sidebar_position: 2
+title: Pagination
+description: DB2 pagination principles, dbVisitor usage and notes.
+---
+
+# Pagination
+
+Pages are selected by row-number range. Page numbers start at 0; with 20 rows per page, the first page is rows 1–20 and the second is rows 21–40.
+
+**Page query**
+
+```sql
+SELECT * FROM (
+    SELECT TMP_PAGE.*, ROWNUMBER() OVER() AS ROW_ID
+    FROM (
+        SELECT id, name FROM user_info
+    ) AS TMP_PAGE
+) TMP_PAGE
+WHERE ROW_ID BETWEEN ? AND ?
+```
+
+The parameters are the inclusive first and last row numbers of the requested page.
+
+**Total-count query**
+
+When a total row count is required, dbVisitor runs a separate query:
+
+```sql
+SELECT COUNT(*) FROM (
+    SELECT id, name FROM user_info
+) AS TEMP_T
+```
+
+## dbVisitor Usage
+
+For stable paging by ID, specify both the row-number order and the final result order:
+
+```java
+String sql = """
+        SELECT id, name FROM (
+            SELECT id, name, ROW_NUMBER() OVER(ORDER BY id) AS rn
+            FROM user_info
+        ) AS paged
+        WHERE rn BETWEEN ? AND ?
+        ORDER BY rn
+        """;
+List<UserInfo> rows = jdbcTemplate.queryForList(
+        sql, new Object[] { 1, 20 }, UserInfo.class);
+```
+
+Use `{21, 40}` for the second page. Query the total separately:
+
+```java
+Long total = jdbcTemplate.queryForObject(
+        "SELECT COUNT(*) FROM user_info", Long.class);
+```
+
+:::caution[Note]
+The built-in DB2 `initPage` uses an unordered row-number window. Do not rely on it for stable page ordering. The SQL above supplies its own page boundaries, so do not apply `initPage` again.
+:::
+
+See [9.5 Pagination](../../guides/result/page_object.mdx) for the common paging API.
+
+## Notes
+
+Count and page queries are separate. Concurrent writes may change the data between them.

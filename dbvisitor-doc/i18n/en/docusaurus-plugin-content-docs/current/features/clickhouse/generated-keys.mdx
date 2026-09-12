@@ -1,22 +1,35 @@
 ---
 id: generated-keys
-sidebar_position: 1
-hide_table_of_contents: true
-title: Primary Keys and Return Keys
-description: How to handle primary keys, application-side IDs, and generated keys in ClickHouse with dbVisitor.
+sidebar_position: 4
+toc_min_heading_level: 2
+toc_max_heading_level: 2
+title: Key Generation
+description: How to handle primary keys and application-side IDs in ClickHouse with dbVisitor.
 ---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 <span id="clickhouse-primary-keys-and-return-keys" />
 
-# Primary Keys and Return Keys
+# Key Generation
 
-ClickHouse's primary keys, sort keys, and partition keys primarily serve data organization and query performance, not equivalent to traditional relational database auto-increment primary keys. ClickHouse's common write model also does not rely on INSERT backfilling of database-generated IDs.
+Generate a business ID before insertion and read it from the entity afterward. The example below uses `KeyType.UUID32`.
 
-Therefore, in dbVisitor, ClickHouse recommends generating primary keys before INSERT rather than using JDBC generated keys.
+:::info[Note]
+For general configuration, see [Generated Keys](../../guides/core/mapper/annotation_insert#generated-keys).
+:::
 
-## Recommended: Application-Side ID Generation
+## Using an Application-Side ID
+
+```sql
+CREATE TABLE event_log (id String, event_name String)
+ENGINE = MergeTree ORDER BY id;
+```
 
 If the business requires a unique ID, generating it on the Java side is recommended — for example, UUID, Snowflake ID, or business numbers.
+
+<Tabs>
+<TabItem value="application-lambda" label="Fluent API" default>
 
 ```java title='ClickHouse application-side ID mapping'
 @Table("event_log")
@@ -33,7 +46,7 @@ public class EventLog {
 EventLog event = new EventLog();
 event.setEventName("login");
 
-LambdaTemplate lambda = ...
+LambdaTemplate lambda = ...;
 lambda.insert(EventLog.class)
       .applyEntity(event)
       .executeSumResult();
@@ -43,23 +56,30 @@ String id = event.getId();
 
 `KeyType.UUID32` / `KeyType.UUID36` generates IDs before insert and does not depend on ClickHouse returning generated keys.
 
-## Not Recommended: JDBC generated keys
+</TabItem>
+<TabItem value="application-annotation" label="Method Annotations">
 
-The ClickHouse dialect does not generate return key syntax like PostgreSQL `RETURNING` or SQL Server `OUTPUT INSERTED` for INSERTs. Even if `KeyType.Auto` is configured in object mapping, ClickHouse should not be treated as an OLTP database supporting auto-increment backfill.
-
-It is also not recommended to write the following in Mapper XML:
-
-```xml title='Not recommended'
-<insert id="insertEvent"
-        useGeneratedKeys="true"
-        keyProperty="id"
-        keyColumn="id">
-    INSERT INTO event_log (event_name)
-    VALUES (#{eventName})
-</insert>
+```java
+@Insert("INSERT INTO event_log (id, event_name) VALUES (#{id}, #{eventName})")
+int insertEvent(EventLog event);
 ```
 
-Explicitly passing the ID is more recommended:
+
+Assign the ID before calling the mapper:
+
+```java
+import java.util.UUID;
+
+EventLog event = new EventLog();
+event.setId(UUID.randomUUID().toString().replace("-", ""));
+event.setEventName("login");
+mapper.insertEvent(event);
+```
+
+</TabItem>
+<TabItem value="application-xml" label="Mapper File">
+
+Mapper SQL should explicitly write the application-generated ID:
 
 ```xml title='Recommended'
 <insert id="insertEvent">
@@ -68,34 +88,7 @@ Explicitly passing the ID is more recommended:
 </insert>
 ```
 
-## Batch Writes
+</TabItem>
+</Tabs>
 
-ClickHouse is better suited for batch writes. When no generated keys backfill is required, dbVisitor can use regular JDBC batch.
-
-```java
-lambda.insert(EventLog.class)
-      .applyEntity(event1, event2, event3)
-      .executeSumResult();
-```
-
-If per-row backfill of database-generated values is needed, it would break the batch write model; such designs should be avoided under ClickHouse.
-
-## Dialect Strategy
-
-ClickHouse's current strategy is as follows:
-
-| Scenario | GeneratedKeyStrategy |
-| --- | --- |
-| No backfill columns | `JdbcBatch` |
-| `Into` + with backfill columns | `OneByOne` |
-| `Ignore` + with backfill columns | `OneByOne` |
-| `Update` + with backfill columns | `OneByOne` |
-
-The ClickHouse dialect only supports `DuplicateKeyStrategy.Into`. `Ignore` / `Update` are not part of the current ClickHouse dialect's goals and should not be used as traditional OLTP duplicate key strategies.
-
-## Design Principles
-
-- Primary key values should preferably be generated application-side and written together with the INSERT.
-- Do not use `KeyType.Auto` expecting ClickHouse to return generated keys.
-- Do not use `KeyType.Sequence`; the ClickHouse dialect does not provide sequence capabilities.
-- General documentation: see [Generated Keys](../../guides/core/mapper/annotation_insert#generated-keys).
+For inserting several events at once, see [Batch Inserts](./batch-insert.mdx).

@@ -31,9 +31,9 @@ Use one service endpoint per connection; the default port is `19530`. SDK and Im
 
 Set options with `properties.setProperty("name", "value")`, or append `?name=value&other=value` to the URL (use `&` if a query string already exists). For the same key, URL values override `Properties`. The URL parser does not percent-decode values; put passwords, tokens and values containing `&` in `Properties`, and avoid logging credentials.
 
-See [Connection Parameters](./params.md) for names, defaults, units and restrictions. Only documented adapter parameters apply; they are not a pass-through for all vendor SDK options.
+See [Connection Parameters](params.md) for names, defaults, units and restrictions. Only documented adapter parameters apply; they are not a pass-through for all vendor SDK options.
 
-After connecting, see [JDBC Operations](../../features/milvus/jdbc.mdx) for command execution and result handling.
+After connecting, see [Execute Commands](execution.mdx) and [Read Results](results.md).
 
 ## Username and Password {#username-and-password-authentication}
 
@@ -109,3 +109,7 @@ public class MyMilvusFactory implements net.hasor.dbvisitor.adapter.milvus.Custo
 Register with `props.setProperty("customMilvus", MyMilvusFactory.class.getName())`. The factory owns SDK configuration. It is called once per JDBC connection; commands share its returned V2 client, which is closed with the connection. The driver limits SDK-internal retries to one attempt to avoid multiplying maxRetry. Use `conn.unwrap(MilvusClientV2.class)` to access the client, but do not close or reconfigure it while JDBC still uses it.
 
 Import REST uses the JDBC address and authentication/TLS properties, not the custom SDK client's internal configuration; custom factories must keep these properties consistent. Standard Cloud connections use the cluster endpoint and do not require an exposed management port.
+
+## Connection Pools
+
+With HikariCP, explicitly set `connectionTestQuery` to `SHOW TABLES`: the current shared driver does not implement `Connection.isValid()`. Do not use the unsupported `SELECT 1`. Keep auto-commit enabled and do not configure a transaction isolation level. Configure the URL, authentication, and TLS as for a normal JDBC connection, and close the pool when the application exits.

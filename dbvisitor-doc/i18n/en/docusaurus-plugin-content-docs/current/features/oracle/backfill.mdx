@@ -1,0 +1,89 @@
+---
+id: backfill
+sidebar_position: 4.5
+title: Data Backfill
+description: Return field values from Oracle inserts, updates, and deletes with RETURNING INTO.
+---
+
+# Data Backfill
+
+`RETURNING ... INTO` returns field values as part of a write, without an additional SELECT. INSERT returns inserted values, UPDATE returns updated values, and DELETE returns values from the deleted row.
+
+In dbVisitor, use `JdbcTemplate.call` to execute a `BEGIN ... END;` anonymous block and read OUT parameters. **Do not treat it as a SELECT.** No stored procedure needs to be created beforehand.
+
+## Return Inserted Fields
+
+The examples below use the same table in sequence:
+
+```sql
+CREATE TABLE user_info (
+    id   NUMBER(10) PRIMARY KEY,
+    name VARCHAR2(100),
+    age  NUMBER(3)
+);
+```
+
+The database converts the name to uppercase during insertion and returns the stored name and age:
+
+```java
+import java.util.Map;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+
+JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+Map<String, Object> result = jdbc.call("""
+    BEGIN
+        INSERT INTO user_info (id, name, age)
+        VALUES (#{id}, UPPER(#{name}), #{age})
+        RETURNING name, age INTO #{savedName,mode=out,jdbcType=varchar},
+                                 #{savedAge,mode=out,jdbcType=integer};
+    END;
+    """, Map.of("id", 918101, "name", "alice", "age", 20));
+
+String name = (String) result.get("savedName"); // ALICE
+Integer age = (Integer) result.get("savedAge"); // 20
+```
+
+`mode=out` declares an output parameter; `jdbcType` specifies its receiving type. The returned Map uses output parameter names as keys. To update an entity, assign these values to its properties.
+
+## Return Updated Fields
+
+Increment the age and return its new value. `SQL%ROWCOUNT` also supplies the number of updated rows:
+
+```java
+Map<String, Object> result = jdbc.call("""
+    BEGIN
+        UPDATE user_info SET age = age + 1 WHERE id = #{id}
+        RETURNING age INTO #{savedAge,mode=out,jdbcType=integer};
+        #{rows,mode=out,jdbcType=integer} := SQL%ROWCOUNT;
+    END;
+    """, Map.of("id", 918101));
+
+if ((Integer) result.get("rows") == 1) {
+    Integer age = (Integer) result.get("savedAge"); // 21
+}
+```
+
+## Return Deleted Fields
+
+Delete the row and retrieve its name:
+
+```java
+Map<String, Object> result = jdbc.call("""
+    BEGIN
+        DELETE FROM user_info WHERE id = #{id}
+        RETURNING name INTO #{deletedName,mode=out,jdbcType=varchar};
+        #{rows,mode=out,jdbcType=integer} := SQL%ROWCOUNT;
+    END;
+    """, Map.of("id", 918101));
+
+if ((Integer) result.get("rows") == 1) {
+    String name = (String) result.get("deletedName"); // ALICE
+}
+```
+
+:::caution[Note]
+- These examples use scalar output parameters. Updates and deletes target a single primary key; this pattern is not for returning multiple rows.
+- If no row matches, do not read the returned fields. Check that `rows` is `1` first.
+:::
+
+See [Stored Procedure Calls](../../guides/core/jdbc/procedure.mdx#outp) for output parameters and [Key Generation](./generated-keys.mdx) for automatic identity-key backfill. For syntax, see [Oracle RETURNING INTO](https://docs.oracle.com/en/database/oracle/oracle-database/19/lnpls/RETURNING-INTO-clause.html).

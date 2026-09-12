@@ -1,0 +1,9 @@
+{
+  "label": "Command Syntax",
+  "position": 20,
+  "link": {
+    "type": "doc",
+    "id": "features/mongo/syntax/index"
+  },
+  "key": "mongo-command-syntax"
+}

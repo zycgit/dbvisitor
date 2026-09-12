@@ -39,12 +39,10 @@ Return the N most similar records
 
 ## Build Query Vector
 
-`orderBy*` vector arguments go directly into SQL parameter binding, so pass a database-recognizable vector type. pgvector can use `PGobject`.
+`orderBy*` converts vector arguments with the field mapping TypeHandler. After a PostgreSQL entity field is configured with `PgVectorTypeHandler`, pass `List<Float>` directly.
 
 ```java title='pgvector query argument'
-PGobject target = new PGobject();
-target.setType("vector");
-target.setValue("[0.1,0.2,0.3]");
+List<Float> target = List.of(0.1f, 0.2f, 0.3f);
 ```
 
 ## Query Top N
@@ -111,9 +109,9 @@ LIMIT 10
 
 ## Common Questions
 
-### Why orderBy arguments cannot always be List
+### How to bind vectors without entity mapping
 
-`orderBy*` vector arguments are bound directly into the ordering expression. Some drivers cannot infer the database vector type from `List<Float>`, so PostgreSQL pgvector usage should pass `PGobject` or another driver-supported vector object.
+`queryFreedom`, Map mode, and fields without a vector TypeHandler have no field conversion rule to reuse. Use `SqlArg` to specify a TypeHandler explicitly, or pass a vector object recognized by the database driver.
 
 ### When initPage is needed
 

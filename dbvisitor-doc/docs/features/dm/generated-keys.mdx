@@ -1,18 +1,35 @@
 ---
 id: generated-keys
-sidebar_position: 1
-hide_table_of_contents: true
-title: 自增主键回填
-description: 达梦数据库下使用 dbVisitor 处理自增列、generated keys 和 selectKey 的方式。
+sidebar_position: 4
+toc_min_heading_level: 2
+toc_max_heading_level: 2
+title: 主键生成
+description: 达梦数据库下使用 dbVisitor 处理自增主键、sequence 和主键回填的方式。
 ---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 <span id="达梦自增主键回填" />
 
-# 自增主键回填
+# 主键生成
 
-达梦数据库的自增列适合通过 JDBC generated keys 回填。dbVisitor 在达梦方言下不会把有主键回填需求的 INSERT 优化为批量 generated keys，而是保守逐条执行。
+达梦数据库的自增列适合通过 JDBC generated keys 回填；sequence 适合在 INSERT 前取得主键。
 
-## Lambda / BaseMapper
+:::info[说明]
+通用配置见[主键生成与回填](../../guides/core/mapper/annotation_insert#generated-keys)。
+:::
+
+## 使用自增列
+
+```sql
+CREATE TABLE user_info (
+    id BIGINT IDENTITY(1, 1) PRIMARY KEY,
+    name VARCHAR(64)
+);
+```
+
+<Tabs>
+<TabItem value="identity-lambda" label="构造器 API" default>
 
 ```java title='达梦自增列映射'
 @Table("user_info")
@@ -25,11 +42,11 @@ public class UserInfo {
 }
 ```
 
-```java title='Lambda 新增后读取回填主键'
+```java title='新增后属性自动回填'
 UserInfo user = new UserInfo();
 user.setName("mali");
 
-LambdaTemplate lambda = ...
+LambdaTemplate lambda = ...;
 lambda.insert(UserInfo.class)
       .applyEntity(user)
       .executeSumResult();
@@ -37,7 +54,21 @@ lambda.insert(UserInfo.class)
 Long id = user.getId();
 ```
 
-## Mapper XML
+</TabItem>
+<TabItem value="identity-annotation" label="方法注解">
+
+```java
+@Insert(
+    value = "INSERT INTO user_info (name) VALUES (#{name})",
+    useGeneratedKeys = true,
+    keyProperty = "id",
+    keyColumn = "id"
+)
+int insertUser(UserInfo user);
+```
+
+</TabItem>
+<TabItem value="identity-xml" label="Mapper 文件">
 
 ```xml title='达梦 generated keys'
 <insert id="insertUser"
@@ -51,39 +82,60 @@ Long id = user.getId();
 
 建议显式写出 `keyColumn`，让回填列和业务主键列保持一致。
 
-## Annotation Mapper
+</TabItem>
+</Tabs>
 
-```java
-@Insert(
-    value = "INSERT INTO user_info (name) VALUES (#{name})",
-    useGeneratedKeys = true,
-    keyProperty = "id",
-    keyColumn = "id"
-)
-int insertUser(UserInfo user);
-```
+:::caution[注意]
+需要回填主键时，多个实体逐条插入、分别回填。需要一起提交或回滚时，见[多条写入一致性](./write.mdx)。
+:::
 
-## Sequence
+## 使用序列
 
-达梦支持 sequence。达梦官方 FAQ 中给出的方式是使用 `模式名.序列名.NEXTVAL` 获取下一值，`模式名.序列名.CURRVAL` 获取当前值。dbVisitor 的达梦方言会生成：
+下面使用普通主键列和序列，与上面的自增列示例独立：
 
 ```sql
-SELECT user_info_seq.NEXTVAL
+CREATE TABLE user_info (
+    id BIGINT PRIMARY KEY,
+    name VARCHAR(64)
+);
+CREATE SEQUENCE user_info_seq START WITH 1 INCREMENT BY 1;
 ```
 
-Mapper XML 可以使用 `selectKey`：
+<Tabs>
+<TabItem value="sequence-lambda" label="构造器 API" default>
 
-```xml
-<insert id="insertUser">
-    <selectKey keyProperty="id" keyColumn="id" order="BEFORE">
-        SELECT user_info_seq.NEXTVAL AS id
-    </selectKey>
-    INSERT INTO user_info (id, name)
-    VALUES (#{id}, #{name})
-</insert>
+```java
+import net.hasor.dbvisitor.mapping.Column;
+import net.hasor.dbvisitor.mapping.KeySeq;
+import net.hasor.dbvisitor.mapping.KeyType;
+import net.hasor.dbvisitor.mapping.Table;
+
+@Table("user_info")
+public class UserInfo {
+    @Column(primary = true, keyType = KeyType.Sequence)
+    @KeySeq("user_info_seq")
+    private Long id;
+    private String name;
+
+    // 省略 getter 和 setter
+}
 ```
 
-注解方式：
+```java
+UserInfo user = new UserInfo();
+user.setName("mali");
+
+lambda.insert(UserInfo.class)
+        .applyEntity(user)
+        .executeSumResult();
+
+Long id = user.getId();
+```
+
+每次插入前自动获取序列值，赋给 `id` 后再写入记录。
+
+</TabItem>
+<TabItem value="sequence-annotation" label="方法注解">
 
 ```java
 @SelectKeySql(
@@ -96,44 +148,18 @@ Mapper XML 可以使用 `selectKey`：
 int insertUser(UserInfo user);
 ```
 
-Lambda / BaseMapper 可以使用 `KeyType.Sequence`：
+</TabItem>
+<TabItem value="sequence-xml" label="Mapper 文件">
 
-```java
-@KeySeq("user_info_seq")
-@Column(value = "id", primary = true, keyType = KeyType.Sequence)
-private Long id;
+```xml
+<insert id="insertUser">
+    <selectKey keyProperty="id" keyColumn="id" order="BEFORE">
+        SELECT user_info_seq.NEXTVAL AS id
+    </selectKey>
+    INSERT INTO user_info (id, name)
+    VALUES (#{id}, #{name})
+</insert>
 ```
 
-## 冲突策略
-
-达梦方言的 `Ignore` 策略使用 `IGNORE_ROW_ON_DUPKEY_INDEX` hint，需要有主键列。`Update` 策略使用 `MERGE INTO` 实现：
-
-```sql
-MERGE INTO user_info TMP
-USING (SELECT ? id, ? name FROM dual) SRC
-ON (TMP.id = SRC.id)
-WHEN MATCHED THEN UPDATE SET name = SRC.name
-WHEN NOT MATCHED THEN INSERT (id, name) VALUES (SRC.id, SRC.name)
-```
-
-这些语法主要影响插入冲突处理，不改变 generated keys 的读取模型。
-
-## 方言策略
-
-达梦当前策略如下：
-
-| 场景 | GeneratedKeyStrategy |
-| --- | --- |
-| 无回填列 | `JdbcBatch` |
-| `Into` + 有回填列 | `OneByOne` |
-| `Ignore` + 有回填列 | `OneByOne` |
-| `Update` + 有回填列 | `OneByOne` |
-
-`DuplicateKeyStrategy.Ignore` 需要主键列；`DuplicateKeyStrategy.Update` 需要主键列且至少有一个非主键列可更新。
-
-## 设计原则
-
-- 自增列：使用 `KeyType.Auto` 或 `useGeneratedKeys=true`。
-- sequence：使用 `selectKey` / `@SelectKeySql` / `KeyType.Sequence` 在 INSERT 前取值。
-- 有 generated keys 回填时保守逐条执行。
-- 通用说明见 [Generated Keys](../../guides/core/mapper/annotation_insert#generated-keys)。
+</TabItem>
+</Tabs>

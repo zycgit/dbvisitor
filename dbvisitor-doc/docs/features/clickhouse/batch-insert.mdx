@@ -1,0 +1,31 @@
+---
+id: batch-insert
+sidebar_position: 5
+hide_table_of_contents: true
+title: 批量插入
+description: 通过构造器 API 一次提交多条 ClickHouse 事件。
+---
+
+# 批量插入
+
+导入多条事件时，先收集记录再统一提交，避免每条事件都调用一次插入。表和 `EventLog` 映射沿用[主键生成](./generated-keys.mdx)：
+
+```java
+EventLog first = new EventLog();
+first.setEventName("login");
+EventLog second = new EventLog();
+second.setEventName("logout");
+
+lambda.insert(EventLog.class)
+        .applyEntity(first, second)
+        .executeSumResult();
+
+String firstId = first.getId();
+String secondId = second.getId();
+```
+
+配置 `KeyType.UUID32` 后，每条事件在插入前获得应用生成的 ID。无需数据库生成列回填时，dbVisitor 使用 JDBC batch 提交插入。
+
+:::caution[注意]
+合并提交不等于增加了整体回滚的事务。调用失败后先确认已写入的数据；MergeTree 不会拒绝重复 ID，直接重试可能产生重复记录。见[重复记录处理](./conflict.mdx)。
+:::

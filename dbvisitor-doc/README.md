@@ -25,6 +25,18 @@ npm run build
 
 本目录用于构建文档站，不是 dbVisitor Java 模块的构建入口。
 
+## 文档版本变量
+
+`plugins/projectVars.js` 统一维护版本：`docsVersion` 用于使用指南及依赖示例，`lastReleaseVer`、`lastReleaseTime` 用于最新发布信息。首页也从此文件读取版本。
+
+Markdown/MDX 正文、行内代码、代码块和链接可使用 `@project.docsVersion@`、`@project.lastReleaseVer@`、`@project.lastReleaseTime@`。构建后显示和复制的内容均为实际值；变量名拼错会使构建失败。
+
+```xml
+<version>@project.docsVersion@</version>
+```
+
+修改后重新构建，本地预览需重启。历史版本、兼容性最低版本及第三方依赖版本保持固定，不随当前版本变化。此配置不修改 Java 工程或文档站 package.json 的版本。
+
 ## 部署到 OSS 并刷新 CDN
 
 两站点使用同一配置结构和发布流程，但各自的 `deploy_site.py` 固定绑定 `dbvisitor` 或 `hasor`，不会按工作目录猜测目标，也不会选择配置中的第一个站点。
@@ -77,11 +89,3 @@ HASOR_DOCS_DEPLOY_CONFIG=/absolute/path/docs-deploy.json ./deploy.sh
 ```
 
 两个独立入口同样使用配置校验和站点锁。`npm run deploy` 是 Docusaurus 自带的部署命令，不等同于 OSS/CDN 的 `./deploy.sh`。
-
-### 离线验证
-
-不使用真实凭据、不访问 OSS/CDN：
-
-```bash
-python3 -m unittest discover -s tests -v
-```

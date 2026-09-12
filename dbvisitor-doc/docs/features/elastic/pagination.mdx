@@ -1,0 +1,39 @@
+---
+id: pagination
+sidebar_position: 2
+title: 分页查询
+---
+
+# 分页查询
+
+Elasticsearch 搜索使用 `from` 和 `size` 取页；查询总数使用 `_count`。以下请求取第二页，每页 10 条：
+```text
+POST /user_info/_search {"query":{"match_all":{}},"sort":[{"uid":"asc"}],"from":10,"size":10}
+POST /user_info/_count {"query":{"match_all":{}}}
+```
+`uid` 应为可排序的 keyword 字段，并由应用保证值唯一。
+
+## dbVisitor 用法
+
+在 Mapper 方法中增加 Page 参数。实体映射见[数据读写](./usage.mdx)。
+
+```java
+@Query("""
+        POST /user_info/_search
+        {"query":{"match_all":{}},"sort":[{"uid":"asc"}]}
+        """)
+List<UserInfo> findPage(Page page);
+```
+
+```java
+Page page = new PageObject(1, 10);
+List<UserInfo> rows = mapper.findPage(page);
+```
+
+页码从 0 开始。 Page 覆盖搜索请求的 from/size；需要总数时另发 `_count`。只适用于搜索命中，不用于聚合桶。
+
+## 注意事项
+
+深分页受服务端结果窗口限制；驱动不会自动改用 search_after 或 scroll。`queryForList` 只读取本次响应，不会遍历整个索引。
+
+总数和取页是两次请求，并发写入可能使两次结果不一致。公共 API 见 [9.5 分页](../../guides/result/page_object.mdx)。

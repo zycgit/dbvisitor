@@ -1,0 +1,67 @@
+---
+id: write
+sidebar_position: 6
+hide_table_of_contents: true
+title: Multiple-Write Consistency
+description: Oracle multiple-insert execution and transaction handling when an insert fails.
+---
+
+# Multiple-Write Consistency
+
+Assume `user_info` is empty and `id` is its primary key:
+
+```sql
+CREATE TABLE user_info (
+    id NUMBER(10) PRIMARY KEY,
+    name VARCHAR2(100)
+);
+```
+
+The Fluent API below inserts three records. The first two deliberately use the same primary key:
+
+```java
+import java.util.List;
+import java.util.Map;
+import net.hasor.dbvisitor.lambda.LambdaTemplate;
+
+LambdaTemplate lambda = new LambdaTemplate(dataSource);
+List<Map<String, Object>> users = List.of(
+        Map.of("ID", 1001, "NAME", "Alice"),
+        Map.of("ID", 1001, "NAME", "Bob"),
+        Map.of("ID", 1002, "NAME", "Carol"));
+
+lambda.insert("USER_INFO")
+        .applyMap(users)
+        .executeSumResult();
+```
+
+dbVisitor executes INSERT statements individually in list order, rather than combining the records into one statement:
+
+1. Alice is inserted successfully.
+2. Bob fails with a duplicate primary key exception.
+3. Carol is not inserted.
+
+:::caution[Note]
+Without a transaction, when the connection uses auto-commit, Alice has already been committed. The exception does not undo that insert: Alice remains in the table.
+:::
+
+Use a transaction to insert all three records successfully or roll them all back. Start again with the empty table and the same three records:
+
+```java
+import net.hasor.dbvisitor.transaction.TransactionTemplate;
+import net.hasor.dbvisitor.transaction.TransactionTemplateManager;
+import net.hasor.dbvisitor.transaction.support.TransactionHelper;
+
+TransactionTemplate tx = new TransactionTemplateManager(
+        TransactionHelper.txManager(dataSource));
+
+tx.execute(status -> {
+    return lambda.insert("USER_INFO")
+            .applyMap(users)
+            .executeSumResult();
+});
+```
+
+When Bob's insert fails, the exception leaves the callback and Alice's insert is rolled back too. None of these three records remains in the table. The statements still execute individually.
+
+Use the same `dataSource` for `lambda` and the transaction manager. The calling method must handle or declare the exception thrown by `execute`. See [Transaction Template](../../guides/transaction/template.md) for complete usage.

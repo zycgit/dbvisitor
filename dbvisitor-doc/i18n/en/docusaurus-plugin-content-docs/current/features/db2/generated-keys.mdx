@@ -1,22 +1,25 @@
 ---
 id: generated-keys
-sidebar_position: 1
-hide_table_of_contents: true
-title: Auto-generated Key Backfill
-description: How to handle IDENTITY, sequence, and generated keys in DB2 with dbVisitor.
+sidebar_position: 4
+toc_min_heading_level: 2
+toc_max_heading_level: 2
+title: Key Generation
+description: How to handle IDENTITY, sequences, and key backfill in DB2 with dbVisitor.
 ---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 <span id="db2-auto-generated-key-backfill" />
 
-# Auto-generated Key Backfill
+# Key Generation
 
 DB2 supports identity columns and sequences. For identity columns, JDBC generated keys can be used; for sequences, getting the value before INSERT is more recommended.
 
-IBM documentation states that DB2 JDBC supports reading auto-generated keys, but batch generated keys have limitations — under certain configurations, a `PreparedStatement` prepared to return generated keys cannot be used for batch updates. See [IBM DB2 generated keys documentation](https://www.ibm.com/docs/en/db2-for-zos/12.0.0?topic=sql-retrieval-automatically-generated-keys-in-jdbc-applications).
+:::info[Note]
+For general configuration, see [Generated Keys](../../guides/core/mapper/annotation_insert#generated-keys).
+:::
 
-dbVisitor therefore adopts a conservative strategy under DB2: regular JDBC batch when no backfill columns; row-by-row execution when backfill columns exist, to avoid uncertainties from batch backfill ordering and driver limitations.
-
-## IDENTITY Column
+## Using IDENTITY
 
 ```sql
 CREATE TABLE user_info (
@@ -26,7 +29,8 @@ CREATE TABLE user_info (
 )
 ```
 
-## Lambda / BaseMapper
+<Tabs>
+<TabItem value="identity-lambda" label="Fluent API" default>
 
 ```java title='DB2 IDENTITY mapping'
 @Table("user_info")
@@ -39,11 +43,11 @@ public class UserInfo {
 }
 ```
 
-```java title='Read backfilled primary key after Lambda insert'
+```java title='Automatic property backfill after insert'
 UserInfo user = new UserInfo();
 user.setName("mali");
 
-LambdaTemplate lambda = ...
+LambdaTemplate lambda = ...;
 lambda.insert(UserInfo.class)
       .applyEntity(user)
       .executeSumResult();
@@ -51,19 +55,8 @@ lambda.insert(UserInfo.class)
 Long id = user.getId();
 ```
 
-## Mapper XML
-
-```xml title='DB2 generated keys'
-<insert id="insertUser"
-        useGeneratedKeys="true"
-        keyProperty="id"
-        keyColumn="id">
-    INSERT INTO user_info (name)
-    VALUES (#{name})
-</insert>
-```
-
-## Annotation Mapper
+</TabItem>
+<TabItem value="identity-annotation" label="Method Annotations">
 
 ```java
 @Insert(
@@ -75,15 +68,87 @@ Long id = user.getId();
 int insertUser(UserInfo user);
 ```
 
-## Sequence
+</TabItem>
+<TabItem value="identity-xml" label="Mapper File">
 
-DB2 dialect supports reading sequences:
-
-```sql
-VALUES NEXT VALUE FOR user_info_seq
+```xml title='DB2 generated keys'
+<insert id="insertUser"
+        useGeneratedKeys="true"
+        keyProperty="id"
+        keyColumn="id">
+    INSERT INTO user_info (name)
+    VALUES (#{name})
+</insert>
 ```
 
-Mapper XML:
+</TabItem>
+</Tabs>
+
+:::caution[Note]
+When inserting multiple entities with generated keys, dbVisitor inserts and fills each entity individually. For all-or-nothing writes, use [Multiple-Write Consistency](./write.mdx).
+:::
+
+## Using a Sequence
+
+This example uses a regular primary-key column and a sequence, independently of the identity example above:
+
+```sql
+CREATE TABLE user_info (
+    id BIGINT NOT NULL PRIMARY KEY,
+    name VARCHAR(64)
+);
+CREATE SEQUENCE user_info_seq START WITH 1 INCREMENT BY 1;
+```
+
+<Tabs>
+<TabItem value="sequence-lambda" label="Fluent API" default>
+
+```java
+import net.hasor.dbvisitor.mapping.Column;
+import net.hasor.dbvisitor.mapping.KeySeq;
+import net.hasor.dbvisitor.mapping.KeyType;
+import net.hasor.dbvisitor.mapping.Table;
+
+@Table("user_info")
+public class UserInfo {
+    @Column(primary = true, keyType = KeyType.Sequence)
+    @KeySeq("user_info_seq")
+    private Long id;
+    private String name;
+
+    // Getters and setters omitted
+}
+```
+
+```java
+UserInfo user = new UserInfo();
+user.setName("mali");
+
+lambda.insert(UserInfo.class)
+        .applyEntity(user)
+        .executeSumResult();
+
+Long id = user.getId();
+```
+
+Each insert obtains a sequence value, assigns it to `id`, and inserts the row.
+
+</TabItem>
+<TabItem value="sequence-annotation" label="Method Annotations">
+
+```java
+@SelectKeySql(
+    value = "VALUES NEXT VALUE FOR user_info_seq",
+    keyProperty = "id",
+    keyColumn = "id",
+    order = Order.Before
+)
+@Insert("INSERT INTO user_info (id, name) VALUES (#{id}, #{name})")
+int insertUser(UserInfo user);
+```
+
+</TabItem>
+<TabItem value="sequence-xml" label="Mapper File">
 
 ```xml
 <insert id="insertUser">
@@ -95,30 +160,5 @@ Mapper XML:
 </insert>
 ```
 
-Lambda / BaseMapper:
-
-```java
-@KeySeq("user_info_seq")
-@Column(value = "id", primary = true, keyType = KeyType.Sequence)
-private Long id;
-```
-
-## Dialect Strategy
-
-DB2's current strategy is as follows:
-
-| Scenario | GeneratedKeyStrategy |
-| --- | --- |
-| No backfill columns | `JdbcBatch` |
-| `Into` + with backfill columns | `OneByOne` |
-| `Ignore` + with backfill columns | `OneByOne` |
-| `Update` + with backfill columns | `OneByOne` |
-
-`DuplicateKeyStrategy.Ignore` / `Update` are implemented via DB2 `MERGE`, requiring primary key columns.
-
-## Design Principles
-
-- identity: use `KeyType.Auto` or `useGeneratedKeys=true`.
-- sequence: use `selectKey` / `@SelectKeySql` / `KeyType.Sequence` to get value before INSERT.
-- DB2 uses conservative row-by-row execution when generated keys backfill is needed; regular JDBC batch can be used when no backfill is required.
-- General documentation: see [Generated Keys](../../guides/core/mapper/annotation_insert#generated-keys).
+</TabItem>
+</Tabs>

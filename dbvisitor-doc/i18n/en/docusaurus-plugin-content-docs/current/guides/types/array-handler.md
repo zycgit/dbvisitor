@@ -29,7 +29,7 @@ public class EmbeddingEntity {
 ```
 
 :::caution
-When given Java arrays, both SQL ARRAY handlers use Object[]. Pass object arrays such as Integer[], not primitive arrays such as int[]. Milvus JDBC vector parameter support for primitive arrays follows a separate path; see [Milvus Usage](../../features/milvus/jdbc).
+When given Java arrays, both SQL ARRAY handlers use Object[]. Pass object arrays such as Integer[], not primitive arrays such as int[]. Milvus JDBC vector parameter support for primitive arrays follows a separate path; see [Milvus Parameter Binding](../../drivers/milvus/parameters.mdx#typed-values).
 
 The general ArrayTypeHandler converts non-empty arrays of Double elements to Float arrays when reading. To preserve double precision, use JDBC getArray() with your own conversion or a dedicated handler. Callers are responsible for freeing SQL Array inputs they supply.
 :::

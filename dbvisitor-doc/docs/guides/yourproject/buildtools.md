@@ -38,7 +38,7 @@ dbVisitor 最新正式版本为：**<Highlight color="rgb(227 17 108)">{Vars.las
 <dependency>
     <groupId>net.hasor</groupId>
     <artifactId>dbvisitor</artifactId>
-    <version>最新版本的版本号</version>
+    <version>@project.docsVersion@</version>
 </dependency>
 ```
 
@@ -48,7 +48,7 @@ dbVisitor 最新正式版本为：**<Highlight color="rgb(227 17 108)">{Vars.las
 
 ```text
 // Gradle
-implementation 'net.hasor:dbvisitor:最新版本的版本号'
+implementation 'net.hasor:dbvisitor:@project.docsVersion@'
 ```
 
 ## 混合 dbVisitor 不同版本

@@ -1,0 +1,53 @@
+---
+id: pagination
+sidebar_position: 2
+title: 分页查询
+description: Oracle 分页原理、dbVisitor 用法和注意事项。
+---
+
+# 分页查询
+
+分页查询把有序结果集按 `pageSize` 分段。页码从 0 开始时，第 `pageNumber` 页的偏移量是 `pageSize × pageNumber`。dbVisitor 采用偏移分页：Oracle 通过两层 `ROWNUM` 条件限制上界并跳过前序记录。分页边界依赖排序；要让相邻页面保持稳定，排序条件应包含唯一键。
+
+**分页语句**
+
+```sql
+SELECT * FROM (
+    SELECT TMP.*, ROWNUM ROW_ID
+    FROM (
+        SELECT id, name FROM user_info ORDER BY id
+    ) TMP
+    WHERE ROWNUM <= ?
+)
+WHERE ROW_ID > ?
+```
+
+两个参数依次是目标页最后一条记录的位置和偏移量。
+
+**查询总数**
+
+需要总记录数时，dbVisitor 另行执行：
+
+```sql
+SELECT COUNT(*) FROM (
+    SELECT id, name FROM user_info ORDER BY id
+) TEMP_T
+```
+
+## dbVisitor 用法
+
+```java
+List<UserInfo> rows = lambda.query(UserInfo.class)
+        .orderBy(UserInfo::getId)
+        .initPage(20, 0)
+        .queryForList();
+```
+
+`initPage(每页条数, 页码)` 的页码从 0 开始。需要复用分页状态时，可改用 `usePage(PageObject.of(页码, 每页条数))`；Mapper 方法也可以接收 `Page` 参数。分页对象、总数读取和各 API 的接入方式见 [9.5 分页](../../guides/result/page_object.mdx)。
+
+## 注意事项
+
+- `initPage(每页条数, 页码)` 的页码从 0 开始，且不是 JDBC `fetchSize`。
+- 排序必须写在原查询中，并包含唯一的决胜列。
+- 包装查询增加 `ROW_ID` 列；按列序号或 Map 读取时需注意。
+- 计数与取页是两次查询，并发修改时可能不一致。

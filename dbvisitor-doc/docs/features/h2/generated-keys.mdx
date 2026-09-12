@@ -1,18 +1,25 @@
 ---
 id: generated-keys
-sidebar_position: 1
-hide_table_of_contents: true
-title: 自增主键回填
-description: H2 下使用 dbVisitor 处理 IDENTITY、sequence 和 generated keys 的方式。
+sidebar_position: 4
+toc_min_heading_level: 2
+toc_max_heading_level: 2
+title: 主键生成
+description: H2 下使用 dbVisitor 处理 IDENTITY、sequence 和主键回填的方式。
 ---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 <span id="h2-自增主键回填" />
 
-# 自增主键回填
+# 主键生成
 
 H2 支持常见的 `IDENTITY` 自增列，也支持 sequence。dbVisitor 在 H2 下主要使用 JDBC generated keys 或插入前读取 sequence 两种方式处理主键。
 
-## IDENTITY 列
+:::info[说明]
+通用配置见[主键生成与回填](../../guides/core/mapper/annotation_insert#generated-keys)。
+:::
+
+## 使用 IDENTITY
 
 ```sql
 CREATE TABLE user_info (
@@ -22,7 +29,8 @@ CREATE TABLE user_info (
 )
 ```
 
-## Lambda / BaseMapper
+<Tabs>
+<TabItem value="identity-lambda" label="构造器 API" default>
 
 实体映射中使用 `KeyType.Auto`：
 
@@ -40,12 +48,12 @@ public class UserInfo {
 }
 ```
 
-```java title='Lambda 新增后读取回填主键'
+```java title='新增后属性自动回填'
 UserInfo user = new UserInfo();
 user.setName("mali");
 user.setAge(18);
 
-LambdaTemplate lambda = ...
+LambdaTemplate lambda = ...;
 lambda.insert(UserInfo.class)
       .applyEntity(user)
       .executeSumResult();
@@ -53,21 +61,10 @@ lambda.insert(UserInfo.class)
 Long id = user.getId();
 ```
 
-H2 方言在没有回填列时可以使用普通 JDBC batch；一旦存在 generated key 回填需求，会退回逐条执行，以确保每一行都能稳定回填。
 
-## Mapper XML
 
-```xml title='H2 generated keys'
-<insert id="insertUser"
-        useGeneratedKeys="true"
-        keyProperty="id"
-        keyColumn="id">
-    INSERT INTO user_info (name, age)
-    VALUES (#{name}, #{age})
-</insert>
-```
-
-## Annotation Mapper
+</TabItem>
+<TabItem value="identity-annotation" label="方法注解">
 
 ```java
 @Insert(
@@ -79,15 +76,89 @@ H2 方言在没有回填列时可以使用普通 JDBC batch；一旦存在 gener
 int insertUser(UserInfo user);
 ```
 
-## Sequence
+</TabItem>
+<TabItem value="identity-xml" label="Mapper 文件">
 
-H2 方言支持读取 sequence：
-
-```sql
-values next value for user_info_seq
+```xml title='H2 generated keys'
+<insert id="insertUser"
+        useGeneratedKeys="true"
+        keyProperty="id"
+        keyColumn="id">
+    INSERT INTO user_info (name, age)
+    VALUES (#{name}, #{age})
+</insert>
 ```
 
-Mapper XML 可以使用 `selectKey`：
+</TabItem>
+</Tabs>
+
+:::caution[注意]
+需要回填主键时，多个实体逐条插入、分别回填。需要一起提交或回滚时，见[多条写入一致性](./write.mdx)。
+:::
+
+## 使用序列
+
+下面使用普通主键列和序列，与上面的自增列示例独立：
+
+```sql
+CREATE TABLE user_info (
+    id BIGINT PRIMARY KEY,
+    name VARCHAR(64),
+    age INTEGER
+);
+CREATE SEQUENCE user_info_seq START WITH 1 INCREMENT BY 1;
+```
+
+<Tabs>
+<TabItem value="sequence-lambda" label="构造器 API" default>
+
+```java
+import net.hasor.dbvisitor.mapping.Column;
+import net.hasor.dbvisitor.mapping.KeySeq;
+import net.hasor.dbvisitor.mapping.KeyType;
+import net.hasor.dbvisitor.mapping.Table;
+
+@Table("user_info")
+public class UserInfo {
+    @Column(primary = true, keyType = KeyType.Sequence)
+    @KeySeq("user_info_seq")
+    private Long id;
+    private String name;
+    private Integer age;
+
+    // 省略 getter 和 setter
+}
+```
+
+```java
+UserInfo user = new UserInfo();
+user.setName("mali");
+
+lambda.insert(UserInfo.class)
+        .applyEntity(user)
+        .executeSumResult();
+
+Long id = user.getId();
+```
+
+每次插入前自动获取序列值，赋给 `id` 后再写入记录。
+
+</TabItem>
+<TabItem value="sequence-annotation" label="方法注解">
+
+```java
+@SelectKeySql(
+    value = "VALUES NEXT VALUE FOR user_info_seq",
+    keyProperty = "id",
+    keyColumn = "id",
+    order = Order.Before
+)
+@Insert("INSERT INTO user_info (id, name, age) VALUES (#{id}, #{name}, #{age})")
+int insertUser(UserInfo user);
+```
+
+</TabItem>
+<TabItem value="sequence-xml" label="Mapper 文件">
 
 ```xml
 <insert id="insertUser">
@@ -99,30 +170,5 @@ Mapper XML 可以使用 `selectKey`：
 </insert>
 ```
 
-Lambda / BaseMapper 可以使用 `KeyType.Sequence`：
-
-```java
-@KeySeq("user_info_seq")
-@Column(value = "id", primary = true, keyType = KeyType.Sequence)
-private Long id;
-```
-
-## 方言策略
-
-H2 当前策略如下：
-
-| 场景 | GeneratedKeyStrategy |
-| --- | --- |
-| 无回填列 | `JdbcBatch` |
-| `Into` + 有回填列 | `OneByOne` |
-| `Ignore` + 有回填列 | `OneByOne` |
-| `Update` + 有回填列 | `OneByOne` |
-
-`DuplicateKeyStrategy.Ignore` / `Update` 由 H2 `MERGE` 实现，需要主键列。
-
-## 设计原则
-
-- `IDENTITY`：使用 `KeyType.Auto` 或 `useGeneratedKeys=true`。
-- sequence：使用 `selectKey` / `@SelectKeySql` / `KeyType.Sequence` 在 INSERT 前取值。
-- 批量插入无回填时走 JDBC batch；需要回填时保守逐条执行。
-- 通用说明见 [Generated Keys](../../guides/core/mapper/annotation_insert#generated-keys)。
+</TabItem>
+</Tabs>

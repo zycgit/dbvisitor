@@ -1,0 +1,91 @@
+---
+id: vectors
+sidebar_position: 5
+title: Vector Operations
+description: PostgreSQL vector field mapping, distance thresholds, and matching search indexes.
+---
+
+# Vector Operations
+
+PostgreSQL uses the pgvector extension to store and search vectors. For common reads and writes, see [Vector Type Mapping](../../guides/core/vector_query/mapping.md). For queries, see [KNN Ordering](../../guides/core/vector_query/knn.md) and [Distance Filtering](../../guides/core/vector_query/range.md).
+
+## Map a Vector Field
+
+`vector(3)` stores a three-dimensional vector, not a PostgreSQL array. Enable the extension before creating the field:
+
+```sql
+CREATE EXTENSION IF NOT EXISTS vector;
+CREATE TABLE vector_item (
+    id BIGINT PRIMARY KEY,
+    embedding vector(3)
+);
+```
+
+Configure `PgVectorTypeHandler` on the entity's `List<Float>` property:
+
+```java
+import java.util.List;
+import net.hasor.dbvisitor.mapping.Column;
+import net.hasor.dbvisitor.mapping.Table;
+import net.hasor.dbvisitor.types.handler.array.PgVectorTypeHandler;
+
+@Table("vector_item")
+public class VectorItem {
+    @Column(primary = true)
+    private Long id;
+
+    @Column(typeHandler = PgVectorTypeHandler.class)
+    private List<Float> embedding;
+
+    // Getters and setters omitted
+}
+```
+
+Pass a three-dimensional `List<Float>` for both writes and queries. The Fluent API's `orderBy*` and `vectorBy*` reuse the field handler; do not convert the list to `PGobject` first.
+
+## Query by Cosine Similarity
+
+pgvector's `<=>` returns **cosine distance**, equal to `1 - cosine similarity`. To find records with similarity greater than `0.8`, pass a distance threshold of `0.2`, not `0.8`:
+
+```java
+List<VectorItem> rows = lambda.query(VectorItem.class)
+        .vectorByCosine(VectorItem::getEmbedding, target, 0.2)
+        .queryForList();
+```
+
+Here, `target` is the query vector. The condition is `embedding <=> ? < 0.2`. `orderByCosine` sorts distance ascending, placing higher similarity first.
+
+## Query by Inner Product
+
+pgvector's `<#>` returns the **negative inner product**. `orderByIP` sorts this value ascending, placing larger actual inner products first.
+
+To find records with an inner product greater than `0.8`, pass `-0.8`:
+
+```java
+List<VectorItem> rows = lambda.query(VectorItem.class)
+        .vectorByIP(VectorItem::getEmbedding, target, -0.8)
+        .queryForList();
+```
+
+The condition is `embedding <#> ? < -0.8`.
+
+## Match the Search Index
+
+Match the index to the query's distance metric:
+
+| Fluent API ordering | pgvector operator | Index operator class |
+| --- | --- | --- |
+| `orderByL2` | `<->` | `vector_l2_ops` |
+| `orderByCosine` | `<=>` | `vector_cosine_ops` |
+| `orderByIP` | `<#>` | `vector_ip_ops` |
+
+For example, the HNSW index matching a top-10 `orderByCosine` query is:
+
+```sql
+CREATE INDEX vector_item_cosine_idx
+ON vector_item USING hnsw (embedding vector_cosine_ops);
+```
+
+An L2 index cannot replace a cosine index. Indexed nearest-neighbor queries need ascending distance ordering and a limit; use `orderByCosine(...).initPage(10, 0)` in the Fluent API. A `vectorByCosine` distance filter alone is not an indexed nearest-neighbor query.
+
+See [pgvector documentation](https://github.com/pgvector/pgvector) for distance definitions and index options.

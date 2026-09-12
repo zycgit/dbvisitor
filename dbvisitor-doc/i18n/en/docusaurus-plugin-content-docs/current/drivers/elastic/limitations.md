@@ -12,6 +12,6 @@ JDBC Batch, transactions, savepoints and updatable ResultSets are not supported.
 
 Requests use REST-style commands; arbitrary relational SQL is not automatically translated into Elasticsearch queries. Pre-reading expands document fields by default; when disabled, read the dedicated result columns such as `_ID` and `_DOC`.
 
-For exact command syntax and result semantics, see the [command reference](../../features/elastic/commands.md).
+For exact command syntax and result semantics, see the [command reference](../../features/elastic/syntax/index.md).
 
 The `clientName` connection parameter has no effect. Use `customElastic` for advanced client configuration.

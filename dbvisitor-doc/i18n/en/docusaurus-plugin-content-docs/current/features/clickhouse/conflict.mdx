@@ -1,0 +1,47 @@
+---
+id: conflict
+sidebar_position: 3
+title: Duplicate Records
+description: Read the latest version when MergeTree contains repeated business IDs.
+---
+
+# Duplicate Records
+
+In MergeTree, inserting the same ID twice does not cause a primary-key error. If an application writes a new version of an event, both versions can remain:
+
+```sql
+CREATE TABLE event_version (
+    id String,
+    event_name String,
+    version UInt64
+) ENGINE = MergeTree ORDER BY id;
+
+INSERT INTO event_version VALUES ('E1', 'login', 1), ('E1', 'archived', 2);
+```
+
+```java
+List<Map<String, Object>> records = jdbcTemplate.queryForList(
+        "SELECT id, event_name, version FROM event_version WHERE id = ? ORDER BY version",
+        new Object[] { "E1" });
+```
+
+This returns two rows, not one updated row. Setting `@Column(primary = true)` does not change this behavior.
+
+## Read the Latest Version
+
+If the business needs the latest version of each event, assign increasing version numbers and select the name associated with the largest version:
+
+```java
+List<Map<String, Object>> latest = jdbcTemplate.queryForList("""
+        SELECT id, argMax(event_name, version) AS event_name
+        FROM event_version
+        GROUP BY id
+        ORDER BY id
+        """);
+```
+
+The result contains one E1 row with `event_name = archived`. Old versions still exist in storage.
+
+:::caution[Note]
+Use a unique version per event ID so the latest value is unambiguous. The ClickHouse Fluent API does not support the Ignore or Update insert-conflict strategies; they cannot turn this model into a unique-key upsert.
+:::

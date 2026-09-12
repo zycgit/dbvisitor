@@ -1,0 +1,62 @@
+---
+id: write
+sidebar_position: 6
+title: Waiting for Data Changes
+description: Wait for ClickHouse mutations and inspect their progress and failures.
+---
+
+# Waiting for Data Changes
+
+An ALTER TABLE mutation can return before changed data becomes visible. If an application updates an event and immediately reads it, it may still see the old value.
+
+## Reproduce the Scenario
+
+```sql
+CREATE TABLE event_log (id String, event_name String)
+ENGINE = MergeTree ORDER BY id;
+
+INSERT INTO event_log VALUES ('E1', 'login');
+```
+
+```java
+jdbcTemplate.executeUpdate(
+        "ALTER TABLE event_log UPDATE event_name = ? WHERE id = ? SETTINGS mutations_sync = 0",
+        new Object[] { "archived", "E1" });
+```
+
+This explicitly submits an asynchronous mutation. A successful return means the command was accepted, not that all matching data has already changed.
+
+## Wait Before Reading
+
+If the next step needs the new value on this server, submit the change with `mutations_sync = 1`:
+
+```java
+jdbcTemplate.executeUpdate(
+        "ALTER TABLE event_log UPDATE event_name = ? WHERE id = ? SETTINGS mutations_sync = 1",
+        new Object[] { "archived", "E1" });
+
+String name = jdbcTemplate.queryForObject(
+        "SELECT event_name FROM event_log WHERE id = ?",
+        new Object[] { "E1" }, String.class);
+```
+
+After successful completion, `name` is `archived`. This example uses a single-server MergeTree table. See [mutation synchronization](https://clickhouse.com/docs/sql-reference/statements/alter/update) for replica waiting options.
+
+## Inspect Progress and Failures
+
+For asynchronous work, query the table's mutation records rather than inferring completion from an update count:
+
+```java
+List<Map<String, Object>> tasks = jdbcTemplate.queryForList("""
+        SELECT mutation_id, command, is_done, parts_to_do, latest_fail_reason
+        FROM system.mutations
+        WHERE database = currentDatabase() AND table = ?
+        ORDER BY create_time DESC, mutation_id DESC
+        """, new Object[] { "event_log" });
+```
+
+Check `is_done` for completion, `parts_to_do` for remaining parts, and `latest_fail_reason` for the latest failure. Match the command and mutation ID to the operation being inspected; the newest row may belong to another writer. See [system.mutations](https://clickhouse.com/docs/operations/system-tables/mutations).
+
+:::caution[Note]
+Waiting for completion does not make several mutations one transaction. If a request times out, inspect its status before resubmitting.
+:::

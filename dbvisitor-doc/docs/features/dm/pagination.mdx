@@ -1,0 +1,45 @@
+---
+id: pagination
+sidebar_position: 2
+title: 分页查询
+description: 达梦分页原理、dbVisitor 用法和注意事项。
+---
+
+# 分页查询
+
+偏移分页先跳过 `页码 × 每页条数` 条记录，再取出一页。页码从 0 开始，每页 20 条时，各页偏移量依次为 0、20、40。
+
+**分页语句**
+
+```sql
+SELECT id, name FROM user_info ORDER BY id LIMIT ?, ?
+```
+
+两个参数依次是偏移量和每页条数；首页只生成 `LIMIT ?`。
+
+**查询总数**
+
+需要总记录数时，dbVisitor 另行执行：
+
+```sql
+SELECT COUNT(*) FROM (
+    SELECT id, name FROM user_info ORDER BY id
+) AS TEMP_T
+```
+
+## dbVisitor 用法
+
+```java
+List<UserInfo> rows = lambda.query(UserInfo.class)
+        .orderBy(UserInfo::getId)
+        .initPage(20, 0)
+        .queryForList();
+```
+
+`initPage(每页条数, 页码)` 的页码从 0 开始。需要复用分页状态时，可改用 `usePage(PageObject.of(页码, 每页条数))`；Mapper 方法也可以接收 `Page` 参数。分页对象、总数读取和各 API 的接入方式见 [9.5 分页](../../guides/result/page_object.mdx)。
+
+## 注意事项
+
+- 没有稳定排序时，连续翻页可能重复或遗漏记录。
+- 较大 offset 会增加扫描成本。
+- 计数与取页是两次查询，并发修改时可能不一致。

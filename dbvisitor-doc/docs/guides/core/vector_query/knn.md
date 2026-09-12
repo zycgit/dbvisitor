@@ -39,12 +39,10 @@ KNN 近邻排序用于“找最相似的 N 条记录”。dbVisitor 使用 `orde
 
 ## 构造查询向量
 
-`orderBy*` 的向量参数直接进入 SQL 参数绑定，需要传入数据库能识别的向量类型。pgvector 可使用 `PGobject`。
+`orderBy*` 会使用向量字段映射的 TypeHandler 转换参数。PostgreSQL 实体字段配置 `PgVectorTypeHandler` 后，可以直接传入 `List<Float>`。
 
 ```java title='pgvector 查询参数'
-PGobject target = new PGobject();
-target.setType("vector");
-target.setValue("[0.1,0.2,0.3]");
+List<Float> target = List.of(0.1f, 0.2f, 0.3f);
 ```
 
 ## 查询最近的 N 条
@@ -111,9 +109,9 @@ LIMIT 10
 
 ## 常见问题
 
-### 为什么 orderBy 参数不能直接传 List
+### 没有实体映射时如何绑定向量
 
-`orderBy*` 的向量参数直接作为排序表达式的参数进入 SQL。部分驱动无法从 `List<Float>` 推断数据库向量类型，因此 PostgreSQL pgvector 场景中推荐传入 `PGobject` 或驱动支持的向量对象。
+`queryFreedom`、Map 模式或未配置向量 TypeHandler 的字段没有可复用的字段转换规则。此时应使用 `SqlArg` 显式指定 TypeHandler，或传入数据库驱动能够识别的向量对象。
 
 ### 什么时候需要 initPage
 

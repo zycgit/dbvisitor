@@ -1,27 +1,35 @@
 ---
 id: generated-keys
-sidebar_position: 1
-hide_table_of_contents: true
-title: 自增主键回填
-description: MySQL 下使用 dbVisitor 处理 AUTO_INCREMENT、generated keys 和重复键策略的方式。
+sidebar_position: 4
+toc_min_heading_level: 2
+toc_max_heading_level: 2
+title: 主键生成
+description: MySQL 下使用 dbVisitor 处理 AUTO_INCREMENT 和主键回填的方式。
 ---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 <span id="mysql-自增主键回填" />
 
-# 自增主键回填
+# 主键生成
 
-MySQL 的 `AUTO_INCREMENT` 列适合通过 JDBC generated keys 回填。dbVisitor 在 MySQL 下会根据是否需要回填列、是否使用重复键策略选择不同执行方式。
+MySQL 使用 `AUTO_INCREMENT` 生成主键，插入后可将值自动写回实体。
 
-## 方言策略
+:::info[说明]
+通用配置见[主键生成与回填](../../guides/core/mapper/annotation_insert#generated-keys)。
+:::
 
-| 场景 | GeneratedKeyStrategy | 说明 |
-|------|---------------------|------|
-| 无回填列 | `JdbcBatch` | 普通 JDBC batch，减少逐条提交开销 |
-| `Into` + 有回填列 | `JdbcBatchGeneratedKeys` | batch + `getGeneratedKeys()` 回填 |
-| `Ignore` + 有回填列 | `OneByOne` | 保守逐条执行，保证回填语义 |
-| `Update` + 有回填列 | `OneByOne` | 同上，避免 `ON DUPLICATE KEY UPDATE` 与 batch generated keys 的不稳定组合 |
+## 使用 AUTO_INCREMENT
 
-## Lambda / BaseMapper
+```sql
+CREATE TABLE user_info (
+    id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(64)
+) ENGINE=InnoDB;
+```
+
+<Tabs>
+<TabItem value="identity-lambda" label="构造器 API" default>
 
 ```java
 @Table("user_info")
@@ -43,25 +51,29 @@ lambda.insert(UserInfo.class).applyEntity(user).executeSumResult();
 Integer id = user.getId(); // 自动回填
 ```
 
-## 写入冲突策略
 
-| 策略 | MySQL 实现 | 主键要求 |
-|------|-----------|---------|
-| Ignore | `INSERT IGNORE INTO ...` | 不要求（即使无主键也支持） |
-| Update | `INSERT INTO ... ON DUPLICATE KEY UPDATE ...` | 不要求（无主键时更新所有列） |
 
-MySQL 方言使用 Ignore/Update 策略时，不强制要求实体映射提供主键列。策略由数据库唯一键或主键触发。
+</TabItem>
+<TabItem value="identity-annotation" label="方法注解">
 
-## Mapper XML / Annotation
+```java title='方法注解'
+@Insert(value = "INSERT INTO user_info (name) VALUES (#{name})",
+        useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
+int insertUser(UserInfo user);
+```
 
-```xml title='Mapper XML'
+</TabItem>
+<TabItem value="identity-xml" label="Mapper 文件">
+
+```xml title='Mapper 文件'
 <insert id="insertUser" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
     INSERT INTO user_info (name) VALUES (#{name})
 </insert>
 ```
 
-```java title='Annotation'
-@Insert(value = "INSERT INTO user_info (name) VALUES (#{name})",
-        useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
-int insertUser(UserInfo user);
-```
+</TabItem>
+</Tabs>
+
+:::caution[注意]
+插入多个实体后，从各实体属性读取 ID，不要从第一个 ID 推算其它主键。插入冲突导致跳过或更新已有记录时，不保证回填主键。
+:::

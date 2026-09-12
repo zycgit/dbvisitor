@@ -15,10 +15,10 @@ description: Elasticsearch JDBC driver setup, connections and usage.
 
 ## Get Connected
 
-1. [Add dependencies](./dependencies.mdx): Maven or Gradle configuration.
-2. [Connect to the database](./connection.mdx): JDBC URL, credentials and connection examples.
-3. [Configure parameters](./params.md): names, defaults and units.
-4. [Usage limitations](./limitations.md): JDBC support and database-specific restrictions.
+1. [Add dependencies](dependencies.mdx): Maven or Gradle configuration.
+2. [Connect to the database](connection.mdx): JDBC URL, credentials and connection examples.
+3. [Configure parameters](params.md): names, defaults and units.
+4. [Usage limitations](limitations.md): JDBC support and database-specific restrictions.
 
 ## Before You Connect
 
@@ -28,6 +28,6 @@ description: Elasticsearch JDBC driver setup, connections and usage.
 
 When using dbVisitor APIs, Elastic6 and Elastic7 dialects are available.
 
-[Command reference](../../features/elastic/commands.md) · [dbVisitor API usage](../../features/elastic/usage.mdx)
+[Command reference](../../features/elastic/syntax/index.md) · [dbVisitor API usage](../../features/elastic/usage.mdx)
 
 [Vector searches](../../features/elastic/vectors.mdx)

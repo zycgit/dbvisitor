@@ -2,60 +2,146 @@
 id: about
 sidebar_position: 0
 hide_table_of_contents: true
-title: Milvus 特性
-description: Milvus 向量数据库使用 dbVisitor 的能力范围、API 支持和向量搜索方式。
+title: Milvus
 ---
 
-<span id="milvus-数据源特性" />
+# Milvus
 
-# Milvus 特性
+通过 SQL 风格命令和构造器 API 操作 Milvus 集合与向量。 连接配置见 [JDBC Milvus](../../drivers/milvus/connection.mdx).
 
-dbVisitor 通过 [JDBC-Milvus](../../drivers/milvus/about) 驱动，基于 JDBC 协议访问 Milvus 向量数据库。与 MongoDB/ElasticSearch 的原生命令风格不同，Milvus 适配器采用 **SQL 风格语法**（`CREATE TABLE`、`INSERT`、`SELECT`、`DELETE` 等），学习成本更低。
 
-## 快速了解差异
+## dbVisitor 使用
 
-| 关注点 | Milvus 行为 |
-|--------|------------|
-| API 支持 | JdbcTemplate、构造器 API、BaseMapper、注解、Mapper File |
-| 主键生成 | JDBC INSERT/UPSERT 支持 `RETURN_GENERATED_KEYS`；按 SDK 返回 Int64/VarChar ID |
-| 分页 | LIMIT/OFFSET、maxRows 控制返回范围，fetchSize 控制按需取页大小 |
-| 多行写入 | 多行 VALUES 或 Iterable/Iterator；不支持 JDBC executeBatch |
-| 存储过程 | 不支持 |
-| 向量搜索 | 类型匹配的 KNN/范围搜索；Hybrid 多路融合返回一个结果集 |
+- [类型支持](dbvisitor/types.md)：选择字段或值对应的 Java 类型。
+- [分页查询](dbvisitor/pagination.mdx)：读取指定范围和查询总数。
+- [主键生成](dbvisitor/generated-keys.mdx)：指定编号或读取生成的 ID。
+- [数据读写](dbvisitor/usage.mdx)：绑定命令参数，了解 API 对应的数据库动作。
 
-**不支持：** 事务/savepoint、JDBC executeBatch、存储过程和可更新 ResultSet。API 使用仍受驱动 SQL 子集限制，不保证任意通用方法或 SQL 均可执行。
+## SQL 语句
 
-## 概念类比
+### 语法基础
 
-Milvus 适配器使用 SQL 风格的命令子集：
+- [语法约定与注释](basics/notation.md)
+- [标识符](basics/identifiers.md)
+- [字面量与参数](basics/parameters.md)
+- [运算符](basics/operators.md)
+- [Hint 支持](basics/hints.md)
 
-- **DDL** — `CREATE TABLE`、`DROP TABLE`、`CREATE INDEX`，用 `executeUpdate` 执行
-- **DML** — `INSERT`、`UPDATE`、`DELETE`，用 `executeUpdate` 获取影响行数
-- **DQL** — `SELECT` 查询返回标准 `ResultSet`
+### 数据类型
 
-:::info[Milvus 特殊要求]
-查询前先建立所需索引并执行 `LOAD TABLE table_name`。UPDATE 分页选取主键，使用原生 Partial Upsert 仅提交 SET 字段；无 LIMIT 会持续处理符合条件的实体，但没有跨页事务、整体回滚或精确一次保证。
-:::
+- [标量类型](types/fields.md)
+- [JSON](types/json.md)
+- [ARRAY](types/array.md)
+- [长度、容量与维度](types/dimensions.md)
+- [字段约束](types/defaults.md)
+- [向量值](types/vectors.md)
+- [JSON、ARRAY 与向量绑定](types/binding.md)
 
-## 详细用法
+### 查询语句
 
-完整的 JdbcTemplate、构造器 API、BaseMapper、注解、Mapper File 用法请阅读 [Milvus 使用指南](./usage)。
+- [SELECT](query/select.md)
+- [COUNT / SELECT COUNT(*)](query/count.md)
+- [HYBRID](query/hybrid.md)
 
-## 核心话题
+### 写入语句
 
-- [向量搜索](./usage#vector-search)：单向量 KNN、L2 范围构造器与 COSINE/IP 的 SQL 阈值规则。
-- [标量过滤 + 向量搜索](./usage#hybrid-query)：与[原生 Hybrid 多路融合](./commands.md#hybrid)不同。
-- [一致性级别](./usage#consistency)：`consistencyLevel=Strong` 确保即时可见
+- [INSERT](write/insert.md)
+- [UPSERT](write/upsert.md)
+- [UPDATE](write/update.md)
+- [DELETE](write/delete.md)
+- [IMPORT](write/import.md)
 
-## 与通用文档的关系
+### 定义语句
 
-通用 API 用法见 [核心API](../../guides/overview)。向量查询 API 见 [向量查询](../../guides/core/vector_query/about)。
+- [CREATE DATABASE](ddl/create-database.md)
+- [ALTER DATABASE](ddl/alter-database.md)
+- [DROP DATABASE](ddl/drop-database.md)
+- [CREATE TABLE](ddl/create-table.md)
+- [ALTER TABLE](ddl/alter-table.md)
+- [DROP TABLE](ddl/drop-table.md)
+- [TRUNCATE TABLE](ddl/truncate-table.md)
+- [CREATE INDEX](ddl/create-index.md)
+- [ALTER INDEX](ddl/alter-index.md)
+- [DROP INDEX](ddl/drop-index.md)
+- [CREATE PARTITION](ddl/create-partition.md)
+- [DROP PARTITION](ddl/drop-partition.md)
+- [CREATE ALIAS](ddl/create-alias.md)
+- [ALTER ALIAS](ddl/alter-alias.md)
+- [DROP ALIAS](ddl/drop-alias.md)
+- [FUNCTION 定义](ddl/functions.md)
+- [ALTER TABLE … FUNCTION](ddl/alter-function.md)
 
-当前开发版要求 Java 17+、SDK 2.6.22、Milvus 最低 2.6.2；服务端功能门槛、发布版区别及功能边界见[版本与支持范围](./compatibility.md)。JDBC 主键用法见[类型绑定与主键回传](./jdbc.mdx#typed-values)。
+### SHOW 语句
 
-## 文档导航
+- [SHOW DATABASES / DATABASE](show/databases.md)
+- [SHOW TABLES / TABLE / CREATE TABLE](show/tables.md)
+- [SHOW INDEXES / INDEX](show/indexes.md)
+- [SHOW STATS](show/stats.md)
+- [SHOW PARTITIONS / PARTITION](show/partitions.md)
+- [SHOW ALIASES / ALIAS](show/aliases.md)
+- [SHOW FLUSH ALL](show/flush.md)
+- [SHOW REPLICAS](show/replicas.md)
+- [SHOW RESOURCE GROUPS / GROUP](show/resource-groups.md)
+- [SHOW COMPACTION](show/compaction.md)
+- [SHOW PROGRESS](show/progress.md)
+- [SHOW USERS / USER](show/users.md)
+- [SHOW ROLES / ROLE](show/roles.md)
+- [SHOW GRANTS](show/grants.md)
+- [SHOW PRIVILEGE GROUPS](show/privilege-groups.md)
+- [SHOW IMPORT / IMPORTS](show/import.md)
+- [SHOW VERSION](show/version.md)
+- [SHOW HEALTH](show/health.md)
+- [SHOW PERSISTENT SEGMENTS](show/persistent-segments.md)
+- [SHOW QUERY SEGMENTS](show/query-segments.md)
 
-- [JDBC 驱动安装与连接](../../drivers/milvus/connection.mdx)
-- [JDBC 操作用法](./jdbc.mdx)
-- [命令参考](./commands.md)
-- [dbVisitor API 用法](./usage.mdx)
+### 管理语句
+
+- [ANALYZE](admin/analyze.md)
+- [LOAD](admin/load.md)
+- [RELEASE](admin/release.md)
+- [FLUSH](admin/flush.md)
+- [资源组语句](admin/resource-groups.md)
+- [TRANSFER NODES / REPLICAS](admin/transfer.md)
+- [COMPACT](admin/compact.md)
+- [用户语句](admin/users.md)
+- [角色语句](admin/roles.md)
+- [GRANT / REVOKE](admin/grant.md)
+- [权限组语句](admin/privilege-groups.md)
+
+<span id="database" />
+<span id="table" />
+<span id="index" />
+<span id="user" />
+<span id="dml" />
+<span id="dql" />
+<span id="extended" />
+<span id="progress" />
+<span id="jdbc-results" />
+<span id="hint" />
+<span id="collection-keys" />
+<span id="truncate" />
+<span id="rename" />
+<span id="partition" />
+<span id="alias" />
+<span id="index-metadata" />
+<span id="upsert" />
+<span id="generated-keys" />
+<span id="query-options" />
+<span id="pagination" />
+<span id="grouping" />
+<span id="hybrid" />
+<span id="functions" />
+<span id="alter-functions" />
+<span id="analyze" />
+<span id="import" />
+<span id="load" />
+<span id="flush" />
+<span id="replicas" />
+<span id="diagnostics" />
+<span id="resource-groups" />
+<span id="resource-group-config" />
+<span id="resource-group-transfers" />
+<span id="compaction" />
+<span id="principal-descriptions" />
+<span id="scoped-privileges" />
+<span id="privilege-groups" />

@@ -1,0 +1,89 @@
+---
+id: backfill
+sidebar_position: 4.5
+title: 数据回填
+description: 使用 Oracle RETURNING INTO 在插入、更新和删除时返回字段值。
+---
+
+# 数据回填
+
+`RETURNING ... INTO` 在执行写入的同时返回字段值，无需再执行 SELECT。INSERT 返回插入后的值，UPDATE 返回更新后的值，DELETE 返回删除前的值。
+
+在 dbVisitor 中，使用 `JdbcTemplate.call` 执行 `BEGIN ... END;` 匿名块，通过 OUT 参数获取返回值，**不按 SELECT 处理**。匿名块无需预先创建存储过程。
+
+## 插入后返回字段
+
+以下示例依次使用同一张表：
+
+```sql
+CREATE TABLE user_info (
+    id   NUMBER(10) PRIMARY KEY,
+    name VARCHAR2(100),
+    age  NUMBER(3)
+);
+```
+
+插入时由数据库将名字转为大写，并返回实际写入的名字和年龄：
+
+```java
+import java.util.Map;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+
+JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+Map<String, Object> result = jdbc.call("""
+    BEGIN
+        INSERT INTO user_info (id, name, age)
+        VALUES (#{id}, UPPER(#{name}), #{age})
+        RETURNING name, age INTO #{savedName,mode=out,jdbcType=varchar},
+                                 #{savedAge,mode=out,jdbcType=integer};
+    END;
+    """, Map.of("id", 918101, "name", "alice", "age", 20));
+
+String name = (String) result.get("savedName"); // ALICE
+Integer age = (Integer) result.get("savedAge"); // 20
+```
+
+`mode=out` 声明输出参数，`jdbcType` 指定接收类型。返回 Map 的键就是输出参数名；需要写回实体时，将值赋给对应属性即可。
+
+## 更新后返回字段
+
+将年龄加一，返回更新后的年龄。通过 `SQL%ROWCOUNT` 同时取得实际更新条数：
+
+```java
+Map<String, Object> result = jdbc.call("""
+    BEGIN
+        UPDATE user_info SET age = age + 1 WHERE id = #{id}
+        RETURNING age INTO #{savedAge,mode=out,jdbcType=integer};
+        #{rows,mode=out,jdbcType=integer} := SQL%ROWCOUNT;
+    END;
+    """, Map.of("id", 918101));
+
+if ((Integer) result.get("rows") == 1) {
+    Integer age = (Integer) result.get("savedAge"); // 21
+}
+```
+
+## 删除时返回字段
+
+删除记录，同时取得被删除的名字：
+
+```java
+Map<String, Object> result = jdbc.call("""
+    BEGIN
+        DELETE FROM user_info WHERE id = #{id}
+        RETURNING name INTO #{deletedName,mode=out,jdbcType=varchar};
+        #{rows,mode=out,jdbcType=integer} := SQL%ROWCOUNT;
+    END;
+    """, Map.of("id", 918101));
+
+if ((Integer) result.get("rows") == 1) {
+    String name = (String) result.get("deletedName"); // ALICE
+}
+```
+
+:::caution[注意]
+- 上例使用单值输出参数，更新和删除通过主键限定为一条记录，不适用于多行返回。
+- 未匹配记录时，不读取返回字段；先检查 `rows` 是否为 `1`。
+:::
+
+输出参数的通用用法见[存储过程调用](../../guides/core/jdbc/procedure.mdx#outp)；自增主键的自动回填见[主键生成](./generated-keys.mdx)。语法说明见 [Oracle RETURNING INTO](https://docs.oracle.com/en/database/oracle/oracle-database/19/lnpls/RETURNING-INTO-clause.html)。

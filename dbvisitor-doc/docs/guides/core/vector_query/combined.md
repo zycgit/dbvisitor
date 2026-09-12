@@ -42,9 +42,7 @@ tenant_id / category / status / create_time
 ## 普通条件 + KNN 排序
 
 ```java title='分类内 Top-K'
-PGobject target = new PGobject();
-target.setType("vector");
-target.setValue("[0.1,0.2,0.3]");
+List<Float> target = List.of(0.1f, 0.2f, 0.3f);
 
 List<ProductVector> rows = lambda.query(ProductVector.class)
         .eq(ProductVector::getCategory, "book")

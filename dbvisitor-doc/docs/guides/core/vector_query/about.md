@@ -18,8 +18,6 @@ description: 使用 LambdaTemplate 对向量字段进行写入、读取、KNN �
 
 ## 不适合场景
 
-- 数据源或方言不支持向量 SQL；调用时会报 `Vector not supported by this dialect.`。
-- 需要由 dbVisitor 创建向量索引、调优索引参数或生成 embedding；这些能力属于数据库或模型侧。
 - 需要复杂混合检索排序逻辑；可使用 [编程式 API](../jdbc/about) 编写完整 SQL。
 
 ## 查询方式
@@ -65,7 +63,7 @@ description: 使用 LambdaTemplate 对向量字段进行写入、读取、KNN �
 | SQL 位置 | `ORDER BY` | `WHERE` |
 | 典型问题 | 找最相似的 N 条 | 找距离小于阈值的全部记录 |
 | 返回数量 | 通常配合 `initPage` 固定数量 | 由阈值和数据分布决定 |
-| 向量参数 | 传入数据库可识别类型，例如 `PGobject` | 可通过映射 TypeHandler 转换，例如 `List<Float>` |
+| 向量参数 | 通过字段映射的 TypeHandler 转换 | 通过字段映射的 TypeHandler 转换 |
 | 条件组合 | 和普通 WHERE 条件组合后再排序 | 本身就是 WHERE 条件 |
 
 ## 数据库支持

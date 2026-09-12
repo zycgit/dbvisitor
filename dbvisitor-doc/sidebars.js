@@ -38,7 +38,7 @@ const sidebars = {
             type: 'category',
             label: 'JDBC Milvus',
             link: {type: 'doc', id: 'drivers/milvus/about'},
-            items: ['drivers/milvus/dependencies', 'drivers/milvus/connection', 'drivers/milvus/params', 'drivers/milvus/limitations'],
+            items: ['drivers/milvus/dependencies', 'drivers/milvus/connection', 'drivers/milvus/params', 'drivers/milvus/execution', 'drivers/milvus/parameters', 'drivers/milvus/results', 'drivers/milvus/limitations'],
         },
         {
             type: 'category',

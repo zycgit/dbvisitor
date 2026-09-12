@@ -19,7 +19,10 @@ description: Milvus JDBC driver setup, connections and usage.
 1. [Add dependencies](./dependencies.mdx): Maven or Gradle configuration.
 2. [Connect to the database](./connection.mdx): JDBC URL, credentials and connection examples.
 3. [Configure parameters](./params.md): names, defaults and units.
-4. [Usage limitations](./limitations.md): JDBC support and database-specific restrictions.
+4. [Execute Commands](execution.mdx)
+5. [Parameter Binding](parameters.mdx)
+6. [Read Results](results.md)
+7. [Usage limitations](./limitations.md): JDBC support and database-specific restrictions.
 
 ## Before You Connect
 
@@ -28,4 +31,4 @@ description: Milvus JDBC driver setup, connections and usage.
 - JDBC batch and transactions are not supported. Check the [shared JDBC limitations](../limited.md) before integrating a connection pool, ORM or other JDBC tool.
 - Requires Milvus 2.6.2 or later within the documented support range; some features require newer versions. See [Versions and Supported Scope](../../features/milvus/compatibility.md). For TLS/mTLS and Zilliz Cloud, use the [secure connection examples](./connection.mdx#tls).
 
-[Command reference](../../features/milvus/commands.md) · [dbVisitor API usage](../../features/milvus/usage.mdx)
+[Command reference](../../features/milvus/about.md) · [dbVisitor API usage](../../features/milvus/dbvisitor/usage.mdx)

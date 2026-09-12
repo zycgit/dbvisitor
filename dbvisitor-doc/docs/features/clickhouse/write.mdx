@@ -1,0 +1,62 @@
+---
+id: write
+sidebar_position: 6
+title: 等待数据变更完成
+description: 等待 ClickHouse mutation 完成，并查看执行进度与失败原因。
+---
+
+# 等待数据变更完成
+
+ALTER TABLE mutation 返回时，数据变更可能还未完成。应用修改事件名称后立即查询，可能仍读到旧值。
+
+## 操作示例
+
+```sql
+CREATE TABLE event_log (id String, event_name String)
+ENGINE = MergeTree ORDER BY id;
+
+INSERT INTO event_log VALUES ('E1', 'login');
+```
+
+```java
+jdbcTemplate.executeUpdate(
+        "ALTER TABLE event_log UPDATE event_name = ? WHERE id = ? SETTINGS mutations_sync = 0",
+        new Object[] { "archived", "E1" });
+```
+
+这里明确使用异步执行。调用成功说明命令已接受，不表示匹配的数据已经全部修改。
+
+## 等待完成后再读取
+
+如果下一步需要读取当前服务节点上的新值，在提交时使用 `mutations_sync = 1`：
+
+```java
+jdbcTemplate.executeUpdate(
+        "ALTER TABLE event_log UPDATE event_name = ? WHERE id = ? SETTINGS mutations_sync = 1",
+        new Object[] { "archived", "E1" });
+
+String name = jdbcTemplate.queryForObject(
+        "SELECT event_name FROM event_log WHERE id = ?",
+        new Object[] { "E1" }, String.class);
+```
+
+成功返回后，`name` 为 `archived`。此例使用单节点 MergeTree 表；副本等待设置见[mutation 同步方式](https://clickhouse.com/docs/sql-reference/statements/alter/update)。
+
+## 查看进度与失败原因
+
+异步执行时，通过 mutation 记录检查进度，不要用更新计数判断是否完成：
+
+```java
+List<Map<String, Object>> tasks = jdbcTemplate.queryForList("""
+        SELECT mutation_id, command, is_done, parts_to_do, latest_fail_reason
+        FROM system.mutations
+        WHERE database = currentDatabase() AND table = ?
+        ORDER BY create_time DESC, mutation_id DESC
+        """, new Object[] { "event_log" });
+```
+
+`is_done` 表示是否完成，`parts_to_do` 表示剩余分片，`latest_fail_reason` 给出最近失败原因。按命令和 mutation ID 确认目标任务，不要把其它写入者提交的最新记录当成本次操作。见 [system.mutations](https://clickhouse.com/docs/operations/system-tables/mutations)。
+
+:::caution[注意]
+等待完成不等于把多条 mutation 变成一个事务。调用超时后先检查任务状态，不要直接重复提交。
+:::

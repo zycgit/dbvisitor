@@ -1,0 +1,58 @@
+---
+id: conflict
+sidebar_position: 3
+title: Insert Conflicts
+description: Dameng insert-conflict strategies, dbVisitor usage, and limitations.
+---
+
+# Insert Conflicts
+
+Conflict handling decides whether an insert that duplicates an existing primary key should fail, be ignored, or update the existing row. Typical scenarios include replayed jobs, data synchronization, repeated imports, and insert-or-update operations. It is an INSERT execution strategy, not a separate ordinary UPDATE.
+
+## Strategies
+
+| Strategy | Dameng statement | Result |
+|----------|-------------------|--------|
+| Into | `INSERT INTO ... VALUES (...)` | The database reports a conflict |
+| Ignore | `INSERT /*+ IGNORE_ROW_ON_DUPKEY_INDEX(...) */ INTO ...` | Skip duplicates on the specified unique constraint |
+| Update | `MERGE ... WHEN MATCHED THEN UPDATE ... WHEN NOT MATCHED THEN INSERT` | Update matched rows and insert unmatched rows |
+
+Ignore creates the Hint from primary-key mapping. Update uses primary-key columns for the `MERGE` match.
+
+## Usage
+
+Assume `UserInfo` maps to this table, with `id` marked as the entity primary key. Alice already exists:
+
+```sql
+CREATE TABLE user_info (
+    id INTEGER NOT NULL PRIMARY KEY,
+    name VARCHAR(64),
+    age INTEGER
+);
+INSERT INTO user_info (id, name, age) VALUES (1001, 'Alice', 18);
+```
+
+Submit the same ID with a new name:
+
+```java
+UserInfo user = new UserInfo();
+user.setId(1001);
+user.setName("Bob");
+user.setAge(20);
+
+int rows = lambda.insert(UserInfo.class)
+        .onDuplicateStrategy(DuplicateKeyStrategy.Ignore)
+        .applyEntity(user)
+        .executeSumResult();
+```
+
+With `Ignore`, Alice remains unchanged. With `Update`, row 1001 becomes Bob, age 20.
+
+Use `Update` to update non-primary-key columns when matched. Omitting the strategy or selecting `Into` produces a regular INSERT. See [Insert Operations](../../guides/core/lambda/insert.md#conflict) for the common API.
+
+## Notes
+
+- Ignore requires a primary-key mapping whose columns correspond to a database unique constraint.
+- Update requires a primary-key mapping and at least one updatable non-primary-key column.
+- Ignore handles duplicate keys on the specified constraint only; other write errors still fail.
+- The result is a database update count, not a generated-key count.

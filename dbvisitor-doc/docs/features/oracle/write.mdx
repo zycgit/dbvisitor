@@ -1,0 +1,67 @@
+---
+id: write
+sidebar_position: 6
+hide_table_of_contents: true
+title: 多条写入一致性
+description: Oracle 多条插入的执行方式，以及中途失败时的事务处理。
+---
+
+# 多条写入一致性
+
+假设 `user_info` 是一张空表，`id` 为主键：
+
+```sql
+CREATE TABLE user_info (
+    id NUMBER(10) PRIMARY KEY,
+    name VARCHAR2(100)
+);
+```
+
+下面通过构造器 API 插入三条记录，前两条故意使用相同的主键：
+
+```java
+import java.util.List;
+import java.util.Map;
+import net.hasor.dbvisitor.lambda.LambdaTemplate;
+
+LambdaTemplate lambda = new LambdaTemplate(dataSource);
+List<Map<String, Object>> users = List.of(
+        Map.of("ID", 1001, "NAME", "Alice"),
+        Map.of("ID", 1001, "NAME", "Bob"),
+        Map.of("ID", 1002, "NAME", "Carol"));
+
+lambda.insert("USER_INFO")
+        .applyMap(users)
+        .executeSumResult();
+```
+
+dbVisitor 按列表顺序逐条执行 INSERT，不会把三条记录合成一条插入语句：
+
+1. 插入 Alice，成功。
+2. 插入 Bob，主键重复，抛出异常。
+3. Carol 不再插入。
+
+:::caution[注意]
+未开启事务、连接使用自动提交时，Alice 已经提交。虽然这次调用抛出了异常，表中仍会留下 Alice，不会自动撤销。
+:::
+
+要让这三条记录全部插入成功或全部回滚，可以使用事务。仍使用上面的空表和三条记录：
+
+```java
+import net.hasor.dbvisitor.transaction.TransactionTemplate;
+import net.hasor.dbvisitor.transaction.TransactionTemplateManager;
+import net.hasor.dbvisitor.transaction.support.TransactionHelper;
+
+TransactionTemplate tx = new TransactionTemplateManager(
+        TransactionHelper.txManager(dataSource));
+
+tx.execute(status -> {
+    return lambda.insert("USER_INFO")
+            .applyMap(users)
+            .executeSumResult();
+});
+```
+
+Bob 插入失败时，异常传出事务回调，Alice 的插入也会回滚，表中不会留下这三条记录。事务不会改变逐条执行的方式。
+
+`lambda` 和事务管理器使用同一个 `dataSource`。`execute` 抛出的异常需由调用方法处理或声明；完整用法见[事务模板](../../guides/transaction/template.md)。

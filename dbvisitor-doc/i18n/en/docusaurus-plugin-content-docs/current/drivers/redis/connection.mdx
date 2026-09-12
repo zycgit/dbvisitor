@@ -24,15 +24,15 @@ try (java.sql.Connection connection = java.sql.DriverManager.getConnection(url, 
 }
 ```
 
-The URL prefix is `jedis`, not `redis`; select a database with `?database=0`, not `/0`. Multiple hosts such as `jdbc:dbvisitor:jedis://host1:6379;host2:6379` create a Redis Cluster client, not a set of independent standalone servers. The default client does not enable TLS; see `customJedis` in [Connection Parameters](./params.md).
+The URL prefix is `jedis`, not `redis`; select a database with `?database=0`, not `/0`. Multiple hosts such as `jdbc:dbvisitor:jedis://host1:6379;host2:6379` create a Redis Cluster client, not a set of independent standalone servers. The default client does not enable TLS; see `customJedis` in [Connection Parameters](params.md).
 
 ## Configure Connection Parameters
 
 Set options with `properties.setProperty("name", "value")`, or append `?name=value&other=value` to the URL (use `&` if a query string already exists). For the same key, URL values override `Properties`. The URL parser does not percent-decode values; put passwords, tokens and values containing `&` in `Properties`, and avoid logging credentials.
 
-See [Connection Parameters](./params.md) for names, defaults, units and restrictions. Only documented adapter parameters apply; they are not a pass-through for all vendor SDK options.
+See [Connection Parameters](params.md) for names, defaults, units and restrictions. Only documented adapter parameters apply; they are not a pass-through for all vendor SDK options.
 
-After connecting, see [JDBC Operations](../../features/redis/jdbc.mdx) for command execution and result handling.
+After connecting, see [Data Reads and Writes](../../features/redis/usage.mdx) for command execution and result handling.
 
 ## Username and Password
 

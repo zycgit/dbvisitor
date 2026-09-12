@@ -1,134 +1,154 @@
 ---
 id: generated-keys
-sidebar_position: 1
-hide_table_of_contents: true
-title: 自增主键回填
-description: SQL Server 下使用 dbVisitor 处理自增主键、默认值主键和 OUTPUT INSERTED 的方式。
+sidebar_position: 4
+toc_min_heading_level: 2
+toc_max_heading_level: 2
+title: 主键生成
+description: SQL Server 下使用 dbVisitor 处理 IDENTITY、sequence 和主键回填的方式。
 ---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 <span id="sql-server-自增主键回填" />
 
-# 自增主键回填
+# 主键生成
 
-SQL Server 的 generated keys 行为和 MySQL、H2 等数据库不完全一致。对于一些默认值主键或 sequence default 主键，JDBC `Statement#getGeneratedKeys()` 不一定能稳定返回业务主键列。SQL Server 原生更常见的方式是使用 `OUTPUT INSERTED.<column>`。
+SQL Server 常用 `IDENTITY` 或 sequence 生成主键。`IDENTITY` 在 INSERT 时由数据库生成，dbVisitor 随后把值写回实体；sequence 可以在 INSERT 前取值，应用先得到主键再完成写入。
+
+:::info[说明]
+通用配置见[主键生成与回填](../../guides/core/mapper/annotation_insert#generated-keys)。
+:::
+
+## 使用 IDENTITY
 
 ```sql
-INSERT INTO user_info (name, age, email)
-OUTPUT INSERTED.id
-VALUES (?, ?, ?)
+CREATE TABLE user_info (
+    id   BIGINT IDENTITY(1, 1) PRIMARY KEY,
+    name NVARCHAR(64),
+    age  INT
+)
 ```
 
-这条 SQL 的返回值通常表现为当前执行返回的 `ResultSet`，而不是所有数据库通用的 `getGeneratedKeys()`。
+实体主键使用 `KeyType.Auto`：
 
-## Lambda / BaseMapper
+```java
+@Table("user_info")
+public class UserInfo {
+    @Column(value = "id", primary = true, keyType = KeyType.Auto)
+    private Long id;
 
-Lambda 和 BaseMapper 的 INSERT SQL 由 dbVisitor 根据对象映射生成，因此 SQL Server 方言可以在生成 SQL 时插入 `OUTPUT INSERTED`，并声明从当前 `ResultSet` 回填主键。
+    private String name;
+    private Integer age;
+}
+```
 
-```java title='Lambda 新增后读取回填主键'
+<Tabs>
+<TabItem value="identity-lambda" label="构造器 API" default>
+
+插入后，数据库生成的 `id` 会自动写回当前实体。
+
+```java title='新增后属性自动回填'
 UserInfo user = new UserInfo();
 user.setName("mali");
 user.setAge(18);
 
-LambdaTemplate lambda = ...
+LambdaTemplate lambda = ...;
 int rows = lambda.insert(UserInfo.class)
                  .applyEntity(user)
                  .executeSumResult();
 
-Integer id = user.getId();
+Long id = user.getId();
 ```
 
-```java title='BaseMapper 新增后读取回填主键'
-BaseMapper<UserInfo> mapper = session.createBaseMapper(UserInfo.class);
 
-UserInfo user = new UserInfo();
-user.setName("mali");
-user.setAge(18);
 
-int rows = mapper.insert(user);
-Integer id = user.getId();
+</TabItem>
+<TabItem value="identity-annotation" label="方法注解">
+
+```java title='方法注解'
+@Insert(value = "INSERT INTO user_info (name, age) VALUES (#{name}, #{age})",
+        useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
+int insertUser(UserInfo user);
 ```
 
-这类入口的关键点是：SQL 由框架生成，所以方言可以安全地选择 SQL Server 专有写法。
+需要明确返回列或同时回填普通字段时，使用 `OUTPUT INSERTED`，见[数据回填](./backfill.mdx)。
 
-## Mapper XML
+</TabItem>
+<TabItem value="identity-xml" label="Mapper 文件">
 
-Mapper XML 是用户手写 SQL，dbVisitor 不应自动改写 SQL。若需要使用 SQL Server `OUTPUT INSERTED`，建议在 XML 中明确写出 SQL，并声明 generated key 从当前结果集读取。
-
-```xml title='SQL Server OUTPUT INSERTED'
+```xml
 <insert id="insertUser"
         useGeneratedKeys="true"
         keyProperty="id"
-        keyColumn="id"
-        generatedKeySource="resultSet">
-    INSERT INTO user_info (name, age, email)
-    OUTPUT INSERTED.id
-    VALUES (#{name}, #{age}, #{email})
+        keyColumn="id">
+    INSERT INTO user_info (name, age)
+    VALUES (#{name}, #{age})
 </insert>
 ```
 
-多列回填也应显式列出：
+</TabItem>
+</Tabs>
 
-```xml
-<insert id="insertOrder"
-        useGeneratedKeys="true"
-        keyProperty="id,orderNo"
-        keyColumn="id,order_no"
-        generatedKeySource="resultSet">
-    INSERT INTO user_order (user_id, amount)
-    OUTPUT INSERTED.id, INSERTED.order_no
-    VALUES (#{userId}, #{amount})
-</insert>
+:::caution[注意]
+一次插入多个实体时，SQL Server 不保证 OUTPUT 按输入顺序返回。需要主键与实体严格对应时，每次调用只插入一个实体。
+:::
+
+## 使用序列
+
+SQL Server 2012 及以上版本支持序列。下面是使用普通主键列的独立示例：
+
+```sql
+CREATE SEQUENCE user_info_id_seq AS BIGINT START WITH 1 INCREMENT BY 1;
+CREATE TABLE user_info (id BIGINT PRIMARY KEY, name NVARCHAR(64), age INT);
 ```
 
-`generatedKeySource="resultSet"` 表示 generated key 从当前 `ResultSet` 读取，适合配合 SQL Server `OUTPUT INSERTED` 使用。
-
-## Annotation Mapper
-
-Annotation 中同样由用户负责写出 SQL Server 专有语法：
+<Tabs>
+<TabItem value="sequence-lambda" label="构造器 API" default>
 
 ```java
-@Insert(
-    value = """
-        INSERT INTO user_info (name, age, email)
-        OUTPUT INSERTED.id
-        VALUES (#{name}, #{age}, #{email})
-        """,
-    useGeneratedKeys = true,
+import net.hasor.dbvisitor.mapping.Column;
+import net.hasor.dbvisitor.mapping.KeySeq;
+import net.hasor.dbvisitor.mapping.KeyType;
+import net.hasor.dbvisitor.mapping.Table;
+
+@Table("user_info")
+public class UserInfo {
+    @Column(primary = true, keyType = KeyType.Sequence)
+    @KeySeq("user_info_id_seq")
+    private Long id;
+    private String name;
+    private Integer age;
+
+    // 省略 getter 和 setter
+}
+```
+
+```java
+UserInfo user = new UserInfo();
+user.setName("mali");
+
+lambda.insert(UserInfo.class).applyEntity(user).executeSumResult();
+Long id = user.getId();
+```
+
+插入前自动获取序列值，赋给 `id` 后写入记录。多个实体分别获取各自的序列值。
+
+</TabItem>
+<TabItem value="sequence-annotation" label="方法注解">
+
+```java
+@SelectKeySql(
+    value = "SELECT NEXT VALUE FOR user_info_id_seq",
     keyProperty = "id",
     keyColumn = "id",
-    generatedKeySource = GeneratedKeySource.ResultSet
+    order = Order.Before
 )
+@Insert("INSERT INTO user_info (id, name, age) VALUES (#{id}, #{name}, #{age})")
 int insertUser(UserInfo user);
 ```
 
-如果不使用 `OUTPUT INSERTED`，则继续使用普通 JDBC generated keys：
-
-```java
-@Insert(
-    value = "INSERT INTO user_info (name, age) VALUES (#{name}, #{age})",
-    useGeneratedKeys = true,
-    keyProperty = "id",
-    keyColumn = "id"
-)
-int insertUser(UserInfo user);
-```
-
-## 方言策略
-
-SQL Server 当前策略如下：
-
-| 场景 | GeneratedKeyStrategy |
-| --- | --- |
-| 无回填列 | `JdbcBatch` |
-| `Into` + 有回填列 | `MultiValuesResultSet` |
-| `Ignore` + 有回填列 | `OneByOne` |
-| `Update` + 有回填列 | `OneByOne` |
-
-`DuplicateKeyStrategy.Ignore` / `Update` 由 `MERGE` 实现，需要主键列。`Into` + 回填列时使用 `OUTPUT INSERTED`，结果从当前 `ResultSet` 读取。
-
-## selectKey
-
-如果希望完全避开 JDBC generated keys 和当前 `ResultSet` 读取差异，可以使用 `selectKey` / `@SelectKeySql`：
+</TabItem>
+<TabItem value="sequence-xml" label="Mapper 文件">
 
 ```xml
 <insert id="insertUser">
@@ -140,11 +160,5 @@ SQL Server 当前策略如下：
 </insert>
 ```
 
-这种方式适合业务希望先拿到主键，再执行 INSERT 的场景。
-
-## 设计原则
-
-- Lambda / BaseMapper：SQL 由框架生成，可以由 SQL Server 方言生成 `OUTPUT INSERTED`。
-- XML / Annotation：SQL 由用户编写，dbVisitor 不自动改写；需要用户显式写出 `OUTPUT INSERTED`。
-- Session / JDBC 原始 SQL：保持忠实执行，不猜测当前 `ResultSet` 是否是 generated keys。
-- 通用说明见 [Generated Keys](../../guides/core/mapper/annotation_insert#generated-keys)。
+</TabItem>
+</Tabs>

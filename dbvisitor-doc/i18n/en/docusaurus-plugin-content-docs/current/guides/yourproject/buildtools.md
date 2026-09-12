@@ -38,7 +38,7 @@ Introduce dbVisitor in a project using Apache Maven
 <dependency>
     <groupId>net.hasor</groupId>
     <artifactId>dbvisitor</artifactId>
-    <version>latest version</version>
+    <version>@project.docsVersion@</version>
 </dependency>
 ```
 
@@ -48,7 +48,7 @@ Introduce dbVisitor in a project using Gradle
 
 ```text
 // Gradle
-implementation 'net.hasor:dbvisitor:latest version'
+implementation 'net.hasor:dbvisitor:@project.docsVersion@'
 ```
 
 ## Mixing Different Versions of dbVisitor

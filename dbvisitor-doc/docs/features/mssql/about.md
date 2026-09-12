@@ -3,56 +3,24 @@ id: about
 sidebar_position: 0
 hide_table_of_contents: true
 title: SQL Server
-description: SQL Server 在 dbVisitor 中的方言能力、主键回填、OUTPUT INSERTED 和 MERGE 冲突策略。
+description: SQL Server 在 dbVisitor 中的使用方式。
 ---
 
 # SQL Server
 
-SQL Server 可以使用 dbVisitor 的 JDBC、Mapper、Lambda、BaseMapper、事务、函数和过程等全部通用能力。
+SQL Server 可使用 JdbcTemplate、方法注解、Mapper 文件和构造器 API。下面按使用场景介绍对应的配置与用法。
 
-## 快速了解差异
+| 场景 | 使用方式 |
+| --- | --- |
+| 主键生成 | IDENTITY；插入前读取序列 |
+| 分页查询 | ROW_NUMBER() 行号分页 |
+| 插入冲突 | MERGE 插入或更新 |
+| 数据回填 | OUTPUT 返回写入字段 |
 
-| 关注点 | SQL Server 行为 |
-|--------|---------------|
-| 主键生成 | `IDENTITY` 或 sequence default；推荐 `OUTPUT INSERTED` 回填 |
-| 分页 | 内置方言使用 `ROW_NUMBER()` + CTE |
-| 写入冲突 | `MERGE INTO ... WHEN MATCHED ... WHEN NOT MATCHED ...` |
-| 批量写入 | 支持 JDBC batch |
-| 存储过程 | 支持 |
-| 序列 | 支持 `NEXT VALUE FOR seq` |
-
-## 主键回填
-
-SQL Server 推荐使用 `OUTPUT INSERTED.<column>` 返回生成的主键：
-
-```sql
-INSERT INTO user_info (name, age)
-OUTPUT INSERTED.id
-VALUES (?, ?)
-```
-
-Lambda / BaseMapper 使用 Into 策略且配置生成键回填时，SQL Server 方言会加上 `OUTPUT INSERTED`，从当前 ResultSet 回填主键。手写 SQL 需要显式写出 `OUTPUT INSERTED` 并配置 `generatedKeySource="resultSet"`。
-
-如果不使用 `OUTPUT INSERTED`，也可以走 JDBC generated keys（和 MySQL 类似）。
-
-## 注意事项
-
-- `ORDER BY` 中不能出现重复列名
-- `SELECT` 语句中如使用 `LIMIT` 语法需替换为 `TOP` 或 `OFFSET FETCH`
-- 存储过程、函数、TVF 应使用 SQL Server 专有语法
-
-## 写入冲突策略
-
-| 策略 | SQL Server 实现 |
-|------|---------------|
-| Ignore | `MERGE INTO ... WHEN NOT MATCHED THEN INSERT`（需主键） |
-| Update | `MERGE INTO ... WHEN MATCHED THEN UPDATE ... WHEN NOT MATCHED THEN INSERT`（需主键） |
-
-## 专题
-
-- [自增主键回填](./generated-keys)：`IDENTITY`、`OUTPUT INSERTED`、`selectKey`、XML/Annotation 配置的详细说明。
-- [方言细节](./dialect-details)：ROW_NUMBER 分页、dbo schema、方括号标识符的底层实现。
-
-## 与通用文档的关系
-
-通用 API 用法见 [核心API](../../guides/overview)。以下内容补充 SQL Server 下的具体差异和推荐写法。
+- [类型支持](./types.md)：选择 Java 属性类型。
+- [分页查询](./pagination.mdx)：查询指定页及总记录数。
+- [插入冲突](./conflict.mdx)：插入时处理已有记录。
+- [主键生成](./generated-keys.mdx)：配置并获取主键。
+- [数据回填](./backfill.mdx)：获取写入时返回的字段值。
+- [跨库表映射](./mapping.mdx)：指定数据库和 schema。
+- [多条写入一致性](./write.mdx)：多次写入失败时整体回滚。

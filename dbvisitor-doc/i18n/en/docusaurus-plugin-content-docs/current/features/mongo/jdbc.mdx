@@ -1,79 +1,36 @@
 ---
 id: jdbc
-sidebar_position: 2
-title: JDBC Operations
+sidebar_position: 6
+title: Result Reading
 ---
 
-Install and configure the [independent JDBC driver](../../drivers/mongo/connection.mdx) first. These examples use JDBC directly and do not require dbVisitor's upper-level APIs. Unless the example opens its own connection, `conn` denotes an open JDBC connection owned and closed by the application.
+# Result Reading
 
-## Code Examples
+Document queries expose the original document in _JSON. With the default preRead=true, fields are also expanded for entity mapping.
 
-### 1) Create collection (DDL)
-```java
-try (Statement stmt = conn.createStatement()) {
-    stmt.execute("use mydb");
-    stmt.executeUpdate("db.createCollection('capped_col', { capped: true, size: 1024, max: 100 })");
-}
-```
+## Read a Field by Name {#pre-read}
 
-### 2) Insert and update (DML)
-```java
-try (Statement stmt = conn.createStatement()) {
-    stmt.executeUpdate("db.mycol.insert({name:'zhangsan'})");
-    stmt.executeUpdate("db.mycol.update({name:'zhangsan'}, {$set:{age:20}})");
-}
-```
-
-Here `db.mycol` uses the current database. To target another database, use `mydb1.mycol.insert(...)` and keep subsequent reads or updates in the same database.
-
-### 3) Find with `ObjectId(?)` (DQL)
-```java
-try (PreparedStatement ps = conn.prepareStatement("db.complex_order.find({_id: ObjectId(?)})")) {
-    ps.setString(1, "69399ba1c488515851cecdfb");
-    try (ResultSet rs = ps.executeQuery()) {
-        while (rs.next()) {
-            rs.getString("_JSON");
-        }
-    }
-}
-```
-
-### 4) Aggregate with options
-```java
-try (PreparedStatement ps = conn.prepareStatement(
-        "db.mycol.aggregate([{$match: {}}], { allowDiskUse: ?, batchSize: ? })")) {
-    ps.setBoolean(1, true);
-    ps.setInt(2, 100);
-    ps.executeQuery();
-}
-```
-
-## Multiple Commands and JDBC Results
+The first column is _ID, not the first business field. When reading one value, specify its column name instead of relying on column order:
 
 ```java
-try (Statement stmt = conn.createStatement()) {
-    boolean hasResult = stmt.execute("db.mycol.find({}).limit(2); db.mycol.count({})");
-    while (true) {
-        if (hasResult) {
-            try (ResultSet rs = stmt.getResultSet()) {
-                while (rs.next()) {
-                    System.out.println(rs.getObject(1));
-                }
-            }
-        } else {
-            long count = stmt.getLargeUpdateCount();
-            if (count == -1) {
-                break;
-            }
-            System.out.println("updated=" + count);
-        }
-        hasResult = stmt.getMoreResults(Statement.CLOSE_CURRENT_RESULT);
-    }
-}
+List<String> names = jdbc.queryForList(
+        "test.user_info.find({uid: ?})",
+        new Object[] { "1001" },
+        (rs, rowNum) -> rs.getString("name"));
 ```
 
-Use executeQuery for reads and executeUpdate or execute for writes. Semicolon-separated commands are consumed through execute/getMoreResults, not JDBC batch or a transaction. Hints go before the command; see [Command Reference](./commands.md) for all hints and limitations.
+With preRead=false, read the original document instead of expecting expanded columns:
 
-## Pre-Read and Result Columns {#pre-read}
+```java
+List<String> documents = jdbc.queryForList(
+        "test.user_info.find({}).limit(10)",
+        (rs, rowNum) -> rs.getString("_JSON"));
+```
 
-`preRead=true` reads ahead and expands document fields while retaining `_ID`/`_JSON`. With pre-read disabled, use the dedicated raw-document columns rather than assuming expanded fields exist. preReadThreshold/preReadMaxFileSize support B/KB/MB/GB and default to MB without a unit; the cache directory defaults to java.io.tmpdir. Pre-read may increase memory, disk use and time to first row; it is not a server-side pagination limit.
+For aggregate, results stay in _JSON even when preRead=true; group keys and computed fields are inside that JSON. _ID exposes ObjectId values only; for numeric or string _id, read the document's _id field.
+
+## Limit the Returned Data
+
+Specify limit on find or $limit in aggregate. Disabling preRead does not make ResultSet.next() fetch one server page at a time.
+
+For JSON-to-object mapping, see [JSON Field Mapping](../../guides/core/mapping/json-field.md).

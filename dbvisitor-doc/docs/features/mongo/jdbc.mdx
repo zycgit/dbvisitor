@@ -1,79 +1,36 @@
 ---
 id: jdbc
-sidebar_position: 2
-title: JDBC 操作用法
+sidebar_position: 6
+title: 结果读取
 ---
 
-先完成[独立 JDBC 驱动的安装与连接](../../drivers/mongo/connection.mdx)。本页直接使用 JDBC，不要求使用 dbVisitor 上层 API。除示例自行创建连接外，`conn` 表示应用已打开并负责关闭的 JDBC 连接。
+# 结果读取
 
-## 常用操作示例
+文档查询通过 _JSON 返回原始文档。默认 preRead=true 时，还会展开字段，供实体映射使用。
 
-### 1) 创建集合（DDL）
-```java
-try (Statement stmt = conn.createStatement()) {
-    stmt.execute("use mydb");
-    stmt.executeUpdate("db.createCollection('capped_col', { capped: true, size: 1024, max: 100 })");
-}
-```
+## 按名称读取字段 {#pre-read}
 
-### 2) 插入与更新（DML）
-```java
-try (Statement stmt = conn.createStatement()) {
-    stmt.executeUpdate("db.mycol.insert({name:'zhangsan'})");
-    stmt.executeUpdate("db.mycol.update({name:'zhangsan'}, {$set:{age:20}})");
-}
-```
-
-这里的 `db.mycol` 使用当前数据库；指定其他库时可写成 `mydb1.mycol.insert(...)`，后续查询或更新也应使用相同的数据库。
-
-### 3) 使用 `ObjectId(?)` 查询（DQL）
-```java
-try (PreparedStatement ps = conn.prepareStatement("db.complex_order.find({_id: ObjectId(?)})")) {
-    ps.setString(1, "69399ba1c488515851cecdfb");
-    try (ResultSet rs = ps.executeQuery()) {
-        while (rs.next()) {
-            rs.getString("_JSON");
-        }
-    }
-}
-```
-
-### 4) 带参数的聚合
-```java
-try (PreparedStatement ps = conn.prepareStatement(
-        "db.mycol.aggregate([{$match: {}}], { allowDiskUse: ?, batchSize: ? })")) {
-    ps.setBoolean(1, true);
-    ps.setInt(2, 100);
-    ps.executeQuery();
-}
-```
-
-## 多命令与 JDBC 结果
+第一列是 _ID，不是第一个业务字段。只读取某个值时，应指定列名，不要依赖列顺序：
 
 ```java
-try (Statement stmt = conn.createStatement()) {
-    boolean hasResult = stmt.execute("db.mycol.find({}).limit(2); db.mycol.count({})");
-    while (true) {
-        if (hasResult) {
-            try (ResultSet rs = stmt.getResultSet()) {
-                while (rs.next()) {
-                    System.out.println(rs.getObject(1));
-                }
-            }
-        } else {
-            long count = stmt.getLargeUpdateCount();
-            if (count == -1) {
-                break;
-            }
-            System.out.println("updated=" + count);
-        }
-        hasResult = stmt.getMoreResults(Statement.CLOSE_CURRENT_RESULT);
-    }
-}
+List<String> names = jdbc.queryForList(
+        "test.user_info.find({uid: ?})",
+        new Object[] { "1001" },
+        (rs, rowNum) -> rs.getString("name"));
 ```
 
-查询使用 executeQuery；写入使用 executeUpdate 或 execute。多个命令以分号分隔，通过 execute/getMoreResults 读取，不等于 JDBC batch，也不构成事务。Hint 必须放在命令开头；完整 Hint 与限制见[命令参考](./commands.md)。
+关闭预读（preRead=false）后，改为读取原始文档，不再依赖展开列：
 
-## 预读与结果列 {#pre-read}
+```java
+List<String> documents = jdbc.queryForList(
+        "test.user_info.find({}).limit(10)",
+        (rs, rowNum) -> rs.getString("_JSON"));
+```
 
-`preRead=true` 默认预读结果并展开文档字段，同时保留 `_ID`/`_JSON`。关闭时按专用列读取原始文档；不要继续假设存在展开字段。preReadThreshold/preReadMaxFileSize 支持 B/KB/MB/GB；无单位按 MB，缓存目录默认 java.io.tmpdir。预读可能增加内存、磁盘和首行等待成本，并不是服务端分页上限。
+aggregate 的结果始终放在 _JSON 中，分组键和计算字段不会因 preRead=true 自动变成独立列。_ID 只提取 ObjectId；数字或字符串 _id 应从文档字段中读取。
+
+## 限制读取量
+
+find 指定 limit，aggregate 使用 $limit。关闭 preRead 不表示 ResultSet.next() 会逐页向服务端取数。
+
+JSON 到对象的映射见[JSON 字段映射](../../guides/core/mapping/json-field.md)。

@@ -2,60 +2,146 @@
 id: about
 sidebar_position: 0
 hide_table_of_contents: true
-title: Milvus Features
-description: Milvus vector database capability scope, API support, and vector search methods in dbVisitor.
+title: Milvus
 ---
 
-<span id="milvus-data-source-features" />
+# Milvus
 
-# Milvus Features
+Use SQL-style commands and the Fluent API to operate Milvus collections and vectors. Connection setup is described in [JDBC Milvus](../../drivers/milvus/connection.mdx).
 
-dbVisitor accesses the Milvus vector database via the [JDBC-Milvus](../../drivers/milvus/about) driver, based on the JDBC protocol. Unlike the native command style of MongoDB/ElasticSearch, the Milvus adapter uses **SQL-style syntax** (`CREATE TABLE`, `INSERT`, `SELECT`, `DELETE`, etc.), resulting in a lower learning curve.
 
-## Quick Overview of Differences
+## dbVisitor Usage
 
-| Concern | Milvus Behavior |
-|--------|------------|
-| API Support | JdbcTemplate, Builder API, BaseMapper, Annotations, Mapper File |
-| Primary Key Generation | JDBC INSERT/UPSERT supports `RETURN_GENERATED_KEYS`, exposing SDK Int64/VarChar IDs |
-| Pagination | LIMIT/OFFSET and maxRows bound results; fetchSize controls on-demand page size |
-| Multi-row Writes | Multiple VALUES or Iterable/Iterator inputs; JDBC executeBatch is unsupported |
-| Stored Procedures | Not supported |
-| Vector Search | Type-compatible KNN/range search; Hybrid fuses candidates into one result set |
+- [Type Support](dbvisitor/types.md)：Choose Java types for stored values.
+- [Pagination](dbvisitor/pagination.mdx)：Fetch a range and obtain totals.
+- [Key Generation](dbvisitor/generated-keys.mdx)：Assign identifiers or read generated IDs.
+- [Data Reads and Writes](dbvisitor/usage.mdx)：Bind commands and understand the database action.
 
-**Unsupported:** transactions/savepoints, JDBC executeBatch, stored procedures and updatable ResultSets. API usage remains subject to the driver's SQL subset; arbitrary generic operations or SQL are not guaranteed.
+## SQL Statements
 
-## Concept Analogy
+### Language Basics
 
-The Milvus adapter uses a SQL-style command subset:
+- [Notation and Comments](basics/notation.md)
+- [Identifiers](basics/identifiers.md)
+- [Literals and Parameters](basics/parameters.md)
+- [Operators](basics/operators.md)
+- [Hint Support](basics/hints.md)
 
-- **DDL** — `CREATE TABLE`, `DROP TABLE`, `CREATE INDEX`, executed via `executeUpdate`
-- **DML** — `INSERT`, `UPDATE`, `DELETE`, obtain affected row count via `executeUpdate`
-- **DQL** — `SELECT` queries return standard `ResultSet`
+### Data Types
 
-:::info[Milvus Special Requirements]
-Create the required index and execute `LOAD TABLE table_name` before querying. UPDATE selects keys page by page and uses native Partial Upsert for SET fields only. Without LIMIT it continues over matching entities, but provides no cross-page transaction, whole-operation rollback or exactly-once guarantee.
-:::
+- [Scalar Types](types/fields.md)
+- [JSON](types/json.md)
+- [ARRAY](types/array.md)
+- [Length, Capacity and Dimensions](types/dimensions.md)
+- [Field Constraints](types/defaults.md)
+- [Vector Values](types/vectors.md)
+- [JSON, ARRAY and Vector Binding](types/binding.md)
 
-## Detailed Usage
+### Query Statements
 
-For complete JdbcTemplate, Builder API, BaseMapper, Annotation, and Mapper File usage, see the [Milvus Usage Guide](./usage).
+- [SELECT](query/select.md)
+- [COUNT / SELECT COUNT(*)](query/count.md)
+- [HYBRID](query/hybrid.md)
 
-## Core Topics
+### Write Statements
 
-- [Vector Search](./usage#vector-search): single-vector KNN, the L2 range builder and SQL threshold rules for COSINE/IP.
-- [Filtered vector search](./usage#hybrid-query): distinct from [native multi-path Hybrid fusion](./commands.md#hybrid).
-- [Consistency Level](./usage#consistency): `consistencyLevel=Strong` for immediate visibility
+- [INSERT](write/insert.md)
+- [UPSERT](write/upsert.md)
+- [UPDATE](write/update.md)
+- [DELETE](write/delete.md)
+- [IMPORT](write/import.md)
 
-## Relationship to General Documentation
+### Definition Statements
 
-For general API usage, see [Core API](../../guides/overview). For vector query API, see [Vector Queries](../../guides/core/vector_query/about).
+- [CREATE DATABASE](ddl/create-database.md)
+- [ALTER DATABASE](ddl/alter-database.md)
+- [DROP DATABASE](ddl/drop-database.md)
+- [CREATE TABLE](ddl/create-table.md)
+- [ALTER TABLE](ddl/alter-table.md)
+- [DROP TABLE](ddl/drop-table.md)
+- [TRUNCATE TABLE](ddl/truncate-table.md)
+- [CREATE INDEX](ddl/create-index.md)
+- [ALTER INDEX](ddl/alter-index.md)
+- [DROP INDEX](ddl/drop-index.md)
+- [CREATE PARTITION](ddl/create-partition.md)
+- [DROP PARTITION](ddl/drop-partition.md)
+- [CREATE ALIAS](ddl/create-alias.md)
+- [ALTER ALIAS](ddl/alter-alias.md)
+- [DROP ALIAS](ddl/drop-alias.md)
+- [FUNCTION Definitions](ddl/functions.md)
+- [ALTER TABLE … FUNCTION](ddl/alter-function.md)
 
-Current source requires Java 17+, SDK 2.6.22 and a minimum Milvus 2.6.2 baseline. See the [Versions and Support](./compatibility.md) for version and feature requirements, and [typed values and generated keys](./jdbc.mdx#typed-values) for JDBC examples.
+### SHOW Statements
 
-## Documentation
+- [SHOW DATABASES / DATABASE](show/databases.md)
+- [SHOW TABLES / TABLE / CREATE TABLE](show/tables.md)
+- [SHOW INDEXES / INDEX](show/indexes.md)
+- [SHOW STATS](show/stats.md)
+- [SHOW PARTITIONS / PARTITION](show/partitions.md)
+- [SHOW ALIASES / ALIAS](show/aliases.md)
+- [SHOW FLUSH ALL](show/flush.md)
+- [SHOW REPLICAS](show/replicas.md)
+- [SHOW RESOURCE GROUPS / GROUP](show/resource-groups.md)
+- [SHOW COMPACTION](show/compaction.md)
+- [SHOW PROGRESS](show/progress.md)
+- [SHOW USERS / USER](show/users.md)
+- [SHOW ROLES / ROLE](show/roles.md)
+- [SHOW GRANTS](show/grants.md)
+- [SHOW PRIVILEGE GROUPS](show/privilege-groups.md)
+- [SHOW IMPORT / IMPORTS](show/import.md)
+- [SHOW VERSION](show/version.md)
+- [SHOW HEALTH](show/health.md)
+- [SHOW PERSISTENT SEGMENTS](show/persistent-segments.md)
+- [SHOW QUERY SEGMENTS](show/query-segments.md)
 
-- [JDBC installation and connection](../../drivers/milvus/connection.mdx)
-- [JDBC operations](./jdbc.mdx)
-- [Command reference](./commands.md)
-- [dbVisitor API usage](./usage.mdx)
+### Administration Statements
+
+- [ANALYZE](admin/analyze.md)
+- [LOAD](admin/load.md)
+- [RELEASE](admin/release.md)
+- [FLUSH](admin/flush.md)
+- [Resource Group Statements](admin/resource-groups.md)
+- [TRANSFER NODES / REPLICAS](admin/transfer.md)
+- [COMPACT](admin/compact.md)
+- [User Statements](admin/users.md)
+- [Role Statements](admin/roles.md)
+- [GRANT / REVOKE](admin/grant.md)
+- [Privilege Group Statements](admin/privilege-groups.md)
+
+<span id="database" />
+<span id="table" />
+<span id="index" />
+<span id="user" />
+<span id="dml" />
+<span id="dql" />
+<span id="extended" />
+<span id="progress" />
+<span id="jdbc-results" />
+<span id="hint" />
+<span id="collection-keys" />
+<span id="truncate" />
+<span id="rename" />
+<span id="partition" />
+<span id="alias" />
+<span id="index-metadata" />
+<span id="upsert" />
+<span id="generated-keys" />
+<span id="query-options" />
+<span id="pagination" />
+<span id="grouping" />
+<span id="hybrid" />
+<span id="functions" />
+<span id="alter-functions" />
+<span id="analyze" />
+<span id="import" />
+<span id="load" />
+<span id="flush" />
+<span id="replicas" />
+<span id="diagnostics" />
+<span id="resource-groups" />
+<span id="resource-group-config" />
+<span id="resource-group-transfers" />
+<span id="compaction" />
+<span id="principal-descriptions" />
+<span id="scoped-privileges" />
+<span id="privilege-groups" />

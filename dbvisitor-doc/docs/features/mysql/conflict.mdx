@@ -1,0 +1,58 @@
+---
+id: conflict
+sidebar_position: 3
+title: 插入冲突
+description: MySQL 插入冲突的处理方式、dbVisitor 用法和注意事项。
+---
+
+# 插入冲突
+
+冲突处理用于决定 INSERT 遇到主键或唯一键冲突时应当报错、忽略还是更新，常见于任务重放、数据同步、重复导入和“存在则更新”场景。判断和写入由 MySQL 在一条语句中完成，不需要先查询再决定 INSERT 或 UPDATE。
+
+## 处理方式
+
+| 策略 | MySQL 语句 | 结果 |
+|------|------------|------|
+| Into | `INSERT INTO ... VALUES (...)` | 冲突时由数据库报错 |
+| Ignore | `INSERT IGNORE ... VALUES (...)` | 冲突行不写入 |
+| Update | `INSERT ... ON DUPLICATE KEY UPDATE ...` | 无冲突时插入，有冲突时更新 |
+
+MySQL 根据表上的主键和唯一约束检测冲突，Ignore 和 Update 不依赖 dbVisitor 的主键映射来选择冲突目标。
+
+## 如何使用
+
+假设 `UserInfo` 映射到下表，`id` 配置为实体主键。表中已经有一条 Alice：
+
+```sql
+CREATE TABLE user_info (
+    id INTEGER NOT NULL PRIMARY KEY,
+    name VARCHAR(64),
+    age INTEGER
+);
+INSERT INTO user_info (id, name, age) VALUES (1001, 'Alice', 18);
+```
+
+再次提交相同 ID，但将名字改为 Bob：
+
+```java
+UserInfo user = new UserInfo();
+user.setId(1001);
+user.setName("Bob");
+user.setAge(20);
+
+int rows = lambda.insert(UserInfo.class)
+        .onDuplicateStrategy(DuplicateKeyStrategy.Update)
+        .applyEntity(user)
+        .executeSumResult();
+```
+
+使用 `Update` 后，1001 这条记录变为 Bob、20 岁。改为 `Ignore` 则保留 Alice；默认 `Into` 会报告主键重复。
+
+将策略改为 `Ignore` 可跳过冲突行；省略配置或使用 `Into` 则执行普通 INSERT。需要指定冲突后的更新字段时，应使用 Mapper 或 JdbcTemplate 编写完整 SQL。通用 API 说明见[新增操作](../../guides/core/lambda/insert.md#conflict)。
+
+## 注意事项
+
+- Ignore 还可能把部分数据错误转换为警告，并非只处理重复键。
+- Update 会为本次 INSERT 的全部列生成赋值，可能包含主键；不会自动保护业务字段。
+- Update 使用 `VALUES(column)` 引用待插入值；目标服务端不接受该写法时应手写 SQL。
+- 插入、更新已有值和写入相同值可能返回不同更新计数，不能把返回值直接当作新增记录数。

@@ -1,0 +1,38 @@
+---
+id: conflict
+sidebar_position: 3
+title: Insert Conflicts
+description: Oracle insert-conflict strategies, dbVisitor usage, and limitations.
+---
+
+# Insert Conflicts
+
+Conflict handling decides whether an insert matching an existing row should fail, be ignored, or update that row. Typical scenarios include replayed jobs, data synchronization, repeated imports, and insert-or-update operations. It is an INSERT execution strategy, not a separate ordinary UPDATE.
+
+## Strategies
+
+| Strategy | Oracle statement | Result |
+|----------|------------------|--------|
+| Into | `INSERT INTO ... VALUES (...)` | The database reports a conflict |
+| Ignore | `MERGE ... WHEN NOT MATCHED THEN INSERT` | Matched rows remain unchanged; unmatched rows are inserted |
+| Update | `MERGE ... WHEN MATCHED THEN UPDATE ... WHEN NOT MATCHED THEN INSERT` | Matched rows are updated; unmatched rows are inserted |
+
+MERGE builds source data with `SELECT ... FROM dual` and uses mapped primary-key columns as its match condition.
+
+## Usage
+
+```java
+int rows = lambda.insert(UserInfo.class)
+        .onDuplicateStrategy(DuplicateKeyStrategy.Update)
+        .applyEntity(user)
+        .executeSumResult();
+```
+
+Use `Ignore` to skip matched rows. Omitting the strategy or selecting `Into` produces a regular INSERT. See [Insert Operations](../../guides/core/lambda/insert.md#conflict) for the common API.
+
+## Notes
+
+- Ignore and Update require an entity primary-key mapping; dbVisitor does not select another business unique key.
+- Mapping a primary key does not create a database constraint. Match columns should identify at most one row.
+- Ignore skips matched rows only; other database errors still fail.
+- The database executes one MERGE. Whether several entity writes commit together still depends on the transaction boundary.

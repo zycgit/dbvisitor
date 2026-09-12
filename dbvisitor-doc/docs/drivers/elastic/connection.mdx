@@ -24,15 +24,15 @@ try (java.sql.Connection connection = java.sql.DriverManager.getConnection(url, 
 }
 ```
 
-默认端口为 `9200`，索引在命令中指定，不在 JDBC URL 的数据库路径中指定。多主机示例为 `jdbc:dbvisitor:elastic://host1:9200;host2:9200`。高级客户端配置见[连接参数](./params.md)中的 `customElastic`。
+默认端口为 `9200`，索引在命令中指定，不在 JDBC URL 的数据库路径中指定。多主机示例为 `jdbc:dbvisitor:elastic://host1:9200;host2:9200`。高级客户端配置见[连接参数](params.md)中的 `customElastic`。
 
 ## 配置连接参数
 
 参数可通过 `properties.setProperty("参数名", "参数值")` 配置，也可放在 URL 的 `?name=value&other=value` 部分；已有查询参数时用 `&` 追加。同名参数以 URL 为准，覆盖 `Properties`。URL 解析不会执行百分号解码；密码、token 以及包含 `&` 的值应放在 `Properties` 中，并避免记录到日志。
 
-参数名称、默认值、单位及限制见[连接参数](./params.md)。只使用适配器文档列出的参数，不能将厂商 SDK 的任意选项直接当作 JDBC 参数。
+参数名称、默认值、单位及限制见[连接参数](params.md)。只使用适配器文档列出的参数，不能将厂商 SDK 的任意选项直接当作 JDBC 参数。
 
-连接建立后的命令执行与结果读取见[JDBC 操作用法](../../features/elastic/jdbc.mdx)。
+连接建立后的命令执行与结果读取见[数据读写](../../features/elastic/usage.mdx)。
 
 
 ## 用户名与密码

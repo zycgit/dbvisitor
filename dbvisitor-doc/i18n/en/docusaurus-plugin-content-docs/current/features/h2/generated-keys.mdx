@@ -1,18 +1,25 @@
 ---
 id: generated-keys
-sidebar_position: 1
-hide_table_of_contents: true
-title: Auto-generated Key Backfill
-description: How to handle IDENTITY, sequence, and generated keys in H2 with dbVisitor.
+sidebar_position: 4
+toc_min_heading_level: 2
+toc_max_heading_level: 2
+title: Key Generation
+description: How to handle IDENTITY, sequences, and key backfill in H2 with dbVisitor.
 ---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 <span id="h2-auto-generated-key-backfill" />
 
-# Auto-generated Key Backfill
+# Key Generation
 
 H2 supports common `IDENTITY` auto-increment columns and also sequences. Under H2, dbVisitor primarily uses JDBC generated keys or pre-insert sequence reading to handle primary keys.
 
-## IDENTITY Column
+:::info[Note]
+For general configuration, see [Generated Keys](../../guides/core/mapper/annotation_insert#generated-keys).
+:::
+
+## Using IDENTITY
 
 ```sql
 CREATE TABLE user_info (
@@ -22,7 +29,8 @@ CREATE TABLE user_info (
 )
 ```
 
-## Lambda / BaseMapper
+<Tabs>
+<TabItem value="identity-lambda" label="Fluent API" default>
 
 Entity mapping uses `KeyType.Auto`:
 
@@ -40,12 +48,12 @@ public class UserInfo {
 }
 ```
 
-```java title='Read backfilled primary key after Lambda insert'
+```java title='Automatic property backfill after insert'
 UserInfo user = new UserInfo();
 user.setName("mali");
 user.setAge(18);
 
-LambdaTemplate lambda = ...
+LambdaTemplate lambda = ...;
 lambda.insert(UserInfo.class)
       .applyEntity(user)
       .executeSumResult();
@@ -53,21 +61,9 @@ lambda.insert(UserInfo.class)
 Long id = user.getId();
 ```
 
-The H2 dialect can use regular JDBC batch when no backfill columns exist; once generated key backfill is required, it falls back to row-by-row execution to ensure stable backfill for each row.
 
-## Mapper XML
-
-```xml title='H2 generated keys'
-<insert id="insertUser"
-        useGeneratedKeys="true"
-        keyProperty="id"
-        keyColumn="id">
-    INSERT INTO user_info (name, age)
-    VALUES (#{name}, #{age})
-</insert>
-```
-
-## Annotation Mapper
+</TabItem>
+<TabItem value="identity-annotation" label="Method Annotations">
 
 ```java
 @Insert(
@@ -79,15 +75,89 @@ The H2 dialect can use regular JDBC batch when no backfill columns exist; once g
 int insertUser(UserInfo user);
 ```
 
-## Sequence
+</TabItem>
+<TabItem value="identity-xml" label="Mapper File">
 
-H2 dialect supports reading sequences:
-
-```sql
-values next value for user_info_seq
+```xml title='H2 generated keys'
+<insert id="insertUser"
+        useGeneratedKeys="true"
+        keyProperty="id"
+        keyColumn="id">
+    INSERT INTO user_info (name, age)
+    VALUES (#{name}, #{age})
+</insert>
 ```
 
-Mapper XML can use `selectKey`:
+</TabItem>
+</Tabs>
+
+:::caution[Note]
+When inserting multiple entities with generated keys, dbVisitor inserts and fills each entity individually. For all-or-nothing writes, use [Multiple-Write Consistency](./write.mdx).
+:::
+
+## Using a Sequence
+
+This example uses a regular primary-key column and a sequence, independently of the identity example above:
+
+```sql
+CREATE TABLE user_info (
+    id BIGINT PRIMARY KEY,
+    name VARCHAR(64),
+    age INTEGER
+);
+CREATE SEQUENCE user_info_seq START WITH 1 INCREMENT BY 1;
+```
+
+<Tabs>
+<TabItem value="sequence-lambda" label="Fluent API" default>
+
+```java
+import net.hasor.dbvisitor.mapping.Column;
+import net.hasor.dbvisitor.mapping.KeySeq;
+import net.hasor.dbvisitor.mapping.KeyType;
+import net.hasor.dbvisitor.mapping.Table;
+
+@Table("user_info")
+public class UserInfo {
+    @Column(primary = true, keyType = KeyType.Sequence)
+    @KeySeq("user_info_seq")
+    private Long id;
+    private String name;
+    private Integer age;
+
+    // Getters and setters omitted
+}
+```
+
+```java
+UserInfo user = new UserInfo();
+user.setName("mali");
+
+lambda.insert(UserInfo.class)
+        .applyEntity(user)
+        .executeSumResult();
+
+Long id = user.getId();
+```
+
+Each insert obtains a sequence value, assigns it to `id`, and inserts the row.
+
+</TabItem>
+<TabItem value="sequence-annotation" label="Method Annotations">
+
+```java
+@SelectKeySql(
+    value = "VALUES NEXT VALUE FOR user_info_seq",
+    keyProperty = "id",
+    keyColumn = "id",
+    order = Order.Before
+)
+@Insert("INSERT INTO user_info (id, name, age) VALUES (#{id}, #{name}, #{age})")
+int insertUser(UserInfo user);
+```
+
+</TabItem>
+<TabItem value="sequence-xml" label="Mapper File">
 
 ```xml
 <insert id="insertUser">
@@ -99,30 +169,5 @@ Mapper XML can use `selectKey`:
 </insert>
 ```
 
-Lambda / BaseMapper can use `KeyType.Sequence`:
-
-```java
-@KeySeq("user_info_seq")
-@Column(value = "id", primary = true, keyType = KeyType.Sequence)
-private Long id;
-```
-
-## Dialect Strategy
-
-H2's current strategy is as follows:
-
-| Scenario | GeneratedKeyStrategy |
-| --- | --- |
-| No backfill columns | `JdbcBatch` |
-| `Into` + with backfill columns | `OneByOne` |
-| `Ignore` + with backfill columns | `OneByOne` |
-| `Update` + with backfill columns | `OneByOne` |
-
-`DuplicateKeyStrategy.Ignore` / `Update` are implemented via H2 `MERGE`, requiring primary key columns.
-
-## Design Principles
-
-- `IDENTITY`: use `KeyType.Auto` or `useGeneratedKeys=true`.
-- sequence: use `selectKey` / `@SelectKeySql` / `KeyType.Sequence` to get value before INSERT.
-- Batch inserts without backfill use JDBC batch; when backfill is needed, conservative row-by-row execution.
-- General documentation: see [Generated Keys](../../guides/core/mapper/annotation_insert#generated-keys).
+</TabItem>
+</Tabs>

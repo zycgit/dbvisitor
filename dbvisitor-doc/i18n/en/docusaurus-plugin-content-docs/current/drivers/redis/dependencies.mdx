@@ -10,24 +10,20 @@ Requires Java 17 or later. Choose Maven or Gradle.
 
 ## Maven
 
-Set the `dbvisitor.version` property in your project POM to the driver version you use.
-
 ```xml
 <dependency>
     <groupId>net.hasor</groupId>
     <artifactId>jdbc-redis</artifactId>
-    <version>${dbvisitor.version}</version>
+    <version>@project.docsVersion@</version>
     <classifier>all</classifier>
 </dependency>
 ```
 
 ## Gradle
 
-Set `dbvisitorVersion` in your project's `gradle.properties` to the driver version you use.
-
 ```groovy
 repositories { mavenCentral() }
-dependencies { implementation "net.hasor:jdbc-redis:${dbvisitorVersion}:all" }
+dependencies { implementation "net.hasor:jdbc-redis:@project.docsVersion@:all" }
 ```
 
 

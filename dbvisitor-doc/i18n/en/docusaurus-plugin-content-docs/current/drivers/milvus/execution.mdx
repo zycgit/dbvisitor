@@ -1,0 +1,124 @@
+---
+id: execution
+sidebar_position: 3
+title: Execute Commands
+---
+
+# Execute Commands
+
+## Execute Commands Through JDBC
+
+This standalone example creates books_demo and its index, writes one record, then searches it. Use a new collection name when running it in an existing database.
+
+```java
+import java.sql.*;
+import java.util.Properties;
+
+public class MilvusJdbcExample {
+    public static void main(String[] args) throws Exception {
+        String url = args.length == 0
+                ? "jdbc:dbvisitor:milvus://127.0.0.1:19530/default"
+                : args[0];
+        Properties props = new Properties();
+        props.setProperty("consistencyLevel", "Strong");
+        props.setProperty("connectTimeout", "10000");
+        props.setProperty("maxRetry", "3");
+        // If authentication is enabled:
+        // props.setProperty("token", "YOUR_TOKEN");
+
+        Class.forName("net.hasor.dbvisitor.driver.JdbcDriver");
+        try (Connection conn = DriverManager.getConnection(url, props)) {
+            try (Statement stmt = conn.createStatement()) {
+                stmt.executeUpdate("CREATE TABLE books_demo (" +
+                        "book_id INT64 PRIMARY KEY, title VARCHAR(200), " +
+                        "word_count INT32 DEFAULT 0, book_intro FLOAT_VECTOR(2))");
+                stmt.executeUpdate("CREATE INDEX idx_intro ON books_demo (book_intro) " +
+                        "USING 'FLAT' WITH (metric_type='L2')");
+                stmt.executeUpdate("LOAD TABLE books_demo");
+            }
+
+            String insert = "INSERT INTO books_demo " +
+                    "(book_id, title, word_count, book_intro) VALUES (?, ?, ?, ?)";
+            try (PreparedStatement ps = conn.prepareStatement(insert)) {
+                ps.setLong(1, 1L);
+                ps.setString(2, "A book");
+                ps.setInt(3, 1000);
+                ps.setObject(4, new float[] {0.1F, 0.2F});
+                System.out.println("inserted=" + ps.executeUpdate());
+            }
+
+            String search = "SELECT book_id, title, score FROM books_demo " +
+                    "WHERE word_count >= ? ORDER BY book_intro <-> ? LIMIT ?";
+            try (PreparedStatement ps = conn.prepareStatement(search)) {
+                ps.setInt(1, 100);
+                ps.setObject(2, new float[] {0.1F, 0.2F});
+                ps.setInt(3, 5);
+                ps.setFetchSize(128);
+                ps.setQueryTimeout(30);
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        System.out.printf("%d %s %.4f%n", rs.getLong("book_id"),
+                                rs.getString("title"), rs.getFloat("score"));
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
+## Control Paged Writes
+
+The following fragments use an open connection conn. fetchSize controls the number of records in each internal page, while LIMIT controls the total records selected. Earlier successful pages are not rolled back on failure.
+
+```java
+try (PreparedStatement ps = conn.prepareStatement(
+        "UPSERT INTO books_demo (book_id, title, word_count, book_intro) VALUES (?, ?, ?, ?)")) {
+    ps.setLong(1, 1L);
+    ps.setString(2, "Revised book");
+    ps.setInt(3, 1200);
+    ps.setObject(4, new double[] {0.1, 0.2});
+    ps.executeUpdate();
+}
+try (PreparedStatement ps = conn.prepareStatement(
+        "UPDATE books_demo SET word_count = ? WHERE book_id = ? LIMIT ?")) {
+    ps.setInt(1, 1500);
+    ps.setLong(2, 1L);
+    ps.setInt(3, 1);
+    ps.setFetchSize(128);
+    System.out.println(ps.executeLargeUpdate());
+}
+try (PreparedStatement ps = conn.prepareStatement(
+        "DELETE FROM books_demo WHERE book_id = ? LIMIT ?")) {
+    ps.setLong(1, 1L);
+    ps.setInt(2, 1);
+    System.out.println(ps.executeLargeUpdate());
+}
+```
+
+```java
+try (PreparedStatement ps = conn.prepareStatement(
+        "SELECT book_id, title FROM books_demo WHERE word_count >= ?")) {
+    ps.setInt(1, 100);
+    ps.setFetchSize(256);
+    ps.setMaxRows(1000);
+    ps.setQueryTimeout(30);
+    try (ResultSet rs = ps.executeQuery()) {
+        while (rs.next()) {
+            System.out.println(rs.getLong("book_id") + ": " + rs.getString("title"));
+        }
+    }
+}
+```
+
+## Execution Controls {#execution-controls}
+
+- `setFetchSize(rows)`: page size, not the total row limit.
+- `setQueryTimeout(seconds)`: execution time budget, including retries and subsequent result pages.
+- For connection and per-RPC timeouts, see [Parameters](params.md); for synchronous command waits, see [Hint Support](../../features/milvus/basics/hints.md).
+
+:::info[Read After Write]
+SDK 2.6.22's QueryIterator uses collection-default consistency. For immediate read-after-write visibility with paged queries or DML row selection, create the collection with `WITH (consistency_level=Strong)`; setting only the connection property `consistencyLevel=Strong` is insufficient.
+:::
+
+For accepted parameter types, see [Parameter Binding](parameters.mdx).

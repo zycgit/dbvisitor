@@ -24,15 +24,15 @@ try (java.sql.Connection connection = java.sql.DriverManager.getConnection(url, 
 }
 ```
 
-URL 前缀是 `jedis`，不是 `redis`；数据库索引使用 `?database=0`，不写成 `/0`。多主机如 `jdbc:dbvisitor:jedis://host1:6379;host2:6379` 会创建 Redis Cluster 客户端，并非连接多个独立单机。默认客户端不启用 TLS，高级配置见[连接参数](./params.md)中的 `customJedis`。
+URL 前缀是 `jedis`，不是 `redis`；数据库索引使用 `?database=0`，不写成 `/0`。多主机如 `jdbc:dbvisitor:jedis://host1:6379;host2:6379` 会创建 Redis Cluster 客户端，并非连接多个独立单机。默认客户端不启用 TLS，高级配置见[连接参数](params.md)中的 `customJedis`。
 
 ## 配置连接参数
 
 参数可通过 `properties.setProperty("参数名", "参数值")` 配置，也可放在 URL 的 `?name=value&other=value` 部分；已有查询参数时用 `&` 追加。同名参数以 URL 为准，覆盖 `Properties`。URL 解析不会执行百分号解码；密码、token 以及包含 `&` 的值应放在 `Properties` 中，并避免记录到日志。
 
-参数名称、默认值、单位及限制见[连接参数](./params.md)。只使用适配器文档列出的参数，不能将厂商 SDK 的任意选项直接当作 JDBC 参数。
+参数名称、默认值、单位及限制见[连接参数](params.md)。只使用适配器文档列出的参数，不能将厂商 SDK 的任意选项直接当作 JDBC 参数。
 
-连接建立后的命令执行与结果读取见[JDBC 操作用法](../../features/redis/jdbc.mdx)。
+连接建立后的命令执行与结果读取见[数据读写](../../features/redis/usage.mdx)。
 
 ## 用户名与密码
 

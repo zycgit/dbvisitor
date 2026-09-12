@@ -15,10 +15,10 @@ description: Elasticsearch JDBC 驱动的接入、连接和使用。
 
 ## 开始使用
 
-1. [引入依赖](./dependencies.mdx)：Maven 或 Gradle 配置。
-2. [建立连接](./connection.mdx)：JDBC URL、认证及连接示例。
-3. [参数配置](./params.md)：参数名称、默认值和单位。
-4. [使用限制](./limitations.md)：JDBC 接口及数据源特有限制。
+1. [引入依赖](dependencies.mdx)：Maven 或 Gradle 配置。
+2. [建立连接](connection.mdx)：JDBC URL、认证及连接示例。
+3. [参数配置](params.md)：参数名称、默认值和单位。
+4. [使用限制](limitations.md)：JDBC 接口及数据源特有限制。
 
 ## 使用前须知
 
@@ -28,6 +28,6 @@ description: Elasticsearch JDBC 驱动的接入、连接和使用。
 
 配合 dbVisitor API 使用时，可使用 Elastic6、Elastic7 方言。
 
-[命令参考](../../features/elastic/commands.md) · [dbVisitor API 用法](../../features/elastic/usage.mdx)
+[命令参考](../../features/elastic/syntax/index.md) · [dbVisitor API 用法](../../features/elastic/usage.mdx)
 
 [向量查询](../../features/elastic/vectors.mdx)

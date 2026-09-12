@@ -1,0 +1,57 @@
+---
+id: generated-keys
+sidebar_position: 3
+title: Key Generation
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Key Generation
+
+## Use a Generated ID
+
+POST without a document ID lets Elasticsearch generate _id. It is separate from any business id or uid field in _source.
+
+
+
+Provide a writable String id property on UserInfo. The following Mapper definitions fill it after insertion:
+
+<Tabs>
+<TabItem value="annotation" label="Method Annotations" default>
+
+```java
+@Insert(value = "POST /user_info/_doc {\"name\": #{name}}",
+        useGeneratedKeys = true, keyProperty = "id")
+int insert(UserInfo item);
+```
+
+</TabItem>
+<TabItem value="xml" label="Mapper File">
+
+```xml
+<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+    POST /user_info/_doc {"name": #{name}}
+</insert>
+```
+
+</TabItem>
+</Tabs>
+
+After mapper.insert(item), read item.getId(). These examples pass one entity argument, not an argument wrapped in @Param.
+
+:::caution[Note]
+Do not specify keyColumn. The adapter supports RETURN_GENERATED_KEYS, but not the JDBC column-name overload used by Fluent API KeyType.Auto. Use the Mapper definitions above for generated keys; assign application keys explicitly when using the Fluent API.
+:::
+
+## Use an Assigned ID
+
+To use an application ID, put it in the request path:
+
+```java
+jdbc.executeUpdate(
+        "PUT /user_info/_doc/{?}?refresh=wait_for {\"name\": ?}",
+        new Object[] { "1001", "mali" });
+```
+
+Writing the same document ID replaces its content. Use _update for partial changes; a business uid property does not control this ID.

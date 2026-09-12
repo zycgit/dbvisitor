@@ -15,10 +15,10 @@ description: MongoDB JDBC driver setup, connections and usage.
 
 ## Get Connected
 
-1. [Add dependencies](./dependencies.mdx): Maven or Gradle configuration.
-2. [Connect to the database](./connection.mdx): JDBC URL, credentials and connection examples.
-3. [Configure parameters](./params.md): names, defaults and units.
-4. [Usage limitations](./limitations.md): JDBC support and database-specific restrictions.
+1. [Add dependencies](dependencies.mdx): Maven or Gradle configuration.
+2. [Connect to the database](connection.mdx): JDBC URL, credentials and connection examples.
+3. [Configure parameters](params.md): names, defaults and units.
+4. [Usage limitations](limitations.md): JDBC support and database-specific restrictions.
 
 ## Before You Connect
 
@@ -26,4 +26,4 @@ description: MongoDB JDBC driver setup, connections and usage.
 - Commands must use the syntax supported by this driver; arbitrary relational SQL is not translated.
 - JDBC batch and transactions are not supported. Check the [shared JDBC limitations](../limited.md) before integrating a connection pool, ORM or other JDBC tool.
 
-[Command reference](../../features/mongo/commands.md) · [dbVisitor API usage](../../features/mongo/usage.mdx)
+[Command reference](../../features/mongo/syntax/index.md) · [dbVisitor API usage](../../features/mongo/usage.mdx)

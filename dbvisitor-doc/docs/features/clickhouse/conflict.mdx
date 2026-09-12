@@ -1,0 +1,47 @@
+---
+id: conflict
+sidebar_position: 3
+title: 重复记录处理
+description: MergeTree 重复写入相同业务 ID 时，如何读取最新版本。
+---
+
+# 重复记录处理
+
+MergeTree 中，相同 ID 写入两次不会触发主键重复错误。应用写入事件的新版本后，两条记录可能同时存在：
+
+```sql
+CREATE TABLE event_version (
+    id String,
+    event_name String,
+    version UInt64
+) ENGINE = MergeTree ORDER BY id;
+
+INSERT INTO event_version VALUES ('E1', 'login', 1), ('E1', 'archived', 2);
+```
+
+```java
+List<Map<String, Object>> records = jdbcTemplate.queryForList(
+        "SELECT id, event_name, version FROM event_version WHERE id = ? ORDER BY version",
+        new Object[] { "E1" });
+```
+
+这里返回两条记录，而不是一条更新后的记录。配置 `@Column(primary = true)` 不会改变这个结果。
+
+## 读取最新版本
+
+如果业务需要每个事件的最新状态，写入时使用递增版本号，查询时取最大版本对应的名字：
+
+```java
+List<Map<String, Object>> latest = jdbcTemplate.queryForList("""
+        SELECT id, argMax(event_name, version) AS event_name
+        FROM event_version
+        GROUP BY id
+        ORDER BY id
+        """);
+```
+
+结果只有一条 E1，`event_name` 为 `archived`。历史版本仍保存在表中。
+
+:::caution[注意]
+同一事件 ID 的版本号应唯一，避免最大版本对应多个值。ClickHouse 构造器不支持 Ignore、Update 插入冲突策略，不能用它们实现唯一键更新。
+:::

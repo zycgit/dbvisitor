@@ -1,0 +1,53 @@
+---
+id: pagination
+sidebar_position: 2
+title: Pagination
+description: Oracle pagination principles, dbVisitor usage and notes.
+---
+
+# Pagination
+
+Pagination divides an ordered result set into segments of `pageSize` rows. With zero-based page numbers, the offset for `pageNumber` is `pageSize × pageNumber`. dbVisitor uses offset pagination: Oracle applies two `ROWNUM` conditions to cap the upper bound and skip preceding rows. Page boundaries depend on ordering; include a unique key in the ordering to keep adjacent pages stable.
+
+**Page query**
+
+```sql
+SELECT * FROM (
+    SELECT TMP.*, ROWNUM ROW_ID
+    FROM (
+        SELECT id, name FROM user_info ORDER BY id
+    ) TMP
+    WHERE ROWNUM <= ?
+)
+WHERE ROW_ID > ?
+```
+
+The parameters are the last record position of the page and the offset.
+
+**Total-count query**
+
+When a total row count is required, dbVisitor runs a separate query:
+
+```sql
+SELECT COUNT(*) FROM (
+    SELECT id, name FROM user_info ORDER BY id
+) TEMP_T
+```
+
+## dbVisitor Usage
+
+```java
+List<UserInfo> rows = lambda.query(UserInfo.class)
+        .orderBy(UserInfo::getId)
+        .initPage(20, 0)
+        .queryForList();
+```
+
+`initPage(pageSize, pageNumber)` uses zero-based page numbers. To reuse pagination state, use `usePage(PageObject.of(pageNumber, pageSize))`; Mapper methods can also accept a `Page` parameter. See [9.5 Pagination](../../guides/result/page_object.mdx) for pagination objects, total counts, and API entry points.
+
+## Notes
+
+- `initPage(pageSize, pageNumber)` uses zero-based page numbers and is not JDBC `fetchSize`.
+- Put ordering in the original query and include a unique tie-breaker.
+- The wrapper adds `ROW_ID`; account for it when reading by column index or into a Map.
+- Counting and fetching are separate queries and may disagree during concurrent changes.

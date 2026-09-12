@@ -318,7 +318,32 @@ try (Connection conn = DriverManager.getConnection(
 }
 ```
 
-SPI registration only integrates the JDBC driver. To generate commands through LambdaTemplate or BaseMapper, also implement and register a database dialect; see [Custom Dialects](../../features/support.md#custom-dialect).
+SPI registration integrates the JDBC driver. To generate commands through LambdaTemplate or BaseMapper, also implement and register a database dialect.
+
+### Custom Dialects {#custom-dialect}
+
+If the built-in dialects do not meet your needs, you can customize a dialect by extending `AbstractDialect` and implementing the required interfaces. The main dialect interfaces are listed below, with `SqlDialect` as their common base:
+
+| Interface | Responsibility |
+|------|------|
+| `SqlDialect` | Base interface: manages keyword lists, generates table/column/sort column names |
+| `ConditionSqlDialect` | Condition-related SQL generation (e.g., LIKE statements) |
+| `InsertSqlDialect` | Advanced INSERT statement generation (e.g., [write conflict strategies](../../guides/core/lambda/insert#conflict)) |
+| `PageSqlDialect` | Pagination statement generation (`countSql` + `pageSql`) |
+| `SeqSqlDialect` | Sequence query statement generation |
+| `VectorSqlDialect` | Vector ordering and range conditions |
+
+:::info[Tip]
+Extend the `AbstractDialect` abstract class and implement the `PageSqlDialect` interface to customize pagination dialect.
+- `countSql` — generates the SQL statement for counting
+- `pageSql` — generates the paginated SQL statement
+:::
+
+```java title='Register a custom dialect'
+SqlDialectRegister.registerDialectAlias(JdbcHelper.MYSQL, MyDialect.class);
+```
+
+An explicitly configured dialect takes precedence. Otherwise, dbVisitor looks up the dialect using the JDBC URL, driver name and database version from connection metadata, falling back to the default dialect if no match is found. Configuration accepts a dialect alias or a fully qualified class name.
 
 ## Step 9: Test the Adapter
 

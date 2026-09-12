@@ -1,27 +1,35 @@
 ---
 id: generated-keys
-sidebar_position: 1
-hide_table_of_contents: true
-title: Auto-generated Key Backfill
-description: How to handle AUTO_INCREMENT, generated keys, and duplicate key strategies in MySQL with dbVisitor.
+sidebar_position: 4
+toc_min_heading_level: 2
+toc_max_heading_level: 2
+title: Key Generation
+description: How to handle AUTO_INCREMENT and key backfill in MySQL with dbVisitor.
 ---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 <span id="mysql-auto-generated-key-backfill" />
 
-# Auto-generated Key Backfill
+# Key Generation
 
-MySQL's `AUTO_INCREMENT` columns are well-suited for backfilling via JDBC generated keys. Under MySQL, dbVisitor selects different execution methods based on whether backfill columns are needed and whether a duplicate key strategy is used.
+MySQL generates primary keys with `AUTO_INCREMENT`; dbVisitor can assign the generated value to the entity after insertion.
 
-## Dialect Strategy
+:::info[Note]
+For general configuration, see [Generated Keys](../../guides/core/mapper/annotation_insert#generated-keys).
+:::
 
-| Scenario | GeneratedKeyStrategy | Notes |
-|------|---------------------|------|
-| No backfill columns | `JdbcBatch` | Regular JDBC batch, reduces per-statement submission overhead |
-| `Into` + with backfill columns | `JdbcBatchGeneratedKeys` | batch + `getGeneratedKeys()` backfill |
-| `Ignore` + with backfill columns | `OneByOne` | Conservative row-by-row execution to guarantee backfill semantics |
-| `Update` + with backfill columns | `OneByOne` | Same as above, avoids unstable combination of `ON DUPLICATE KEY UPDATE` with batch generated keys |
+## Using AUTO_INCREMENT
 
-## Lambda / BaseMapper
+```sql
+CREATE TABLE user_info (
+    id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(64)
+) ENGINE=InnoDB;
+```
+
+<Tabs>
+<TabItem value="identity-lambda" label="Fluent API" default>
 
 ```java
 @Table("user_info")
@@ -43,25 +51,29 @@ lambda.insert(UserInfo.class).applyEntity(user).executeSumResult();
 Integer id = user.getId(); // Auto-backfilled
 ```
 
-## Write Conflict Strategies
+Ignore and Update do not guarantee a new key for every input entity. See [Insert Conflicts](./conflict.mdx) for strategy semantics and usage.
 
-| Strategy | MySQL Implementation | PK Required |
-|------|-----------|---------|
-| Ignore | `INSERT IGNORE INTO ...` | Not required (works even without PK) |
-| Update | `INSERT INTO ... ON DUPLICATE KEY UPDATE ...` | Not required (updates all columns when no PK) |
+</TabItem>
+<TabItem value="identity-annotation" label="Method Annotations">
 
-The MySQL dialect does not require primary-key columns in the entity mapping for Ignore/Update strategies. Strategies are triggered by database unique keys or primary keys.
+```java title='Method Annotations'
+@Insert(value = "INSERT INTO user_info (name) VALUES (#{name})",
+        useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
+int insertUser(UserInfo user);
+```
 
-## Mapper XML / Annotation
+</TabItem>
+<TabItem value="identity-xml" label="Mapper File">
 
-```xml title='Mapper XML'
+```xml title='Mapper File'
 <insert id="insertUser" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
     INSERT INTO user_info (name) VALUES (#{name})
 </insert>
 ```
 
-```java title='Annotation'
-@Insert(value = "INSERT INTO user_info (name) VALUES (#{name})",
-        useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
-int insertUser(UserInfo user);
-```
+</TabItem>
+</Tabs>
+
+:::caution[Note]
+After inserting multiple entities, read each entity's ID; do not infer IDs from the first value. Rows skipped or updated by an insert-conflict strategy may not receive a generated ID.
+:::

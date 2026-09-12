@@ -1,0 +1,35 @@
+---
+id: pagination
+sidebar_position: 2
+title: Pagination
+---
+
+# Pagination
+
+MongoDB pages a `find` query with `skip` and `limit`. Count the same filter separately with `countDocuments`:
+```text
+test.user_info.find({name: 'mali'}).sort({_id: 1}).skip(10).limit(10)
+test.user_info.countDocuments({name: 'mali'})
+```
+
+## dbVisitor Usage
+
+Add a Page argument to a Mapper method. The entity mapping is shown in [Data Reads and Writes](./usage.mdx).
+
+```java
+@Query("test.user_info.find({name: #{name}}).sort({_id: 1})")
+List<UserInfo> findByName(@Param("name") String name, Page page);
+```
+
+```java
+Page page = new PageObject(1, 10);
+List<UserInfo> rows = mapper.findByName("mali", page);
+```
+
+Page numbering starts at zero. Page overrides skip/limit on find; a requested total triggers a separate count. For aggregate, write `$skip` and `$limit` explicitly.
+
+## Notes
+
+Sort by a unique field to avoid ambiguous page order. `fetchSize` is not a page size, and `preRead=false` does not turn a query into pagination.
+
+Counts and page reads are separate requests; concurrent writes can change their results. See [9.5 Pagination](../../guides/result/page_object.mdx) for the common API.

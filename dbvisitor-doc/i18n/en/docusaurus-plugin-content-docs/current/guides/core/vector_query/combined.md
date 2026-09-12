@@ -42,9 +42,7 @@ Ordinary field predicates always belong to `WHERE`. `orderBy*` belongs to `ORDER
 ## Scalar Predicates + KNN Ordering
 
 ```java title='Top-K within a category'
-PGobject target = new PGobject();
-target.setType("vector");
-target.setValue("[0.1,0.2,0.3]");
+List<Float> target = List.of(0.1f, 0.2f, 0.3f);
 
 List<ProductVector> rows = lambda.query(ProductVector.class)
         .eq(ProductVector::getCategory, "book")

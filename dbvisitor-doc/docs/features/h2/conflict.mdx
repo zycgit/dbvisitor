@@ -1,0 +1,57 @@
+---
+id: conflict
+sidebar_position: 3
+title: 插入冲突
+description: H2 插入冲突的处理方式、dbVisitor 用法和注意事项。
+---
+
+# 插入冲突
+
+冲突处理用于决定插入数据与已有记录匹配时应当报错、忽略还是更新，常见于任务重放、数据同步、重复导入和“存在则更新”场景。它属于 INSERT 的执行策略，不等同于单独执行普通 UPDATE。
+
+## 处理方式
+
+| 策略 | H2 语句 | 结果 |
+|------|---------|------|
+| Into | `INSERT INTO ... VALUES (...)` | 冲突时由数据库报错 |
+| Ignore | `MERGE ... USING (VALUES ...) ... WHEN NOT MATCHED THEN INSERT` | 已匹配记录保持不变，未匹配记录插入 |
+| Update | `MERGE INTO ... KEY (...) VALUES (...)` | 已匹配记录更新，未匹配记录插入 |
+
+Ignore 和 Update 都使用实体映射中的主键列判断匹配，由 H2 执行整条语句。
+
+## 如何使用
+
+假设 `UserInfo` 映射到下表，`id` 配置为实体主键。表中已经有一条 Alice：
+
+```sql
+CREATE TABLE user_info (
+    id INTEGER NOT NULL PRIMARY KEY,
+    name VARCHAR(64),
+    age INTEGER
+);
+INSERT INTO user_info (id, name, age) VALUES (1001, 'Alice', 18);
+```
+
+再次提交相同 ID，但将名字改为 Bob：
+
+```java
+UserInfo user = new UserInfo();
+user.setId(1001);
+user.setName("Bob");
+user.setAge(20);
+
+int rows = lambda.insert(UserInfo.class)
+        .onDuplicateStrategy(DuplicateKeyStrategy.Update)
+        .applyEntity(user)
+        .executeSumResult();
+```
+
+使用 `Update` 后，1001 这条记录变为 Bob、20 岁。改为 `Ignore` 则保留 Alice；默认 `Into` 会报告主键重复。
+
+将策略改为 `Ignore` 可保留已匹配记录；省略配置或使用 `Into` 则执行普通 INSERT。通用 API 说明见[新增操作](../../guides/core/lambda/insert.md#conflict)。
+
+## 注意事项
+
+- Ignore 和 Update 必须配置实体主键；dbVisitor 不会自动选择其他业务字段。
+- Ignore 不是“忽略全部错误”，字段校验和连接错误仍会失败。
+- 返回值遵循 H2 的 MERGE 更新计数。

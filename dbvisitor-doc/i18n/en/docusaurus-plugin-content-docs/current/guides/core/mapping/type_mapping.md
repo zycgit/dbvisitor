@@ -7,22 +7,16 @@ description: Map field types and jdbcType with dbVisitor ORM.
 
 # Type Mapping and Handlers
 
-When a Java `int` maps to a database `int`, three aspects matter:
-- Java type used by the property
-- JDBC type of the column
-- TypeHandler for reading/writing
+Ordinary properties usually only need a Java type and column name; dbVisitor selects the corresponding TypeHandler:
 
 ```java
-@Table
-public class Users {
-    @Column(jdbcType = java.sql.Types.TINYINT, typeHandler = IntegerTypeHandler.class)
-    private Integer id;
-}
+import net.hasor.dbvisitor.mapping.Column;
+
+@Column("age")
+private Integer age;
 ```
 
-:::info
-In most cases you can ignore `jdbcType` and `typeHandler`; the framework selects them from the Java type.
-:::
+Configure typeHandler explicitly when using a special storage format. Use specialJavaType for a concrete Java type and jdbcType when controlling the underlying binding type; ordinary properties generally do not need these settings.
 
 ### Handle abstract types
 
@@ -45,28 +39,6 @@ public class Users {
 ```
 
 - For more on enum mapping, see [Enum type handler](../../types/enum-handler).
-
-### Handle JSON serialization
-
-```java title="Bind JSON serializer via @Column"
-@Table
-public class Users {
-    @Column(typeHandler = net.hasor.dbvisitor.types.handler.json.JsonTypeHandler.class)
-    private UserExtInfo moreInfo; // Field is serialized/deserialized as JSON
-}
-```
-
-```java title="Set serializer for a type via @BindTypeHandler"
-@BindTypeHandler(net.hasor.dbvisitor.types.handler.json.JsonTypeHandler.class)
-public class UserExtInfo {
-    ...
-}
-
-@Table
-public class Users {
-    private UserExtInfo moreInfo;
-}
-```
 
 ### Use a custom TypeHandler
 

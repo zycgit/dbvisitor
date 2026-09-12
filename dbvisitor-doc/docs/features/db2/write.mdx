@@ -1,0 +1,59 @@
+---
+id: write
+sidebar_position: 6
+hide_table_of_contents: true
+title: 多条写入一致性
+description: 通过具体失败场景说明如何用事务保证多次写入一起提交或回滚。
+---
+
+# 多条写入一致性
+
+假设两条记录需要一起保存，第二条失败时，第一条也不能留下。下面使用一张空表，`id` 为主键：
+
+```sql
+CREATE TABLE user_info (
+    id INTEGER NOT NULL PRIMARY KEY,
+    name VARCHAR(100)
+);
+```
+
+下面两次调用故意使用相同的主键：
+
+```java
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+
+JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+jdbc.executeUpdate("INSERT INTO user_info (id, name) VALUES (?, ?)",
+        new Object[] { 1001, "Alice" });
+jdbc.executeUpdate("INSERT INTO user_info (id, name) VALUES (?, ?)",
+        new Object[] { 1001, "Bob" });
+```
+
+未开启事务、连接使用自动提交时，Alice 先插入并提交。随后 Bob 因主键重复而报错，但 Alice 不会自动撤销。
+
+要在失败时全部回滚，重新从空表开始，将两次调用放入事务：
+
+```java
+import net.hasor.dbvisitor.transaction.TransactionTemplate;
+import net.hasor.dbvisitor.transaction.TransactionTemplateManager;
+import net.hasor.dbvisitor.transaction.support.TransactionHelper;
+
+TransactionTemplate tx = new TransactionTemplateManager(
+        TransactionHelper.txManager(dataSource));
+
+tx.execute(status -> {
+    jdbc.executeUpdate("INSERT INTO user_info (id, name) VALUES (?, ?)",
+            new Object[] { 1001, "Alice" });
+    jdbc.executeUpdate("INSERT INTO user_info (id, name) VALUES (?, ?)",
+            new Object[] { 1001, "Bob" });
+    return null;
+});
+```
+
+Bob 插入失败后，异常传出回调，Alice 的插入也随之回滚，表中不会留下这两条记录。将第二条的 ID 改为 `1002`，两次插入成功后一起提交。
+
+:::caution[注意]
+`jdbc` 和事务管理器必须使用同一个 `dataSource`。不要在回调内捕获异常后直接正常返回；必须捕获时，调用 `status.setRollback()` 标记回滚。
+:::
+
+调用方法需处理或声明 `execute` 抛出的 `Throwable`。构造器 API 和 Mapper 也可以参与事务，完整配置见[事务模板](../../guides/transaction/template.md)。

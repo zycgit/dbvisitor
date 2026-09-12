@@ -1,0 +1,9 @@
+{
+  "label": "命令语法",
+  "position": 20,
+  "link": {
+    "type": "doc",
+    "id": "features/redis/syntax/index"
+  },
+  "key": "redis-command-syntax"
+}

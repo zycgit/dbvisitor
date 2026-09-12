@@ -1,0 +1,91 @@
+---
+id: vectors
+sidebar_position: 5
+title: 向量数据操作
+description: PostgreSQL 向量字段映射、距离阈值与检索索引的使用差异。
+---
+
+# 向量数据操作
+
+PostgreSQL 使用 pgvector 扩展存储和检索向量。通用读写用法见[向量类型映射](../../guides/core/vector_query/mapping.md)，查询用法见[KNN 近邻排序](../../guides/core/vector_query/knn.md)和[距离范围过滤](../../guides/core/vector_query/range.md)。
+
+## 映射向量字段
+
+`vector(3)` 保存三维向量，不是 PostgreSQL 数组。先启用扩展，再定义字段：
+
+```sql
+CREATE EXTENSION IF NOT EXISTS vector;
+CREATE TABLE vector_item (
+    id BIGINT PRIMARY KEY,
+    embedding vector(3)
+);
+```
+
+实体的 `List<Float>` 属性需要配置 `PgVectorTypeHandler`：
+
+```java
+import java.util.List;
+import net.hasor.dbvisitor.mapping.Column;
+import net.hasor.dbvisitor.mapping.Table;
+import net.hasor.dbvisitor.types.handler.array.PgVectorTypeHandler;
+
+@Table("vector_item")
+public class VectorItem {
+    @Column(primary = true)
+    private Long id;
+
+    @Column(typeHandler = PgVectorTypeHandler.class)
+    private List<Float> embedding;
+
+    // 省略 getter 和 setter
+}
+```
+
+写入和查询均传三维的 `List<Float>`。构造器 API 的 `orderBy*` 和 `vectorBy*` 会复用字段处理器，无需先转成 `PGobject`。
+
+## 按余弦相似度查询
+
+pgvector 的 `<=>` 返回**余弦距离**，等于 `1 - 余弦相似度`。要查相似度大于 `0.8` 的记录，距离阈值应传 `0.2`，而不是 `0.8`：
+
+```java
+List<VectorItem> rows = lambda.query(VectorItem.class)
+        .vectorByCosine(VectorItem::getEmbedding, target, 0.2)
+        .queryForList();
+```
+
+其中 `target` 是目标向量；生成的条件为 `embedding <=> ? < 0.2`。`orderByCosine` 按距离升序排列，相似度高的记录在前。
+
+## 按内积查询
+
+pgvector 的 `<#>` 返回**负内积**。`orderByIP` 按负内积升序排列，因此实际内积大的记录在前。
+
+要查内积大于 `0.8` 的记录，阈值应传 `-0.8`：
+
+```java
+List<VectorItem> rows = lambda.query(VectorItem.class)
+        .vectorByIP(VectorItem::getEmbedding, target, -0.8)
+        .queryForList();
+```
+
+生成的条件为 `embedding <#> ? < -0.8`。
+
+## 匹配检索索引
+
+索引需要与查询使用的距离匹配：
+
+| 构造器 API 排序 | pgvector 运算符 | 索引运算符类 |
+| --- | --- | --- |
+| `orderByL2` | `<->` | `vector_l2_ops` |
+| `orderByCosine` | `<=>` | `vector_cosine_ops` |
+| `orderByIP` | `<#>` | `vector_ip_ops` |
+
+例如使用 `orderByCosine` 查询最近的 10 条记录时，配套的 HNSW 索引为：
+
+```sql
+CREATE INDEX vector_item_cosine_idx
+ON vector_item USING hnsw (embedding vector_cosine_ops);
+```
+
+L2 索引不能替代余弦索引。索引近邻查询需要按距离升序并限制条数；构造器 API 使用 `orderByCosine(...).initPage(10, 0)`。仅调用 `vectorByCosine` 过滤距离，不等同于索引近邻查询。
+
+距离定义与索引选项见 [pgvector 文档](https://github.com/pgvector/pgvector)。

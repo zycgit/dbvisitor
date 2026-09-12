@@ -1,22 +1,25 @@
 ---
 id: generated-keys
-sidebar_position: 1
-hide_table_of_contents: true
-title: 自增主键回填
-description: DB2 下使用 dbVisitor 处理 IDENTITY、sequence 和 generated keys 的方式。
+sidebar_position: 4
+toc_min_heading_level: 2
+toc_max_heading_level: 2
+title: 主键生成
+description: DB2 下使用 dbVisitor 处理 IDENTITY、sequence 和主键回填的方式。
 ---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 <span id="db2-自增主键回填" />
 
-# 自增主键回填
+# 主键生成
 
 DB2 支持 identity 列和 sequence。对于 identity 列，可以使用 JDBC generated keys；对于 sequence，更推荐在 INSERT 前取值。
 
-IBM 文档说明 DB2 JDBC 支持读取自动生成键，但 batch generated keys 存在限制，某些配置下不能把准备返回 generated keys 的 `PreparedStatement` 用于 batch updates。参考 [IBM DB2 generated keys 文档](https://www.ibm.com/docs/en/db2-for-zos/12.0.0?topic=sql-retrieval-automatically-generated-keys-in-jdbc-applications)。
+:::info[说明]
+通用配置见[主键生成与回填](../../guides/core/mapper/annotation_insert#generated-keys)。
+:::
 
-dbVisitor 因此在 DB2 下采用保守策略：无回填列时使用普通 JDBC batch；有回填列时逐条执行，避免批量回填顺序和驱动限制带来的不确定性。
-
-## IDENTITY 列
+## 使用 IDENTITY
 
 ```sql
 CREATE TABLE user_info (
@@ -26,7 +29,8 @@ CREATE TABLE user_info (
 )
 ```
 
-## Lambda / BaseMapper
+<Tabs>
+<TabItem value="identity-lambda" label="构造器 API" default>
 
 ```java title='DB2 IDENTITY 映射'
 @Table("user_info")
@@ -39,11 +43,11 @@ public class UserInfo {
 }
 ```
 
-```java title='Lambda 新增后读取回填主键'
+```java title='新增后属性自动回填'
 UserInfo user = new UserInfo();
 user.setName("mali");
 
-LambdaTemplate lambda = ...
+LambdaTemplate lambda = ...;
 lambda.insert(UserInfo.class)
       .applyEntity(user)
       .executeSumResult();
@@ -51,19 +55,8 @@ lambda.insert(UserInfo.class)
 Long id = user.getId();
 ```
 
-## Mapper XML
-
-```xml title='DB2 generated keys'
-<insert id="insertUser"
-        useGeneratedKeys="true"
-        keyProperty="id"
-        keyColumn="id">
-    INSERT INTO user_info (name)
-    VALUES (#{name})
-</insert>
-```
-
-## Annotation Mapper
+</TabItem>
+<TabItem value="identity-annotation" label="方法注解">
 
 ```java
 @Insert(
@@ -75,15 +68,87 @@ Long id = user.getId();
 int insertUser(UserInfo user);
 ```
 
-## Sequence
+</TabItem>
+<TabItem value="identity-xml" label="Mapper 文件">
 
-DB2 方言支持读取 sequence：
-
-```sql
-VALUES NEXT VALUE FOR user_info_seq
+```xml title='DB2 generated keys'
+<insert id="insertUser"
+        useGeneratedKeys="true"
+        keyProperty="id"
+        keyColumn="id">
+    INSERT INTO user_info (name)
+    VALUES (#{name})
+</insert>
 ```
 
-Mapper XML：
+</TabItem>
+</Tabs>
+
+:::caution[注意]
+需要回填主键时，多个实体逐条插入、分别回填。需要一起提交或回滚时，见[多条写入一致性](./write.mdx)。
+:::
+
+## 使用序列
+
+下面使用普通主键列和序列，与上面的自增列示例独立：
+
+```sql
+CREATE TABLE user_info (
+    id BIGINT NOT NULL PRIMARY KEY,
+    name VARCHAR(64)
+);
+CREATE SEQUENCE user_info_seq START WITH 1 INCREMENT BY 1;
+```
+
+<Tabs>
+<TabItem value="sequence-lambda" label="构造器 API" default>
+
+```java
+import net.hasor.dbvisitor.mapping.Column;
+import net.hasor.dbvisitor.mapping.KeySeq;
+import net.hasor.dbvisitor.mapping.KeyType;
+import net.hasor.dbvisitor.mapping.Table;
+
+@Table("user_info")
+public class UserInfo {
+    @Column(primary = true, keyType = KeyType.Sequence)
+    @KeySeq("user_info_seq")
+    private Long id;
+    private String name;
+
+    // 省略 getter 和 setter
+}
+```
+
+```java
+UserInfo user = new UserInfo();
+user.setName("mali");
+
+lambda.insert(UserInfo.class)
+        .applyEntity(user)
+        .executeSumResult();
+
+Long id = user.getId();
+```
+
+每次插入前自动获取序列值，赋给 `id` 后再写入记录。
+
+</TabItem>
+<TabItem value="sequence-annotation" label="方法注解">
+
+```java
+@SelectKeySql(
+    value = "VALUES NEXT VALUE FOR user_info_seq",
+    keyProperty = "id",
+    keyColumn = "id",
+    order = Order.Before
+)
+@Insert("INSERT INTO user_info (id, name) VALUES (#{id}, #{name})")
+int insertUser(UserInfo user);
+```
+
+</TabItem>
+<TabItem value="sequence-xml" label="Mapper 文件">
 
 ```xml
 <insert id="insertUser">
@@ -95,30 +160,5 @@ Mapper XML：
 </insert>
 ```
 
-Lambda / BaseMapper：
-
-```java
-@KeySeq("user_info_seq")
-@Column(value = "id", primary = true, keyType = KeyType.Sequence)
-private Long id;
-```
-
-## 方言策略
-
-DB2 当前策略如下：
-
-| 场景 | GeneratedKeyStrategy |
-| --- | --- |
-| 无回填列 | `JdbcBatch` |
-| `Into` + 有回填列 | `OneByOne` |
-| `Ignore` + 有回填列 | `OneByOne` |
-| `Update` + 有回填列 | `OneByOne` |
-
-`DuplicateKeyStrategy.Ignore` / `Update` 由 DB2 `MERGE` 实现，需要主键列。
-
-## 设计原则
-
-- identity：使用 `KeyType.Auto` 或 `useGeneratedKeys=true`。
-- sequence：使用 `selectKey` / `@SelectKeySql` / `KeyType.Sequence` 在 INSERT 前取值。
-- DB2 有 generated keys 回填时保守逐条执行；无回填时可使用普通 JDBC batch。
-- 通用说明见 [Generated Keys](../../guides/core/mapper/annotation_insert#generated-keys)。
+</TabItem>
+</Tabs>

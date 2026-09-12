@@ -7,151 +7,40 @@ description: dbVisitor 只做对象映射（Object Mapping），通过 @Table/@C
 
 # 5.7 对象映射
 
-dbVisitor 只做 **对象映射**（Object Mapping），不做关系映射（一对多、多对多等）。Java 对象与数据库表直接对应，配合 [构造器 API](../../api/lambda) 屏蔽数据库方言差异。
+dbVisitor 通过 `@Table` 和 `@Column` 将 Java 实体映射到数据库：一个实体通常对应一行数据，属性对应列。属性也可以是完整对象，整体保存在一个字段中；这不等于关联表或一对多关系映射。
 
-## 什么时候需要
-
-| 使用方式 | 是否必须 | 说明 |
-|---------|:-----:|------|
-| JdbcTemplate | 不需要 | 可以直接执行 SQL，也可以按需把结果映射到 Bean |
-| Mapper 方法注解 | 不强制 | SQL 由注解提供；返回 Bean 时可用结果映射 |
-| Mapper 文件 resultMap | 按需 | 查询结果复杂、JOIN、别名、函数列时建议配置 |
-| BaseMapper | 必须 | 需要表、列、主键信息才能生成 CRUD SQL |
-| LambdaTemplate Entity/Map 模式 | 必须 | 需要映射信息生成 SQL |
-| Map 查询模式（自由 Map） | 不需要 | 直接使用表名、列名和 Map |
-
-## 最小映射
+## 最小示例
 
 ```java
+import net.hasor.dbvisitor.mapping.Column;
+import net.hasor.dbvisitor.mapping.Table;
+
 @Table("users")
 public class User {
-    @Column(name = "id", primary = true, keyType = KeyType.Auto)
-    private Long id;
+    @Column(primary = true)
+    private Integer id;
 
-    @Column("name")
+    @Column("user_name")
     private String name;
 
-    @Column("age")
-    private Integer age;
-
-    @Column(value = "create_time", insert = false, update = false)
-    private Date createTime;
+    // 省略 getter/setter
 }
 ```
 
-## 映射方式
+这里 `User` 对应 `users` 表，`id` 对应主键列，`name` 对应 `user_name` 列。表需预先存在，声明映射不等于执行建表。
 
-有两种方式定义对象映射，可以混合使用：
+`BaseMapper` 和 `LambdaTemplate` 的实体模式会使用这些信息生成增删改查语句。直接使用 `JdbcTemplate` 执行原生命令时不强制定义实体。
 
-| 方式 | 说明 | 入口 |
-|------|------|------|
-| 注解方式 | `@Table` + `@Column` 直接在实体类上声明，最常用 | [注解方式](./table) |
-| 文件方式 | Mapper XML 中 `<entity>` 标签描述映射，避免代码侵入 | [文件方式](../file/entity_map) |
+## 按使用场景阅读
 
-## 核心配置
-
-### 主键生成
-
-`keyType` 决定主键生成方式。不同数据库的支持情况不同：
-
-| keyType | 说明 | 适用场景 |
-|---------|------|---------|
-| `KeyType.Auto` | 数据库自增/IDENTITY | MySQL AUTO_INCREMENT、PG SERIAL |
-| `KeyType.Sequence` | 数据库序列 | PostgreSQL、DB2、H2 等实现 SeqSqlDialect 的方言（搭配 `@KeySeq`） |
-| `KeyType.UUID32` | 应用侧生成 32 位 UUID | 无自增主键的数据库 |
-| `KeyType.UUID36` | 应用侧生成 36 位 UUID | 同上 |
-
-```java
-// 自增主键
-@Column(value = "id", primary = true, keyType = KeyType.Auto)
-private Long id;
-
-// 序列主键
-@KeySeq("user_info_seq")
-@Column(value = "id", primary = true, keyType = KeyType.Sequence)
-private Long id;
-
-// 应用侧 UUID
-@Column(value = "id", primary = true, keyType = KeyType.UUID32)
-private String id;
-```
-
-详细说明见 [主键生成器](./key_generator) 和 [数据源特性](../../../features/overview)。
-
-### 类型映射
-
-`@Column` 的 `typeHandler` 属性可以指定特定类型处理器：
-
-```java
-// JSON 序列化
-@Column(value = "extra_info", typeHandler = JsonTypeHandler.class)
-private Map<String, Object> extraInfo;
-
-// 枚举映射
-@Column("status")
-private OrderStatus status; // 自动使用 EnumTypeHandler
-```
-
-详细说明见 [类型映射](./type_mapping)。
-
-### 写入策略
-
-控制属性在 INSERT/UPDATE 时的行为：
-
-```java
-@Column(value = "create_time", insert = true, update = false)
-private Date createTime; // 只在 INSERT 时写入
-
-@Column(value = "update_time", insert = true, update = true)
-private Date updateTime; // INSERT 和 UPDATE 都写入
-```
-
-详细说明见 [写入策略](./write_policy)。
-
-## 常见配置
-
-### 驼峰命名
-
-如果列名遵循下划线命名（如 `user_name`），Java 属性使用驼峰命名（`userName`），可以开启驼峰转换：
-
-```java
-@Table(value = "user_info", mapUnderscoreToCamelCase = true)
-public class UserInfo { ... }
-```
-
-详细说明见 [驼峰命名](./camel_case)。
-
-### 名称敏感性
-
-当列名大小写敏感或是数据库关键字时：
-
-```java
-@Table(value = "orders", useDelimited = true)
-public class OrderRow {
-    @Column("order")
-    private Integer order; // 由方言为列名添加限定符
-}
-```
-
-详细说明见 [名称敏感性](./name_sensitivity)。
-
-### 语句模版
-
-控制构造器 API 生成的 SQL 中列值的表达方式。例如 MySQL `POINT` 类型：
-
-```java
-@Column(value = "location", whereValueTemplate = "ST_GeomFromText(?)")
-private String location;
-```
-
-详细说明见 [语句模版](./statement_template)。
-
-## 深入阅读
-
-- [注解方式](./table)：`@Table`、`@Column`、`@Primary`、`@KeySeq` 完整用法
-- [主键生成器](./key_generator)：序列、UUID、自增回填策略
-- [类型映射](./type_mapping)：枚举、JSON、特殊 JDBC 类型
-- [写入策略](./write_policy)：控制 INSERT/UPDATE 列参与行为
-- [驼峰命名](./camel_case)：自动映射 `user_name` → `userName`
-- [名称敏感性](./name_sensitivity)：大小写敏感、关键字转义
-- [语句模版](./statement_template)：自定义生成 SQL 中的列值表达
+| 需要做什么 | 阅读内容 |
+| --- | --- |
+| 指定表名、列名，或忽略属性 | [映射表](./table) |
+| 不在 Java 类上添加映射注解 | [文件方式映射](../file/entity_map) |
+| 对应 `user_name` 与 `userName` 等命名 | [驼峰命名法](./camel_case) |
+| 处理大小写或关键字名称 | [名称敏感性](./name_sensitivity) |
+| 控制属性是否参与写入 | [写入策略](./write_policy) |
+| 配置枚举、抽象类型和特殊类型转换 | [类型映射和处理](./type_mapping) |
+| 将对象、Map 或 List 保存为一个 JSON 字段 | [JSON 字段映射](./json-field.md) |
+| 自定义列值使用的 SQL 表达式 | [语句模板](./statement_template) |
+| 配置自增、序列或 UUID 主键 | [主键生成器](./key_generator) |

@@ -62,7 +62,15 @@ long position = result.getFirstRecordPosition(); // 第一条记录位置
 | Mapper 文件 | 方法签名加 `Page` 参数 | `List<T>` 或 `PageResult<T>` |
 
 详细用法请参考各 API 的分页章节：
+
 - [构造器 API 分页](../core/lambda/query#page)
 - [BaseMapper 分页](../core/mapper/about#base-mapper)
 - [注解方式分页](../core/mapper/annotation_query)
 - [Mapper 文件分页](../core/file/paging)
+
+## 数据源差异
+
+分页对象的用法不随数据库变化，但分页 SQL、总数 SQL 和执行边界由数据源决定：
+
+- [MySQL](../../features/mysql/pagination.mdx)、[PostgreSQL](../../features/postgresql/pagination.mdx)、[Oracle](../../features/oracle/pagination.mdx)、[SQL Server](../../features/mssql/pagination.mdx)
+- [DB2](../../features/db2/pagination.mdx)、[达梦](../../features/dm/pagination.mdx)、[ClickHouse](../../features/clickhouse/pagination.mdx)、[H2](../../features/h2/pagination.mdx)

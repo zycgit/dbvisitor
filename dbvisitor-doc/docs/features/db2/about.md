@@ -3,46 +3,23 @@ id: about
 sidebar_position: 0
 hide_table_of_contents: true
 title: DB2
-description: DB2 在 dbVisitor 中的方言能力、主键回填、IDENTITY、序列和 MERGE 冲突策略。
+description: DB2 在 dbVisitor 中的使用方式。
 ---
 
 # DB2
 
-DB2 可以使用 dbVisitor 的 JDBC、Mapper、Lambda、BaseMapper、事务、分页、序列和对象映射等全部通用能力。
+DB2 可使用 JdbcTemplate、方法注解、Mapper 文件和构造器 API。下面按使用场景介绍对应的配置与用法。
 
-## 快速了解差异
+| 场景 | 使用方式 |
+| --- | --- |
+| 主键生成 | IDENTITY 与序列 |
+| 分页查询 | 行号分页 |
+| 插入冲突 | MERGE |
+| 数据回填 | FINAL TABLE 返回写入字段 |
 
-| 关注点 | DB2 行为 |
-|--------|---------|
-| 主键生成 | `IDENTITY` 列，通过 JDBC generated keys 回填 |
-| 分页 | `ROWNUMBER() OVER()` + 嵌套查询 |
-| 写入冲突 | `MERGE INTO ... WHEN MATCHED ... WHEN NOT MATCHED ...` |
-| 批量写入 | 支持，但 batch generated keys 存在驱动限制 |
-| 存储过程 | 支持 |
-| 序列 | 支持 `VALUES NEXT VALUE FOR seq` |
-
-## 主键回填
-
-DB2 `IDENTITY` 列通过 JDBC generated keys 回填。**注意**：DB2 的 batch generated keys 存在驱动和配置限制，部分配置下不能用于 batch updates。因此 dbVisitor 在需要主键回填时会保守逐条执行。
-
-无回填需求时可使用普通 JDBC batch。
-
-## 写入冲突策略
-
-| 策略 | DB2 实现 |
-|------|---------|
-| Ignore | `MERGE INTO ... WHEN NOT MATCHED THEN INSERT`（需主键） |
-| Update | `MERGE INTO ... WHEN MATCHED THEN UPDATE ... WHEN NOT MATCHED THEN INSERT`（需主键） |
-
-## 序列
-
-DB2 方言实现了序列支持，可用 `VALUES NEXT VALUE FOR seq` 读取序列值。对象映射中通过 `KeyType.Sequence` + `@KeySeq` 使用。
-
-## 专题
-
-- [自增主键回填](./generated-keys)：`IDENTITY`、sequence、DB2 generated keys 和 batch 限制。
-- [方言细节](./dialect-details)：ROWNUMBER 分页、MERGE 语法、序列、LIKE 的底层实现。
-
-## 与通用文档的关系
-
-通用 API 用法见 [核心API](../../guides/overview)。以下内容补充 DB2 下的具体差异和推荐写法。
+- [类型支持](./types.md)：选择 Java 属性类型。
+- [分页查询](./pagination.mdx)：查询指定页及总记录数。
+- [插入冲突](./conflict.mdx)：插入时处理已有记录。
+- [主键生成](./generated-keys.mdx)：配置并获取主键。
+- [数据回填](./backfill.mdx)：获取写入时返回的字段值。
+- [多条写入一致性](./write.mdx)：多次写入失败时整体回滚。

@@ -111,15 +111,13 @@ List<Float> vector = loaded.getEmbedding();
 
 ## 参数类型
 
-`vectorBy*` 的向量参数会经过实体映射中的 TypeHandler，通常可以直接传 `List<Float>`。`orderBy*` 的向量参数直接进入 SQL 参数绑定，PostgreSQL pgvector 场景中通常传入 `PGobject`。
+`vectorBy*` 和 `orderBy*` 的向量参数都会经过实体字段映射中的 TypeHandler。PostgreSQL 字段配置 `PgVectorTypeHandler` 后，可以直接传 `List<Float>`。
 
 ```java title='pgvector 查询参数'
-PGobject target = new PGobject();
-target.setType("vector");
-target.setValue("[0.1,0.2,0.3]");
+List<Float> target = List.of(0.1f, 0.2f, 0.3f);
 ```
 
-如果数据库驱动提供专用向量类型，可以使用该类型作为查询参数。
+没有实体映射或字段 TypeHandler 时，应使用 `SqlArg` 显式指定处理器，或传入数据库驱动提供的专用向量类型。
 
 ## 深入阅读
 

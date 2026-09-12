@@ -62,7 +62,15 @@ The PageObject itself is universal; integration varies by API:
 | Mapper File | Add `Page` parameter to method signature | `List<T>` or `PageResult<T>` |
 
 Detailed usage per API:
+
 - [Fluent API Pagination](../core/lambda/query#page)
 - [BaseMapper Pagination](../core/mapper/about#base-mapper)
 - [Annotation Pagination](../core/mapper/annotation_query)
 - [Mapper File Pagination](../core/file/paging)
+
+## Data Source Differences
+
+Pagination objects are database-independent, while page SQL, total-count SQL, and execution boundaries depend on the data source:
+
+- [MySQL](../../features/mysql/pagination.mdx), [PostgreSQL](../../features/postgresql/pagination.mdx), [Oracle](../../features/oracle/pagination.mdx), [SQL Server](../../features/mssql/pagination.mdx)
+- [DB2](../../features/db2/pagination.mdx), [Dameng](../../features/dm/pagination.mdx), [ClickHouse](../../features/clickhouse/pagination.mdx), [H2](../../features/h2/pagination.mdx)
