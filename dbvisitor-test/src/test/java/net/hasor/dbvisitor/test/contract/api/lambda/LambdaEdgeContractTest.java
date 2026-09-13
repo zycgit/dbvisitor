@@ -111,7 +111,7 @@ public abstract class LambdaEdgeContractTest extends AbstractNxnContractTest {
                 .allowEmptyWhere()//
                 .doDelete();
 
-        assertTrue(deleted >= 2);
+        assertMutationRows(2, deleted);
         assertEquals(0, lambdaTemplate.query(UserInfo.class)//
                 .in(UserInfo::getId, Arrays.asList(baseId() + 51, baseId() + 52))//
                 .queryForCount());
@@ -147,7 +147,7 @@ public abstract class LambdaEdgeContractTest extends AbstractNxnContractTest {
                 .updateTo(UserInfo::getAge, 99)//
                 .doUpdate();
 
-        assertTrue(updated >= 2);
+        assertMutationRows(2, updated);
         assertEquals(Integer.valueOf(99), lambdaTemplate.query(UserInfo.class).eq(UserInfo::getId, baseId() + 71).queryForObject().getAge());
         assertEquals(Integer.valueOf(99), lambdaTemplate.query(UserInfo.class).eq(UserInfo::getId, baseId() + 72).queryForObject().getAge());
     }

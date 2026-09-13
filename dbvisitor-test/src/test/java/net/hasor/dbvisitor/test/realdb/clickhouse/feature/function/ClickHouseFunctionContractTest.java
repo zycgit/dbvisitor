@@ -56,4 +56,14 @@ public class ClickHouseFunctionContractTest extends FunctionContractTest {
     protected String transformStringQuerySql() {
         return "SELECT nxn_fn_transform_string(?, ?) AS text_value";
     }
+
+    @Override
+    protected String multiResultsetsQuerySql() {
+        return "SELECT number FROM numbers(5)";
+    }
+
+    @Override
+    protected String filterUsersQuerySql() {
+        return "SELECT name, age FROM view(SELECT name, age FROM user_info) WHERE age >= ? ORDER BY age";
+    }
 }

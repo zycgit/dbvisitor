@@ -483,6 +483,12 @@ public final class ConvertUtils {
             if (sv.isEmpty()) {
                 return null;
             }
+            // Parse decimal text directly: an intermediate Float/Double loses precision.
+            try {
+                return new BigDecimal(sv);
+            } catch (NumberFormatException ignored) {
+                // Retain the existing support for hexadecimal and suffixed number literals.
+            }
             if (NumberUtils.isNumber(sv)) {
                 Number number = NumberUtils.createNumber(sv);
                 if (number instanceof BigDecimal) {

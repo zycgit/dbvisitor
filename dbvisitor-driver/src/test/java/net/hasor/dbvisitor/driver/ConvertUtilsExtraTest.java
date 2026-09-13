@@ -301,6 +301,13 @@ public class ConvertUtilsExtraTest {
 
     // ==================== toBigDecimal — special string formats ====================
     @Test
+    public void toBigDecimal_decimalTextPreservesPrecisionAndScale() {
+        for (String value : new String[] { "12345.67", "0.10000000000000000001", "12345678901234567890.123456789", "1.234567890123456789E-30", "12.3400", "-0.0000000001" }) {
+            assertEquals(new BigDecimal(value), ConvertUtils.toBigDecimal(value));
+        }
+    }
+
+    @Test
     public void toBigDecimal_scientific() {
         assertNotNull(ConvertUtils.toBigDecimal("1.1e10"));
     }

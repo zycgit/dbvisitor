@@ -16,7 +16,7 @@ import net.hasor.dbvisitor.mapping.Column;
 import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.mapping.Table;
 import net.hasor.dbvisitor.types.SqlArg;
-import net.hasor.dbvisitor.types.handler.array.PgVectorTypeHandler;
+import net.hasor.dbvisitor.types.handler.vector.PgVectorTypeHandler;
 import org.junit.Test;
 import static org.junit.Assert.*;
 

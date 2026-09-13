@@ -10,7 +10,7 @@ package net.hasor.dbvisitor.test.contract.material.model;
 import java.util.List;
 import net.hasor.dbvisitor.mapping.Column;
 import net.hasor.dbvisitor.mapping.Table;
-import net.hasor.dbvisitor.types.handler.array.PgVectorTypeHandler;
+import net.hasor.dbvisitor.types.handler.vector.PgVectorTypeHandler;
 
 /**
  * Level 4: Vector Storage Model

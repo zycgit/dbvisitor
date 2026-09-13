@@ -489,14 +489,18 @@ public abstract class AbstractSqlDialect extends AbstractBuilderDialect {
     public BoundSql buildDelete(boolean delimited, boolean allowEmptyWhere) throws SQLException {
         this.args.clear();
         MergeSqlSegment s = new MergeSqlSegment();
-        s.addSegment((d, dia) -> "DELETE FROM");
-        s.addSegment((d, dia) -> dia.tableName(d, this.catalog, this.schema, this.table));
+        s.addSegment((d, dia) -> deleteFrom(dia.tableName(d, this.catalog, this.schema, this.table)));
 
         buildWhere(s, allowEmptyWhere, "DELETE");
 
         String sqlString = s.getSqlSegment(delimited, this);
         Object[] sqlArgs = this.args.toArray();
         return new BoundSql.BoundSqlObj(sqlString, sqlArgs);
+    }
+
+    /** SQL command preceding the delete predicate, with an already formatted table name. */
+    protected String deleteFrom(String tableName) {
+        return "DELETE FROM " + tableName;
     }
 
     private void buildWhere(MergeSqlSegment s, boolean allowEmptyWhere, String tips) {

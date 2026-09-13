@@ -8,6 +8,7 @@
 package net.hasor.dbvisitor.adapter.redis;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import net.hasor.cobble.CollectionUtils;
@@ -53,6 +54,13 @@ abstract class JedisCommands {
         return sync;
     }
 
+    protected static byte[] binaryArgument(Object value) {
+        if (value == null || value instanceof byte[]) {
+            return (byte[]) value;
+        }
+        return value.toString().getBytes(StandardCharsets.UTF_8);
+    }
+
     protected static String argAsString(AtomicInteger argIndex, AdapterRequest request, RedisParser.DecimalScoreContext ctx) throws SQLException {
         if (ctx.ARG() != null) {
             Object arg = getArg(argIndex, request);
@@ -72,12 +80,8 @@ abstract class JedisCommands {
     }
 
     protected static String argAsString(AtomicInteger argIndex, AdapterRequest request, RedisParser.IdentifierContext ctx) throws SQLException {
-        if (ctx.ARG() != null) {
-            Object arg = getArg(argIndex, request);
-            return arg == null ? null : arg.toString();
-        } else {
-            return ctx.getText();
-        }
+        Object arg = argOrValue(argIndex, request, ctx);
+        return arg == null ? null : arg.toString();
     }
 
     protected static <T> Map<String, T> singletonMap(String column, T keyCol) {

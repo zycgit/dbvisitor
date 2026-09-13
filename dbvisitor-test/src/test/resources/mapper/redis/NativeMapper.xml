@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="redis.Native">
+    <resultMap id="entry" type="net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisNativeMapperSupport$Entry">
+        <result column="FIELD" property="field"/>
+        <result column="VALUE" property="value" javaType="java.lang.String"/>
+    </resultMap>
+    <insert id="put">SET #{key} #{value}</insert>
+    <update id="replace">SET #{key} #{value} XX</update>
+    <delete id="remove">DEL #{key}</delete>
+    <select id="get" resultType="java.lang.String">GET #{key}</select>
+    <select id="list" resultType="java.lang.String">LRANGE #{key} 0 -1</select>
+    <select id="entries" resultMap="entry">HGETALL #{key}</select>
+    <select id="maps" resultType="java.util.Map">HGETALL #{key}</select>
+    <select id="mapped" resultRowMapper="net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisNativeMapperSupport$ValuesMapper"> LRANGE #{key} 0 -1 </select>
+    <select id="extracted" resultSetExtractor="net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisNativeMapperSupport$ValuesExtractor"> LRANGE #{key} 0 -1 </select>
+    <select id="options" resultType="java.lang.String" timeout="5" fetchSize="1" resultSetType="FORWARD_ONLY"> LRANGE #{key} 0 -1 </select>
+    <select id="statement" resultType="java.lang.String" statementType="STATEMENT">PING</select>
+    <insert id="conditional"> SET #{key} #{value} <if test="existing != null and existing">XX</if> </insert>
+    <select id="choose" resultType="java.lang.String"> <choose> <when test="single">LINDEX #{key} 0</when> <otherwise>LRANGE #{key} 0 -1</otherwise> </choose> </select>
+    <select id="many" resultType="java.util.Map"> MGET <foreach collection="keyList" item="item" separator=" ">#{item}</foreach> </select>
+    <insert id="manyPut"> MSET <foreach collection="items" item="item" separator=" ">#{item.key} #{item.value}</foreach> </insert>
+    <delete id="manyRemove"> DEL <foreach collection="keyList" item="item" separator=" ">#{item}</foreach> </delete>
+    <select id="bound" resultType="java.lang.String"> <bind name="fullKey" value="prefix + suffix"/> GET #{fullKey} </select>
+    <insert id="before"> <selectKey keyProperty="id" order="BEFORE">INCR #{counter}</selectKey> HSET #{key} #{id} #{value} </insert>
+    <insert id="after"> <selectKey keyProperty="id" order="AFTER">LLEN #{key}</selectKey> RPUSH #{key} #{value} </insert>
+    <insert id="resultKey" useGeneratedKeys="true" generatedKeySource="resultSet" keyProperty="id" keyColumn="VALUE"> INCR #{counter} </insert>
+</mapper>

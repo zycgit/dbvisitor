@@ -8,6 +8,7 @@
 package net.hasor.dbvisitor.adapter.redis;
 import java.io.StringReader;
 import java.sql.SQLException;
+import java.sql.ResultSetMetaData;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -20,10 +21,45 @@ import net.hasor.dbvisitor.driver.AdapterReceive;
 import net.hasor.dbvisitor.driver.AdapterRequest;
 import net.hasor.dbvisitor.driver.AdapterResultCursor;
 import net.hasor.dbvisitor.driver.ConvertUtils;
+import net.hasor.dbvisitor.driver.JdbcColumn;
+import net.hasor.dbvisitor.driver.AdapterType;
 import redis.clients.jedis.commands.ServerCommands;
 import redis.clients.jedis.util.KeyValue;
 
 class JedisCommandsForServer extends JedisCommands {
+    public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.EvalCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
+        AtomicInteger argIndex = new AtomicInteger(startArgIdx);
+        Object script = argOrValue(argIndex, request, cmd.script);
+        long numkeys = ConvertUtils.toLong(argOrValue(argIndex, request, cmd.numkeys), true);
+        if (numkeys < 0 || numkeys > cmd.arguments.size()) {
+            throw new SQLException("EVAL numkeys must be between 0 and the number of supplied key/argument values.");
+        }
+        Object[] arguments = new Object[cmd.arguments.size()];
+        boolean binary = script instanceof byte[];
+        for (int i = 0; i < arguments.length; i++) {
+            arguments[i] = argOrValue(argIndex, request, cmd.arguments.get(i));
+            binary |= arguments[i] instanceof byte[];
+        }
+        Object value;
+        if (binary) {
+            byte[][] values = new byte[arguments.length][];
+            for (int i = 0; i < arguments.length; i++) {
+                values[i] = binaryArgument(arguments[i]);
+            }
+            value = jedisCmd.getScriptingKeyBinaryCommands().eval(binaryArgument(script), (int) numkeys, values);
+        } else {
+            String[] values = new String[arguments.length];
+            for (int i = 0; i < arguments.length; i++) {
+                values[i] = ConvertUtils.toString(arguments[i]);
+            }
+            value = jedisCmd.getScriptingKeyCommands().eval(ConvertUtils.toString(script), (int) numkeys, values);
+        }
+        // Keep the native reply in a single VALUE cell, including nested Lua arrays.
+        JdbcColumn column = new JdbcColumn("VALUE", AdapterType.Unknown, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Unknown);
+        receive.responseResult(request, singleResult(request, column, value));
+        return completed(sync);
+    }
+
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.MoveCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         String key = argAsString(argIndex, request, cmd.keyName().identifier());

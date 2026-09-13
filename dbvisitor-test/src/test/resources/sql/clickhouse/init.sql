@@ -40,7 +40,7 @@ CREATE TABLE user_order (
 CREATE TABLE product_vector (
     id Int32,
     name Nullable(String),
-    embedding Nullable(String)
+    embedding Array(Float32)
 ) ENGINE = MergeTree ORDER BY id;
 
 CREATE TABLE complex_order (
@@ -84,24 +84,24 @@ CREATE TABLE basic_types_explicit_test (
 
 CREATE TABLE array_types_test (
     id            Int32,
-    int_array     Nullable(String),
-    string_array  Nullable(String),
-    float_array   Nullable(String)
+    int_array     Array(Nullable(Int32)),
+    string_array  Array(Nullable(String)),
+    float_array   Array(Nullable(Float32))
 ) ENGINE = MergeTree ORDER BY id;
 
 CREATE TABLE array_types_explicit_test (
     id            Int32,
-    int_array     Nullable(String),
-    varchar_array Nullable(String)
+    int_array     Array(Nullable(Int32)),
+    varchar_array Array(Nullable(String))
 ) ENGINE = MergeTree ORDER BY id;
 
 CREATE TABLE array_types_annotation_test (
     id                      Int32,
-    array_no_annotation     Nullable(String),
-    array_jdbc_type         Nullable(String),
-    array_type_handler      Nullable(String),
-    array_number_special    Nullable(String),
-    array_full_annotated    Nullable(String)
+    array_no_annotation     Array(Nullable(Int32)),
+    array_jdbc_type         Array(Nullable(Int32)),
+    array_type_handler      Array(Nullable(Int32)),
+    array_number_special    Array(Nullable(Int32)),
+    array_full_annotated    Array(Nullable(Int32))
 ) ENGINE = MergeTree ORDER BY id;
 
 CREATE TABLE test_special_types (
@@ -109,7 +109,7 @@ CREATE TABLE test_special_types (
     json_map  Nullable(String),
     json_list Nullable(String),
     json_set  Nullable(String),
-    int_array Nullable(String)
+    int_array Array(Nullable(Int32))
 ) ENGINE = MergeTree ORDER BY id;
 
 CREATE TABLE binary_types_explicit_test (
@@ -130,7 +130,7 @@ CREATE TABLE enum_types_explicit_test (
 
 CREATE TABLE time_types_explicit_test (
     id                  Int32,
-    date_value          Nullable(Date),
+    date_value          Nullable(Date32),
     time_value          Nullable(String),
     timestamp_value     Nullable(DateTime64(3)),
     local_date_ts       Nullable(DateTime64(3)),

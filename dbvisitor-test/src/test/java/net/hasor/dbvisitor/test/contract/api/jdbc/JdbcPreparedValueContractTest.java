@@ -131,7 +131,7 @@ public abstract class JdbcPreparedValueContractTest extends AdapterContractTest 
         }
         try (PreparedStatement delete = this.connection.prepareStatement("DELETE FROM " + this.table + " WHERE name = ?")) {
             delete.setString(1, HOSTILE);
-            assertEquals(0, delete.executeUpdate());
+            assertMutationRows(0, delete.executeUpdate());
             delete.setObject(1, "changed", Types.VARCHAR);
             assertEquals(1, delete.executeUpdate());
         }

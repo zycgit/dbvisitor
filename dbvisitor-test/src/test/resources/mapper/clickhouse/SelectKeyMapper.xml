@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="xmltest.KeyGenerationMapper">
+    <insert id="insertWithSelectKeyBefore">
+        <selectKey keyProperty="id" order="BEFORE">
+            SELECT toInt32(cityHash64(generateUUIDv4()))
+        </selectKey>
+        INSERT INTO user_info (id, name, age, email) VALUES (#{id}, #{name}, #{age}, #{email})
+    </insert>
+    <insert id="insertWithSelectKeyAfter">
+        <selectKey keyProperty="id" order="AFTER">
+            SELECT id FROM user_info WHERE name = #{name} AND email = #{email}
+        </selectKey>
+        INSERT INTO user_info (name, age, email) VALUES (#{name}, #{age}, #{email})
+    </insert>
+    <select id="selectById" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        SELECT * FROM user_info WHERE id = #{id}
+    </select>
+</mapper>

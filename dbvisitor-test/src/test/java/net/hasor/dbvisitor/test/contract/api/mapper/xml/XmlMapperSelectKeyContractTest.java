@@ -15,7 +15,6 @@ import org.junit.Test;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 
 import static org.junit.Assert.assertEquals;
@@ -26,7 +25,6 @@ public abstract class XmlMapperSelectKeyContractTest extends XmlMapperKeyGenerat
     @Test
     @Capability(CapabilityId.MAPPER_XML_KEYGEN_SELECT_KEY_BEFORE)
     public void xmlKeygen_shouldRunSelectKeyBeforeWhenFixtureSequenceIsSupported() throws Exception {
-        requiresNxnFeature(FeatureId.XML_SELECT_KEY_USER_INFO_SEQUENCE);
         Map<String, Object> params = keygenParams("XmlKeyGenBefore", 40, "xml-key-before@nxn.test");
 
         assertEquals(1, ((Number) this.session.executeStatement("xmltest.KeyGenerationMapper.insertWithSelectKeyBefore", params)).intValue());
@@ -41,7 +39,6 @@ public abstract class XmlMapperSelectKeyContractTest extends XmlMapperKeyGenerat
     @Test
     @Capability(CapabilityId.MAPPER_XML_KEYGEN_SELECT_KEY_AFTER)
     public void xmlKeygen_shouldRunSelectKeyAfterWhenFixtureSequenceIsSupported() throws Exception {
-        requiresNxnFeature(FeatureId.XML_SELECT_KEY_USER_INFO_SEQUENCE);
         Map<String, Object> params = keygenParams("XmlKeyGenAfter", 41, "xml-key-after@nxn.test");
 
         assertEquals(1, ((Number) this.session.executeStatement("xmltest.KeyGenerationMapper.insertWithSelectKeyAfter", params)).intValue());

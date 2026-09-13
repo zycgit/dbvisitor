@@ -55,6 +55,7 @@ PING        : 'PING';
 ECHO        : 'ECHO';
 SELECT      : 'SELECT';
 INFO        : 'INFO';
+EVAL        : 'EVAL';
 LEFT        : 'LEFT';
 RIGHT       : 'RIGHT';
 BEFORE      : 'BEFORE';

@@ -6,30 +6,45 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.dialect.provider;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.sql.SQLException;
+import java.util.*;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.features.InsertSqlDialect;
 import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
+import net.hasor.dbvisitor.dialect.features.VectorSqlDialect;
 import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
 import net.hasor.dbvisitor.lambda.GeneratedKeyStrategy;
+import net.hasor.dbvisitor.lambda.core.MetricType;
 
 /**
  * ClickHouse SqlDialect implementation.
  * @author zyc
  * @version 2026-06-22
  */
-public class ClickHouseDialect extends AbstractSqlDialect implements PageSqlDialect, InsertSqlDialect {
+public class ClickHouseDialect extends AbstractSqlDialect implements PageSqlDialect, InsertSqlDialect, VectorSqlDialect {
+    public enum DeleteMode {
+        LIGHTWEIGHT,
+        MUTATION
+    }
+
     public static final SqlDialect DEFAULT = new ClickHouseDialect();
+    private final       DeleteMode deleteMode;
+
+    public ClickHouseDialect() {
+        this(DeleteMode.LIGHTWEIGHT);
+    }
+
+    /** Select MUTATION for tables that support ALTER DELETE but not lightweight DELETE, such as Memory. */
+    public ClickHouseDialect(DeleteMode deleteMode) {
+        this.deleteMode = Objects.requireNonNull(deleteMode, "deleteMode");
+    }
 
     @Override
     public SqlCommandBuilder newBuilder() {
-        return new ClickHouseDialect();
+        return new ClickHouseDialect(this.deleteMode);
     }
 
     @Override
@@ -50,6 +65,66 @@ public class ClickHouseDialect extends AbstractSqlDialect implements PageSqlDial
     @Override
     public boolean supportOrderByAlias() {
         return true;
+    }
+
+    @Override
+    public BoundSql buildUpdate(boolean delimited, boolean allowEmptyWhere) throws SQLException {
+        return requireWhere(super.buildUpdate(delimited, allowEmptyWhere));
+    }
+
+    @Override
+    public BoundSql buildDelete(boolean delimited, boolean allowEmptyWhere) throws SQLException {
+        return requireWhere(super.buildDelete(delimited, allowEmptyWhere));
+    }
+
+    @Override
+    protected String deleteFrom(String tableName) {
+        return this.deleteMode == DeleteMode.MUTATION ? "ALTER TABLE " + tableName + " DELETE" : super.deleteFrom(tableName);
+    }
+
+    private BoundSql requireWhere(BoundSql sql) {
+        // ClickHouse requires WHERE even when the caller explicitly permits all rows.
+        if (this.whereConditions.isEmpty()) {
+            return new BoundSql.BoundSqlObj(sql.getSqlString() + " WHERE 1 = 1", sql.getArgs());
+        }
+        return sql;
+    }
+
+    // --- VectorSqlDialect impl ---
+
+    @Override
+    public void addOrderByVector(String col, String colTerm, Object vector, String vectorTerm, MetricType metricType) {
+        String function = distanceFunction(metricType);
+        if (this.lockWhere) {
+            throw new IllegalStateException("must before (group by/order by) invoke it.");
+        }
+        if (this.orderByColumns.isEmpty()) {
+            this.whereConditions.addSegment((d, dia) -> "ORDER BY");
+            this.whereConditions.addSegment(this.orderByColumns);
+            this.lockWhere = true;
+            this.lockGroupBy = true;
+        }
+        this.orderByColumns.addSegment((d, dia) -> function + "(" + formatColumn(d, dia, col, colTerm) + ", " + formatValue(dia, vector, vectorTerm) + ")");
+    }
+
+    @Override
+    public void addConditionForVectorRange(ConditionLogic logic, String col, String colTerm, Object vector, String vectorTerm, Object threshold, String thresholdTerm, MetricType metricType) {
+        String function = distanceFunction(metricType);
+        if (this.lockWhere) {
+            throw new IllegalStateException("must before (group by/order by) invoke it.");
+        }
+        appendConditionLogic(logic);
+        this.whereConditions.addSegment((d, dia) -> function + "(" + formatColumn(d, dia, col, colTerm) + ", " + formatValue(dia, vector, vectorTerm) + ") < " + formatValue(dia, threshold, thresholdTerm));
+    }
+
+    private String distanceFunction(MetricType metricType) {
+        return switch (metricType) {
+            case L2 -> "L2Distance";
+            case COSINE -> "cosineDistance";
+            // Inner product is negated so ascending order returns the largest product first.
+            case IP -> "-dotProduct";
+            default -> throw new UnsupportedOperationException("ClickHouse vector metric is not supported: " + metricType);
+        };
     }
 
     // --- PageSqlDialect impl ---

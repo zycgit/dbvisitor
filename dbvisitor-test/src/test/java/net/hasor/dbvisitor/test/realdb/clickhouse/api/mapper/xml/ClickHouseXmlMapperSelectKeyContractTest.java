@@ -13,6 +13,11 @@ import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
 
 public class ClickHouseXmlMapperSelectKeyContractTest extends XmlMapperSelectKeyContractTest {
     @Override
+    protected String mapperResource() {
+        return "/mapper/clickhouse/SelectKeyMapper.xml";
+    }
+
+    @Override
     protected DataSourceProfile profile() {
         return ClickHouseProfile.INSTANCE;
     }

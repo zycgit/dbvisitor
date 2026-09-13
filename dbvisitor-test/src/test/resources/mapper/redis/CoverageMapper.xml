@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="redis.Coverage">
+    <insert id="explicit">HSET #{key} #{id} #{value}</insert>
+    <select id="explicitRead" resultType="java.lang.String">HGET #{key} #{id}</select>
+    <insert id="owner">HSET #{key} name #{value}</insert>
+    <select id="ownerRead" resultType="java.lang.String">HGET #{key} name</select>
+    <insert id="order">HSET #{key} #{id} #{value}</insert>
+    <select id="orders" resultType="java.util.Map">HGETALL #{key}</select>
+    <delete id="deleteOrder">HDEL #{key} #{id}</delete>
+    <sql id="fields"> name age</sql>
+    <sql id="scoreRange"><choose><when test="minimum != null"> #{minimum} #{maximum}</when><otherwise> -inf +inf</otherwise></choose></sql>
+    <sql id="descending"> REV</sql>
+    <select id="selectedFields" resultType="java.util.Map">HMGET #{key}<include refid="fields"/></select>
+    <select id="filteredScores" resultType="java.lang.String">ZRANGEBYSCORE #{key}<include refid="scoreRange"/></select>
+    <select id="orderedScores" resultType="java.lang.String">ZRANGE #{key} 0 -1<include refid="descending"/></select>
+</mapper>

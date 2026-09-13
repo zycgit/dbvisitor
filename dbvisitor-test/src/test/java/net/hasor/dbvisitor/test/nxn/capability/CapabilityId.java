@@ -958,6 +958,11 @@ public final class CapabilityId {
     public static final String NAMING_KEYWORD_COLUMN_CRUD                               = "naming.keyword-column.crud";
     public static final String NAMING_KEYWORD_TABLE_CRUD                                = "naming.keyword-table.crud";
 
+    public static final String BASEMAPPER_NATIVE_ACCESSORS = "basemapper.native-accessors";
+    public static final String SESSION_NATIVE_CONFIGURATION_FACTORY = "session.native-configuration-factory";
+    public static final String MAPPER_ANNOTATION_NATIVE_QUERY = "mapper.annotation.native-query";
+    public static final String MAPPER_ANNOTATION_NATIVE_COMMAND_ERRORS = "mapper.annotation.native-command-errors";
+
     private CapabilityId() {
     }
 }

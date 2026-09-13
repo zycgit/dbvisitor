@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisExtendedMapper">
+    <resultMap id="partialEntry" type="net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisNativeMapperSupport$Entry" autoMapping="false">
+        <result column="field" property="field"/>
+    </resultMap>
+    <resultMap id="automaticEntry" type="net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisNativeMapperSupport$Entry" autoMapping="true"/>
+    <insert id="put">SET #{key} #{value}</insert>
+    <update id="replace">SET #{key} #{value} XX</update>
+    <delete id="remove">DEL #{key}</delete>
+    <select id="get" resultType="java.lang.String">GET #{key}</select>
+    <select id="bean" resultType="java.lang.String">GET #{key}</select>
+    <select id="map" resultType="java.lang.String">GET #{key}</select>
+    <select id="many" resultType="java.util.Map"> MGET <foreach collection="keyList" item="key" separator=" ">#{key}</foreach> </select>
+    <select id="choose" resultType="java.lang.String"> <choose> <when test="single">LINDEX #{key} 0</when> <otherwise>LRANGE #{key} 0 -1</otherwise> </choose> </select>
+    <select id="direction" resultType="java.lang.String"> ${direction} #{key} 0 -1 </select>
+    <select id="partial" resultMap="partialEntry">HGETALL #{key}</select>
+    <select id="automatic" resultMap="automaticEntry">HGETALL #{key}</select>
+    <select id="renamed" resultType="java.util.Map">HGETALL #{key}</select>
+    <sql id="listKey">LRANGE #{key} </sql>
+    <sql id="listRange">0 -1</sql>
+    <select id="included" resultType="java.lang.String"> <include refid="listKey"/> <include refid="listRange"/> </select>
+</mapper>

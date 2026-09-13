@@ -24,8 +24,8 @@ import redis.clients.jedis.params.SetParams;
 class JedisCommandsForString extends JedisCommands {
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.StrSetCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String setKey = argAsString(argIndex, request, cmd.stringKeyName().identifier());
-        String setValue = argAsString(argIndex, request, cmd.identifier());
+        Object keyArg = argOrValue(argIndex, request, cmd.stringKeyName().identifier());
+        Object valueArg = argOrValue(argIndex, request, cmd.identifier());
         SetParams params = new SetParams();
 
         if (cmd.keyExistenceClause() != null) {
@@ -42,13 +42,13 @@ class JedisCommandsForString extends JedisCommands {
         RedisParser.ExpirationClauseContext expirationClause = cmd.expirationClause();
         if (expirationClause != null) {
             if (expirationClause.EX() != null) {
-                params.ex(ConvertUtils.toInteger(argOrValue(argIndex, request, expirationClause.integer()), true));
+                params.ex(ConvertUtils.toLong(argOrValue(argIndex, request, expirationClause.integer()), true));
             } else if (expirationClause.PX() != null) {
-                params.px(ConvertUtils.toInteger(argOrValue(argIndex, request, expirationClause.integer()), true));
+                params.px(ConvertUtils.toLong(argOrValue(argIndex, request, expirationClause.integer()), true));
             } else if (expirationClause.EXAT() != null) {
-                params.exAt(ConvertUtils.toInteger(argOrValue(argIndex, request, expirationClause.integer()), true));
+                params.exAt(ConvertUtils.toLong(argOrValue(argIndex, request, expirationClause.integer()), true));
             } else if (expirationClause.PXAT() != null) {
-                params.pxAt(ConvertUtils.toInteger(argOrValue(argIndex, request, expirationClause.integer()), true));
+                params.pxAt(ConvertUtils.toLong(argOrValue(argIndex, request, expirationClause.integer()), true));
             } else {
                 throw new SQLException("expirationClause not support.", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
             }
@@ -56,6 +56,21 @@ class JedisCommandsForString extends JedisCommands {
             params.keepTtl();
         }
 
+        if (keyArg instanceof byte[] || valueArg instanceof byte[]) {
+            byte[] key = binaryArgument(keyArg);
+            byte[] value = binaryArgument(valueArg);
+            if (cmd.GET() != null) {
+                byte[] previous = jedisCmd.getStringBinaryCommands().setGet(key, value, params);
+                receive.responseResult(request, singleResult(request, COL_VALUE_BYTES, previous));
+            } else {
+                String result = jedisCmd.getStringBinaryCommands().set(key, value, params);
+                receive.responseUpdateCount(request, StringUtils.equalsIgnoreCase(result, "OK") ? 1 : 0);
+            }
+            return completed(sync);
+        }
+
+        String setKey = keyArg == null ? null : keyArg.toString();
+        String setValue = valueArg == null ? null : valueArg.toString();
         if (cmd.GET() != null) {
             String value = jedisCmd.getStringCommands().setGet(setKey, setValue, params);
             receive.responseResult(request, singleResult(request, COL_VALUE_STRING, value));
@@ -69,7 +84,13 @@ class JedisCommandsForString extends JedisCommands {
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.GetCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String key = argAsString(argIndex, request, cmd.stringKeyName().identifier());
+        Object keyArg = argOrValue(argIndex, request, cmd.stringKeyName().identifier());
+        if (keyArg instanceof byte[]) {
+            byte[] value = jedisCmd.getStringBinaryCommands().get((byte[]) keyArg);
+            receive.responseResult(request, singleResult(request, COL_VALUE_BYTES, value));
+            return completed(sync);
+        }
+        String key = keyArg == null ? null : keyArg.toString();
 
         String value = jedisCmd.getStringCommands().get(key);
 
@@ -149,13 +170,13 @@ class JedisCommandsForString extends JedisCommands {
         if (cmd.expirationClause() != null) {
             RedisParser.ExpirationClauseContext expirationClause = cmd.expirationClause();
             if (expirationClause.EX() != null) {
-                params.ex(ConvertUtils.toInteger(argOrValue(argIndex, request, expirationClause.integer()), true));
+                params.ex(ConvertUtils.toLong(argOrValue(argIndex, request, expirationClause.integer()), true));
             } else if (expirationClause.PX() != null) {
-                params.px(ConvertUtils.toInteger(argOrValue(argIndex, request, expirationClause.integer()), true));
+                params.px(ConvertUtils.toLong(argOrValue(argIndex, request, expirationClause.integer()), true));
             } else if (expirationClause.EXAT() != null) {
-                params.exAt(ConvertUtils.toInteger(argOrValue(argIndex, request, expirationClause.integer()), true));
+                params.exAt(ConvertUtils.toLong(argOrValue(argIndex, request, expirationClause.integer()), true));
             } else if (expirationClause.PXAT() != null) {
-                params.pxAt(ConvertUtils.toInteger(argOrValue(argIndex, request, expirationClause.integer()), true));
+                params.pxAt(ConvertUtils.toLong(argOrValue(argIndex, request, expirationClause.integer()), true));
             } else {
                 throw new SQLException("expiration " + expirationClause.getText() + " not support.", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
             }
@@ -186,8 +207,7 @@ class JedisCommandsForString extends JedisCommands {
         String key = argAsString(argIndex, request, cmd.stringKeyName().identifier());
         String append = argAsString(argIndex, request, cmd.identifier());
 
-        @SuppressWarnings("deprecation")
-        String value = jedisCmd.getStringCommands().getSet(key, append);
+        @SuppressWarnings("deprecation") String value = jedisCmd.getStringCommands().getSet(key, append);
 
         receive.responseResult(request, singleResult(request, COL_VALUE_STRING, value));
         return completed(sync);

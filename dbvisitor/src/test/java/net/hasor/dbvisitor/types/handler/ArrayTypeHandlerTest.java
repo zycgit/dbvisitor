@@ -12,6 +12,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.types.TypeHandler;
+import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import net.hasor.dbvisitor.types.handler.array.ArrayTypeHandler;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
@@ -20,6 +22,17 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.*;
 
 public class ArrayTypeHandlerTest {
+    @Test
+    public void jdbcArrayImplementationUsesArrayBinding() throws SQLException {
+        Array array = mock(Array.class);
+        PreparedStatement statement = mock(PreparedStatement.class);
+        TypeHandler<Object> handler = (TypeHandler<Object>) new TypeHandlerRegistry().getTypeHandler(array.getClass());
+        handler.setParameter(statement, 1, array, null);
+        verify(statement).setArray(1, array);
+        verify(array, never()).free();
+        verify(statement, never()).setObject(anyInt(), any());
+    }
+
     @Test
     public void primitiveArraysAreBoxedForJdbcWithoutChangingElements() throws SQLException {
         Object[] arrays = { new boolean[] { true, false }, new byte[] { -1, 2 }, new short[] { -3, 4 }, new int[] { -5, 6 }, new long[] { Long.MIN_VALUE, Long.MAX_VALUE }, new float[] { 0.5f, -1.25f }, new double[] { Math.PI, -2.5 }, new char[] { 'a', '中' }, new float[0] };

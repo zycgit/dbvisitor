@@ -60,6 +60,9 @@ class JedisDistributeCall {
         if (c.infoCommand() != null) {
             return JedisCommandsForServer.execCmd(sync, jedisCmd, c.infoCommand(), request, receive, startArgIdx, conn);
         }
+        if (c.evalCommand() != null) {
+            return JedisCommandsForServer.execCmd(sync, jedisCmd, c.evalCommand(), request, receive, startArgIdx);
+        }
         throw new SQLException("unknown Common Command.");
     }
 

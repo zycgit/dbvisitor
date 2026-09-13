@@ -6,7 +6,7 @@ options {
 }
 
 root
-    : commands? EOF
+    : NEWLINE* commands? EOF
     ;
 
 // We can omit newline only if it's the last statement
@@ -33,6 +33,11 @@ serverCommands
     | echoCommand
     | selectCommand
     | infoCommand
+    | evalCommand
+    ;
+
+evalCommand
+    : EVAL script=identifier numkeys=integer arguments+=identifier*
     ;
 
 keysCommands

@@ -51,7 +51,7 @@ import net.hasor.dbvisitor.types.handler.time.*;
 public final class TypeHandlerRegistry {
     private static final Map<String, Integer>  javaTypeToJdbcTypeMap = new ConcurrentHashMap<>();
     private static final Map<String, Class<?>> typeHandlerTypeCache  = new ConcurrentHashMap<>();
-    public static final TypeHandlerRegistry    DEFAULT               = new TypeHandlerRegistry();
+    public static final  TypeHandlerRegistry   DEFAULT               = new TypeHandlerRegistry();
 
     private final UnknownTypeHandler                          defaultTypeHandler        = new UnknownTypeHandler(this);
     private final Map<String, TypeHandler<?>>                 cachedByHandlerType       = new ConcurrentHashMap<>();
@@ -181,6 +181,7 @@ public final class TypeHandlerRegistry {
         this.register(NClob.class, createTypeHandler(NClobAsStringTypeHandler.class));
         this.register(Clob.class, createTypeHandler(ClobAsStringTypeHandler.class));
         this.register(Blob.class, createTypeHandler(BlobAsBytesTypeHandler.class));
+        this.register(Array.class, createTypeHandler(ArrayTypeHandler.class));
         this.register(URL.class, createTypeHandler(StringAsUrlTypeHandler.class));
         this.register(URI.class, createTypeHandler(StringAsUriTypeHandler.class));
 

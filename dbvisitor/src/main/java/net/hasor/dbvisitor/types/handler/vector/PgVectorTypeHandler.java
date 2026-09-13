@@ -5,7 +5,7 @@
  * See the LICENSE.txt file for the full license.
  * https://www.apache.org/licenses/LICENSE-2.0
  */
-package net.hasor.dbvisitor.types.handler.array;
+package net.hasor.dbvisitor.types.handler.vector;
 
 import java.sql.*;
 import java.util.ArrayList;

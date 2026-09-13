@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisNativeMapperSupport$RefNativeMapper">
+    <insert id="put">SET #{key} #{value}</insert>
+    <update id="replace">SET #{key} #{value} XX</update>
+    <delete id="remove">DEL #{key}</delete>
+    <select id="get" resultType="java.lang.String">GET #{key}</select>
+    <select id="list" resultType="java.lang.String">LRANGE #{key} 0 -1</select>
+</mapper>
