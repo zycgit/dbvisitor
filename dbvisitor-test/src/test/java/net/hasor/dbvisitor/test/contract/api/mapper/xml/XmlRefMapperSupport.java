@@ -16,13 +16,14 @@ import org.junit.Before;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.material.dao.XmlRefMapperDao;
+import net.hasor.dbvisitor.test.contract.material.dao.XmlRefMapperOperations;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 
 import static org.junit.Assert.assertTrue;
 
 public abstract class XmlRefMapperSupport extends AbstractNxnContractTest {
-    protected XmlRefMapperDao dao;
+    protected XmlRefMapperOperations dao;
 
     @Before
     public void createRefMapper() throws Exception {

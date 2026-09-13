@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+import net.hasor.dbvisitor.test.contract.material.dao.XmlRefMapperDao;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
@@ -25,9 +26,10 @@ public abstract class XmlRefMapperTemplateCase extends XmlRefMapperSupport {
     @Test
     @Capability(CapabilityId.MAPPER_XML_REF_DYNAMIC)
     public void refMapper_shouldRunXmlDynamicWhereStatements() throws Exception {
-        List<UserInfo> all = this.dao.selectByCondition(null, null);
-        List<UserInfo> byName = this.dao.selectByCondition("RefMapA", null);
-        List<UserInfo> byNameAndAge = this.dao.selectByCondition("RefMap%", 30);
+        XmlRefMapperDao conditionalMapper = (XmlRefMapperDao) this.dao;
+        List<UserInfo> all = conditionalMapper.selectByCondition(null, null);
+        List<UserInfo> byName = conditionalMapper.selectByCondition("RefMapA", null);
+        List<UserInfo> byNameAndAge = conditionalMapper.selectByCondition("RefMap%", 30);
 
         assertEquals(4, all.size());
         assertEquals(1, byName.size());

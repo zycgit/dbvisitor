@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="xmltest.CrudMapper">
+    <resultMap id="simpleResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        <result column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+        <result column="email" property="email"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+    <insert id="insertUser">@{macro, esSessionInsert}</insert>
+    <select id="selectById" resultMap="simpleResultMap">@{macro, esSessionOne}</select>
+    <select id="selectAll" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo">@{macro, esSessionAll}</select>
+    <select id="selectAllAsMap" resultType="map">@{macro, esSessionAll}</select>
+    <select id="countAll" resultType="int">@{macro, esSessionCount}</select>
+    <select id="selectNames" resultType="string">@{macro, esSessionPath}/_search {"_source": ["name"],"size": 100,"sort": [{"id": "asc"}]}</select>
+    <update id="updateEmail">@{macro, esSessionEmail}</update>
+    <delete id="deleteById">@{macro, esSessionDelete}</delete>
+    <execute id="deleteByName">@{macro, esSessionPath}/_delete_by_query?refresh=true {"query": {"wildcard": {"name": #{name.replace('%', '*')}}}}</execute>
+    <select id="selectForPage" resultMap="simpleResultMap">@{macro, esSessionAll}</select>
+</mapper>

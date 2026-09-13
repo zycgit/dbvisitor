@@ -37,12 +37,12 @@ public abstract class TimeInstantJdbcCase extends TimeTypeJdbcSupport {
         LocalDateTime dateTime = LocalDateTime.of(2024, 3, 15, 14, 30, 45, 123_000_000);
         Timestamp timestamp = Timestamp.valueOf(dateTime);
 
-        jdbcTemplate.executeUpdate("INSERT INTO time_types_explicit_test (id, timestamp_value) VALUES (?, ?)", //
+        executeInsert(insertCommand("time_types_explicit_test", "id, timestamp_value"), //
                 new Object[] { id, timestamp });
 
-        LocalDateTime loadedDateTime = jdbcTemplate.queryForObject("SELECT timestamp_value FROM time_types_explicit_test WHERE id = ?", //
+        LocalDateTime loadedDateTime = jdbcTemplate.queryForObject(selectCommand("time_types_explicit_test", "timestamp_value"), //
                 new Object[] { id }, LocalDateTime.class);
-        Timestamp loadedTimestamp = jdbcTemplate.queryForObject("SELECT timestamp_value FROM time_types_explicit_test WHERE id = ?", //
+        Timestamp loadedTimestamp = jdbcTemplate.queryForObject(selectCommand("time_types_explicit_test", "timestamp_value"), //
                 new Object[] { id }, Timestamp.class);
 
         assertNotNull(loadedDateTime);
@@ -64,12 +64,12 @@ public abstract class TimeInstantJdbcCase extends TimeTypeJdbcSupport {
         int id = baseId() + 7;
         Instant instant = Instant.parse("2024-03-15T14:30:45.123Z");
 
-        jdbcTemplate.executeUpdate("INSERT INTO time_types_explicit_test (id, timestamp_value) VALUES (?, ?)", //
+        executeInsert(insertCommand("time_types_explicit_test", "id, timestamp_value"), //
                 new Object[] { id, Timestamp.from(instant) });
 
-        Instant loadedInstant = jdbcTemplate.queryForObject("SELECT timestamp_value FROM time_types_explicit_test WHERE id = ?", //
+        Instant loadedInstant = jdbcTemplate.queryForObject(selectCommand("time_types_explicit_test", "timestamp_value"), //
                 new Object[] { id }, Instant.class);
-        Date loadedDate = jdbcTemplate.queryForObject("SELECT timestamp_value FROM time_types_explicit_test WHERE id = ?", //
+        Date loadedDate = jdbcTemplate.queryForObject(selectCommand("time_types_explicit_test", "timestamp_value"), //
                 new Object[] { id }, Date.class);
 
         assertNotNull(loadedInstant);
@@ -88,13 +88,13 @@ public abstract class TimeInstantJdbcCase extends TimeTypeJdbcSupport {
         OffsetDateTime offsetDateTime = OffsetDateTime.parse("2024-03-15T14:30:45+08:00");
         ZonedDateTime zonedDateTime = ZonedDateTime.parse("2024-03-15T14:30:45+08:00[Asia/Shanghai]");
 
-        jdbcTemplate.executeUpdate("INSERT INTO time_types_explicit_test (id, timestamp_value) VALUES (?, ?)", //
+        executeInsert(insertCommand("time_types_explicit_test", "id, timestamp_value"), //
                 new Object[] { offsetId, Timestamp.from(offsetDateTime.toInstant()) });
-        jdbcTemplate.executeUpdate("INSERT INTO time_types_explicit_test (id, timestamp_value) VALUES (?, ?)", //
+        executeInsert(insertCommand("time_types_explicit_test", "id, timestamp_value"), //
                 new Object[] { zonedId, Timestamp.from(zonedDateTime.toInstant()) });
 
-        Timestamp loadedOffset = jdbcTemplate.queryForObject("SELECT timestamp_value FROM time_types_explicit_test WHERE id = ?", new Object[] { offsetId }, Timestamp.class);
-        Timestamp loadedZoned = jdbcTemplate.queryForObject("SELECT timestamp_value FROM time_types_explicit_test WHERE id = ?", new Object[] { zonedId }, Timestamp.class);
+        Timestamp loadedOffset = jdbcTemplate.queryForObject(selectCommand("time_types_explicit_test", "timestamp_value"), new Object[] { offsetId }, Timestamp.class);
+        Timestamp loadedZoned = jdbcTemplate.queryForObject(selectCommand("time_types_explicit_test", "timestamp_value"), new Object[] { zonedId }, Timestamp.class);
 
         assertNotNull(loadedOffset);
         assertNotNull(loadedZoned);

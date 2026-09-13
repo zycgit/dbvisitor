@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="xmltest.SqlFragmentMapper">
+    <resultMap id="userResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+        <result column="email" property="email"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <sql id="baseColumns">_id: 0, id: 1, name: 1, age: 1, email: 1, create_time: 1</sql>
+    <sql id="defaultOrder">.sort({id: 1})</sql>
+    <sql id="dynamicCondition">
+        <trim suffixOverrides=",">
+            <if test="name != null">
+                $expr: {$regexMatch: {input: '$name', regex: {$replaceAll: {input: #{name}, find: '%', replacement: '.*'}}}},
+            </if>
+            <if test="minAge != null or maxAge != null">
+                age: {
+                    <trim suffixOverrides=",">
+                        <if test="minAge != null">$gte: #{minAge},</if>
+                        <if test="maxAge != null">$lte: #{maxAge},</if>
+                    </trim>
+                },
+            </if>
+        </trim>
+    </sql>
+    <select id="selectWithColumnFragment" resultMap="userResultMap">
+        @{macro, mongoSource}.find({id: #{id}}, {<include refid="baseColumns"/>})
+    </select>
+    <select id="selectWithConditionFragment" resultMap="userResultMap">
+        @{macro, mongoSource}.find({<include refid="dynamicCondition"/>}, {<include refid="baseColumns"/>})
+        <include refid="defaultOrder"/>
+    </select>
+    <select id="selectWithMultipleFragments" resultMap="userResultMap">
+        @{macro, mongoSource}.find({name: {$regex: '^SqlFrag'}}, {<include refid="baseColumns"/>})
+        <include refid="defaultOrder"/>
+    </select>
+    <select id="selectAllOrdered" resultMap="userResultMap">
+        @{macro, mongoSource}.find({name: {$regex: '^SqlFrag'}}, {_id: 0})
+        <include refid="defaultOrder"/>
+    </select>
+</mapper>
+

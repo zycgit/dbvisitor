@@ -32,6 +32,23 @@ import static org.junit.Assert.assertTrue;
 
 @NxnContract
 public abstract class LambdaEmptyResultCase extends AbstractNxnContractTest {
+
+    protected String groupCountSelect() {
+        return "age, count(*) as cnt";
+    }
+
+    protected String countSelect() {
+        return "count(*)";
+    }
+
+    protected String maxAgeSelect() {
+        return "max(age)";
+    }
+
+    protected String distinctSelect() {
+        return "distinct id";
+    }
+
     protected int baseId() {
         return 710000;
     }
@@ -127,7 +144,7 @@ public abstract class LambdaEmptyResultCase extends AbstractNxnContractTest {
     public void lambdaGroupBy_shouldReturnEmptyListWhenNoRowsMatch() throws SQLException {
         List<Map<String, Object>> result = lambdaTemplate.query(UserInfo.class)//
                 .eq(UserInfo::getId, baseId() + 31)//
-                .applySelect("age, count(*) as cnt")//
+                .applySelect(groupCountSelect())//
                 .groupBy("age")//
                 .queryForMapList();
 
@@ -140,11 +157,11 @@ public abstract class LambdaEmptyResultCase extends AbstractNxnContractTest {
     public void lambdaAggregate_shouldReturnCountZeroAndNullMaxWhenNoRowsMatch() throws SQLException {
         Long countResult = lambdaTemplate.query(UserInfo.class)//
                 .eq(UserInfo::getId, baseId() + 41)//
-                .applySelect("count(*)")//
+                .applySelect(countSelect())//
                 .queryForObject(Long.class);
         Integer maxResult = lambdaTemplate.query(UserInfo.class)//
                 .eq(UserInfo::getId, baseId() + 41)//
-                .applySelect("max(age)")//
+                .applySelect(maxAgeSelect())//
                 .queryForObject(Integer.class);
 
         assertNotNull(countResult);
@@ -157,7 +174,7 @@ public abstract class LambdaEmptyResultCase extends AbstractNxnContractTest {
     public void lambdaDistinct_shouldReturnEmptyListWhenNoRowsMatch() throws SQLException {
         List<Integer> result = lambdaTemplate.query(UserInfo.class)//
                 .eq(UserInfo::getId, baseId() + 51)//
-                .applySelect("distinct id")//
+                .applySelect(distinctSelect())//
                 .queryForList(Integer.class);
 
         assertNotNull(result);
@@ -193,7 +210,7 @@ public abstract class LambdaEmptyResultCase extends AbstractNxnContractTest {
         assertTrue(result.isEmpty());
     }
 
-    private void insert(int id, String name, Integer age, String email) throws SQLException {
+    protected void insert(int id, String name, Integer age, String email) throws SQLException {
         jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, ?)", //
                 new Object[] { id, name, age, email, new Date() });
     }

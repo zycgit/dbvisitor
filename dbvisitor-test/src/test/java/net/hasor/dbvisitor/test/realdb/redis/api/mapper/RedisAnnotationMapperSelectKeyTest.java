@@ -7,30 +7,62 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
-import java.util.*;
-import net.hasor.dbvisitor.test.nxn.capability.*;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import java.sql.SQLException;
+import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperSelectKeyCase;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisNativeMapperSupport.Generated;
+import org.junit.After;
+import org.junit.Before;
 
-public class RedisAnnotationMapperSelectKeyTest extends RedisNativeMapperSupport {
-    private Generated generated(String suffix) {
-        Generated value = new Generated();
-        value.setKey(key(suffix));
-        value.setCounter(key(suffix + "-counter"));
-        value.setValue("data");
-        return value;
+public class RedisAnnotationMapperSelectKeyTest extends AnnotationMapperSelectKeyCase {
+    private final RedisKeyFixture fixture = new RedisKeyFixture();
+
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
     }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_SELECT_KEY)
-    public void selectKey() throws Exception {
-        Generated before = generated("before");
-        assertEquals(1, mapper().before(before));
-        assertEquals(Long.valueOf(1), before.getId());
-        assertEquals("data", session.jdbc().queryForString("HGET ? ?", new Object[] { before.getKey(), before.getId() }));
-        Generated after = generated("after");
-        assertEquals(1, mapper().after(after));
-        assertEquals(Long.valueOf(1), after.getId());
-        assertEquals("data", session.jdbc().queryForString("LINDEX ? ?", new Object[] { after.getKey(), after.getId() - 1 }));
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        try {
+            fixture.open();
+        } catch (SQLException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new SQLException(e);
+        }
+    }
+
+    @Override
+    @Before
+    public void createAnnotationMapper() throws Exception {
+        fixture.open();
+    }
+
+    @Override
+    protected Object keyRecord(Object id, String name, int age, String email) {
+        return fixture.record(id, name);
+    }
+
+    @Override
+    protected Object keyValue(Object record) {
+        return ((Generated) record).getId();
+    }
+
+    @Override
+    protected int writeKeyRecord(KeyWrite operation, Object record) throws Exception {
+        return fixture.write(operation.name(), (Generated) record);
+    }
+
+    @Override
+    protected String readKeyName(Object id) throws Exception {
+        return fixture.readName(id);
+    }
+
+    @After
+    public void closeFixture() throws SQLException {
+        fixture.close();
     }
 }

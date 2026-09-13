@@ -7,26 +7,35 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
-import java.util.*;
-import net.hasor.dbvisitor.test.nxn.capability.*;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import java.sql.SQLException;
+import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlRefMapperCrudCase;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import org.junit.After;
+import org.junit.Before;
 
-public class RedisXmlRefMapperCrudTest extends RedisNativeMapperSupport {
-    private RedisExtendedMapper extended() throws Exception {
-        return session.createMapper(RedisExtendedMapper.class);
+public class RedisXmlRefMapperCrudTest extends XmlRefMapperCrudCase {
+    private final RedisXmlRefFixture fixture = new RedisXmlRefFixture();
+
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
     }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_XML_REF_CRUD)
-    public void crud() throws Exception {
-        RedisExtendedMapper m = extended();
-        String k = key("crud");
-        assertEquals(1, m.put(k, "a"));
-        assertEquals("a", m.get(k));
-        assertEquals(1, m.replace(k, "b"));
-        assertEquals("b", m.get(k));
-        assertEquals(1, m.remove(k));
-        assertNull(m.get(k));
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        this.jdbcTemplate = this.fixture.open();
+    }
+
+    @Override
+    @Before
+    public void createRefMapper() throws Exception {
+        this.dao = this.fixture.createMapper(newConfiguration(), baseId());
+    }
+
+    @After
+    public void cleanupFixture() throws SQLException {
+        this.fixture.close();
     }
 }

@@ -22,9 +22,6 @@ import org.junit.Test;
 public class MilvusCmdForOtherTest extends AbstractMilvusCmdForTest {
     @Before
     public void setUp() {
-        if (!milvusReady) {
-            return;
-        }
         // Clean up any residual aliases from previous runs
         dropAlias("test_alias_create");
         dropAlias("test_alias_alter");
@@ -38,7 +35,7 @@ public class MilvusCmdForOtherTest extends AbstractMilvusCmdForTest {
 
     @After
     public void tearDown() {
-        if (!milvusReady) {
+        if (!milvusSelected) {
             return;
         }
         // Clean up aliases first (before dropping collections they point to)

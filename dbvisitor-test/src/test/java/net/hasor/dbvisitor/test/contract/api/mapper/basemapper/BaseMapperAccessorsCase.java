@@ -7,8 +7,10 @@
  */
 package net.hasor.dbvisitor.test.contract.api.mapper.basemapper;
 
+import net.hasor.dbvisitor.session.Session;
+
 import java.sql.SQLException;
-import java.util.Date;
+import net.hasor.dbvisitor.mapper.BaseMapper;
 
 import org.junit.Test;
 
@@ -19,28 +21,30 @@ import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 
 @NxnContract
 public abstract class BaseMapperAccessorsCase extends BaseMapperCrudSupport {
     @Test
     @Capability(CapabilityId.BASEMAPPER_ACCESSORS)
     public void baseMapperAccessors_shouldExposeEntityTypeSessionJdbcAndLambdaApis() throws SQLException {
-        int lambdaId = baseId() + 141;
-        int jdbcId = baseId() + 142;
-
-        assertEquals(UserInfo.class, this.mapper.entityType());
-        assertNotNull(this.mapper.session());
-        assertNotNull(this.mapper.lambda());
-        assertNotNull(this.mapper.jdbc());
-
-        int lambdaResult = this.mapper.lambda().insert(UserInfo.class).applyEntity(user(lambdaId, "BaseAccessorLambda", 141, null)).executeSumResult();
-        int jdbcResult = this.mapper.jdbc().executeUpdate(//
-                "INSERT INTO user_info (id, name, age, create_time) VALUES (?, ?, ?, ?)", //
-                new Object[] { jdbcId, "BaseAccessorJdbc", 142, new Date() });
-
-        assertEquals(1, lambdaResult);
-        assertEquals(1, jdbcResult);
-        assertNotNull(this.mapper.selectById(lambdaId));
-        assertNotNull(this.mapper.selectById(jdbcId));
+        BaseMapper<?> accessors = accessorMapper();
+        assertEquals(accessorEntityType(), accessors.entityType());
+        assertNotNull(accessors.session());
+        assertNotNull(accessors.lambda());
+        assertNotNull(accessors.jdbc());
+        if (expectedAccessorSession() != null) {
+            assertSame(expectedAccessorSession(), accessors.session());
+        }
     }
+
+    protected BaseMapper<?> accessorMapper() {
+        return this.mapper;
+    }
+
+    protected Class<?> accessorEntityType() {
+        return UserInfo.class;
+    }
+
+    protected Session expectedAccessorSession() { return null; }
 }

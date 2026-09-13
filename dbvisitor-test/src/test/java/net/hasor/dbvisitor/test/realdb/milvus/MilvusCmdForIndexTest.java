@@ -13,6 +13,8 @@ import java.sql.Statement;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 public class MilvusCmdForIndexTest extends AbstractMilvusCmdForTest {
     private String tableName;
@@ -35,7 +37,7 @@ public class MilvusCmdForIndexTest extends AbstractMilvusCmdForTest {
             s.execute("create table " + tableName + " (id int64 primary key, vec float_vector(4))");
             s.execute("create index idx_01 on " + tableName + " (vec) using IVF_FLAT with (nlist = 128, metric_type = 'L2')");
 
-            assert hasIndex(tableName, "idx_01");
+            assertTrue(hasIndex(tableName, "idx_01"));
         }
     }
 
@@ -45,11 +47,11 @@ public class MilvusCmdForIndexTest extends AbstractMilvusCmdForTest {
             // Setup
             s.execute("create table " + tableName + " (id int64 primary key, vec float_vector(4))");
             s.execute("create index idx_01 on " + tableName + " (vec) using IVF_FLAT with (nlist = 128, metric_type = 'L2')");
-            assert hasIndex(tableName, "idx_01");
+            assertTrue(hasIndex(tableName, "idx_01"));
 
             // Test
             s.execute("drop index idx_01 on " + tableName);
-            assert !hasIndex(tableName, "idx_01");
+            assertFalse(hasIndex(tableName, "idx_01"));
         }
     }
 
@@ -62,9 +64,9 @@ public class MilvusCmdForIndexTest extends AbstractMilvusCmdForTest {
 
             // Test
             try (ResultSet rs = s.executeQuery("show index idx_01 on " + tableName)) {
-                assert rs.next();
-                assert "idx_01".equalsIgnoreCase(rs.getString("INDEX"));
-                assert "vec".equalsIgnoreCase(rs.getString("FIELD"));
+                assertTrue(rs.next());
+                assertTrue("idx_01".equalsIgnoreCase(rs.getString("INDEX")));
+                assertTrue("vec".equalsIgnoreCase(rs.getString("FIELD")));
             }
         }
     }
@@ -82,10 +84,10 @@ public class MilvusCmdForIndexTest extends AbstractMilvusCmdForTest {
                 while (rs.next()) {
                     if ("idx_01".equalsIgnoreCase(rs.getString("INDEX"))) {
                         found = true;
-                        assert "vec".equalsIgnoreCase(rs.getString("FIELD"));
+                        assertTrue("vec".equalsIgnoreCase(rs.getString("FIELD")));
                     }
                 }
-                assert found;
+                assertTrue(found);
             }
         }
     }
@@ -99,7 +101,7 @@ public class MilvusCmdForIndexTest extends AbstractMilvusCmdForTest {
 
             // Test
             try (ResultSet rs = s.executeQuery("show progress of index idx_01 on " + tableName)) {
-                assert rs.next();
+                assertTrue(rs.next());
                 // We just check if columns exist, values might be 0
                 rs.getLong("TOTAL");
                 rs.getLong("INDEXED");

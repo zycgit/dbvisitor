@@ -21,12 +21,16 @@ import static org.junit.Assert.assertEquals;
 
 @NxnContract
 public abstract class JdbcMixedResultAccessCase extends JdbcResultHandlingSupport {
+    protected Object[] singleRowArguments() {
+        return new Object[] { baseId() + 4 };
+    }
+
     @Test
     @Capability(CapabilityId.JDBC_RESULT_MAP_AND_SCALAR)
     public void resultShortcuts_shouldReturnMapListAndScalarValues() throws SQLException {
         seedUsers();
 
-        Map<String, Object> row = jdbcTemplate.queryForMap(selectSql("id, name, age", "id = ?", false), new Object[] { baseId() + 4 });
+        Map<String, Object> row = jdbcTemplate.queryForMap(selectSql("id, name, age", "id = ?", false), singleRowArguments());
         List<Map<String, Object>> rows = jdbcTemplate.queryForList(selectSql("id, name, age", "age BETWEEN ? AND ?", true), new Object[] { 23, 26 });
         Integer age = jdbcTemplate.queryForObject(selectSql("age", "id = ?", false), new Object[] { baseId() + 5 }, Integer.class);
         List<Integer> ages = jdbcTemplate.queryForList(selectSql("age", "id BETWEEN ? AND ?", true), new Object[] { baseId() + 6, baseId() + 8 }, Integer.class);

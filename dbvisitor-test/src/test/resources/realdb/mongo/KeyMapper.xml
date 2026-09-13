@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="xmltest.KeyGenerationMapper">
+    <insert id="insertWithGeneratedKeys" useGeneratedKeys="true" keyProperty="id">
+        @{macro, mongoSource}.insert({name: #{name}})
+    </insert>
+    <insert id="insertWithKeyColumn" useGeneratedKeys="true" keyProperty="id" keyColumn="_ID">
+        @{macro, mongoSource}.insert({name: #{name}})
+    </insert>
+    <insert id="insertWithSelectKeyBefore">
+        <selectKey keyProperty="id" order="BEFORE">
+            @{macro, mongoKeySource}.find({name: #{name}}, {_id: 1})
+        </selectKey>
+        @{macro, mongoSource}.insert({_id: ObjectId(#{id}), name: #{name}})
+    </insert>
+    <insert id="insertWithSelectKeyAfter">
+        <selectKey keyProperty="id" order="AFTER">
+            @{macro, mongoSource}.find({name: #{name}}, {_id: 1})
+        </selectKey>
+        @{macro, mongoSource}.insert({name: #{name}})
+    </insert>
+    <select id="selectById" resultType="string">
+        @{macro, mongoSource}.find({_id: ObjectId(#{id})}, {_id: 0, name: 1})
+    </select>
+</mapper>

@@ -1,0 +1,36 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
+package net.hasor.dbvisitor.test.realdb.mongo.material;
+
+import net.hasor.dbvisitor.mapping.Column;
+import net.hasor.dbvisitor.mapping.KeyHolder;
+import net.hasor.dbvisitor.mapping.KeyType;
+import net.hasor.dbvisitor.test.contract.material.handler.keygen.AfterInsertKeyHolder;
+
+public class MongoAfterKeyEntity {
+    @KeyHolder(AfterInsertKeyHolder.class)
+    @Column(value = "_id", primary = true, keyType = KeyType.Holder)
+    private String id;
+    private String name;
+
+    public String getId() {
+        return this.id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+}

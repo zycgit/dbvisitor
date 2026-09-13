@@ -25,11 +25,17 @@ public abstract class BasicDecimalTypeJdbcCase extends BasicTypeJdbcSupport {
     @Test
     @Capability(CapabilityId.TYPE_BASIC_DECIMAL)
     public void decimalValue_shouldRoundTripWithoutPrecisionLoss() throws SQLException {
+        BigDecimal loaded = roundTripDecimalValue();
+        assertNotNull(loaded);
+        assertEquals("Decimal readback: " + loaded, 0, new BigDecimal("12345.67").compareTo(loaded));
+    }
+
+    protected BigDecimal roundTripDecimalValue() throws SQLException {
         int id = baseId() + 9;
         jdbcTemplate.executeUpdate(insertCommand("basic_types_test", "id, decimal_value"),
                 new Object[] { id, new BigDecimal("12345.67") });
         BasicTypesModel loaded = jdbcTemplate.queryForObject(selectCommand("basic_types_test", "*"), new Object[] { id }, BasicTypesModel.class);
         assertNotNull(loaded);
-        assertEquals("Decimal readback: " + loaded.getDecimalValue(), 0, new BigDecimal("12345.67").compareTo(loaded.getDecimalValue()));
+        return loaded.getDecimalValue();
     }
 }

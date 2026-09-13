@@ -27,7 +27,7 @@ public class Elastic6UpdateTest {
             try {
                 stmt.executeUpdate("DELETE /" + INDEX_NAME);
             } catch (Exception e) {
-                // ignore
+                Elastic6Cleanup.requireMissingIndex(e);
             }
 
             // Create index with mapping
@@ -53,7 +53,7 @@ public class Elastic6UpdateTest {
             try {
                 stmt.executeUpdate("DELETE /" + INDEX_NAME);
             } catch (Exception e) {
-                // ignore
+                Elastic6Cleanup.requireMissingIndex(e);
             }
         }
     }

@@ -50,11 +50,6 @@ public class Elastic7JdbcMapQueryTest extends JdbcMapQueryCase {
         return this.fixture.countRange(lower, upper);
     }
 
-    // This adapter declares expanded source fields as JDBC strings; verify the native value and type.
-    @Override
-    protected void assertNumericField(int expected, Object actual) {
-        org.junit.Assert.assertEquals(Integer.toString(expected), actual);
-    }
 
     @After
     public void cleanupFixture() throws SQLException {

@@ -8,17 +8,13 @@
 package net.hasor.dbvisitor.test.realdb.redis.api.jdbc;
 
 import java.sql.SQLException;
-import java.util.Arrays;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.After;
-import org.junit.Test;
 
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcMixedResultAccessCase;
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
-import static org.junit.Assert.*;
 
 public class RedisJdbcMixedResultAccessTest extends JdbcMixedResultAccessCase {
 
@@ -41,14 +37,32 @@ public class RedisJdbcMixedResultAccessTest extends JdbcMixedResultAccessCase {
     }
 
     @Override
-    @Test
-    @Capability(CapabilityId.JDBC_RESULT_MAP_AND_SCALAR)
-    public void resultShortcuts_shouldReturnMapListAndScalarValues() throws SQLException {
-        fixture.seedScores();
-        Object[] args = { fixture.key("scores") };
-        assertEquals("member-1", jdbcTemplate.queryForMap("ZRANGE ? 0 0 WITHSCORES", args).get("ELEMENT"));
-        assertEquals(4, jdbcTemplate.queryForList("ZRANGE ? 0 3 WITHSCORES", args).size());
-        assertEquals(Long.valueOf(10), jdbcTemplate.queryForObject("ZCARD ?", args, Long.class));
-        assertEquals(Arrays.asList("member-1", "member-2"), jdbcTemplate.queryForList("ZRANGE ? 0 1", args, String.class));
+    protected void insertUser(int id, String name, int age, String email) throws SQLException {
+        jdbcTemplate.queryForLong("ZADD ? ? ?", new Object[] { fixture.key("names"), id, name });
+        jdbcTemplate.queryForLong("ZADD ? ? ?", new Object[] { fixture.key("byAge"), age, name });
+        jdbcTemplate.queryForLong("ZADD ? ? ?", new Object[] { fixture.key("ageValues"), id, age });
+        jdbcTemplate.executeUpdate("HSET ? ? ?", new Object[] { fixture.key("ages"), id, age });
+    }
+
+    @Override
+    protected Object[] singleRowArguments() {
+        return new Object[] { baseId() + 4, baseId() + 4 };
+    }
+
+    @Override
+    protected String selectSql(String columns, String predicate, boolean ordered) {
+        if ("age".equals(columns)) {
+            if ("id = ?".equals(predicate)) {
+                return "HGET '" + fixture.key("ages") + "' ?";
+            }
+            return "ZRANGEBYSCORE '" + fixture.key("ageValues") + "' ? ?";
+        }
+        String key = "id = ?".equals(predicate) ? fixture.key("names") : fixture.key("byAge");
+        return "ZRANGEBYSCORE '" + key + "' ? ? WITHSCORES";
+    }
+
+    @Override
+    protected Object value(Map<String, Object> row, String field) {
+        return super.value(row, "id".equals(field) ? "SCORE" : "ELEMENT");
     }
 }

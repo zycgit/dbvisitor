@@ -21,7 +21,6 @@ import net.hasor.dbvisitor.test.contract.material.model.types.ArrayTypesAnnotati
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
-import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.handler.array.ArrayTypeHandler;
@@ -32,7 +31,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 @NxnContract
-public abstract class ArrayTypeJdbcCase extends AbstractNxnContractTest {
+public abstract class ArrayTypeJdbcCase extends TypeJdbcCommandSupport {
     protected int baseId() {
         return 690000;
     }
@@ -48,14 +47,14 @@ public abstract class ArrayTypeJdbcCase extends AbstractNxnContractTest {
             Array sqlArray = conn.createArrayOf("INTEGER", expected);
             try {
                 JdbcTemplate connectionJdbc = new JdbcTemplate(conn);
-                assertEquals(1, connectionJdbc.executeUpdate("INSERT INTO array_types_test (id, int_array) VALUES (?, ?)", new Object[] { id, sqlArray }));
+                assertEquals(1, connectionJdbc.executeUpdate(insertCommand("array_types_test", "id, int_array"), new Object[] { id, sqlArray }));
             } finally {
                 sqlArray.free();
             }
             return null;
         });
 
-        Integer[] loaded = jdbcTemplate.queryForObject("SELECT int_array FROM array_types_test WHERE id = ?", new Object[] { id }, Integer[].class);
+        Integer[] loaded = jdbcTemplate.queryForObject(selectCommand("array_types_test", "int_array"), new Object[] { id }, Integer[].class);
 
         assertNotNull(loaded);
         assertArrayEquals(expected, loaded);
@@ -70,11 +69,11 @@ public abstract class ArrayTypeJdbcCase extends AbstractNxnContractTest {
         Float[] floats = new Float[] { 1.1f, 2.2f, 3.3f };
 
         jdbcTemplate.executeUpdate(//
-                "INSERT INTO array_types_test (id, int_array, float_array) VALUES (?, ?, ?)", //
+                insertCommand("array_types_test", "id, int_array, float_array"), //
                 new Object[] { id, new SqlArg(ints, Types.ARRAY, new ArrayTypeHandler()), new SqlArg(floats, Types.ARRAY, new ArrayTypeHandler()) });
 
-        Integer[] loadedInts = jdbcTemplate.queryForObject("SELECT int_array FROM array_types_test WHERE id = ?", new Object[] { id }, Integer[].class);
-        Float[] loadedFloats = jdbcTemplate.queryForObject("SELECT float_array FROM array_types_test WHERE id = ?", new Object[] { id }, Float[].class);
+        Integer[] loadedInts = jdbcTemplate.queryForObject(selectCommand("array_types_test", "int_array"), new Object[] { id }, Integer[].class);
+        Float[] loadedFloats = jdbcTemplate.queryForObject(selectCommand("array_types_test", "float_array"), new Object[] { id }, Float[].class);
 
         assertArrayEquals(ints, loadedInts);
         assertEquals(floats.length, loadedFloats.length);
@@ -93,11 +92,11 @@ public abstract class ArrayTypeJdbcCase extends AbstractNxnContractTest {
         Map<String, Object> params = new HashMap<>();
         params.put("id", id);
         params.put("array", new SqlArg(expected, Types.ARRAY, new ArrayTypeHandler()));
-        jdbcTemplate.executeUpdate("INSERT INTO array_types_test (id, string_array) VALUES (:id, :array)", params);
+        jdbcTemplate.executeUpdate(insertCommand("array_types_test", "id, string_array", ":id", ":array"), params);
 
         Map<String, Object> queryParams = new HashMap<>();
         queryParams.put("id", id);
-        String[] loaded = jdbcTemplate.queryForObject("SELECT string_array FROM array_types_test WHERE id = :id", queryParams, String[].class);
+        String[] loaded = jdbcTemplate.queryForObject(selectNamedCommand("array_types_test", "string_array"), queryParams, String[].class);
 
         assertNotNull(loaded);
         assertArrayEquals(expected, loaded);
@@ -111,15 +110,15 @@ public abstract class ArrayTypeJdbcCase extends AbstractNxnContractTest {
         Integer[] original = new Integer[] { 1, 2, 3 };
         Integer[] updated = new Integer[] { 10, 20, 30, 40, 50 };
 
-        jdbcTemplate.executeUpdate("INSERT INTO array_types_test (id, int_array) VALUES (?, ?)", //
+        jdbcTemplate.executeUpdate(insertCommand("array_types_test", "id, int_array"), //
                 new Object[] { id, new SqlArg(original, Types.ARRAY, new ArrayTypeHandler()) });
 
         Map<String, Object> params = new HashMap<>();
         params.put("id", id);
         params.put("array", new SqlArg(updated, Types.ARRAY, new ArrayTypeHandler()));
-        int rows = jdbcTemplate.executeUpdate("UPDATE array_types_test SET int_array = :array WHERE id = :id", params);
+        int rows = jdbcTemplate.executeUpdate(updateArrayCommand(), params);
 
-        Integer[] loaded = jdbcTemplate.queryForObject("SELECT int_array FROM array_types_test WHERE id = ?", new Object[] { id }, Integer[].class);
+        Integer[] loaded = jdbcTemplate.queryForObject(selectCommand("array_types_test", "int_array"), new Object[] { id }, Integer[].class);
 
         assertEquals(1, rows);
         assertNotNull(loaded);
@@ -139,8 +138,8 @@ public abstract class ArrayTypeJdbcCase extends AbstractNxnContractTest {
         };
         // @formatter:on
 
-        int[] rows = jdbcTemplate.executeBatch("INSERT INTO array_types_test (id, int_array, string_array) VALUES (?, ?, ?)", batchArgs);
-        Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM array_types_test WHERE id >= ? AND id <= ?", new Object[] { firstId, firstId + 2 }, Integer.class);
+        int[] rows = jdbcTemplate.executeBatch(insertCommand("array_types_test", "id, int_array, string_array"), batchArgs);
+        Integer count = jdbcTemplate.queryForObject(countRangeCommand(), new Object[] { firstId, firstId + 2 }, Integer.class);
 
         assertEquals(3, rows.length);
         for (int row : rows) {
@@ -150,8 +149,8 @@ public abstract class ArrayTypeJdbcCase extends AbstractNxnContractTest {
         Integer[][] expectedInts = { { 1, 2 }, { 3, 4 }, { 5, 6 } };
         String[][] expectedStrings = { { "A", "B" }, { "C", "D" }, { "E", "F" } };
         for (int i = 0; i < batchArgs.length; i++) {
-            Integer[] loadedInts = jdbcTemplate.queryForObject("SELECT int_array FROM array_types_test WHERE id = ?", new Object[] { firstId + i }, Integer[].class);
-            String[] loadedStrings = jdbcTemplate.queryForObject("SELECT string_array FROM array_types_test WHERE id = ?", new Object[] { firstId + i }, String[].class);
+            Integer[] loadedInts = jdbcTemplate.queryForObject(selectCommand("array_types_test", "int_array"), new Object[] { firstId + i }, Integer[].class);
+            String[] loadedStrings = jdbcTemplate.queryForObject(selectCommand("array_types_test", "string_array"), new Object[] { firstId + i }, String[].class);
             assertArrayEquals(expectedInts[i], loadedInts);
             assertArrayEquals(expectedStrings[i], loadedStrings);
         }
@@ -162,9 +161,9 @@ public abstract class ArrayTypeJdbcCase extends AbstractNxnContractTest {
     public void arrayNull_shouldRemainNull() throws SQLException {
         int id = baseId() + 8;
 
-        jdbcTemplate.executeUpdate("INSERT INTO array_types_test (id, int_array) VALUES (?, ?)", new Object[] { id, null });
+        jdbcTemplate.executeUpdate(insertCommand("array_types_test", "id, int_array"), new Object[] { id, null });
 
-        Integer[] loaded = jdbcTemplate.queryForObject("SELECT int_array FROM array_types_test WHERE id = ?", new Object[] { id }, Integer[].class);
+        Integer[] loaded = jdbcTemplate.queryForObject(selectCommand("array_types_test", "int_array"), new Object[] { id }, Integer[].class);
 
         assertNull(loaded);
     }
@@ -198,6 +197,18 @@ public abstract class ArrayTypeJdbcCase extends AbstractNxnContractTest {
         assertArrayEquals(expected, loaded.getArrayTypeHandler());
         assertNumberArrayEquals(expected, loaded.getArrayNumberSpecial());
         assertNumberArrayEquals(expected, loaded.getArrayFullAnnotated());
+    }
+
+    protected String selectNamedCommand(String table, String column) throws SQLException {
+        return "SELECT " + column + " FROM " + table + " WHERE id = :id";
+    }
+
+    protected String updateArrayCommand() throws SQLException {
+        return "UPDATE array_types_test SET int_array = :array WHERE id = :id";
+    }
+
+    protected String countRangeCommand() throws SQLException {
+        return "SELECT COUNT(*) FROM array_types_test WHERE id >= ? AND id <= ?";
     }
 
     private void assertNumberArrayEquals(Integer[] expected, Number[] actual) {

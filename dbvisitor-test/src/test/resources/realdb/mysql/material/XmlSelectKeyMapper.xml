@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="xmltest.KeyGenerationMapper">
+    <insert id="insertWithSelectKeyBefore">
+        <selectKey keyProperty="id" order="BEFORE">SELECT -958101</selectKey>
+        INSERT INTO user_info (id, name, age, email, create_time)
+        VALUES (#{id}, #{name}, #{age}, #{email}, CURRENT_TIMESTAMP)
+    </insert>
+    <insert id="insertWithSelectKeyAfter">
+        <selectKey keyProperty="id" order="AFTER">SELECT LAST_INSERT_ID()</selectKey>
+        INSERT INTO user_info (name, age, email, create_time)
+        VALUES (#{name}, #{age}, #{email}, CURRENT_TIMESTAMP)
+    </insert>
+    <select id="selectById" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        SELECT * FROM user_info WHERE id = #{id}
+    </select>
+</mapper>

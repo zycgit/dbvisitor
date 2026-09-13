@@ -32,11 +32,11 @@ public abstract class JdbcBatchLargeCase extends JdbcBatchSupport {
             args[i] = row;
         }
 
-        int[] rows = jdbcTemplate.executeBatch("INSERT INTO basic_types_test (id, string_value) VALUES (:id, :val)", args);
+        int[] rows = jdbcTemplate.executeBatch(namedInsertCommand(), args);
 
         assertEquals(200, rows.length);
         assertSuccessfulBatchCounts(rows);
-        assertEquals(200, (int) jdbcTemplate.queryForInt("SELECT COUNT(*) FROM basic_types_test WHERE id >= ? AND id < ?", new Object[] { baseId() + 1000, baseId() + 1200 }));
-        assertEquals("NXN-Batch-Large-199", jdbcTemplate.queryForString("SELECT string_value FROM basic_types_test WHERE id = ?", new Object[] { baseId() + 1199 }));
+        assertEquals(200, (int) jdbcTemplate.queryForInt(countRangeCommand(false), new Object[] { baseId() + 1000, baseId() + 1200 }));
+        assertEquals("NXN-Batch-Large-199", jdbcTemplate.queryForString(valueCommand(), new Object[] { baseId() + 1199 }));
     }
 }

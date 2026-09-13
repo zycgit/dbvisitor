@@ -8,22 +8,17 @@
 package net.hasor.dbvisitor.test.realdb.redis.feature.naming;
 
 import java.sql.SQLException;
-import java.util.Map;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
 import net.hasor.dbvisitor.mapping.Column;
 import net.hasor.dbvisitor.mapping.Table;
-import net.hasor.dbvisitor.test.contract.feature.naming.ResultColumnCasingCase;
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
+import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcColumnMappingCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
 import net.hasor.dbvisitor.test.realdb.redis.api.jdbc.RedisJdbcFixture;
-import static org.junit.Assert.*;
 
 /** Result-column matching is independent of the command language used to obtain the rows. */
-public class RedisResultColumnCaseTest extends ResultColumnCasingCase {
+public class RedisResultColumnCaseTest extends JdbcColumnMappingCase {
     private final RedisJdbcFixture fixture = new RedisJdbcFixture();
 
     @Override
@@ -35,7 +30,6 @@ public class RedisResultColumnCaseTest extends ResultColumnCasingCase {
     @Before
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open();
-        this.fixture.seedScores();
     }
 
     @After
@@ -44,52 +38,41 @@ public class RedisResultColumnCaseTest extends ResultColumnCasingCase {
     }
 
     @Override
-    @Test
-    @Capability(CapabilityId.NAMING_CASE_SENSITIVE_FIELD_MISMATCH)
-    public void caseSensitiveMapping_shouldLeaveMismatchedUppercaseColumnsNull() throws SQLException {
-        Object[] args = { this.fixture.key("scores") };
-        StrictMember strict = this.jdbcTemplate.queryForObject("ZRANGE ? 0 0 WITHSCORES", args, StrictMember.class);
-        InsensitiveMember insensitive = this.jdbcTemplate.queryForObject("ZRANGE ? 0 0 WITHSCORES", args, InsensitiveMember.class);
-        assertNotNull(strict);
-        assertNull(strict.getElement());
-        assertEquals("member-1", insensitive.getElement());
+    protected void seedColumnValue() throws SQLException {
+        jdbcTemplate.queryForLong("ZADD ? 21 ?", new Object[] { fixture.key("columns"), "NXN-Column" });
     }
 
     @Override
-    @Test
-    @Capability(CapabilityId.NAMING_CASE_INSENSITIVE_FREEDOM_MAP)
-    public void caseInsensitiveFreedomMap_shouldAllowCaseInsensitiveKeyLookup() throws SQLException {
-        this.jdbcTemplate.setResultsCaseInsensitive(true);
-        Map<String, Object> row = this.jdbcTemplate.queryForMap("ZRANGE ? 0 0 WITHSCORES",
-                new Object[] { this.fixture.key("scores") });
-        assertEquals("member-1", row.get("ELEMENT"));
-        assertEquals("member-1", row.get("element"));
-        assertEquals("member-1", row.get("Element"));
+    protected String columnQuery() {
+        return "ZRANGE '" + fixture.key("columns") + "' 0 0 WITHSCORES";
     }
 
     @Override
-    @Test
-    @Capability(CapabilityId.NAMING_CASE_SENSITIVE_FREEDOM_MAP)
-    public void caseSensitiveFreedomMap_shouldRequireExactResultColumnCase() throws SQLException {
-        this.jdbcTemplate.setResultsCaseInsensitive(false);
-        Map<String, Object> row = this.jdbcTemplate.queryForMap("ZRANGE ? 0 0 WITHSCORES",
-                new Object[] { this.fixture.key("scores") });
-        assertEquals("member-1", row.get("ELEMENT"));
-        assertNull(row.get("element"));
-        assertNull(row.get("Element"));
+    protected String resultColumn() {
+        return "ELEMENT";
+    }
+
+    @Override
+    protected Class<? extends ColumnValue> strictType() {
+        return StrictMember.class;
+    }
+
+    @Override
+    protected Class<? extends ColumnValue> insensitiveType() {
+        return InsensitiveMember.class;
     }
 
     @Table(caseInsensitive = false)
-    public static class StrictMember {
+    public static class StrictMember implements ColumnValue {
         @Column("element")
-        private String element;
+        private String value;
 
-        public String getElement() {
-            return this.element;
+        public String getValue() {
+            return value;
         }
 
-        public void setElement(String element) {
-            this.element = element;
+        public void setValue(String value) {
+            this.value = value;
         }
     }
 

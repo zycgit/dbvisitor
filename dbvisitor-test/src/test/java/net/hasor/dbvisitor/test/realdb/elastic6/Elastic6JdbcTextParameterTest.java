@@ -48,10 +48,6 @@ public class Elastic6JdbcTextParameterTest extends JdbcTextParameterCase {
         return this.fixture.column(name);
     }
 
-    @Override
-    protected void assertNumericField(int expected, Object actual) {
-        org.junit.Assert.assertEquals(Integer.toString(expected), actual);
-    }
 
     @After
     public void cleanupFixture() throws SQLException {

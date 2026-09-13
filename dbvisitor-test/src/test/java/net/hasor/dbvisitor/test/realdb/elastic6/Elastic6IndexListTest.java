@@ -30,12 +30,12 @@ public class Elastic6IndexListTest {
                 try {
                     stmt.executeUpdate("DELETE /" + INDEX_NAME);
                 } catch (Exception e) {
-                    // ignore if not exists
+                    Elastic6Cleanup.requireMissingIndex(e);
                 }
                 try {
                     stmt.executeUpdate("DELETE /dbv_es_mgmt");
                 } catch (Exception e) {
-                    // ignore if not exists
+                    Elastic6Cleanup.requireMissingIndex(e);
                 }
             }
             try (Statement stmt = conn.createStatement()) {
@@ -52,12 +52,12 @@ public class Elastic6IndexListTest {
             try {
                 stmt.executeUpdate("DELETE /" + INDEX_NAME);
             } catch (Exception e) {
-                // ignore
+                Elastic6Cleanup.requireMissingIndex(e);
             }
             try {
                 stmt.executeUpdate("DELETE /dbv_es_mgmt");
             } catch (Exception e) {
-                // ignore
+                Elastic6Cleanup.requireMissingIndex(e);
             }
         }
     }
@@ -122,7 +122,7 @@ public class Elastic6IndexListTest {
                 try {
                     stmt.executeUpdate("DELETE /dbv_es_mgmt");
                 } catch (Exception e) {
-                    // ignore
+                    Elastic6Cleanup.requireMissingIndex(e);
                 }
             }
             try (Statement stmt = conn.createStatement()) {
@@ -155,7 +155,7 @@ public class Elastic6IndexListTest {
                 try {
                     stmt.executeUpdate("DELETE /dbv_es_mgmt_args");
                 } catch (Exception e) {
-                    // ignore
+                    Elastic6Cleanup.requireMissingIndex(e);
                 }
             }
             try (Statement stmt = conn.createStatement()) {

@@ -7,7 +7,9 @@
  */
 package net.hasor.dbvisitor.test.nxn.env;
 
+import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
+import net.hasor.dbvisitor.test.nxn.capability.SupportStatus;
 import org.jetbrains.annotations.NotNull;
 
 public final class H2Profile extends AbstractDataSourceProfile {
@@ -23,14 +25,14 @@ public final class H2Profile extends AbstractDataSourceProfile {
         return new String[] {
             FeatureId.KNN,
             FeatureId.PROCEDURE,
+            // H2 callable functions expose row values, not REF_CURSOR OUT parameters.
+            FeatureId.PROCEDURE_CURSOR_RESULT,
             FeatureId.XML_MAPPER_CALLABLE,
-            FeatureId.FUNCTION_CALL_CALLBACK,
             FeatureId.VECTOR,
-            FeatureId.GENERATED_KEY_RESULT_SET,
             FeatureId.DELIMITED_LOWERCASE_STANDARD_TABLE,
             FeatureId.POSTGRES_ON_CONFLICT,
+            // H2 JDBC getDate loses the historical Asia/Shanghai offset; LocalDate is unaffected.
             FeatureId.TIME_EXTREME_DATE,
-            FeatureId.CASE_SENSITIVE_IDENTIFIERS,
             FeatureId.LOWERCASE_STANDARD_RESULT_COLUMNS,
             FeatureId.MULTIPLE_RESULT_SETS
         };
@@ -40,6 +42,14 @@ public final class H2Profile extends AbstractDataSourceProfile {
     @Override
     public DataSourceId id() {
         return DataSourceId.H2;
+    }
+
+    @Override
+    public SupportStatus support(String capabilityId) {
+        if (CapabilityId.TYPE_TIME_EXTREME_DATE.equals(capabilityId)) {
+            return SupportStatus.UNSUPPORTED_BY_DRIVER;
+        }
+        return super.support(capabilityId);
     }
 
     @Override

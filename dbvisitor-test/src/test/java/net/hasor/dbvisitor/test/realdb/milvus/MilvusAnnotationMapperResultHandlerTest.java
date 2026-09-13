@@ -7,99 +7,94 @@
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
 
+import java.sql.SQLException;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.mapper.Param;
+import net.hasor.dbvisitor.mapper.Query;
+import net.hasor.dbvisitor.mapper.SimpleMapper;
+import net.hasor.dbvisitor.session.Configuration;
+import net.hasor.dbvisitor.session.Session;
+import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperResultHandlerCase;
+import net.hasor.dbvisitor.test.contract.material.dao.declarative.ResultHandlerMapper;
+import net.hasor.dbvisitor.test.contract.material.handler.CustomResultSetExtractor;
+import net.hasor.dbvisitor.test.contract.material.handler.CustomRowMapper;
+import net.hasor.dbvisitor.test.contract.material.handler.RecordingRowCallbackHandler;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
+import org.junit.After;
+import org.junit.Before;
 
-public class MilvusAnnotationMapperResultHandlerTest extends MilvusMapperResultSqlSupport {
-    @Test
-    @Capability(CapabilityId.ADAPTER_MILVUS_MAPPER_RESULT_DEFAULT)
-    public void annotationHandlersShouldPreserveDefaultAndCustomMappingsWithoutOptions() throws Exception {
-        NativeResultMapper mapper = this.session.createMapper(NativeResultMapper.class);
-        List<UserInfo> defaults = mapper.defaults(1);
-        assertEquals(3, defaults.size());
-        assertEquals(Set.of(1, 2, 3), defaults.stream().map(UserInfo::getId).collect(Collectors.toSet()));
-        for (UserInfo row : defaults) {
-            assertEquals("row" + row.getId(), row.getName());
-            assertEquals(Integer.valueOf(20 + row.getId()), row.getAge());
-            assertEquals("row" + row.getId() + "@test.com", row.getEmail());
-            assertEquals(1700000000123L, row.getCreateTime().getTime());
-        }
+public class MilvusAnnotationMapperResultHandlerTest extends AnnotationMapperResultHandlerCase {
+    private final MilvusUserInfoFixture fixture = new MilvusUserInfoFixture();
+    private Session session;
 
-        List<UserInfo> rows = mapper.plainRows(1);
-        assertEquals(3, rows.size());
-        assertEquals(Set.of(1, 2, 3), rows.stream().map(UserInfo::getId).collect(Collectors.toSet()));
-        for (int i = 0; i < rows.size(); i++) {
-            UserInfo row = rows.get(i);
-            assertEquals("[Row" + i + "]row" + row.getId(), row.getName());
-        }
-        List<UserInfo> extracted = mapper.plainExtracted(1);
-        assertEquals(3, extracted.size());
-        assertEquals(Set.of(1, 2, 3), extracted.stream().map(UserInfo::getId).collect(Collectors.toSet()));
-        for (UserInfo row : extracted) {
-            assertEquals("row" + row.getId(), row.getName());
-            assertEquals(1700000000123L, row.getCreateTime().getTime());
-        }
-        assertTrue(mapper.plainRows(99).isEmpty());
-        assertTrue(mapper.plainExtracted(99).isEmpty());
+    @Override
+    protected DataSourceProfile profile() {
+        return MilvusProfile.INSTANCE;
     }
 
-    @Test
-    @Capability(CapabilityId.ADAPTER_MILVUS_MAPPER_RESULT_CALLBACK)
-    public void annotationCallbackShouldVisitEachRowWithAndWithoutOptions() throws Exception {
-        NativeResultMapper mapper = this.session.createMapper(NativeResultMapper.class);
-        CALLBACK_IDS.get().clear();
-        mapper.callback(1);
-        assertEquals(3, CALLBACK_IDS.get().size());
-        assertEquals(Set.of(1, 2, 3), Set.copyOf(CALLBACK_IDS.get()));
-
-        CALLBACK_IDS.get().clear();
-        mapper.callbackWithTimeout(2);
-        assertEquals(2, CALLBACK_IDS.get().size());
-        assertEquals(Set.of(2, 3), Set.copyOf(CALLBACK_IDS.get()));
-
-        CALLBACK_IDS.get().clear();
-        mapper.callback(99);
-        assertTrue(CALLBACK_IDS.get().isEmpty());
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        this.jdbcTemplate = new JdbcTemplate(this.fixture.open());
     }
 
-    @Test
-    @Capability(CapabilityId.ADAPTER_MILVUS_MAPPER_RESULT_SINGLE)
-    public void sharedMapperShouldApplyCustomSingleRowMappingAndPreserveEmptyResult() throws Exception {
-        UserInfo loaded = this.shared.selectSingleWithRowMapper(2);
-        assertEquals(Integer.valueOf(2), loaded.getId());
-        assertEquals("[Row0]row2", loaded.getName());
-        assertEquals(Integer.valueOf(22), loaded.getAge());
-        assertEquals(1700000000123L, loaded.getCreateTime().getTime());
-        assertEquals("row2", this.shared.selectById(2).getName());
-        assertNull(this.shared.selectSingleWithRowMapper(99));
+    @Override
+    @Before
+    public void createResultHandlerMapper() throws Exception {
+        this.session = new Configuration().newSession(this.fixture.open());
+        this.mapper = this.session.createMapper(NativeResultMapper.class);
+        prepareRows();
     }
 
-    @Test
-    @Capability(CapabilityId.ADAPTER_MILVUS_MAPPER_RESULT_HANDLERS)
-    public void annotationHandlersShouldProcessAllPagesAndEmptyResults() throws Exception {
-        NativeResultMapper mapper = this.session.createMapper(NativeResultMapper.class);
-        List<UserInfo> rows = mapper.rows(1);
-        assertEquals(3, rows.size());
-        assertEquals(Set.of(1, 2, 3), rows.stream().map(UserInfo::getId).collect(Collectors.toSet()));
-        for (int i = 0; i < rows.size(); i++) {
-            UserInfo row = rows.get(i);
-            assertEquals("[Row" + i + "]row" + row.getId(), row.getName());
-            assertEquals(1700000000123L, row.getCreateTime().getTime());
+    @Override
+    protected long timestamp() {
+        return 1700000000123L;
+    }
+
+    @After
+    public void cleanupFixture() throws Exception {
+        try {
+            this.fixture.close();
+        } finally {
+            if (this.session != null) {
+                this.session.close();
+            }
         }
-        List<UserInfo> extracted = mapper.extracted(2);
-        assertEquals(2, extracted.size());
-        assertEquals(Set.of(2, 3), extracted.stream().map(UserInfo::getId).collect(Collectors.toSet()));
-        for (UserInfo row : extracted) {
-            assertEquals("row" + row.getId(), row.getName());
-            assertEquals("row" + row.getId() + "@test.com", row.getEmail());
-        }
-        assertTrue(mapper.rows(99).isEmpty());
-        assertTrue(mapper.extracted(99).isEmpty());
+    }
+
+    // Fixture names AnnoHandler1..10 lie between the shared pattern token and AnnoHandles.
+    // This tests result handlers without requiring the server to parameterize LIKE.
+    @SimpleMapper
+    public interface NativeResultMapper extends ResultHandlerMapper {
+        @Override
+        @Query("SELECT * FROM user_info WHERE name >= #{pattern} AND name < 'AnnoHandles'")
+        List<UserInfo> selectDefault(@Param("pattern") String pattern);
+
+        @Override
+        @Query(value = "SELECT * FROM user_info WHERE name >= #{pattern} AND name < 'AnnoHandles'", resultSetExtractor = CustomResultSetExtractor.class)
+        List<UserInfo> selectWithExtractor(@Param("pattern") String pattern);
+
+        @Override
+        @Query(value = "SELECT * FROM user_info WHERE name >= #{pattern} AND name < 'AnnoHandles'", resultSetExtractor = CustomResultSetExtractor.class, fetchSize = 1, timeout = 30)
+        List<UserInfo> selectWithExtractorAndFetchSize(@Param("pattern") String pattern);
+
+        @Override
+        @Query(value = "SELECT * FROM user_info WHERE name >= #{pattern} AND name < 'AnnoHandles'", resultRowMapper = CustomRowMapper.class)
+        List<UserInfo> selectWithRowMapper(@Param("pattern") String pattern);
+
+        @Override
+        @Query(value = "SELECT * FROM user_info WHERE name >= #{pattern} AND name < 'AnnoHandles'", resultRowMapper = CustomRowMapper.class, fetchSize = 1, timeout = 30)
+        List<UserInfo> selectWithRowMapperAndOptions(@Param("pattern") String pattern);
+
+        @Override
+        @Query(value = "SELECT * FROM user_info WHERE name >= #{pattern} AND name < 'AnnoHandles'", resultRowCallback = RecordingRowCallbackHandler.class)
+        void selectWithRowCallback(@Param("pattern") String pattern);
+
+        @Override
+        @Query(value = "SELECT * FROM user_info WHERE name >= #{pattern} AND name < 'AnnoHandles'", resultRowCallback = RecordingRowCallbackHandler.class, timeout = 30)
+        void selectWithRowCallbackAndTimeout(@Param("pattern") String pattern);
     }
 }

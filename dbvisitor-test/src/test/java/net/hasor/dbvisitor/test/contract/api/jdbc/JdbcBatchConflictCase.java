@@ -36,13 +36,13 @@ public abstract class JdbcBatchConflictCase extends JdbcBatchSupport {
 
         boolean caught = false;
         try {
-            jdbcTemplate.executeBatch("INSERT INTO basic_types_test (id, string_value) VALUES (?, ?)", args);
+            jdbcTemplate.executeBatch(insertCommand(), args);
         } catch (SQLException e) {
             caught = true;
             assertTrue(lowerMessage(e), isDuplicateKeyMessage(e));
         }
 
         assertTrue("Expected SQLException for duplicate primary key in batch", caught);
-        assertTrue(jdbcTemplate.queryForInt("SELECT COUNT(*) FROM basic_types_test WHERE id BETWEEN ? AND ?", new Object[] { baseId() + 31, baseId() + 33 }) >= 0);
+        assertTrue(jdbcTemplate.queryForInt(countRangeCommand(true), new Object[] { baseId() + 31, baseId() + 33 }) >= 0);
     }
 }

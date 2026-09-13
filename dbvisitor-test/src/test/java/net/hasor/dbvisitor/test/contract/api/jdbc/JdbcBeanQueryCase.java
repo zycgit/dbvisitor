@@ -9,6 +9,9 @@ package net.hasor.dbvisitor.test.contract.api.jdbc;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.Collections;
 
 import org.junit.Test;
 
@@ -22,25 +25,49 @@ import static org.junit.Assert.assertNotNull;
 
 @NxnContract
 public abstract class JdbcBeanQueryCase extends JdbcQuerySupport {
+    protected Class<?> queryBeanType() {
+        return UserInfo.class;
+    }
+
+    protected Object[] beanRangeArguments() {
+        return new Object[] { baseId() + 1, baseId() + 3 };
+    }
+
+    protected Map<String, Object> beanValues(Object bean) {
+        UserInfo user = (UserInfo) bean;
+        Map<String, Object> values = new LinkedHashMap<>();
+        values.put("id", user.getId());
+        values.put("name", user.getName());
+        values.put("age", user.getAge());
+        values.put("email", user.getEmail());
+        return values;
+    }
+
+    protected Map<String, Object> expectedBeanValues(int offset) {
+        return Map.of("id", baseId() + offset, "name", "NXN-JDBC-Query-" + offset,
+                "age", 60 + offset, "email", "nxn-jdbc-query-" + offset + "@test.com");
+    }
+
+    protected List<?> requiredBeanValues(Object bean) {
+        return Collections.singletonList(((UserInfo) bean).getCreateTime());
+    }
+
     @Test
     @Capability(CapabilityId.JDBC_QUERY_BEAN)
     public void jdbcQueryForList_shouldReturnBeans() throws SQLException {
         seedUsers();
 
-        List<UserInfo> rows = jdbcTemplate.queryForList(selectRange("id, name, age, email, create_time", "?", "?", true), //
-                new Object[] { baseId() + 1, baseId() + 3 }, UserInfo.class);
+        List<?> rows = jdbcTemplate.queryForList(selectRange("id, name, age, email, create_time", "?", "?", true), //
+                beanRangeArguments(), queryBeanType());
 
         assertEquals(3, rows.size());
-        assertEquals(Integer.valueOf(baseId() + 2), rows.get(1).getId());
-        assertEquals("NXN-JDBC-Query-2", rows.get(1).getName());
-        assertEquals(Integer.valueOf(62), rows.get(1).getAge());
+        assertEquals(expectedBeanValues(2), beanValues(rows.get(1)));
         for (int i = 0; i < rows.size(); i++) {
-            UserInfo row = rows.get(i);
-            assertEquals(Integer.valueOf(baseId() + i + 1), row.getId());
-            assertEquals("NXN-JDBC-Query-" + (i + 1), row.getName());
-            assertEquals(Integer.valueOf(61 + i), row.getAge());
-            assertEquals("nxn-jdbc-query-" + (i + 1) + "@test.com", row.getEmail());
-            assertNotNull(row.getCreateTime());
+            Object row = rows.get(i);
+            assertEquals(expectedBeanValues(i + 1), beanValues(row));
+            for (Object required : requiredBeanValues(row)) {
+                assertNotNull(required);
+            }
         }
     }
 }

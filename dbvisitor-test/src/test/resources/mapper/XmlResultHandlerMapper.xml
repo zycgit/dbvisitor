@@ -31,6 +31,10 @@
         SELECT COUNT(*) FROM user_info WHERE name LIKE 'ResHdl%'
     </select>
 
+    <select id="countByResultTypeLong" resultType="long">
+        SELECT COUNT(*) FROM user_info WHERE name LIKE 'ResHdl%'
+    </select>
+
     <!-- resultType：string -->
     <select id="selectNamesByResultType" resultType="string">
         SELECT name FROM user_info WHERE name LIKE 'ResHdl%' ORDER BY id
@@ -44,13 +48,17 @@
     <!-- resultRowMapper：ColumnMapRowMapper -->
     <select id="selectByColumnMapRowMapper"
             resultRowMapper="net.hasor.dbvisitor.jdbc.mapper.ColumnMapRowMapper">
-        SELECT * FROM user_info WHERE name LIKE 'ResHdl%' ORDER BY id
+        SELECT * FROM user_info WHERE name LIKE 'ResHdl%'
+        <if test="minAge != null">AND age &gt; #{minAge}</if>
+        ORDER BY id
     </select>
 
     <!-- resultSetExtractor：ColumnMapResultSetExtractor -->
     <select id="selectByColumnMapExtractor"
             resultSetExtractor="net.hasor.dbvisitor.jdbc.extractor.ColumnMapResultSetExtractor">
-        SELECT * FROM user_info WHERE name LIKE 'ResHdl%' ORDER BY id
+        SELECT * FROM user_info WHERE name LIKE 'ResHdl%'
+        <if test="minAge != null">AND age &gt; #{minAge}</if>
+        ORDER BY id
     </select>
 
     <!-- resultSetExtractor：PairsResultSetExtractor -->

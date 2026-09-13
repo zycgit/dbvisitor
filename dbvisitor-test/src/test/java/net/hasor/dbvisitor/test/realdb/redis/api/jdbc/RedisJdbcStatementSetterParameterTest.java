@@ -8,17 +8,14 @@
 package net.hasor.dbvisitor.test.realdb.redis.api.jdbc;
 
 import java.sql.SQLException;
+import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcParameterCommand;
 
 import org.junit.Before;
 import org.junit.After;
-import org.junit.Test;
 
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcStatementSetterParameterCase;
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
-import static org.junit.Assert.*;
 
 public class RedisJdbcStatementSetterParameterTest extends JdbcStatementSetterParameterCase {
 
@@ -41,11 +38,22 @@ public class RedisJdbcStatementSetterParameterTest extends JdbcStatementSetterPa
     }
 
     @Override
-    @Test
-    @Capability(CapabilityId.JDBC_PARAM_STATEMENT_SETTER)
-    public void preparedStatementSetter_shouldBindParameters() throws SQLException {
-        String key = fixture.key("setter");
-        jdbcTemplate.executeUpdate("SET ? ?", ps -> { ps.setString(1, key); ps.setString(2, "setter value"); });
-        assertEquals("setter value", jdbcTemplate.queryForString("GET ?", ps -> ps.setString(1, key)));
+    protected String command(JdbcParameterCommand command) {
+        String key = "'" + fixture.key("parameters") + "'";
+        switch (command) {
+            case INSERT_POSITIONAL:
+                return "EVAL 'return redis.call(\"HSET\", KEYS[1], ARGV[1] .. \":name\", ARGV[2], "
+                        + "ARGV[1] .. \":age\", ARGV[3], ARGV[1] .. \":email\", ARGV[4], "
+                        + "ARGV[1] .. \":created\", ARGV[5], ARGV[2] .. \":email\", ARGV[4])' 1 " + key + " ? ? ? ? ?";
+            case SELECT_EMAIL_BY_ID:
+            case SELECT_EMAIL_BY_NAME:
+                return "EVAL 'return redis.call(\"HGET\", KEYS[1], ARGV[1] .. \":email\")' 1 " + key + " ?";
+            default:
+                throw new IllegalArgumentException("Unexpected parameter fixture command: " + command);
+        }
+    }
+    @Override
+    protected boolean parameterWriteReturnsRows() {
+        return true;
     }
 }

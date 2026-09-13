@@ -9,10 +9,34 @@ package net.hasor.dbvisitor.test.contract.api.lambda;
 
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.List;
+
+import net.hasor.dbvisitor.lambda.EntityQuery;
+import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
+import static org.junit.Assert.assertEquals;
 
 public abstract class LambdaPaginationSupport extends AbstractNxnContractTest {
+    protected EntityQuery<? extends UserInfo> queryRows() throws SQLException {
+        return this.lambdaTemplate.query(UserInfo.class);
+    }
+
+    protected EntityQuery<? extends UserInfo> queryRows(String prefix) throws SQLException {
+        return queryRows().like(UserInfo::getName, prefix + "%");
+    }
+
+    protected EntityQuery<? extends UserInfo> orderRows(EntityQuery<? extends UserInfo> query) {
+        return query.orderBy("id");
+    }
+
+    protected void assertPageRows(List<? extends UserInfo> rows, String prefix, int start, int size) {
+        assertEquals(size, rows.size());
+        for (int i = 0; i < size; i++) {
+            assertEquals(prefix + (start + i), rows.get(i).getName());
+        }
+    }
+
     protected int baseId() {
         return 720000;
     }

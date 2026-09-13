@@ -23,6 +23,10 @@ import static org.junit.Assert.assertEquals;
 
 @NxnContract
 public abstract class TimeJulianDayJdbcCase extends TimeTypeJdbcSupport {
+    protected String resultColumn(String column) {
+        return column;
+    }
+
     @Test
     @Capability(CapabilityId.TYPE_TIME_JULIAN_DAY)
     public void timeJulianDay_shouldRoundTripBceDatesWithoutDatabaseCalendarConversion() throws SQLException {
@@ -37,17 +41,17 @@ public abstract class TimeJulianDayJdbcCase extends TimeTypeJdbcSupport {
         ancientParams.put("id", ancientId);
         ancientParams.put("julianDay", ancientDate);
 
-        jdbcTemplate.executeUpdate(//
-                "INSERT INTO time_types_explicit_test (id, julian_day) VALUES (#{id}, #{julianDay, typeHandler=net.hasor.dbvisitor.types.handler.time.JulianDayTypeHandler})", //
+        executeInsert(//
+                insertCommand("time_types_explicit_test", "id, julian_day", "#{id}", "#{julianDay, typeHandler=net.hasor.dbvisitor.types.handler.time.JulianDayTypeHandler}"), //
                 bcParams);
-        jdbcTemplate.executeUpdate(//
-                "INSERT INTO time_types_explicit_test (id, julian_day) VALUES (#{id}, #{julianDay, typeHandler=net.hasor.dbvisitor.types.handler.time.JulianDayTypeHandler})", //
+        executeInsert(//
+                insertCommand("time_types_explicit_test", "id, julian_day", "#{id}", "#{julianDay, typeHandler=net.hasor.dbvisitor.types.handler.time.JulianDayTypeHandler}"), //
                 ancientParams);
 
-        LocalDate loadedBc = jdbcTemplate.queryForObject("SELECT julian_day FROM time_types_explicit_test WHERE id = ?", //
-                new Object[] { bcId }, (rs, rowNum) -> new JulianDayTypeHandler().getResult(rs, "julian_day"));
-        LocalDate loadedAncient = jdbcTemplate.queryForObject("SELECT julian_day FROM time_types_explicit_test WHERE id = ?", //
-                new Object[] { ancientId }, (rs, rowNum) -> new JulianDayTypeHandler().getResult(rs, "julian_day"));
+        LocalDate loadedBc = jdbcTemplate.queryForObject(selectCommand("time_types_explicit_test", "julian_day"), //
+                selectParameters(bcId), (rs, rowNum) -> new JulianDayTypeHandler().getResult(rs, resultColumn("julian_day")));
+        LocalDate loadedAncient = jdbcTemplate.queryForObject(selectCommand("time_types_explicit_test", "julian_day"), //
+                selectParameters(ancientId), (rs, rowNum) -> new JulianDayTypeHandler().getResult(rs, resultColumn("julian_day")));
 
         assertEquals(bcDate, loadedBc);
         assertEquals(ancientDate, loadedAncient);

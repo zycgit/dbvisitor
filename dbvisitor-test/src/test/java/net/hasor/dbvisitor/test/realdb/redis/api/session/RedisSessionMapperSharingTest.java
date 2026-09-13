@@ -7,44 +7,23 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.session;
 
-import java.util.*;
-import net.hasor.dbvisitor.mapper.BaseMapper;
-import net.hasor.dbvisitor.session.*;
-import net.hasor.dbvisitor.test.nxn.capability.*;
-import net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisNativeMapperSupport;
 import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
 
-public class RedisSessionMapperSharingTest extends RedisNativeMapperSupport {
-    private static final String NS = "redis.Native.";
+import net.hasor.dbvisitor.test.contract.api.session.SessionMapperSharingCase;
+import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
 
+/** BaseMapper-generated CRUD sharing remains distinct from declared Redis commands. */
+public class RedisSessionMapperSharingTest extends SessionMapperSharingCase {
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
+    }
+
+    @Override
     @Before
-    public void loadStatements() throws Exception {
-        loadXml();
-    }
-
-    @Test
-    @Capability(CapabilityId.SESSION_MAPPER_DECLARATIVE)
-    public void declarative() throws Exception {
-        String k = key("declarative");
-        NativeMapper m = mapper();
-        assertEquals(1, m.put(k, "v"));
-        assertEquals("v", m.get(k));
-        assertEquals(Arrays.asList("v"), session.createBaseMapper(Entry.class).queryStatement(NS + "get", params(k, null)));
-        assertEquals(1, m.remove(k));
-        assertNull(m.get(k));
-    }
-
-    @Test
-    @Capability(CapabilityId.SESSION_MAPPER_MIXED)
-    public void mixed() throws Exception {
-        String k = key("mixed");
-        BaseMapper<Entry> base = session.createBaseMapper(Entry.class);
-        base.executeStatement(NS + "put", params(k, "a"));
-        assertEquals(Arrays.asList("a"), session.queryStatement(NS + "get", params(k, null)));
-        session.executeStatement(NS + "replace", params(k, "b"));
-        assertEquals("b", mapper().get(k));
-        assertEquals("b", session.createMapper(RefNativeMapper.class).get(k));
+    public void setup() {
+        OneApiDataSourceManager.assumeCurrentDataSource("redis");
     }
 }

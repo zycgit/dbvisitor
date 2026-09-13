@@ -21,16 +21,37 @@ import static org.junit.Assert.assertEquals;
 
 @NxnContract
 public abstract class JdbcMapQueryCase extends JdbcQuerySupport {
+    protected Map<String, Object> expectedMapRow(int offset) {
+        return Map.of("id", baseId() + offset, "name", "NXN-JDBC-Query-" + offset, "age", 60 + offset);
+    }
+
+    protected Object[] mapSingleArguments() {
+        return new Object[] { baseId() + 1 };
+    }
+
+    protected Object[] mapRangeArguments() {
+        return new Object[] { baseId() + 1, baseId() + 3 };
+    }
+
+    private void assertMapRow(int offset, Map<String, Object> row) {
+        for (Map.Entry<String, Object> expected : expectedMapRow(offset).entrySet()) {
+            Object actual = value(row, expected.getKey());
+            if (expected.getValue() instanceof Integer) {
+                assertNumericField((Integer) expected.getValue(), actual);
+            } else {
+                assertEquals(expected.getValue(), actual);
+            }
+        }
+    }
+
     @Test
     @Capability(CapabilityId.JDBC_QUERY_MAP)
     public void jdbcQueryForMap_shouldReturnOneRowAsMap() throws SQLException {
         seedUsers();
 
-        Map<String, Object> row = jdbcTemplate.queryForMap(selectById("id, name, age", "?"), new Object[] { baseId() + 1 });
+        Map<String, Object> row = jdbcTemplate.queryForMap(selectById("id, name, age", "?"), mapSingleArguments());
 
-        assertNumericField(baseId() + 1, value(row, "id"));
-        assertEquals("NXN-JDBC-Query-1", value(row, "name"));
-        assertNumericField(61, value(row, "age"));
+        assertMapRow(1, row);
     }
 
     @Test
@@ -39,13 +60,11 @@ public abstract class JdbcMapQueryCase extends JdbcQuerySupport {
         seedUsers();
 
         List<Map<String, Object>> rows = jdbcTemplate.queryForList(selectRange("id, name, age", "?", "?", true), //
-                new Object[] { baseId() + 1, baseId() + 3 });
+                mapRangeArguments());
 
         assertEquals(3, rows.size());
         for (int i = 0; i < rows.size(); i++) {
-            assertNumericField(baseId() + i + 1, value(rows.get(i), "id"));
-            assertEquals("NXN-JDBC-Query-" + (i + 1), value(rows.get(i), "name"));
-            assertNumericField(61 + i, value(rows.get(i), "age"));
+            assertMapRow(i + 1, rows.get(i));
         }
     }
 }

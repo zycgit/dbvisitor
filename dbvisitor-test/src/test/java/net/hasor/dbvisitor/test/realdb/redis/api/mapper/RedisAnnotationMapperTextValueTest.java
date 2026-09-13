@@ -7,33 +7,37 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
-import java.util.*;
-import net.hasor.dbvisitor.test.nxn.capability.*;
-import net.hasor.dbvisitor.test.realdb.redis.dto1.RedisParameterUser;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import java.sql.SQLException;
+import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperTextValueCase;
+import net.hasor.dbvisitor.test.realdb.redis.RedisAnnotationCrudFixture;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import org.junit.After;
+import org.junit.Before;
 
-public class RedisAnnotationMapperTextValueTest extends RedisNativeMapperSupport {
-    private RedisCoverageMapper coverage() throws Exception {
-        return session.createMapper(RedisCoverageMapper.class);
+public class RedisAnnotationMapperTextValueTest extends AnnotationMapperTextValueCase {
+    private final RedisAnnotationCrudFixture fixture = new RedisAnnotationCrudFixture(baseId());
+
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
     }
 
-    private RedisParameterUser user(int id, String name) {
-        RedisParameterUser user = new RedisParameterUser();
-        user.setId(id);
-        user.setName(name);
-        return user;
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        this.jdbcTemplate = fixture.open();
     }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_SPECIAL_TEXT)
-    public void jsonBean_shouldPreserveQuotesAndUnicode() throws Exception {
-        RedisCoverageMapper mapper = coverage();
-        String quoted = key("quoted");
-        String unicode = key("unicode");
-        assertEquals(1, mapper.putBean(quoted, user(1, "O'Brien & Co.")));
-        assertEquals(1, mapper.putBean(unicode, user(2, "测试用户 テスト")));
-        assertEquals("O'Brien & Co.", mapper.bean(quoted).getName());
-        assertEquals("测试用户 テスト", mapper.bean(unicode).getName());
+    @Override
+    @Before
+    public void createAnnotationMapper() throws Exception {
+        fixture.open();
+        this.mapper = fixture.createMapper(newConfiguration());
+    }
+
+    @After
+    public void closeFixture() throws Exception {
+        fixture.close();
     }
 }

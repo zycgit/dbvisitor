@@ -61,7 +61,23 @@ public abstract class JdbcParameterSupport extends AbstractNxnContractTest {
     }
 
     protected void writeParameters(String command, Object args) throws SQLException {
-        jdbcTemplate.executeUpdate(command, args);
+        if (parameterWriteReturnsRows()) {
+            jdbcTemplate.queryForObject(command, args, Object.class);
+        } else {
+            jdbcTemplate.executeUpdate(command, args);
+        }
+    }
+
+    protected void writeParameters(String command, PreparedStatementSetter args) throws SQLException {
+        if (parameterWriteReturnsRows()) {
+            jdbcTemplate.queryForObject(command, args, Object.class);
+        } else {
+            jdbcTemplate.executeUpdate(command, args);
+        }
+    }
+
+    protected boolean parameterWriteReturnsRows() {
+        return false;
     }
 
     protected void insert(int id, String name, int age, String email) throws SQLException {

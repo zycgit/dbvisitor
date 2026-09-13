@@ -196,6 +196,7 @@ public class MilvusMapperTest extends AdapterCase {
             assertEquals(1, mapper.updateName("u3", "xml-updated"));
             assertEquals("xml-updated", mapper.selectUser("u3").getName());
             assertEquals("nomo3", mapper.selectUser("u3").getLoginName());
+            assertEquals(sampleVector(), mapper.selectUser("u3").getV());
 
             // Delete
             int delResult = mapper.deleteUser("u3");

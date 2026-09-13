@@ -39,7 +39,11 @@ public abstract class AnnotationTypeHandlerCase extends AbstractNxnContractTest 
 
     @Before
     public void createLambdaTemplate() throws SQLException {
-        this.lambda = new LambdaTemplate(this.jdbcTemplate);
+        this.lambda = mappingLambdaTemplate();
+    }
+
+    protected LambdaTemplate mappingLambdaTemplate() throws SQLException {
+        return new LambdaTemplate(this.jdbcTemplate);
     }
 
     protected int baseId() {

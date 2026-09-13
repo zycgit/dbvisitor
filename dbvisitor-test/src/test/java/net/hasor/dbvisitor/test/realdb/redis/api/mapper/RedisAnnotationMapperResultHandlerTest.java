@@ -7,72 +7,45 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
-import java.util.*;
-import net.hasor.dbvisitor.test.nxn.capability.*;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import java.sql.SQLException;
+import net.hasor.dbvisitor.session.Configuration;
+import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperResultHandlerCase;
+import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import net.hasor.dbvisitor.types.handler.json.JsonTypeHandler;
+import org.junit.After;
+import org.junit.Before;
 
-public class RedisAnnotationMapperResultHandlerTest extends RedisNativeMapperSupport {
-    private String hash() throws Exception {
-        String k = key("hash");
-        session.jdbc().executeUpdate("HSET ? name mali age 18", k);
-        return k;
+public class RedisAnnotationMapperResultHandlerTest extends AnnotationMapperResultHandlerCase {
+    private final RedisMapperFixture fixture = new RedisMapperFixture();
+
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
     }
 
-    private String list() throws Exception {
-        String k = key("list");
-        session.jdbc().executeUpdate("RPUSH ? first second", k);
-        return k;
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        fixture.open();
     }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_RESULT_HANDLER_DEFAULT)
-    public void defaultRows() throws Exception {
-        assertEquals(2, mapper().entries(hash()).size());
+    @Override
+    @Before
+    public void createResultHandlerMapper() throws Exception {
+        fixture.open();
+        Configuration configuration = newConfiguration();
+        configuration.getTypeRegistry().register(UserInfo.class, new JsonTypeHandler(UserInfo.class));
+        configuration.addMacro("redisHandlerKey", "'" + fixture.key("pattern:AnnoHandler%") + "'");
+        fixture.key("pattern:NoAnnoHandlerMatch%");
+        configuration.addMacro("redisHandlerRows", "ZRANGE #{'" + fixture.key("pattern:") + "'+pattern} 0 -1");
+        this.mapper = configuration.newSession(fixture.session().jdbc().getConnection()).createMapper(RedisResultHandlerMapper.class);
+        prepareRows();
     }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_RESULT_HANDLER_ROW_MAPPER)
-    public void rowMapper() throws Exception {
-        assertEquals(Arrays.asList("0:first", "1:second"), mapper().mapped(list()));
-    }
-
-    @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_RESULT_HANDLER_ROW_MAPPER_OPTIONS)
-    public void rowMapperOptions() throws Exception {
-        assertEquals(Arrays.asList("0:first", "1:second"), mapper().mappedOptions(list()));
-    }
-
-    @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_RESULT_HANDLER_ROW_MAPPER_SINGLE)
-    public void rowMapperSingle() throws Exception {
-        assertEquals("0:first", mapper().first(list()));
-    }
-
-    @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_RESULT_HANDLER_EXTRACTOR)
-    public void extractor() throws Exception {
-        assertEquals(Arrays.asList("first", "second"), mapper().extracted(list()));
-    }
-
-    @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_RESULT_HANDLER_ROW_CALLBACK)
-    public void callback() throws Exception {
-        ValuesCallback.VALUES.get().clear();
-        try {
-            mapper().callback(list());
-            assertEquals(Arrays.asList("first", "second"), ValuesCallback.VALUES.get());
-        } finally {
-            ValuesCallback.VALUES.remove();
-        }
-    }
-
-    @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_RESULT_HANDLER_EMPTY)
-    public void emptyHandlers() throws Exception {
-        String k = key("empty");
-        assertTrue(mapper().mapped(k).isEmpty());
-        assertTrue(mapper().extracted(k).isEmpty());
-        assertNull(mapper().firstRow(k));
+    @After
+    public void closeFixture() throws SQLException {
+        fixture.close();
     }
 }

@@ -24,12 +24,7 @@ public abstract class BasicNumericTypeJdbcCase extends BasicTypeJdbcSupport {
     @Test
     @Capability(CapabilityId.TYPE_BASIC_NUMERIC)
     public void basicNumericTypes_shouldRoundTripThroughJdbcTemplate() throws SQLException {
-        int id = baseId() + 1;
-        jdbcTemplate.executeUpdate(//
-                insertCommand("basic_types_test", "id, byte_value, short_value, int_value, long_value, float_value, double_value"), //
-                new Object[] { id, Byte.MAX_VALUE, Short.MAX_VALUE, Integer.MAX_VALUE, Long.MAX_VALUE, 3.14f, 2.718281828d });
-
-        BasicTypesModel loaded = jdbcTemplate.queryForObject(selectCommand("basic_types_test", "*"), new Object[] { id }, BasicTypesModel.class);
+        BasicTypesModel loaded = roundTripNumericValues();
 
         assertNotNull(loaded);
         assertEquals(Byte.valueOf(Byte.MAX_VALUE), loaded.getByteValue());
@@ -38,5 +33,14 @@ public abstract class BasicNumericTypeJdbcCase extends BasicTypeJdbcSupport {
         assertEquals(Long.valueOf(Long.MAX_VALUE), loaded.getLongValue());
         assertEquals(3.14f, loaded.getFloatValue(), 0.001f);
         assertEquals(2.718281828d, loaded.getDoubleValue(), 0.000001d);
+    }
+
+    protected BasicTypesModel roundTripNumericValues() throws SQLException {
+        int id = baseId() + 1;
+        jdbcTemplate.executeUpdate(//
+                insertCommand("basic_types_test", "id, byte_value, short_value, int_value, long_value, float_value, double_value"), //
+                new Object[] { id, Byte.MAX_VALUE, Short.MAX_VALUE, Integer.MAX_VALUE, Long.MAX_VALUE, 3.14f, 2.718281828d });
+
+        return jdbcTemplate.queryForObject(selectCommand("basic_types_test", "*"), new Object[] { id }, BasicTypesModel.class);
     }
 }

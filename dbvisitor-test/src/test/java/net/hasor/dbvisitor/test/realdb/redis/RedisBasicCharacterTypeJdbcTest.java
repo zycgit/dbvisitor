@@ -8,17 +8,43 @@
 package net.hasor.dbvisitor.test.realdb.redis;
 
 import java.sql.SQLException;
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import org.junit.Test;
+import java.util.Map;
 import static org.junit.Assert.assertEquals;
+import net.hasor.dbvisitor.test.contract.feature.type.BasicCharacterTypeJdbcCase;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import org.junit.After;
+import org.junit.Before;
 
-public class RedisBasicCharacterTypeJdbcTest extends RedisBasicTypeSupport {
-    @Test
-    @Capability(CapabilityId.ADAPTER_REDIS_BASIC_CHARACTER)
-    public void characterValues_shouldRoundTripAsciiAndUnicode() throws SQLException {
-        assertEquals(Character.valueOf('A'), roundTrip("char", 'A', Character.class));
-        assertEquals("Hello World!", roundTrip("text", "Hello World!", String.class));
-        assertEquals("你好世界！🌍", roundTrip("unicode", "你好世界！🌍", String.class));
+public class RedisBasicCharacterTypeJdbcTest extends BasicCharacterTypeJdbcCase {
+    private final RedisBasicTypeSupport fixture = new RedisBasicTypeSupport();
+
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
+    }
+
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        fixture.openFixture();
+    }
+
+    @After
+    public void closeFixture() throws SQLException {
+        fixture.close();
+    }
+
+    @Override
+    protected Map<String, Object> roundTripCharacterValues() throws SQLException {
+        Character character = fixture.roundTrip("char", 'A', Character.class);
+        return Map.of("char_value", character,
+                "varchar_value", fixture.roundTrip("text", "Hello World!", String.class),
+                "nvarchar_value", fixture.roundTrip("unicode", "你好世界！🌍", String.class));
+    }
+
+    @Override
+    protected Character characterValue(Map<String, Object> row) {
+        return (Character) row.get("char_value");
     }
 }

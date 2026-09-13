@@ -92,6 +92,7 @@ public class RedisJdbcTest {
 
         try (Connection c = OneApiDataSourceManager.getConnection("redis")) {
             JdbcTemplate jdbc = new JdbcTemplate(c);
+            jdbc.executeUpdate("del user_j1111");
 
             UserInfo1 user = new UserInfo1();
             user.setUid("j1111");

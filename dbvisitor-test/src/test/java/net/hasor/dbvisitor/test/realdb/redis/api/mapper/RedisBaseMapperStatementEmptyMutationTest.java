@@ -7,34 +7,49 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
-import java.util.*;
-import net.hasor.dbvisitor.session.*;
-import net.hasor.dbvisitor.test.nxn.capability.*;
+import java.sql.SQLException;
+import java.util.List;
+
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
 
-public class RedisBaseMapperStatementEmptyMutationTest extends RedisNativeMapperSupport {
-    private int count(Object value) {
-        return ((Number) value).intValue();
+import net.hasor.dbvisitor.session.Session;
+import net.hasor.dbvisitor.test.contract.api.mapper.basemapper.BaseMapperStatementEmptyMutationCase;
+import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+
+public class RedisBaseMapperStatementEmptyMutationTest extends BaseMapperStatementEmptyMutationCase {
+    private final RedisEntityFixture fixture = new RedisEntityFixture();
+
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
     }
 
-    private static final String NS = "redis.Native.";
-
+    @Override
     @Before
-    public void loadStatements() throws Exception {
-        loadXml();
+    public void setup() throws SQLException {
+        this.jdbcTemplate = this.fixture.open();
     }
 
-    @Test
-    @Capability(CapabilityId.BASEMAPPER_STATEMENT_UPDATE_NO_MATCH)
-    public void baseUpdateMissing() throws Exception {
-        assertEquals(0, count(session.createBaseMapper(Entry.class).executeStatement(NS + "replace", params(key("missing"), "v"))));
+    @Override
+    @Before
+    public void createBaseMapperWithStatements() throws Exception {
+        Session session = this.fixture.session(newConfiguration(), "/mapper/redis/StatementMapper.xml");
+        this.mapper = session.createBaseMapper(UserInfo.class);
     }
 
-    @Test
-    @Capability(CapabilityId.BASEMAPPER_STATEMENT_DELETE_NO_MATCH)
-    public void baseDeleteMissing() throws Exception {
-        assertEquals(0, count(session.createBaseMapper(Entry.class).executeStatement(NS + "remove", params(key("missing"), null))));
+    @After
+    public void closeFixture() throws SQLException {
+        this.fixture.close();
+    }
+
+    @Override
+    protected List<UserInfo> query(String statementId, Object params) {
+        if ("queryUsersByName".equals(statementId)) {
+            this.mapper.executeStatement(NS + ".prepareNameResults", params);
+        }
+        return super.query(statementId, params);
     }
 }

@@ -26,7 +26,7 @@ public class Elastic7DeleteTest {
             try {
                 stmt.executeUpdate("DELETE /" + INDEX_NAME);
             } catch (Exception e) {
-                // ignore
+                Elastic7Cleanup.requireMissingIndex(e);
             }
 
             // Create index
@@ -50,7 +50,7 @@ public class Elastic7DeleteTest {
             try {
                 stmt.executeUpdate("DELETE /" + INDEX_NAME);
             } catch (Exception e) {
-                // ignore
+                Elastic7Cleanup.requireMissingIndex(e);
             }
         }
     }

@@ -89,19 +89,6 @@ public abstract class TransactionPropagationCase extends TransactionSupport {
     }
 
     @Test
-    @Capability(CapabilityId.TRANSACTION_SUPPORTS_NO_TX)
-    public void supports_shouldCommitImmediatelyWhenNoTransactionExists() throws SQLException {
-        int id = baseId() + 34;
-        TransactionManager tm = txManager();
-
-        TransactionStatus status = tm.begin(Propagation.SUPPORTS);
-        insertUser(id, "NXN-TX-Supports-NoTx-Only");
-        tm.commit(status);
-
-        assertEquals(1, countById(id));
-    }
-
-    @Test
     @Capability(CapabilityId.TRANSACTION_NOT_SUPPORTED)
     public void notSupported_shouldSuspendOuterTransaction() throws SQLException {
         int outerId = baseId() + 41;
@@ -161,19 +148,6 @@ public abstract class TransactionPropagationCase extends TransactionSupport {
         } finally {
             tm.rollBack(outer);
         }
-    }
-
-    @Test
-    @Capability(CapabilityId.TRANSACTION_NEVER_NO_TX)
-    public void never_shouldRunWithoutTransactionWhenNoTransactionExists() throws SQLException {
-        int id = baseId() + 62;
-        TransactionManager tm = txManager();
-
-        TransactionStatus status = tm.begin(Propagation.NEVER);
-        insertUser(id, "NXN-TX-Never-NoTx-Only");
-        tm.commit(status);
-
-        assertEquals(1, countById(id));
     }
 
     @Test

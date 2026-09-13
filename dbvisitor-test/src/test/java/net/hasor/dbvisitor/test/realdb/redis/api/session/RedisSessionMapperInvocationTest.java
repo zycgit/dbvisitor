@@ -7,48 +7,48 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.session;
 
-import java.util.*;
-import net.hasor.dbvisitor.session.*;
-import net.hasor.dbvisitor.test.nxn.capability.*;
-import net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisNativeMapperSupport;
+import java.sql.SQLException;
+import net.hasor.dbvisitor.session.Session;
+import net.hasor.dbvisitor.test.contract.api.session.SessionMapperInvocationCase;
+import net.hasor.dbvisitor.test.contract.material.dao.SessionUserMapper;
+import net.hasor.dbvisitor.test.contract.material.dao.SessionRefCrudMapper;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisEntityFixture;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
 
-public class RedisSessionMapperInvocationTest extends RedisNativeMapperSupport {
+public class RedisSessionMapperInvocationTest extends SessionMapperInvocationCase {
+    private final RedisEntityFixture fixture = new RedisEntityFixture();
 
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
+    }
 
+    @Override
     @Before
-    public void loadStatements() throws Exception {
-        loadXml();
+    public void setup() throws SQLException {
+        this.jdbcTemplate = this.fixture.open();
     }
 
-    @Test
-    @Capability(CapabilityId.SESSION_MAPPER_SIMPLE)
-    public void simpleMapper() throws Exception {
-        SimpleNativeMapper mapper = session.createMapper(SimpleNativeMapper.class);
-        String k = key("simple");
-        assertEquals(1, mapper.put(k, "a"));
-        assertEquals("a", mapper.get(k));
-        assertEquals(1, mapper.replace(k, "b"));
-        assertEquals("b", mapper.get(k));
-        assertEquals(1, mapper.remove(k));
-        assertNull(mapper.get(k));
+    @Override
+    protected Session createSession() throws Exception {
+        return this.fixture.session(newConfiguration(), "/session/RedisUserSessionMapper.xml");
     }
 
-    @Test
-    @Capability(CapabilityId.SESSION_MAPPER_REF)
-    public void refMapper() throws Exception {
-        RefNativeMapper mapper = session.createMapper(RefNativeMapper.class);
-        String k = key("ref");
-        assertEquals(1, mapper.put(k, "a"));
-        assertEquals("a", mapper.get(k));
-        assertEquals(1, mapper.replace(k, "b"));
-        assertEquals("b", mapper.get(k));
-        assertEquals(1, mapper.remove(k));
-        assertNull(mapper.get(k));
-        String list = key("ref-list");
-        session.jdbc().executeUpdate("RPUSH ? a b", list);
-        assertEquals(Arrays.asList("a", "b"), mapper.list(list));
+    @Override
+    protected SessionUserMapper simpleMapper(Session session) throws Exception {
+        return session.createMapper(RedisSessionUserMapper.class);
+    }
+
+    @Override
+    protected SessionRefCrudMapper refMapper(Session session) throws Exception {
+        return session.createMapper(RedisSessionRefUserMapper.class);
+    }
+
+    @After
+    public void cleanupFixture() throws SQLException {
+        this.fixture.close();
     }
 }

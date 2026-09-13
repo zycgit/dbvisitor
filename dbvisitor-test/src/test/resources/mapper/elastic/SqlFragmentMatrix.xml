@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="xmltest.SqlFragmentMapper">
+    <resultMap id="userResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+        <result column="email" property="email"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+    <sql id="baseColumns">"_source": ["id","name","age","email","create_time"]</sql>
+    <sql id="defaultOrder">"sort": [{"id": "asc"}]</sql>
+    <sql id="dynamicCondition">
+        "query": {"bool": {"filter": [{"match_all": {}}
+        <if test="name != null">,{"wildcard": {"name": #{name.replace('%', '*')}}}</if>
+        <if test="minAge != null">,{"range": {"age": {"gte": #{minAge}}}}</if>
+        <if test="maxAge != null">,{"range": {"age": {"lte": #{maxAge}}}}</if>
+        ]}}
+    </sql>
+    <select id="selectWithColumnFragment" resultMap="userResultMap">
+        @{macro, esXmlPath}/_search {<include refid="baseColumns"/>,"query": {"term": {"id": #{id}}}}
+    </select>
+    <select id="selectWithConditionFragment" resultMap="userResultMap">
+        @{macro, esXmlPath}/_search {"size": 100,<include refid="baseColumns"/>,<include refid="dynamicCondition"/>,<include refid="defaultOrder"/>}
+    </select>
+    <select id="selectWithMultipleFragments" resultMap="userResultMap">
+        @{macro, esXmlPath}/_search {"size": 100,<include refid="baseColumns"/>,<include refid="defaultOrder"/>}
+    </select>
+    <select id="selectAllOrdered" resultMap="userResultMap">
+        @{macro, esXmlPath}/_search {"size": 100,<include refid="defaultOrder"/>}
+    </select>
+</mapper>

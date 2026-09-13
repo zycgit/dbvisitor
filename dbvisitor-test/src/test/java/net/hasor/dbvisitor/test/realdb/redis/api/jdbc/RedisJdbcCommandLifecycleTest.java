@@ -11,14 +11,10 @@ import java.sql.SQLException;
 
 import org.junit.Before;
 import org.junit.After;
-import org.junit.Test;
 
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcCommandLifecycleCase;
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
-import static org.junit.Assert.*;
 
 public class RedisJdbcCommandLifecycleTest extends JdbcCommandLifecycleCase {
 
@@ -41,18 +37,62 @@ public class RedisJdbcCommandLifecycleTest extends JdbcCommandLifecycleCase {
     }
 
     @Override
-    @Test
-    @Capability(CapabilityId.JDBC_CRUD_EXECUTE_DDL)
-    public void jdbcExecute_shouldRunDdlAndDmlTableOperations() throws SQLException {
-        String source = fixture.key("source");
-        String renamed = fixture.key("renamed");
-        jdbcTemplate.execute("HSET " + source + " name Alice age 18");
-        jdbcTemplate.executeUpdate("HSET ? email ?", new Object[] { source, "alice@example.test" });
-        jdbcTemplate.execute("RENAME " + source + " " + renamed);
-        assertEquals(Long.valueOf(0), jdbcTemplate.queryForLong("EXISTS ?", new Object[] { source }));
-        assertEquals("Alice", jdbcTemplate.queryForString("HGET ? name", new Object[] { renamed }));
-        assertEquals("alice@example.test", jdbcTemplate.queryForString("HGET ? email", new Object[] { renamed }));
-        jdbcTemplate.execute("DEL " + renamed);
-        assertEquals(Long.valueOf(0), jdbcTemplate.queryForLong("EXISTS ?", new Object[] { renamed }));
+    protected void resetLifecycleFixture() {
+        // The fixture owns fresh private keys for this test.
+    }
+
+    @Override
+    protected String createCommand() {
+        return "HSET '" + fixture.key("source") + "' marker created";
+    }
+
+    @Override
+    protected String insertCommand() {
+        return "HSET '" + fixture.key("source") + "' id ? name ? age ? created ?";
+    }
+
+    @Override
+    protected int expectedInsertCount() {
+        return 4;
+    }
+
+    @Override
+    protected String alterCommand() {
+        return "RENAME '" + fixture.key("source") + "' '" + fixture.key("renamed") + "'";
+    }
+
+    @Override
+    protected String updateCommand() {
+        return "HSET '" + fixture.key("renamed") + "' email ? id ?";
+    }
+
+    @Override
+    protected String readCommand(String column) {
+        return "HGET '" + fixture.key("renamed") + "' " + column;
+    }
+
+    @Override
+    protected Object[] readArguments() {
+        return new Object[0];
+    }
+
+    @Override
+    protected String retiredObjectQuery() {
+        return "EXISTS '" + fixture.key("source") + "'";
+    }
+
+    @Override
+    protected String dropCommand() {
+        return "DEL '" + fixture.key("renamed") + "'";
+    }
+
+    @Override
+    protected String missingObjectQuery() {
+        return "EXISTS '" + fixture.key("renamed") + "'";
+    }
+
+    @Override
+    protected boolean missingObjectRaisesError() {
+        return false;
     }
 }

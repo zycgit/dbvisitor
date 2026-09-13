@@ -15,6 +15,14 @@ import net.hasor.dbvisitor.test.contract.material.dao.declarative.NativeParamete
 @SimpleMapper
 public interface RedisParameterBindingMapper extends NativeParameterBindingMapper {
     @Override
+    @Query("@{macro, nxnInsertPosition}")
+    int insertByPosition(Integer id, String name, Integer age);
+
+    @Override
+    @Query("@{macro, nxnUpdatePosition}")
+    int updateByPosition(Integer age, Integer id);
+
+    @Override
     @Query("@{macro, nxnSelectId}")
     RedisParameterUser selectById(@Param("id") Integer id);
 }

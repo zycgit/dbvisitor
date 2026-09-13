@@ -10,7 +10,7 @@ package net.hasor.dbvisitor.test.contract.material.dao.declarative;
 import java.util.List;
 import net.hasor.dbvisitor.mapper.*;
 import net.hasor.dbvisitor.test.contract.material.handler.CustomResultSetExtractor;
-import net.hasor.dbvisitor.test.contract.material.handler.CustomRowCallbackHandler;
+import net.hasor.dbvisitor.test.contract.material.handler.RecordingRowCallbackHandler;
 import net.hasor.dbvisitor.test.contract.material.handler.CustomRowMapper;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 
@@ -39,6 +39,10 @@ public interface ResultHandlerMapper {
             resultSetExtractor = CustomResultSetExtractor.class)
     List<UserInfo> selectWithExtractor(@Param("pattern") String pattern);
 
+    @Query(value = "SELECT * FROM user_info WHERE name LIKE #{pattern} ORDER BY id",//
+            resultSetExtractor = CustomResultSetExtractor.class, fetchSize = 1, timeout = 30)
+    List<UserInfo> selectWithExtractorAndFetchSize(@Param("pattern") String pattern);
+
     /** ResultSetExtractor combined with fetchSize and resultSetType */
     @Query(value = "SELECT * FROM user_info WHERE name LIKE #{pattern} ORDER BY id",//
             resultSetExtractor = CustomResultSetExtractor.class, fetchSize = 50, resultSetType = ResultSetType.SCROLL_INSENSITIVE)
@@ -65,12 +69,12 @@ public interface ResultHandlerMapper {
 
     /** RowCallbackHandler — void return, processes rows via callback */
     @Query(value = "SELECT * FROM user_info WHERE name LIKE #{pattern} ORDER BY id",//
-            resultRowCallback = CustomRowCallbackHandler.class)
+            resultRowCallback = RecordingRowCallbackHandler.class)
     void selectWithRowCallback(@Param("pattern") String pattern);
 
     /** RowCallbackHandler with timeout */
     @Query(value = "SELECT * FROM user_info WHERE name LIKE #{pattern} ORDER BY id",//
-            resultRowCallback = CustomRowCallbackHandler.class, timeout = 30)
+            resultRowCallback = RecordingRowCallbackHandler.class, timeout = 30)
     void selectWithRowCallbackAndTimeout(@Param("pattern") String pattern);
 
     // ========== Queries without custom handlers for comparison ==========

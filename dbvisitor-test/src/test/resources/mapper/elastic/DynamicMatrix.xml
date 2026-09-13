@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="xmltest.DynamicSqlMapper">
+    <resultMap id="user" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+        <result column="email" property="email"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+    <sql id="sort">"sort": [{"id": "asc"}]</sql>
+    <sql id="conditions">
+        <trim prefixOverrides=",">
+            <if test="name != null">,{"term": {"name": #{name}}}</if>
+            <if test="age != null">,{"term": {"age": #{age}}}</if>
+            <if test="email != null">,{"term": {"email": #{email}}}</if>
+        </trim>
+    </sql>
+    <select id="selectWithIf" resultMap="user">
+        @{macro, esSessionPath}/_search {
+            "query": {"bool": {"filter": [{"prefix": {"name": "DynSql"}}
+                <if test="minAge != null">,{"range": {"age": {"gte": #{minAge}}}}</if>
+                <if test="email != null">,{"term": {"email": #{email}}}</if>
+            ]}}, <include refid="sort"/>
+        }
+    </select>
+    <select id="selectWithChoose" resultMap="user">
+        @{macro, esSessionPath}/_search {
+            "query": {"prefix": {"name": "DynSql"}},
+            "sort": [<choose>
+                <when test="orderBy == 'name'">{"name": "asc"}</when>
+                <when test="orderBy == 'age'">{"age": "desc"}</when>
+                <otherwise>{"id": "asc"}</otherwise>
+            </choose>]
+        }
+    </select>
+    <select id="selectWithWhere" resultMap="user">
+        @{macro, esSessionPath}/_search {
+            "query": {"bool": {"filter": [<include refid="conditions"/>]}}, <include refid="sort"/>
+        }
+    </select>
+    <select id="selectWithTrim" resultMap="user">
+        @{macro, esSessionPath}/_search {
+            "query": {"bool": {"filter": [<include refid="conditions"/>]}}, <include refid="sort"/>
+        }
+    </select>
+    <update id="updateWithSet">
+        @{macro, esSessionPath}/_update_by_query?refresh=true {
+            "query": {"term": {"id": #{id}}},
+            "script": {"source": "for (def entry : params.entrySet()) { ctx._source[entry.getKey()] = entry.getValue(); }",
+                "params": {<trim suffixOverrides=",">
+                    <if test="name != null">"name": #{name},</if>
+                    <if test="age != null">"age": #{age},</if>
+                    <if test="email != null">"email": #{email},</if>
+                </trim>}
+            }
+        }
+    </update>
+    <select id="selectByIdList" resultMap="user">
+        @{macro, esSessionPath}/_search {
+            "query": {"terms": {"id": [<foreach collection="ids" item="id" separator=",">#{id}</foreach>]}},
+            <include refid="sort"/>
+        }
+    </select>
+    <insert id="batchInsert">
+        @{macro, esSessionPath}/_bulk?refresh=true [
+            <foreach collection="users" item="u" separator=",">
+                @{macro, esBulkAction},{"id": #{u.id},"name": #{u.name},"age": #{u.age},"email": #{u.email}}
+            </foreach>
+        ]
+    </insert>
+    <select id="selectWithBind" resultMap="user">
+        <bind name="namePattern" value="'*' + name + '*'"/>
+        @{macro, esSessionPath}/_search {
+            "query": {"wildcard": {"name": #{namePattern}}}, <include refid="sort"/>
+        }
+    </select>
+    <select id="selectWithBoundAge" resultMap="user">
+        <bind name="ageFloor" value="minAge + 1"/>
+        @{macro, esSessionPath}/_search {
+            "query": {"range": {"age": {"gte": #{ageFloor}}}}, <include refid="sort"/>
+        }
+    </select>
+    <select id="selectComplex" resultMap="user">
+        @{macro, esSessionPath}/_search {
+            "query": {"bool": {"filter": [
+                <trim prefixOverrides=",">
+                    <if test="name != null">,{"wildcard": {"name": #{name.replace('%', '*')}}}</if>
+                    <if test="ids != null">,{"terms": {"id": [
+                        <foreach collection="ids" item="id" separator=",">#{id}</foreach>
+                    ]}}</if>
+                </trim>
+            ]}}, <include refid="sort"/>
+        }
+    </select>
+    <select id="selectByAgeCategory" resultMap="user">
+        @{macro, esSessionPath}/_search {
+            "query": {"range": {"age": <choose>
+                <when test="category == 'young'">{"lt": 30}</when>
+                <when test="category == 'middle'">{"gte": 30,"lte": 40}</when>
+                <otherwise>{"gt": 40}</otherwise>
+            </choose>}}, <include refid="sort"/>
+        }
+    </select>
+</mapper>

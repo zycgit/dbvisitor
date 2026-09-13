@@ -7,6 +7,11 @@
         VALUES (#{name}, #{age}, #{email})
     </insert>
 
+    <insert id="insertWithKeyColumn" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO user_info (name, age, email)
+        VALUES (#{name}, #{age}, #{email})
+    </insert>
+
     <insert id="insertWithExplicitId">
         INSERT INTO user_info (id, name, age, email)
         VALUES (#{id}, #{name}, #{age}, #{email})

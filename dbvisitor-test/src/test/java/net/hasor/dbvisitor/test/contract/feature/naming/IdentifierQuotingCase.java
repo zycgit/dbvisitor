@@ -23,7 +23,6 @@ import net.hasor.dbvisitor.test.contract.material.model.naming.KeywordTableEntit
 import net.hasor.dbvisitor.test.contract.material.model.naming.KeywordTableNoDelimitedEntity;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 
 import static org.junit.Assert.assertEquals;
@@ -32,6 +31,22 @@ import static org.junit.Assert.assertTrue;
 
 @NxnContract
 public abstract class IdentifierQuotingCase extends NamingMappingSupport {
+    protected String mappedTableName(String table) {
+        return table;
+    }
+
+    protected void prepareDelimitedFixture() throws SQLException {
+        // Most fixture schemas already use lowercase identifiers.
+    }
+
+    protected void prepareAutoKeywordColumnFixture() throws SQLException {
+        ensureKeywordColumnTable();
+    }
+
+    protected void prepareAutoKeywordTableFixture() throws SQLException {
+        ensureKeywordTable();
+    }
+
     @Test
     @Capability(CapabilityId.NAMING_DELIMITED_SQL)
     public void delimitedSql_shouldQuoteIdentifiersWithDialectQualifiers() throws SQLException {
@@ -44,7 +59,7 @@ public abstract class IdentifierQuotingCase extends NamingMappingSupport {
                 .getBoundSql();
         String sql = insertSql.getSqlString();
 
-        assertTrue(sql, sql.contains(left + "user_info" + right));
+        assertTrue(sql, sql.contains(left + mappedTableName("user_info") + right));
         assertTrue(sql, sql.contains(left + "id" + right));
         assertTrue(sql, sql.contains(left + "name" + right));
         assertTrue(sql, sql.contains(left + "create_time" + right));
@@ -52,14 +67,14 @@ public abstract class IdentifierQuotingCase extends NamingMappingSupport {
         BoundSql caseSql = lambdaTemplate.query(CaseTestUpperCI.class)//
                 .eq(CaseTestUpperCI::getId, 1)//
                 .getBoundSql();
-        assertTrue(caseSql.getSqlString(), caseSql.getSqlString().contains(left + "Case_Test_Upper" + right));
+        assertTrue(caseSql.getSqlString(), caseSql.getSqlString().contains(left + mappedTableName("Case_Test_Upper") + right));
         assertTrue(caseSql.getSqlString(), caseSql.getSqlString().contains(left + "Id" + right));
     }
 
     @Test
     @Capability(CapabilityId.NAMING_DELIMITED_CRUD)
     public void delimitedCrud_shouldRoundTripAgainstStandardUserInfo() throws SQLException {
-        requiresNxnFeature(FeatureId.DELIMITED_LOWERCASE_STANDARD_TABLE);
+        prepareDelimitedFixture();
         int id = baseId() + 7;
         DelimitedUser user = new DelimitedUser();
         user.setId(id);
@@ -94,6 +109,7 @@ public abstract class IdentifierQuotingCase extends NamingMappingSupport {
     @Test
     @Capability(CapabilityId.NAMING_KEYWORD_COLUMN_SQL)
     public void keywordColumnSql_shouldQuoteOnlyKeywordColumnsWhenAutoDetected() throws SQLException {
+        prepareAutoKeywordColumnFixture();
         SqlDialect dialect = detectDialect();
         String left = dialect.leftQualifier();
         String right = dialect.rightQualifier();
@@ -104,13 +120,24 @@ public abstract class IdentifierQuotingCase extends NamingMappingSupport {
 
         assertTrue(sql, sql.contains(left + "order" + right));
         assertTrue(sql, sql.contains(left + "select" + right));
-        assertTrue(sql, !sql.contains(left + "id" + right));
-        assertTrue(sql, !sql.contains(left + "name" + right));
+        if (!left.isEmpty() || !right.isEmpty()) {
+            assertTrue(sql, !sql.contains(left + "id" + right));
+            assertTrue(sql, !sql.contains(left + "name" + right));
+        }
+
+        assertEquals(1, lambdaTemplate.insert(KeywordColumnNoDelimitedEntity.class).applyEntity(autoEntity).executeSumResult());
+        KeywordColumnNoDelimitedEntity loaded = lambdaTemplate.query(KeywordColumnNoDelimitedEntity.class)
+                .eq(KeywordColumnNoDelimitedEntity::getId, 1).queryForObject();
+        assertNotNull(loaded);
+        assertEquals("ORDER-A", loaded.getOrderValue());
+        assertEquals("SELECT-A", loaded.getSelectValue());
+        assertEquals("AutoKeyword", loaded.getName());
     }
 
     @Test
     @Capability(CapabilityId.NAMING_KEYWORD_TABLE_SQL)
     public void keywordTableSql_shouldQuoteKeywordTableWhenAutoDetected() throws SQLException {
+        prepareAutoKeywordTableFixture();
         SqlDialect dialect = detectDialect();
         String left = dialect.leftQualifier();
         String right = dialect.rightQualifier();
@@ -118,9 +145,17 @@ public abstract class IdentifierQuotingCase extends NamingMappingSupport {
         KeywordTableNoDelimitedEntity entity = keywordTableNoDelimited(1, "AutoKeywordTable", "desc");
         BoundSql sql = lambdaTemplate.insert(KeywordTableNoDelimitedEntity.class).applyEntity(entity).getBoundSql();
 
-        assertTrue(sql.getSqlString(), sql.getSqlString().contains(left + "order" + right));
-        assertTrue(sql.getSqlString(), !sql.getSqlString().contains(left + "id" + right));
-        assertTrue(sql.getSqlString(), !sql.getSqlString().contains(left + "name" + right));
+        assertTrue(sql.getSqlString(), sql.getSqlString().contains(left + mappedTableName("order") + right));
+        if (!left.isEmpty() || !right.isEmpty()) {
+            assertTrue(sql.getSqlString(), !sql.getSqlString().contains(left + "id" + right));
+            assertTrue(sql.getSqlString(), !sql.getSqlString().contains(left + "name" + right));
+        }
+
+        assertEquals(1, lambdaTemplate.insert(KeywordTableNoDelimitedEntity.class).applyEntity(entity).executeSumResult());
+        KeywordTableNoDelimitedEntity loaded = lambdaTemplate.query(KeywordTableNoDelimitedEntity.class)
+                .eq(KeywordTableNoDelimitedEntity::getId, 1).queryForObject();
+        assertNotNull(loaded);
+        assertEquals("AutoKeywordTable", loaded.getName());
     }
 
     @Test

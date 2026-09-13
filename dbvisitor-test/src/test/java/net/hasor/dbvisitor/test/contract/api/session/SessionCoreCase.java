@@ -24,7 +24,6 @@ import net.hasor.dbvisitor.test.contract.material.model.UserOrder;
 import net.hasor.dbvisitor.test.contract.material.model.UserRole;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 
@@ -44,6 +43,44 @@ public abstract class SessionCoreCase extends AbstractNxnContractTest {
         return 609000;
     }
 
+    @Override
+    protected Configuration newConfiguration() {
+        return newConfiguration(Options.of());
+    }
+
+    protected Configuration registryConfiguration(Options options) {
+        return super.newConfiguration(options);
+    }
+
+    protected String sessionInsertCommand() {
+        return "INSERT INTO user_info (id, name, age) VALUES (?, ?, ?)";
+    }
+
+    protected Object[] sessionInsertArgs(int id, String name, int age) {
+        return new Object[] { id, name, age };
+    }
+
+    protected String sessionCountCommand() {
+        return "SELECT COUNT(*) FROM user_info WHERE id = ?";
+    }
+
+    protected Object[] sessionCountArgs(int id) {
+        return new Object[] { id };
+    }
+
+    protected int insertSessionUser(Session session, UserInfo user) throws Exception {
+        return session.createBaseMapper(UserInfo.class).insert(user);
+    }
+
+    protected String readSessionUserName(Session session, int id) throws Exception {
+        UserInfo user = session.createBaseMapper(UserInfo.class).selectById(id);
+        return user == null ? null : user.getName();
+    }
+
+    protected Configuration compositeKeyConfiguration() {
+        return newConfiguration();
+    }
+
     @Test
     @Capability(CapabilityId.SESSION_LIFECYCLE)
     public void session_shouldBindConfigurationAndCloseIdempotently() throws Exception {
@@ -53,9 +90,8 @@ public abstract class SessionCoreCase extends AbstractNxnContractTest {
         assertNotNull(session);
         assertSame(configuration, session.getConfiguration());
 
-        BaseMapper<UserInfo> mapper = session.createBaseMapper(UserInfo.class);
-        mapper.insert(user(baseId() + 1, "SessionClose", 25));
-        assertEquals("SessionClose", mapper.selectById(baseId() + 1).getName());
+        assertEquals(1, insertSessionUser(session, user(baseId() + 1, "SessionClose", 25)));
+        assertEquals("SessionClose", readSessionUserName(session, baseId() + 1));
 
         session.close();
         session.close();
@@ -68,8 +104,8 @@ public abstract class SessionCoreCase extends AbstractNxnContractTest {
         JdbcTemplate jdbc = session.jdbc();
 
         assertNotNull(jdbc);
-        assertEquals(1, jdbc.executeUpdate("INSERT INTO user_info (id, name, age) VALUES (?, ?, ?)", new Object[] { baseId() + 10, "SessionJdbc", 30 }));
-        assertEquals(Integer.valueOf(1), jdbc.queryForObject("SELECT COUNT(*) FROM user_info WHERE id = ?", new Object[] { baseId() + 10 }, Integer.class));
+        assertEquals(1, jdbc.executeUpdate(sessionInsertCommand(), sessionInsertArgs(baseId() + 10, "SessionJdbc", 30)));
+        assertEquals(Integer.valueOf(1), jdbc.queryForObject(sessionCountCommand(), sessionCountArgs(baseId() + 10), Integer.class));
     }
 
     @Test
@@ -123,8 +159,7 @@ public abstract class SessionCoreCase extends AbstractNxnContractTest {
     @Test
     @Capability(CapabilityId.SESSION_BASEMAPPER_COMPOSITE_KEY)
     public void sessionBaseMapper_shouldSupportCompositeKeyEntity() throws Exception {
-        requiresNxnFeature(FeatureId.COMPOSITE_PRIMARY_KEY);
-        BaseMapper<UserRole> mapper = newConfiguration().newSession(sessionDataSource()).createBaseMapper(UserRole.class);
+        BaseMapper<UserRole> mapper = compositeKeyConfiguration().newSession(sessionDataSource()).createBaseMapper(UserRole.class);
         UserRole role = new UserRole(baseId() + 50, 1, "SessionRole");
 
         assertEquals(1, mapper.insert(role));
@@ -165,7 +200,7 @@ public abstract class SessionCoreCase extends AbstractNxnContractTest {
     @Capability(CapabilityId.SESSION_CONFIGURATION_ACCESSORS)
     public void configuration_shouldExposeRegistriesOptionsAndClassLoading() throws Exception {
         Options options = Options.of();
-        Configuration configuration = newConfiguration(options);
+        Configuration configuration = registryConfiguration(options);
 
         assertSame(options, configuration.options());
         assertNotNull(configuration.getTypeRegistry());
@@ -197,12 +232,10 @@ public abstract class SessionCoreCase extends AbstractNxnContractTest {
         assertNotSame(firstSession, secondSession);
         assertSame(firstSession.getConfiguration(), secondSession.getConfiguration());
 
-        BaseMapper<UserInfo> firstMapper = firstSession.createBaseMapper(UserInfo.class);
-        BaseMapper<UserInfo> secondMapper = secondSession.createBaseMapper(UserInfo.class);
         int id = baseId() + 80;
 
-        assertEquals(1, firstMapper.insert(user(id, "SessionShared", 30)));
-        assertEquals("SessionShared", secondMapper.selectById(id).getName());
+        assertEquals(1, insertSessionUser(firstSession, user(id, "SessionShared", 30)));
+        assertEquals("SessionShared", readSessionUserName(secondSession, id));
     }
 
     private UserInfo user(Integer id, String name, Integer age) {

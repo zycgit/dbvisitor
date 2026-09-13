@@ -27,10 +27,12 @@ public class Elastic7RefreshAndReindexTest {
             try {
                 stmt.executeUpdate("DELETE /" + INDEX_SOURCE);
             } catch (Exception ignored) {
+                Elastic7Cleanup.requireMissingIndex(ignored);
             }
             try {
                 stmt.executeUpdate("DELETE /" + INDEX_DEST);
             } catch (Exception ignored) {
+                Elastic7Cleanup.requireMissingIndex(ignored);
             }
 
             stmt.executeUpdate("PUT /" + INDEX_SOURCE);
@@ -45,22 +47,26 @@ public class Elastic7RefreshAndReindexTest {
             try {
                 stmt.executeUpdate("DELETE /" + INDEX_SOURCE);
             } catch (Exception ignored) {
+                Elastic7Cleanup.requireMissingIndex(ignored);
             }
             try {
                 stmt.executeUpdate("DELETE /" + INDEX_DEST);
             } catch (Exception ignored) {
+                Elastic7Cleanup.requireMissingIndex(ignored);
             }
         }
     }
 
     @Test
     public void testRefresh() throws Exception {
-        try (Connection conn = DriverManager.getConnection(ES_URL); Statement stmt = conn.createStatement()) {
-            // Refresh specific index
+        try (Connection conn = DriverManager.getConnection(ES_URL.replace("indexRefresh=true", "indexRefresh=false")); Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate("POST /" + INDEX_SOURCE + "/_doc/3 { \"name\": \"doc3\" }");
             stmt.executeUpdate("POST /" + INDEX_SOURCE + "/_refresh");
+            assertCount(stmt, INDEX_SOURCE, 3);
 
-            // Refresh all (generic)
+            stmt.executeUpdate("POST /" + INDEX_SOURCE + "/_doc/4 { \"name\": \"doc4\" }");
             stmt.executeUpdate("POST /_refresh");
+            assertCount(stmt, INDEX_SOURCE, 4);
         }
     }
 
@@ -82,6 +88,24 @@ public class Elastic7RefreshAndReindexTest {
 
             // Should be at least 2 docs
             Assert.assertEquals("Expected 2 reindexed docs, source count was " + sourceCount, 2, count);
+            Assert.assertEquals(2, sourceCount);
+            stmt.executeUpdate("POST /" + INDEX_DEST + "/_refresh");
+            assertCount(stmt, INDEX_DEST, 2);
+            for (int id = 1; id <= 2; id++) {
+                try (ResultSet rs = stmt.executeQuery("POST /" + INDEX_DEST + "/_search {\"_source\":[\"name\"],\"query\":{\"ids\":{\"values\":[\"" + id + "\"]}}}")) {
+                    Assert.assertTrue(rs.next());
+                    Assert.assertEquals("doc" + id, rs.getString("name"));
+                    Assert.assertFalse(rs.next());
+                }
+            }
+        }
+    }
+
+    private void assertCount(Statement stmt, String index, long expected) throws Exception {
+        try (ResultSet rs = stmt.executeQuery("POST /" + index + "/_count")) {
+            Assert.assertTrue(rs.next());
+            Assert.assertEquals(expected, rs.getLong("COUNT"));
+            Assert.assertFalse(rs.next());
         }
     }
     public static void main(String[] args) {

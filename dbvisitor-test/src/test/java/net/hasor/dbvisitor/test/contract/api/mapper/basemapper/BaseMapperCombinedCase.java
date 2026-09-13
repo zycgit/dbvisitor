@@ -8,7 +8,9 @@
 package net.hasor.dbvisitor.test.contract.api.mapper.basemapper;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.sql.SQLException;
 
 import org.junit.Test;
 
@@ -71,7 +73,8 @@ public abstract class BaseMapperCombinedCase extends BaseMapperCrudSupport {
 
     @Test
     @Capability(CapabilityId.BASEMAPPER_MIXED_OPERATIONS)
-    public void baseMapperMixedOperations_shouldSupportCrudAndUpsertInOneMapper() {
+    public void baseMapperMixedOperations_shouldSupportCrudAndUpsertInOneMapper() throws SQLException {
+        verifyJdbcAndLambdaAccessors();
         int id = baseId() + 151;
 
         this.mapper.insert(user(id, "BaseMixed", 151, "mixed@basemapper.com"));
@@ -88,5 +91,23 @@ public abstract class BaseMapperCombinedCase extends BaseMapperCrudSupport {
 
         assertEquals(1, this.mapper.deleteById(id));
         assertNull(this.mapper.selectById(id));
+    }
+
+    protected void verifyJdbcAndLambdaAccessors() throws SQLException {
+        int lambdaId = baseId() + 141;
+        int jdbcId = baseId() + 142;
+        int lambdaResult = this.mapper.lambda().insert(UserInfo.class)
+                .applyEntity(user(lambdaId, "BaseAccessorLambda", 141, null)).executeSumResult();
+        int jdbcResult = this.mapper.jdbc().executeUpdate(
+                accessorInsertCommand(),
+                new Object[] { jdbcId, "BaseAccessorJdbc", 142, new Date() });
+        assertEquals(1, lambdaResult);
+        assertEquals(1, jdbcResult);
+        assertNotNull(this.mapper.selectById(lambdaId));
+        assertNotNull(this.mapper.selectById(jdbcId));
+    }
+
+    protected String accessorInsertCommand() {
+        return "INSERT INTO user_info (id, name, age, create_time) VALUES (?, ?, ?, ?)";
     }
 }

@@ -9,27 +9,33 @@ package net.hasor.dbvisitor.test.contract.api.adapter;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 
 /** Command material for document-store type contracts; values remain JDBC parameters. */
 public final class NativeBasicTypeFixture implements AutoCloseable {
-    private final Map<String, String> tables = new LinkedHashMap<>();
-    private final List<String> created = new ArrayList<>();
-    private Connection connection;
-    private JdbcTemplate jdbc;
-    private boolean mongo;
+    private final Map<String, String> tables  = new LinkedHashMap<>();
+    private final List<String>        created = new ArrayList<>();
+    private       Connection          connection;
+    private       JdbcTemplate        jdbc;
+    private       boolean             mongo;
 
     public JdbcTemplate open(String environment) throws SQLException {
         return open(environment, "basic_types_test", "basic_types_explicit_test");
     }
 
     public JdbcTemplate open(String environment, String... logicalTables) throws SQLException {
+        return open(environment, null, logicalTables);
+    }
+
+    public JdbcTemplate openWithMapping(String environment, String logicalTable, Map<String, Object> properties) throws SQLException {
+        return open(environment, properties, logicalTable);
+    }
+
+    private JdbcTemplate open(String environment, Map<String, Object> properties, String... logicalTables) throws SQLException {
         this.connection = OneApiDataSourceManager.getConnection(environment);
         this.jdbc = new JdbcTemplate(this.connection);
         this.mongo = "mongo".equals(environment);
@@ -41,7 +47,22 @@ public final class NativeBasicTypeFixture implements AutoCloseable {
             this.jdbc.execute("use test");
         }
         for (String table : this.tables.values()) {
-            this.jdbc.execute(this.mongo ? "db.createCollection('" + table + "')" : "PUT /" + table);
+            if (this.mongo) {
+                this.jdbc.execute("db.createCollection('" + table + "')");
+            } else if (properties == null) {
+                this.jdbc.execute("PUT /" + table);
+            } else {
+                Map<String, Object> mapping = Collections.singletonMap("properties", properties);
+                if ("es6".equals(environment)) {
+                    mapping = Collections.singletonMap("_doc", mapping);
+                }
+                try {
+                    String schema = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(Collections.singletonMap("mappings", mapping));
+                    this.jdbc.execute("PUT /" + table + " " + schema);
+                } catch (JsonProcessingException error) {
+                    throw new SQLException("Cannot serialize Elasticsearch fixture mapping", error);
+                }
+            }
             this.created.add(table);
         }
         return this.jdbc;
@@ -73,9 +94,14 @@ public final class NativeBasicTypeFixture implements AutoCloseable {
             String projection = "";
             if (!"*".equals(columns)) {
                 List<String> fields = new ArrayList<>();
+                if (Arrays.stream(columns.split(",")).noneMatch(field -> "_id".equals(field.trim()))) {
+                    fields.add("\"_id\": 0");
+                }
+
                 for (String field : columns.split(",")) {
                     fields.add("\"" + field.trim() + "\": 1");
                 }
+
                 projection = ", {" + String.join(", ", fields) + "}";
             }
             return "test." + physical + ".find({id: ?}" + projection + ")";

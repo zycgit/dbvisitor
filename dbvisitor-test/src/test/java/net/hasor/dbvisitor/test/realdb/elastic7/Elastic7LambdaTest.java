@@ -43,14 +43,17 @@ public class Elastic7LambdaTest extends AdapterCase {
             try {
                 jdbc.execute("DELETE /user_info");
             } catch (Exception e) {
+                Elastic7Cleanup.requireMissingIndex(e);
             }
             try {
                 jdbc.execute("DELETE /complex_order");
             } catch (Exception e) {
+                Elastic7Cleanup.requireMissingIndex(e);
             }
             try {
                 jdbc.execute("DELETE /lambda_page");
             } catch (Exception e) {
+                Elastic7Cleanup.requireMissingIndex(e);
             }
         }
     }

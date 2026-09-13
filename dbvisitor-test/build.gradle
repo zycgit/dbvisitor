@@ -19,7 +19,7 @@ dependencies {
     testImplementation 'com.h2database:h2:2.2.224'
     testImplementation 'mysql:mysql-connector-java:8.0.33'
     testImplementation 'org.postgresql:postgresql:42.6.0'
-    testImplementation 'com.microsoft.sqlserver:mssql-jdbc:12.6.1.jre11'
+    testImplementation 'com.microsoft.sqlserver:mssql-jdbc:13.4.0.jre8'
     testImplementation 'com.oracle.database.jdbc:ojdbc11:23.4.0.24.05'
     testImplementation 'com.ibm.db2:jcc:11.5.9.0'
     testImplementation 'com.clickhouse:clickhouse-jdbc:0.6.3'

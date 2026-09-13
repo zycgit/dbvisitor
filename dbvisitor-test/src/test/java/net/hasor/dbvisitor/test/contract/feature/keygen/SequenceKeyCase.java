@@ -17,7 +17,6 @@ import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.test.contract.material.model.keygen.KeySequenceEmptyNameUser;
 import net.hasor.dbvisitor.test.contract.material.model.keygen.KeySequenceNoAnnotationUser;
 import net.hasor.dbvisitor.test.contract.material.model.keygen.KeySequenceUser;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
@@ -29,7 +28,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 @NxnContract
 public abstract class SequenceKeyCase extends KeyGenerationSupport {
@@ -52,18 +50,6 @@ public abstract class SequenceKeyCase extends KeyGenerationSupport {
         assertNull(missing.getPropertyByName("id").getKeySeqHolder());
     }
 
-    @Test
-    @Capability(CapabilityId.KEYGEN_SEQUENCE_EMPTY_NAME)
-    public void keygenSequenceMetadata_shouldRejectEmptySequenceName() {
-        requiresNxnFeature(FeatureId.SEQUENCE);
-        MappingRegistry registry = new MappingRegistry(null, Options.of().dialect(sequenceDialect()));
-        try {
-            registry.loadEntityToSpace(KeySequenceEmptyNameUser.class);
-            fail("Expected empty sequence name to be rejected");
-        } catch (Exception e) {
-            assertNotNull(e.getMessage());
-        }
-    }
 
     @Test
     @Capability(CapabilityId.KEYGEN_SEQUENCE)

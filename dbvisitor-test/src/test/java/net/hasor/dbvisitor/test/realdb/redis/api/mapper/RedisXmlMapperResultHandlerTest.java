@@ -7,55 +7,55 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
-import java.util.*;
-import net.hasor.dbvisitor.test.nxn.capability.*;
+import java.sql.SQLException;
+import java.util.Map;
+import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperResultHandlerCase;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
 
-public class RedisXmlMapperResultHandlerTest extends RedisNativeMapperSupport {
-    private Map<String, Object> seedList() throws Exception {
-        Map<String, Object> p = params(key("list"), null);
-        session.jdbc().executeUpdate("RPUSH ? first second", p.get("key"));
-        return p;
+public class RedisXmlMapperResultHandlerTest extends XmlMapperResultHandlerCase {
+    private final RedisEntityFixture fixture = new RedisEntityFixture();
+
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
     }
 
-    private static final String NS = "redis.Native.";
-
-    private Map<String, Object> seedHash() throws Exception {
-        Map<String, Object> p = params(key("hash"), null);
-        session.jdbc().executeUpdate("HSET ? name mali age 18", p.get("key"));
-        return p;
-    }
-
+    @Override
     @Before
-    public void loadStatements() throws Exception {
-        loadXml();
+    public void setup() throws SQLException {
+        this.jdbcTemplate = this.fixture.open();
     }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_XML_RESULT_HANDLER_ROW_MAPPER)
-    public void rowMapper() throws Exception {
-        assertEquals(Arrays.asList("0:first", "1:second"), session.queryStatement(NS + "mapped", seedList()));
+    @Override
+    @Before
+    public void createXmlMapperSession() throws Exception {
+        this.fixture.open();
+        for (int i = 1; i <= 3; i++) {
+            this.fixture.open().queryForLong("ZADD ? ? ?", new Object[] { this.fixture.key("ages"), 20 + i * 5, "ResHdl" + i });
+        }
+        this.session = this.fixture.session(newConfiguration(), "/mapper/redis/ResultHandlerMapper.xml");
     }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_XML_RESULT_HANDLER_EXTRACTOR)
-    public void extractor() throws Exception {
-        assertEquals(Arrays.asList("first", "second"), session.queryStatement(NS + "extracted", seedList()));
+    @Override
+    protected Map<String, Object> expectedEntity(int offset) {
+        return Map.of("element", "ResHdl" + offset, "score", (double) (20 + offset * 5));
     }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_XML_RESULT_HANDLER_RESULT_MAP)
-    public void handlerMap() throws Exception {
-        List<Entry> rows = session.queryStatement(NS + "entries", seedHash());
-        assertEquals(2, rows.size());
-        assertNotNull(rows.get(0).getField());
+    @Override
+    protected Map<String, Object> expectedMap(int offset) {
+        return Map.of("ELEMENT", "ResHdl" + offset, "SCORE", (double) (20 + offset * 5));
     }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_XML_RESULT_HANDLER_RESULT_TYPE)
-    public void handlerType() throws Exception {
-        assertEquals(Arrays.asList("first", "second"), session.queryStatement(NS + "list", seedList()));
+    @Override
+    protected Map<Object, Object> expectedPairs() {
+        return Map.of("ResHdl1", 25.0, "ResHdl2", 30.0, "ResHdl3", 35.0);
+    }
+
+    @After
+    public void cleanupFixture() throws SQLException {
+        this.fixture.close();
     }
 }

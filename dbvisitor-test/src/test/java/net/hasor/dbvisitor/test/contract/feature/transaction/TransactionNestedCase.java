@@ -50,7 +50,7 @@ public abstract class TransactionNestedCase extends TransactionSupport {
     @Test
     @Capability(CapabilityId.TRANSACTION_NESTED_COMMIT)
     public void nested_shouldCommitNestedWorkWithOuterTransaction() throws SQLException {
-        requiresNxnFeature(FeatureId.TRANSACTION_RELEASE_SAVEPOINT);
+        requiresNxnFeature(FeatureId.TRANSACTION_SAVEPOINT);
         int outerId = baseId() + 23;
         int nestedId = baseId() + 24;
         TransactionManager tm = txManager();
@@ -69,7 +69,7 @@ public abstract class TransactionNestedCase extends TransactionSupport {
     @Test
     @Capability(CapabilityId.TRANSACTION_NESTED_OUTER_ROLLBACK)
     public void nested_shouldRollbackCommittedNestedWorkWhenOuterRollsBack() throws SQLException {
-        requiresNxnFeature(FeatureId.TRANSACTION_RELEASE_SAVEPOINT);
+        requiresNxnFeature(FeatureId.TRANSACTION_SAVEPOINT);
         int outerId = baseId() + 25;
         int nestedId = baseId() + 26;
         TransactionManager tm = txManager();
@@ -116,7 +116,7 @@ public abstract class TransactionNestedCase extends TransactionSupport {
     @Test
     @Capability(CapabilityId.TRANSACTION_ANNOTATION_NESTED)
     public void annotationNested_shouldRollbackToSavepointInsideProgrammaticOuter() throws Exception {
-        requiresNxnFeature(FeatureId.TRANSACTION_RELEASE_SAVEPOINT);
+        requiresNxnFeature(FeatureId.TRANSACTION_SAVEPOINT);
         UserTransactionService service = userProxy();
         int committedNestedId = baseId() + 181;
         int rolledBackNestedId = baseId() + 182;
@@ -139,7 +139,7 @@ public abstract class TransactionNestedCase extends TransactionSupport {
     @Test
     @Capability(CapabilityId.TRANSACTION_PROXY_REQUIRED_NESTED)
     public void proxyRequiredToNested_shouldApplySavepointSemantics() throws Exception {
-        requiresNxnFeature(FeatureId.TRANSACTION_RELEASE_SAVEPOINT);
+        requiresNxnFeature(FeatureId.TRANSACTION_SAVEPOINT);
         CallerTransactionService caller = callerProxy();
         int base = baseId() + 220;
 

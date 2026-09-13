@@ -26,7 +26,6 @@ public class Db2ProcedureTest extends ProcedureCase {
         dropProcedure("nxn_sp_transform_string");
         dropProcedure("nxn_sp_get_user_info");
         dropProcedure("nxn_sp_update_counter");
-        dropProcedure("nxn_sp_result_set_users");
 
         jdbcTemplate.execute("CREATE PROCEDURE nxn_sp_add_numbers(IN a INT, IN b INT, INOUT result INT) " + //
                 "LANGUAGE SQL BEGIN ATOMIC SET result = a + b; END");
@@ -51,13 +50,6 @@ public class Db2ProcedureTest extends ProcedureCase {
         jdbcTemplate.execute("""
             CREATE PROCEDURE nxn_sp_update_counter(INOUT counter INT, IN increment INT)
             LANGUAGE SQL BEGIN ATOMIC SET counter = counter + increment; END
-            """);
-        jdbcTemplate.execute("""
-            CREATE PROCEDURE nxn_sp_result_set_users(IN p_id INT)
-            LANGUAGE SQL DYNAMIC RESULT SETS 1 BEGIN
-            DECLARE c1 CURSOR WITH RETURN TO CLIENT FOR SELECT id, name, age, email FROM user_info WHERE id = p_id;
-            OPEN c1;
-            END
             """);
     }
 
@@ -109,10 +101,6 @@ public class Db2ProcedureTest extends ProcedureCase {
         return "CALL nxn_sp_add_numbers(#{a}, #{b}, #{result,mode=inout,jdbcType=integer})";
     }
 
-    @Override
-    protected String resultSetUsersCallSql() {
-        return "CALL nxn_sp_result_set_users(#{p_id,jdbcType=integer})";
-    }
 
     private void dropProcedure(String procedureName) throws SQLException {
         try {

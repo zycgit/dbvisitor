@@ -10,6 +10,7 @@ package net.hasor.dbvisitor.test.contract.feature.naming;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.Arrays;
 
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
@@ -28,6 +29,20 @@ import net.hasor.dbvisitor.test.contract.material.model.naming.UpperCaseColumnUs
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 
 public abstract class NamingMappingSupport extends AbstractNxnContractTest {
+    protected String insertCommand(String table, String columns) throws SQLException {
+        String[] values = new String[columns.split(",").length];
+        Arrays.fill(values, "?");
+        return "INSERT INTO " + table + " (" + columns + ") VALUES (" + String.join(", ", values) + ")";
+    }
+
+    protected String userTable() {
+        return "user_info";
+    }
+
+    protected String rawIdCondition() {
+        return "id = ?";
+    }
+
     protected int baseId() {
         return 930000;
     }

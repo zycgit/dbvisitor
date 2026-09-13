@@ -20,15 +20,12 @@ import org.junit.Test;
 public class MilvusCmdForHintsTest extends AbstractMilvusCmdForTest {
     @Before
     public void setUp() {
-        if (!milvusReady) {
-            return;
-        }
         dropCollection(TEST_COLLECTION);
     }
 
     @After
     public void tearDown() {
-        if (!milvusReady) {
+        if (!milvusSelected) {
             return;
         }
         dropCollection(TEST_COLLECTION);
@@ -55,9 +52,6 @@ public class MilvusCmdForHintsTest extends AbstractMilvusCmdForTest {
 
     @Test
     public void testHints_overwrite_find_limit() throws Exception {
-        if (!milvusReady) {
-            return;
-        }
 
         try {
             setupData();
@@ -79,9 +73,6 @@ public class MilvusCmdForHintsTest extends AbstractMilvusCmdForTest {
 
     @Test
     public void testHints_overwrite_find_skip() throws Exception {
-        if (!milvusReady) {
-            return;
-        }
         try {
             setupData(); // Inserts: ID 1, 2, 3
             try (Connection conn = DriverManager.getConnection(MILVUS_URL); Statement stmt = conn.createStatement()) {
@@ -100,9 +91,6 @@ public class MilvusCmdForHintsTest extends AbstractMilvusCmdForTest {
 
     @Test
     public void testHints_overwrite_find_as_count() throws Exception {
-        if (!milvusReady) {
-            return;
-        }
         try {
             setupData();
             try (Connection conn = DriverManager.getConnection(MILVUS_URL); Statement stmt = conn.createStatement()) {

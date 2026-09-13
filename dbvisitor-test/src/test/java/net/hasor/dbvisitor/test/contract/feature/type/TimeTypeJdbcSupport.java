@@ -9,9 +9,7 @@ package net.hasor.dbvisitor.test.contract.feature.type;
 
 import java.util.Map;
 
-import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
-
-public abstract class TimeTypeJdbcSupport extends AbstractNxnContractTest {
+public abstract class TimeTypeJdbcSupport extends TypeJdbcCommandSupport {
     protected int baseId() {
         return 700000;
     }

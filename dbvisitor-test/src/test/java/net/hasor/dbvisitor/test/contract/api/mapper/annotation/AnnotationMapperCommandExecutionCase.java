@@ -20,12 +20,20 @@ public abstract class AnnotationMapperCommandExecutionCase extends AnnotationMap
     @Test
     @Capability(CapabilityId.MAPPER_ANNOTATION_EXECUTE)
     public void annotationMapperExecute_shouldRunDdlAndDml() throws Exception {
-        dropTableIfExists("temp_anno_test");
-        jdbcTemplate.executeUpdate(createSimpleTempTableSql("temp_anno_test"));
+        prepareCommandResource();
         this.mapper.insertTempData(1, "temp-one");
 
         assertEquals("temp-one", this.mapper.selectTempData(1));
 
+        dropCommandResource();
+    }
+
+    protected void prepareCommandResource() throws Exception {
+        dropTableIfExists("temp_anno_test");
+        jdbcTemplate.executeUpdate(createSimpleTempTableSql("temp_anno_test"));
+    }
+
+    protected void dropCommandResource() throws Exception {
         dropTableIfExists("temp_anno_test");
     }
 }

@@ -57,7 +57,8 @@ public class Elastic7MapperTest extends AdapterCase {
             // clean
             try {
                 jdbc.execute("DELETE /user_info");
-            } catch (Throwable e) {
+            } catch (Exception e) {
+                Elastic7Cleanup.requireMissingIndex(e);
             }
 
             UserInfo1b user = new UserInfo1b();
@@ -116,7 +117,8 @@ public class Elastic7MapperTest extends AdapterCase {
             // clean
             try {
                 jdbc.execute("DELETE /user_info");
-            } catch (Throwable e) {
+            } catch (Exception e) {
+                Elastic7Cleanup.requireMissingIndex(e);
             }
 
             UserInfo2 user = new UserInfo2();
@@ -160,7 +162,8 @@ public class Elastic7MapperTest extends AdapterCase {
             // clean
             try {
                 jdbc.execute("DELETE /user_info");
-            } catch (Throwable e) {
+            } catch (Exception e) {
+                Elastic7Cleanup.requireMissingIndex(e);
             }
 
             UserInfo3 user = new UserInfo3();
@@ -217,7 +220,8 @@ public class Elastic7MapperTest extends AdapterCase {
             // clean
             try {
                 jdbc.execute("DELETE /user_info");
-            } catch (Throwable e) {
+            } catch (Exception e) {
+                Elastic7Cleanup.requireMissingIndex(e);
             }
 
             UserInfo1a user = new UserInfo1a();
@@ -260,7 +264,8 @@ public class Elastic7MapperTest extends AdapterCase {
             // clean
             try {
                 jdbc.execute("DELETE /user_info");
-            } catch (Throwable e) {
+            } catch (Exception e) {
+                Elastic7Cleanup.requireMissingIndex(e);
             }
 
             UserInfo5 user = new UserInfo5();
@@ -304,7 +309,8 @@ public class Elastic7MapperTest extends AdapterCase {
             // clean
             try {
                 jdbc.execute("DELETE /user_info");
-            } catch (Throwable e) {
+            } catch (Exception e) {
+                Elastic7Cleanup.requireMissingIndex(e);
             }
 
             UserInfo6 user = new UserInfo6();
@@ -347,7 +353,8 @@ public class Elastic7MapperTest extends AdapterCase {
             // clean
             try {
                 jdbc.execute("DELETE /user_info");
-            } catch (Throwable e) {
+            } catch (Exception e) {
+                Elastic7Cleanup.requireMissingIndex(e);
             }
 
             UserInfo1BaseMapper mapper = s.createMapper(UserInfo1BaseMapper.class);
@@ -396,7 +403,8 @@ public class Elastic7MapperTest extends AdapterCase {
             // clean
             try {
                 jdbc.execute("DELETE /user_info");
-            } catch (Throwable e) {
+            } catch (Exception e) {
+                Elastic7Cleanup.requireMissingIndex(e);
             }
 
             String userName = "paged_name";
@@ -443,7 +451,8 @@ public class Elastic7MapperTest extends AdapterCase {
             // clean
             try {
                 jdbc.execute("DELETE /user_info");
-            } catch (Throwable e) {
+            } catch (Exception e) {
+                Elastic7Cleanup.requireMissingIndex(e);
             }
 
             UserInfo1BaseMapper mapper = s.createMapper(UserInfo1BaseMapper.class);

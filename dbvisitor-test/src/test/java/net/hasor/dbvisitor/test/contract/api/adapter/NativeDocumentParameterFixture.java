@@ -79,9 +79,9 @@ public final class NativeDocumentParameterFixture implements AutoCloseable {
             case SELECT_NULL_ROW:
                 return source + ".find({id: ?}, {name: 1, age: 1})";
             case SELECT_EMAIL_BY_ID:
-                return source + ".find({id: ?}, {email: 1})";
+                return source + ".find({id: ?}, {_id: 0, email: 1})";
             case SELECT_EMAIL_BY_NAME:
-                return source + ".find({name: ?}, {email: 1})";
+                return source + ".find({name: ?}, {_id: 0, email: 1})";
             case COUNT_BY_NAME_AGE:
                 return source + ".count({name: :name, age: {$gt: :age}})";
             case COUNT_BY_ID_NAME:

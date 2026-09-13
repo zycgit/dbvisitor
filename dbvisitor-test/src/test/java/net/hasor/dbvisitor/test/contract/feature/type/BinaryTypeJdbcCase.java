@@ -16,7 +16,6 @@ import org.junit.Test;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
-import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -25,9 +24,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 @NxnContract
-public abstract class BinaryTypeJdbcCase extends AbstractNxnContractTest {
+public abstract class BinaryTypeJdbcCase extends TypeJdbcCommandSupport {
     protected int baseId() {
         return 670000;
+    }
+
+    protected void verifyAdditionalBinaryValues() throws SQLException {
     }
 
     @Test
@@ -42,12 +44,12 @@ public abstract class BinaryTypeJdbcCase extends AbstractNxnContractTest {
             varbinaryValue[i] = (byte) (i % 251);
         }
 
-        jdbcTemplate.executeUpdate(//
-                "INSERT INTO binary_types_explicit_test (id, binary_value, varbinary_value) VALUES (?, ?, ?)", //
+        executeInsert(//
+                insertCommand("binary_types_explicit_test", "id, binary_value, varbinary_value"), //
                 new Object[] { id, binaryValue, varbinaryValue });
 
-        byte[] loadedBinary = jdbcTemplate.queryForObject("SELECT binary_value FROM binary_types_explicit_test WHERE id = ?", new Object[] { id }, byte[].class);
-        byte[] loadedVarbinary = jdbcTemplate.queryForObject("SELECT varbinary_value FROM binary_types_explicit_test WHERE id = ?", new Object[] { id }, byte[].class);
+        byte[] loadedBinary = jdbcTemplate.queryForObject(selectCommand("binary_types_explicit_test", "binary_value"), selectParameters(id), byte[].class);
+        byte[] loadedVarbinary = jdbcTemplate.queryForObject(selectCommand("binary_types_explicit_test", "varbinary_value"), selectParameters(id), byte[].class);
 
         assertArrayEquals(binaryValue, loadedBinary);
         assertArrayEquals(varbinaryValue, loadedVarbinary);
@@ -66,11 +68,11 @@ public abstract class BinaryTypeJdbcCase extends AbstractNxnContractTest {
         }
         byte[] streamValue = new byte[] { 10, 20, 30, 40, 50 };
 
-        jdbcTemplate.executeUpdate("INSERT INTO binary_types_explicit_test (id, blob_value) VALUES (?, ?)", new Object[] { id, blobValue });
-        jdbcTemplate.executeUpdate("INSERT INTO binary_types_explicit_test (id, blob_value) VALUES (?, ?)", new Object[] { streamId, new ByteArrayInputStream(streamValue) });
+        executeInsert(insertCommand("binary_types_explicit_test", "id, blob_value"), new Object[] { id, blobValue });
+        executeInsert(insertCommand("binary_types_explicit_test", "id, blob_value"), new Object[] { streamId, new ByteArrayInputStream(streamValue) });
 
-        byte[] loadedBlob = jdbcTemplate.queryForObject("SELECT blob_value FROM binary_types_explicit_test WHERE id = ?", new Object[] { id }, byte[].class);
-        byte[] loadedStream = jdbcTemplate.queryForObject("SELECT blob_value FROM binary_types_explicit_test WHERE id = ?", new Object[] { streamId }, byte[].class);
+        byte[] loadedBlob = jdbcTemplate.queryForObject(selectCommand("binary_types_explicit_test", "blob_value"), selectParameters(id), byte[].class);
+        byte[] loadedStream = jdbcTemplate.queryForObject(selectCommand("binary_types_explicit_test", "blob_value"), selectParameters(streamId), byte[].class);
 
         assertNotNull(loadedBlob);
         assertEquals(blobValue.length, loadedBlob.length);
@@ -89,24 +91,25 @@ public abstract class BinaryTypeJdbcCase extends AbstractNxnContractTest {
             pattern[i] = (byte) (i % 256);
         }
 
-        jdbcTemplate.executeUpdate("INSERT INTO binary_types_explicit_test (id, blob_value) VALUES (?, ?)", new Object[] { id, pattern });
+        executeInsert(insertCommand("binary_types_explicit_test", "id, blob_value"), new Object[] { id, pattern });
 
-        byte[] loaded = jdbcTemplate.queryForObject("SELECT blob_value FROM binary_types_explicit_test WHERE id = ?", new Object[] { id }, byte[].class);
+        byte[] loaded = jdbcTemplate.queryForObject(selectCommand("binary_types_explicit_test", "blob_value"), selectParameters(id), byte[].class);
 
         assertNotNull(loaded);
         assertEquals(pattern.length, loaded.length);
         assertArrayEquals(pattern, loaded);
+        verifyAdditionalBinaryValues();
     }
 
     @Test
     @Capability(CapabilityId.TYPE_BINARY_NULL)
     public void binaryNulls_shouldRemainNull() throws SQLException {
         int id = baseId() + 5;
-        jdbcTemplate.executeUpdate(//
-                "INSERT INTO binary_types_explicit_test (id, binary_value, varbinary_value, longvarbinary_value, blob_value) VALUES (?, NULL, NULL, NULL, NULL)", //
+        executeInsert(//
+                insertCommand("binary_types_explicit_test", "id, binary_value, varbinary_value, longvarbinary_value, blob_value", "?", "NULL", "NULL", "NULL", "NULL"), //
                 new Object[] { id });
 
-        Map<String, Object> row = jdbcTemplate.queryForMap("SELECT binary_value, varbinary_value, longvarbinary_value, blob_value FROM binary_types_explicit_test WHERE id = ?", new Object[] { id });
+        Map<String, Object> row = jdbcTemplate.queryForMap(selectCommand("binary_types_explicit_test", "binary_value, varbinary_value, longvarbinary_value, blob_value"), new Object[] { id });
 
         assertNull(value(row, "binary_value"));
         assertNull(value(row, "varbinary_value"));

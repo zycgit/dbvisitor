@@ -29,11 +29,14 @@ public abstract class JdbcBatchMutationCase extends JdbcBatchSupport {
             args[i] = new Object[] { baseId() + i + 1, "NXN-Batch-Pos-" + i };
         }
 
-        int[] rows = jdbcTemplate.executeBatch("INSERT INTO basic_types_test (id, string_value) VALUES (?, ?)", args);
+        int[] rows = jdbcTemplate.executeBatch(insertCommand(), args);
 
         assertEquals(3, rows.length);
         assertSuccessfulBatchCounts(rows);
-        assertEquals(3, (int) jdbcTemplate.queryForInt("SELECT COUNT(*) FROM basic_types_test WHERE id BETWEEN ? AND ?", new Object[] { baseId() + 1, baseId() + 3 }));
+        assertEquals(3, (int) jdbcTemplate.queryForInt(countRangeCommand(true), new Object[] { baseId() + 1, baseId() + 3 }));
+        for (int i = 0; i < args.length; i++) {
+            assertEquals("NXN-Batch-Pos-" + i, jdbcTemplate.queryForString(valueCommand(), new Object[] { baseId() + i + 1 }));
+        }
     }
 
     @Test
@@ -47,11 +50,14 @@ public abstract class JdbcBatchMutationCase extends JdbcBatchSupport {
             args[i] = row;
         }
 
-        int[] rows = jdbcTemplate.executeBatch("INSERT INTO basic_types_test (id, string_value) VALUES (:id, :val)", args);
+        int[] rows = jdbcTemplate.executeBatch(namedInsertCommand(), args);
 
         assertEquals(3, rows.length);
         assertSuccessfulBatchCounts(rows);
-        assertEquals("NXN-Batch-Named-1", jdbcTemplate.queryForString("SELECT string_value FROM basic_types_test WHERE id = ?", new Object[] { baseId() + 12 }));
+        assertEquals("NXN-Batch-Named-1", jdbcTemplate.queryForString(valueCommand(), new Object[] { baseId() + 12 }));
+        for (int i = 0; i < args.length; i++) {
+            assertEquals("NXN-Batch-Named-" + i, jdbcTemplate.queryForString(valueCommand(), new Object[] { baseId() + 11 + i }));
+        }
     }
 
     @Test
@@ -60,16 +66,16 @@ public abstract class JdbcBatchMutationCase extends JdbcBatchSupport {
         insertPositionalFixture();
 
         Object[][] args = new Object[][] { //
-                new Object[] { "NXN-Batch-Updated-1", baseId() + 1 }, //
-                new Object[] { "NXN-Batch-Updated-2", baseId() + 2 } };
+                updateArguments("NXN-Batch-Updated-1", baseId() + 1), //
+                updateArguments("NXN-Batch-Updated-2", baseId() + 2) };
 
-        int[] rows = jdbcTemplate.executeBatch("UPDATE basic_types_test SET string_value = ? WHERE id = ?", args);
+        int[] rows = jdbcTemplate.executeBatch(updateCommand(), args);
 
         assertEquals(2, rows.length);
-        assertSuccessfulBatchCounts(rows);
-        assertEquals("NXN-Batch-Updated-1", jdbcTemplate.queryForString("SELECT string_value FROM basic_types_test WHERE id = ?", new Object[] { baseId() + 1 }));
-        assertEquals("NXN-Batch-Updated-2", jdbcTemplate.queryForString("SELECT string_value FROM basic_types_test WHERE id = ?", new Object[] { baseId() + 2 }));
-        assertEquals("NXN-Batch-Pos-2", jdbcTemplate.queryForString("SELECT string_value FROM basic_types_test WHERE id = ?", new Object[] { baseId() + 3 }));
+        assertSuccessfulBatchCounts(rows, expectedUpdateCount());
+        assertEquals("NXN-Batch-Updated-1", jdbcTemplate.queryForString(valueCommand(), new Object[] { baseId() + 1 }));
+        assertEquals("NXN-Batch-Updated-2", jdbcTemplate.queryForString(valueCommand(), new Object[] { baseId() + 2 }));
+        assertEquals("NXN-Batch-Pos-2", jdbcTemplate.queryForString(valueCommand(), new Object[] { baseId() + 3 }));
     }
 
     @Test
@@ -81,12 +87,12 @@ public abstract class JdbcBatchMutationCase extends JdbcBatchSupport {
                 new Object[] { baseId() + 1 }, //
                 new Object[] { baseId() + 2 } };
 
-        int[] rows = jdbcTemplate.executeBatch("DELETE FROM basic_types_test WHERE id = ?", args);
+        int[] rows = jdbcTemplate.executeBatch(deleteCommand(), args);
 
         assertEquals(2, rows.length);
         assertSuccessfulBatchCounts(rows);
-        assertEquals(1, (int) jdbcTemplate.queryForInt("SELECT COUNT(*) FROM basic_types_test WHERE id BETWEEN ? AND ?", new Object[] { baseId() + 1, baseId() + 3 }));
-        assertEquals("NXN-Batch-Pos-2", jdbcTemplate.queryForString("SELECT string_value FROM basic_types_test WHERE id = ?", new Object[] { baseId() + 3 }));
+        assertEquals(1, (int) jdbcTemplate.queryForInt(countRangeCommand(true), new Object[] { baseId() + 1, baseId() + 3 }));
+        assertEquals("NXN-Batch-Pos-2", jdbcTemplate.queryForString(valueCommand(), new Object[] { baseId() + 3 }));
     }
 
     @Test
@@ -95,13 +101,14 @@ public abstract class JdbcBatchMutationCase extends JdbcBatchSupport {
         int firstId = baseId() + 41;
         int secondId = baseId() + 42;
         int[] rows = jdbcTemplate.executeBatch(new String[] {
-                "INSERT INTO basic_types_test (id, string_value) VALUES (" + firstId + ", 'StatementFirst')",
-                "INSERT INTO basic_types_test (id, string_value) VALUES (" + secondId + ", 'StatementSecond')",
-                "UPDATE basic_types_test SET string_value = 'StatementUpdated' WHERE id = " + firstId });
+                literalInsertCommand(firstId, "StatementFirst"),
+                literalInsertCommand(secondId, "StatementSecond"),
+                literalUpdateCommand(firstId, "StatementUpdated") });
 
         assertEquals(3, rows.length);
-        assertSuccessfulBatchCounts(rows);
-        assertEquals("StatementUpdated", jdbcTemplate.queryForString("SELECT string_value FROM basic_types_test WHERE id = ?", new Object[] { firstId }));
-        assertEquals("StatementSecond", jdbcTemplate.queryForString("SELECT string_value FROM basic_types_test WHERE id = ?", new Object[] { secondId }));
+        assertSuccessfulBatchCounts(new int[] { rows[0], rows[1] });
+        assertSuccessfulBatchCounts(new int[] { rows[2] }, expectedUpdateCount());
+        assertEquals("StatementUpdated", jdbcTemplate.queryForString(valueCommand(), new Object[] { firstId }));
+        assertEquals("StatementSecond", jdbcTemplate.queryForString(valueCommand(), new Object[] { secondId }));
     }
 }

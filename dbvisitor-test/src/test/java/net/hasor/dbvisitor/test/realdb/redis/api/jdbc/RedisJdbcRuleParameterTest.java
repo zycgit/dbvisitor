@@ -11,15 +11,10 @@ import java.sql.SQLException;
 
 import org.junit.Before;
 import org.junit.After;
-import org.junit.Test;
-import org.junit.Assume;
 
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcRuleParameterCase;
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
-import static org.junit.Assert.*;
 
 public class RedisJdbcRuleParameterTest extends JdbcRuleParameterCase {
 
@@ -41,17 +36,4 @@ public class RedisJdbcRuleParameterTest extends JdbcRuleParameterCase {
         this.fixture.close();
     }
 
-    @Override
-    @Test
-    @Capability(CapabilityId.JDBC_PARAM_RULE_AND_IN_SET)
-    public void ruleParameters_shouldExpandAndInClauses() throws SQLException {
-        Assume.assumeTrue("SQL AND/IN clauses do not exist in Redis native commands", false);
-    }
-
-    @Override
-    @Test
-    @Capability(CapabilityId.JDBC_PARAM_RULE_SET)
-    public void ruleParameters_shouldExpandSetClauses() throws SQLException {
-        Assume.assumeTrue("SQL SET clauses do not exist in Redis native commands", false);
-    }
 }

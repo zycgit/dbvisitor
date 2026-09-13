@@ -42,7 +42,7 @@ public abstract class LambdaBatchMutationCase extends AbstractNxnContractTest {
                 .updateTo(UserInfo::getAge, 25)//
                 .doUpdate();
 
-        assertMutationRows(11, updated);
+        assertMutationRows(expectedUpdateCount(11, 10), updated);
         assertEquals(11, countByIdRangeAndAge(10, 29, 25));
         assertEquals(20, countByIdRange(10, 29));
     }
@@ -221,6 +221,10 @@ public abstract class LambdaBatchMutationCase extends AbstractNxnContractTest {
         assertEquals(1, remaining);
     }
 
+    protected int expectedUpdateCount(int matched, int changed) {
+        return matched;
+    }
+
     private int[] ages(int startInclusive, int endInclusive) {
         int[] values = new int[endInclusive - startInclusive + 1];
         for (int i = 0; i < values.length; i++) {
@@ -235,26 +239,26 @@ public abstract class LambdaBatchMutationCase extends AbstractNxnContractTest {
         }
     }
 
-    private void insertByJdbc(int id, String name, Integer age, String email) throws SQLException {
+    protected void insertByJdbc(int id, String name, Integer age, String email) throws SQLException {
         jdbcTemplate.executeUpdate(//
                 "INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, ?)", //
                 new Object[] { id, name, age, email, new Date() });
     }
 
-    private long countByIdRange(int firstOffset, int lastOffset) throws SQLException {
+    protected long countByIdRange(int firstOffset, int lastOffset) throws SQLException {
         return lambdaTemplate.query(UserInfo.class)//
                 .rangeBetween(UserInfo::getId, baseId() + firstOffset, baseId() + lastOffset)//
                 .queryForCount();
     }
 
-    private long countByIdRangeAndAge(int firstOffset, int lastOffset, Integer age) throws SQLException {
+    protected long countByIdRangeAndAge(int firstOffset, int lastOffset, Integer age) throws SQLException {
         return lambdaTemplate.query(UserInfo.class)//
                 .rangeBetween(UserInfo::getId, baseId() + firstOffset, baseId() + lastOffset)//
                 .eq(UserInfo::getAge, age)//
                 .queryForCount();
     }
 
-    private long countByIdRangeAndEmail(int firstOffset, int lastOffset, String email) throws SQLException {
+    protected long countByIdRangeAndEmail(int firstOffset, int lastOffset, String email) throws SQLException {
         return lambdaTemplate.query(UserInfo.class)//
                 .rangeBetween(UserInfo::getId, baseId() + firstOffset, baseId() + lastOffset)//
                 .eq(UserInfo::getEmail, email)//

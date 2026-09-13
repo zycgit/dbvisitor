@@ -24,7 +24,7 @@ public abstract class JdbcStatementSetterParameterCase extends JdbcParameterSupp
     @Capability(CapabilityId.JDBC_PARAM_STATEMENT_SETTER)
     public void preparedStatementSetter_shouldBindParameters() throws SQLException {
         int id = baseId() + 4;
-        jdbcTemplate.executeUpdate(command(JdbcParameterCommand.INSERT_POSITIONAL), ps -> {
+        writeParameters(command(JdbcParameterCommand.INSERT_POSITIONAL), ps -> {
             ps.setInt(1, id);
             ps.setString(2, "NXN-Param-Setter");
             ps.setInt(3, 28);

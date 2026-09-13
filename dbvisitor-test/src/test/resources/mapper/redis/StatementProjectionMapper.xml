@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="StatementTestMapper">
+    <resultMap id="projection" type="net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisBaseMapperStatementResultTest$Projection">
+        <result column="SCORE" property="id"/>
+        <result column="ELEMENT" property="name"/>
+    </resultMap>
+    <select id="insertUserWithId" resultSetExtractor="net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisIntegerResultExtractor">
+        EVAL "return redis.call('ZADD',KEYS[1],ARGV[1],ARGV[2])" 1 @{macro, redisUsers} #{id} #{name}
+    </select>
+    <select id="queryUserById" resultMap="projection">
+        ZRANGEBYSCORE @{macro, redisUsers} #{id} #{id} WITHSCORES
+    </select>
+    <select id="prepareNameResults" resultSetExtractor="net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisIntegerResultExtractor">
+        EVAL "redis.call('DEL',KEYS[2]); local prefix=string.sub(ARGV[1],1,-2); local rows=redis.call('ZRANGE',KEYS[1],0,-1,'WITHSCORES'); for i=1,#rows,2 do if string.sub(rows[i],1,string.len(prefix))==prefix then redis.call('ZADD',KEYS[2],rows[i+1],rows[i]) end end; return redis.call('ZCARD',KEYS[2])" 2 @{macro, redisUsers} @{macro, redisCounter} #{name}
+    </select>
+    <select id="queryUsersByName" resultMap="projection">
+        ZRANGE @{macro, redisCounter} 0 -1 WITHSCORES
+    </select>
+    <select id="queryAllUsers" resultType="net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisBaseMapperStatementResultTest$Projection">
+        ZRANGE @{macro, redisUsers} 0 -1 WITHSCORES
+    </select>
+</mapper>

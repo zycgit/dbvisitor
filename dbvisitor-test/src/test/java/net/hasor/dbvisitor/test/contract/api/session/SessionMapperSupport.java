@@ -12,11 +12,26 @@ import java.util.Date;
 
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
+import net.hasor.dbvisitor.test.contract.material.dao.SessionUserMapper;
+import net.hasor.dbvisitor.test.contract.material.dao.SessionRefUserMapper;
+import net.hasor.dbvisitor.test.contract.material.dao.SessionRefCrudMapper;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.contract.material.model.UserOrder;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 
 public abstract class SessionMapperSupport extends AbstractNxnContractTest {
+    protected SessionUserMapper simpleMapper(Session session) throws Exception {
+        return session.createMapper(SessionUserMapper.class);
+    }
+
+    protected SessionRefCrudMapper refMapper(Session session) throws Exception {
+        return session.createMapper(SessionRefUserMapper.class);
+    }
+
+    protected String countUsersCommand() {
+        return "SELECT COUNT(*) FROM user_info";
+    }
+
     protected int baseId() {
         return 812000;
     }

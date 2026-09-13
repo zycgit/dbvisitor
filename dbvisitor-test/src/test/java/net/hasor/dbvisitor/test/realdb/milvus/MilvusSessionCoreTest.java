@@ -67,7 +67,15 @@ public class MilvusSessionCoreTest extends SessionCoreCase {
                         v SPARSE_FLOAT_VECTOR, FUNCTION order_vector USING BM25 (order_no) INTO (v)
                     ) WITH (consistency_level='Strong')
                     """);
-            for (String table : new String[] { "user_info", "user_order" }) {
+            statement.executeUpdate("""
+                    CREATE TABLE user_role (
+                        user_id INT64 PRIMARY KEY, role_id INT32, role_name VARCHAR(128),
+                        create_time VARCHAR(128) NULL,
+                        vector_text VARCHAR(128) DEFAULT 'fixture' WITH (enable_analyzer=true),
+                        v SPARSE_FLOAT_VECTOR, FUNCTION role_vector USING BM25 (vector_text) INTO (v)
+                    ) WITH (consistency_level='Strong')
+                    """);
+            for (String table : new String[] { "user_info", "user_order", "user_role" }) {
                 statement.executeUpdate("CREATE INDEX session_v ON " + table + "(v) USING SPARSE_INVERTED_INDEX WITH (metric_type=BM25)");
                 statement.executeUpdate("LOAD TABLE " + table);
             }
@@ -101,6 +109,7 @@ public class MilvusSessionCoreTest extends SessionCoreCase {
             if (this.sessionSource != null) {
                 try (Connection connection = this.sessionSource.getConnection(); Statement statement = connection.createStatement()) {
                     statement.executeUpdate("DROP TABLE IF EXISTS user_order");
+                    statement.executeUpdate("DROP TABLE IF EXISTS user_role");
                     statement.executeUpdate("DROP TABLE IF EXISTS user_info");
                 } finally {
                     this.sessionSource.close();

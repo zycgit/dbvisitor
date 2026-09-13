@@ -7,14 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.feature.mapping;
 
-import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.feature.mapping.AnnotationTypeHandlerCase;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
 import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
 
 public class RedisAnnotationTypeHandlerTest extends AnnotationTypeHandlerCase {
     @Override
@@ -34,24 +31,4 @@ public class RedisAnnotationTypeHandlerTest extends AnnotationTypeHandlerCase {
         // Metadata checks do not need an SQL-generating LambdaTemplate.
     }
 
-    @Override
-    @Test
-    @Ignore("Redis has no relational INSERT/SELECT field mapping for the Lambda CRUD contract")
-    public void columnAnnotation_shouldApplyCustomTypeHandlerOnInsert() throws SQLException {
-        super.columnAnnotation_shouldApplyCustomTypeHandlerOnInsert();
-    }
-
-    @Override
-    @Test
-    @Ignore("Redis has no relational INSERT/SELECT field mapping for the Lambda CRUD contract")
-    public void columnAnnotation_shouldUseJdbcTypeDuringRoundTrip() throws SQLException {
-        super.columnAnnotation_shouldUseJdbcTypeDuringRoundTrip();
-    }
-
-    @Override
-    @Test
-    @Ignore("Redis has no relational INSERT/SELECT field mapping for the Lambda CRUD contract")
-    public void columnAnnotation_shouldUseSpecialJavaTypeDuringRoundTrip() throws SQLException {
-        super.columnAnnotation_shouldUseSpecialJavaTypeDuringRoundTrip();
-    }
 }

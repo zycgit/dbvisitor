@@ -7,117 +7,89 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
-import java.util.*;
-import net.hasor.dbvisitor.test.nxn.capability.*;
+import java.sql.SQLException;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import net.hasor.dbvisitor.session.Configuration;
+import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperResultMapCase;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
 
-public class RedisXmlMapperResultMapTest extends RedisNativeMapperSupport {
-    private Map<String, Object> seedHash() throws Exception {
-        Map<String, Object> p = params(key("hash"), null);
-        session.jdbc().executeUpdate("HSET ? name mali age 18", p.get("key"));
-        return p;
+public class RedisXmlMapperResultMapTest extends XmlMapperResultMapCase {
+    private final RedisMapperFixture fixture = new RedisMapperFixture();
+
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
     }
 
-    private static final String NS = "redis.Native.";
-
-    private RedisExtendedMapper extended() throws Exception {
-        return session.createMapper(RedisExtendedMapper.class);
-    }
-
-    private String hash() throws Exception {
-        String k = key("hash");
-        session.jdbc().executeUpdate("HSET ? name mali age 18", k);
-        return k;
-    }
-
+    @Override
     @Before
-    public void loadStatements() throws Exception {
-        loadXml();
+    public void setup() throws SQLException {
+        this.fixture.open();
+        this.jdbcTemplate = this.fixture.session().jdbc();
     }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_XML_RESULTMAP_FULL)
-    public void resultMap() throws Exception {
-        List<Entry> rows = session.queryStatement(NS + "entries", seedHash());
-        assertEquals(2, rows.size());
-        Map<String, String> values = new HashMap<>();
-        for (Entry e : rows) {
-            values.put(e.getField(), e.getValue());
+    @Override
+    @Before
+    public void createXmlMapperSession() throws Exception {
+        this.fixture.open();
+        for (int offset = 1; offset <= 3; offset++) {
+            this.fixture.session().jdbc().executeUpdate("HSET ? ? ?", new Object[] {
+                    this.fixture.key("entry-" + (baseId() + offset)), baseId() + offset, "RmCfg" + offset });
+            this.fixture.session().jdbc().executeUpdate("HSET ? ? ?", new Object[] {
+                    this.fixture.key("all"), baseId() + offset, "RmCfg" + offset });
         }
-        assertEquals("18", values.get("age"));
-        assertEquals("mali", values.get("name"));
+        Configuration configuration = newConfiguration();
+        configuration.addMacro("redisEntryKey", "#{'" + this.fixture.key("entry-") + "' + id}");
+        configuration.addMacro("redisAllEntries", "'" + this.fixture.key("all") + "'");
+        configuration.loadMapper("/mapper/redis/ResultMapMapper.xml");
+        this.session = configuration.newSession(this.fixture.session().jdbc().getConnection());
     }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_XML_RESULTMAP_JAVA_TYPE)
-    public void javaType() throws Exception {
-        List<Entry> rows = session.queryStatement(NS + "entries", seedHash());
-        assertEquals(2, rows.size());
-        for (Entry e : rows) {
-            assertTrue(e.getValue() instanceof String);
-        }
+    @Override
+    protected Map<String, Object> expectedFull(int offset) {
+        return Map.of("field", baseId() + offset, "value", "RmCfg" + offset);
     }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_XML_RESULTMAP_PARTIAL)
-    public void partial() throws Exception {
-        List<Entry> rows = extended().partial(hash());
-        assertEquals(2, rows.size());
-        Set<String> fields = new HashSet<>();
-        for (Entry row : rows) {
-            fields.add(row.getField());
-            assertNull(row.getValue());
-        }
-        assertEquals(new HashSet<>(Arrays.asList("name", "age")), fields);
+    @Override
+    protected Map<String, Object> expectedPartial(int offset) {
+        Map<String, Object> expected = new LinkedHashMap<>();
+        expected.put("field", baseId() + offset);
+        expected.put("value", null);
+        return expected;
     }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_XML_RESULTMAP_PARTIAL_LIST)
-    public void partialList() throws Exception {
-        List<Entry> rows = extended().partial(hash());
-        assertEquals(2, rows.size());
-        for (Entry row : rows) {
-            assertNotNull(row.getField());
-            assertNull(row.getValue());
-        }
+    @Override
+    protected Map<String, Class<?>> expectedPropertyTypes() {
+        return Map.of("field", Integer.class, "value", String.class);
     }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_XML_RESULTMAP_CASE_INSENSITIVE)
-    public void caseInsensitive() throws Exception {
-        List<Entry> rows = extended().partial(hash());
-        assertEquals(2, rows.size());
-        for (Entry row : rows) {
-            assertNotNull(row.getField());
-        }
+    @Override
+    protected List<String> nonNullFullProperties() {
+        return List.of("field", "value");
     }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_XML_RESULTMAP_AUTO_MAPPING)
-    public void autoMapping() throws Exception {
-        List<Entry> rows = extended().automatic(hash());
-        assertEquals(2, rows.size());
-        Map<String, String> actual = new HashMap<>();
-        for (Entry row : rows) {
-            actual.put(row.getField(), row.getValue());
-        }
-        assertEquals("mali", actual.get("name"));
-        assertEquals("18", actual.get("age"));
+    @Override
+    protected List<String> nonNullPartialProperties() {
+        return List.of("field");
     }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_XML_RESULTMAP_RENAMED_MAP)
-    public void rename() throws Exception {
-        List<Map<String, Object>> rows = extended().renamed(hash());
-        assertEquals(2, rows.size());
-        Map<String, Object> actual = new HashMap<>();
-        for (Map<String, Object> row : rows) {
-            assertEquals(new HashSet<>(Arrays.asList("FIELD", "VALUE")), row.keySet());
-            actual.put((String) row.get("FIELD"), row.get("VALUE"));
-        }
-        assertEquals("mali", actual.get("name"));
-        assertEquals("18", actual.get("age"));
+    @Override
+    protected List<String> nullPartialProperties() {
+        return List.of("value");
+    }
+
+    @Override
+    protected Map<String, Object> expectedColumnLabels() {
+        return Map.of("FIELD", String.valueOf(baseId() + 3), "VALUE", "RmCfg3");
+    }
+
+    @After
+    public void cleanupFixture() throws SQLException {
+        this.fixture.close();
     }
 }

@@ -7,19 +7,37 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
-import java.util.*;
-import net.hasor.dbvisitor.test.nxn.capability.*;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import java.sql.SQLException;
+import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperCommandAssemblyCase;
+import net.hasor.dbvisitor.test.realdb.redis.RedisAnnotationCrudFixture;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import org.junit.After;
+import org.junit.Before;
 
-public class RedisAnnotationMapperCommandAssemblyTest extends RedisNativeMapperSupport {
+public class RedisAnnotationMapperCommandAssemblyTest extends AnnotationMapperCommandAssemblyCase {
+    private final RedisAnnotationCrudFixture fixture = new RedisAnnotationCrudFixture(baseId());
 
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
+    }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_INSERT_NAMED_PARAMS)
-    public void namedAssembly() throws Exception {
-        String k = key("named");
-        assertEquals(1, mapper().put(k, "a b\"中"));
-        assertEquals("a b\"中", mapper().get(k));
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        this.jdbcTemplate = fixture.open();
+    }
+
+    @Override
+    @Before
+    public void createAnnotationMapper() throws Exception {
+        fixture.open();
+        this.mapper = fixture.createMapper(newConfiguration());
+    }
+
+    @After
+    public void closeFixture() throws Exception {
+        fixture.close();
     }
 }

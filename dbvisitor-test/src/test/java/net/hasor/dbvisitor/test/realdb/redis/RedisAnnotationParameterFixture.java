@@ -31,13 +31,24 @@ public final class RedisAnnotationParameterFixture implements AutoCloseable {
     }
 
     public ParameterBindingMapper createMapper(Configuration configuration) throws Exception {
+        return createMapper(configuration, RedisParameterBindingMapper.class);
+    }
+
+    public ParameterBindingMapper createMapper(Configuration configuration, Class<? extends ParameterBindingMapper> mapperType) throws Exception {
         configuration.addMacro("nxnInsertNamed", insert("id", "'id': id, 'name': name, 'age': age, 'email': email"));
         configuration.addMacro("nxnInsertBean", insert("id", "'id': id, 'name': name, 'age': age, 'email': email, 'createTime': createTime"));
         configuration.addMacro("nxnInsertMixed", insert("user.id", "'id': user.id, 'name': user.name, 'age': user.age, 'email': email"));
         configuration.addMacro("nxnInsertReuse", insert("id", "'id': id, 'name': name, 'age': 25, 'email': name"));
         configuration.addMacro("nxnSelectId", "GET #{'" + this.keyPrefix + "' + id}");
+        configuration.addMacro("nxnInsertPosition", "EVAL \"redis.call('SET','" + this.keyPrefix
+                + "'..ARGV[1],cjson.encode({id=tonumber(ARGV[1]),name=ARGV[2],age=tonumber(ARGV[3])})); return 1\" 0 ? ? ?");
+        configuration.addMacro("nxnUpdatePosition", "EVAL \"local key='" + this.keyPrefix
+                + "'..ARGV[2]; local value=redis.call('GET',key); if not value then return 0 end; local user=cjson.decode(value); user.age=tonumber(ARGV[1]); redis.call('SET',key,cjson.encode(user)); return 1\" 0 ? ?");
+        configuration.addMacro("nxnRangeInsert", "ZADD '" + this.keyPrefix + "ages' #{age} "
+                + "#{#{'id':id,'name':name,'age':age,'email':email}, typeHandler=net.hasor.dbvisitor.types.handler.json.JsonTypeHandler}");
+        configuration.addMacro("nxnSelectRange", "ZRANGEBYSCORE '" + this.keyPrefix + "ages' #{minAge} #{maxAge}");
         this.session = configuration.newSession(this.jdbc.getConnection());
-        return this.session.createMapper(RedisParameterBindingMapper.class);
+        return this.session.createMapper(mapperType);
     }
 
     private String insert(String idExpression, String entries) {
@@ -50,8 +61,8 @@ public final class RedisAnnotationParameterFixture implements AutoCloseable {
     public void close() throws Exception {
         try {
             if (this.jdbc != null) {
-                for (int offset : new int[] { 11, 12, 13, 14, 15, 21, 31, 41, 51, 61 }) {
-                    this.jdbc.execute("DEL " + this.keyPrefix + (950000 + offset));
+                for (String key : this.jdbc.queryForList("KEYS ?", this.keyPrefix + "*", String.class)) {
+                    this.jdbc.executeUpdate("DEL ?", key);
                 }
             }
         } finally {

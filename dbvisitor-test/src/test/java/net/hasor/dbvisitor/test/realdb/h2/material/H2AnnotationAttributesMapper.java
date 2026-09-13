@@ -8,6 +8,7 @@
 package net.hasor.dbvisitor.test.realdb.h2.material;
 
 import net.hasor.dbvisitor.mapper.Insert;
+import net.hasor.dbvisitor.mapper.GeneratedKeySource;
 import net.hasor.dbvisitor.mapper.Order;
 import net.hasor.dbvisitor.mapper.SelectKeySql;
 import net.hasor.dbvisitor.mapper.SimpleMapper;
@@ -16,6 +17,15 @@ import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 
 @SimpleMapper
 public interface H2AnnotationAttributesMapper extends AnnotationAttributesMapper {
+
+    @Override
+    @Insert(value = """
+            SELECT id FROM FINAL TABLE (
+                INSERT INTO user_info (name, age, email, create_time)
+                VALUES (#{name}, #{age}, #{email}, #{createTime})
+            )
+            """, useGeneratedKeys = true, keyProperty = "id", keyColumn = "id", generatedKeySource = GeneratedKeySource.ResultSet)
+    int insertWithGeneratedKeyResultSet(UserInfo user);
 
     @Override
     @SelectKeySql(value = "VALUES NEXT VALUE FOR user_info_id_seq", keyProperty = "id", order = Order.Before)

@@ -42,5 +42,6 @@ public abstract class JdbcFragmentParameterCase extends JdbcParameterSupport {
         assertEquals(Long.valueOf(1), count);
         assertEquals(2, rows.size());
         assertNumericField(34, value(rows.get(0), "age"));
+        assertEquals("NXN-Param-Text-2", value(rows.get(0), "name"));
     }
 }

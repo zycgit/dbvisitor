@@ -8,17 +8,14 @@
 package net.hasor.dbvisitor.test.realdb.redis.api.jdbc;
 
 import java.sql.SQLException;
+import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcParameterCommand;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.After;
-import org.junit.Test;
 
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcTextParameterCase;
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
-import static org.junit.Assert.*;
 
 public class RedisJdbcTextParameterTest extends JdbcTextParameterCase {
 
@@ -41,12 +38,34 @@ public class RedisJdbcTextParameterTest extends JdbcTextParameterCase {
     }
 
     @Override
-    @Test
-    @Capability(CapabilityId.JDBC_PARAM_TEXT_REPLACEMENT)
-    public void textReplacementParameters_shouldCombineIdentifiersAndBoundValues() throws SQLException {
-        String key = fixture.key("text");
-        Map<String, Object> args = Map.of("command", "SET", "key", key, "value", "a b; 'quoted'");
-        jdbcTemplate.executeUpdate("${command} :key :value", args);
-        assertEquals("a b; 'quoted'", jdbcTemplate.queryForString("${command} :key", Map.of("command", "GET", "key", key)));
+    protected void insert(int id, String name, int age, String email) throws SQLException {
+        jdbcTemplate.queryForLong("ZADD ? ? ?", new Object[] { fixture.key(name), age, name });
+    }
+
+    @Override
+    protected String fixtureTable() {
+        return "ZRANGE";
+    }
+
+    @Override
+    protected String textLookupValue(String value) {
+        return fixture.key(value);
+    }
+
+    @Override
+    protected String command(JdbcParameterCommand command) {
+        switch (command) {
+            case SELECT_TEXT_VALUE:
+                return "${tableName} #{name} 0 0 WITHSCORES";
+            case COUNT_TEXT_VALUE:
+                return "ZCARD #{name}";
+            default:
+                throw new IllegalArgumentException("Unexpected text fixture command: " + command);
+        }
+    }
+
+    @Override
+    protected Object value(Map<String, Object> row, String field) {
+        return super.value(row, "age".equals(field) ? "SCORE" : "ELEMENT");
     }
 }

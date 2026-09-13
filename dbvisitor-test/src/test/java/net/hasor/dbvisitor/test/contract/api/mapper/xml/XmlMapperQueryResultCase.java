@@ -28,8 +28,19 @@ public abstract class XmlMapperQueryResultCase extends XmlMapperCrudSupport {
 
         assertEquals(5, list.size());
         Map<String, Object> row = list.get(0);
-        assertNotNull(value(row, "id"));
-        assertNotNull(value(row, "name"));
+        for (Map.Entry<String, Object> entry : expectedFirstMapRow().entrySet()) {
+            Object actual = value(row, entry.getKey());
+            assertNotNull(entry.getKey(), actual);
+            if (entry.getValue() instanceof Number) {
+                assertEquals(((Number) entry.getValue()).doubleValue(), ((Number) actual).doubleValue(), 0.0);
+            } else {
+                assertEquals(entry.getValue(), actual);
+            }
+        }
+    }
+
+    protected Map<String, Object> expectedFirstMapRow() {
+        return Map.of("id", baseId() + 1, "name", "XmlCrud1");
     }
 
     @Test

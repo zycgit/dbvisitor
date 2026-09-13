@@ -37,9 +37,6 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
 
     @Test
     public void testInsert() throws Exception {
-        if (!milvusReady) {
-            return;
-        }
 
         try {
             dropCollection(TEST_COLLECTION);
@@ -92,9 +89,6 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
 
     @Test
     public void testUpdateSimple() throws Exception {
-        if (!milvusReady) {
-            return;
-        }
 
         String tableName = "test_update_tb_" + System.currentTimeMillis();
 
@@ -155,9 +149,6 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
 
     @Test
     public void testUpdateByVectorSearch() throws Exception {
-        if (!milvusReady) {
-            return;
-        }
         String tableName = "test_upd_vec_" + System.currentTimeMillis();
         try {
             createCollection(tableName);
@@ -211,9 +202,6 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
 
     @Test
     public void testUpdateByVectorRange() throws Exception {
-        if (!milvusReady) {
-            return;
-        }
         String tableName = "test_upd_rng_" + System.currentTimeMillis();
         try {
             createCollection(tableName);
@@ -275,9 +263,6 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
 
     @Test
     public void testUpdateComplex() throws Exception {
-        if (!milvusReady) {
-            return;
-        }
 
         String tableName = "test_update_complex_tb_" + System.currentTimeMillis();
 
@@ -356,9 +341,6 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
 
     @Test
     public void testDelete() throws Exception {
-        if (!milvusReady) {
-            return;
-        }
 
         try {
             dropCollection(TEST_COLLECTION);
@@ -410,9 +392,6 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
 
     @Test
     public void testDeleteComplex() throws Exception {
-        if (!milvusReady) {
-            return;
-        }
 
         try {
             dropCollection(TEST_COLLECTION);
@@ -473,9 +452,6 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
 
     @Test
     public void testDeleteByVectorSearch() throws Exception {
-        if (!milvusReady) {
-            return;
-        }
 
         try {
             dropCollection(TEST_COLLECTION);
@@ -533,9 +509,6 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
 
     @Test
     public void testDeleteByVectorRange() throws Exception {
-        if (!milvusReady) {
-            return;
-        }
 
         try {
             dropCollection(TEST_COLLECTION);
@@ -599,9 +572,6 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
 
     @Test
     public void testDeleteByMixedConditions() throws Exception {
-        if (!milvusReady) {
-            return;
-        }
         try {
             dropCollection(TEST_COLLECTION);
             createCollection(TEST_COLLECTION);
@@ -666,9 +636,6 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
 
     @Test
     public void testLoadReleaseCollection() throws Exception {
-        if (!milvusReady) {
-            return;
-        }
         try {
             dropCollection(TEST_COLLECTION);
             createCollection(TEST_COLLECTION);
@@ -717,9 +684,6 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
 
     @Test
     public void testLoadReleasePartition() throws Exception {
-        if (!milvusReady) {
-            return;
-        }
         try {
             dropCollection(TEST_COLLECTION);
             createCollection(TEST_COLLECTION);
@@ -771,9 +735,6 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
 
     @Test
     public void testImport() throws Exception {
-        if (!milvusReady) {
-            return;
-        }
         try {
             dropCollection(TEST_COLLECTION);
             createCollection(TEST_COLLECTION);

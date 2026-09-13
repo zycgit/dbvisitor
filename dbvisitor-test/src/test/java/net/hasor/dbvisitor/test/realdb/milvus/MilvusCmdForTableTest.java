@@ -22,16 +22,13 @@ import org.junit.Test;
 public class MilvusCmdForTableTest extends AbstractMilvusCmdForTest {
     @Before
     public void setUp() {
-        if (!milvusReady) {
-            return;
-        }
         dropCollection(TEST_COLLECTION);
         dropCollection(TEST_COLLECTION_NEW);
     }
 
     @After
     public void tearDown() {
-        if (!milvusReady) {
+        if (!milvusSelected) {
             return;
         }
         dropCollection(TEST_COLLECTION);

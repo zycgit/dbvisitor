@@ -7,34 +7,35 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
-import java.util.*;
-import net.hasor.dbvisitor.test.nxn.capability.*;
+import java.sql.SQLException;
+import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperGeneratedKeysCase;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
 
-public class RedisXmlMapperGeneratedKeysTest extends RedisNativeMapperSupport {
-    private Generated generated(String suffix) {
-        Generated value = new Generated();
-        value.setKey(key(suffix));
-        value.setCounter(key(suffix + "-counter"));
-        value.setValue("data");
-        return value;
+public class RedisXmlMapperGeneratedKeysTest extends XmlMapperGeneratedKeysCase {
+    private final RedisEntityFixture fixture = new RedisEntityFixture();
+
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
     }
 
-    private static final String NS = "redis.Native.";
-
+    @Override
     @Before
-    public void loadStatements() throws Exception {
-        loadXml();
+    public void setup() throws SQLException {
+        this.jdbcTemplate = this.fixture.open();
     }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_XML_KEYGEN_RESULT_SET_SOURCE)
-    public void resultKey() throws Exception {
-        Generated value = generated("resultKey");
-        session.executeStatement(NS + "resultKey", value);
-        assertEquals(Long.valueOf(1), value.getId());
-        assertEquals("1", mapper().get(value.getCounter()));
+    @Override
+    @Before
+    public void createXmlMapperSession() throws Exception {
+        this.session = this.fixture.session(newConfiguration(), "/mapper/redis/KeyGenerationMapper.xml");
+    }
+
+    @After
+    public void cleanupFixture() throws SQLException {
+        this.fixture.close();
     }
 }

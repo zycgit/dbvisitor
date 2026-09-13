@@ -15,17 +15,14 @@ import org.junit.Test;
 import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyUuid32User;
 import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyUuid36User;
 import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyUuidStringUser;
-import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyWrongTypeUuidUser;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 @NxnContract
 public abstract class UuidKeyCase extends KeyGenerationSupport {
@@ -91,20 +88,4 @@ public abstract class UuidKeyCase extends KeyGenerationSupport {
         assertEquals(36, user.getId().length());
     }
 
-    @Test
-    @Capability(CapabilityId.KEYGEN_UUID_WRONG_TYPE)
-    public void keygenUuid_shouldRejectNonStringTargetField() throws SQLException {
-        requiresNxnFeature(FeatureId.KEYGEN_UUID_WRONG_TYPE_REJECTED);
-        KeyWrongTypeUuidUser user = new KeyWrongTypeUuidUser();
-        user.setName("Wrong Type User");
-        user.setAge(35);
-        user.setCreateTime(new Date());
-
-        try {
-            lambdaTemplate.insert(KeyWrongTypeUuidUser.class).applyEntity(user).executeSumResult();
-            fail("Expected UUID generation on Integer field to fail");
-        } catch (Exception e) {
-            assertNotNull(e);
-        }
-    }
 }

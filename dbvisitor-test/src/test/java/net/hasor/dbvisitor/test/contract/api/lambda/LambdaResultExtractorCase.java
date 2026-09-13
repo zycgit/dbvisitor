@@ -98,7 +98,7 @@ public abstract class LambdaResultExtractorCase extends LambdaResultHandlingSupp
             return grouped;
         };
         Map<Integer, List<String>> grouped = orderRows(queryRows("LRGroup")//
-                .applySelect("age, name"), "age")//
+                .select("age", "name"), "age")//
                 .query(groupingExtractor);
         assertEquals(2, grouped.size());
         assertEquals(2, grouped.get(30).size());

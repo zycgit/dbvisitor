@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="StatementTestMapper">
+    <resultMap id="userInfoMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        <result column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+        <result column="email" property="email"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+    <select id="queryUserById" resultMap="userInfoMap">@{macro, esSessionOne}</select>
+    <select id="queryAllUsers" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo">@{macro, esSessionAll}</select>
+    <update id="updateUserEmail">@{macro, esSessionEmail}</update>
+    <delete id="deleteUserById">@{macro, esSessionDelete}</delete>
+
+    <insert id="insertUserWithId">@{macro, esSessionInsert}</insert>
+    <select id="queryUsersByName" resultMap="userInfoMap">
+        @{macro, esSessionPath}/_search {"size": 100,"query": {"wildcard": {"name": #{name.replace('%', '*')}}},"sort": [{"id": "asc"}]}
+    </select>
+    <delete id="deleteUsersByName">
+        @{macro, esSessionPath}/_delete_by_query?refresh=true {"query": {"wildcard": {"name": #{name.replace('%', '*')}}}}
+    </delete>
+</mapper>

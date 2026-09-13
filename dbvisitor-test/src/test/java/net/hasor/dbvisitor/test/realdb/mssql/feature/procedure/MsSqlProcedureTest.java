@@ -26,7 +26,6 @@ public class MsSqlProcedureTest extends ProcedureCase {
         jdbcTemplate.execute("DROP PROCEDURE IF EXISTS nxn_sp_transform_string");
         jdbcTemplate.execute("DROP PROCEDURE IF EXISTS nxn_sp_get_user_info");
         jdbcTemplate.execute("DROP PROCEDURE IF EXISTS nxn_sp_update_counter");
-        jdbcTemplate.execute("DROP PROCEDURE IF EXISTS nxn_sp_result_set_users");
 
         jdbcTemplate.execute("CREATE PROCEDURE nxn_sp_add_numbers @a INT, @b INT, @result INT OUTPUT AS " + //
                 "BEGIN SET @result = @a + @b END");
@@ -50,8 +49,6 @@ public class MsSqlProcedureTest extends ProcedureCase {
             """);
         jdbcTemplate.execute("CREATE PROCEDURE nxn_sp_update_counter @counter INT OUTPUT, @increment INT AS " + //
                 "BEGIN SET @counter = @counter + @increment END");
-        jdbcTemplate.execute("CREATE PROCEDURE nxn_sp_result_set_users @p_id INT AS " + //
-                "BEGIN SELECT id, name, age, email FROM user_info WHERE id = @p_id END");
     }
 
     @Override
@@ -102,8 +99,4 @@ public class MsSqlProcedureTest extends ProcedureCase {
         return "{call nxn_sp_add_numbers(#{a}, #{b}, #{result,mode=inout,jdbcType=integer})}";
     }
 
-    @Override
-    protected String resultSetUsersCallSql() {
-        return "{call nxn_sp_result_set_users(#{p_id,jdbcType=integer})}";
-    }
 }

@@ -7,19 +7,37 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
-import java.util.*;
-import net.hasor.dbvisitor.test.nxn.capability.*;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import java.sql.SQLException;
+import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperPositionalParameterCase;
+import net.hasor.dbvisitor.test.realdb.redis.RedisAnnotationParameterFixture;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import org.junit.After;
+import org.junit.Before;
 
-public class RedisAnnotationMapperPositionalParameterTest extends RedisNativeMapperSupport {
+public class RedisAnnotationMapperPositionalParameterTest extends AnnotationMapperPositionalParameterCase {
+    private final RedisAnnotationParameterFixture fixture = new RedisAnnotationParameterFixture();
 
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
+    }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_PARAM_POSITIONAL)
-    public void positional() throws Exception {
-        String k = key("pos");
-        assertEquals(1, mapper().positional(k, "value"));
-        assertEquals("value", mapper().get(k));
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        this.jdbcTemplate = fixture.open();
+    }
+
+    @Override
+    @Before
+    public void createAnnotationMapper() throws Exception {
+        fixture.open();
+        this.mapper = fixture.createMapper(newConfiguration());
+    }
+
+    @After
+    public void closeFixture() throws Exception {
+        fixture.close();
     }
 }

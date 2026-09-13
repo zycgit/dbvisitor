@@ -7,76 +7,69 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
-import java.util.*;
-import net.hasor.dbvisitor.test.nxn.capability.*;
+import java.sql.SQLException;
+import java.util.Map;
+import java.util.Locale;
+import net.hasor.dbvisitor.session.Configuration;
+import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperDynamicSqlCase;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
 
-public class RedisXmlMapperDynamicSqlTest extends RedisNativeMapperSupport {
-    private static final String NS = "redis.Native.";
+public class RedisXmlMapperDynamicSqlTest extends XmlMapperDynamicSqlCase {
+    private final RedisEntityFixture fixture = new RedisEntityFixture();
 
-    private Map<String, Object> seedList() throws Exception {
-        Map<String, Object> p = params(key("list"), null);
-        session.jdbc().executeUpdate("RPUSH ? first second", p.get("key"));
-        return p;
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
     }
 
+    @Override
     @Before
-    public void loadStatements() throws Exception {
-        loadXml();
+    public void setup() throws SQLException {
+        this.jdbcTemplate = this.fixture.open();
     }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_XML_DYNAMIC_IF)
-    public void conditional() throws Exception {
-        Map<String, Object> p = params(key("if"), "v");
-        p.put("existing", true);
-        assertEquals(0, ((Number) session.executeStatement(NS + "conditional", p)).intValue());
-        p.put("existing", false);
-        assertEquals(1, ((Number) session.executeStatement(NS + "conditional", p)).intValue());
-        assertEquals(Arrays.asList("v"), session.queryStatement(NS + "get", p));
+    @Override
+    @Before
+    public void createXmlMapperSession() throws Exception {
+        this.jdbcTemplate = this.fixture.open();
+        String[] names = { "DynSqlAlice", "DynSqlBob", "DynSqlCarol", "DynSqlDave", "DynSqlEve" };
+        int[] ages = { 22, 28, 35, 42, 50 };
+        for (int i = 0; i < names.length; i++) {
+            String email = names[i].toLowerCase(Locale.ROOT) + "@test.com";
+            Map<String, Object> user = Map.of("id", baseId() + i + 1, "name", names[i], "age", ages[i], "email", email);
+            store("users", baseId() + i + 1, user);
+            store("ages", ages[i], user);
+            store("email-" + email, ages[i], user);
+            store("record-" + (baseId() + i + 1), baseId() + i + 1, user);
+            store("bound-", baseId() + i + 1, user);
+            store("bound-" + names[i].substring(6), baseId() + i + 1, user);
+        }
+        for (int i = 21; i <= 23; i++) {
+            this.fixture.key("record-" + (baseId() + i));
+        }
+        Configuration configuration = newConfiguration();
+        configuration.addMacro("redisEmailIndex", "#{'" + this.fixture.key("email-") + "' + email}");
+        configuration.addMacro("redisRecordKey", "#{'" + this.fixture.key("record-") + "' + item}");
+        configuration.addMacro("redisBatchRecordKey", "#{'" + this.fixture.key("record-") + "' + item.id}");
+        configuration.addMacro("redisBoundIndex", "#{'" + this.fixture.key("bound-") + "' + suffix}");
+        this.session = this.fixture.session(configuration, "/mapper/redis/DynamicSqlMapper.xml");
     }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_XML_DYNAMIC_CHOOSE)
-    public void choose() throws Exception {
-        Map<String, Object> p = seedList();
-        p.put("single", true);
-        assertEquals(Arrays.asList("first"), session.queryStatement(NS + "choose", p));
-        p.put("single", false);
-        assertEquals(Arrays.asList("first", "second"), session.queryStatement(NS + "choose", p));
+    private void store(String index, int score, Map<String, Object> user) throws SQLException {
+        this.jdbcTemplate.queryForLong("ZADD #{arg0} #{arg1} #{arg2,typeHandler=net.hasor.dbvisitor.types.handler.json.JsonTypeHandler}",
+                new Object[] { this.fixture.key(index), score, user });
     }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_XML_DYNAMIC_FOREACH)
-    public void foreach() throws Exception {
-        Map<String, Object> a = params(key("a"), "A"), b = params(key("b"), "B");
-        session.executeStatement(NS + "put", a);
-        session.executeStatement(NS + "put", b);
-        List<Map<String, Object>> rows = session.queryStatement(NS + "many", Collections.singletonMap("keyList", Arrays.asList(a.get("key"), b.get("key"))));
-        assertEquals(2, rows.size());
-        assertEquals("A", rows.get(0).get("VALUE"));
-        assertEquals("B", rows.get(1).get("VALUE"));
+    @Override
+    protected String boundNameParameter() {
+        return "DynSqlAlice";
     }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_XML_DYNAMIC_FOREACH_WRITE)
-    public void foreachWrite() throws Exception {
-        Map<String, Object> a = params(key("a"), "A"), b = params(key("b"), "B");
-        session.executeStatement(NS + "manyPut", Collections.singletonMap("items", Arrays.asList(a, b)));
-        assertEquals(Arrays.asList("A"), session.queryStatement(NS + "get", a));
-        assertEquals(Arrays.asList("B"), session.queryStatement(NS + "get", b));
-    }
-
-    @Test
-    @Capability(CapabilityId.MAPPER_XML_DYNAMIC_BIND)
-    public void bind() throws Exception {
-        String k = key("bound");
-        mapper().put(k, "boundValue");
-        Map<String, Object> p = new HashMap<>();
-        p.put("prefix", k.substring(0, k.length() - 5));
-        p.put("suffix", "bound");
-        assertEquals(Arrays.asList("boundValue"), session.queryStatement(NS + "bound", p));
+    @After
+    public void cleanupFixture() throws SQLException {
+        this.fixture.close();
     }
 }

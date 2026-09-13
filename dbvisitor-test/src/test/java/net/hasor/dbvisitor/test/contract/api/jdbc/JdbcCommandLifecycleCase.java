@@ -9,58 +9,97 @@ package net.hasor.dbvisitor.test.contract.api.jdbc;
 
 import java.sql.SQLException;
 import java.util.Date;
-import java.util.Map;
-
 import org.junit.Test;
-
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class JdbcCommandLifecycleCase extends AbstractNxnContractTest {
+    protected String lifecycleObject() {
+        return "nxn_jdbc_execute_temp";
+    }
+
+    protected void resetLifecycleFixture() throws SQLException {
+        dropTableIfExists(lifecycleObject());
+    }
+
+    protected String createCommand() {
+        return "CREATE TABLE " + lifecycleObject() + " (" + primaryKeyColumn("id", "INT")
+                + ", name VARCHAR(100), age INT, create_time " + profile().datetimeColumnType() + ")";
+    }
+
+    protected String insertCommand() {
+        return "INSERT INTO " + lifecycleObject() + " (id, name, age, create_time) VALUES (?, ?, ?, ?)";
+    }
+
+    protected String alterCommand() {
+        return addColumnSql(lifecycleObject(), "email VARCHAR(100)");
+    }
+
+    protected String updateCommand() {
+        return "UPDATE " + lifecycleObject() + " SET email = ? WHERE id = ?";
+    }
+
+    protected String readCommand(String column) {
+        return "SELECT " + column + " FROM " + lifecycleObject() + " WHERE id = ?";
+    }
+
+    protected Object[] readArguments() {
+        return new Object[] { 1 };
+    }
+
+    protected int expectedInsertCount() {
+        return 1;
+    }
+
+    protected String retiredObjectQuery() {
+        return null;
+    }
+
+    protected String dropCommand() {
+        return "DROP TABLE " + lifecycleObject();
+    }
+
+    protected String missingObjectQuery() {
+        return "SELECT COUNT(*) FROM " + lifecycleObject();
+    }
+
+    protected boolean missingObjectRaisesError() {
+        return true;
+    }
+
     @Test
     @Capability(CapabilityId.JDBC_CRUD_EXECUTE_DDL)
     public void jdbcExecute_shouldRunDdlAndDmlTableOperations() throws SQLException {
-        String tableName = "nxn_jdbc_execute_temp";
-        dropTableIfExists(tableName);
-        jdbcTemplate.execute("CREATE TABLE " + tableName + " (" + primaryKeyColumn("id", "INT") + ", name VARCHAR(100), age INT, create_time " + profile().datetimeColumnType() + ")");
-
-        int inserted = jdbcTemplate.executeUpdate("INSERT INTO " + tableName + " (id, name, age, create_time) VALUES (?, ?, ?, ?)", //
+        resetLifecycleFixture();
+        jdbcTemplate.execute(createCommand());
+        int inserted = jdbcTemplate.executeUpdate(insertCommand(),
                 new Object[] { 1, "NXN-JDBC-DDL", 25, new Date() });
-        jdbcTemplate.execute(addColumnSql(tableName, "email VARCHAR(100)"));
-        int updated = jdbcTemplate.executeUpdate("UPDATE " + tableName + " SET email = ? WHERE id = ?", //
+        jdbcTemplate.execute(alterCommand());
+        int updated = jdbcTemplate.executeUpdate(updateCommand(),
                 new Object[] { "nxn-jdbc-ddl@test.com", 1 });
-        Map<String, Object> row = jdbcTemplate.queryForMap("SELECT id, name, email FROM " + tableName + " WHERE id = ?", new Object[] { 1 });
 
-        assertEquals(1, inserted);
+        assertEquals(expectedInsertCount(), inserted);
         assertEquals(1, updated);
-        assertEquals("NXN-JDBC-DDL", value(row, "name"));
-        assertEquals("nxn-jdbc-ddl@test.com", value(row, "email"));
-
-        jdbcTemplate.execute("DROP TABLE " + tableName);
-        try {
-            jdbcTemplate.queryForObject("SELECT COUNT(*) FROM " + tableName, Long.class);
-            fail("Temporary DDL table should be dropped");
-        } catch (SQLException expected) {
-            assertNotNull(expected.getMessage());
+        assertEquals("NXN-JDBC-DDL", jdbcTemplate.queryForString(readCommand("name"), readArguments()));
+        assertEquals("nxn-jdbc-ddl@test.com", jdbcTemplate.queryForString(readCommand("email"), readArguments()));
+        if (retiredObjectQuery() != null) {
+            assertEquals(Long.valueOf(0), jdbcTemplate.queryForLong(retiredObjectQuery()));
         }
-    }
 
-
-    private Object value(Map<String, Object> row, String key) {
-        assertNotNull(row);
-        if (row.containsKey(key)) {
-            return row.get(key);
+        jdbcTemplate.execute(dropCommand());
+        if (missingObjectRaisesError()) {
+            try {
+                jdbcTemplate.queryForObject(missingObjectQuery(), Long.class);
+                fail("Temporary object should be dropped");
+            } catch (SQLException expected) {
+                assertNotNull(expected.getMessage());
+            }
+        } else {
+            assertEquals(Long.valueOf(0), jdbcTemplate.queryForLong(missingObjectQuery()));
         }
-        if (row.containsKey(key.toUpperCase())) {
-            return row.get(key.toUpperCase());
-        }
-        return row.get(key.toLowerCase());
     }
 }

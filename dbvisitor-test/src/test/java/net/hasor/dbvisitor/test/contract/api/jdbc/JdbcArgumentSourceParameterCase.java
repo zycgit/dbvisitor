@@ -30,7 +30,7 @@ public abstract class JdbcArgumentSourceParameterCase extends JdbcParameterSuppo
     @Test
     @Capability(CapabilityId.JDBC_PARAM_ARG_SOURCE)
     public void sqlArgSources_shouldBindArrayBeanAndMapSources() throws SQLException {
-        jdbcTemplate.executeUpdate(command(JdbcParameterCommand.INSERT_ARRAY_SOURCE), //
+        writeParameters(command(JdbcParameterCommand.INSERT_ARRAY_SOURCE), //
                 new ArraySqlArgSource(new Object[] { baseId() + 12, "NXN-Param-Source-Array", 26, "nxn-param-source-array@test.com", new Date() }));
 
         UserInfo bean = new UserInfo();
@@ -39,7 +39,7 @@ public abstract class JdbcArgumentSourceParameterCase extends JdbcParameterSuppo
         bean.setAge(29);
         bean.setEmail("nxn-param-source-bean@test.com");
         bean.setCreateTime(new Date());
-        jdbcTemplate.executeUpdate(command(JdbcParameterCommand.INSERT_COLON), new BeanSqlArgSource(bean));
+        writeParameters(command(JdbcParameterCommand.INSERT_COLON), new BeanSqlArgSource(bean));
 
         Map<String, Object> map = new HashMap<>();
         map.put("id", baseId() + 14);
@@ -47,7 +47,7 @@ public abstract class JdbcArgumentSourceParameterCase extends JdbcParameterSuppo
         map.put("age", 34);
         map.put("email", "nxn-param-source-map@test.com");
         map.put("createTime", new Date());
-        jdbcTemplate.executeUpdate(command(JdbcParameterCommand.INSERT_BRACE), new MapSqlArgSource(map));
+        writeParameters(command(JdbcParameterCommand.INSERT_BRACE), new MapSqlArgSource(map));
 
         Long count = jdbcTemplate.queryForObject(//
                 command(JdbcParameterCommand.COUNT_SOURCE_NAMES), //
@@ -57,5 +57,10 @@ public abstract class JdbcArgumentSourceParameterCase extends JdbcParameterSuppo
                 }}), Long.class);
 
         assertEquals(Long.valueOf(3), count);
+        for (int i = 0; i < 3; i++) {
+            String kind = new String[] { "array", "bean", "map" }[i];
+            assertEquals("nxn-param-source-" + kind + "@test.com",
+                    readEmail(command(JdbcParameterCommand.SELECT_EMAIL_BY_ID), new Object[] { baseId() + 12 + i }));
+        }
     }
 }

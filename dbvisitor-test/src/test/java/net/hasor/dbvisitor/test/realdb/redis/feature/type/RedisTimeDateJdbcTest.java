@@ -8,48 +8,45 @@
 package net.hasor.dbvisitor.test.realdb.redis.feature.type;
 
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.util.Date;
 
-import org.junit.Test;
+import org.junit.After;
+import org.junit.Before;
 
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
+import net.hasor.dbvisitor.test.contract.feature.type.TimeDateJdbcCase;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+public class RedisTimeDateJdbcTest extends TimeDateJdbcCase {
+    private final RedisTypeCommandFixture fixture = new RedisTypeCommandFixture();
 
-public class RedisTimeDateJdbcTest extends RedisNativeTypeSupport {
-    @Test
-    @Capability(CapabilityId.TYPE_TIME_SQL_DATE)
-    public void timeSqlDate_shouldRoundTripDateColumn() throws SQLException {
-        String id = key("1");
-        LocalDate date = LocalDate.of(2024, 3, 15);
-
-        jdbcTemplate.executeUpdate("SET ? ?", //
-                new Object[] { id, java.sql.Date.valueOf(date) });
-
-        java.sql.Date loadedSql = jdbcTemplate.queryForObject("GET ?", //
-                new Object[] { id }, java.sql.Date.class);
-
-        assertNotNull(loadedSql);
-        assertEquals(date, loadedSql.toLocalDate());
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
     }
 
-    @Test
-    @Capability(CapabilityId.TYPE_TIME_LOCAL_DATE)
-    public void timeLocalDate_shouldRoundTripDateColumn() throws SQLException {
-        requiresNxnFeature(FeatureId.TIME_LOCAL_DATE);
-        String id = key("4");
-        LocalDate date = LocalDate.of(2024, 3, 15);
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        this.jdbcTemplate = this.fixture.open();
+    }
 
-        jdbcTemplate.executeUpdate("SET ? ?", //
-                new Object[] { id, java.sql.Date.valueOf(date) });
+    @After
+    public void closeFixture() throws SQLException {
+        this.fixture.close();
+    }
 
-        LocalDate loaded = jdbcTemplate.queryForObject("GET ?", //
-                new Object[] { id }, LocalDate.class);
+    @Override
+    protected String insertCommand(String table, String columns, String... parameters) {
+        return this.fixture.insertCommand(table, columns, parameters);
+    }
 
-        assertEquals(date, loaded);
+    @Override
+    protected int executeInsert(String command, Object[] parameters) throws SQLException {
+        return this.jdbcTemplate.queryForObject(command, parameters, Integer.class);
+    }
+
+    @Override
+    protected String selectCommand(String table, String columns) {
+        return this.fixture.selectCommand(table, columns);
     }
 }

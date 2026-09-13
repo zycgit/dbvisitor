@@ -7,59 +7,61 @@
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
 
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import net.hasor.dbvisitor.session.Session;
-import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import java.sql.SQLException;
+import java.util.Date;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.session.Configuration;
+import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperSqlFragmentCase;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
+import org.junit.After;
+import org.junit.Before;
 
-public class MilvusXmlMapperSqlFragmentTest extends MilvusXmlResultSqlSupport {
-    @Test
-    @Capability(CapabilityId.ADAPTER_MILVUS_XML_FRAGMENTS)
-    public void xmlFragmentsShouldComposeColumnsConditionsAndNativeOrdering() throws Exception {
-        try (Session session = prepareSession()) {
-            Map<String, Object> values = new HashMap<>(parameters(1));
-            values.put("id", 1);
-            List<UserInfo> columns = session.queryStatement("milvus.ResultHandlers.fragmentColumns", values);
-            assertEquals(1, columns.size());
-            UserInfo first = columns.get(0);
-            assertEquals(Integer.valueOf(1), first.getId());
-            assertEquals("name-1", first.getName());
-            assertEquals(Integer.valueOf(21), first.getAge());
-            assertEquals("row1@test.com", first.getEmail());
-            assertEquals(1700000000123L, first.getCreateTime().getTime());
+public class MilvusXmlMapperSqlFragmentTest extends XmlMapperSqlFragmentCase {
+    private final MilvusLambdaResultFixture fixture = new MilvusLambdaResultFixture();
 
-            List<UserInfo> all = session.queryStatement("milvus.ResultHandlers.fragmentConditions", values);
-            assertEquals(3, all.size());
-            values.put("name", "name-1");
-            List<UserInfo> named = session.queryStatement("milvus.ResultHandlers.fragmentConditions", values);
-            assertEquals(1, named.size());
-            assertEquals("name-1", named.get(0).getName());
-            values.put("name", null);
-            values.put("minAge", 22);
-            values.put("maxAge", 23);
-            List<UserInfo> ranged = session.queryStatement("milvus.ResultHandlers.fragmentConditions", values);
-            assertEquals(2, ranged.size());
-            assertEquals(Integer.valueOf(22), ranged.get(0).getAge());
-            assertEquals(Integer.valueOf(23), ranged.get(1).getAge());
-            values.put("name", "name-3");
-            List<UserInfo> combined = session.queryStatement("milvus.ResultHandlers.fragmentConditions", values);
-            assertEquals(1, combined.size());
-            assertEquals("name-3", combined.get(0).getName());
+    @Override
+    protected DataSourceProfile profile() {
+        return MilvusProfile.INSTANCE;
+    }
 
-            List<UserInfo> multiple = session.queryStatement("milvus.ResultHandlers.fragmentMultiple", parameters(1));
-            assertEquals(3, multiple.size());
-            for (int i = 0; i < multiple.size(); i++) {
-                assertEquals(Integer.valueOf(i + 1), multiple.get(i).getId());
-                assertEquals("name-" + (i + 1), multiple.get(i).getName());
-                assertEquals(1700000000123L, multiple.get(i).getCreateTime().getTime());
+    @Override
+    protected long timestamp() {
+        return 1700000000123L;
+    }
+
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        this.jdbcTemplate = new JdbcTemplate(this.fixture.open());
+        initData();
+    }
+
+    @Override
+    @Before
+    public void createXmlMapperSession() throws Exception {
+        Configuration configuration = new Configuration();
+        configuration.loadMapper("/realdb/milvus/mapper/SharedSqlFragmentMapper.xml");
+        this.session = configuration.newSession(this.fixture.open());
+    }
+
+    @Override
+    protected void initData() throws SQLException {
+        for (int i = 1; i <= 5; i++) {
+            this.jdbcTemplate.executeUpdate(
+                    "INSERT INTO user_info (id, name, age, email, create_time, v) VALUES (?, ?, ?, ?, ?, ?)",
+                    new Object[] { baseId() + i, "SqlFrag" + i, 20 + i * 5, "frag" + i + "@nxn.test", new Date(1700000000123L), new float[] { i, 0 } });
+        }
+    }
+
+    @After
+    public void cleanupFixture() throws Exception {
+        try {
+            this.fixture.close();
+        } finally {
+            if (this.session != null) {
+                this.session.close();
             }
-            assertEquals(List.of("name-1", "name-2", "name-3"),
-                    session.queryStatement("milvus.ResultHandlers.fragmentOrdering", parameters(1)));
         }
     }
 }

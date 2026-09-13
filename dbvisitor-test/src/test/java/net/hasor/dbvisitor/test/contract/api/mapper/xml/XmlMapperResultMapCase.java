@@ -12,6 +12,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.LinkedHashMap;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -31,17 +34,21 @@ import static org.junit.Assert.assertTrue;
 
 @NxnContract
 public abstract class XmlMapperResultMapCase extends AbstractNxnContractTest {
-    private Session session;
+    protected Session session;
 
     @Before
     public void createXmlMapperSession() throws Exception {
         Configuration config = newConfiguration();
-        config.loadMapper("/mapper/XmlResultMapMapper.xml");
+        config.loadMapper(mapperResource());
         this.session = openSession(config);
     }
 
     protected Session openSession(Configuration configuration) throws Exception {
         return configuration.newSession(dataSource);
+    }
+
+    protected String mapperResource() {
+        return "/mapper/XmlResultMapMapper.xml";
     }
 
     @Override
@@ -60,68 +67,52 @@ public abstract class XmlMapperResultMapCase extends AbstractNxnContractTest {
     @Test
     @Capability(CapabilityId.MAPPER_XML_RESULTMAP_PARTIAL)
     public void resultMap_shouldApplyExplicitPartialColumnMapping() throws Exception {
-        List<UserInfo> list = this.session.queryStatement("xmltest.ResultMapMapper.selectByIdBase", mapOf("id", baseId() + 1));
+        List<?> list = this.session.queryStatement("xmltest.ResultMapMapper.selectByIdBase", mapOf("id", baseId() + 1));
 
         assertEquals(1, list.size());
-        UserInfo user = list.get(0);
-        assertEquals(Integer.valueOf(baseId() + 1), user.getId());
-        assertEquals("RmCfg1", user.getName());
-        assertEquals(Integer.valueOf(26), user.getAge());
-        assertNull(user.getEmail());
-        assertNull(user.getCreateTime());
+        assertProperties(list.get(0), expectedPartial(1));
     }
 
     @Test
     @Capability(CapabilityId.MAPPER_XML_RESULTMAP_FULL)
     public void resultMap_shouldApplyFullColumnMapping() throws Exception {
-        List<UserInfo> list = this.session.queryStatement("xmltest.ResultMapMapper.selectByIdExtended", mapOf("id", baseId() + 1));
+        List<?> list = this.session.queryStatement("xmltest.ResultMapMapper.selectByIdExtended", mapOf("id", baseId() + 1));
 
         assertEquals(1, list.size());
-        UserInfo user = list.get(0);
-        assertEquals(Integer.valueOf(baseId() + 1), user.getId());
-        assertEquals("RmCfg1", user.getName());
-        assertEquals(Integer.valueOf(26), user.getAge());
-        assertEquals("rmcfg1@nxn.test", user.getEmail());
-        assertNotNull(user.getCreateTime());
+        assertProperties(list.get(0), expectedFull(1));
+        for (String property : nonNullFullProperties()) {
+            assertNotNull(property, propertyValue(list.get(0), property));
+        }
     }
 
     @Test
     @Capability(CapabilityId.MAPPER_XML_RESULTMAP_JAVA_TYPE)
     public void resultMap_shouldHonorJavaTypeAttributes() throws Exception {
-        List<UserInfo> list = this.session.queryStatement("xmltest.ResultMapMapper.selectByIdTyped", mapOf("id", baseId() + 2));
+        List<?> list = this.session.queryStatement("xmltest.ResultMapMapper.selectByIdTyped", mapOf("id", baseId() + 2));
 
         assertEquals(1, list.size());
-        UserInfo user = list.get(0);
-        assertTrue(user.getId() instanceof Integer);
-        assertTrue(user.getName() instanceof String);
-        assertTrue(user.getAge() instanceof Integer);
-        assertEquals("rmcfg2@nxn.test", user.getEmail());
+        assertProperties(list.get(0), expectedFull(2));
+        for (Map.Entry<String, Class<?>> entry : expectedPropertyTypes().entrySet()) {
+            assertTrue(entry.getKey(), entry.getValue().isInstance(propertyValue(list.get(0), entry.getKey())));
+        }
     }
 
     @Test
     @Capability(CapabilityId.MAPPER_XML_RESULTMAP_AUTO_MAPPING)
     public void resultMap_shouldSupportAutoMappingFlag() throws Exception {
-        List<UserInfo> list = this.session.queryStatement("xmltest.ResultMapMapper.selectByIdAutoMapping", mapOf("id", baseId() + 1));
+        List<?> list = this.session.queryStatement("xmltest.ResultMapMapper.selectByIdAutoMapping", mapOf("id", baseId() + 1));
 
         assertEquals(1, list.size());
-        UserInfo user = list.get(0);
-        assertEquals(Integer.valueOf(baseId() + 1), user.getId());
-        assertEquals("RmCfg1", user.getName());
-        assertEquals(Integer.valueOf(26), user.getAge());
-        assertEquals("rmcfg1@nxn.test", user.getEmail());
+        assertProperties(list.get(0), expectedFull(1));
     }
 
     @Test
     @Capability(CapabilityId.MAPPER_XML_RESULTMAP_CASE_INSENSITIVE)
     public void resultMap_shouldSupportCaseInsensitiveColumnNames() throws Exception {
-        List<UserInfo> list = this.session.queryStatement("xmltest.ResultMapMapper.selectByIdCaseInsensitive", mapOf("id", baseId() + 2));
+        List<?> list = this.session.queryStatement("xmltest.ResultMapMapper.selectByIdCaseInsensitive", mapOf("id", baseId() + 2));
 
         assertEquals(1, list.size());
-        UserInfo user = list.get(0);
-        assertEquals(Integer.valueOf(baseId() + 2), user.getId());
-        assertEquals("RmCfg2", user.getName());
-        assertEquals(Integer.valueOf(27), user.getAge());
-        assertEquals("rmcfg2@nxn.test", user.getEmail());
+        assertProperties(list.get(0), expectedFull(2));
     }
 
     @Test
@@ -141,9 +132,15 @@ public abstract class XmlMapperResultMapCase extends AbstractNxnContractTest {
 
         assertEquals(1, list.size());
         Map<String, Object> row = list.get(0);
-        assertEquals(baseId() + 3, number(row, "user_id").intValue());
-        assertEquals("RmCfg3", value(row, "user_name"));
-        assertEquals(28, number(row, "user_age").intValue());
+        for (Map.Entry<String, Object> entry : expectedColumnLabels().entrySet()) {
+            Object actual = value(row, entry.getKey());
+            if (entry.getValue() instanceof Number) {
+                assertTrue(actual instanceof Number);
+                assertEquals(((Number) entry.getValue()).longValue(), ((Number) actual).longValue());
+            } else {
+                assertEquals(entry.getValue(), actual);
+            }
+        }
     }
 
     /** The SQL material supplies column labels; the contract checks how resultType=map exposes them. */
@@ -156,15 +153,65 @@ public abstract class XmlMapperResultMapCase extends AbstractNxnContractTest {
     public void resultMap_shouldApplyPartialMappingToLists() throws Exception {
         Map<String, Object> range = mapOf("firstId", baseId() + 1);
         range.put("lastId", baseId() + 3);
-        List<UserInfo> list = this.session.queryStatement("xmltest.ResultMapMapper.selectAllBase", range);
+        List<?> list = this.session.queryStatement("xmltest.ResultMapMapper.selectAllBase", range);
 
         assertEquals(3, list.size());
-        for (UserInfo user : list) {
-            assertNotNull(user.getId());
-            assertNotNull(user.getName());
-            assertNotNull(user.getAge());
-            assertNull(user.getEmail());
+        for (Object row : list) {
+            for (String property : nonNullPartialProperties()) {
+                assertNotNull(property, propertyValue(row, property));
+            }
+            for (String property : nullPartialProperties()) {
+                assertNull(property, propertyValue(row, property));
+            }
         }
+    }
+
+    protected Map<String, Object> expectedFull(int offset) {
+        return Map.of("id", baseId() + offset, "name", "RmCfg" + offset,
+                "age", 25 + offset, "email", "rmcfg" + offset + "@nxn.test");
+    }
+
+    protected Map<String, Object> expectedPartial(int offset) {
+        Map<String, Object> expected = new LinkedHashMap<>(expectedFull(offset));
+        expected.put("email", null);
+        expected.put("createTime", null);
+        return expected;
+    }
+
+    protected Map<String, Class<?>> expectedPropertyTypes() {
+        return Map.of("id", Integer.class, "name", String.class, "age", Integer.class);
+    }
+
+    protected List<String> nonNullFullProperties() {
+        return List.of("createTime");
+    }
+
+    protected List<String> nonNullPartialProperties() {
+        return List.of("id", "name", "age");
+    }
+
+    protected List<String> nullPartialProperties() {
+        return List.of("email");
+    }
+
+    protected Map<String, Object> expectedColumnLabels() {
+        return Map.of("user_id", baseId() + 3, "user_name", "RmCfg3", "user_age", 28);
+    }
+
+    private void assertProperties(Object bean, Map<String, Object> expected) throws Exception {
+        assertTrue("The material must define mapped properties", !expected.isEmpty());
+        for (Map.Entry<String, Object> entry : expected.entrySet()) {
+            assertEquals(entry.getKey(), entry.getValue(), propertyValue(bean, entry.getKey()));
+        }
+    }
+
+    private Object propertyValue(Object bean, String name) throws Exception {
+        for (PropertyDescriptor property : Introspector.getBeanInfo(bean.getClass()).getPropertyDescriptors()) {
+            if (property.getName().equals(name) && property.getReadMethod() != null) {
+                return property.getReadMethod().invoke(bean);
+            }
+        }
+        throw new AssertionError("Missing readable property: " + name);
     }
 
     private Map<String, Object> mapOf(String key, Object value) {
@@ -184,7 +231,4 @@ public abstract class XmlMapperResultMapCase extends AbstractNxnContractTest {
         return row.get(key.toUpperCase());
     }
 
-    private Number number(Map<String, Object> row, String key) {
-        return (Number) value(row, key);
-    }
 }

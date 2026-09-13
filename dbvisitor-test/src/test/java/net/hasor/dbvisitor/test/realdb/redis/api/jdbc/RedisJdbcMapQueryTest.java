@@ -8,18 +8,14 @@
 package net.hasor.dbvisitor.test.realdb.redis.api.jdbc;
 
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.Map;
-import java.util.List;
 import org.junit.Before;
 import org.junit.After;
-import org.junit.Test;
 
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcMapQueryCase;
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
-import static org.junit.Assert.*;
 
 public class RedisJdbcMapQueryTest extends JdbcMapQueryCase {
 
@@ -42,25 +38,32 @@ public class RedisJdbcMapQueryTest extends JdbcMapQueryCase {
     }
 
     @Override
-    @Test
-    @Capability(CapabilityId.JDBC_QUERY_MAP)
-    public void jdbcQueryForMap_shouldReturnOneRowAsMap() throws SQLException {
-        fixture.seedScores();
-        Map<String, Object> row = jdbcTemplate.queryForMap("ZRANGE ? 0 0 WITHSCORES", new Object[] { fixture.key("scores") });
-        assertEquals("member-1", row.get("ELEMENT"));
-        assertEquals(Double.valueOf(21), row.get("SCORE"));
+    protected void insertUser(int id, String name, int age, String email, Date created) throws SQLException {
+        jdbcTemplate.queryForLong("ZADD ? ? ?", new Object[] { fixture.key("maps"), age, name });
     }
 
     @Override
-    @Test
-    @Capability(CapabilityId.JDBC_QUERY_LIST)
-    public void jdbcQueryForList_shouldReturnRowsAsMaps() throws SQLException {
-        fixture.seedScores();
-        List<Map<String, Object>> rows = jdbcTemplate.queryForList("ZRANGE ? 0 2 WITHSCORES", new Object[] { fixture.key("scores") });
-        assertEquals(3, rows.size());
-        for (int i = 0; i < rows.size(); i++) {
-            assertEquals("member-" + (i + 1), rows.get(i).get("ELEMENT"));
-            assertEquals(Double.valueOf(21 + i), rows.get(i).get("SCORE"));
-        }
+    protected String selectById(String columns, String parameter) {
+        return "ZRANGE '" + fixture.key("maps") + "' ? 0 WITHSCORES";
+    }
+
+    @Override
+    protected String selectRange(String columns, String lower, String upper, boolean ordered) {
+        return "ZRANGE '" + fixture.key("maps") + "' ? ? WITHSCORES";
+    }
+
+    @Override
+    protected Object[] mapSingleArguments() {
+        return new Object[] { 0 };
+    }
+
+    @Override
+    protected Object[] mapRangeArguments() {
+        return new Object[] { 0, 2 };
+    }
+
+    @Override
+    protected Map<String, Object> expectedMapRow(int offset) {
+        return Map.of("ELEMENT", "NXN-JDBC-Query-" + offset, "SCORE", Double.valueOf(60 + offset));
     }
 }

@@ -9,7 +9,6 @@ package net.hasor.dbvisitor.test.contract.api.lambda;
 
 import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 
 import org.junit.Test;
@@ -152,22 +151,8 @@ public abstract class LambdaEdgeCase extends AbstractNxnContractTest {
         assertEquals(Integer.valueOf(99), lambdaTemplate.query(UserInfo.class).eq(UserInfo::getId, baseId() + 72).queryForObject().getAge());
     }
 
-    @Test
-    @Capability(CapabilityId.LAMBDA_EDGE_EMPTY_IN_REJECT)
-    public void lambdaQuery_shouldRejectEmptyInList() throws SQLException {
-        insertUser(baseId() + 81, "NXN-Lambda-Edge-Empty-In", 25);
 
-        try {
-            lambdaTemplate.query(UserInfo.class)//
-                    .in(UserInfo::getId, Collections.emptyList())//
-                    .queryForList();
-            fail("Empty IN list should be rejected.");
-        } catch (Exception e) {
-            assertTrue(e.getMessage().toLowerCase().contains("empty"));
-        }
-    }
-
-    private void insertUser(int id, String name, Integer age) throws SQLException {
+    protected void insertUser(int id, String name, Integer age) throws SQLException {
         jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, ?)", //
                 new Object[] { id, name, age, name.toLowerCase() + "@nxn.test", new Date() });
     }

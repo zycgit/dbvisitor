@@ -24,6 +24,10 @@ public class Elastic7GenericTest {
             Assert.assertTrue(result);
             try (ResultSet rs = s.getResultSet()) {
                 Assert.assertTrue(rs.next());
+                Assert.assertFalse(rs.getString("cluster_name").isEmpty());
+                com.fasterxml.jackson.databind.JsonNode version = new com.fasterxml.jackson.databind.ObjectMapper().readTree(rs.getString("version"));
+                Assert.assertTrue(version.path("number").asText().startsWith("7."));
+                Assert.assertFalse(rs.next());
             }
         }
     }
@@ -34,7 +38,7 @@ public class Elastic7GenericTest {
             try {
                 s.execute("DELETE /test_generic");
             } catch (Exception e) {
-                // ignore
+                Elastic7Cleanup.requireMissingIndex(e);
             }
 
             // Create index/doc using GENERIC
@@ -51,7 +55,7 @@ public class Elastic7GenericTest {
             try {
                 s.execute("DELETE /test_generic");
             } catch (Exception e) {
-                // ignore
+                Elastic7Cleanup.requireMissingIndex(e);
             }
         }
     }

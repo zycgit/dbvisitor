@@ -21,19 +21,33 @@ import static org.junit.Assert.assertNotNull;
 
 @NxnContract
 public abstract class LambdaDefaultKeyCase extends LambdaCrudSupport {
+    protected Class<?> defaultKeyEntityType() {
+        return UserInfo.class;
+    }
+
+    protected Object newDefaultKeyEntity() {
+        return user(null, "NXN-Lambda-Entity-Auto-Id", 40, "nxn-lambda-entity-auto-id@test.com");
+    }
+
+    protected Object defaultKeyValue(Object entity) {
+        return ((UserInfo) entity).getId();
+    }
+
+    private <T> int insertDefaultKeyEntity(Class<T> type, Object entity) throws SQLException {
+        return lambdaTemplate.insert(type).applyEntity(type.cast(entity)).executeSumResult();
+    }
+
     @Test
     @Capability(CapabilityId.LAMBDA_ENTITY_CRUD_DEFAULT_KEY)
     public void lambdaEntityInsert_shouldUseDefaultPrimaryKey() throws SQLException {
-        UserInfo autoIdUser = user(null, "NXN-Lambda-Entity-Auto-Id", 40, "nxn-lambda-entity-auto-id@test.com");
-        int autoRows = lambdaTemplate.insert(UserInfo.class)//
-                .applyEntity(autoIdUser)//
-                .executeSumResult();
-        UserInfo loaded = lambdaTemplate.query(UserInfo.class)//
-                .eq(UserInfo::getName, "NXN-Lambda-Entity-Auto-Id")//
+        Object autoIdUser = newDefaultKeyEntity();
+        int autoRows = insertDefaultKeyEntity(defaultKeyEntityType(), autoIdUser);
+        Object loaded = lambdaTemplate.query(defaultKeyEntityType())//
+                .eq("name", "NXN-Lambda-Entity-Auto-Id")//
                 .queryForObject();
 
         assertEquals(1, autoRows);
         assertNotNull(loaded);
-        assertNotNull(loaded.getId());
+        assertNotNull(defaultKeyValue(loaded));
     }
 }

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="xmltest.KeyGenerationMapper">
+    <insert id="insertWithExplicitId">
+        @{macro, mongoSource}.insert({id: #{id}, name: #{name}, age: #{age}, email: #{email}})
+    </insert>
+    <select id="selectById" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        @{macro, mongoSource}.find({id: #{id}}, {_id: 0})
+    </select>
+</mapper>
+

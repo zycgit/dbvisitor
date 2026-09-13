@@ -7,20 +7,37 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
-import java.util.*;
-import net.hasor.dbvisitor.test.nxn.capability.*;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import java.sql.SQLException;
+import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperEmptyMutationCase;
+import net.hasor.dbvisitor.test.realdb.redis.RedisAnnotationCrudFixture;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import org.junit.After;
+import org.junit.Before;
 
-public class RedisAnnotationMapperEmptyMutationTest extends RedisNativeMapperSupport {
+public class RedisAnnotationMapperEmptyMutationTest extends AnnotationMapperEmptyMutationCase {
+    private final RedisAnnotationCrudFixture fixture = new RedisAnnotationCrudFixture(baseId());
 
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
+    }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_NO_MATCH_AFFECTED_ROWS)
-    public void missingMutations() throws Exception {
-        String k = key("missing");
-        assertEquals(0, mapper().replace(k, "v"));
-        assertEquals(0, mapper().remove(k));
-        assertNull(mapper().get(k));
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        this.jdbcTemplate = fixture.open();
+    }
+
+    @Override
+    @Before
+    public void createAnnotationMapper() throws Exception {
+        fixture.open();
+        this.mapper = fixture.createMapper(newConfiguration());
+    }
+
+    @After
+    public void closeFixture() throws Exception {
+        fixture.close();
     }
 }

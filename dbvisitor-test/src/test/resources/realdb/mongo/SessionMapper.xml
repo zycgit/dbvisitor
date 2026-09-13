@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="session.UserSessionMapper">
+    <resultMap id="userInfoMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        <result column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+        <result column="email" property="email"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+    <resultMap id="orderMap" type="net.hasor.dbvisitor.test.contract.material.model.UserOrder">
+        <result column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="order_no" property="orderNo"/>
+        <result column="amount" property="amount"/>
+    </resultMap>
+    <insert id="insertUser">
+        @{macro, mongoSource}.insert({id: #{id}, name: #{name}, age: #{age}, email: #{email}, create_time: 1700000000000})
+    </insert>
+    <select id="queryUserById" resultMap="userInfoMap">
+        @{macro, mongoSource}.find({id: #{id}}, {_id: 0})
+    </select>
+    <select id="queryAllUsers" resultMap="userInfoMap">
+        @{macro, mongoSource}.find({}, {_id: 0}).sort({id: 1})
+    </select>
+    <select id="queryUsersByAge" resultMap="userInfoMap">
+        @{macro, mongoSource}.find({age: #{age}}, {_id: 0}).sort({id: 1})
+    </select>
+    <select id="countUsers" resultType="int">
+        @{macro, mongoSource}.count({})
+    </select>
+    <update id="updateUserEmail">
+        @{macro, mongoSource}.update({id: #{id}}, {$set: {email: #{email}}})
+    </update>
+    <delete id="deleteUserById">
+        @{macro, mongoSource}.remove({id: #{id}})
+    </delete>
+    <insert id="insertOrder">
+        @{macro, mongoOrders}.insert({id: #{id}, user_id: #{userId}, order_no: #{orderNo}, amount: #{amount}})
+    </insert>
+    <select id="queryOrdersByUserId" resultMap="orderMap">
+        @{macro, mongoOrders}.find({user_id: #{userId}}, {_id: 0}).sort({id: 1})
+    </select>
+    <delete id="deleteOrderById">
+        @{macro, mongoOrders}.remove({id: #{id}})
+    </delete>
+    <select id="queryUsersByCondition" resultMap="userInfoMap">
+        @{macro, mongoSource}.find({
+        <if test="name != null">name: #{name},</if>
+        <if test="age != null">age: #{age},</if>
+        }, {_id: 0}).sort({id: 1})
+    </select>
+    <select id="queryUserByBean" resultMap="userInfoMap">
+        @{macro, mongoSource}.find({name: #{name}, age: #{age}}, {_id: 0})
+    </select>
+</mapper>

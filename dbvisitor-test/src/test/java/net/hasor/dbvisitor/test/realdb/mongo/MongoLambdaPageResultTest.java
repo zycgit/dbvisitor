@@ -8,62 +8,36 @@
 package net.hasor.dbvisitor.test.realdb.mongo;
 
 import java.sql.SQLException;
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import org.junit.Test;
+import java.util.Date;
+import net.hasor.dbvisitor.test.contract.api.adapter.NativeDocumentQueryFixture;
+import net.hasor.dbvisitor.test.contract.api.lambda.LambdaPageResultCase;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
+import org.junit.After;
+import org.junit.Before;
 
-public class MongoLambdaPageResultTest extends MongoLambdaPaginationSupport {
-    @Test
-    @Capability(CapabilityId.ADAPTER_MONGO_PAGINATION_MULTIPLE)
-    public void multiplePagesShouldFollowNativePageSemantics() throws SQLException {
-        verifyMultiplePages();
+public class MongoLambdaPageResultTest extends LambdaPageResultCase {
+    private final NativeDocumentQueryFixture fixture = new NativeDocumentQueryFixture();
+
+    @Override
+    protected DataSourceProfile profile() {
+        return MongoProfile.INSTANCE;
     }
 
-    @Test
-    @Capability(CapabilityId.ADAPTER_MONGO_PAGINATION_EXACT)
-    public void exactPagesShouldFollowNativePageSemantics() throws SQLException {
-        verifyExactPages();
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        this.jdbcTemplate = this.fixture.open(profile().env());
+        this.lambdaTemplate = this.fixture.lambdaTemplate();
     }
 
-    @Test
-    @Capability(CapabilityId.ADAPTER_MONGO_PAGINATION_SINGLE)
-    public void singlePageShouldFollowNativePageSemantics() throws SQLException {
-        verifySinglePage();
+    @Override
+    protected void insert(int id, String name, Integer age) throws SQLException {
+        this.fixture.insert(id, name, age, name + "@test.com", new Date());
     }
 
-    @Test
-    @Capability(CapabilityId.ADAPTER_MONGO_PAGINATION_SIZE_ONE)
-    public void singleRowPagesShouldFollowNativePageSemantics() throws SQLException {
-        verifySingleRowPages();
-    }
-
-    @Test
-    @Capability(CapabilityId.ADAPTER_MONGO_PAGINATION_BEYOND)
-    public void beyondLastShouldFollowNativePageSemantics() throws SQLException {
-        verifyBeyondLast();
-    }
-
-    @Test
-    @Capability(CapabilityId.ADAPTER_MONGO_PAGINATION_FACTORY)
-    public void factoriesShouldFollowNativePageSemantics() throws SQLException {
-        verifyFactories();
-    }
-
-    @Test
-    @Capability(CapabilityId.ADAPTER_MONGO_PAGINATION_ONE_BASED)
-    public void oneBasedPagesShouldFollowNativePageSemantics() throws SQLException {
-        verifyOneBasedPages();
-    }
-
-    @Test
-    @Capability(CapabilityId.ADAPTER_MONGO_PAGINATION_COUNT)
-    public void countConsistencyShouldFollowNativePageSemantics() throws SQLException {
-        verifyCountConsistency();
-    }
-
-    @Test
-    @Capability(CapabilityId.ADAPTER_MONGO_PAGINATION_FILTER)
-    public void filteredCountShouldFollowNativePageSemantics() throws SQLException {
-        verifyFilteredCount();
+    @After
+    public void cleanupFixture() throws SQLException {
+        this.fixture.close();
     }
 }

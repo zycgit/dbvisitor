@@ -8,46 +8,56 @@
 package net.hasor.dbvisitor.test.realdb.redis.feature.type;
 
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.After;
+import org.junit.Before;
 
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import net.hasor.dbvisitor.types.handler.time.JulianDayTypeHandler;
+import net.hasor.dbvisitor.test.contract.feature.type.TimeJulianDayJdbcCase;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
 
-import static org.junit.Assert.assertEquals;
+public class RedisTimeJulianDayJdbcTest extends TimeJulianDayJdbcCase {
+    private final RedisTypeCommandFixture fixture = new RedisTypeCommandFixture();
 
-public class RedisTimeJulianDayJdbcTest extends RedisNativeTypeSupport {
-    @Test
-    @Capability(CapabilityId.TYPE_TIME_JULIAN_DAY)
-    public void timeJulianDay_shouldRoundTripBceDatesWithoutDatabaseCalendarConversion() throws SQLException {
-        String bcId = key("22");
-        String ancientId = key("23");
-        LocalDate bcDate = LocalDate.of(-99, 1, 1);
-        LocalDate ancientDate = LocalDate.of(-499, 6, 1);
-        Map<String, Object> bcParams = new HashMap<>();
-        bcParams.put("id", bcId);
-        bcParams.put("julianDay", bcDate);
-        Map<String, Object> ancientParams = new HashMap<>();
-        ancientParams.put("id", ancientId);
-        ancientParams.put("julianDay", ancientDate);
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
+    }
 
-        jdbcTemplate.executeUpdate(//
-                "SET #{id} #{julianDay, typeHandler=net.hasor.dbvisitor.types.handler.time.JulianDayTypeHandler}", //
-                bcParams);
-        jdbcTemplate.executeUpdate(//
-                "SET #{id} #{julianDay, typeHandler=net.hasor.dbvisitor.types.handler.time.JulianDayTypeHandler}", //
-                ancientParams);
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        this.jdbcTemplate = this.fixture.open();
+    }
 
-        LocalDate loadedBc = jdbcTemplate.queryForObject("GET ?", //
-                new Object[] { bcId }, (rs, rowNum) -> new JulianDayTypeHandler().getResult(rs, "VALUE"));
-        LocalDate loadedAncient = jdbcTemplate.queryForObject("GET ?", //
-                new Object[] { ancientId }, (rs, rowNum) -> new JulianDayTypeHandler().getResult(rs, "VALUE"));
+    @After
+    public void closeFixture() throws SQLException {
+        this.fixture.close();
+    }
 
-        assertEquals(bcDate, loadedBc);
-        assertEquals(ancientDate, loadedAncient);
+    @Override
+    protected String insertCommand(String table, String columns, String... parameters) {
+        return this.fixture.insertCommand(table, columns, parameters);
+    }
+
+    @Override
+    protected int executeInsert(String command, Object[] parameters) throws SQLException {
+        return this.jdbcTemplate.queryForObject(command, parameters, Integer.class);
+    }
+
+    @Override
+    protected int executeInsert(String command, Map<String, Object> parameters) throws SQLException {
+        return this.jdbcTemplate.queryForObject(command, parameters, Integer.class);
+    }
+
+    @Override
+    protected String selectCommand(String table, String columns) {
+        return this.fixture.selectCommand(table, columns);
+    }
+
+    @Override
+    protected String resultColumn(String column) {
+        return "VALUE";
     }
 }

@@ -32,12 +32,12 @@ public abstract class FreedomMapCrudCase extends AbstractNxnContractTest {
     @Capability(CapabilityId.MAP_QUERY_FREEDOM_CRUD_INSERT)
     public void lambdaFreedomInsert_shouldPersistOneUser() throws SQLException {
         int id = baseId() + 11;
-        int rows = lambdaTemplate.insertFreedom("user_info")//
+        int rows = lambdaTemplate.insertFreedom(tableName())//
                 .applyMap(userMap(id, "NXN-Lambda-Freedom-Insert", 51, "nxn-lambda-freedom-insert@test.com"))//
                 .executeSumResult();
 
         assertEquals(1, rows);
-        assertEquals("NXN-Lambda-Freedom-Insert", jdbcTemplate.queryForString("SELECT name FROM user_info WHERE id = ?", new Object[] { id }));
+        assertEquals("NXN-Lambda-Freedom-Insert", jdbcTemplate.queryForString(selectColumnCommand("name"), new Object[] { id }));
     }
 
     @Test
@@ -46,7 +46,7 @@ public abstract class FreedomMapCrudCase extends AbstractNxnContractTest {
         int id = baseId() + 12;
         insertByJdbc(id, "NXN-Lambda-Freedom-Query", 52, "nxn-lambda-freedom-query@test.com");
 
-        Map<String, Object> loaded = lambdaTemplate.queryFreedom("user_info")//
+        Map<String, Object> loaded = lambdaTemplate.queryFreedom(tableName())//
                 .eq("id", id)//
                 .queryForObject();
 
@@ -64,13 +64,13 @@ public abstract class FreedomMapCrudCase extends AbstractNxnContractTest {
         Map<String, Object> updates = new HashMap<>();
         updates.put("email", "nxn-lambda-freedom-updated@test.com");
 
-        int rows = lambdaTemplate.updateFreedom("user_info")//
+        int rows = lambdaTemplate.updateFreedom(tableName())//
                 .eq("id", id)//
                 .updateToSample(updates)//
                 .doUpdate();
 
         assertEquals(1, rows);
-        assertEquals("nxn-lambda-freedom-updated@test.com", jdbcTemplate.queryForString("SELECT email FROM user_info WHERE id = ?", new Object[] { id }));
+        assertEquals("nxn-lambda-freedom-updated@test.com", jdbcTemplate.queryForString(selectColumnCommand("email"), new Object[] { id }));
     }
 
     @Test
@@ -79,17 +79,33 @@ public abstract class FreedomMapCrudCase extends AbstractNxnContractTest {
         int id = baseId() + 14;
         insertByJdbc(id, "NXN-Lambda-Freedom-Delete", 55, "nxn-lambda-freedom-delete@test.com");
 
-        int rows = lambdaTemplate.deleteFreedom("user_info")//
+        int rows = lambdaTemplate.deleteFreedom(tableName())//
                 .eq("id", id)//
                 .doDelete();
 
         assertEquals(1, rows);
-        assertEquals(Integer.valueOf(0), jdbcTemplate.queryForObject("SELECT COUNT(*) FROM user_info WHERE id = ?", new Object[] { id }, Integer.class));
+        assertEquals(Integer.valueOf(0), jdbcTemplate.queryForObject(countCommand(), new Object[] { id }, Integer.class));
     }
 
-    private void insertByJdbc(int id, String name, int age, String email) throws SQLException {
+    protected String tableName() {
+        return "user_info";
+    }
+
+    protected String insertCommand() {
+        return "INSERT INTO " + tableName() + " (id, name, age, email, create_time) VALUES (?, ?, ?, ?, ?)";
+    }
+
+    protected String selectColumnCommand(String column) {
+        return "SELECT " + column + " FROM " + tableName() + " WHERE id = ?";
+    }
+
+    protected String countCommand() {
+        return "SELECT COUNT(*) FROM " + tableName() + " WHERE id = ?";
+    }
+
+    protected void insertByJdbc(int id, String name, int age, String email) throws SQLException {
         jdbcTemplate.executeUpdate(//
-                "INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, ?)", //
+                insertCommand(), //
                 new Object[] { id, name, age, email, new Date() });
     }
 

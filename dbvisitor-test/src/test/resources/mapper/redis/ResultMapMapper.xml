@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="xmltest.ResultMapMapper">
+    <resultMap id="partial" type="net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisMappedEntry" autoMapping="false">
+        <result column="FIELD" property="field"/>
+    </resultMap>
+    <resultMap id="full" type="net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisMappedEntry" autoMapping="false">
+        <result column="FIELD" property="field"/>
+        <result column="VALUE" property="value"/>
+    </resultMap>
+    <resultMap id="typed" type="net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisMappedEntry" autoMapping="false">
+        <result column="FIELD" property="field" javaType="java.lang.Integer"/>
+        <result column="VALUE" property="value" javaType="java.lang.String"/>
+    </resultMap>
+    <resultMap id="automatic" type="net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisMappedEntry" autoMapping="true"/>
+    <resultMap id="mixedCase" type="net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisMappedEntry" autoMapping="false">
+        <result column="fIeLd" property="field"/>
+        <result column="vAlUe" property="value"/>
+    </resultMap>
+    <select id="selectByIdBase" resultMap="partial">HGETALL @{macro, redisEntryKey}</select>
+    <select id="selectByIdExtended" resultMap="full">HGETALL @{macro, redisEntryKey}</select>
+    <select id="selectByIdTyped" resultMap="typed">HGETALL @{macro, redisEntryKey}</select>
+    <select id="selectByIdAutoMapping" resultMap="automatic">HGETALL @{macro, redisEntryKey}</select>
+    <select id="selectByIdCaseInsensitive" resultMap="mixedCase">HGETALL @{macro, redisEntryKey}</select>
+    <select id="selectByIdAsRenamedMap" resultType="java.util.Map">HGETALL @{macro, redisEntryKey}</select>
+    <select id="selectAllBase" resultMap="partial">HGETALL @{macro, redisAllEntries}</select>
+</mapper>

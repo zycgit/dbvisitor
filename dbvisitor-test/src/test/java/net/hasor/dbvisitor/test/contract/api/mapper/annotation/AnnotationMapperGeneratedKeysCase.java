@@ -9,62 +9,67 @@ package net.hasor.dbvisitor.test.contract.api.mapper.annotation;
 
 import org.junit.Test;
 
-import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotEquals;
 
 @NxnContract
 public abstract class AnnotationMapperGeneratedKeysCase extends AnnotationMapperAttributeSupport {
     @Test
     @Capability(CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_GENERATED_KEYS)
     public void annotationAttributes_shouldPopulateGeneratedKeysAndSupportExplicitIds() throws Exception {
-        requiresNxnFeature(FeatureId.GENERATED_KEYS_NUMERIC);
-        UserInfo generated = user(null, "AttrGeneratedKey", 31, "generated@nxn.test");
-        assertNull(generated.getId());
+        if (numericGeneratedKeys()) {
+            requiresNxnFeature(FeatureId.GENERATED_KEYS_NUMERIC);
+        }
+        Object generated = keyRecord(null, "AttrGeneratedKey", 31, "generated@nxn.test");
+        assertNull(keyValue(generated));
 
-        assertEquals(1, this.mapper.insertWithGeneratedKeyNoKeyColumn(generated));
+        assertEquals(1, writeKeyRecord(KeyWrite.GENERATED, generated));
 
-        assertNotNull(generated.getId());
-        assertTrue(generated.getId() > 0);
-        assertEquals("AttrGeneratedKey", this.mapper.selectByIdPrepared(generated.getId()).getName());
+        assertGeneratedKey(keyValue(generated));
+        assertEquals("AttrGeneratedKey", readKeyName(keyValue(generated)));
 
-        int explicitId = explicitId(101);
-        UserInfo explicit = user(explicitId, "AttrManualKey", 32, "manual@nxn.test");
-        assertEquals(1, this.mapper.insertWithoutGeneratedKey(explicit));
-        assertEquals(Integer.valueOf(explicitId), explicit.getId());
-        assertEquals("AttrManualKey", this.mapper.selectByIdPrepared(explicitId).getName());
+        Object explicitId = explicitKey();
+        Object explicit = keyRecord(explicitId, "AttrManualKey", 32, "manual@nxn.test");
+        assertEquals(1, writeKeyRecord(KeyWrite.EXPLICIT, explicit));
+        assertEquals(explicitId, keyValue(explicit));
+        assertEquals("AttrManualKey", readKeyName(explicitId));
     }
 
     @Test
     @Capability(CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_KEY_COLUMN)
     public void annotationAttributes_shouldPopulateGeneratedKeysWithKeyColumnWhenSupported() throws Exception {
         requiresNxnFeature(FeatureId.GENERATED_KEY_COLUMN);
-        UserInfo user = user(null, "AttrKeyColumn", 33, "key-column@nxn.test");
+        Object user = keyRecord(null, "AttrKeyColumn", 33, "key-column@nxn.test");
 
-        assertEquals(1, this.mapper.insertWithKeyProperty(user));
+        assertEquals(1, writeKeyRecord(KeyWrite.COLUMN, user));
 
-        assertNotNull(user.getId());
-        assertTrue(user.getId() > 0);
-        assertEquals("AttrKeyColumn", this.mapper.selectByIdPrepared(user.getId()).getName());
+        assertGeneratedKey(keyValue(user));
+        assertEquals("AttrKeyColumn", readKeyName(keyValue(user)));
     }
 
     @Test
     @Capability(CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_RESULT_SET_KEY_SOURCE)
     public void annotationAttributes_shouldPopulateGeneratedKeysFromCurrentResultSetWhenSupported() throws Exception {
         requiresNxnFeature(FeatureId.GENERATED_KEY_RESULT_SET);
-        UserInfo user = user(null, "AttrResultSetKeySource", 34, "result-set-key-source@nxn.test");
+        Object user = keyRecord(null, "AttrResultSetKeySource", 34, "result-set-key-source@nxn.test");
 
-        assertEquals(1, this.mapper.insertWithGeneratedKeyResultSet(user));
+        assertEquals(1, writeKeyRecord(KeyWrite.RESULT_SET, user));
 
-        assertNotNull(user.getId());
-        assertTrue(user.getId() > 0);
-        assertEquals("AttrResultSetKeySource", this.mapper.selectByIdPrepared(user.getId()).getName());
+        assertGeneratedKey(keyValue(user));
+        assertEquals("AttrResultSetKeySource", readKeyName(keyValue(user)));
+
+        Object second = keyRecord(null, "AttrResultSetKeySourceSecond", 35, "result-set-key-source-second@nxn.test");
+        assertNull(keyValue(second));
+        assertEquals(1, writeKeyRecord(KeyWrite.RESULT_SET, second));
+        assertGeneratedKey(keyValue(second));
+        assertNotEquals(keyValue(user), keyValue(second));
+        assertEquals("AttrResultSetKeySource", readKeyName(keyValue(user)));
+        assertEquals("AttrResultSetKeySourceSecond", readKeyName(keyValue(second)));
     }
 }

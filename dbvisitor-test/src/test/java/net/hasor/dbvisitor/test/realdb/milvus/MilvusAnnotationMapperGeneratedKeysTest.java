@@ -9,6 +9,8 @@ package net.hasor.dbvisitor.test.realdb.milvus;
 
 import java.sql.SQLException;
 import java.util.Date;
+import net.hasor.dbvisitor.mapper.Insert;
+import net.hasor.dbvisitor.mapper.SimpleMapper;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperGeneratedKeysCase;
 import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyAutoLongUser;
@@ -25,7 +27,7 @@ import static org.junit.Assert.*;
 public class MilvusAnnotationMapperGeneratedKeysTest extends AnnotationMapperGeneratedKeysCase {
     private final MilvusCapabilityFixture fixture = new MilvusCapabilityFixture();
     private Session session;
-    private MilvusCapabilityMappers.GeneratedKeys keys;
+    private NativeGeneratedKeys keys;
 
     @Override
     protected DataSourceProfile profile() {
@@ -48,34 +50,51 @@ public class MilvusAnnotationMapperGeneratedKeysTest extends AnnotationMapperGen
     public void createAnnotationMapper() throws Exception {
         setup();
         this.session = newConfiguration().newSession(this.jdbcTemplate.getConnection());
-        this.keys = this.session.createMapper(MilvusCapabilityMappers.GeneratedKeys.class);
+        this.keys = this.session.createMapper(NativeGeneratedKeys.class);
     }
 
     @Override
-    @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_GENERATED_KEYS)
-    public void annotationAttributes_shouldPopulateGeneratedKeysAndSupportExplicitIds() throws Exception {
-        KeyAutoLongUser generated = nativeUser("AttrGeneratedKey", 31);
-        assertNull(generated.getId());
-        assertEquals(1, this.keys.generated(generated));
-        assertNotNull(generated.getId());
-        assertTrue(generated.getId() > 0);
-        assertEquals("AttrGeneratedKey", this.keys.load(generated.getId()).getName());
-
-        long explicitId = explicitId(101);
-        KeyAutoLongUser explicit = nativeUser("AttrManualKey", 32);
-        explicit.setId(explicitId);
-        assertEquals(1, this.keys.explicit(explicit));
-        assertEquals(Long.valueOf(explicitId), explicit.getId());
-        assertEquals("AttrManualKey", this.keys.loadExplicit(explicitId).getName());
-    }
-
-    private KeyAutoLongUser nativeUser(String name, int age) {
+    protected Object keyRecord(Object id, String name, int age, String email) {
         KeyAutoLongUser user = new KeyAutoLongUser();
+        user.setId((Long) id);
         user.setName(name);
         user.setAge(age);
         user.setCreateTime(new Date());
         return user;
+    }
+
+    @Override
+    protected Object keyValue(Object record) {
+        return ((KeyAutoLongUser) record).getId();
+    }
+
+    @Override
+    protected Object explicitKey() {
+        return (long) explicitId(101);
+    }
+
+    @Override
+    protected int writeKeyRecord(KeyWrite operation, Object record) throws Exception {
+        KeyAutoLongUser user = (KeyAutoLongUser) record;
+        return switch (operation) {
+            case GENERATED -> this.keys.generated(user);
+            case COLUMN -> this.keys.generatedWithColumn(user);
+            case EXPLICIT -> this.keys.explicit(user);
+            default -> throw new UnsupportedOperationException("Milvus does not provide this generated-key source: " + operation);
+        };
+    }
+
+    @Override
+    protected String readKeyName(Object id) throws Exception {
+        Long key = (Long) id;
+        return explicitKey().equals(key) ? this.keys.loadExplicit(key).getName() : this.keys.load(key).getName();
+    }
+
+    @SimpleMapper
+    public interface NativeGeneratedKeys extends MilvusCapabilityMappers.GeneratedKeys {
+        @Insert(value = "INSERT INTO user_info (name, age, create_time) VALUES (#{name}, #{age}, #{createTime})",
+                useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
+        int generatedWithColumn(KeyAutoLongUser user);
     }
 
     @After

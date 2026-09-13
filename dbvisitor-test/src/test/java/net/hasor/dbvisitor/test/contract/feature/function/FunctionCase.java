@@ -149,7 +149,11 @@ public abstract class FunctionCase extends AbstractNxnContractTest {
 
         assertEquals("FuncAlice", username);
         assertEquals(Integer.valueOf(15), sum);
-        assertEquals("WORLD!", value(transformed, "text_value"));
+        assertEquals("WORLD!", value(transformed, transformedValueColumn()));
+    }
+
+    protected String transformedValueColumn() {
+        return "text_value";
     }
 
     private Object value(Map<String, Object> row, String key) {

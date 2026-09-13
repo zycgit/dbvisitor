@@ -30,7 +30,7 @@ public class Elastic7IndexListTest {
                 try {
                     stmt.executeUpdate("DELETE /" + INDEX_NAME);
                 } catch (Exception e) {
-                    // ignore if not exists
+                    Elastic7Cleanup.requireMissingIndex(e);
                 }
             }
             try (Statement stmt = conn.createStatement()) {
@@ -47,7 +47,7 @@ public class Elastic7IndexListTest {
             try {
                 stmt.executeUpdate("DELETE /" + INDEX_NAME);
             } catch (Exception e) {
-                // ignore
+                Elastic7Cleanup.requireMissingIndex(e);
             }
         }
     }
@@ -113,7 +113,7 @@ public class Elastic7IndexListTest {
                 try {
                     stmt.executeUpdate("DELETE /dbv_es_mgmt");
                 } catch (Exception e) {
-                    // ignore
+                    Elastic7Cleanup.requireMissingIndex(e);
                 }
             }
             try (Statement stmt = conn.createStatement()) {
@@ -146,7 +146,7 @@ public class Elastic7IndexListTest {
                 try {
                     stmt.executeUpdate("DELETE /dbv_es_mgmt_args");
                 } catch (Exception e) {
-                    // ignore
+                    Elastic7Cleanup.requireMissingIndex(e);
                 }
             }
             try (Statement stmt = conn.createStatement()) {

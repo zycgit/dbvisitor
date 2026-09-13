@@ -7,48 +7,36 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.session;
 
-import java.util.*;
-import net.hasor.dbvisitor.session.*;
-import net.hasor.dbvisitor.test.nxn.capability.*;
-import net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisNativeMapperSupport;
+import java.sql.SQLException;
+import net.hasor.dbvisitor.test.contract.api.session.SessionStatementCoordinationCase;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisEntityFixture;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
 
-public class RedisSessionStatementCoordinationTest extends RedisNativeMapperSupport {
+public class RedisSessionStatementCoordinationTest extends SessionStatementCoordinationCase {
+    private final RedisEntityFixture fixture = new RedisEntityFixture();
 
-
-    @Before
-    public void loadStatements() throws Exception {
-        loadXml();
-        session.getConfiguration().loadMapper("/mapper/redis/CoverageMapper.xml");
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
     }
 
-    @Test
-    @Capability(CapabilityId.SESSION_STATEMENT_CROSS_TABLE)
-    public void namedStatements_shouldCoordinateOwnerAndOrderKeys() throws Exception {
-        String ownerKey = key("user-1");
-        String orderKey = key("user-1-orders");
-        assertEquals(1, ((Number) session.executeStatement("redis.Coverage.owner", params(ownerKey, "mali"))).intValue());
-        Map<String, Object> first = params(orderKey, "ORD-1");
-        first.put("id", "1");
-        Map<String, Object> second = params(orderKey, "ORD-2");
-        second.put("id", "2");
-        assertEquals(1, ((Number) session.executeStatement("redis.Coverage.order", first)).intValue());
-        assertEquals(1, ((Number) session.executeStatement("redis.Coverage.order", second)).intValue());
-        List<Map<String, Object>> orders = session.queryStatement("redis.Coverage.orders", params(orderKey, null));
-        assertEquals(2, orders.size());
-        Map<String, Object> actual = new HashMap<>();
-        for (Map<String, Object> row : orders) {
-            actual.put((String) row.get("FIELD"), row.get("VALUE"));
-        }
-        assertEquals("ORD-1", actual.get("1"));
-        assertEquals("ORD-2", actual.get("2"));
-        assertEquals(1, ((Number) session.executeStatement("redis.Coverage.deleteOrder", first)).intValue());
-        List<Map<String, Object>> remaining = session.queryStatement("redis.Coverage.orders", params(orderKey, null));
-        assertEquals(1, remaining.size());
-        assertEquals("2", remaining.get(0).get("FIELD"));
-        assertEquals("ORD-2", remaining.get(0).get("VALUE"));
-        assertEquals(Arrays.asList("mali"), session.queryStatement("redis.Coverage.ownerRead", params(ownerKey, null)));
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        this.jdbcTemplate = this.fixture.open();
+    }
+
+    @Override
+    @Before
+    public void createStatementSession() throws Exception {
+        this.session = this.fixture.session(newConfiguration(), "/session/RedisUserSessionMapper.xml");
+    }
+
+    @After
+    public void cleanupFixture() throws SQLException {
+        this.fixture.close();
     }
 }

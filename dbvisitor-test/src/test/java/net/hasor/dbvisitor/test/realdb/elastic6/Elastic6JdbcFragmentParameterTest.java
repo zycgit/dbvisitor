@@ -53,10 +53,6 @@ public class Elastic6JdbcFragmentParameterTest extends JdbcFragmentParameterCase
         return this.fixture.orderFragment();
     }
 
-    @Override
-    protected void assertNumericField(int expected, Object actual) {
-        org.junit.Assert.assertEquals(Integer.toString(expected), actual);
-    }
 
     @After
     public void cleanupFixture() throws SQLException {

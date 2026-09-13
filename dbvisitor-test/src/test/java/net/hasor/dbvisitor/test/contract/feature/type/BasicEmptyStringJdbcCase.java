@@ -24,14 +24,19 @@ public abstract class BasicEmptyStringJdbcCase extends BasicTypeJdbcSupport {
     @Test
     @Capability(CapabilityId.TYPE_BASIC_CHARACTER_EMPTY)
     public void basicEmptyString_shouldPreserveItsDatabaseMeaning() throws SQLException {
+        Object value = roundTripEmptyString();
+        if (isOracle()) {
+            assertNull(value);
+        } else {
+            assertEquals("", value);
+        }
+    }
+
+    protected Object roundTripEmptyString() throws SQLException {
         int emptyId = baseId() + 7;
         jdbcTemplate.executeUpdate(insertCommand("basic_types_explicit_test", "id, char_value, varchar_value, nvarchar_value"),
                 new Object[] { emptyId, null, "", null });
         Map<String, Object> emptyRow = jdbcTemplate.queryForMap(selectCommand("basic_types_explicit_test", "char_value, varchar_value, nvarchar_value"), new Object[] { emptyId });
-        if (isOracle()) {
-            assertNull(value(emptyRow, "varchar_value"));
-        } else {
-            assertEquals("", value(emptyRow, "varchar_value"));
-        }
+        return value(emptyRow, "varchar_value");
     }
 }

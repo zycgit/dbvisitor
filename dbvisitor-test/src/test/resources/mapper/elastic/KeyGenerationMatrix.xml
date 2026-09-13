@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="xmltest.KeyGenerationMapper">
+    <insert id="insertWithGeneratedKeys" useGeneratedKeys="true" keyProperty="id">@{macro, esKeyInsert}</insert>
+    <insert id="insertWithKeyColumn" useGeneratedKeys="true" keyProperty="id" keyColumn="_ID">@{macro, esKeyInsert}</insert>
+    <select id="selectById" resultType="string">@{macro, esKeyRead}</select>
+    <insert id="insertWithSelectKeyBefore">
+        <selectKey keyProperty="id" order="BEFORE">@{macro, esKeyBefore}</selectKey>
+        @{macro, esKeyExplicit}
+    </insert>
+    <insert id="insertWithSelectKeyAfter">
+        <selectKey keyProperty="id" order="AFTER">@{macro, esKeyAfter}</selectKey>
+        @{macro, esKeyAfterInsert}
+    </insert>
+</mapper>

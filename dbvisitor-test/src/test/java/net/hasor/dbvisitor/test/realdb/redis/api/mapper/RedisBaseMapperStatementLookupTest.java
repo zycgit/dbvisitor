@@ -7,27 +7,49 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
-import java.util.*;
-import net.hasor.dbvisitor.mapper.BaseMapper;
-import net.hasor.dbvisitor.session.*;
-import net.hasor.dbvisitor.test.nxn.capability.*;
+import java.sql.SQLException;
+import java.util.List;
+
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
 
-public class RedisBaseMapperStatementLookupTest extends RedisNativeMapperSupport {
-    private static final String NS = "redis.Native.";
+import net.hasor.dbvisitor.session.Session;
+import net.hasor.dbvisitor.test.contract.api.mapper.basemapper.BaseMapperStatementLookupCase;
+import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
 
-    @Before
-    public void loadStatements() throws Exception {
-        loadXml();
+public class RedisBaseMapperStatementLookupTest extends BaseMapperStatementLookupCase {
+    private final RedisEntityFixture fixture = new RedisEntityFixture();
+
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
     }
 
-    @Test
-    @Capability(CapabilityId.BASEMAPPER_STATEMENT_INVALID_ID)
-    public void baseInvalidStatement() throws Exception {
-        BaseMapper<Entry> base = session.createBaseMapper(Entry.class);
-        assertThrows(RuntimeException.class, () -> base.executeStatement(NS + "missing", null));
-        assertThrows(RuntimeException.class, () -> base.queryStatement(NS + "missing", null));
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        this.jdbcTemplate = this.fixture.open();
+    }
+
+    @Override
+    @Before
+    public void createBaseMapperWithStatements() throws Exception {
+        Session session = this.fixture.session(newConfiguration(), "/mapper/redis/StatementMapper.xml");
+        this.mapper = session.createBaseMapper(UserInfo.class);
+    }
+
+    @After
+    public void closeFixture() throws SQLException {
+        this.fixture.close();
+    }
+
+    @Override
+    protected List<UserInfo> query(String statementId, Object params) {
+        if ("queryUsersByName".equals(statementId)) {
+            this.mapper.executeStatement(NS + ".prepareNameResults", params);
+        }
+        return super.query(statementId, params);
     }
 }

@@ -36,7 +36,7 @@ public class Elastic7JdbcDslTest extends AdapterCase {
             try {
                 jdbc.execute("DELETE /test_user_info");
             } catch (Exception e) {
-                // ignore
+                Elastic7Cleanup.requireMissingIndex(e);
             }
 
             // 2. insert
@@ -81,7 +81,7 @@ public class Elastic7JdbcDslTest extends AdapterCase {
             try {
                 jdbc.execute("DELETE /test_user_info_2");
             } catch (Exception e) {
-                // ignore
+                Elastic7Cleanup.requireMissingIndex(e);
             }
 
             // 2. insert

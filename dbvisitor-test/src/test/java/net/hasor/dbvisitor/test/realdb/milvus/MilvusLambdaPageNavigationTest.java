@@ -8,61 +8,53 @@
 package net.hasor.dbvisitor.test.realdb.milvus;
 
 import java.sql.SQLException;
-import java.util.Date;
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import org.junit.Test;
-import java.util.List;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.lambda.EntityQuery;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.test.contract.api.lambda.LambdaPageNavigationCase;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
+import org.junit.After;
+import org.junit.Before;
 
-public class MilvusLambdaPageNavigationTest extends MilvusLambdaPaginationSupport {
-    @Test
-    @Capability(CapabilityId.ADAPTER_MILVUS_PAGINATION_MUTABLE)
-    public void mutablePageShouldFollowNativePageSemantics() throws SQLException {
-        verifyMutablePage();
+public class MilvusLambdaPageNavigationTest extends LambdaPageNavigationCase {
+    private final MilvusLambdaPageFixture fixture = new MilvusLambdaPageFixture();
+
+    @Override
+    protected DataSourceProfile profile() {
+        return MilvusProfile.INSTANCE;
     }
 
-    @Test
-    @Capability(CapabilityId.ADAPTER_MILVUS_PAGINATION_TRAVERSAL)
-    public void fullTraversalShouldFollowNativePageSemantics() throws SQLException {
-        verifyFullTraversal();
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        this.jdbcTemplate = new JdbcTemplate(this.fixture.open());
+        this.lambdaTemplate = new LambdaTemplate(this.jdbcTemplate);
     }
 
-    @Test
-    @Capability(CapabilityId.ADAPTER_MILVUS_PAGINATION_OFFSET)
-    public void offsetShouldFollowNativePageSemantics() throws SQLException {
-        verifyOffset();
+    @Override
+    protected void insert(int id, String name, Integer age) throws SQLException {
+        this.fixture.insert(id, name, age);
     }
 
-    @Test
-    @Capability(CapabilityId.LAMBDA_QUERY_PAGE)
-    public void lambdaQueryPage_shouldLimitAndOffsetResults() throws SQLException {
-        MilvusUserInfoFixture fixture = new MilvusUserInfoFixture();
-        try {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(fixture.open());
-            LambdaTemplate lambdaTemplate = new LambdaTemplate(jdbcTemplate);
-            int baseId = 930000;
-            for (int i = 1; i <= 12; i++) {
-                jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, ?)",
-                        new Object[] { baseId + 60 + i, "PageQ" + i, 20 + i, "page" + i + "@test.com", new Date() });
-            }
+    @Override
+    protected EntityQuery<? extends UserInfo> queryRows() throws SQLException {
+        return this.fixture.query(this.lambdaTemplate);
+    }
 
-            List<UserInfo> users = lambdaTemplate.query(UserInfo.class)//
-                    .rangeBetween(UserInfo::getId, baseId + 61, baseId + 72)//
-                    .orderBy("id")//
-                    .initPage(5, 1)//
-                    .queryForList();
+    @Override
+    protected EntityQuery<? extends UserInfo> queryRows(String prefix) throws SQLException {
+        return this.fixture.query(this.lambdaTemplate, prefix);
+    }
 
-            assertNotNull(users);
-            assertEquals(5, users.size());
-            assertEquals(Integer.valueOf(baseId + 66), users.get(0).getId());
-            assertEquals(Integer.valueOf(baseId + 70), users.get(4).getId());
-        } finally {
-            fixture.close();
-        }
+    @Override
+    protected EntityQuery<? extends UserInfo> orderRows(EntityQuery<? extends UserInfo> query) {
+        return this.fixture.order(query);
+    }
+
+    @After
+    public void cleanupFixture() throws SQLException {
+        this.fixture.close();
     }
 }

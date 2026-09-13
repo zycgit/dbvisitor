@@ -37,7 +37,7 @@ public abstract class AssignedKeyCase extends KeyGenerationSupport {
         user.setCreateTime(new Date());
 
         int rows = lambdaTemplate.insert(KeyNoneStrictUser.class).applyEntity(user).executeSumResult();
-        Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM user_strict_none WHERE id = ?", new Object[] { 88001 }, Integer.class);
+        Integer count = countStrictKey(88001);
 
         assertEquals(1, rows);
         assertEquals(Integer.valueOf(88001), user.getId());
@@ -69,7 +69,7 @@ public abstract class AssignedKeyCase extends KeyGenerationSupport {
     public void keygenNone_shouldPropagateDuplicatePrimaryKeyError() throws SQLException {
         requiresNxnFeature(FeatureId.DUPLICATE_PRIMARY_KEY_REJECTED);
 
-        jdbcTemplate.executeUpdate("DELETE FROM user_info WHERE id = 66666");
+        deleteDuplicateKey(66666);
         KeyNoneUser first = noneUser(66666, "Duplicate User 1", 30);
         KeyNoneUser second = noneUser(66666, "Duplicate User 2", 31);
 
@@ -80,5 +80,12 @@ public abstract class AssignedKeyCase extends KeyGenerationSupport {
         } catch (Exception e) {
             assertTrue(e.getMessage(), isDuplicateKeyMessage(e));
         }
+    }
+    protected Integer countStrictKey(int id) throws SQLException {
+        return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM user_strict_none WHERE id = ?", new Object[] { id }, Integer.class);
+    }
+
+    protected void deleteDuplicateKey(int id) throws SQLException {
+        jdbcTemplate.executeUpdate("DELETE FROM user_info WHERE id = ?", new Object[] { id });
     }
 }

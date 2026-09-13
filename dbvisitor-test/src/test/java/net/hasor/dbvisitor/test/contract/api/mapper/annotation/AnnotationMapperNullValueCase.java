@@ -29,6 +29,7 @@ public abstract class AnnotationMapperNullValueCase extends AnnotationMapperBoun
 
         UserInfo loaded = this.mapper.selectById(id);
         assertNotNull(loaded);
+        assertEquals(Integer.valueOf(id), loaded.getId());
         assertEquals("AnnoNull", loaded.getName());
         assertNull(loaded.getAge());
         assertNull(loaded.getEmail());

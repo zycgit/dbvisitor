@@ -8,17 +8,16 @@
 package net.hasor.dbvisitor.test.realdb.redis.api.jdbc;
 
 import java.sql.SQLException;
+import java.util.Map;
+import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import org.junit.Before;
 import org.junit.After;
-import org.junit.Test;
 
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcBeanQueryCase;
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
-import static org.junit.Assert.*;
 
 public class RedisJdbcBeanQueryTest extends JdbcBeanQueryCase {
 
@@ -41,16 +40,41 @@ public class RedisJdbcBeanQueryTest extends JdbcBeanQueryCase {
     }
 
     @Override
-    @Test
-    @Capability(CapabilityId.JDBC_QUERY_BEAN)
-    public void jdbcQueryForList_shouldReturnBeans() throws SQLException {
-        fixture.seedScores();
-        List<RedisJdbcFixture.ScoredMember> rows = jdbcTemplate.queryForList("ZRANGE ? 0 2 WITHSCORES",
-            new Object[] { fixture.key("scores") }, RedisJdbcFixture.ScoredMember.class);
-        assertEquals(3, rows.size());
-        for (int i = 0; i < rows.size(); i++) {
-            assertEquals("member-" + (i + 1), rows.get(i).getElement());
-            assertEquals(Double.valueOf(21 + i), rows.get(i).getScore());
-        }
+    protected void insertUser(int id, String name, int age, String email, Date created) throws SQLException {
+        jdbcTemplate.queryForLong("ZADD ? ? ?", new Object[] { fixture.key("beans"), age, name });
+    }
+
+    @Override
+    protected String selectRange(String columns, String lower, String upper, boolean ordered) {
+        return "ZRANGE '" + fixture.key("beans") + "' ? ? WITHSCORES";
+    }
+
+    @Override
+    protected Object[] beanRangeArguments() {
+        return new Object[] { 0, 2 };
+    }
+
+    @Override
+    protected Class<?> queryBeanType() {
+        return RedisJdbcFixture.ScoredMember.class;
+    }
+
+    @Override
+    protected Map<String, Object> beanValues(Object bean) {
+        RedisJdbcFixture.ScoredMember member = (RedisJdbcFixture.ScoredMember) bean;
+        Map<String, Object> values = new LinkedHashMap<>();
+        values.put("element", member.getElement());
+        values.put("score", member.getScore());
+        return values;
+    }
+
+    @Override
+    protected Map<String, Object> expectedBeanValues(int offset) {
+        return Map.of("element", "NXN-JDBC-Query-" + offset, "score", Double.valueOf(60 + offset));
+    }
+
+    @Override
+    protected List<?> requiredBeanValues(Object bean) {
+        return List.of();
     }
 }

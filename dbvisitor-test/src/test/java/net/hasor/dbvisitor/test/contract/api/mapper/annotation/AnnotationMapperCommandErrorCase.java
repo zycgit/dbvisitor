@@ -8,6 +8,8 @@
 package net.hasor.dbvisitor.test.contract.api.mapper.annotation;
 
 import org.junit.Test;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
@@ -19,23 +21,31 @@ public abstract class AnnotationMapperCommandErrorCase extends AnnotationMapperB
     @Test
     @Capability(CapabilityId.MAPPER_ANNOTATION_SQL_ERROR)
     public void annotationMapperSqlErrors_shouldPropagateFromSyntaxTableAndColumnFailures() throws Exception {
-        expectMapperFailure(new FailingMapperCall() {
-            @Override
-            public void run() throws Exception {
-                mapper.selectWithSyntaxError();
-            }
-        });
-        expectMapperFailure(new FailingMapperCall() {
-            @Override
-            public void run() throws Exception {
-                mapper.selectFromNonExistentTable();
-            }
-        });
-        expectMapperFailure(new FailingMapperCall() {
-            @Override
-            public void run() throws Exception {
-                mapper.selectNonExistentColumn();
-            }
-        });
+        prepareInvalidCommands();
+        for (int index = 0; index < 3; index++) {
+            final int scenario = index;
+            Exception error = assertThrows(Exception.class, () -> executeInvalidCommand(scenario));
+            verifyCommandFailure(scenario, error);
+        }
+        verifyAfterCommandFailures();
+    }
+
+    protected void prepareInvalidCommands() throws Exception {
+    }
+
+    protected void executeInvalidCommand(int scenario) throws Exception {
+        switch (scenario) {
+            case 0 -> mapper.selectWithSyntaxError();
+            case 1 -> mapper.selectFromNonExistentTable();
+            case 2 -> mapper.selectNonExistentColumn();
+            default -> throw new IllegalArgumentException("Unknown failure scenario: " + scenario);
+        }
+    }
+
+    protected void verifyCommandFailure(int scenario, Exception error) {
+        assertNotNull(error);
+    }
+
+    protected void verifyAfterCommandFailures() throws Exception {
     }
 }

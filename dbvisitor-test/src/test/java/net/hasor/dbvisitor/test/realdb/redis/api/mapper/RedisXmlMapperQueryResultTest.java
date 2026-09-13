@@ -7,39 +7,45 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
-import java.util.*;
-import net.hasor.dbvisitor.test.nxn.capability.*;
+import java.sql.SQLException;
+import java.util.Map;
+import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperQueryResultCase;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
 
-public class RedisXmlMapperQueryResultTest extends RedisNativeMapperSupport {
-    private Map<String, Object> seedHash() throws Exception {
-        Map<String, Object> p = params(key("hash"), null);
-        session.jdbc().executeUpdate("HSET ? name mali age 18", p.get("key"));
-        return p;
+public class RedisXmlMapperQueryResultTest extends XmlMapperQueryResultCase {
+    private final RedisEntityFixture fixture = new RedisEntityFixture();
+
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
     }
 
-    private static final String NS = "redis.Native.";
-
+    @Override
     @Before
-    public void loadStatements() throws Exception {
-        loadXml();
+    public void setup() throws SQLException {
+        this.jdbcTemplate = this.fixture.open();
     }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_XML_RESULT_MAP)
-    public void map() throws Exception {
-        List<Map<String, Object>> rows = session.queryStatement(NS + "maps", seedHash());
-        assertEquals(2, rows.size());
-        assertEquals(new HashSet<>(Arrays.asList("FIELD", "VALUE")), rows.get(0).keySet());
+    @Override
+    @Before
+    public void createXmlMapperSession() throws Exception {
+        this.session = this.fixture.session(newConfiguration(), "/mapper/redis/CrudAccessMapper.xml");
+        for (int i = 1; i <= 5; i++) {
+            this.session.executeStatement("xmltest.CrudMapper.seed", Map.of(
+                    "id", baseId() + i, "name", "XmlCrud" + i, "age", 20 + i, "email", "crud" + i + "@test.com"));
+        }
     }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_XML_RESULT_SCALAR)
-    public void scalar() throws Exception {
-        Map<String, Object> p = params(key("scalar"), "scalar");
-        session.executeStatement(NS + "put", p);
-        assertEquals(Arrays.asList("scalar"), session.queryStatement(NS + "get", p));
+    @Override
+    protected Map<String, Object> expectedFirstMapRow() {
+        return Map.of("ELEMENT", "XmlCrud1", "SCORE", (double) (baseId() + 1));
+    }
+
+    @After
+    public void cleanupFixture() throws SQLException {
+        this.fixture.close();
     }
 }

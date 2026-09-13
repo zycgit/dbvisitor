@@ -22,6 +22,10 @@ import static org.junit.Assert.assertEquals;
 
 @NxnContract
 public abstract class JdbcTextParameterCase extends JdbcParameterSupport {
+    protected String textLookupValue(String value) {
+        return value;
+    }
+
     @Test
     @Capability(CapabilityId.JDBC_PARAM_TEXT_REPLACEMENT)
     public void textReplacementParameters_shouldCombineIdentifiersAndBoundValues() throws SQLException {
@@ -33,7 +37,7 @@ public abstract class JdbcTextParameterCase extends JdbcParameterSupport {
         // Only trusted fixture identifiers are substituted; values remain bound parameters.
         params.put("tableName", fixtureTable());
         params.put("column", fixtureColumn("name"));
-        params.put("name", name);
+        params.put("name", textLookupValue(name));
 
         List<Map<String, Object>> rows = jdbcTemplate.queryForList(
                 command(JdbcParameterCommand.SELECT_TEXT_VALUE), params);

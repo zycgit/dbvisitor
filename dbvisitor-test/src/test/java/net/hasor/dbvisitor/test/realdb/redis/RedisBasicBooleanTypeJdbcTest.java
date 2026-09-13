@@ -8,16 +8,34 @@
 package net.hasor.dbvisitor.test.realdb.redis;
 
 import java.sql.SQLException;
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
 
-public class RedisBasicBooleanTypeJdbcTest extends RedisBasicTypeSupport {
-    @Test
-    @Capability(CapabilityId.ADAPTER_REDIS_BASIC_BOOLEAN)
-    public void booleanValues_shouldRoundTripTrueAndFalse() throws SQLException {
-        assertEquals(Boolean.TRUE, roundTrip("true", true, Boolean.class));
-        assertEquals(Boolean.FALSE, roundTrip("false", false, Boolean.class));
+import net.hasor.dbvisitor.test.contract.feature.type.BasicBooleanTypeJdbcCase;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import org.junit.After;
+import org.junit.Before;
+
+public class RedisBasicBooleanTypeJdbcTest extends BasicBooleanTypeJdbcCase {
+    private final RedisBasicTypeSupport fixture = new RedisBasicTypeSupport();
+
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
+    }
+
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        fixture.openFixture();
+    }
+
+    @After
+    public void closeFixture() throws SQLException {
+        fixture.close();
+    }
+
+    @Override
+    protected Boolean roundTripBooleanValue(boolean input) throws SQLException {
+        return fixture.roundTrip(String.valueOf(input), input, Boolean.class);
     }
 }

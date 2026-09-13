@@ -7,40 +7,77 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.session;
 
-import java.sql.Connection;
-import java.util.*;
-import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.session.*;
-import net.hasor.dbvisitor.test.nxn.capability.*;
+import java.sql.SQLException;
+import java.util.Properties;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import net.hasor.dbvisitor.session.Session;
+import net.hasor.dbvisitor.test.contract.api.session.SessionFactoryCase;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
-import net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisNativeMapperSupport;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisMapperFixture;
+import net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisNativeMapperSupport.NativeMapper;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
 
-public class RedisSessionFactoryTest extends RedisNativeMapperSupport {
+public class RedisSessionFactoryTest extends SessionFactoryCase {
+    private final RedisMapperFixture fixture = new RedisMapperFixture();
+    private HikariDataSource sessionSource;
 
-
-    @Before
-    public void loadStatements() throws Exception {
-        loadXml();
-        session.getConfiguration().loadMapper("/mapper/redis/CoverageMapper.xml");
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
     }
 
-    @Test
-    @Capability(CapabilityId.SESSION_NATIVE_CONFIGURATION_FACTORY)
-    public void configuration_shouldCreateWorkingNativeJdbcAndSession() throws Exception {
-        Configuration configuration = new Configuration();
-        try (Connection connection = OneApiDataSourceManager.getConnection("redis");
-            Session local = configuration.newSession(connection)) {
-            JdbcTemplate jdbc = configuration.newJdbc(connection);
-            assertSame(configuration, local.getConfiguration());
-            String key = key("factory");
-            assertEquals(1, jdbc.executeUpdate("SET ? ?", new Object[] { key, "first" }));
-            NativeMapper mapper = local.createMapper(NativeMapper.class);
-            assertEquals("first", mapper.get(key));
-            assertEquals(1, mapper.replace(key, "second"));
-            assertEquals("second", jdbc.queryForString("GET ?", key));
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        fixture.open();
+        Properties properties = OneApiDataSourceManager.loadAdapterProperties("redis");
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl(properties.getProperty("jdbc.url"));
+        config.setDriverClassName(properties.getProperty("jdbc.driver"));
+        config.setUsername(properties.getProperty("jdbc.username"));
+        config.setPassword(properties.getProperty("jdbc.password"));
+        config.setConnectionTestQuery("PING");
+        config.setMaximumPoolSize(2);
+        config.setMinimumIdle(0);
+        sessionSource = new HikariDataSource(config);
+        dataSource = sessionSource;
+    }
+
+    @After
+    public void closeFixture() throws SQLException {
+        try {
+            fixture.close();
+        } finally {
+            if (sessionSource != null) {
+                sessionSource.close();
+            }
         }
+    }
+
+    @Override
+    protected String jdbcInsertCommand() { return "SET ? ?"; }
+    @Override
+    protected Object[] jdbcInsertParameters() { return new Object[] { fixture.key("factory"), "ConfigJdbc" }; }
+    @Override
+    protected String jdbcCountCommand() { return "EXISTS ?"; }
+    @Override
+    protected Object[] jdbcCountParameters() { return new Object[] { fixture.key("factory") }; }
+    @Override
+    protected String jdbcNameCommand() { return "GET ?"; }
+    @Override
+    protected Object[] jdbcNameParameters() { return new Object[] { fixture.key("factory") }; }
+
+    @Override
+    protected int insertFactoryEntity(Session local, int id, String name, int age) throws Exception {
+        return local.createMapper(NativeMapper.class).replace(fixture.key("factory"), name);
+    }
+
+    @Override
+    protected String readFactoryName(Session local, int id) throws Exception {
+        return local.createMapper(NativeMapper.class).get(fixture.key("factory"));
     }
 }

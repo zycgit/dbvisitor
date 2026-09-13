@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="xmltest.SqlFragmentMapper">
+    <sql id="lookup"> ZRANGEBYSCORE @{macro, redisUsers} </sql>
+    <sql id="members"> ZRANGE @{macro, redisUsers} </sql>
+    <sql id="ascendingRange"> 0 -1 </sql>
+    <sql id="condition"> <choose> <when test="name != null"> @{macro, redisNameIndex} </when> <otherwise> @{macro, redisAges} </otherwise> </choose> <if test="minAge != null"> #{minAge} </if><if test="minAge == null"> -inf </if> <if test="maxAge != null"> #{maxAge} </if><if test="maxAge == null"> +inf </if> </sql>
+    <select id="selectWithColumnFragment" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo" resultTypeHandler="net.hasor.dbvisitor.types.handler.json.JsonTypeHandler"> <include refid="lookup"/> #{id} #{id} </select>
+    <select id="selectWithConditionFragment" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo" resultTypeHandler="net.hasor.dbvisitor.types.handler.json.JsonTypeHandler"> ZRANGEBYSCORE <include refid="condition"/> </select>
+    <select id="selectWithMultipleFragments" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo" resultTypeHandler="net.hasor.dbvisitor.types.handler.json.JsonTypeHandler"> <include refid="members"/> <include refid="ascendingRange"/> </select>
+    <select id="selectAllOrdered" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo" resultTypeHandler="net.hasor.dbvisitor.types.handler.json.JsonTypeHandler"> ZRANGE @{macro, redisUsers} <include refid="ascendingRange"/> </select>
+</mapper>

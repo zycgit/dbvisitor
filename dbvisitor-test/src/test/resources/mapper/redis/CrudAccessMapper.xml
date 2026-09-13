@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="xmltest.CrudMapper">
+    <select id="seed" resultSetExtractor="net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisIntegerResultExtractor"> EVAL "redis.call('ZADD',KEYS[1],ARGV[1],ARGV[3]); redis.call('ZADD',KEYS[2],ARGV[1],ARGV[2]); redis.call('HSET',KEYS[3],ARGV[2],ARGV[1]); return 1" 3 @{macro, redisUsers} @{macro, redisNames} @{macro, redisAges} #{id} #{name} #{#{'id':id,'name':name,'age':age,'email':email},typeHandler=net.hasor.dbvisitor.types.handler.json.JsonTypeHandler} </select>
+    <select id="selectAll" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo" resultTypeHandler="net.hasor.dbvisitor.types.handler.json.JsonTypeHandler"> ZRANGE @{macro, redisUsers} 0 -1 </select>
+    <select id="selectById" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo" resultTypeHandler="net.hasor.dbvisitor.types.handler.json.JsonTypeHandler"> ZRANGEBYSCORE @{macro, redisUsers} #{id} #{id} </select>
+    <select id="deleteByName" resultSetExtractor="net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisIntegerResultExtractor"> EVAL "local id=redis.call('HGET',KEYS[3],ARGV[1]); if not id then return 0 end; redis.call('ZREM',KEYS[2],ARGV[1]); redis.call('HDEL',KEYS[3],ARGV[1]); return redis.call('ZREMRANGEBYSCORE',KEYS[1],id,id)" 3 @{macro, redisUsers} @{macro, redisNames} @{macro, redisAges} #{name} </select>
+    <select id="countAll" resultType="java.lang.Integer">ZCARD @{macro, redisUsers}</select>
+    <select id="selectNames" resultType="java.lang.String">ZRANGE @{macro, redisNames} 0 -1</select>
+    <select id="selectAllAsMap" resultType="java.util.Map">ZRANGE @{macro, redisNames} 0 -1 WITHSCORES</select>
+</mapper>

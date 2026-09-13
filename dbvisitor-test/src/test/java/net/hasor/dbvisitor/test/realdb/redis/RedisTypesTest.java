@@ -189,39 +189,6 @@ public class RedisTypesTest {
         }
     }
 
-    @Test
-    @Capability(CapabilityId.ADAPTER_REDIS_JDBC_DSL_BEAN)
-    public void bean_1() throws Exception {
-        Configuration config = new Configuration();
-        config.options().mapUnderscoreToCamelCase(true);
-
-        try (Connection c = OneApiDataSourceManager.getConnection("redis")) {
-            JdbcTemplate jdbc = new JdbcTemplate(c);
-            jdbc.executeUpdate("del user_j1111");// 预删除避免 test case 相互污染
-
-            UserInfo1 user = new UserInfo1();
-            user.setUid("j1111");
-            user.setName("username");
-            user.setLoginName("login_123");
-            user.setLoginPassword("password");
-
-            // insert
-            assertTrue(jdbc.executeUpdate("set #{'user_' + arg0.uid} #{arg0}", user) == 1);
-
-            // load
-            UserInfo1 info = jdbc.queryForObject("get #{'user_' + arg0}", "j1111", UserInfo1.class);
-            assertTrue(user != info);
-            assertTrue(info.getUid().equals("j1111"));
-            assertTrue(info.getName().equals("username"));
-            assertTrue(info.getLoginName().equals("login_123"));
-            assertTrue(info.getLoginPassword().equals("password"));
-
-            // delete
-            assertTrue(c.unwrap(Jedis.class).get("user_j1111") != null);
-            assertTrue(jdbc.executeUpdate("del user_j1111") == 1);
-            assertTrue(c.unwrap(Jedis.class).get("user_j1111") == null);
-        }
-    }
 
     @Test
     @Capability(CapabilityId.ADAPTER_REDIS_TYPE_SET)

@@ -213,6 +213,9 @@ public final class CapabilityId {
     public static final String JDBC_CRUD_EXECUTE_DDL                                    = "jdbc.crud.execute-ddl";
     public static final String ADAPTER_PG_SQL_UPDATE_COUNT                              = "adapter.pg.sql.update-count";
     public static final String JDBC_QUERY_MAP                                           = "jdbc.query.map";
+    public static final String JDBC_COLUMN_STRICT_BEAN                                 = "jdbc.column.strict-bean";
+    public static final String JDBC_COLUMN_INSENSITIVE_MAP                             = "jdbc.column.insensitive-map";
+    public static final String JDBC_COLUMN_SENSITIVE_MAP                               = "jdbc.column.sensitive-map";
     public static final String JDBC_QUERY_LIST                                          = "jdbc.query.list";
     public static final String JDBC_QUERY_BEAN                                          = "jdbc.query.bean";
     public static final String JDBC_QUERY_SCALAR                                        = "jdbc.query.scalar";
@@ -407,7 +410,6 @@ public final class CapabilityId {
     public static final String LAMBDA_EDGE_EMPTY_WHERE_DELETE_ALLOW                     = "lambda.edge.empty-where.delete-allow";
     public static final String LAMBDA_EDGE_EMPTY_WHERE_UPDATE_REJECT                    = "lambda.edge.empty-where.update-reject";
     public static final String LAMBDA_EDGE_EMPTY_WHERE_UPDATE_ALLOW                     = "lambda.edge.empty-where.update-allow";
-    public static final String LAMBDA_EDGE_EMPTY_IN_REJECT                              = "lambda.edge.empty-in.reject";
     public static final String LAMBDA_ITERATOR_LIMIT_BATCH                              = "lambda.iterator.limit-batch";
     public static final String LAMBDA_ITERATOR_ALL                                      = "lambda.iterator.all";
     public static final String LAMBDA_ITERATOR_BATCH                                    = "lambda.iterator.batch";
@@ -516,11 +518,6 @@ public final class CapabilityId {
     public static final String LAMBDA_DUPLICATE_STRATEGY_UPDATE_BASIC                   = "lambda.duplicate-strategy.update.basic";
     public static final String LAMBDA_DUPLICATE_STRATEGY_UPDATE_MIXED                   = "lambda.duplicate-strategy.update.mixed";
     public static final String LAMBDA_DUPLICATE_STRATEGY_TRANSITION                     = "lambda.duplicate-strategy.transition";
-    public static final String LAMBDA_INSERT_STRATEGY_GENERATED_KEY_NO_RETURN           = "lambda.insert-strategy.generated-key.no-return";
-    public static final String LAMBDA_INSERT_STRATEGY_GENERATED_KEY_INTO                = "lambda.insert-strategy.generated-key.into";
-    public static final String LAMBDA_INSERT_STRATEGY_GENERATED_KEY_IGNORE              = "lambda.insert-strategy.generated-key.ignore";
-    public static final String LAMBDA_INSERT_STRATEGY_GENERATED_KEY_UPDATE              = "lambda.insert-strategy.generated-key.update";
-    public static final String LAMBDA_INSERT_STRATEGY_DUPLICATE_SUPPORT                 = "lambda.insert-strategy.duplicate-support";
     public static final String SESSION_LIFECYCLE                                        = "session.lifecycle";
     public static final String SESSION_COMPONENT_JDBC                                   = "session.component.jdbc";
     public static final String SESSION_COMPONENT_LAMBDA                                 = "session.component.lambda";
@@ -537,6 +534,8 @@ public final class CapabilityId {
     public static final String SESSION_MAPPER_REF_JOIN                                  = "session.mapper.ref.join";
     public static final String SESSION_MAPPER_DECLARATIVE                               = "session.mapper.declarative";
     public static final String SESSION_MAPPER_MIXED                                     = "session.mapper.mixed";
+    public static final String SESSION_MAPPER_ANNOTATION_XML_SHARING                    = "session.mapper.annotation-xml-sharing";
+    public static final String SESSION_MAPPER_JDBC_SHARING                              = "session.mapper.jdbc-sharing";
     public static final String SESSION_MAPPER_INVALID                                   = "session.mapper.invalid";
     public static final String SESSION_MAPPER_REGISTER_SIMPLE                           = "session.mapper.register-simple";
     public static final String SESSION_MAPPER_REGISTER_REF                              = "session.mapper.register-ref";
@@ -656,6 +655,8 @@ public final class CapabilityId {
     public static final String MAPPER_ANNOTATION_ATTRIBUTE_TIMEOUT                      = "mapper.annotation.attribute.timeout";
     public static final String MAPPER_ANNOTATION_ATTRIBUTE_FETCH_SIZE                   = "mapper.annotation.attribute.fetch-size";
     public static final String MAPPER_ANNOTATION_ATTRIBUTE_RESULT_SET_TYPE              = "mapper.annotation.attribute.result-set-type";
+    public static final String MAPPER_ANNOTATION_ATTRIBUTE_SCROLL_INSENSITIVE           = "mapper.annotation.attribute.scroll-insensitive";
+    public static final String MAPPER_ANNOTATION_ATTRIBUTE_SCROLL_SENSITIVE             = "mapper.annotation.attribute.scroll-sensitive";
     public static final String MAPPER_ANNOTATION_ATTRIBUTE_GENERATED_KEYS               = "mapper.annotation.attribute.generated-keys";
     public static final String MAPPER_ANNOTATION_ATTRIBUTE_KEY_COLUMN                   = "mapper.annotation.attribute.key-column";
     public static final String MAPPER_ANNOTATION_ATTRIBUTE_RESULT_SET_KEY_SOURCE        = "mapper.annotation.attribute.result-set-key-source";
@@ -765,9 +766,7 @@ public final class CapabilityId {
     public static final String KEYGEN_HOLDER_EXCEPTION                                  = "keygen.holder.exception";
     public static final String KEYGEN_HOLDER_SQL_EXCEPTION                              = "keygen.holder.sql-exception";
     public static final String KEYGEN_DUPLICATE_KEY                                     = "keygen.duplicate-key";
-    public static final String KEYGEN_UUID_WRONG_TYPE                                   = "keygen.uuid.wrong-type";
     public static final String KEYGEN_SEQUENCE_METADATA                                 = "keygen.sequence.metadata";
-    public static final String KEYGEN_SEQUENCE_EMPTY_NAME                               = "keygen.sequence.empty-name";
     public static final String KEYGEN_SEQUENCE                                          = "keygen.sequence";
     public static final String TRANSACTION_REQUIRED_COMMIT                              = "transaction.required.commit";
     public static final String TRANSACTION_REQUIRED_ROLLBACK                            = "transaction.required.rollback";
@@ -815,7 +814,7 @@ public final class CapabilityId {
     public static final String PROCEDURE_CALL_MULTIPLE_INOUT                            = "procedure.call.multiple-inout";
     public static final String PROCEDURE_CALL_DATA_LOOKUP                               = "procedure.call.data-lookup";
     public static final String PROCEDURE_CALL_HASH_METADATA                             = "procedure.call.hash-metadata";
-    public static final String PROCEDURE_CALL_RESULT_SET                                = "procedure.call.result-set";
+    public static final String JDBC_CALL_RESULT_SET                                     = "jdbc.call.result-set";
     public static final String PROCEDURE_CALL_CURSOR_RESULT                             = "procedure.call.cursor-result";
     public static final String FUNCTION_QUERY_SCALAR                                    = "function.query.scalar";
     public static final String FUNCTION_QUERY_NAMED_PARAMETER                           = "function.query.named-parameter";

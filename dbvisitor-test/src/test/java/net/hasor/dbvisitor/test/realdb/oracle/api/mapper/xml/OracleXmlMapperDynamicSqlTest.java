@@ -13,6 +13,11 @@ import net.hasor.dbvisitor.test.nxn.env.OracleProfile;
 
 public class OracleXmlMapperDynamicSqlTest extends XmlMapperDynamicSqlCase {
     @Override
+    protected String mapperResource() {
+        return "/realdb/oracle/material/XmlDynamicSqlMapper.xml";
+    }
+
+    @Override
     protected DataSourceProfile profile() {
         return OracleProfile.INSTANCE;
     }

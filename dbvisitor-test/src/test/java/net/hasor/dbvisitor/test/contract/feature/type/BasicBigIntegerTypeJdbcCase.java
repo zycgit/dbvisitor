@@ -25,11 +25,15 @@ public abstract class BasicBigIntegerTypeJdbcCase extends BasicTypeJdbcSupport {
     @Test
     @Capability(CapabilityId.TYPE_BASIC_BIG_INTEGER)
     public void bigIntegerValue_shouldRoundTripWithoutPrecisionLoss() throws SQLException {
+        assertEquals(new BigInteger("9223372036854775807"), roundTripBigIntegerValue());
+    }
+
+    protected BigInteger roundTripBigIntegerValue() throws SQLException {
         int id = baseId() + 10;
         jdbcTemplate.executeUpdate(insertCommand("basic_types_test", "id, big_int_value"),
                 new Object[] { id, new BigInteger("9223372036854775807") });
         BasicTypesModel loaded = jdbcTemplate.queryForObject(selectCommand("basic_types_test", "*"), new Object[] { id }, BasicTypesModel.class);
         assertNotNull(loaded);
-        assertEquals(new BigInteger("9223372036854775807"), loaded.getBigIntValue());
+        return loaded.getBigIntValue();
     }
 }

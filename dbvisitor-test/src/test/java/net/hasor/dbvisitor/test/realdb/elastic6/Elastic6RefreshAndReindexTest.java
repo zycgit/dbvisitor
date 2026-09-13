@@ -27,10 +27,12 @@ public class Elastic6RefreshAndReindexTest {
             try {
                 stmt.executeUpdate("DELETE /" + INDEX_SOURCE);
             } catch (Exception ignored) {
+                Elastic6Cleanup.requireMissingIndex(ignored);
             }
             try {
                 stmt.executeUpdate("DELETE /" + INDEX_DEST);
             } catch (Exception ignored) {
+                Elastic6Cleanup.requireMissingIndex(ignored);
             }
 
             stmt.executeUpdate("PUT /" + INDEX_SOURCE);
@@ -48,10 +50,12 @@ public class Elastic6RefreshAndReindexTest {
             try {
                 stmt.executeUpdate("DELETE /" + INDEX_SOURCE);
             } catch (Exception ignored) {
+                Elastic6Cleanup.requireMissingIndex(ignored);
             }
             try {
                 stmt.executeUpdate("DELETE /" + INDEX_DEST);
             } catch (Exception ignored) {
+                Elastic6Cleanup.requireMissingIndex(ignored);
             }
         }
     }
@@ -59,11 +63,21 @@ public class Elastic6RefreshAndReindexTest {
     @Test
     public void testRefresh() throws Exception {
         try (Connection conn = DriverManager.getConnection(ES_URL); Statement stmt = conn.createStatement()) {
-            // Refresh specific index
-            stmt.executeUpdate("POST /" + INDEX_SOURCE + "/_refresh");
+            stmt.executeUpdate("POST /" + INDEX_SOURCE + "/_doc/3?refresh=false {\"name\": \"doc3\"}");
+            Assert.assertEquals(1, stmt.executeUpdate("POST /" + INDEX_SOURCE + "/_refresh"));
+            try (ResultSet result = stmt.executeQuery("POST /" + INDEX_SOURCE + "/_count")) {
+                Assert.assertTrue(result.next());
+                Assert.assertEquals(3, result.getInt("COUNT"));
+                Assert.assertFalse(result.next());
+            }
 
-            // Refresh all (generic)
-            stmt.executeUpdate("POST /_refresh");
+            stmt.executeUpdate("POST /" + INDEX_SOURCE + "/_doc/4?refresh=false {\"name\": \"doc4\"}");
+            Assert.assertEquals(1, stmt.executeUpdate("POST /_refresh"));
+            try (ResultSet result = stmt.executeQuery("POST /" + INDEX_SOURCE + "/_count")) {
+                Assert.assertTrue(result.next());
+                Assert.assertEquals(4, result.getInt("COUNT"));
+                Assert.assertFalse(result.next());
+            }
         }
     }
 
@@ -73,9 +87,9 @@ public class Elastic6RefreshAndReindexTest {
             // Check source count
             long sourceCount = 0;
             try (ResultSet rs = stmt.executeQuery("POST /" + INDEX_SOURCE + "/_count")) {
-                if (rs.next()) {
-                    sourceCount = rs.getLong("COUNT");
-                }
+                Assert.assertTrue(rs.next());
+                sourceCount = rs.getLong("COUNT");
+                Assert.assertEquals(2, sourceCount);
             }
 
             String reindexBody = "{" + "  \"source\": { \"index\": \"" + INDEX_SOURCE + "\" }," + "  \"dest\": { \"index\": \"" + INDEX_DEST + "\" }" + "}";
@@ -88,6 +102,19 @@ public class Elastic6RefreshAndReindexTest {
 
             // Refresh dest
             stmt.executeUpdate("POST /" + INDEX_DEST + "/_refresh");
+            try (ResultSet result = stmt.executeQuery("POST /" + INDEX_DEST + "/_count")) {
+                Assert.assertTrue(result.next());
+                Assert.assertEquals(sourceCount, result.getLong("COUNT"));
+            }
+            try (ResultSet result = stmt.executeQuery("POST /" + INDEX_DEST + "/_search {\"sort\": [\"name.keyword\"]}")) {
+                Assert.assertTrue(result.next());
+                Assert.assertEquals("1", result.getString("_ID"));
+                Assert.assertEquals("doc1", result.getString("name"));
+                Assert.assertTrue(result.next());
+                Assert.assertEquals("2", result.getString("_ID"));
+                Assert.assertEquals("doc2", result.getString("name"));
+                Assert.assertFalse(result.next());
+            }
         }
     }
     public static void main(String[] args) {

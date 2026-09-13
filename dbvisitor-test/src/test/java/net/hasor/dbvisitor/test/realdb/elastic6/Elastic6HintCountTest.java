@@ -25,7 +25,7 @@ public class Elastic6HintCountTest {
             try {
                 s.execute("DELETE /test_hint_count");
             } catch (Exception e) {
-                // ignore
+                Elastic6Cleanup.requireMissingIndex(e);
             }
             s.executeUpdate("POST /test_hint_count/_doc/1 { \"name\": \"Alice\", \"age\": 30, \"seq\": 1 }");
             s.executeUpdate("POST /test_hint_count/_doc/2 { \"name\": \"Bob\", \"age\": 25, \"seq\": 2 }");
@@ -41,7 +41,7 @@ public class Elastic6HintCountTest {
             try {
                 s.execute("DELETE /test_hint_count");
             } catch (Exception e) {
-                // ignore
+                Elastic6Cleanup.requireMissingIndex(e);
             }
         }
     }

@@ -29,10 +29,10 @@ public abstract class TimeDateJdbcCase extends TimeTypeJdbcSupport {
         int id = baseId() + 1;
         LocalDate date = LocalDate.of(2024, 3, 15);
 
-        jdbcTemplate.executeUpdate("INSERT INTO time_types_explicit_test (id, date_value) VALUES (?, ?)", //
+        executeInsert(insertCommand("time_types_explicit_test", "id, date_value"), //
                 new Object[] { id, java.sql.Date.valueOf(date) });
 
-        java.sql.Date loadedSql = jdbcTemplate.queryForObject("SELECT date_value FROM time_types_explicit_test WHERE id = ?", //
+        java.sql.Date loadedSql = jdbcTemplate.queryForObject(selectCommand("time_types_explicit_test", "date_value"), //
                 new Object[] { id }, java.sql.Date.class);
 
         assertNotNull(loadedSql);
@@ -46,10 +46,10 @@ public abstract class TimeDateJdbcCase extends TimeTypeJdbcSupport {
         int id = baseId() + 4;
         LocalDate date = LocalDate.of(2024, 3, 15);
 
-        jdbcTemplate.executeUpdate("INSERT INTO time_types_explicit_test (id, date_value) VALUES (?, ?)", //
+        executeInsert(insertCommand("time_types_explicit_test", "id, date_value"), //
                 new Object[] { id, java.sql.Date.valueOf(date) });
 
-        LocalDate loaded = jdbcTemplate.queryForObject("SELECT date_value FROM time_types_explicit_test WHERE id = ?", //
+        LocalDate loaded = jdbcTemplate.queryForObject(selectCommand("time_types_explicit_test", "date_value"), //
                 new Object[] { id }, LocalDate.class);
 
         assertEquals(date, loaded);

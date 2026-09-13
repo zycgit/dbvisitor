@@ -28,6 +28,7 @@ public final class ClickHouseProfile extends AbstractDataSourceProfile {
             FeatureId.GENERATED_KEY_RESULT_SET,
             FeatureId.XML_SELECT_KEY_USER_INFO_SEQUENCE,
             FeatureId.PROCEDURE,
+            FeatureId.PROCEDURE_CURSOR_RESULT,
             FeatureId.XML_MAPPER_CALLABLE,
             FeatureId.FUNCTION_CALL_CALLBACK,
             FeatureId.FUNCTION_RECORD_RESULT,
@@ -51,6 +52,11 @@ public final class ClickHouseProfile extends AbstractDataSourceProfile {
 
     @Override
     public SupportStatus support(String capabilityId) {
+        if (CapabilityId.JDBC_CALL_RESULT_SET.equals(capabilityId)
+                || CapabilityId.PROCEDURE_CALL_CURSOR_RESULT.equals(capabilityId)) {
+            // ClickHouseConnection.prepareCall rejects every SQL string; query support does not imply call support.
+            return SupportStatus.UNSUPPORTED_BY_DRIVER;
+        }
         if (CapabilityId.MAPPER_XML_KEYGEN_SELECT_KEY_BEFORE.equals(capabilityId)
                 || CapabilityId.MAPPER_XML_KEYGEN_SELECT_KEY_AFTER.equals(capabilityId)
                 || CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_SELECT_KEY.equals(capabilityId)) {

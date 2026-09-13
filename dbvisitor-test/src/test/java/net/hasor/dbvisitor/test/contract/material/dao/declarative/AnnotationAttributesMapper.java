@@ -145,7 +145,7 @@ public interface AnnotationAttributesMapper {
 
     @Query(value = "SELECT * FROM user_info WHERE name LIKE #{pattern}",//
             statementType = StatementType.Prepared,//
-            timeout = 60, fetchSize = 100, resultSetType = ResultSetType.SCROLL_INSENSITIVE)
+            timeout = 60, fetchSize = 100, resultSetType = ResultSetType.FORWARD_ONLY)
     List<UserInfo> selectWithCombinedAttributes(@Param("pattern") String pattern);
 
     @Query(value = "SELECT * FROM user_info WHERE id = #{id}")

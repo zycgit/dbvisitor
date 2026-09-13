@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="session.UserSessionMapper">
+    <resultMap id="entry" type="net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisMappedEntry" autoMapping="false">
+        <result column="SCORE" property="field" javaType="java.lang.Integer"/>
+        <result column="ELEMENT" property="value"/>
+    </resultMap>
+    <select id="insertUser" resultSetExtractor="net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisIntegerResultExtractor"> EVAL "local added=redis.call('ZADD',KEYS[1],ARGV[1],ARGV[2]); redis.call('ZADD',KEYS[2],ARGV[3],ARGV[2]); return added" 2 @{macro, redisUsers} @{macro, redisAges} #{id} #{name} #{age} </select>
+    <select id="queryUserById" resultMap="entry">ZRANGEBYSCORE @{macro, redisUsers} #{id} #{id} WITHSCORES</select>
+    <select id="queryUsersByAge" resultMap="entry">ZRANGEBYSCORE @{macro, redisAges} #{age} #{age} WITHSCORES</select>
+    <select id="queryAllUsers" resultMap="entry">ZRANGE @{macro, redisUsers} 0 -1 WITHSCORES</select>
+    <select id="countUsers" resultType="java.lang.Integer">ZCARD @{macro, redisUsers}</select>
+</mapper>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="xmltest.ResultHandlerMapper">
+    <resultMap id="member" type="net.hasor.dbvisitor.test.realdb.redis.api.jdbc.RedisJdbcFixture$ScoredMember" autoMapping="false">
+        <result column="ELEMENT" property="element"/>
+        <result column="SCORE" property="score" javaType="java.lang.Double"/>
+    </resultMap>
+    <sql id="members"> ZRANGEBYSCORE @{macro, redisAges} #{minAge == null ? 0 : minAge} +inf WITHSCORES </sql>
+    <select id="selectByResultType" resultType="net.hasor.dbvisitor.test.realdb.redis.api.jdbc.RedisJdbcFixture$ScoredMember"><include refid="members"/></select>
+    <select id="selectByResultTypeMap" resultType="java.util.Map"><include refid="members"/></select>
+    <select id="selectByResultMap" resultMap="member"><include refid="members"/></select>
+    <select id="selectByColumnMapRowMapper" resultRowMapper="net.hasor.dbvisitor.jdbc.mapper.ColumnMapRowMapper"><include refid="members"/></select>
+    <select id="selectByColumnMapExtractor" resultSetExtractor="net.hasor.dbvisitor.jdbc.extractor.ColumnMapResultSetExtractor"><include refid="members"/></select>
+    <select id="selectIdNamePairs" resultSetExtractor="net.hasor.dbvisitor.jdbc.extractor.PairsResultSetExtractor"><include refid="members"/></select>
+    <select id="countByResultType" resultType="java.lang.Integer">ZCARD @{macro, redisAges}</select>
+    <select id="countByResultTypeLong" resultType="java.lang.Long">ZCARD @{macro, redisAges}</select>
+    <select id="selectNamesByResultType" resultType="java.lang.String">ZRANGE @{macro, redisAges} 0 -1</select>
+</mapper>

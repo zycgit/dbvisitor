@@ -7,43 +7,35 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
-import java.util.*;
-import net.hasor.dbvisitor.test.nxn.capability.*;
+import java.sql.SQLException;
+import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperSelectKeyCase;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
 
-public class RedisXmlMapperSelectKeyTest extends RedisNativeMapperSupport {
-    private Generated generated(String suffix) {
-        Generated value = new Generated();
-        value.setKey(key(suffix));
-        value.setCounter(key(suffix + "-counter"));
-        value.setValue("data");
-        return value;
+public class RedisXmlMapperSelectKeyTest extends XmlMapperSelectKeyCase {
+    private final RedisEntityFixture fixture = new RedisEntityFixture();
+
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
     }
 
-    private static final String NS = "redis.Native.";
-
+    @Override
     @Before
-    public void loadStatements() throws Exception {
-        loadXml();
+    public void setup() throws SQLException {
+        this.jdbcTemplate = this.fixture.open();
     }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_XML_KEYGEN_SELECT_KEY_BEFORE)
-    public void before() throws Exception {
-        Generated value = generated("before");
-        session.executeStatement(NS + "before", value);
-        assertEquals(Long.valueOf(1), value.getId());
-        assertEquals("data", session.jdbc().queryForString("HGET ? ?", new Object[] { value.getKey(), value.getId() }));
+    @Override
+    @Before
+    public void createXmlMapperSession() throws Exception {
+        this.session = this.fixture.session(newConfiguration(), "/mapper/redis/SelectKeyMapper.xml");
     }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_XML_KEYGEN_SELECT_KEY_AFTER)
-    public void after() throws Exception {
-        Generated value = generated("after");
-        session.executeStatement(NS + "after", value);
-        assertEquals(Long.valueOf(1), value.getId());
-        assertEquals("data", session.jdbc().queryForString("LINDEX ? ?", new Object[] { value.getKey(), value.getId() - 1 }));
+    @After
+    public void cleanupFixture() throws SQLException {
+        this.fixture.close();
     }
 }

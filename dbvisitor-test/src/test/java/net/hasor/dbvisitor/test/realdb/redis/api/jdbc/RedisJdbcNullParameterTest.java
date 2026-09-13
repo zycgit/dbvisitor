@@ -11,15 +11,10 @@ import java.sql.SQLException;
 
 import org.junit.Before;
 import org.junit.After;
-import org.junit.Test;
-import org.junit.Assume;
 
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcNullParameterCase;
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
-import static org.junit.Assert.*;
 
 public class RedisJdbcNullParameterTest extends JdbcNullParameterCase {
 
@@ -41,10 +36,4 @@ public class RedisJdbcNullParameterTest extends JdbcNullParameterCase {
         this.fixture.close();
     }
 
-    @Override
-    @Test
-    @Capability(CapabilityId.JDBC_PARAM_NULL)
-    public void positionalArrayParameters_shouldBindNullValues() throws SQLException {
-        Assume.assumeTrue("Redis command values cannot store SQL NULL", false);
-    }
 }

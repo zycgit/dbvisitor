@@ -7,61 +7,47 @@
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
 
-import java.util.List;
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import net.hasor.dbvisitor.test.realdb.milvus.material.user.UserInfoMilvus1Mapper;
-import net.hasor.dbvisitor.test.realdb.milvus.material.user.UserInfoMilvus3;
-import net.hasor.dbvisitor.test.realdb.milvus.material.user.UserInfoMilvus3Mapper;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import java.sql.SQLException;
+import net.hasor.dbvisitor.session.Session;
+import net.hasor.dbvisitor.test.contract.api.session.SessionMapperInvocationCase;
+import net.hasor.dbvisitor.test.contract.material.dao.SessionRefUserMapper;
+import net.hasor.dbvisitor.test.contract.material.dao.SessionUserMapper;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
+import org.junit.After;
+import org.junit.Before;
 
-/** Annotation and XML proxy invocation, mutation results, lists and scalars. */
-public class MilvusSessionMapperInvocationTest extends MilvusSessionMapperSupport {
-    @Test
-    @Capability(CapabilityId.ADAPTER_MILVUS_SESSION_MAPPER_SIMPLE)
-    public void annotationProxyShouldReturnMutationListAndScalarResults() throws Exception {
-        UserInfoMilvus1Mapper mapper = this.session.createMapper(UserInfoMilvus1Mapper.class);
-        assertNotNull(mapper);
-        assertEquals(1, mapper.insertUser(user("first", "First")));
-        assertEquals(1, mapper.insertUser(user("second", "Second")));
-        assertEquals("First", mapper.selectUser("first").getName());
-        assertEquals(2, mapper.queryAll().size());
-        assertEquals(2, mapper.countAll());
-        assertEquals(1, mapper.updateUser("first", "Updated", "new-login"));
-        assertEquals("Updated", mapper.selectUser("first").getName());
-        assertEquals("new-login", mapper.selectUser("first").getLoginName());
-        assertEquals(1, mapper.deleteUser("second"));
-        assertNull(mapper.selectUser("second"));
-        assertEquals(1, mapper.countAll());
+public class MilvusSessionMapperInvocationTest extends SessionMapperInvocationCase {
+    private final MilvusSessionMapperSupport fixture = new MilvusSessionMapperSupport();
+
+    @Override
+    protected DataSourceProfile profile() {
+        return MilvusProfile.INSTANCE;
     }
 
-    @Test
-    @Capability(CapabilityId.ADAPTER_MILVUS_SESSION_MAPPER_REF)
-    public void xmlProxyShouldReturnMutationListAndScalarResults() throws Exception {
-        UserInfoMilvus3Mapper mapper = this.session.createMapper(UserInfoMilvus3Mapper.class);
-        assertNotNull(mapper);
-        UserInfoMilvus3 first = xmlUser("first", "First");
-        assertEquals(1, mapper.insertUser(first));
-        assertEquals(1, mapper.insertUser(xmlUser("second", "Second")));
-        assertEquals("First", mapper.selectUser("first").getName());
-        assertEquals(2, mapper.queryAll().size());
-        assertEquals(2, mapper.countAll());
-        assertEquals(1, mapper.updateName("first", "Updated"));
-        assertEquals("Updated", mapper.selectUser("first").getName());
-        assertEquals(first.getV(), mapper.selectUser("first").getV());
-        assertEquals(1, mapper.deleteUser("second"));
-        assertEquals(1, mapper.countAll());
-        assertNull(mapper.selectUser("second"));
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        this.fixture.open();
     }
 
-    private UserInfoMilvus3 xmlUser(String id, String name) {
-        UserInfoMilvus3 user = new UserInfoMilvus3();
-        user.setUid(id);
-        user.setName(name);
-        user.setLoginName("login");
-        user.setLoginPassword("password");
-        user.setV(List.of(1F, 0F));
-        return user;
+    @Override
+    protected Session createSession() throws Exception {
+        return this.fixture.session();
+    }
+
+    @Override
+    protected SessionUserMapper simpleMapper(Session session) throws Exception {
+        return session.createMapper(MilvusSessionMapperSupport.AnnotationMapper.class);
+    }
+
+    @Override
+    protected SessionRefUserMapper refMapper(Session session) throws Exception {
+        return session.createMapper(MilvusSessionMapperSupport.XmlMapper.class);
+    }
+
+    @After
+    public void closeFixture() throws Exception {
+        this.fixture.close();
     }
 }

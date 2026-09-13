@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.Map;
 
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
+import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -21,8 +22,25 @@ public abstract class JdbcResultHandlingSupport extends AbstractNxnContractTest 
     }
 
     /** Datasource-specific fixtures may supply native SQL while keeping all mapping assertions. */
-    protected String selectSql(String columns, String predicate, boolean ordered) {
+    protected String selectSql(String columns, String predicate, boolean ordered) throws SQLException {
         return "SELECT " + columns + " FROM user_info WHERE " + predicate + (ordered ? " ORDER BY id" : "");
+    }
+
+    protected Object[] selectArguments(String columns, String predicate, Object... values) {
+        return values;
+    }
+
+    protected Class<?> resultBeanType() {
+        return UserInfo.class;
+    }
+
+    protected final Object beanProperty(Object bean, String property) {
+        String getter = "get" + Character.toUpperCase(property.charAt(0)) + property.substring(1);
+        try {
+            return bean.getClass().getMethod(getter).invoke(bean);
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalArgumentException("Unable to read mapped property " + property, e);
+        }
     }
 
     protected void insertUser(int id, String name, int age, String email) throws SQLException {

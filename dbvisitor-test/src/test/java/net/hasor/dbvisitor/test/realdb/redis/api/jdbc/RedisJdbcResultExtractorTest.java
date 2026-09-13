@@ -9,31 +9,13 @@ package net.hasor.dbvisitor.test.realdb.redis.api.jdbc;
 
 import java.sql.SQLException;
 import java.util.Map;
-import java.util.List;
-import java.util.LinkedHashMap;
-import org.junit.Before;
-import org.junit.After;
-import org.junit.Test;
-import net.hasor.dbvisitor.jdbc.RowMapper;
-import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
-import net.hasor.dbvisitor.jdbc.extractor.PairsResultSetExtractor;
-import net.hasor.dbvisitor.jdbc.extractor.ColumnMapResultSetExtractor;
-import net.hasor.dbvisitor.jdbc.extractor.FilterResultSetExtractor;
-import net.hasor.dbvisitor.jdbc.extractor.RowMapperResultSetExtractor;
-import net.hasor.dbvisitor.jdbc.extractor.BeanMappingResultSetExtractor;
-import net.hasor.dbvisitor.jdbc.extractor.MapMappingResultSetExtractor;
-import net.hasor.dbvisitor.jdbc.mapper.BeanMappingRowMapper;
-import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcResultExtractorCase;
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
-import net.hasor.dbvisitor.types.TypeHandlerRegistry;
-import static org.junit.Assert.*;
+import org.junit.After;
+import org.junit.Before;
 
 public class RedisJdbcResultExtractorTest extends JdbcResultExtractorCase {
-
     private final RedisJdbcFixture fixture = new RedisJdbcFixture();
 
     @Override
@@ -47,66 +29,90 @@ public class RedisJdbcResultExtractorTest extends JdbcResultExtractorCase {
         this.jdbcTemplate = this.fixture.open();
     }
 
+    @Override
+    protected void seedUsers() throws SQLException {
+        this.fixture.seedScores();
+    }
+
+    @Override
+    protected Class<?> resultBeanType() {
+        return RedisJdbcFixture.ScoredMember.class;
+    }
+
     @After
     public void closeRedisFixture() throws SQLException {
         this.fixture.close();
     }
 
     @Override
-    @Test
-    @Capability(CapabilityId.JDBC_RESULT_EXTRACTOR_CUSTOM)
-    public void resultSetExtractor_shouldSupportCustomAggregation() throws SQLException {
-        fixture.seedScores();
-        Map<String, Integer> rows = jdbcTemplate.query("ZRANGE ? 0 2 WITHSCORES", new Object[] { fixture.key("scores") },
-            (ResultSetExtractor<Map<String, Integer>>) rs -> {
-                Map<String, Integer> values = new LinkedHashMap<>();
-                while (rs.next()) { values.put(rs.getString("ELEMENT"), rs.getInt("SCORE")); }
-                return values;
-            });
-        assertEquals(3, rows.size());
-        assertEquals(Integer.valueOf(21), rows.get("member-1"));
-        assertEquals(Integer.valueOf(23), rows.get("member-3"));
+    protected String selectSql(String columns, String predicate, boolean ordered) {
+        return "ZRANGE ? ? ? WITHSCORES";
     }
 
     @Override
-    @Test
-    @Capability(CapabilityId.JDBC_RESULT_EXTRACTOR_BUILTIN)
-    public void resultSetExtractor_shouldSupportBuiltInListExtractors() throws SQLException {
-        fixture.seedScores();
-        Object[] args = { fixture.key("scores") };
-        assertEquals(10, jdbcTemplate.query("ZRANGE ? 0 -1 WITHSCORES", args, new ColumnMapResultSetExtractor()).size());
-        RowMapper<RedisJdbcFixture.ScoredMember> mapper = new BeanMappingRowMapper<>(RedisJdbcFixture.ScoredMember.class);
-        List<RedisJdbcFixture.ScoredMember> mapped = jdbcTemplate.query("ZRANGE ? 0 0 WITHSCORES", args, new RowMapperResultSetExtractor<>(mapper));
-        assertEquals("member-1", mapped.get(0).getElement());
-        List<RedisJdbcFixture.ScoredMember> filtered = jdbcTemplate.query("ZRANGE ? 0 -1 WITHSCORES", args, new FilterResultSetExtractor<>(mapper, row -> row.getScore() > 24));
-        assertEquals(6, filtered.size());
-        assertTrue(filtered.stream().allMatch(row -> row.getScore() > 24));
+    protected Object[] selectArguments(String columns, String predicate, Object... values) {
+        if (predicate.contains("BETWEEN")) {
+            int count = ((Number) values[1]).intValue() - ((Number) values[0]).intValue() + 1;
+            return new Object[] { this.fixture.key("scores"), 0, count - 1 };
+        }
+        return new Object[] { this.fixture.key("scores"), 0, predicate.equals("age > ?") ? -1 : 0 };
     }
 
     @Override
-    @Test
-    @Capability(CapabilityId.JDBC_RESULT_EXTRACTOR_PAIRS)
-    public void resultSetExtractor_shouldSupportPairsExtractor() throws SQLException {
-        fixture.seedScores();
-        Map<String, Double> rows = jdbcTemplate.query("ZRANGE ? 0 2 WITHSCORES", new Object[] { fixture.key("scores") },
-            new PairsResultSetExtractor<>(TypeHandlerRegistry.DEFAULT, String.class, Double.class));
-        assertEquals(3, rows.size());
-        assertEquals(Double.valueOf(21), rows.get("member-1"));
-        assertEquals(Double.valueOf(23), rows.get("member-3"));
+    protected String customKeyColumn() {
+        return "ELEMENT";
+    }
+    @Override
+    protected String customValueColumn() {
+        return "SCORE";
+    }
+    @Override
+    protected boolean customIntegerKey() {
+        return false;
+    }
+    @Override
+    protected boolean customIntegerValue() {
+        return true;
+    }
+    @Override
+    protected Class<?> pairKeyType() {
+        return String.class;
+    }
+    @Override
+    protected Class<?> pairValueType() {
+        return Double.class;
+    }
+    @Override
+    protected String filterNumberProperty() {
+        return "score";
+    }
+    @Override
+    protected int expectedColumnMapCount() {
+        return 10;
     }
 
     @Override
-    @Test
-    @Capability(CapabilityId.JDBC_RESULT_EXTRACTOR_MAPPING)
-    public void resultSetExtractor_shouldSupportMappingExtractors() throws SQLException {
-        fixture.seedScores();
-        Object[] args = { fixture.key("scores") };
-        List<RedisJdbcFixture.ScoredMember> beans = jdbcTemplate.query("ZRANGE ? 0 0 WITHSCORES", args,
-            new BeanMappingResultSetExtractor<>(RedisJdbcFixture.ScoredMember.class, MappingRegistry.DEFAULT));
-        assertEquals("member-1", beans.get(0).getElement());
-        List<Map<String, Object>> maps = jdbcTemplate.query("ZRANGE ? 0 0 WITHSCORES", args,
-            new MapMappingResultSetExtractor(RedisJdbcFixture.ScoredMember.class, MappingRegistry.DEFAULT));
-        assertEquals("member-1", maps.get(0).get("element"));
-        assertEquals(Double.valueOf(21), maps.get(0).get("score"));
+    protected Map<Object, Object> expectedCustomMap() {
+        return Map.of("member-1", 21, "member-2", 22, "member-3", 23);
+    }
+
+    @Override
+    protected Map<Object, Object> expectedPairs() {
+        return Map.of("member-1", 21.0, "member-2", 22.0, "member-3", 23.0);
+    }
+
+    @Override
+    protected Map<String, Object> expectedMappedRow() {
+        return Map.of("element", "member-1", "score", 21.0);
+    }
+
+    @Override
+    protected Map<String, Object> expectedMappingBean() {
+        return Map.of("element", "member-1", "score", 21.0);
+    }
+
+    @Override
+    protected Map<String, Object> expectedMappingMap() {
+        return Map.of("element", "member-1", "score", 21.0);
     }
 }

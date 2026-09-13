@@ -7,19 +7,46 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
-import java.util.*;
-import net.hasor.dbvisitor.test.nxn.capability.*;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import java.sql.SQLException;
+import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperCommandExecutionCase;
+import net.hasor.dbvisitor.test.realdb.redis.RedisAnnotationCrudFixture;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import org.junit.After;
+import org.junit.Before;
 
-public class RedisAnnotationMapperCommandExecutionTest extends RedisNativeMapperSupport {
+public class RedisAnnotationMapperCommandExecutionTest extends AnnotationMapperCommandExecutionCase {
+    private final RedisAnnotationCrudFixture fixture = new RedisAnnotationCrudFixture(baseId());
 
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
+    }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_EXECUTE)
-    public void execute() throws Exception {
-        String k = key("exec");
-        assertEquals(1, mapper().execute(k, "value"));
-        assertEquals("value", mapper().get(k));
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        this.jdbcTemplate = fixture.open();
+    }
+
+    @Override
+    @Before
+    public void createAnnotationMapper() throws Exception {
+        fixture.open();
+        this.mapper = fixture.createMapper(newConfiguration());
+    }
+
+    @After
+    public void closeFixture() throws Exception {
+        fixture.close();
+    }
+    @Override
+    protected void prepareCommandResource() {
+        // Each fixture owns fresh private Redis keys; no schema creation is required.
+    }
+
+    @Override
+    protected void dropCommandResource() {
+        // The fixture closes and removes its private keys in @After.
     }
 }

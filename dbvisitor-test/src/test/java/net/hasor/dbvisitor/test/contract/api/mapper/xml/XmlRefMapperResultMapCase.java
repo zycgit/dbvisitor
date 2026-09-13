@@ -26,15 +26,30 @@ public abstract class XmlRefMapperResultMapCase extends XmlRefMapperSupport {
     public void refMapper_shouldMapRowsWithoutAggregatePrerequisites() throws Exception {
         List<Map<String, Object>> rows = this.dao.selectAsMaps();
         assertEquals(4, rows.size());
-        int[] ages = { 22, 28, 35, 28 };
         for (int i = 0; i < rows.size(); i++) {
             Map<String, Object> row = rows.get(i);
-            char suffix = (char) ('A' + i);
-            assertEquals(baseId() + i + 1, ((Number) value(row, "id")).intValue());
-            assertEquals("RefMap" + suffix, value(row, "name"));
-            assertEquals(ages[i], ((Number) value(row, "age")).intValue());
-            assertEquals("ref" + Character.toLowerCase(suffix) + "@nxn.test", value(row, "email"));
-            assertNotNull(value(row, "create_time"));
+            for (Map.Entry<String, Object> entry : expectedRow(i).entrySet()) {
+                Object actual = value(row, entry.getKey());
+                if (entry.getValue() instanceof Number) {
+                    assertEquals(((Number) entry.getValue()).doubleValue(), ((Number) actual).doubleValue(), 0.0);
+                } else {
+                    assertEquals(entry.getValue(), actual);
+                }
+            }
+            for (String column : presentColumns()) {
+                assertNotNull(value(row, column));
+            }
         }
+    }
+
+    protected Map<String, Object> expectedRow(int index) {
+        int[] ages = { 22, 28, 35, 28 };
+        char suffix = (char) ('A' + index);
+        return Map.of("id", baseId() + index + 1, "name", "RefMap" + suffix, "age", ages[index],
+                "email", "ref" + Character.toLowerCase(suffix) + "@nxn.test");
+    }
+
+    protected List<String> presentColumns() {
+        return List.of("create_time");
     }
 }

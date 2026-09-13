@@ -21,6 +21,15 @@ import static org.junit.Assert.assertEquals;
 
 @NxnContract
 public abstract class LambdaDistinctCase extends LambdaSelectSupport {
+
+    protected String distinctSelect(String columns) {
+        return "distinct " + columns;
+    }
+
+    protected String distinctCountSelect() {
+        return "count(distinct age) as distinct_count";
+    }
+
     @Test
     @Capability(CapabilityId.LAMBDA_SELECT_DISTINCT)
     public void lambdaSelect_shouldApplyDistinctToSingleAndMultipleColumns() throws Exception {
@@ -31,7 +40,7 @@ public abstract class LambdaDistinctCase extends LambdaSelectSupport {
         insert(baseId() + 24, "DistinctFive", 30, "other@nxn.test");
 
         List<Map<String, Object>> ages = lambdaTemplate.query(UserInfo.class)//
-                .applySelect("distinct age")//
+                .applySelect(distinctSelect("age"))//
                 .like(UserInfo::getName, "Distinct%")//
                 .orderBy("age")//
                 .queryForMapList();
@@ -42,7 +51,7 @@ public abstract class LambdaDistinctCase extends LambdaSelectSupport {
         assertEquals(30, ((Number) getVal(ages.get(2), "age")).intValue());
 
         List<Map<String, Object>> ageEmail = lambdaTemplate.query(UserInfo.class)//
-                .applySelect("distinct age, email")//
+                .applySelect(distinctSelect("age, email"))//
                 .like(UserInfo::getName, "Distinct%")//
                 .queryForMapList();
         assertEquals(4, ageEmail.size());
@@ -57,7 +66,7 @@ public abstract class LambdaDistinctCase extends LambdaSelectSupport {
         insert(baseId() + 33, "DistinctCountFour", 30, "dc4@nxn.test");
 
         List<Map<String, Object>> result = lambdaTemplate.query(UserInfo.class)//
-                .applySelect("count(distinct age) as distinct_count")//
+                .applySelect(distinctCountSelect())//
                 .like(UserInfo::getName, "DistinctCount%")//
                 .queryForMapList();
 

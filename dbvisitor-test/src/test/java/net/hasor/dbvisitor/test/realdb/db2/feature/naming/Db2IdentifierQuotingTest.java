@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.db2.feature.naming;
 
-import net.hasor.dbvisitor.test.contract.feature.naming.IdentifierQuotingCase;
+import net.hasor.dbvisitor.test.contract.feature.naming.QuotedLowercaseTableSupport;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Db2Profile;
 
-public class Db2IdentifierQuotingTest extends IdentifierQuotingCase {
+public class Db2IdentifierQuotingTest extends QuotedLowercaseTableSupport {
     @Override
     protected DataSourceProfile profile() {
         return Db2Profile.INSTANCE;

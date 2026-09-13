@@ -13,6 +13,11 @@ import net.hasor.dbvisitor.test.nxn.env.Db2Profile;
 
 public class Db2ResultColumnCaseTest extends ResultColumnCasingCase {
     @Override
+    protected String resultProjection() {
+        return "id AS \"id\", name AS \"name\", age AS \"age\", email AS \"email\", create_time AS \"create_time\"";
+    }
+
+    @Override
     protected DataSourceProfile profile() {
         return Db2Profile.INSTANCE;
     }

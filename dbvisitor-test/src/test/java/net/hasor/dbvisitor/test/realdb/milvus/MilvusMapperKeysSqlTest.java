@@ -10,7 +10,6 @@ package net.hasor.dbvisitor.test.realdb.milvus;
 import java.util.HashMap;
 import java.util.Map;
 import java.sql.SQLException;
-import java.sql.SQLFeatureNotSupportedException;
 import net.hasor.dbvisitor.mapper.Insert;
 import net.hasor.dbvisitor.mapper.SimpleMapper;
 import net.hasor.dbvisitor.session.Configuration;
@@ -34,33 +33,32 @@ public class MilvusMapperKeysSqlTest extends MilvusSqlContractSupport {
 
     @Test
     @Capability(CapabilityId.ADAPTER_MILVUS_MAPPER_ANNOTATION_KEYS)
-    public void annotationShouldPopulateAutoIdAndReportUnsupportedColumnSelection() throws Exception {
+    public void annotationShouldPopulateAutoIdWithNamedAndDefaultColumns() throws Exception {
         try (Session session = prepareSession()) {
             KeysMapper mapper = session.createMapper(KeysMapper.class);
             Map<String, Object> first = values("annotation named");
             Map<String, Object> second = values("annotation default");
             assertEquals(1, mapper.defaultColumn(second));
             assertStored(second);
-            SQLFeatureNotSupportedException error = assertThrows(SQLFeatureNotSupportedException.class, () -> mapper.namedColumn(first));
-            assertEquals("columnNames not supported", error.getMessage());
-            assertFalse(first.containsKey("id"));
-            assertEquals(1, countRows(""));
+            assertEquals(1, mapper.namedColumn(first));
+            assertStored(first);
+            assertNotEquals(first.get("id"), second.get("id"));
+            assertEquals(2, countRows(""));
         }
     }
 
     @Test
     @Capability(CapabilityId.ADAPTER_MILVUS_MAPPER_XML_KEYS)
-    public void xmlShouldPopulateAutoIdAndReportUnsupportedColumnSelection() throws Exception {
+    public void xmlShouldPopulateAutoIdWithNamedAndDefaultColumns() throws Exception {
         try (Session session = prepareSession()) {
             Map<String, Object> first = values("xml named");
             Map<String, Object> second = values("xml default");
             assertEquals(1, session.executeStatement("milvus.GeneratedKeys.defaultColumn", second));
             assertStored(second);
-            SQLFeatureNotSupportedException error = assertThrows(SQLFeatureNotSupportedException.class,
-                    () -> session.executeStatement("milvus.GeneratedKeys.namedColumn", first));
-            assertEquals("columnNames not supported", error.getMessage());
-            assertFalse(first.containsKey("id"));
-            assertEquals(1, countRows(""));
+            assertEquals(1, session.executeStatement("milvus.GeneratedKeys.namedColumn", first));
+            assertStored(first);
+            assertNotEquals(first.get("id"), second.get("id"));
+            assertEquals(2, countRows(""));
         }
     }
 

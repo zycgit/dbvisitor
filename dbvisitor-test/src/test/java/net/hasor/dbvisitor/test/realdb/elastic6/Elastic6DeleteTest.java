@@ -26,7 +26,7 @@ public class Elastic6DeleteTest {
             try {
                 stmt.executeUpdate("DELETE /" + INDEX_NAME);
             } catch (Exception e) {
-                // ignore
+                Elastic6Cleanup.requireMissingIndex(e);
             }
 
             // Create index
@@ -52,7 +52,7 @@ public class Elastic6DeleteTest {
             try {
                 stmt.executeUpdate("DELETE /" + INDEX_NAME);
             } catch (Exception e) {
-                // ignore
+                Elastic6Cleanup.requireMissingIndex(e);
             }
         }
     }

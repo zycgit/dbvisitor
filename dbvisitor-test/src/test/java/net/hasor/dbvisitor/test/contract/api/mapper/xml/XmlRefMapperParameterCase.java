@@ -7,7 +7,6 @@
  */
 package net.hasor.dbvisitor.test.contract.api.mapper.xml;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,22 +24,31 @@ public abstract class XmlRefMapperParameterCase extends XmlRefMapperSupport {
     @Test
     @Capability(CapabilityId.MAPPER_XML_REF_PARAMETER)
     public void refMapper_shouldBindMapAndBeanStyleParameters() throws Exception {
-        Map<String, Object> range = new HashMap<>();
-        range.put("minAge", 25);
-        range.put("maxAge", 30);
-        UserInfo sample = new UserInfo();
-        sample.setName("RefMapB");
-        sample.setAge(28);
+        Map<String, Object> range = rangeParameters();
+        UserInfo sample = beanParameters();
         List<UserInfo> byRange = this.dao.selectByAgeRange(range);
         List<UserInfo> byBean = this.dao.selectByBean(sample);
 
-        assertEquals(2, byRange.size());
-        assertEquals("RefMapB", byRange.get(0).getName());
-        assertEquals("RefMapD", byRange.get(1).getName());
+        assertEquals(expectedRangeNames(), byRange.stream().map(UserInfo::getName).toList());
+        assertEquals(expectedBeanNames(), byBean.stream().map(UserInfo::getName).toList());
+    }
 
-        assertEquals(3, byBean.size());
-        assertEquals("RefMapB", byBean.get(0).getName());
-        assertEquals("RefMapC", byBean.get(1).getName());
-        assertEquals("RefMapD", byBean.get(2).getName());
+    protected Map<String, Object> rangeParameters() {
+        return Map.of("minAge", 25, "maxAge", 30);
+    }
+
+    protected UserInfo beanParameters() {
+        UserInfo sample = new UserInfo();
+        sample.setName("RefMapB");
+        sample.setAge(28);
+        return sample;
+    }
+
+    protected List<String> expectedRangeNames() {
+        return List.of("RefMapB", "RefMapD");
+    }
+
+    protected List<String> expectedBeanNames() {
+        return List.of("RefMapB", "RefMapC", "RefMapD");
     }
 }

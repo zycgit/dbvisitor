@@ -7,6 +7,7 @@
  */
 package net.hasor.dbvisitor.test.contract.api.mapper.xml;
 
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,6 +15,11 @@ import org.junit.Before;
 
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
+import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 
 public abstract class XmlMapperKeyGenerationSupport extends AbstractNxnContractTest {
@@ -28,6 +34,28 @@ public abstract class XmlMapperKeyGenerationSupport extends AbstractNxnContractT
 
     protected String mapperResource() {
         return "/mapper/XmlKeyGenerationMapper.xml";
+    }
+
+    protected boolean numericGeneratedKeys() {
+        return true;
+    }
+
+    protected void assertGeneratedKey(Object id) {
+        assertNotNull(id);
+        assertTrue(id instanceof Number);
+        assertTrue(((Number) id).longValue() > 0);
+    }
+
+    protected void assertKeyProgression(Object previous, Object current) {
+        if (previous != null) {
+            assertTrue(((Number) current).longValue() > ((Number) previous).longValue());
+        }
+    }
+
+    protected String readKeyName(Object id) throws Exception {
+        List<UserInfo> rows = this.session.queryStatement("xmltest.KeyGenerationMapper.selectById", mapOf("id", id));
+        assertEquals(1, rows.size());
+        return rows.get(0).getName();
     }
 
     protected int baseId() {

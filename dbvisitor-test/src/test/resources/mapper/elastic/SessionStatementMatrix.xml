@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="session.UserSessionMapper">
+    <resultMap id="userInfoMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        <result column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+        <result column="email" property="email"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+    <select id="queryUserById" resultMap="userInfoMap">@{macro, esSessionOne}</select>
+    <select id="queryAllUsers" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo">@{macro, esSessionAll}</select>
+    <update id="updateUserEmail">@{macro, esSessionEmail}</update>
+    <delete id="deleteUserById">@{macro, esSessionDelete}</delete>
+
+    <insert id="insertUser">@{macro, esSessionInsert}</insert>
+    <select id="countUsers" resultType="int">@{macro, esSessionCount}</select>
+    <select id="queryUsersByAge" resultMap="userInfoMap">
+        @{macro, esSessionPath}/_search {"size": 100,"query": {"term": {"age": #{age}}},"sort": [{"id": "asc"}]}
+    </select>
+    <select id="queryUsersByCondition" resultMap="userInfoMap">
+        @{macro, esSessionPath}/_search {"size": 100,"query": {"bool": {"filter": [{"match_all": {}}
+        <if test="name != null">,{"term": {"name": #{name}}}</if>
+        <if test="age != null">,{"term": {"age": #{age}}}</if>
+        ]}},"sort": [{"id": "asc"}]}
+    </select>
+    <select id="queryUserByBean" resultMap="userInfoMap">
+        @{macro, esSessionPath}/_search {"size": 100,"query": {"bool": {"filter": [
+        {"term": {"name": #{name}}},{"term": {"age": #{age}}}]}}}
+    </select>
+</mapper>

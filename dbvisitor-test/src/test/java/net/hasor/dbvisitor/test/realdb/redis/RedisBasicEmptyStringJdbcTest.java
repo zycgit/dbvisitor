@@ -8,15 +8,34 @@
 package net.hasor.dbvisitor.test.realdb.redis;
 
 import java.sql.SQLException;
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
 
-public class RedisBasicEmptyStringJdbcTest extends RedisBasicTypeSupport {
-    @Test
-    @Capability(CapabilityId.ADAPTER_REDIS_BASIC_EMPTY_STRING)
-    public void emptyString_shouldRoundTripWithoutBecomingNull() throws SQLException {
-        assertEquals("", roundTrip("empty", "", String.class));
+import net.hasor.dbvisitor.test.contract.feature.type.BasicEmptyStringJdbcCase;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import org.junit.After;
+import org.junit.Before;
+
+public class RedisBasicEmptyStringJdbcTest extends BasicEmptyStringJdbcCase {
+    private final RedisBasicTypeSupport fixture = new RedisBasicTypeSupport();
+
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
+    }
+
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        fixture.openFixture();
+    }
+
+    @After
+    public void closeFixture() throws SQLException {
+        fixture.close();
+    }
+
+    @Override
+    protected Object roundTripEmptyString() throws SQLException {
+        return fixture.roundTrip("empty", "", String.class);
     }
 }

@@ -19,15 +19,12 @@ import org.junit.Test;
 public class MilvusCmdForDQLTest extends AbstractMilvusCmdForTest {
     @Before
     public void setUp() {
-        if (!milvusReady) {
-            return;
-        }
         dropCollection(TEST_COLLECTION);
     }
 
     @After
     public void tearDown() {
-        if (!milvusReady) {
+        if (!milvusSelected) {
             return;
         }
         dropCollection(TEST_COLLECTION);
@@ -54,9 +51,6 @@ public class MilvusCmdForDQLTest extends AbstractMilvusCmdForTest {
 
     @Test
     public void testSelectAllAndPagination() throws Exception {
-        if (!milvusReady) {
-            return;
-        }
 
         try {
             setupData(); // Inserts 3 rows with book_id 1, 2, 3
@@ -118,9 +112,6 @@ public class MilvusCmdForDQLTest extends AbstractMilvusCmdForTest {
 
     @Test
     public void testSelect() throws Exception {
-        if (!milvusReady) {
-            return;
-        }
 
         try {
             // 1. Prepare Data using SDK
@@ -144,9 +135,6 @@ public class MilvusCmdForDQLTest extends AbstractMilvusCmdForTest {
 
     @Test
     public void testSearchByFloatList() throws Exception {
-        if (!milvusReady) {
-            return;
-        }
 
         try {
             setupData();
@@ -167,9 +155,6 @@ public class MilvusCmdForDQLTest extends AbstractMilvusCmdForTest {
 
     @Test
     public void testSearchByDoubleList() throws Exception {
-        if (!milvusReady) {
-            return;
-        }
 
         try {
             setupData();
@@ -191,9 +176,6 @@ public class MilvusCmdForDQLTest extends AbstractMilvusCmdForTest {
 
     @Test
     public void testSearchByVectorSearch() throws Exception {
-        if (!milvusReady) {
-            return;
-        }
 
         try {
             setupData();
@@ -213,9 +195,6 @@ public class MilvusCmdForDQLTest extends AbstractMilvusCmdForTest {
 
     @Test
     public void testSearchRejectsMultipleQueryVectors() throws Exception {
-        if (!milvusReady) {
-            return;
-        }
 
         try {
             setupData();
@@ -242,9 +221,6 @@ public class MilvusCmdForDQLTest extends AbstractMilvusCmdForTest {
 
     @Test
     public void testRangeSearch() throws Exception {
-        if (!milvusReady) {
-            return;
-        }
         try {
             setupData();
             try (Connection conn = DriverManager.getConnection(MILVUS_URL); //
@@ -267,9 +243,6 @@ public class MilvusCmdForDQLTest extends AbstractMilvusCmdForTest {
 
     @Test
     public void testMixedSearch() throws Exception {
-        if (!milvusReady) {
-            return;
-        }
         try {
             setupData();
             try (Connection conn = DriverManager.getConnection(MILVUS_URL); Statement stmt = conn.createStatement()) {
@@ -296,9 +269,6 @@ public class MilvusCmdForDQLTest extends AbstractMilvusCmdForTest {
 
     @Test
     public void testComplexNestedQuery() throws Exception {
-        if (!milvusReady) {
-            return;
-        }
         try {
             setupData();
 
@@ -342,9 +312,6 @@ public class MilvusCmdForDQLTest extends AbstractMilvusCmdForTest {
 
     @Test
     public void testCount() throws Exception {
-        if (!milvusReady) {
-            return;
-        }
 
         try {
             setupData(); // Inserts 3 rows with book_id 1, 2, 3

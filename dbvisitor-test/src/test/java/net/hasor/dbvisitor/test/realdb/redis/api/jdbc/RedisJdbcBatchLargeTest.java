@@ -8,17 +8,12 @@
 package net.hasor.dbvisitor.test.realdb.redis.api.jdbc;
 
 import java.sql.SQLException;
-import java.util.Map;
 import org.junit.Before;
 import org.junit.After;
-import org.junit.Test;
 
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcBatchLargeCase;
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
-import static org.junit.Assert.*;
 
 public class RedisJdbcBatchLargeTest extends JdbcBatchLargeCase {
 
@@ -41,12 +36,60 @@ public class RedisJdbcBatchLargeTest extends JdbcBatchLargeCase {
     }
 
     @Override
-    @Test
-    @Capability(CapabilityId.JDBC_BATCH_LARGE_INSERT)
-    public void jdbcBatchLargeInsert_shouldInsertManyNamedRows() throws SQLException {
-        Map[] args = new Map[200];
-        for (int i = 0; i < args.length; i++) { args[i] = Map.of("key", fixture.key("large-" + i), "value", "value-" + i); }
-        assertEquals(200, jdbcTemplate.executeBatch("SET :key :value", args).length);
-        for (int i = 0; i < args.length; i++) { assertEquals("value-" + i, jdbcTemplate.queryForString("GET :key", args[i])); }
+    protected String insertCommand() {
+        return "HSET '" + fixture.key("batch") + "' ? ?";
+    }
+
+    @Override
+    protected String namedInsertCommand() {
+        return "HSET '" + fixture.key("batch") + "' :id :val";
+    }
+
+    @Override
+    protected String updateCommand() {
+        return insertCommand();
+    }
+
+    @Override
+    protected String deleteCommand() {
+        return "HDEL '" + fixture.key("batch") + "' ?";
+    }
+
+    @Override
+    protected String valueCommand() {
+        return "HGET '" + fixture.key("batch") + "' ?";
+    }
+
+    @Override
+    protected String countCommand() {
+        return "HEXISTS '" + fixture.key("batch") + "' ?";
+    }
+
+    @Override
+    protected String invalidCommand() {
+        return "NXN_UNKNOWN_COMMAND";
+    }
+
+    @Override
+    protected Object[] updateArguments(String value, int id) {
+        return new Object[] { id, value };
+    }
+
+    @Override
+    protected String countRangeCommand(boolean inclusiveEnd) {
+        String bound = inclusiveEnd ? " <= " : " < ";
+        return "EVAL 'local n = 0; for _, k in ipairs(redis.call(\"HKEYS\", KEYS[1])) do "
+                + "local id = tonumber(k); if id >= tonumber(ARGV[1]) and id" + bound
+                + "tonumber(ARGV[2]) then n = n + 1 end end return n' 1 '" + fixture.key("batch") + "' ? ?";
+    }
+
+    @Override
+    protected String literalInsertCommand(int id, String value) {
+        return "HSET '" + fixture.key("batch") + "' " + id + " '" + value + "'";
+    }
+
+    @Override
+    protected String literalUpdateCommand(int id, String value) {
+        return literalInsertCommand(id, value);
     }
 }

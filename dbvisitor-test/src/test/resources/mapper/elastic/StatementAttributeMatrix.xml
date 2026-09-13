@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="xmltest.StatementAttrMapper">
+
+    <resultMap id="userResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+        <result column="email" property="email"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <insert id="insertUser">@{macro, esSessionInsert}</insert>
+
+    <select id="selectPrepared" resultMap="userResultMap">@{macro, esSessionOne}</select>
+
+    <select id="selectExplicitPrepared" resultMap="userResultMap" statementType="PREPARED">@{macro, esSessionOne}</select>
+
+    <select id="selectStatement" resultMap="userResultMap" statementType="STATEMENT">@{macro, esSessionAll}</select>
+
+    <select id="selectWithTimeout" resultMap="userResultMap" timeout="30">@{macro, esSessionAll}</select>
+
+    <select id="selectWithFetchSize" resultMap="userResultMap" fetchSize="5">@{macro, esSessionAll}</select>
+
+    <select id="selectForwardOnly" resultMap="userResultMap" resultSetType="FORWARD_ONLY">@{macro, esSessionAll}</select>
+
+    <select id="selectScrollInsensitive" resultMap="userResultMap" resultSetType="SCROLL_INSENSITIVE">@{macro, esSessionAll}</select>
+
+    <select id="selectCombined" resultMap="userResultMap"
+            statementType="PREPARED" timeout="30" fetchSize="10" resultSetType="FORWARD_ONLY">@{macro, esSessionAll}</select>
+
+    <insert id="insertWithStatement" statementType="PREPARED">@{macro, esSessionInsert}</insert>
+
+</mapper>

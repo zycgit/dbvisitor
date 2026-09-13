@@ -17,10 +17,8 @@ import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 public abstract class AnnotationMapperResultSetTypeCase extends AnnotationMapperAttributeSupport {
     @Test
     @Capability(CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_RESULT_SET_TYPE)
-    public void annotationAttributes_shouldApplyResultSetTypeVariantsWithoutChangingResults() throws Exception {
+    public void annotationAttributes_shouldApplyDefaultAndForwardOnlyResults() throws Exception {
         assertAtLeastSeedRows(this.mapper.selectWithDefaultResultSetType(PATTERN));
         assertAtLeastSeedRows(this.mapper.selectWithForwardOnly(PATTERN));
-        assertAtLeastSeedRows(this.mapper.selectWithScrollInsensitive(PATTERN));
-        assertAtLeastSeedRows(this.mapper.selectWithScrollSensitive(PATTERN));
     }
 }

@@ -7,33 +7,51 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
-import java.util.*;
+import java.sql.SQLException;
 import net.hasor.dbvisitor.mapper.BaseMapper;
-import net.hasor.dbvisitor.session.*;
-import net.hasor.dbvisitor.test.nxn.capability.*;
+import net.hasor.dbvisitor.session.Session;
+import net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisNativeMapperSupport.Entry;
+import net.hasor.dbvisitor.test.contract.api.mapper.basemapper.BaseMapperAccessorsCase;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
 
-public class RedisBaseMapperAccessorsTest extends RedisNativeMapperSupport {
+public class RedisBaseMapperAccessorsTest extends BaseMapperAccessorsCase {
+    private final RedisMapperFixture fixture = new RedisMapperFixture();
 
-
-    @Before
-    public void loadStatements() throws Exception {
-        loadXml();
-        session.getConfiguration().loadMapper("/mapper/redis/CoverageMapper.xml");
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
     }
 
-    @Test
-    @Capability(CapabilityId.BASEMAPPER_NATIVE_ACCESSORS)
-    public void accessors_shouldExposeEntitySessionAndWorkingJdbc() throws Exception {
-        BaseMapper<Entry> base = session.createBaseMapper(Entry.class);
-        assertEquals(Entry.class, base.entityType());
-        assertSame(session, base.session());
-        assertNotNull(base.jdbc());
-        String key = key("accessor");
-        assertEquals(1, base.jdbc().executeUpdate("SET ? ?", new Object[] { key, "value" }));
-        assertEquals(Arrays.asList("value"), base.queryStatement("redis.Native.get", params(key, null)));
-        assertEquals("value", base.session().jdbc().queryForString("GET ?", key));
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        fixture.open();
+    }
+
+    @After
+    public void closeFixture() throws SQLException {
+        fixture.close();
+    }
+
+    private BaseMapper<Entry> nativeMapper;
+    @Override
+    public void createBaseMapper() throws SQLException {
+        fixture.open();
+        nativeMapper = fixture.session().createBaseMapper(Entry.class);
+    }
+    @Override
+    protected BaseMapper<?> accessorMapper() {
+        return nativeMapper;
+    }
+    @Override
+    protected Class<?> accessorEntityType() {
+        return Entry.class;
+    }
+    @Override
+    protected Session expectedAccessorSession() {
+        return fixture.session();
     }
 }

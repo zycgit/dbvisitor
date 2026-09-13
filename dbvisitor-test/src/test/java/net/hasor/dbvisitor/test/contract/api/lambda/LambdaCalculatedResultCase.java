@@ -20,13 +20,18 @@ import static org.junit.Assert.assertEquals;
 
 @NxnContract
 public abstract class LambdaCalculatedResultCase extends LambdaResultHandlingSupport {
+
+    protected String calculatedSelect() {
+        return "age * 2 as doubled_age";
+    }
+
     @Test
     @Capability(CapabilityId.LAMBDA_RESULT_CALCULATED_COLUMN)
     public void lambdaResult_shouldReadCalculatedColumnThroughRowMapper() throws SQLException {
         insertByJdbc(baseId() + 182, "LRCalc", 30, "lr-calc@test.com");
         Integer doubled = lambdaTemplate.query(UserInfo.class)//
                 .eq(UserInfo::getId, baseId() + 182)//
-                .applySelect("age * 2 as doubled_age")//
+                .applySelect(calculatedSelect())//
                 .queryForObject((rs, rowNum) -> rs.getInt("doubled_age"));
         assertEquals(Integer.valueOf(60), doubled);
     }

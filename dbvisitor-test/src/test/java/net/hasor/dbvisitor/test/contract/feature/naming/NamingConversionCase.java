@@ -58,7 +58,7 @@ public abstract class NamingConversionCase extends NamingMappingSupport {
     @Capability(CapabilityId.NAMING_CAMELCASE_DISABLED)
     public void camelCaseDisabled_shouldNotMapCreateTimeColumnWithoutFallbackOptions() throws SQLException {
         int id = baseId() + 11;
-        jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, ?)", //
+        jdbcTemplate.executeUpdate(insertCommand("user_info", "id, name, age, email, create_time"), //
                 new Object[] { id, "NXN-CamelDisabled", 28, "disabled@nxn.test", new Date() });
 
         CamelCaseEnabledUser enabled = lambdaTemplate.query(CamelCaseEnabledUser.class)//
@@ -78,7 +78,7 @@ public abstract class NamingConversionCase extends NamingMappingSupport {
     public void camelCaseOptions_shouldApplyToPlainEntityAndAnnotationDefaults() throws SQLException {
         ensurePlainUserTable();
         int plainId = baseId() + 12;
-        jdbcTemplate.executeUpdate("INSERT INTO plain_user (id, name, age, email, create_time) VALUES (?, ?, ?, ?, ?)", //
+        jdbcTemplate.executeUpdate(insertCommand("plain_user", "id, name, age, email, create_time"), //
                 new Object[] { plainId, "NXN-PlainOptions", 29, "plain@nxn.test", new Date() });
 
         LambdaTemplate optionsLambda = optionsLambda(Options.of().mapUnderscoreToCamelCase(true));
@@ -89,7 +89,7 @@ public abstract class NamingConversionCase extends NamingMappingSupport {
         assertNotNull(plain.getCreateTime());
 
         int defaultId = baseId() + 13;
-        jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, ?)", //
+        jdbcTemplate.executeUpdate(insertCommand("user_info", "id, name, age, email, create_time"), //
                 new Object[] { defaultId, "NXN-AnnotationDefault", 31, "default@nxn.test", new Date() });
         CamelCaseDisabledUser fallback = optionsLambda.query(CamelCaseDisabledUser.class)//
                 .eq(CamelCaseDisabledUser::getId, defaultId)//
@@ -204,10 +204,10 @@ public abstract class NamingConversionCase extends NamingMappingSupport {
         LambdaTemplate ciLambda = optionsLambda(Options.of().caseInsensitive(true));
         LambdaTemplate csLambda = optionsLambda(Options.of().caseInsensitive(false));
 
-        BoundSql ciSql = ciLambda.queryFreedom("user_info")//
+        BoundSql ciSql = ciLambda.queryFreedom(userTable())//
                 .eq("id", 1)//
                 .getBoundSql();
-        BoundSql csSql = csLambda.queryFreedom("user_info")//
+        BoundSql csSql = csLambda.queryFreedom(userTable())//
                 .eq("id", 1)//
                 .getBoundSql();
 

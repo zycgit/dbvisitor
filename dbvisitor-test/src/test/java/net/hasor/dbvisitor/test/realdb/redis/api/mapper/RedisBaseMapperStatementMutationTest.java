@@ -7,46 +7,49 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
-import java.util.*;
-import net.hasor.dbvisitor.mapper.BaseMapper;
-import net.hasor.dbvisitor.session.*;
-import net.hasor.dbvisitor.test.nxn.capability.*;
+import java.sql.SQLException;
+import java.util.List;
+
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
 
-public class RedisBaseMapperStatementMutationTest extends RedisNativeMapperSupport {
-    private int count(Object value) {
-        return ((Number) value).intValue();
+import net.hasor.dbvisitor.session.Session;
+import net.hasor.dbvisitor.test.contract.api.mapper.basemapper.BaseMapperStatementMutationCase;
+import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+
+public class RedisBaseMapperStatementMutationTest extends BaseMapperStatementMutationCase {
+    private final RedisEntityFixture fixture = new RedisEntityFixture();
+
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
     }
 
-    private static final String NS = "redis.Native.";
-
+    @Override
     @Before
-    public void loadStatements() throws Exception {
-        loadXml();
+    public void setup() throws SQLException {
+        this.jdbcTemplate = this.fixture.open();
     }
 
-    @Test
-    @Capability(CapabilityId.BASEMAPPER_STATEMENT_EXECUTE_DML)
-    public void baseMutation() throws Exception {
-        BaseMapper<Entry> base = session.createBaseMapper(Entry.class);
-        Map<String, Object> p = params(key("base"), "a");
-        assertEquals(1, count(base.executeStatement(NS + "put", p)));
-        p.put("value", "b");
-        assertEquals(1, count(base.executeStatement(NS + "replace", p)));
-        assertEquals(Arrays.asList("b"), base.queryStatement(NS + "get", p));
-        assertEquals(1, count(base.executeStatement(NS + "remove", p)));
+    @Override
+    @Before
+    public void createBaseMapperWithStatements() throws Exception {
+        Session session = this.fixture.session(newConfiguration(), "/mapper/redis/StatementMapper.xml");
+        this.mapper = session.createBaseMapper(UserInfo.class);
     }
 
-    @Test
-    @Capability(CapabilityId.BASEMAPPER_STATEMENT_BATCH_DELETE)
-    public void baseBulkDelete() throws Exception {
-        String a = key("a"), b = key("b");
-        mapper().put(a, "a");
-        mapper().put(b, "b");
-        assertEquals(2, count(session.createBaseMapper(Entry.class).executeStatement(NS + "manyRemove", Collections.singletonMap("keyList", Arrays.asList(a, b)))));
-        assertNull(mapper().get(a));
-        assertNull(mapper().get(b));
+    @After
+    public void closeFixture() throws SQLException {
+        this.fixture.close();
+    }
+
+    @Override
+    protected List<UserInfo> query(String statementId, Object params) {
+        if ("queryUsersByName".equals(statementId)) {
+            this.mapper.executeStatement(NS + ".prepareNameResults", params);
+        }
+        return super.query(statementId, params);
     }
 }

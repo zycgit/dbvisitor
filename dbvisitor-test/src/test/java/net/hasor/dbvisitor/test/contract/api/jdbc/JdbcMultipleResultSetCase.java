@@ -39,6 +39,64 @@ public abstract class JdbcMultipleResultSetCase extends AbstractNxnContractTest 
         return "INSERT INTO " + tableName() + " (id, name, age, email) VALUES (?, ?, ?, ?)";
     }
 
+    protected Object[] positionalParameters() {
+        return new Object[] { 31, "NXN-Multi-2" };
+    }
+
+    protected Map<String, Object> namedParameters() {
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("ageLimit", 32);
+        return parameters;
+    }
+
+    protected String resultNameColumn() {
+        return "name";
+    }
+
+    protected String expectedPositionalName() {
+        return "NXN-Multi-2";
+    }
+
+    protected Class<?> mappedResultType() {
+        return UserInfo.class;
+    }
+
+    protected String mappedName(Object row) {
+        return ((UserInfo) row).getName();
+    }
+
+    protected String expectedMappedName(int index) {
+        return "NXN-Multi-" + index;
+    }
+
+    protected String literalMultipleCommand() {
+        return """
+                SELECT id, name, age FROM %s WHERE id BETWEEN %d AND %d;
+                SELECT id, name, age FROM %s WHERE id BETWEEN %d AND %d;
+                """.formatted(tableName(), baseId() + 1, baseId() + 1, tableName(), baseId() + 2, baseId() + 3);
+    }
+
+    protected String positionalMultipleCommand() {
+        return """
+                SELECT id, name, age FROM %s WHERE age > ?;
+                SELECT id, name, age FROM %s WHERE name = ?;
+                """.formatted(tableName(), tableName());
+    }
+
+    protected String namedMultipleCommand() {
+        return """
+                SELECT id, name, age FROM %s WHERE age < :ageLimit;
+                SELECT id, name, age FROM %s WHERE age >= :ageLimit;
+                """.formatted(tableName(), tableName());
+    }
+
+    protected String ruleMultipleCommand() {
+        return """
+                SELECT * FROM %s WHERE id = %d; @{resultSet,name=youngUsers,javaType=net.hasor.dbvisitor.test.contract.material.model.UserInfo}
+                SELECT * FROM %s WHERE id = %d; @{resultSet,name=seniorUsers,javaType=net.hasor.dbvisitor.test.contract.material.model.UserInfo}
+                """.formatted(tableName(), baseId() + 1, tableName(), baseId() + 3);
+    }
+
     @Test
     @Capability(CapabilityId.JDBC_MULTIPLE_RESULT_SETS)
     public void jdbcMultipleExecute_shouldReturnMultipleResultSets() throws SQLException {
@@ -46,10 +104,7 @@ public abstract class JdbcMultipleResultSetCase extends AbstractNxnContractTest 
         seedUsers();
 
         Map<String, Object> resultMap = jdbcTemplate.multipleExecute(//
-                """
-                SELECT id, name, age FROM %s WHERE id BETWEEN %d AND %d;
-                SELECT id, name, age FROM %s WHERE id BETWEEN %d AND %d;
-                """.formatted(tableName(), baseId() + 1, baseId() + 1, tableName(), baseId() + 2, baseId() + 3));
+                literalMultipleCommand());
         List<Object> resultList = new ArrayList<>(resultMap.values());
 
         assertEquals(2, resultList.size());
@@ -64,18 +119,15 @@ public abstract class JdbcMultipleResultSetCase extends AbstractNxnContractTest 
         seedUsers();
 
         Map<String, Object> resultMap = jdbcTemplate.multipleExecute(//
-                """
-                SELECT id, name, age FROM %s WHERE age > ?;
-                SELECT id, name, age FROM %s WHERE name = ?;
-                """.formatted(tableName(), tableName()), //
-                new Object[] { 31, "NXN-Multi-2" });
+                positionalMultipleCommand(), //
+                positionalParameters());
         List<Object> resultList = new ArrayList<>(resultMap.values());
 
         assertEquals(2, resultList.size());
         assertEquals(2, ((List<?>) resultList.get(0)).size());
         List<?> namedRows = (List<?>) resultList.get(1);
         assertEquals(1, namedRows.size());
-        assertEquals("NXN-Multi-2", value((Map<?, ?>) namedRows.get(0), "name"));
+        assertEquals(expectedPositionalName(), value((Map<?, ?>) namedRows.get(0), resultNameColumn()));
     }
 
     @Test
@@ -83,14 +135,10 @@ public abstract class JdbcMultipleResultSetCase extends AbstractNxnContractTest 
     public void jdbcMultipleExecute_shouldBindNamedParametersAcrossStatements() throws SQLException {
         requiresNxnFeature(FeatureId.MULTIPLE_RESULT_SETS);
         seedUsers();
-        Map<String, Object> params = new HashMap<>();
-        params.put("ageLimit", 32);
+        Map<String, Object> params = namedParameters();
 
         Map<String, Object> resultMap = jdbcTemplate.multipleExecute(//
-                """
-                SELECT id, name, age FROM %s WHERE age < :ageLimit;
-                SELECT id, name, age FROM %s WHERE age >= :ageLimit;
-                """.formatted(tableName(), tableName()), //
+                namedMultipleCommand(), //
                 params);
         List<Object> resultList = new ArrayList<>(resultMap.values());
 
@@ -106,21 +154,19 @@ public abstract class JdbcMultipleResultSetCase extends AbstractNxnContractTest 
         seedUsers();
 
         Map<String, Object> resultMap = jdbcTemplate.multipleExecute(//
-                """
-                SELECT * FROM %s WHERE id = %d; @{resultSet,name=youngUsers,javaType=net.hasor.dbvisitor.test.contract.material.model.UserInfo}
-                SELECT * FROM %s WHERE id = %d; @{resultSet,name=seniorUsers,javaType=net.hasor.dbvisitor.test.contract.material.model.UserInfo}
-                """.formatted(tableName(), baseId() + 1, tableName(), baseId() + 3));
+                ruleMultipleCommand());
 
         assertTrue(resultMap.containsKey("youngUsers"));
         assertTrue(resultMap.containsKey("seniorUsers"));
+        assertEquals(2, resultMap.size());
         List<?> youngUsers = (List<?>) resultMap.get("youngUsers");
         List<?> seniorUsers = (List<?>) resultMap.get("seniorUsers");
         assertEquals(1, youngUsers.size());
         assertEquals(1, seniorUsers.size());
-        assertTrue(youngUsers.get(0) instanceof UserInfo);
-        assertTrue(seniorUsers.get(0) instanceof UserInfo);
-        assertEquals("NXN-Multi-1", ((UserInfo) youngUsers.get(0)).getName());
-        assertEquals("NXN-Multi-3", ((UserInfo) seniorUsers.get(0)).getName());
+        assertTrue(mappedResultType().isInstance(youngUsers.get(0)));
+        assertTrue(mappedResultType().isInstance(seniorUsers.get(0)));
+        assertEquals(expectedMappedName(1), mappedName(youngUsers.get(0)));
+        assertEquals(expectedMappedName(3), mappedName(seniorUsers.get(0)));
     }
 
     protected void seedUsers() throws SQLException {

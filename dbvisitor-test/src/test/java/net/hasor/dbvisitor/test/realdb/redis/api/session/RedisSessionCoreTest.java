@@ -7,83 +7,89 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.session;
 
-import java.util.*;
-import net.hasor.dbvisitor.session.*;
-import net.hasor.dbvisitor.test.nxn.capability.*;
-import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
-import net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisNativeMapperSupport;
+import java.sql.SQLException;
+import java.util.Properties;
+
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
 
-public class RedisSessionCoreTest extends RedisNativeMapperSupport {
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 
+import net.hasor.dbvisitor.session.Session;
+import net.hasor.dbvisitor.test.contract.api.session.SessionCoreCase;
+import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
+import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisMapperFixture;
+import net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisNativeMapperSupport.NativeMapper;
 
+public class RedisSessionCoreTest extends SessionCoreCase {
+    private final RedisMapperFixture fixture = new RedisMapperFixture();
+    private HikariDataSource sessionSource;
+
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
+    }
+
+    @Override
     @Before
-    public void loadStatements() throws Exception {
-        loadXml();
+    public void setup() throws SQLException {
+        this.fixture.open();
+        this.jdbcTemplate = this.fixture.session().jdbc();
+        Properties properties = OneApiDataSourceManager.loadAdapterProperties("redis");
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl(properties.getProperty("jdbc.url"));
+        config.setDriverClassName(properties.getProperty("jdbc.driver"));
+        config.setUsername(properties.getProperty("jdbc.username"));
+        config.setPassword(properties.getProperty("jdbc.password"));
+        config.setConnectionTestQuery("PING");
+        config.setMaximumPoolSize(2);
+        config.setMinimumIdle(0);
+        this.sessionSource = new HikariDataSource(config);
+        this.dataSource = this.sessionSource;
     }
 
-    @Test
-    @Capability(CapabilityId.SESSION_LIFECYCLE)
-    public void lifecycle() throws Exception {
-        Configuration configuration = new Configuration();
-        Session local = configuration.newSession(OneApiDataSourceManager.getConnection("redis"));
-        assertSame(configuration, local.getConfiguration());
+    @After
+    public void closeFixture() throws SQLException {
         try {
-            String k = key("life");
-            NativeMapper nativeMapper = local.createMapper(NativeMapper.class);
-            nativeMapper.put(k, "v");
-            assertEquals("v", nativeMapper.get(k));
+            this.fixture.close();
         } finally {
-            local.close();
-            local.close();
+            if (this.sessionSource != null) {
+                this.sessionSource.close();
+            }
         }
     }
 
-    @Test
-    @Capability(CapabilityId.SESSION_COMPONENT_JDBC)
-    public void jdbc() throws Exception {
-        String k = key("jdbc");
-        assertNotNull(session.jdbc());
-        assertEquals(1, session.jdbc().executeUpdate("SET ? ?", new Object[] { k, "v" }));
-        assertEquals("v", session.jdbc().queryForString("GET ?", k));
+    @Override
+    protected String sessionInsertCommand() {
+        return "SET ? ?";
     }
 
-    @Test
-    @Capability(CapabilityId.SESSION_BASEMAPPER_NAMESPACE)
-    public void namespace() throws Exception {
-        assertNotNull(session.createBaseMapper(Entry.class, "redis.custom"));
-        assertNotNull(session.getConfiguration().findBySpace("redis.custom", Entry.class));
+    @Override
+    protected Object[] sessionInsertArgs(int id, String name, int age) {
+        return new Object[] { this.fixture.key("user:" + id), name };
     }
 
-    @Test
-    @Capability(CapabilityId.SESSION_CONFIGURATION_ACCESSORS)
-    public void configuration() throws Exception {
-        Configuration c = session.getConfiguration();
-        assertNotNull(c.options());
-        assertNotNull(c.getTypeRegistry());
-        assertNotNull(c.getMacroRegistry());
-        assertNotNull(c.getRuleRegistry());
-        assertNotNull(c.getMapperRegistry());
-        assertNotNull(c.getMappingRegistry());
-        assertNotNull(c.getClassLoader());
-        c.loadEntityToSpace(Entry.class);
-        assertNotNull(c.findByEntity(Entry.class));
-        assertEquals(Entry.class, c.loadClass(Entry.class.getName()));
-        assertThrows(ClassNotFoundException.class, () -> c.loadClass("redis.Missing"));
+    @Override
+    protected String sessionCountCommand() {
+        return "EXISTS ?";
     }
 
-    @Test
-    @Capability(CapabilityId.SESSION_MULTI_SESSION)
-    public void multipleSessions() throws Exception {
-        Configuration c = session.getConfiguration();
-        try (Session second = c.newSession(OneApiDataSourceManager.getConnection("redis"))) {
-            assertNotSame(session, second);
-            assertSame(c, second.getConfiguration());
-            String k = key("shared");
-            mapper().put(k, "shared");
-            assertEquals("shared", second.createMapper(NativeMapper.class).get(k));
-        }
+    @Override
+    protected Object[] sessionCountArgs(int id) {
+        return new Object[] { this.fixture.key("user:" + id) };
+    }
+
+    @Override
+    protected int insertSessionUser(Session session, UserInfo user) throws Exception {
+        return session.createMapper(NativeMapper.class).put(this.fixture.key("user:" + user.getId()), user.getName());
+    }
+
+    @Override
+    protected String readSessionUserName(Session session, int id) throws Exception {
+        return session.createMapper(NativeMapper.class).get(this.fixture.key("user:" + id));
     }
 }

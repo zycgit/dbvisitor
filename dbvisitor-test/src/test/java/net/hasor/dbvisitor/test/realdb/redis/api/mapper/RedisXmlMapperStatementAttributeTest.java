@@ -7,56 +7,42 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
-import java.util.*;
-import net.hasor.dbvisitor.test.nxn.capability.*;
+import java.sql.SQLException;
+import java.util.Map;
+import net.hasor.dbvisitor.session.Session;
+import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperStatementAttributeCase;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
 
-public class RedisXmlMapperStatementAttributeTest extends RedisNativeMapperSupport {
-    private static final String NS = "redis.Native.";
+public class RedisXmlMapperStatementAttributeTest extends XmlMapperStatementAttributeCase {
+    private final RedisEntityFixture fixture = new RedisEntityFixture();
 
-    private Map<String, Object> seedList() throws Exception {
-        Map<String, Object> p = params(key("list"), null);
-        session.jdbc().executeUpdate("RPUSH ? first second", p.get("key"));
-        return p;
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
     }
 
+    @Override
     @Before
-    public void loadStatements() throws Exception {
-        loadXml();
+    public void setup() throws SQLException {
+        this.jdbcTemplate = this.fixture.open();
     }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_XML_STATEMENT_TYPE)
-    public void statementType() throws Exception {
-        Map<String, Object> p = params(key("statement"), "v");
-        session.executeStatement(NS + "put", p);
-        assertEquals(Arrays.asList("v"), session.queryStatement(NS + "get", p));
-        assertEquals(Arrays.asList("PONG"), session.queryStatement(NS + "statement", p));
+    @Override
+    @Before
+    public void createXmlMapperSession() throws Exception {
+        Session material = this.fixture.session(newConfiguration(), "/session/RedisUserSessionMapper.xml");
+        for (int i = 1; i <= 5; i++) {
+            material.executeStatement("session.UserSessionMapper.insertUser", Map.of(
+                    "id", baseId() + i, "name", "StmtAttr" + i, "age", 20 + i, "email", "attr" + i + "@nxn.test"));
+        }
+        this.session = this.fixture.session(newConfiguration(), "/mapper/redis/StatementAttrMapper.xml");
     }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_XML_STATEMENT_TIMEOUT)
-    public void timeout() throws Exception {
-        assertEquals(Arrays.asList("first", "second"), session.queryStatement(NS + "options", seedList()));
-    }
-
-    @Test
-    @Capability(CapabilityId.MAPPER_XML_STATEMENT_FETCH_SIZE)
-    public void fetchSize() throws Exception {
-        assertEquals(Arrays.asList("first", "second"), session.queryStatement(NS + "options", seedList()));
-    }
-
-    @Test
-    @Capability(CapabilityId.MAPPER_XML_STATEMENT_FORWARD_ONLY)
-    public void forwardOnly() throws Exception {
-        assertEquals(Arrays.asList("first", "second"), session.queryStatement(NS + "options", seedList()));
-    }
-
-    @Test
-    @Capability(CapabilityId.MAPPER_XML_STATEMENT_COMBINED)
-    public void combined() throws Exception {
-        assertEquals(Arrays.asList("first", "second"), session.queryStatement(NS + "options", seedList()));
+    @After
+    public void cleanupFixture() throws SQLException {
+        this.fixture.close();
     }
 }

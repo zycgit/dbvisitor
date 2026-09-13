@@ -7,37 +7,67 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
-import java.util.*;
-import net.hasor.dbvisitor.test.nxn.capability.*;
+import java.sql.SQLException;
+import java.util.List;
 import net.hasor.dbvisitor.test.realdb.redis.dto1.RedisParameterUser;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperQueryResultCase;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import org.junit.After;
+import org.junit.Before;
 
-public class RedisAnnotationMapperQueryResultTest extends RedisNativeMapperSupport {
-    private RedisCoverageMapper coverage() throws Exception {
-        return session.createMapper(RedisCoverageMapper.class);
+public class RedisAnnotationMapperQueryResultTest extends AnnotationMapperQueryResultCase {
+    private final RedisMapperFixture fixture = new RedisMapperFixture();
+
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
     }
 
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        fixture.open();
+    }
+
+    @After
+    public void closeFixture() throws SQLException {
+        fixture.close();
+    }
+
+    private RedisCoverageMapper nativeMapper;
+    @Override
+    public void createAnnotationMapper() throws Exception {
+        fixture.open();
+        nativeMapper = fixture.session().createMapper(RedisCoverageMapper.class);
+    }
     private RedisParameterUser user(int id, String name) {
         RedisParameterUser user = new RedisParameterUser();
         user.setId(id);
         user.setName(name);
         return user;
     }
-
-    @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_NATIVE_QUERY)
-    public void nativeQuery_shouldReturnObjectListAndScalar() throws Exception {
-        RedisCoverageMapper mapper = coverage();
-        String key = key("users");
-        assertEquals(1, mapper.appendBean(key, user(1, "first")));
-        assertEquals(2, mapper.appendBean(key, user(2, "second")));
-        List<RedisParameterUser> rows = mapper.beans(key);
-        assertEquals(2, rows.size());
+    @Override
+    protected void prepareQueryRows() throws Exception {
+        assertEquals(1, nativeMapper.appendBean(fixture.key("users"), user(1, "first")));
+        assertEquals(2, nativeMapper.appendBean(fixture.key("users"), user(2, "second")));
+    }
+    @Override
+    protected List<?> queryObjectRows() throws Exception {
+        List<RedisParameterUser> rows = nativeMapper.beans(fixture.key("users"));
         assertEquals(Integer.valueOf(1), rows.get(0).getId());
         assertEquals("first", rows.get(0).getName());
         assertEquals(Integer.valueOf(2), rows.get(1).getId());
         assertEquals("second", rows.get(1).getName());
-        assertEquals(2, mapper.count(key));
+        return rows;
+    }
+    @Override
+    protected List<?> queryOtherObjectRows() throws Exception {
+        return nativeMapper.beans(fixture.key("users"));
+    }
+    @Override
+    protected int queryScalarCount() throws Exception {
+        return nativeMapper.count(fixture.key("users"));
     }
 }

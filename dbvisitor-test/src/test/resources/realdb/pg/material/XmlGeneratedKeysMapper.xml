@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="xmltest.KeyGenerationMapper">
+    <insert id="insertWithGeneratedKeys" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user_info (name, age, email, create_time)
+        VALUES (#{name}, #{age}, #{email}, CURRENT_TIMESTAMP)
+    </insert>
+    <insert id="insertWithKeyColumn" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO user_info (name, age, email, create_time)
+        VALUES (#{name}, #{age}, #{email}, CURRENT_TIMESTAMP)
+    </insert>
+    <insert id="insertWithGeneratedKeyResultSet" useGeneratedKeys="true" keyProperty="id" keyColumn="id" generatedKeySource="resultSet">
+        INSERT INTO user_info (name, age, email, create_time)
+        VALUES (#{name}, #{age}, #{email}, CURRENT_TIMESTAMP) RETURNING id
+    </insert>
+    <select id="selectById" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        SELECT * FROM user_info WHERE id = #{id}
+    </select>
+</mapper>

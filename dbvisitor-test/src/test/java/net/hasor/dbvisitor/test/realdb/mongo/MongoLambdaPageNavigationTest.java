@@ -8,26 +8,36 @@
 package net.hasor.dbvisitor.test.realdb.mongo;
 
 import java.sql.SQLException;
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import org.junit.Test;
+import java.util.Date;
+import net.hasor.dbvisitor.test.contract.api.adapter.NativeDocumentQueryFixture;
+import net.hasor.dbvisitor.test.contract.api.lambda.LambdaPageNavigationCase;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
+import org.junit.After;
+import org.junit.Before;
 
-public class MongoLambdaPageNavigationTest extends MongoLambdaPaginationSupport {
-    @Test
-    @Capability(CapabilityId.ADAPTER_MONGO_PAGINATION_MUTABLE)
-    public void mutablePageShouldFollowNativePageSemantics() throws SQLException {
-        verifyMutablePage();
+public class MongoLambdaPageNavigationTest extends LambdaPageNavigationCase {
+    private final NativeDocumentQueryFixture fixture = new NativeDocumentQueryFixture();
+
+    @Override
+    protected DataSourceProfile profile() {
+        return MongoProfile.INSTANCE;
     }
 
-    @Test
-    @Capability(CapabilityId.ADAPTER_MONGO_PAGINATION_TRAVERSAL)
-    public void fullTraversalShouldFollowNativePageSemantics() throws SQLException {
-        verifyFullTraversal();
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        this.jdbcTemplate = this.fixture.open(profile().env());
+        this.lambdaTemplate = this.fixture.lambdaTemplate();
     }
 
-    @Test
-    @Capability(CapabilityId.ADAPTER_MONGO_PAGINATION_OFFSET)
-    public void offsetShouldFollowNativePageSemantics() throws SQLException {
-        verifyOffset();
+    @Override
+    protected void insert(int id, String name, Integer age) throws SQLException {
+        this.fixture.insert(id, name, age, name + "@test.com", new Date());
+    }
+
+    @After
+    public void cleanupFixture() throws SQLException {
+        this.fixture.close();
     }
 }

@@ -7,47 +7,47 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
-import java.util.*;
-import net.hasor.dbvisitor.test.nxn.capability.*;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import java.sql.SQLException;
+import java.util.Map;
+import net.hasor.dbvisitor.session.Session;
+import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperStatementAccessCase;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import org.junit.After;
+import org.junit.Before;
 
-public class RedisXmlMapperStatementAccessTest extends RedisNativeMapperSupport {
-    private String list() throws Exception {
-        String k = key("list");
-        session.jdbc().executeUpdate("RPUSH ? a b", k);
-        extended();
-        return k;
+public class RedisXmlMapperStatementAccessTest extends XmlMapperStatementAccessCase {
+    private final RedisEntityFixture fixture = new RedisEntityFixture();
+
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
     }
 
-    private static final String NS = "net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisExtendedMapper.";
-
-    private RedisExtendedMapper extended() throws Exception {
-        return session.createMapper(RedisExtendedMapper.class);
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        this.jdbcTemplate = this.fixture.open();
     }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_XML_LOAD)
-    public void load() throws Exception {
-        assertEquals(Arrays.asList("a", "b"), session.queryStatement(NS + "included", params(list(), null)));
+    @Override
+    @Before
+    public void createXmlMapperSession() throws Exception {
+        this.session = this.fixture.session(newConfiguration(), "/mapper/redis/CrudAccessMapper.xml");
+        for (int i = 1; i <= 5; i++) {
+            this.session.executeStatement("xmltest.CrudMapper.seed", Map.of(
+                    "id", baseId() + i, "name", "XmlCrud" + i, "age", 20 + i, "email", "crud" + i + "@test.com"));
+        }
     }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_XML_NAMESPACE_MULTIPLE)
-    public void namespaces() throws Exception {
-        loadXml();
-        String k = key("ns");
-        extended().put(k, "v");
-        assertEquals(Arrays.asList("v"), session.queryStatement("redis.Native.get", params(k, null)));
-        assertEquals(Arrays.asList("v"), session.queryStatement(NS + "get", params(k, null)));
+    @Override
+    protected Session createMultiNamespaceSession() throws Exception {
+        this.session.getConfiguration().loadMapper("/mapper/redis/CrossNamespaceMapper.xml");
+        return this.session;
     }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_XML_CRUD_EXECUTE)
-    public void execute() throws Exception {
-        String k = key("execute");
-        extended().put(k, "v");
-        assertEquals(1, ((Number) session.executeStatement(NS + "remove", params(k, null))).intValue());
-        assertNull(extended().get(k));
+    @After
+    public void cleanupFixture() throws SQLException {
+        this.fixture.close();
     }
 }

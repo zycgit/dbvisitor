@@ -32,17 +32,7 @@ public abstract class DatabaseGeneratedKeyCase extends KeyGenerationSupport {
     public void keygenAuto_shouldPopulateDatabaseGeneratedKeyOnSingleInsert() throws SQLException {
         requiresNxnFeature(FeatureId.GENERATED_KEYS_NUMERIC);
         ensureAutoTable();
-
-        KeyAutoUser user = new KeyAutoUser();
-        user.setName("Auto Key User");
-        user.setAge(30);
-        user.setCreateTime(new Date());
-
-        int rows = lambdaTemplate.insert(KeyAutoUser.class).applyEntity(user).executeSumResult();
-
-        assertEquals(1, rows);
-        assertNotNull(user.getId());
-        assertTrue(user.getId() > 0);
+        verifySingleAutoKey(autoKeyModel());
     }
 
     @Test
@@ -50,20 +40,7 @@ public abstract class DatabaseGeneratedKeyCase extends KeyGenerationSupport {
     public void keygenAuto_shouldPopulateGeneratedKeysOnBatchInsert() throws SQLException {
         requiresNxnFeature(FeatureId.KEYGEN_AUTO_BATCH_EXPLICIT_NULL);
         ensureAutoTable();
-
-        KeyAutoUser first = autoUser("Auto Batch 1", 31);
-        KeyAutoUser second = autoUser("Auto Batch 2", 32);
-        KeyAutoUser third = autoUser("Auto Batch 3", 33);
-
-        Insert<KeyAutoUser> insert = lambdaTemplate.insert(KeyAutoUser.class);
-        int rows = insert.applyEntity(first).applyEntity(second).applyEntity(third).executeSumResult();
-
-        assertEquals(3, rows);
-        assertNotNull(first.getId());
-        assertNotNull(second.getId());
-        assertNotNull(third.getId());
-        assertFalse(first.getId().equals(second.getId()));
-        assertFalse(second.getId().equals(third.getId()));
+        verifyBatchAutoKeys(autoKeyModel());
     }
 
     @Test
@@ -71,15 +48,8 @@ public abstract class DatabaseGeneratedKeyCase extends KeyGenerationSupport {
     public void keygenAuto_shouldKeepManuallyAssignedPrimaryKey() throws SQLException {
         requiresNxnFeature(FeatureId.GENERATED_KEYS_NUMERIC);
         ensureAutoTable();
-
-        KeyAutoUser user = autoUser("Manual Auto User", 67);
-        user.setId(54321);
-
-        assertEquals(1, lambdaTemplate.insert(KeyAutoUser.class).applyEntity(user).executeSumResult());
-        Integer dbId = jdbcTemplate.queryForObject("SELECT id FROM user_keygen_auto WHERE id = ?", new Object[] { 54321 }, Integer.class);
-
-        assertEquals(Integer.valueOf(54321), user.getId());
-        assertEquals(Integer.valueOf(54321), dbId);
+        allowExplicitAutoId();
+        verifyExplicitAutoKey(autoKeyModel());
     }
 
     @Test
@@ -96,5 +66,46 @@ public abstract class DatabaseGeneratedKeyCase extends KeyGenerationSupport {
         assertEquals(1, lambdaTemplate.insert(KeyAutoLongUser.class).applyEntity(user).executeSumResult());
         assertNotNull(user.getId());
         assertTrue(user.getId() > 0L);
+    }
+
+    protected NumericKeyModel<?> autoKeyModel() {
+        return new NumericKeyModel<>(KeyAutoUser.class, this::autoUser, KeyAutoUser::getId,
+                (user, id) -> user.setId(Math.toIntExact(id)));
+    }
+
+    protected void allowExplicitAutoId() throws SQLException {
+        // Most identity schemas already allow an explicit key.
+    }
+
+    protected long readAutoKey(long id) throws SQLException {
+        return jdbcTemplate.queryForObject("SELECT id FROM user_keygen_auto WHERE id = ?", new Object[] { id }, Long.class);
+    }
+
+    private <T> void verifySingleAutoKey(NumericKeyModel<T> model) throws SQLException {
+        T user = model.factory().apply("Auto Key User", 30);
+        assertEquals(1, lambdaTemplate.insert(model.type()).applyEntity(user).executeSumResult());
+        assertNotNull(model.key().apply(user));
+        assertTrue(model.key().apply(user).longValue() > 0);
+    }
+
+    private <T> void verifyBatchAutoKeys(NumericKeyModel<T> model) throws SQLException {
+        T first = model.factory().apply("Auto Batch 1", 31);
+        T second = model.factory().apply("Auto Batch 2", 32);
+        T third = model.factory().apply("Auto Batch 3", 33);
+        Insert<T> insert = lambdaTemplate.insert(model.type());
+        assertEquals(3, insert.applyEntity(first).applyEntity(second).applyEntity(third).executeSumResult());
+        assertNotNull(model.key().apply(first));
+        assertNotNull(model.key().apply(second));
+        assertNotNull(model.key().apply(third));
+        assertFalse(model.key().apply(first).equals(model.key().apply(second)));
+        assertFalse(model.key().apply(second).equals(model.key().apply(third)));
+    }
+
+    private <T> void verifyExplicitAutoKey(NumericKeyModel<T> model) throws SQLException {
+        T user = model.factory().apply("Manual Auto User", 67);
+        model.assignKey().accept(user, 54321L);
+        assertEquals(1, lambdaTemplate.insert(model.type()).applyEntity(user).executeSumResult());
+        assertEquals(54321L, model.key().apply(user).longValue());
+        assertEquals(54321L, readAutoKey(54321L));
     }
 }

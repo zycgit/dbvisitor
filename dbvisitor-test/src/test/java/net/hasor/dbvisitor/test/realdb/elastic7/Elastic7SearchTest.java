@@ -24,12 +24,12 @@ public class Elastic7SearchTest {
             try {
                 s.execute("DELETE /test_msearch_1");
             } catch (Exception e) {
-                // ignore
+                Elastic7Cleanup.requireMissingIndex(e);
             }
             try {
                 s.execute("DELETE /test_msearch_2");
             } catch (Exception e) {
-                // ignore
+                Elastic7Cleanup.requireMissingIndex(e);
             }
             s.executeUpdate("POST /test_msearch_1/_doc/1 { \"name\": \"doc1\", \"value\": 100 }");
             s.executeUpdate("POST /test_msearch_2/_doc/2 { \"name\": \"doc2\", \"value\": 200 }");
@@ -37,7 +37,7 @@ public class Elastic7SearchTest {
             try {
                 s.execute("DELETE /test_search");
             } catch (Exception e) {
-                // ignore
+                Elastic7Cleanup.requireMissingIndex(e);
             }
             s.executeUpdate("POST /test_search/_doc/1 { \"name\": \"Alice\", \"age\": 30, \"city\": \"New York\" }");
             s.executeUpdate("POST /test_search/_doc/2 { \"name\": \"Bob\", \"age\": 25, \"city\": \"Los Angeles\" }");
@@ -51,17 +51,17 @@ public class Elastic7SearchTest {
             try {
                 s.execute("DELETE /test_msearch_1");
             } catch (Exception e) {
-                // ignore
+                Elastic7Cleanup.requireMissingIndex(e);
             }
             try {
                 s.execute("DELETE /test_msearch_2");
             } catch (Exception e) {
-                // ignore
+                Elastic7Cleanup.requireMissingIndex(e);
             }
             try {
                 s.execute("DELETE /test_search");
             } catch (Exception e) {
-                // ignore
+                Elastic7Cleanup.requireMissingIndex(e);
             }
         }
     }

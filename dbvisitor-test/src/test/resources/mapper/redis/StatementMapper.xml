@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="StatementTestMapper">
+    <select id="insertUserWithId" resultSetExtractor="net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisIntegerResultExtractor">
+        EVAL "local u=cjson.decode(ARGV[1]); redis.call('ZADD',KEYS[1],u.id,ARGV[1]); redis.call('ZADD',KEYS[2],u.age,ARGV[1]); redis.call('HSET',KEYS[3],u.name..':'..u.age,ARGV[1]); return 1" 3 @{macro, redisUsers} @{macro, redisAges} @{macro, redisNames} #{#{'id':id,'name':name,'age':age,'email':email,'createTime':1L},typeHandler=net.hasor.dbvisitor.types.handler.json.JsonTypeHandler}
+    </select>
+    <select id="updateUserEmail" resultSetExtractor="net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisIntegerResultExtractor">
+        EVAL "local rows=redis.call('ZRANGEBYSCORE',KEYS[1],ARGV[1],ARGV[1]); if #rows==0 then return 0 end; local old=rows[1]; local u=cjson.decode(old); u.email=ARGV[2]; local new=cjson.encode(u); redis.call('ZREM',KEYS[1],old); redis.call('ZREM',KEYS[2],old); redis.call('ZADD',KEYS[1],u.id,new); redis.call('ZADD',KEYS[2],u.age,new); redis.call('HSET',KEYS[3],u.name..':'..u.age,new); return 1" 3 @{macro, redisUsers} @{macro, redisAges} @{macro, redisNames} #{id} #{email}
+    </select>
+    <select id="deleteUserById" resultSetExtractor="net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisIntegerResultExtractor">
+        EVAL "local rows=redis.call('ZRANGEBYSCORE',KEYS[1],ARGV[1],ARGV[1]); if #rows==0 then return 0 end; local old=rows[1]; local u=cjson.decode(old); redis.call('ZREM',KEYS[1],old); redis.call('ZREM',KEYS[2],old); redis.call('HDEL',KEYS[3],u.name..':'..u.age); return 1" 3 @{macro, redisUsers} @{macro, redisAges} @{macro, redisNames} #{id}
+    </select>
+    <select id="queryUserById" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo"
+            resultTypeHandler="net.hasor.dbvisitor.types.handler.json.JsonTypeHandler">
+        ZRANGEBYSCORE @{macro, redisUsers} #{id} #{id}
+    </select>
+    <select id="queryAllUsers" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo"
+            resultTypeHandler="net.hasor.dbvisitor.types.handler.json.JsonTypeHandler">
+        ZRANGE @{macro, redisUsers} 0 -1
+    </select>
+
+    <select id="deleteUsersByName" resultSetExtractor="net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisIntegerResultExtractor">
+        EVAL "local rows=redis.call('ZRANGE',KEYS[1],0,-1); local prefix=string.sub(ARGV[1],1,-2); local count=0; for _,old in ipairs(rows) do local u=cjson.decode(old); if string.sub(u.name,1,string.len(prefix))==prefix then redis.call('ZREM',KEYS[1],old); redis.call('ZREM',KEYS[2],old); redis.call('HDEL',KEYS[3],u.name..':'..u.age); count=count+1 end end; return count" 3 @{macro, redisUsers} @{macro, redisAges} @{macro, redisNames} #{name}
+    </select>
+    <select id="prepareNameResults" resultSetExtractor="net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisIntegerResultExtractor">
+        EVAL "redis.call('DEL',KEYS[2]); local prefix=string.sub(ARGV[1],1,-2); local rows=redis.call('ZRANGE',KEYS[1],0,-1); for _,value in ipairs(rows) do local u=cjson.decode(value); if string.sub(u.name,1,string.len(prefix))==prefix then redis.call('ZADD',KEYS[2],u.id,value) end end; return redis.call('ZCARD',KEYS[2])" 2 @{macro, redisUsers} @{macro, redisCounter} #{name}
+    </select>
+    <select id="queryUsersByName" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo"
+            resultTypeHandler="net.hasor.dbvisitor.types.handler.json.JsonTypeHandler">
+        ZRANGE @{macro, redisCounter} 0 -1
+    </select>
+</mapper>

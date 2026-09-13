@@ -30,6 +30,10 @@ public abstract class AbstractDataSourceProfile implements DataSourceProfile {
 
     @Override
     public SupportStatus support(String capabilityId) {
+        if (CapabilityId.TRANSACTION_SUPPORTS_NO_TX.equals(capabilityId)
+                || CapabilityId.TRANSACTION_NEVER_NO_TX.equals(capabilityId)) {
+            return SupportStatus.SUPPORTED;
+        }
         if (capabilityId != null && capabilityId.startsWith("transaction.") && !supportsFeature(FeatureId.TRANSACTION)) {
             return SupportStatus.UNSUPPORTED_BY_DATABASE;
         }
@@ -53,7 +57,8 @@ public abstract class AbstractDataSourceProfile implements DataSourceProfile {
         if (CapabilityId.BASEMAPPER_INSERT_DUPLICATE_KEY.equals(capabilityId)) {
             return FeatureId.DUPLICATE_PRIMARY_KEY_REJECTED;
         }
-        if (CapabilityId.BASEMAPPER_INSERT_LENGTH_ERROR.equals(capabilityId)) {
+        if (CapabilityId.BASEMAPPER_INSERT_LENGTH_ERROR.equals(capabilityId)
+                || CapabilityId.LAMBDA_SPECIAL_LENGTH_CONSTRAINT.equals(capabilityId)) {
             return FeatureId.LENGTH_LIMIT_ENFORCED;
         }
         if (CapabilityId.LAMBDA_QUERY_LIKE.equals(capabilityId)
@@ -110,10 +115,7 @@ public abstract class AbstractDataSourceProfile implements DataSourceProfile {
         if (CapabilityId.KEYGEN_AUTO_SINGLE.equals(capabilityId) || CapabilityId.KEYGEN_AUTO_MANUAL.equals(capabilityId) || CapabilityId.KEYGEN_AUTO_LONG.equals(capabilityId) || CapabilityId.KEYGEN_HOLDER_AFTER.equals(capabilityId) || CapabilityId.MAPPER_XML_KEYGEN_GENERATED_KEYS.equals(capabilityId) || CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_GENERATED_KEYS.equals(capabilityId)) {
             return FeatureId.GENERATED_KEYS_NUMERIC;
         }
-        if (CapabilityId.KEYGEN_UUID_WRONG_TYPE.equals(capabilityId)) {
-            return FeatureId.KEYGEN_UUID_WRONG_TYPE_REJECTED;
-        }
-        if (CapabilityId.LAMBDA_EMPTY_STRING_VS_NULL.equals(capabilityId) || CapabilityId.MAPPER_ANNOTATION_PARAM_EMPTY_STRING.equals(capabilityId) || CapabilityId.MAPPING_ANNOTATION_EMPTY_STRING_ROUND_TRIP.equals(capabilityId)) {
+        if (CapabilityId.JDBC_BOUND_NULL_EMPTY.equals(capabilityId) || CapabilityId.LAMBDA_EMPTY_STRING_VS_NULL.equals(capabilityId) || CapabilityId.MAPPER_ANNOTATION_PARAM_EMPTY_STRING.equals(capabilityId) || CapabilityId.MAPPING_ANNOTATION_EMPTY_STRING_ROUND_TRIP.equals(capabilityId)) {
             return FeatureId.DISTINCT_EMPTY_STRING;
         }
         if (CapabilityId.LAMBDA_PREDICATE_IN_LARGE.equals(capabilityId)) {
@@ -129,13 +131,10 @@ public abstract class AbstractDataSourceProfile implements DataSourceProfile {
             return FeatureId.REPEATED_ORDER_BY_COLUMN;
         }
         if (CapabilityId.MAPPER_XML_DYNAMIC_FOREACH_WRITE.equals(capabilityId)) {
-            return FeatureId.XML_FOREACH_BATCH_INSERT_VALUES;
-        }
-        if (CapabilityId.NAMING_CASE_SENSITIVE_FIELD_MISMATCH.equals(capabilityId) || CapabilityId.NAMING_CASE_SENSITIVE_FREEDOM_MAP.equals(capabilityId)) {
-            return FeatureId.LOWERCASE_STANDARD_RESULT_COLUMNS;
+            return FeatureId.XML_FOREACH_BATCH_INSERT_COMMAND;
         }
         if (CapabilityId.TRANSACTION_NESTED_COMMIT.equals(capabilityId) || CapabilityId.TRANSACTION_NESTED_OUTER_ROLLBACK.equals(capabilityId) || CapabilityId.TRANSACTION_ANNOTATION_NESTED.equals(capabilityId) || CapabilityId.TRANSACTION_PROXY_REQUIRED_NESTED.equals(capabilityId)) {
-            return FeatureId.TRANSACTION_RELEASE_SAVEPOINT;
+            return FeatureId.TRANSACTION_SAVEPOINT;
         }
         if (CapabilityId.TRANSACTION_ISOLATION_REPEATABLE_READ.equals(capabilityId)) {
             return FeatureId.TRANSACTION_REPEATABLE_READ;
@@ -166,9 +165,6 @@ public abstract class AbstractDataSourceProfile implements DataSourceProfile {
         }
         if (CapabilityId.PROCEDURE_CALL_CURSOR_RESULT.equals(capabilityId)) {
             return FeatureId.PROCEDURE_CURSOR_RESULT;
-        }
-        if (CapabilityId.PROCEDURE_CALL_RESULT_SET.equals(capabilityId)) {
-            return FeatureId.PROCEDURE_RESULT_SET;
         }
         if (CapabilityId.MAPPER_XML_CALLABLE_REFCURSOR.equals(capabilityId)) {
             return FeatureId.PROCEDURE_CURSOR_RESULT;
@@ -210,9 +206,6 @@ public abstract class AbstractDataSourceProfile implements DataSourceProfile {
             }
             case CapabilityId.TYPE_TIME_EXTREME_DATE -> {
                 return FeatureId.TIME_EXTREME_DATE;
-            }
-            case CapabilityId.NAMING_DELIMITED_CRUD -> {
-                return FeatureId.DELIMITED_LOWERCASE_STANDARD_TABLE;
             }
             case CapabilityId.NAMING_CASE_INSENSITIVE_MIXED_CASE_CRUD,  //
                  CapabilityId.NAMING_CASE_SENSITIVE_TABLE_ISOLATION, //

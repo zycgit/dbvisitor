@@ -14,7 +14,6 @@ import java.util.List;
 import static org.junit.Assert.assertNotNull;
 import org.junit.Test;
 
-import net.hasor.dbvisitor.page.Page;
 import net.hasor.dbvisitor.page.PageObject;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
@@ -23,6 +22,7 @@ import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 @NxnContract
 public abstract class LambdaPageNavigationCase extends LambdaPaginationSupport {
@@ -35,22 +35,16 @@ public abstract class LambdaPageNavigationCase extends LambdaPaginationSupport {
         pageObject.setPageSize(5);
         pageObject.setCurrentPage(0);
 
-        List<UserInfo> firstPage = lambdaTemplate.query(UserInfo.class)//
-                .like(UserInfo::getName, "NXN-Page-Use-%")//
-                .usePage(pageObject)//
-                .orderBy("id")//
+        List<? extends UserInfo> firstPage = orderRows(queryRows("NXN-Page-Use-")//
+                .usePage(pageObject))//
                 .queryForList();
         pageObject.setCurrentPage(1);
-        List<UserInfo> secondPage = lambdaTemplate.query(UserInfo.class)//
-                .like(UserInfo::getName, "NXN-Page-Use-%")//
-                .usePage(pageObject)//
-                .orderBy("id")//
+        List<? extends UserInfo> secondPage = orderRows(queryRows("NXN-Page-Use-")//
+                .usePage(pageObject))//
                 .queryForList();
         pageObject.setCurrentPage(2);
-        List<UserInfo> thirdPage = lambdaTemplate.query(UserInfo.class)//
-                .like(UserInfo::getName, "NXN-Page-Use-%")//
-                .usePage(pageObject)//
-                .orderBy("id")//
+        List<? extends UserInfo> thirdPage = orderRows(queryRows("NXN-Page-Use-")//
+                .usePage(pageObject))//
                 .queryForList();
 
         assertEquals(5, firstPage.size());
@@ -59,6 +53,9 @@ public abstract class LambdaPageNavigationCase extends LambdaPaginationSupport {
         assertEquals("NXN-Page-Use-5", secondPage.get(0).getName());
         assertEquals(2, thirdPage.size());
         assertEquals("NXN-Page-Use-10", thirdPage.get(0).getName());
+        assertPageRows(firstPage, "NXN-Page-Use-", 0, 5);
+        assertPageRows(secondPage, "NXN-Page-Use-", 5, 5);
+        assertPageRows(thirdPage, "NXN-Page-Use-", 10, 2);
     }
 
     @Test
@@ -71,10 +68,8 @@ public abstract class LambdaPageNavigationCase extends LambdaPaginationSupport {
         List<Integer> allIds = new ArrayList<>();
         int pageNumber = 0;
         while (true) {
-            List<UserInfo> rows = lambdaTemplate.query(UserInfo.class)//
-                    .like(UserInfo::getName, "NXN-Page-Full-%")//
-                    .initPage(pageSize, pageNumber)//
-                    .orderBy("id")//
+            List<? extends UserInfo> rows = orderRows(queryRows("NXN-Page-Full-")//
+                    .initPage(pageSize, pageNumber))//
                     .queryForList();
             if (rows.isEmpty()) {
                 break;
@@ -84,9 +79,13 @@ public abstract class LambdaPageNavigationCase extends LambdaPaginationSupport {
                 allIds.add(row.getId());
             }
             pageNumber++;
+            assertTrue("Traversal must finish within the known page count", pageNumber <= 4);
         }
 
         assertEquals(total, allIds.size());
+        for (int i = 0; i < total; i++) {
+            assertTrue(allIds.contains(baseId() + 1000 + i));
+        }
     }
 
     @Test
@@ -96,9 +95,7 @@ public abstract class LambdaPageNavigationCase extends LambdaPaginationSupport {
             insert(baseId() + 60 + i, "PageQ" + i, 20 + i);
         }
 
-        List<UserInfo> users = lambdaTemplate.query(UserInfo.class)//
-                .rangeBetween(UserInfo::getId, baseId() + 61, baseId() + 72)//
-                .orderBy("id")//
+        List<? extends UserInfo> users = orderRows(queryRows().rangeBetween(UserInfo::getId, baseId() + 61, baseId() + 72))//
                 .initPage(5, 1)//
                 .queryForList();
 
@@ -106,5 +103,6 @@ public abstract class LambdaPageNavigationCase extends LambdaPaginationSupport {
         assertEquals(5, users.size());
         assertEquals(Integer.valueOf(baseId() + 66), users.get(0).getId());
         assertEquals(Integer.valueOf(baseId() + 70), users.get(4).getId());
+        assertPageRows(users, "PageQ", 6, 5);
     }
 }

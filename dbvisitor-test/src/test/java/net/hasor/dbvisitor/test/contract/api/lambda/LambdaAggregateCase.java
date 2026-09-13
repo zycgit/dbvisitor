@@ -24,6 +24,15 @@ import static org.junit.Assert.assertNotNull;
 
 @NxnContract
 public abstract class LambdaAggregateCase extends LambdaSelectSupport {
+
+    protected String groupCountSelect() {
+        return "age, count(*) as cnt";
+    }
+
+    protected String aggregateAgeSelect(String function) {
+        return function + "(age)";
+    }
+
     @Test
     @Capability(CapabilityId.LAMBDA_SELECT_GROUP_BY)
     public void lambdaSelect_shouldGroupRowsAndReturnAggregateMapResults() throws Exception {
@@ -33,7 +42,7 @@ public abstract class LambdaAggregateCase extends LambdaSelectSupport {
         insert(baseId() + 43, "GroupFour", 30, "group4@nxn.test");
 
         List<Map<String, Object>> result = lambdaTemplate.query(UserInfo.class)//
-                .applySelect("age, count(*) as cnt")//
+                .applySelect(groupCountSelect())//
                 .like(UserInfo::getName, "Group%")//
                 .groupBy("age")//
                 .orderBy("age")//
@@ -52,13 +61,13 @@ public abstract class LambdaAggregateCase extends LambdaSelectSupport {
         insert(baseId() + 51, "AggregateTwo", 20, "agg2@nxn.test");
 
         Long sumAge = lambdaTemplate.query(UserInfo.class)//
-                .applySelect("sum(age)")//
+                .applySelect(aggregateAgeSelect("sum"))//
                 .like(UserInfo::getName, "Aggregate%")//
                 .queryForObject(Long.class);
         assertEquals(30L, sumAge.longValue());
 
         Integer maxAge = lambdaTemplate.query(UserInfo.class)//
-                .applySelect("max(age)")//
+                .applySelect(aggregateAgeSelect("max"))//
                 .like(UserInfo::getName, "Aggregate%")//
                 .queryForObject(Integer.class);
         assertEquals(20, maxAge.intValue());
@@ -69,7 +78,7 @@ public abstract class LambdaAggregateCase extends LambdaSelectSupport {
     public void lambdaResult_shouldMapAggregateScalarValue() throws SQLException {
         insertUsers("LRMap", new int[] { 21, 22, 23, 24, 25 }, baseId() + 10);
         Integer maxAge = queryRows("LRMap")//
-                .applySelect("MAX(age)")//
+                .applySelect(aggregateAgeSelect("MAX"))//
                 .queryForObject(Integer.class);
         assertEquals(Integer.valueOf(25), maxAge);
     }
@@ -82,7 +91,7 @@ public abstract class LambdaAggregateCase extends LambdaSelectSupport {
         insertByJdbc(baseId() + 163, "LRGroup3", 31, "lr-group3@test.com");
         RowMapper<AgeGroup> groupMapper = (rs, rowNum) -> new AgeGroup(rs.getInt("age"), rs.getLong("cnt"));
         List<AgeGroup> groups = orderRows(queryRows("LRGroup")//
-                .applySelect("age, count(*) as cnt")//
+                .applySelect(groupCountSelect())//
                 .groupBy("age"), "age")//
                 .queryForList(groupMapper);
         assertEquals(2, groups.size());

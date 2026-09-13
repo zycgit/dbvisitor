@@ -30,16 +30,16 @@ public abstract class TimeNullJdbcCase extends TimeTypeJdbcSupport {
         int id = baseId() + 26;
 
         jdbcTemplate.executeUpdate(//
-                "INSERT INTO time_types_explicit_test (id, date_value, time_value, timestamp_value, local_date_ts, local_time_ts, local_datetime_ts) VALUES (?, ?, ?, ?, ?, ?, ?)", //
+                insertCommand("time_types_explicit_test", "id, date_value, time_value, timestamp_value, local_date_ts, local_time_ts, local_datetime_ts"), //
                 new Object[] { id, null, null, null, null, null, null });
 
-        assertNull(jdbcTemplate.queryForObject("SELECT date_value FROM time_types_explicit_test WHERE id = ?", new Object[] { id }, LocalDate.class));
-        assertNull(jdbcTemplate.queryForObject("SELECT time_value FROM time_types_explicit_test WHERE id = ?", new Object[] { id }, LocalTime.class));
-        assertNull(jdbcTemplate.queryForObject("SELECT timestamp_value FROM time_types_explicit_test WHERE id = ?", new Object[] { id }, LocalDateTime.class));
-        assertNull(jdbcTemplate.queryForObject("SELECT timestamp_value FROM time_types_explicit_test WHERE id = ?", new Object[] { id }, Instant.class));
+        assertNull(jdbcTemplate.queryForObject(selectCommand("time_types_explicit_test", "date_value"), new Object[] { id }, LocalDate.class));
+        assertNull(jdbcTemplate.queryForObject(selectCommand("time_types_explicit_test", "time_value"), new Object[] { id }, LocalTime.class));
+        assertNull(jdbcTemplate.queryForObject(selectCommand("time_types_explicit_test", "timestamp_value"), new Object[] { id }, LocalDateTime.class));
+        assertNull(jdbcTemplate.queryForObject(selectCommand("time_types_explicit_test", "timestamp_value"), new Object[] { id }, Instant.class));
 
         Map<String, Object> row = jdbcTemplate.queryForMap(//
-                "SELECT date_value, time_value, timestamp_value, local_date_ts, local_time_ts, local_datetime_ts FROM time_types_explicit_test WHERE id = ?", //
+                selectCommand("time_types_explicit_test", "date_value, time_value, timestamp_value, local_date_ts, local_time_ts, local_datetime_ts"), //
                 new Object[] { id });
 
         assertNull(value(row, "date_value"));

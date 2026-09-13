@@ -24,16 +24,19 @@ import static org.junit.Assert.assertEquals;
 
 @NxnContract
 public abstract class TimePartialJdbcCase extends TimeTypeJdbcSupport {
+    protected <T> T readPartialValue(int id, Class<T> type) throws SQLException {
+        return jdbcTemplate.queryForObject(selectCommand("time_types_explicit_test", "date_value"), selectParameters(id), type);
+    }
+
     @Test
     @Capability(CapabilityId.TYPE_TIME_PARTIAL)
     public void timePartialYear_shouldReadFromDateValue() throws SQLException {
         int id = baseId() + 10;
         Year year = Year.of(2024);
-        jdbcTemplate.executeUpdate("INSERT INTO time_types_explicit_test (id, date_value) VALUES (?, ?)",
+        executeInsert(insertCommand("time_types_explicit_test", "id, date_value"),
                 new Object[] { id, java.sql.Date.valueOf(year.atMonth(1).atDay(1)) });
 
-        assertEquals(year, jdbcTemplate.queryForObject("SELECT date_value FROM time_types_explicit_test WHERE id = ?",
-                new Object[] { id }, Year.class));
+        assertEquals(year, readPartialValue(id, Year.class));
     }
 
     @Test
@@ -41,11 +44,10 @@ public abstract class TimePartialJdbcCase extends TimeTypeJdbcSupport {
     public void timePartialYearMonth_shouldReadFromDateValue() throws SQLException {
         int id = baseId() + 11;
         YearMonth yearMonth = YearMonth.of(2024, 3);
-        jdbcTemplate.executeUpdate("INSERT INTO time_types_explicit_test (id, date_value) VALUES (?, ?)",
+        executeInsert(insertCommand("time_types_explicit_test", "id, date_value"),
                 new Object[] { id, java.sql.Date.valueOf(yearMonth.atDay(1)) });
 
-        assertEquals(yearMonth, jdbcTemplate.queryForObject("SELECT date_value FROM time_types_explicit_test WHERE id = ?",
-                new Object[] { id }, YearMonth.class));
+        assertEquals(yearMonth, readPartialValue(id, YearMonth.class));
     }
 
     @Test
@@ -53,11 +55,10 @@ public abstract class TimePartialJdbcCase extends TimeTypeJdbcSupport {
     public void timePartialMonth_shouldReadFromDateValue() throws SQLException {
         int id = baseId() + 12;
         Month month = Month.MARCH;
-        jdbcTemplate.executeUpdate("INSERT INTO time_types_explicit_test (id, date_value) VALUES (?, ?)",
+        executeInsert(insertCommand("time_types_explicit_test", "id, date_value"),
                 new Object[] { id, java.sql.Date.valueOf(Year.of(2024).atMonth(month).atDay(1)) });
 
-        assertEquals(month, jdbcTemplate.queryForObject("SELECT date_value FROM time_types_explicit_test WHERE id = ?",
-                new Object[] { id }, Month.class));
+        assertEquals(month, readPartialValue(id, Month.class));
     }
 
     @Test
@@ -65,10 +66,9 @@ public abstract class TimePartialJdbcCase extends TimeTypeJdbcSupport {
     public void timePartialMonthDay_shouldReadFromDateValue() throws SQLException {
         int id = baseId() + 13;
         MonthDay monthDay = MonthDay.of(3, 15);
-        jdbcTemplate.executeUpdate("INSERT INTO time_types_explicit_test (id, date_value) VALUES (?, ?)",
+        executeInsert(insertCommand("time_types_explicit_test", "id, date_value"),
                 new Object[] { id, java.sql.Date.valueOf(monthDay.atYear(2024)) });
 
-        assertEquals(monthDay, jdbcTemplate.queryForObject("SELECT date_value FROM time_types_explicit_test WHERE id = ?",
-                new Object[] { id }, MonthDay.class));
+        assertEquals(monthDay, readPartialValue(id, MonthDay.class));
     }
 }

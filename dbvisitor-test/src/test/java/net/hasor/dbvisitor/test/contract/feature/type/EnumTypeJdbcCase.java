@@ -16,7 +16,6 @@ import net.hasor.dbvisitor.test.contract.material.model.types.StatusEnumOfCode;
 import net.hasor.dbvisitor.test.contract.material.model.types.StatusEnumOfValue;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 
 import static org.junit.Assert.assertEquals;
@@ -24,7 +23,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 @NxnContract
-public abstract class EnumTypeJdbcCase extends AbstractNxnContractTest {
+public abstract class EnumTypeJdbcCase extends TypeJdbcCommandSupport {
     protected int baseId() {
         return 660000;
     }
@@ -33,9 +32,9 @@ public abstract class EnumTypeJdbcCase extends AbstractNxnContractTest {
     @Capability(CapabilityId.TYPE_ENUM_NAME)
     public void enumName_shouldMapFromStringColumn() throws SQLException {
         int id = baseId() + 1;
-        jdbcTemplate.executeUpdate("INSERT INTO enum_types_explicit_test (id, status_string) VALUES (?, ?)", new Object[] { id, StatusEnum.ACTIVE.name() });
+        executeInsert(insertCommand("enum_types_explicit_test", "id, status_string"), new Object[] { id, StatusEnum.ACTIVE.name() });
 
-        StatusEnum loaded = jdbcTemplate.queryForObject("SELECT status_string FROM enum_types_explicit_test WHERE id = ?", new Object[] { id }, StatusEnum.class);
+        StatusEnum loaded = jdbcTemplate.queryForObject(selectCommand("enum_types_explicit_test", "status_string"), new Object[] { id }, StatusEnum.class);
 
         assertEquals(StatusEnum.ACTIVE, loaded);
     }
@@ -44,9 +43,9 @@ public abstract class EnumTypeJdbcCase extends AbstractNxnContractTest {
     @Capability(CapabilityId.TYPE_ENUM_CODE)
     public void enumCode_shouldMapFromCustomStringCode() throws SQLException {
         int id = baseId() + 2;
-        jdbcTemplate.executeUpdate("INSERT INTO enum_types_explicit_test (id, status_string) VALUES (?, ?)", new Object[] { id, "inactive" });
+        executeInsert(insertCommand("enum_types_explicit_test", "id, status_string"), new Object[] { id, "inactive" });
 
-        StatusEnumOfCode loaded = jdbcTemplate.queryForObject("SELECT status_string FROM enum_types_explicit_test WHERE id = ?", new Object[] { id }, StatusEnumOfCode.class);
+        StatusEnumOfCode loaded = jdbcTemplate.queryForObject(selectCommand("enum_types_explicit_test", "status_string"), new Object[] { id }, StatusEnumOfCode.class);
 
         assertEquals(StatusEnumOfCode.INACTIVE, loaded);
         assertEquals("inactive", loaded.codeName());
@@ -56,9 +55,9 @@ public abstract class EnumTypeJdbcCase extends AbstractNxnContractTest {
     @Capability(CapabilityId.TYPE_ENUM_VALUE)
     public void enumValue_shouldMapFromIntegerCode() throws SQLException {
         int id = baseId() + 3;
-        jdbcTemplate.executeUpdate("INSERT INTO enum_types_explicit_test (id, status_code) VALUES (?, ?)", new Object[] { id, -1 });
+        executeInsert(insertCommand("enum_types_explicit_test", "id, status_code"), new Object[] { id, -1 });
 
-        StatusEnumOfValue loaded = jdbcTemplate.queryForObject("SELECT status_code FROM enum_types_explicit_test WHERE id = ?", new Object[] { id }, StatusEnumOfValue.class);
+        StatusEnumOfValue loaded = jdbcTemplate.queryForObject(selectCommand("enum_types_explicit_test", "status_code"), new Object[] { id }, StatusEnumOfValue.class);
 
         assertEquals(StatusEnumOfValue.DELETED, loaded);
         assertEquals(-1, loaded.codeValue());
@@ -68,13 +67,13 @@ public abstract class EnumTypeJdbcCase extends AbstractNxnContractTest {
     @Capability(CapabilityId.TYPE_ENUM_NULL)
     public void enumValues_shouldReturnNullForNullColumns() throws SQLException {
         int id = baseId() + 4;
-        jdbcTemplate.executeUpdate("INSERT INTO enum_types_explicit_test (id, status_string, status_ordinal, status_code) VALUES (?, ?, ?, ?)", //
+        executeInsert(insertCommand("enum_types_explicit_test", "id, status_string, status_ordinal, status_code"), //
                 new Object[] { id, null, null, null });
 
-        assertNull(jdbcTemplate.queryForObject("SELECT status_string FROM enum_types_explicit_test WHERE id = ?", new Object[] { id }, StatusEnum.class));
-        assertNull(jdbcTemplate.queryForObject("SELECT status_string FROM enum_types_explicit_test WHERE id = ?", new Object[] { id }, StatusEnumOfCode.class));
-        assertNull(jdbcTemplate.queryForObject("SELECT status_code FROM enum_types_explicit_test WHERE id = ?", new Object[] { id }, StatusEnumOfValue.class));
-        assertNull(jdbcTemplate.queryForObject("SELECT status_ordinal FROM enum_types_explicit_test WHERE id = ?", new Object[] { id }, StatusEnumOfValue.class));
+        assertNull(jdbcTemplate.queryForObject(selectCommand("enum_types_explicit_test", "status_string"), new Object[] { id }, StatusEnum.class));
+        assertNull(jdbcTemplate.queryForObject(selectCommand("enum_types_explicit_test", "status_string"), new Object[] { id }, StatusEnumOfCode.class));
+        assertNull(jdbcTemplate.queryForObject(selectCommand("enum_types_explicit_test", "status_code"), new Object[] { id }, StatusEnumOfValue.class));
+        assertNull(jdbcTemplate.queryForObject(selectCommand("enum_types_explicit_test", "status_ordinal"), new Object[] { id }, StatusEnumOfValue.class));
     }
 
     @Test
@@ -82,19 +81,19 @@ public abstract class EnumTypeJdbcCase extends AbstractNxnContractTest {
     public void enumInvalidValues_shouldExposeInvalidMappingBehavior() throws SQLException {
         int invalidNameId = baseId() + 5;
         int invalidValueId = baseId() + 6;
-        jdbcTemplate.executeUpdate("INSERT INTO enum_types_explicit_test (id, status_string) VALUES (?, ?)", new Object[] { invalidNameId, "UNKNOWN" });
+        executeInsert(insertCommand("enum_types_explicit_test", "id, status_string"), new Object[] { invalidNameId, "UNKNOWN" });
 
         try {
-            jdbcTemplate.queryForObject("SELECT status_string FROM enum_types_explicit_test WHERE id = ?", new Object[] { invalidNameId }, StatusEnum.class);
+            jdbcTemplate.queryForObject(selectCommand("enum_types_explicit_test", "status_string"), new Object[] { invalidNameId }, StatusEnum.class);
             fail("Should throw exception for invalid enum name.");
         } catch (Exception e) {
             assertExceptionMentions(e, "UNKNOWN");
         }
 
-        jdbcTemplate.executeUpdate("INSERT INTO enum_types_explicit_test (id, status_code) VALUES (?, ?)", new Object[] { invalidValueId, 999 });
+        executeInsert(insertCommand("enum_types_explicit_test", "id, status_code"), new Object[] { invalidValueId, 999 });
 
         try {
-            StatusEnumOfValue result = jdbcTemplate.queryForObject("SELECT status_code FROM enum_types_explicit_test WHERE id = ?", new Object[] { invalidValueId }, StatusEnumOfValue.class);
+            StatusEnumOfValue result = jdbcTemplate.queryForObject(selectCommand("enum_types_explicit_test", "status_code"), new Object[] { invalidValueId }, StatusEnumOfValue.class);
             assertNull(result);
         } catch (Exception e) {
             assertExceptionMentions(e, "999");

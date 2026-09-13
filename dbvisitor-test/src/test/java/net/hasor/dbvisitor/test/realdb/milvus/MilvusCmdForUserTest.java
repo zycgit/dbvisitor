@@ -11,6 +11,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.Statement;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
@@ -24,64 +25,37 @@ public class MilvusCmdForUserTest extends AbstractMilvusCmdForTest {
     private static final String TEST_ROLE = "test_dbv_role";
 
     @Before
-    public void setUp() {
-        if (!milvusReady) {
-            return;
-        }
+    public void setUp() throws Exception {
         // Ensure clean state
         cleanUp();
     }
 
     @After
-    public void tearDown() {
-        if (!milvusReady) {
+    public void tearDown() throws Exception {
+        if (!milvusSelected) {
             return;
         }
         cleanUp();
     }
 
-    private void cleanUp() {
+    private void cleanUp() throws Exception {
         try (Connection conn = OneApiDataSourceManager.getConnection(MilvusProfile.INSTANCE.env()); Statement stmt = conn.createStatement()) {
-            try {
-                stmt.executeUpdate("DROP USER IF EXISTS " + TEST_USER);
-            } catch (Exception e) {
-            }
-            try {
-                System.out.println("Trying to show grants for " + TEST_ROLE);
-                java.sql.ResultSet rs = stmt.executeQuery("SHOW GRANTS FOR ROLE " + TEST_ROLE);
-                int count = 0;
-                while (rs.next()) {
-                    count++;
-                    String privilege = rs.getString("PRIVILEGE");
-                    String objectType = rs.getString("OBJECT");
-                    String objectName = rs.getString("OBJECT_NAME");
-                    String sql = "REVOKE " + privilege + " ON " + objectType + " " + objectName + " FROM ROLE " + TEST_ROLE;
-                    System.out.println("Revoking: " + sql);
-                    try (Statement revokeStmt = conn.createStatement()) {
-                        revokeStmt.executeUpdate(sql);
-                    } catch (Exception e) {
-                        System.err.println("Failed to revoke: " + sql + " -> " + e.getMessage());
+            stmt.executeUpdate("DROP USER IF EXISTS " + TEST_USER);
+            if (hasRoleSdk(TEST_ROLE)) {
+                try (ResultSet rows = stmt.executeQuery("SHOW GRANTS FOR ROLE " + TEST_ROLE)) {
+                    while (rows.next()) {
+                        String privilege = rows.getString("PRIVILEGE");
+                        String objectType = rows.getString("OBJECT");
+                        String objectName = rows.getString("OBJECT_NAME");
+                        String sql = "REVOKE " + privilege + " ON " + objectType + " " + objectName + " FROM ROLE " + TEST_ROLE;
+                        try (Statement revoke = conn.createStatement()) {
+                            revoke.executeUpdate(sql);
+                        }
                     }
                 }
-                System.out.println("Found " + count + " grants.");
-            } catch (Exception e) {
-                if (e.getMessage() != null && e.getMessage().contains("not found the role")) {
-                    // ignore
-                } else {
-                    System.err.println("SHOW GRANTS failed: " + e.getMessage());
-                }
+                stmt.executeUpdate("DROP ROLE " + TEST_ROLE);
             }
-            try {
-                stmt.executeUpdate("DROP ROLE IF EXISTS " + TEST_ROLE);
-            } catch (Exception e) {
-                if (e.getMessage() != null && e.getMessage().contains("not found the role")) {
-                    // ignore
-                } else {
-                    e.printStackTrace();
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+            dropCollection(TEST_COLLECTION);
         }
     }
 
@@ -180,11 +154,6 @@ public class MilvusCmdForUserTest extends AbstractMilvusCmdForTest {
 
             // Verify
             assertTrue("Role should have privilege (SDK)", roleHasPrivilegeSdk(TEST_ROLE, "Collection", TEST_COLLECTION, "Query"));
-        } finally {
-            try {
-                dropCollection(TEST_COLLECTION);
-            } catch (Exception e) {
-            }
         }
     }
 
@@ -207,11 +176,6 @@ public class MilvusCmdForUserTest extends AbstractMilvusCmdForTest {
 
             // Verify
             assertFalse("Role should not have privilege (SDK)", roleHasPrivilegeSdk(TEST_ROLE, "Collection", TEST_COLLECTION, "Query"));
-        } finally {
-            try {
-                dropCollection(TEST_COLLECTION);
-            } catch (Exception e) {
-            }
         }
     }
 

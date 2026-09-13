@@ -7,67 +7,60 @@
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
 
-import java.util.List;
-import java.util.Map;
-import net.hasor.dbvisitor.session.Session;
-import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import java.sql.SQLException;
+import java.util.Date;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.session.Configuration;
+import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperResultHandlerCase;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
+import org.junit.After;
+import org.junit.Before;
 
-public class MilvusXmlMapperResultHandlerTest extends MilvusXmlResultSqlSupport {
-    @Test
-    @Capability(CapabilityId.ADAPTER_MILVUS_XML_RESULT_TYPES)
-    public void xmlShouldMapEntitiesMapsScalarsAndNamedResultMap() throws Exception {
-        try (Session session = prepareSession()) {
-            Map<String, Object> parameters = parameters(1);
-            List<UserInfo> entities = session.queryStatement("milvus.ResultHandlers.entities", parameters);
-            assertEquals(3, entities.size());
-            assertEquals(Integer.valueOf(1), entities.get(0).getId());
-            assertEquals("name-3", entities.get(2).getName());
-            for (UserInfo user : entities) {
-                assertEquals("name-" + user.getId(), user.getName());
-                assertEquals(Integer.valueOf(20 + user.getId()), user.getAge());
-                assertEquals("row" + user.getId() + "@test.com", user.getEmail());
-                assertEquals(1700000000123L, user.getCreateTime().getTime());
-            }
-            List<UserInfo> mapped = session.queryStatement("milvus.ResultHandlers.mapped", parameters);
-            assertEquals(3, mapped.size());
-            assertEquals(Integer.valueOf(2), mapped.get(1).getId());
-            for (UserInfo user : mapped) {
-                assertEquals("name-" + user.getId(), user.getName());
-                assertEquals(Integer.valueOf(20 + user.getId()), user.getAge());
-                assertEquals("row" + user.getId() + "@test.com", user.getEmail());
-                assertEquals(1700000000123L, user.getCreateTime().getTime());
-            }
-            List<Map<String, Object>> maps = session.queryStatement("milvus.ResultHandlers.maps", parameters);
-            assertEquals(3, maps.size());
-            assertEquals("name-1", maps.get(0).get("name"));
-            assertEquals(List.of("name-1", "name-2", "name-3"), session.queryStatement("milvus.ResultHandlers.names", parameters));
-            assertEquals(List.of(3L), session.queryStatement("milvus.ResultHandlers.count", parameters));
-            assertEquals(List.of(3), session.queryStatement("milvus.ResultHandlers.countInt", parameters));
-            assertTrue(session.queryStatement("milvus.ResultHandlers.entities", parameters(99)).isEmpty());
+public class MilvusXmlMapperResultHandlerTest extends XmlMapperResultHandlerCase {
+    private final MilvusLambdaResultFixture fixture = new MilvusLambdaResultFixture();
+
+    @Override
+    protected DataSourceProfile profile() {
+        return MilvusProfile.INSTANCE;
+    }
+
+    @Override
+    protected long timestamp() {
+        return 1700000000123L;
+    }
+
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        this.jdbcTemplate = new JdbcTemplate(this.fixture.open());
+        initData();
+    }
+
+    @Override
+    @Before
+    public void createXmlMapperSession() throws Exception {
+        Configuration configuration = new Configuration();
+        configuration.loadMapper("/realdb/milvus/mapper/SharedResultHandlerMapper.xml");
+        this.session = configuration.newSession(this.fixture.open());
+    }
+
+    @Override
+    protected void initData() throws SQLException {
+        for (int i = 1; i <= 3; i++) {
+            this.jdbcTemplate.executeUpdate(
+                    "INSERT INTO user_info (id, name, age, email, create_time, v) VALUES (?, ?, ?, ?, ?, ?)",
+                    new Object[] { baseId() + i, "ResHdl" + i, 20 + i * 5, "hdl" + i + "@nxn.test", new Date(1700000000123L), new float[] { i, 0 } });
         }
     }
 
-    @Test
-    @Capability(CapabilityId.ADAPTER_MILVUS_XML_RESULT_HANDLERS)
-    public void xmlShouldApplyRowMapperAndResultSetExtractors() throws Exception {
-        try (Session session = prepareSession()) {
-            Map<String, Object> parameters = parameters(1);
-            for (String statement : List.of("rowMapper", "extractor")) {
-                List<Map<String, Object>> rows = session.queryStatement("milvus.ResultHandlers." + statement, parameters);
-                assertEquals(3, rows.size());
-                assertEquals("name-1", rows.get(0).get("name"));
-                assertEquals(3L, ((Number) rows.get(2).get("id")).longValue());
-                assertTrue(session.queryStatement("milvus.ResultHandlers." + statement, parameters(99)).isEmpty());
-            }
-            List<Map<Object, Object>> pairs = session.queryStatement("milvus.ResultHandlers.pairs", parameters);
-            assertEquals(1, pairs.size());
-            assertEquals(3, pairs.get(0).size());
-            for (Map.Entry<Object, Object> entry : pairs.get(0).entrySet()) {
-                assertEquals("name-" + ((Number) entry.getKey()).longValue(), entry.getValue());
+    @After
+    public void cleanupFixture() throws Exception {
+        try {
+            this.fixture.close();
+        } finally {
+            if (this.session != null) {
+                this.session.close();
             }
         }
     }

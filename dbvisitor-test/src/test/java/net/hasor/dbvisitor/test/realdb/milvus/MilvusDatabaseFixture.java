@@ -40,6 +40,13 @@ final class MilvusDatabaseFixture implements AutoCloseable {
         return this.connection;
     }
 
+    Connection newConnection() throws SQLException {
+        if (!this.databaseCreated) {
+            throw new SQLException("The fixture database has not been created.");
+        }
+        return connectToDatabase(MilvusProfile.INSTANCE.env());
+    }
+
     private Connection connectToDatabase(String env) throws SQLException {
         Properties fixture = OneApiDataSourceManager.loadAdapterProperties(env);
         URI endpoint = URI.create(fixture.getProperty("jdbc.url").substring("jdbc:dbvisitor:".length()));

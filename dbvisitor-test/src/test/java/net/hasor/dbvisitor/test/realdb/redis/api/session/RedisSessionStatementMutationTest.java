@@ -7,35 +7,36 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.session;
 
-import java.util.*;
-import net.hasor.dbvisitor.session.*;
-import net.hasor.dbvisitor.test.nxn.capability.*;
-import net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisNativeMapperSupport;
+import java.sql.SQLException;
+import net.hasor.dbvisitor.test.contract.api.session.SessionStatementMutationCase;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisEntityFixture;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
 
-public class RedisSessionStatementMutationTest extends RedisNativeMapperSupport {
-    private int count(Object value) {
-        return ((Number) value).intValue();
+public class RedisSessionStatementMutationTest extends SessionStatementMutationCase {
+    private final RedisEntityFixture fixture = new RedisEntityFixture();
+
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
     }
 
-    private static final String NS = "redis.Native.";
-
+    @Override
     @Before
-    public void loadStatements() throws Exception {
-        loadXml();
+    public void setup() throws SQLException {
+        this.jdbcTemplate = this.fixture.open();
     }
 
-    @Test
-    @Capability(CapabilityId.SESSION_STATEMENT_EXECUTE_DML)
-    public void mutation() throws Exception {
-        Map<String, Object> p = params(key("mutation"), "a");
-        assertEquals(1, count(session.executeStatement(NS + "put", p)));
-        p.put("value", "b");
-        assertEquals(1, count(session.executeStatement(NS + "replace", p)));
-        assertEquals(Arrays.asList("b"), session.queryStatement(NS + "get", p));
-        assertEquals(1, count(session.executeStatement(NS + "remove", p)));
-        assertEquals(Arrays.asList((String) null), session.queryStatement(NS + "get", p));
+    @Override
+    @Before
+    public void createStatementSession() throws Exception {
+        this.session = this.fixture.session(newConfiguration(), "/session/RedisUserSessionMapper.xml");
+    }
+
+    @After
+    public void cleanupFixture() throws SQLException {
+        this.fixture.close();
     }
 }

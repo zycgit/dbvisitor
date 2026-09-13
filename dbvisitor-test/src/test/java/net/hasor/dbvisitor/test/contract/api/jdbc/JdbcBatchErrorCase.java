@@ -26,21 +26,21 @@ public abstract class JdbcBatchErrorCase extends JdbcBatchSupport {
     @Capability(CapabilityId.JDBC_BATCH_SQL_ERROR)
     public void jdbcBatchStatements_shouldPropagateSqlErrorWithoutRequiringUniqueConstraints() throws SQLException {
         int existingId = baseId() + 50;
-        jdbcTemplate.executeUpdate("INSERT INTO basic_types_test (id, string_value) VALUES (?, ?)",
+        jdbcTemplate.executeUpdate(insertCommand(),
                 new Object[] { existingId, "UnchangedByFailure" });
         try {
             jdbcTemplate.executeBatch(new String[] {
-                    "INSERT INTO basic_types_test (id, string_value) VALUES (" + (baseId() + 51) + ", 'BeforeError')",
-                    "INSERT INTO nxn_batch_missing_table (id) VALUES (1)",
-                    "INSERT INTO basic_types_test (id, string_value) VALUES (" + (baseId() + 52) + ", 'AfterError')" });
+                    literalInsertCommand(baseId() + 51, "BeforeError"),
+                    invalidCommand(),
+                    literalInsertCommand(baseId() + 52, "AfterError") });
             fail("A failed statement must be reported to the caller");
         } catch (SQLException e) {
             assertNotNull(e.getMessage());
         }
-        assertEquals("UnchangedByFailure", jdbcTemplate.queryForString("SELECT string_value FROM basic_types_test WHERE id = ?", new Object[] { existingId }));
+        assertEquals("UnchangedByFailure", jdbcTemplate.queryForString(valueCommand(), new Object[] { existingId }));
         // JDBC drivers may stop, continue, or roll back their batch; no common atomicity is assumed.
         for (int id : new int[] { baseId() + 51, baseId() + 52 }) {
-            Integer count = jdbcTemplate.queryForInt("SELECT COUNT(*) FROM basic_types_test WHERE id = ?", new Object[] { id });
+            Integer count = jdbcTemplate.queryForInt(countCommand(), new Object[] { id });
             assertTrue("Each valid insert may appear at most once", count == 0 || count == 1);
         }
     }

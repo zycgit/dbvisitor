@@ -19,6 +19,7 @@ import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @NxnContract
 public abstract class XmlMapperStatementAttributeCase extends XmlMapperStatementAttributeSupport {
@@ -35,6 +36,7 @@ public abstract class XmlMapperStatementAttributeCase extends XmlMapperStatement
         assertEquals("StmtAttr2", explicitPrepared.get(0).getName());
         assertEquals(5, statement.size());
         assertAscendingById(statement);
+        assertTrue(this.session.queryStatement("xmltest.StatementAttrMapper.selectExplicitPrepared", mapOf("id", baseId() + 99)).isEmpty());
     }
 
     @Test
@@ -74,7 +76,7 @@ public abstract class XmlMapperStatementAttributeCase extends XmlMapperStatement
         }
 
         Map<String, Object> params = mapOf("id", baseId() + 10);
-        params.put("name", "StmtAttrInsert");
+        params.put("name", "StmtAttrInsert '\" 中文");
         params.put("age", 30);
         params.put("email", "stmt@nxn.test");
 
@@ -82,6 +84,6 @@ public abstract class XmlMapperStatementAttributeCase extends XmlMapperStatement
         assertEquals(1, ((Number) result).intValue());
         List<UserInfo> inserted = this.session.queryStatement("xmltest.StatementAttrMapper.selectPrepared", mapOf("id", baseId() + 10));
         assertEquals(1, inserted.size());
-        assertEquals("StmtAttrInsert", inserted.get(0).getName());
+        assertEquals("StmtAttrInsert '\" 中文", inserted.get(0).getName());
     }
 }

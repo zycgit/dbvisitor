@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Date;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -29,26 +30,34 @@ import static org.junit.Assert.assertTrue;
 
 @NxnContract
 public abstract class XmlMapperSqlFragmentCase extends AbstractNxnContractTest {
-    private Session session;
+    protected Session session;
 
     @Before
     public void createXmlMapperSession() throws Exception {
         Configuration config = newConfiguration();
-        config.loadMapper("/mapper/XmlSqlFragmentMapper.xml");
+        config.loadMapper(mapperResource());
         this.session = config.newSession(dataSource);
+    }
+
+    protected String mapperResource() {
+        return "/mapper/XmlSqlFragmentMapper.xml";
     }
 
     @Override
     protected void initData() throws SQLException {
         for (int i = 1; i <= 5; i++) {
             jdbcTemplate.executeUpdate(//
-                    "INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, @{macro, currentTimestamp})", //
-                    new Object[] { baseId() + i, "SqlFrag" + i, 20 + i * 5, "frag" + i + "@nxn.test" });
+                    "INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, ?)", //
+                    new Object[] { baseId() + i, "SqlFrag" + i, 20 + i * 5, "frag" + i + "@nxn.test", new Date(timestamp()) });
         }
     }
 
     protected int baseId() {
         return 953000;
+    }
+
+    protected long timestamp() {
+        return 1700000000000L;
     }
 
     @Test
@@ -63,6 +72,7 @@ public abstract class XmlMapperSqlFragmentCase extends AbstractNxnContractTest {
         assertEquals(Integer.valueOf(25), user.getAge());
         assertEquals("frag1@nxn.test", user.getEmail());
         assertNotNull(user.getCreateTime());
+        assertEquals(timestamp(), user.getCreateTime().getTime());
     }
 
     @Test
@@ -73,7 +83,7 @@ public abstract class XmlMapperSqlFragmentCase extends AbstractNxnContractTest {
         Map<String, Object> ageRange = mapOf("minAge", 30);
         ageRange.put("maxAge", 40);
         List<UserInfo> byAgeRange = this.session.queryStatement("xmltest.SqlFragmentMapper.selectWithConditionFragment", ageRange);
-        Map<String, Object> allConditions = mapOf("name", "SqlFrag%");
+        Map<String, Object> allConditions = mapOf("name", allNamesParameter());
         allConditions.put("minAge", 25);
         allConditions.put("maxAge", 35);
         List<UserInfo> combined = this.session.queryStatement("xmltest.SqlFragmentMapper.selectWithConditionFragment", allConditions);
@@ -86,6 +96,16 @@ public abstract class XmlMapperSqlFragmentCase extends AbstractNxnContractTest {
             assertTrue(user.getAge() >= 30 && user.getAge() <= 40);
         }
         assertEquals(3, combined.size());
+        allConditions.put("name", "SqlFrag3");
+        List<UserInfo> narrowed = this.session.queryStatement("xmltest.SqlFragmentMapper.selectWithConditionFragment", allConditions);
+        assertEquals(1, narrowed.size());
+        assertEquals("SqlFrag3", narrowed.get(0).getName());
+        assertEquals(Integer.valueOf(30), byAgeRange.get(0).getAge());
+        assertEquals(Integer.valueOf(40), byAgeRange.get(2).getAge());
+    }
+
+    protected String allNamesParameter() {
+        return "SqlFrag%";
     }
 
     @Test
@@ -97,6 +117,11 @@ public abstract class XmlMapperSqlFragmentCase extends AbstractNxnContractTest {
         assertAscendingById(list);
         assertEquals("SqlFrag1", list.get(0).getName());
         assertNotNull(list.get(0).getCreateTime());
+        for (int i = 1; i <= list.size(); i++) {
+            assertEquals(Integer.valueOf(baseId() + i), list.get(i - 1).getId());
+            assertEquals("SqlFrag" + i, list.get(i - 1).getName());
+            assertEquals(timestamp(), list.get(i - 1).getCreateTime().getTime());
+        }
     }
 
     @Test
@@ -106,6 +131,9 @@ public abstract class XmlMapperSqlFragmentCase extends AbstractNxnContractTest {
 
         assertEquals(5, list.size());
         assertAscendingById(list);
+        for (int i = 1; i <= list.size(); i++) {
+            assertEquals("SqlFrag" + i, list.get(i - 1).getName());
+        }
     }
 
     private void assertAscendingById(List<UserInfo> list) {

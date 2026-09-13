@@ -13,6 +13,11 @@ import net.hasor.dbvisitor.test.nxn.env.OracleProfile;
 
 public class OracleResultColumnCaseTest extends ResultColumnCasingCase {
     @Override
+    protected String resultProjection() {
+        return "id AS \"id\", name AS \"name\", age AS \"age\", email AS \"email\", create_time AS \"create_time\"";
+    }
+
+    @Override
     protected DataSourceProfile profile() {
         return OracleProfile.INSTANCE;
     }

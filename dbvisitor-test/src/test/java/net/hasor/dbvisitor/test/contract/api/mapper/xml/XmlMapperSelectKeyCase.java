@@ -7,12 +7,10 @@
  */
 package net.hasor.dbvisitor.test.contract.api.mapper.xml;
 
-import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
 
-import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
@@ -29,11 +27,9 @@ public abstract class XmlMapperSelectKeyCase extends XmlMapperKeyGenerationSuppo
 
         assertEquals(1, ((Number) this.session.executeStatement("xmltest.KeyGenerationMapper.insertWithSelectKeyBefore", params)).intValue());
 
-        Number generatedId = (Number) params.get("id");
+        Object generatedId = params.get("id");
         assertNotNull(generatedId);
-        List<UserInfo> list = this.session.queryStatement("xmltest.KeyGenerationMapper.selectById", mapOf("id", generatedId));
-        assertEquals(1, list.size());
-        assertEquals("XmlKeyGenBefore", list.get(0).getName());
+        assertEquals("XmlKeyGenBefore", readKeyName(generatedId));
     }
 
     @Test
@@ -43,10 +39,8 @@ public abstract class XmlMapperSelectKeyCase extends XmlMapperKeyGenerationSuppo
 
         assertEquals(1, ((Number) this.session.executeStatement("xmltest.KeyGenerationMapper.insertWithSelectKeyAfter", params)).intValue());
 
-        Number generatedId = (Number) params.get("id");
+        Object generatedId = params.get("id");
         assertNotNull(generatedId);
-        List<UserInfo> list = this.session.queryStatement("xmltest.KeyGenerationMapper.selectById", mapOf("id", generatedId));
-        assertEquals(1, list.size());
-        assertEquals("XmlKeyGenAfter", list.get(0).getName());
+        assertEquals("XmlKeyGenAfter", readKeyName(generatedId));
     }
 }

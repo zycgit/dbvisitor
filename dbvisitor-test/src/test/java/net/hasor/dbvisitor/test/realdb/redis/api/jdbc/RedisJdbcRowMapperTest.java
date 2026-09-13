@@ -10,23 +10,14 @@ package net.hasor.dbvisitor.test.realdb.redis.api.jdbc;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.List;
-import java.util.Arrays;
-import org.junit.Before;
-import org.junit.After;
-import org.junit.Test;
-
-import net.hasor.dbvisitor.jdbc.mapper.ColumnMapRowMapper;
-import net.hasor.dbvisitor.jdbc.mapper.BeanMappingRowMapper;
-import net.hasor.dbvisitor.jdbc.mapper.SingleColumnRowMapper;
+import java.util.LinkedHashMap;
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcRowMapperCase;
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
-import static org.junit.Assert.*;
+import org.junit.After;
+import org.junit.Before;
 
 public class RedisJdbcRowMapperTest extends JdbcRowMapperCase {
-
     private final RedisJdbcFixture fixture = new RedisJdbcFixture();
 
     @Override
@@ -40,44 +31,79 @@ public class RedisJdbcRowMapperTest extends JdbcRowMapperCase {
         this.jdbcTemplate = this.fixture.open();
     }
 
+    @Override
+    protected void seedUsers() throws SQLException {
+        this.fixture.seedScores();
+    }
+
+    @Override
+    protected Class<?> resultBeanType() {
+        return RedisJdbcFixture.ScoredMember.class;
+    }
+
     @After
     public void closeRedisFixture() throws SQLException {
         this.fixture.close();
     }
 
     @Override
-    @Test
-    @Capability(CapabilityId.JDBC_RESULT_ROW_MAPPER_CUSTOM)
-    public void rowMapper_shouldSupportCustomMappingAndDtoProjection() throws SQLException {
-        fixture.seedScores();
-        List<String> rows = jdbcTemplate.queryForList("ZRANGE ? 0 2 WITHSCORES", new Object[] { fixture.key("scores") },
-            (rs, n) -> rs.getString("ELEMENT").toUpperCase() + ":" + rs.getInt("SCORE"));
-        assertEquals(Arrays.asList("MEMBER-1:21", "MEMBER-2:22", "MEMBER-3:23"), rows);
+    protected void insertUser(int id, String name, int age, String email) throws SQLException {
+        this.fixture.seedScores();
     }
 
     @Override
-    @Test
-    @Capability(CapabilityId.JDBC_RESULT_ROW_MAPPER_BUILTIN)
-    public void rowMapper_shouldSupportBuiltInMappers() throws SQLException {
-        fixture.seedScores();
-        Object[] args = { fixture.key("scores") };
-        List<Map<String, Object>> maps = jdbcTemplate.queryForList("ZRANGE ? 0 0 WITHSCORES", args, new ColumnMapRowMapper());
-        assertEquals("member-1", maps.get(0).get("ELEMENT"));
-        List<String> values = jdbcTemplate.queryForList("ZRANGE ? 0 1", args, new SingleColumnRowMapper<>(String.class));
-        assertEquals(Arrays.asList("member-1", "member-2"), values);
-        List<RedisJdbcFixture.ScoredMember> beans = jdbcTemplate.queryForList("ZRANGE ? 0 0 WITHSCORES", args, new BeanMappingRowMapper<>(RedisJdbcFixture.ScoredMember.class));
-        assertEquals("member-1", beans.get(0).getElement());
-        assertEquals(Double.valueOf(21), beans.get(0).getScore());
+    protected String selectSql(String columns, String predicate, boolean ordered) {
+        return "ZRANGE ? ? ?" + ("name".equals(columns) ? "" : " WITHSCORES");
     }
 
     @Override
-    @Test
-    @Capability(CapabilityId.JDBC_RESULT_IGNORE_FIELD_MAPPING)
-    public void beanMapping_shouldHonorIgnoredFields() throws SQLException {
-        fixture.seedScores();
-        RedisJdbcFixture.IgnoredScore bean = jdbcTemplate.queryForObject("ZRANGE ? 0 0 WITHSCORES",
-            new Object[] { fixture.key("scores") }, RedisJdbcFixture.IgnoredScore.class);
-        assertEquals("member-1", bean.getElement());
-        assertNull(bean.getScore());
+    protected Object[] selectArguments(String columns, String predicate, Object... values) {
+        if (predicate.contains("BETWEEN")) {
+            return new Object[] { this.fixture.key("scores"), 0, ((Number) values[1]).intValue() - baseId() - 1 };
+        }
+        return new Object[] { this.fixture.key("scores"), 0, 0 };
+    }
+
+    @Override
+    protected String customNameColumn() {
+        return "ELEMENT";
+    }
+
+    @Override
+    protected String customNumberColumn() {
+        return "SCORE";
+    }
+
+    @Override
+    protected List<String> expectedCustomRows() {
+        return List.of("MEMBER-1:21", "MEMBER-2:22", "MEMBER-3:23");
+    }
+
+    @Override
+    protected Map<String, Object> expectedColumnMap() {
+        return Map.of("ELEMENT", "member-1", "SCORE", 21.0);
+    }
+
+    @Override
+    protected List<String> expectedScalarNames() {
+        return List.of("member-1", "member-2");
+    }
+
+    @Override
+    protected Map<String, Object> expectedBean() {
+        return Map.of("element", "member-1", "score", 21.0);
+    }
+
+    @Override
+    protected Class<?> ignoredBeanType() {
+        return RedisJdbcFixture.IgnoredScore.class;
+    }
+
+    @Override
+    protected Map<String, Object> expectedIgnoredBean(int id) {
+        Map<String, Object> expected = new LinkedHashMap<>();
+        expected.put("element", "member-1");
+        expected.put("score", null);
+        return expected;
     }
 }

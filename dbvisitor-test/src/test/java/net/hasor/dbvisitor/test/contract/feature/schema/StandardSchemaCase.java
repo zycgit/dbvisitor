@@ -56,7 +56,7 @@ public abstract class StandardSchemaCase extends AbstractNxnContractTest {
     @Capability(CapabilityId.SCHEMA_STANDARD_TABLES)
     public void schema_shouldExposeAllStandardTablesForCurrentDatasource() throws SQLException {
         Set<String> tables = readTables();
-        for (String table : STANDARD_SCHEMA.keySet()) {
+        for (String table : standardSchema().keySet()) {
             assertTrue("Expected standard table '" + table + "' in " + profile().env() + ", actual=" + tables, tables.contains(normalize(table)));
         }
     }
@@ -64,7 +64,7 @@ public abstract class StandardSchemaCase extends AbstractNxnContractTest {
     @Test
     @Capability(CapabilityId.SCHEMA_STANDARD_COLUMNS)
     public void schema_shouldExposeRequiredColumnsForStandardTables() throws SQLException {
-        for (Map.Entry<String, List<String>> entry : STANDARD_SCHEMA.entrySet()) {
+        for (Map.Entry<String, List<String>> entry : standardSchema().entrySet()) {
             Set<String> columns = readColumns(entry.getKey());
             for (String column : entry.getValue()) {
                 assertTrue("Expected column '" + entry.getKey() + "." + column + "' in " + profile().env() + ", actual=" + columns, columns.contains(normalize(column)));
@@ -72,8 +72,16 @@ public abstract class StandardSchemaCase extends AbstractNxnContractTest {
         }
     }
 
+    protected Map<String, List<String>> standardSchema() {
+        return java.util.Collections.unmodifiableMap(STANDARD_SCHEMA);
+    }
+
+    protected Connection schemaConnection() throws SQLException {
+        return dataSource.getConnection();
+    }
+
     private Set<String> readTables() throws SQLException {
-        try (Connection conn = dataSource.getConnection()) {
+        try (Connection conn = schemaConnection()) {
             DatabaseMetaData metaData = conn.getMetaData();
             Set<String> tables = new LinkedHashSet<>();
             readTables(metaData, conn.getCatalog(), tables);
@@ -91,7 +99,7 @@ public abstract class StandardSchemaCase extends AbstractNxnContractTest {
     }
 
     private Set<String> readColumns(String tableName) throws SQLException {
-        try (Connection conn = dataSource.getConnection()) {
+        try (Connection conn = schemaConnection()) {
             DatabaseMetaData metaData = conn.getMetaData();
             Set<String> columns = new LinkedHashSet<>();
             for (String pattern : tablePatterns(tableName)) {

@@ -24,10 +24,8 @@ public final class MsSqlProfile extends AbstractDataSourceProfile {
             FeatureId.ARRAY,
             FeatureId.KNN,
             FeatureId.PROCEDURE_CURSOR_RESULT,
-            FeatureId.XML_MAPPER_CALLABLE,
             FeatureId.VECTOR,
             FeatureId.POSTGRES_ON_CONFLICT,
-            FeatureId.REPEATED_ORDER_BY_COLUMN,
             FeatureId.TRANSACTION_RELEASE_SAVEPOINT,
             FeatureId.CASE_SENSITIVE_IDENTIFIERS
         };

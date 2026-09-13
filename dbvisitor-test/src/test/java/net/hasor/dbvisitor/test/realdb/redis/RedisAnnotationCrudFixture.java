@@ -17,17 +17,17 @@ import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.realdb.redis.dto1.RedisCrudMapper;
 
 /** Native SET/GET/DEL CRUD; SET replaces a JSON value, not individual fields of a relational row. */
-final class RedisAnnotationCrudFixture implements AutoCloseable {
+public final class RedisAnnotationCrudFixture implements AutoCloseable {
     private final String prefix = "nxn_anno_crud_" + UUID.randomUUID().toString().replace("-", "") + ":";
     private final int baseId;
     private JdbcTemplate jdbc;
     private Session session;
 
-    RedisAnnotationCrudFixture(int baseId) {
+    public RedisAnnotationCrudFixture(int baseId) {
         this.baseId = baseId;
     }
 
-    JdbcTemplate open() throws SQLException {
+    public JdbcTemplate open() throws SQLException {
         if (this.jdbc == null) {
             OneApiDataSourceManager.assumeCurrentDataSource("redis");
             this.jdbc = new JdbcTemplate(OneApiDataSourceManager.getConnection("redis"));
@@ -35,13 +35,15 @@ final class RedisAnnotationCrudFixture implements AutoCloseable {
         return this.jdbc;
     }
 
-    AnnotationTestMapper createMapper(Configuration configuration) throws Exception {
+    public AnnotationTestMapper createMapper(Configuration configuration) throws Exception {
         configuration.addMacro("nxnCrudInsertBean", set("'id': id, 'name': name, 'age': age, 'email': email, 'createTime': createTime"));
         configuration.addMacro("nxnCrudInsertParams", set("'id': id, 'name': name, 'age': age, 'email': email"));
-        configuration.addMacro("nxnCrudUpdateAge", set("'id': id, 'age': age"));
+        configuration.addMacro("nxnCrudUpdateAge", set("'id': id, 'age': age") + " XX");
         configuration.addMacro("nxnCrudUpdateInfo", set("'id': id, 'name': name, 'age': age"));
         configuration.addMacro("nxnCrudSelect", "GET #{'" + this.prefix + "' + id}");
         configuration.addMacro("nxnCrudDelete", "DEL #{'" + this.prefix + "' + id}");
+        configuration.addMacro("nxnCrudTempInsert", "SET #{'" + this.prefix + "temp:' + id} #{name}");
+        configuration.addMacro("nxnCrudTempSelect", "GET #{'" + this.prefix + "temp:' + id}");
         this.session = configuration.newSession(this.jdbc.getConnection());
         return this.session.createMapper(RedisCrudMapper.class);
     }
@@ -55,9 +57,8 @@ final class RedisAnnotationCrudFixture implements AutoCloseable {
     public void close() throws Exception {
         try {
             if (this.jdbc != null) {
-                // Only the four private keys written by the shared CRUD scenarios.
-                for (int offset : new int[] { 1, 4, 5, 8 }) {
-                    this.jdbc.executeUpdate("DEL ?", new Object[] { this.prefix + (this.baseId + offset) });
+                for (String key : this.jdbc.queryForList("KEYS ?", this.prefix + "*", String.class)) {
+                    this.jdbc.executeUpdate("DEL ?", key);
                 }
             }
         } finally {

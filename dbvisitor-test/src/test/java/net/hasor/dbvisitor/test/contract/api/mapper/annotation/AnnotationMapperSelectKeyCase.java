@@ -9,7 +9,6 @@ package net.hasor.dbvisitor.test.contract.api.mapper.annotation;
 
 import org.junit.Test;
 
-import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
@@ -23,19 +22,19 @@ public abstract class AnnotationMapperSelectKeyCase extends AnnotationMapperAttr
     @Capability(CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_SELECT_KEY)
     public void annotationAttributes_shouldRunSelectKeySqlWhenFixtureSequenceIsSupported() throws Exception {
 
-        UserInfo before = user(null, "AttrSelectKeyBefore", 34, "select-before@nxn.test");
-        assertEquals(1, this.mapper.insertWithSelectKeyBefore(before));
-        assertNotNull(before.getId());
-        assertEquals("AttrSelectKeyBefore", this.mapper.selectByIdPrepared(before.getId()).getName());
+        Object before = keyRecord(null, "AttrSelectKeyBefore", 34, "select-before@nxn.test");
+        assertEquals(1, writeKeyRecord(KeyWrite.BEFORE, before));
+        assertNotNull(keyValue(before));
+        assertEquals("AttrSelectKeyBefore", readKeyName(keyValue(before)));
 
-        UserInfo after = user(null, "AttrSelectKeyAfter", 35, "select-after@nxn.test");
-        assertEquals(1, this.mapper.insertWithSelectKeyAfter(after));
-        assertNotNull(after.getId());
-        assertEquals("AttrSelectKeyAfter", this.mapper.selectByIdPrepared(after.getId()).getName());
+        Object after = keyRecord(null, "AttrSelectKeyAfter", 35, "select-after@nxn.test");
+        assertEquals(1, writeKeyRecord(KeyWrite.AFTER, after));
+        assertNotNull(keyValue(after));
+        assertEquals("AttrSelectKeyAfter", readKeyName(keyValue(after)));
 
-        UserInfo full = user(null, "AttrSelectKeyFull", 36, "select-full@nxn.test");
-        assertEquals(1, this.mapper.insertWithSelectKeyFullAttrs(full));
-        assertNotNull(full.getId());
-        assertEquals("AttrSelectKeyFull", this.mapper.selectByIdPrepared(full.getId()).getName());
+        Object full = keyRecord(null, "AttrSelectKeyFull", 36, "select-full@nxn.test");
+        assertEquals(1, writeKeyRecord(KeyWrite.OPTIONS, full));
+        assertNotNull(keyValue(full));
+        assertEquals("AttrSelectKeyFull", readKeyName(keyValue(full)));
     }
 }

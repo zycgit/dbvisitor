@@ -52,7 +52,7 @@ public abstract class NativeNamedFieldTypeCase extends AbstractNxnContractTest {
         assertRoundTrip(Boolean.FALSE, Boolean.class);
     }
 
-    private <T> void assertRoundTrip(T expected, Class<T> type) throws SQLException {
+    protected <T> void assertRoundTrip(T expected, Class<T> type) throws SQLException {
         int id = Boolean.FALSE.equals(expected) ? 2 : 1;
         this.jdbcTemplate.executeUpdate(this.fixture.insertCommand("named_types", "id,typed_value"), new Object[] { id, expected });
         Object actual = this.jdbcTemplate.queryForObject(this.fixture.selectCommand("named_types", "typed_value"), new Object[] { id }, (rs, row) -> TypeHandlerRegistry.DEFAULT.getTypeHandler(type).getResult(rs, "typed_value"));

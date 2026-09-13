@@ -9,7 +9,7 @@ package net.hasor.dbvisitor.test.contract.api.session;
 
 import org.junit.Test;
 
-import net.hasor.dbvisitor.test.contract.material.dao.SessionRefUserMapper;
+import net.hasor.dbvisitor.test.contract.material.dao.SessionRefCrudMapper;
 import net.hasor.dbvisitor.test.contract.material.dao.SessionUserMapper;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
@@ -25,7 +25,7 @@ public abstract class SessionMapperInvocationCase extends SessionMapperSupport {
     @Test
     @Capability(CapabilityId.SESSION_MAPPER_SIMPLE)
     public void sessionCreateMapper_shouldCreateSimpleMapperProxyForCrudListAndScalarResults() throws Exception {
-        SessionUserMapper mapper = createSession().createMapper(SessionUserMapper.class);
+        SessionUserMapper mapper = simpleMapper(createSession());
         int firstId = baseId() + 1;
         int secondId = baseId() + 2;
 
@@ -48,7 +48,7 @@ public abstract class SessionMapperInvocationCase extends SessionMapperSupport {
     @Test
     @Capability(CapabilityId.SESSION_MAPPER_REF)
     public void sessionCreateMapper_shouldCreateRefMapperProxyForXmlCrudListAndScalarResults() throws Exception {
-        SessionRefUserMapper mapper = createSession().createMapper(SessionRefUserMapper.class);
+        SessionRefCrudMapper mapper = refMapper(createSession());
         int firstId = baseId() + 10;
         int secondId = baseId() + 11;
 

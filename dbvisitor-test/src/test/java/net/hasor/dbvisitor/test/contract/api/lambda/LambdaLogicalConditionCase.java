@@ -315,22 +315,22 @@ public abstract class LambdaLogicalConditionCase extends AbstractNxnContractTest
 
         long raw = lambdaTemplate.query(UserInfo.class)//
                 .in(UserInfo::getId, ids(111, 112, 113, 114, 115))//
-                .apply("age > 30")//
+                .apply(rawAgePredicate("gt", "30"))//
                 .queryForCount();
         long parameterized = lambdaTemplate.query(UserInfo.class)//
                 .in(UserInfo::getId, ids(111, 112, 113, 114, 115))//
-                .apply("age <= ?", 30)//
+                .apply(rawAgePredicate("le", "?"), 30)//
                 .queryForCount();
         long only = lambdaTemplate.query(UserInfo.class)//
-                .apply("name = ?", "NXN-Logic-Apply-25")//
+                .apply(rawNamePredicate(), "NXN-Logic-Apply-25")//
                 .queryForCount();
         long nestedOr = lambdaTemplate.query(UserInfo.class)//
                 .in(UserInfo::getId, ids(111, 112, 113, 114, 115))//
                 .nested(q -> {
                     try {
-                        q.apply("age = 25")//
+                        q.apply(rawAgePredicate("eq", "25"))//
                                 .or()//
-                                .apply("age = 45");
+                                .apply(rawAgePredicate("eq", "45"));
                     } catch (SQLException e) {
                         throw new IllegalStateException(e);
                     }
@@ -343,6 +343,15 @@ public abstract class LambdaLogicalConditionCase extends AbstractNxnContractTest
         assertEquals(2, nestedOr);
     }
 
+    protected String rawAgePredicate(String operator, String value) {
+        String symbol = "gt".equals(operator) ? ">" : "le".equals(operator) ? "<=" : "=";
+        return "age " + symbol + " " + value;
+    }
+
+    protected String rawNamePredicate() {
+        return "name = ?";
+    }
+
     private List<Integer> ids(int... offsets) {
         Integer[] ids = new Integer[offsets.length];
         for (int i = 0; i < offsets.length; i++) {
@@ -351,7 +360,7 @@ public abstract class LambdaLogicalConditionCase extends AbstractNxnContractTest
         return Arrays.asList(ids);
     }
 
-    private void insertUser(int id, String name, Integer age, String email) throws SQLException {
+    protected void insertUser(int id, String name, Integer age, String email) throws SQLException {
         jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, ?)", //
                 new Object[] { id, name, age, email, new Date() });
     }

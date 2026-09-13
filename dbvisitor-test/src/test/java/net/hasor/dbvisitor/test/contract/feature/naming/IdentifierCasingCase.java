@@ -28,11 +28,19 @@ import static org.junit.Assert.assertTrue;
 
 @NxnContract
 public abstract class IdentifierCasingCase extends NamingMappingSupport {
+    protected void prepareMixedCaseFields() throws SQLException {
+        requiresNxnFeature(FeatureId.CASE_SENSITIVE_IDENTIFIERS);
+        ensureCaseSensitivityTables();
+    }
+
+    protected String mixedCaseTableName() {
+        return "Case_Test_Upper";
+    }
+
     @Test
     @Capability(CapabilityId.NAMING_CASE_INSENSITIVE_MIXED_CASE_CRUD)
     public void caseInsensitiveMixedCaseTable_shouldRoundTripWhenIdentifiersAreCaseSensitive() throws SQLException {
-        requiresNxnFeature(FeatureId.CASE_SENSITIVE_IDENTIFIERS);
-        ensureCaseSensitivityTables();
+        prepareMixedCaseFields();
         int id = baseId() + 16;
 
         CaseTestUpperCI entity = caseTestUpper(id, "NXN-MixedCaseCrud", "mixed-crud");
@@ -98,14 +106,13 @@ public abstract class IdentifierCasingCase extends NamingMappingSupport {
     @Test
     @Capability(CapabilityId.NAMING_CASE_SENSITIVE_FREEDOM_MIXED_CASE)
     public void caseSensitiveFreedomQuery_shouldPreserveMixedCaseResultKeys() throws SQLException {
-        requiresNxnFeature(FeatureId.CASE_SENSITIVE_IDENTIFIERS);
-        ensureCaseSensitivityTables();
+        prepareMixedCaseFields();
         int id = baseId() + 21;
-        jdbcTemplate.executeUpdate("INSERT INTO " + qualified("Case_Test_Upper") + " (" + qualified("Id") + ", " + qualified("Name") + ", " + qualified("Age") + ", " + qualified("Memo") + ") VALUES (?, ?, ?, ?)", //
+        jdbcTemplate.executeUpdate(insertCommand(qualified(mixedCaseTableName()), qualified("Id") + ", " + qualified("Name") + ", " + qualified("Age") + ", " + qualified("Memo")), //
                 new Object[] { id, "NXN-FreedomMixed", 40, "freedom-mixed" });
 
         LambdaTemplate optLambda = optionsLambda(Options.of().caseInsensitive(false).useDelimited(true));
-        Map<String, Object> row = optLambda.queryFreedom(null, null, "Case_Test_Upper")//
+        Map<String, Object> row = optLambda.queryFreedom(null, null, mixedCaseTableName())//
                 .eq("Id", id)//
                 .queryForObject();
 
@@ -117,8 +124,7 @@ public abstract class IdentifierCasingCase extends NamingMappingSupport {
     @Test
     @Capability(CapabilityId.NAMING_CASE_INSENSITIVE_BATCH_MAPPING)
     public void caseInsensitiveMixedCaseTable_shouldMapMultipleRows() throws SQLException {
-        requiresNxnFeature(FeatureId.CASE_SENSITIVE_IDENTIFIERS);
-        ensureCaseSensitivityTables();
+        prepareMixedCaseFields();
 
         for (int i = 1; i <= 3; i++) {
             CaseTestUpperCI entity = caseTestUpper(baseId() + 30 + i, "NXN-Batch" + i, "batch-" + i);

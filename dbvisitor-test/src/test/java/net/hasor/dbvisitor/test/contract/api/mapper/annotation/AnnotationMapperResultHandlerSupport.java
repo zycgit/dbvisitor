@@ -27,7 +27,7 @@ public abstract class AnnotationMapperResultHandlerSupport extends AbstractNxnCo
     public void createResultHandlerMapper() throws Exception {
         Configuration configuration = newConfiguration();
         Session session = configuration.newSession(dataSource);
-        this.mapper = session.createMapper(ResultHandlerMapper.class);
+        this.mapper = session.createMapper(mapperType());
         prepareRows();
     }
 
@@ -38,12 +38,20 @@ public abstract class AnnotationMapperResultHandlerSupport extends AbstractNxnCo
             user.setName("AnnoHandler" + i);
             user.setAge(20 + i);
             user.setEmail("anno-handler" + i + "@nxn.test");
-            user.setCreateTime(new Date());
+            user.setCreateTime(new Date(timestamp()));
             this.mapper.insertUser(user);
         }
     }
 
     protected int id(int index) {
         return 53100 + index;
+    }
+
+    protected Class<? extends ResultHandlerMapper> mapperType() {
+        return ResultHandlerMapper.class;
+    }
+
+    protected long timestamp() {
+        return 1700000000000L;
     }
 }

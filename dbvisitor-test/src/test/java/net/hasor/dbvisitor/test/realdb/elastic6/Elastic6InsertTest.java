@@ -25,12 +25,12 @@ public class Elastic6InsertTest {
             try {
                 s.execute("DELETE /test_insert_doc");
             } catch (Exception e) {
-                // ignore
+                Elastic6Cleanup.requireMissingIndex(e);
             }
             try {
                 s.execute("DELETE /test_insert_generic");
             } catch (Exception e) {
-                // ignore
+                Elastic6Cleanup.requireMissingIndex(e);
             }
         }
     }
@@ -41,12 +41,12 @@ public class Elastic6InsertTest {
             try {
                 s.execute("DELETE /test_insert_doc");
             } catch (Exception e) {
-                // ignore
+                Elastic6Cleanup.requireMissingIndex(e);
             }
             try {
                 s.execute("DELETE /test_insert_generic");
             } catch (Exception e) {
-                // ignore
+                Elastic6Cleanup.requireMissingIndex(e);
             }
         }
     }
@@ -76,7 +76,9 @@ public class Elastic6InsertTest {
             Assert.assertEquals("Insert failed", 1, count);
             try (ResultSet rs = s.getGeneratedKeys()) {
                 if (rs.next()) {
-                    System.out.println("Generated ID: " + rs.getString(1));
+                    Assert.assertNotNull(rs.getString(1));
+                    Assert.assertFalse(rs.getString(1).isEmpty());
+                    Assert.assertFalse(rs.next());
                 } else {
                     Assert.fail("No generated key returned for POST /_doc");
                 }

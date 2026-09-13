@@ -8,62 +8,53 @@
 package net.hasor.dbvisitor.test.realdb.milvus;
 
 import java.sql.SQLException;
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import org.junit.Test;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.lambda.EntityQuery;
+import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.test.contract.api.lambda.LambdaPageResultCase;
+import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
+import org.junit.After;
+import org.junit.Before;
 
-public class MilvusLambdaPageResultTest extends MilvusLambdaPaginationSupport {
-    @Test
-    @Capability(CapabilityId.ADAPTER_MILVUS_PAGINATION_MULTIPLE)
-    public void multiplePagesShouldFollowNativePageSemantics() throws SQLException {
-        verifyMultiplePages();
+public class MilvusLambdaPageResultTest extends LambdaPageResultCase {
+    private final MilvusLambdaPageFixture fixture = new MilvusLambdaPageFixture();
+
+    @Override
+    protected DataSourceProfile profile() {
+        return MilvusProfile.INSTANCE;
     }
 
-    @Test
-    @Capability(CapabilityId.ADAPTER_MILVUS_PAGINATION_EXACT)
-    public void exactPagesShouldFollowNativePageSemantics() throws SQLException {
-        verifyExactPages();
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        this.jdbcTemplate = new JdbcTemplate(this.fixture.open());
+        this.lambdaTemplate = new LambdaTemplate(this.jdbcTemplate);
     }
 
-    @Test
-    @Capability(CapabilityId.ADAPTER_MILVUS_PAGINATION_SINGLE)
-    public void singlePageShouldFollowNativePageSemantics() throws SQLException {
-        verifySinglePage();
+    @Override
+    protected void insert(int id, String name, Integer age) throws SQLException {
+        this.fixture.insert(id, name, age);
     }
 
-    @Test
-    @Capability(CapabilityId.ADAPTER_MILVUS_PAGINATION_SIZE_ONE)
-    public void singleRowPagesShouldFollowNativePageSemantics() throws SQLException {
-        verifySingleRowPages();
+    @Override
+    protected EntityQuery<? extends UserInfo> queryRows() throws SQLException {
+        return this.fixture.query(this.lambdaTemplate);
     }
 
-    @Test
-    @Capability(CapabilityId.ADAPTER_MILVUS_PAGINATION_BEYOND)
-    public void beyondLastShouldFollowNativePageSemantics() throws SQLException {
-        verifyBeyondLast();
+    @Override
+    protected EntityQuery<? extends UserInfo> queryRows(String prefix) throws SQLException {
+        return this.fixture.query(this.lambdaTemplate, prefix);
     }
 
-    @Test
-    @Capability(CapabilityId.ADAPTER_MILVUS_PAGINATION_FACTORY)
-    public void factoriesShouldFollowNativePageSemantics() throws SQLException {
-        verifyFactories();
+    @Override
+    protected EntityQuery<? extends UserInfo> orderRows(EntityQuery<? extends UserInfo> query) {
+        return this.fixture.order(query);
     }
 
-    @Test
-    @Capability(CapabilityId.ADAPTER_MILVUS_PAGINATION_ONE_BASED)
-    public void oneBasedPagesShouldFollowNativePageSemantics() throws SQLException {
-        verifyOneBasedPages();
-    }
-
-    @Test
-    @Capability(CapabilityId.ADAPTER_MILVUS_PAGINATION_COUNT)
-    public void countConsistencyShouldFollowNativePageSemantics() throws SQLException {
-        verifyCountConsistency();
-    }
-
-    @Test
-    @Capability(CapabilityId.ADAPTER_MILVUS_PAGINATION_FILTER)
-    public void filteredCountShouldFollowNativePageSemantics() throws SQLException {
-        verifyFilteredCount();
+    @After
+    public void cleanupFixture() throws SQLException {
+        this.fixture.close();
     }
 }

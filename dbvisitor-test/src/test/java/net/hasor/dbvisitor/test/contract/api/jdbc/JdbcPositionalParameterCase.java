@@ -21,18 +21,38 @@ import static org.junit.Assert.assertNotNull;
 
 @NxnContract
 public abstract class JdbcPositionalParameterCase extends JdbcParameterSupport {
+    protected Class<?> positionalBeanType() {
+        return UserInfo.class;
+    }
+
+    protected Object[] positionalQueryArguments() {
+        return new Object[] { positionalName(), 20 };
+    }
+
+    protected String positionalName() {
+        return "NXN-Param-Array";
+    }
+
+    protected Integer positionalId(Object bean) {
+        return ((UserInfo) bean).getId();
+    }
+
+    protected Integer positionalAge(Object bean) {
+        return ((UserInfo) bean).getAge();
+    }
+
     @Test
     @Capability(CapabilityId.JDBC_PARAM_POSITIONAL_ARRAY)
     public void positionalArrayParameters_shouldBindObjectArray() throws SQLException {
         int id = baseId() + 1;
-        insert(id, "NXN-Param-Array", 25, "nxn-param-array@test.com");
+        insert(id, positionalName(), 25, "nxn-param-array@test.com");
 
         // Parameter binding does not require conversion of unrelated temporal fixture columns.
-        UserInfo user = jdbcTemplate.queryForObject(command(JdbcParameterCommand.SELECT_USER), //
-                new Object[] { "NXN-Param-Array", 20 }, UserInfo.class);
+        Object user = jdbcTemplate.queryForObject(command(JdbcParameterCommand.SELECT_USER), //
+                positionalQueryArguments(), positionalBeanType());
 
         assertNotNull(user);
-        assertEquals(Integer.valueOf(id), user.getId());
-        assertEquals(Integer.valueOf(25), user.getAge());
+        assertEquals(Integer.valueOf(id), positionalId(user));
+        assertEquals(Integer.valueOf(25), positionalAge(user));
     }
 }

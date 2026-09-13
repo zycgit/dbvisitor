@@ -16,6 +16,7 @@ import java.sql.Statement;
 import java.util.List;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -33,7 +34,7 @@ public class Elastic7VectorSearchTest {
             try {
                 s.execute("DELETE /" + INDEX_NAME);
             } catch (Exception e) {
-                // ignore
+                Elastic7Cleanup.requireMissingIndex(e);
             }
 
             // 创建索引并定义 mapping（包含 dense_vector 类型）
@@ -45,9 +46,7 @@ public class Elastic7VectorSearchTest {
                           "category": { "type": "keyword" },
                           "embedding": {
                             "type": "dense_vector",
-                            "dims": 3,
-                            "index": true,
-                            "similarity": "cosine"
+                            "dims": 3
                           }
                         }
                       }
@@ -61,8 +60,7 @@ public class Elastic7VectorSearchTest {
             s.executeUpdate("POST /" + INDEX_NAME + "/_doc/3 { \"name\": \"doc3\", \"category\": \"B\", \"embedding\": [0.0, 1.0, 0.0] }");
             s.executeUpdate("POST /" + INDEX_NAME + "/_doc/4 { \"name\": \"doc4\", \"category\": \"B\", \"embedding\": [0.0, 0.0, 1.0] }");
 
-            // 等待索引刷新
-            Thread.sleep(1000);
+            s.executeUpdate("POST /" + INDEX_NAME + "/_refresh");
         }
     }
 
@@ -72,7 +70,7 @@ public class Elastic7VectorSearchTest {
             try {
                 s.execute("DELETE /" + INDEX_NAME);
             } catch (Exception e) {
-                // ignore
+                Elastic7Cleanup.requireMissingIndex(e);
             }
         }
     }
@@ -82,12 +80,8 @@ public class Elastic7VectorSearchTest {
      * 注：ES 7.x 不支持顶层 knn 参数搜索，此测试方法禁用
      */
     @Test
+    @Ignore("Elasticsearch 7 does not support the top-level knn search option; script_score is tested separately")
     public void testNativeKnnQuery() throws Exception {
-        // ES 7.x 不支持 knn 参数查询，跳过测试
-        if (true) {
-            return;
-        }
-
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
             String knnQuery = "POST /" + INDEX_NAME + """
                     /_search {
@@ -127,7 +121,7 @@ public class Elastic7VectorSearchTest {
                                 "script_score": {
                                   "query": { "match_all": {} },
                                   "script": {
-                                    "source": "cosineSimilarity(params.query_vector, doc['embedding']) + 1.0",
+                                    "source": "cosineSimilarity(params.query_vector, 'embedding') + 1.0",
                                     "params": {
                                       "query_vector": [1.0, 0.0, 0.0]
                                     }
@@ -186,8 +180,7 @@ public class Elastic7VectorSearchTest {
                     assertEquals("All results should be in category A", "A", category);
                     count++;
                 }
-                assertTrue("Expected at least 1 result", count >= 1);
-                assertTrue("Expected at most 2 results", count <= 2);
+                assertEquals("Both category A documents must match", 2, count);
             }
         }
     }
@@ -204,7 +197,7 @@ public class Elastic7VectorSearchTest {
                         "script_score": {
                           "query": { "match_all": {} },
                           "script": {
-                            "source": "1 / (1 + l2norm(params.query_vector, doc['embedding']))",
+                            "source": "1 / (1 + l2norm(params.query_vector, 'embedding'))",
                             "params": {
                               "query_vector": [1.0, 0.0, 0.0]
                             }
@@ -224,7 +217,7 @@ public class Elastic7VectorSearchTest {
                     }
                     count++;
                 }
-                assertTrue("Expected at least 1 result", count > 0);
+                assertEquals("Expected three nearest documents", 3, count);
                 assertEquals("First result should be doc1 (closest vector)", "doc1", firstDocName);
             }
         }
@@ -259,11 +252,11 @@ public class Elastic7VectorSearchTest {
                 while (rs.next()) {
                     String name = rs.getString("name");
                     // doc1 (1.0, 0.0, 0.0) -> sim 1.0 + 1.0 = 2.0
-                    // doc2 (0.9, 0.1, 0.0) -> sim 0.9 + 1.0 = 1.9
+                    // doc2 cosine similarity is approximately 0.994, giving a score of 1.994.
                     assertTrue("Result should be doc1 or doc2", "doc1".equals(name) || "doc2".equals(name));
                     count++;
                 }
-                assertTrue("Expected at least 1 result with high similarity", count >= 1);
+                assertEquals("Both similar documents must pass the threshold", 2, count);
             }
         }
     }
@@ -280,7 +273,7 @@ public class Elastic7VectorSearchTest {
                         "script_score": {
                           "query": { "match_all": {} },
                           "script": {
-                            "source": "cosineSimilarity(params.query_vector, doc['embedding']) + 1.0",
+                            "source": "cosineSimilarity(params.query_vector, 'embedding') + 1.0",
                             "params": {
                               "query_vector": [1.0, 0.0, 0.0]
                             }
@@ -300,7 +293,7 @@ public class Elastic7VectorSearchTest {
                     }
                     count++;
                 }
-                assertTrue("Expected at least 1 result", count > 0);
+                assertEquals("Expected three ranked documents", 3, count);
                 assertEquals("First result should be doc1 (highest cosine similarity)", "doc1", firstDocName);
             }
         }
@@ -317,7 +310,7 @@ public class Elastic7VectorSearchTest {
                     "script_score": {
                       "query": { "match_all": {} },
                       "script": {
-                        "source": "cosineSimilarity(params.query_vector, doc['embedding']) + 1.0",
+                        "source": "cosineSimilarity(params.query_vector, 'embedding') + 1.0",
                         "params": {
                           "query_vector": ?
                         }
@@ -340,7 +333,7 @@ public class Elastic7VectorSearchTest {
                     }
                     count++;
                 }
-                assertTrue("Expected results", count > 0);
+                assertEquals("Expected three ranked documents", 3, count);
                 assertEquals("First result should be doc1 (closest vector)", "doc1", firstDocName);
             }
         }

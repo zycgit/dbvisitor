@@ -11,6 +11,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -25,7 +27,7 @@ public class Elastic6GenericTest {
             try {
                 s.execute("DELETE /test_generic");
             } catch (Exception e) {
-                // ignore
+                Elastic6Cleanup.requireMissingIndex(e);
             }
         }
     }
@@ -36,7 +38,7 @@ public class Elastic6GenericTest {
             try {
                 s.execute("DELETE /test_generic");
             } catch (Exception e) {
-                // ignore
+                Elastic6Cleanup.requireMissingIndex(e);
             }
         }
     }
@@ -48,7 +50,10 @@ public class Elastic6GenericTest {
             Assert.assertTrue(result);
             try (ResultSet rs = s.getResultSet()) {
                 Assert.assertTrue(rs.next());
-                System.out.println("Generic GET / result: " + rs.getObject(1));
+                Assert.assertFalse(rs.getString("cluster_name").isEmpty());
+                JsonNode version = new ObjectMapper().readTree(rs.getString("version"));
+                Assert.assertTrue(version.path("number").asText().startsWith("6."));
+                Assert.assertFalse(rs.next());
             }
         }
     }

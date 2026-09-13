@@ -50,12 +50,6 @@ public class MongoJdbcMapQueryTest extends JdbcMapQueryCase {
         return this.fixture.countRange(lower, upper);
     }
 
-    // Expanded fields are declared as JDBC strings; Map results retain that native column type.
-    @Override
-    protected void assertNumericField(int expected, Object actual) {
-        org.junit.Assert.assertEquals(Integer.toString(expected), actual);
-    }
-
     @After
     public void cleanupFixture() throws SQLException {
         this.fixture.close();

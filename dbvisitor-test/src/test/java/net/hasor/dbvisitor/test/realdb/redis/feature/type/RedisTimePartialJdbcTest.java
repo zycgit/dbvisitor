@@ -12,65 +12,68 @@ import java.time.Month;
 import java.time.MonthDay;
 import java.time.Year;
 import java.time.YearMonth;
-import java.util.Date;
-import net.hasor.dbvisitor.types.handler.time.SqlTimestampAsYearTypeHandler;
-import net.hasor.dbvisitor.types.handler.time.SqlTimestampAsYearMonthTypeHandler;
-import net.hasor.dbvisitor.types.handler.time.SqlTimestampAsMonthTypeHandler;
+
+import org.junit.After;
+import org.junit.Before;
+
+import net.hasor.dbvisitor.test.contract.feature.type.TimePartialJdbcCase;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.handler.time.SqlTimestampAsMonthDayTypeHandler;
+import net.hasor.dbvisitor.types.handler.time.SqlTimestampAsMonthTypeHandler;
+import net.hasor.dbvisitor.types.handler.time.SqlTimestampAsYearMonthTypeHandler;
+import net.hasor.dbvisitor.types.handler.time.SqlTimestampAsYearTypeHandler;
 
-import org.junit.Test;
+public class RedisTimePartialJdbcTest extends TimePartialJdbcCase {
+    private final RedisTypeCommandFixture fixture = new RedisTypeCommandFixture();
 
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-
-import static org.junit.Assert.assertEquals;
-
-public class RedisTimePartialJdbcTest extends RedisNativeTypeSupport {
-    @Test
-    @Capability(CapabilityId.TYPE_TIME_PARTIAL)
-    public void timePartialYear_shouldReadFromDateValue() throws SQLException {
-        String id = key("10");
-        Year year = Year.of(2024);
-        jdbcTemplate.executeUpdate("SET ? ?",
-                new Object[] { id, java.sql.Date.valueOf(year.atMonth(1).atDay(1)) });
-
-        assertEquals(year, jdbcTemplate.queryForObject("GET ?",
-                new Object[] { id }, (rs, row) -> new SqlTimestampAsYearTypeHandler().getResult(rs, "VALUE")));
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
     }
 
-    @Test
-    @Capability(CapabilityId.TYPE_TIME_PARTIAL_YEAR_MONTH)
-    public void timePartialYearMonth_shouldReadFromDateValue() throws SQLException {
-        String id = key("11");
-        YearMonth yearMonth = YearMonth.of(2024, 3);
-        jdbcTemplate.executeUpdate("SET ? ?",
-                new Object[] { id, java.sql.Date.valueOf(yearMonth.atDay(1)) });
-
-        assertEquals(yearMonth, jdbcTemplate.queryForObject("GET ?",
-                new Object[] { id }, (rs, row) -> new SqlTimestampAsYearMonthTypeHandler().getResult(rs, "VALUE")));
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        this.jdbcTemplate = this.fixture.open();
     }
 
-    @Test
-    @Capability(CapabilityId.TYPE_TIME_PARTIAL_MONTH)
-    public void timePartialMonth_shouldReadFromDateValue() throws SQLException {
-        String id = key("12");
-        Month month = Month.MARCH;
-        jdbcTemplate.executeUpdate("SET ? ?",
-                new Object[] { id, java.sql.Date.valueOf(Year.of(2024).atMonth(month).atDay(1)) });
-
-        assertEquals(month, jdbcTemplate.queryForObject("GET ?",
-                new Object[] { id }, (rs, row) -> new SqlTimestampAsMonthTypeHandler().getResult(rs, "VALUE")));
+    @After
+    public void closeFixture() throws SQLException {
+        this.fixture.close();
     }
 
-    @Test
-    @Capability(CapabilityId.TYPE_TIME_PARTIAL_MONTH_DAY)
-    public void timePartialMonthDay_shouldReadFromDateValue() throws SQLException {
-        String id = key("13");
-        MonthDay monthDay = MonthDay.of(3, 15);
-        jdbcTemplate.executeUpdate("SET ? ?",
-                new Object[] { id, java.sql.Date.valueOf(monthDay.atYear(2024)) });
+    @Override
+    protected String insertCommand(String table, String columns, String... parameters) {
+        return this.fixture.insertCommand(table, columns, parameters);
+    }
 
-        assertEquals(monthDay, jdbcTemplate.queryForObject("GET ?",
-                new Object[] { id }, (rs, row) -> new SqlTimestampAsMonthDayTypeHandler().getResult(rs, "VALUE")));
+    @Override
+    protected int executeInsert(String command, Object[] parameters) throws SQLException {
+        return this.jdbcTemplate.queryForObject(command, parameters, Integer.class);
+    }
+
+    @Override
+    protected String selectCommand(String table, String columns) {
+        return this.fixture.selectCommand(table, columns);
+    }
+
+    @Override
+    protected <T> T readPartialValue(int id, Class<T> type) throws SQLException {
+        TypeHandler<?> handler;
+        if (type == Year.class) {
+            handler = new SqlTimestampAsYearTypeHandler();
+        } else if (type == YearMonth.class) {
+            handler = new SqlTimestampAsYearMonthTypeHandler();
+        } else if (type == Month.class) {
+            handler = new SqlTimestampAsMonthTypeHandler();
+        } else if (type == MonthDay.class) {
+            handler = new SqlTimestampAsMonthDayTypeHandler();
+        } else {
+            throw new IllegalArgumentException("Unexpected partial time type: " + type);
+        }
+        return this.jdbcTemplate.queryForObject(selectCommand("time_types_explicit_test", "date_value"),
+                selectParameters(id), (rs, row) -> type.cast(handler.getResult(rs, "VALUE")));
     }
 }

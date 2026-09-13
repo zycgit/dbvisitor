@@ -13,6 +13,11 @@ import net.hasor.dbvisitor.test.nxn.env.MySqlProfile;
 
 public class MySqlXmlMapperSelectKeyTest extends XmlMapperSelectKeyCase {
     @Override
+    protected String mapperResource() {
+        return "/realdb/mysql/material/XmlSelectKeyMapper.xml";
+    }
+
+    @Override
     protected DataSourceProfile profile() {
         return MySqlProfile.INSTANCE;
     }

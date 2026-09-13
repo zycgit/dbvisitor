@@ -8,18 +8,14 @@
 package net.hasor.dbvisitor.test.realdb.redis.api.jdbc;
 
 import java.sql.SQLException;
+import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcParameterCommand;
 import java.util.Map;
-import java.util.List;
 import org.junit.Before;
 import org.junit.After;
-import org.junit.Test;
 
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcFragmentParameterCase;
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
-import static org.junit.Assert.*;
 
 public class RedisJdbcFragmentParameterTest extends JdbcFragmentParameterCase {
 
@@ -42,14 +38,34 @@ public class RedisJdbcFragmentParameterTest extends JdbcFragmentParameterCase {
     }
 
     @Override
-    @Test
-    @Capability(CapabilityId.JDBC_PARAM_TEXT_FRAGMENT)
-    public void textReplacementParameters_shouldInjectSqlIdentifiersAndOrderClauses() throws SQLException {
-        fixture.seedScores();
-        Map<String, Object> args = Map.of("key", fixture.key("scores"), "options", "REV WITHSCORES");
-        List<Map<String, Object>> rows = jdbcTemplate.queryForList("ZRANGE :key 0 1 ${options}", args);
-        assertEquals(2, rows.size());
-        assertEquals("member-10", rows.get(0).get("ELEMENT"));
-        assertEquals(Double.valueOf(30), rows.get(0).get("SCORE"));
+    protected void insert(int id, String name, int age, String email) throws SQLException {
+        jdbcTemplate.queryForLong("ZADD ? ? ?", new Object[] { fixture.key("fragment"), age, name });
+    }
+
+    @Override
+    protected String fixtureTable() {
+        return fixture.key("fragment");
+    }
+
+    @Override
+    protected String orderFragment() {
+        return "REV WITHSCORES";
+    }
+
+    @Override
+    protected String command(JdbcParameterCommand command) {
+        switch (command) {
+            case SELECT_TEXT_ORDER:
+                return "ZRANGE ${tableName} 0 1 ${orderBy}";
+            case COUNT_TEXT_COLUMN:
+                return "EVAL 'if redis.call(\"ZSCORE\", KEYS[1], ARGV[1]) then return 1 else return 0 end' 1 ${tableName} #{name}";
+            default:
+                throw new IllegalArgumentException("Unexpected fragment fixture command: " + command);
+        }
+    }
+
+    @Override
+    protected Object value(Map<String, Object> row, String field) {
+        return super.value(row, "age".equals(field) ? "SCORE" : "ELEMENT");
     }
 }

@@ -30,12 +30,12 @@ public class Elastic6GlobalMappingTest {
                 try {
                     stmt.executeUpdate("DELETE /" + INDEX_NAME_1);
                 } catch (Exception e) {
-                    // ignore if not exists
+                    Elastic6Cleanup.requireMissingIndex(e);
                 }
                 try {
                     stmt.executeUpdate("DELETE /" + INDEX_NAME_2);
                 } catch (Exception e) {
-                    // ignore if not exists
+                    Elastic6Cleanup.requireMissingIndex(e);
                 }
             }
 
@@ -75,12 +75,12 @@ public class Elastic6GlobalMappingTest {
             try {
                 stmt.executeUpdate("DELETE /" + INDEX_NAME_1);
             } catch (Exception e) {
-                // ignore
+                Elastic6Cleanup.requireMissingIndex(e);
             }
             try {
                 stmt.executeUpdate("DELETE /" + INDEX_NAME_2);
             } catch (Exception e) {
-                // ignore
+                Elastic6Cleanup.requireMissingIndex(e);
             }
         }
     }

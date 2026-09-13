@@ -7,40 +7,45 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.feature.type;
 
-import java.sql.Date;
 import java.sql.SQLException;
-import net.hasor.dbvisitor.test.contract.material.model.types.StatusEnum;
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
+
+import org.junit.After;
+import org.junit.Before;
+
+import net.hasor.dbvisitor.test.contract.api.adapter.NativeNamedFieldTypeCase;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
-import org.junit.Test;
+
 import static org.junit.Assert.assertEquals;
 
-public class RedisNamedFieldTypeTest extends RedisNativeTypeSupport {
-    @Test
-    @Capability(CapabilityId.ADAPTER_NAMED_FIELD_DATE)
-    public void date_shouldRoundTripByFieldName() throws SQLException {
-        assertNamed(Date.valueOf("2024-02-29"), Date.class);
+public class RedisNamedFieldTypeTest extends NativeNamedFieldTypeCase {
+    private final RedisTypeCommandFixture fixture = new RedisTypeCommandFixture();
+
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
     }
 
-    @Test
-    @Capability(CapabilityId.ADAPTER_NAMED_FIELD_ENUM)
-    public void enum_shouldRoundTripByFieldName() throws SQLException {
-        assertNamed(StatusEnum.ACTIVE, StatusEnum.class);
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        this.jdbcTemplate = this.fixture.open();
     }
 
-    @Test
-    @Capability(CapabilityId.ADAPTER_NAMED_FIELD_BOOLEAN)
-    public void boolean_shouldRoundTripByFieldName() throws SQLException {
-        assertNamed(true, Boolean.class);
-        assertNamed(false, Boolean.class);
+    @Override
+    @After
+    public void closeFixture() throws SQLException {
+        this.fixture.close();
     }
 
-    private <T> void assertNamed(T expected, Class<T> type) throws SQLException {
-        String key = key("named-" + type.getSimpleName() + expected);
-        this.jdbcTemplate.executeUpdate("SET ? ?", new Object[] { key, expected });
-        Object actual = this.jdbcTemplate.queryForObject("GET ?", new Object[] { key },
-                (rs, row) -> TypeHandlerRegistry.DEFAULT.getTypeHandler(type).getResult(rs, "VALUE"));
+    @Override
+    protected <T> void assertRoundTrip(T expected, Class<T> type) throws SQLException {
+        int id = Boolean.FALSE.equals(expected) ? 2 : 1;
+        this.jdbcTemplate.queryForObject(this.fixture.insertCommand("named_types", "id, typed_value", "?", "?"),
+                new Object[] { id, expected }, Integer.class);
+        Object actual = this.jdbcTemplate.queryForObject(this.fixture.selectCommand("named_types", "typed_value"),
+                new Object[] { id }, (rs, row) -> TypeHandlerRegistry.DEFAULT.getTypeHandler(type).getResult(rs, "VALUE"));
         assertEquals(expected, actual);
     }
 }

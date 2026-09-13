@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="xmltest.StatementAttrMapper">
+    <select id="selectPrepared" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo" resultTypeHandler="net.hasor.dbvisitor.types.handler.json.JsonTypeHandler"> ZRANGEBYSCORE @{macro, redisUsers} #{id} #{id} </select>
+    <select id="selectExplicitPrepared" statementType="PREPARED" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo" resultTypeHandler="net.hasor.dbvisitor.types.handler.json.JsonTypeHandler"> ZRANGEBYSCORE @{macro, redisUsers} #{id} #{id} </select>
+    <select id="selectStatement" statementType="STATEMENT" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo" resultTypeHandler="net.hasor.dbvisitor.types.handler.json.JsonTypeHandler"> ZRANGE @{macro, redisUsers} 0 -1 </select>
+    <select id="selectWithTimeout" timeout="5" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo" resultTypeHandler="net.hasor.dbvisitor.types.handler.json.JsonTypeHandler"> ZRANGE @{macro, redisUsers} 0 -1 </select>
+    <select id="selectWithFetchSize" fetchSize="2" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo" resultTypeHandler="net.hasor.dbvisitor.types.handler.json.JsonTypeHandler"> ZRANGE @{macro, redisUsers} 0 -1 </select>
+    <select id="selectForwardOnly" resultSetType="FORWARD_ONLY" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo" resultTypeHandler="net.hasor.dbvisitor.types.handler.json.JsonTypeHandler"> ZRANGE @{macro, redisUsers} 0 -1 </select>
+    <select id="selectCombined" timeout="5" fetchSize="2" resultSetType="FORWARD_ONLY" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo" resultTypeHandler="net.hasor.dbvisitor.types.handler.json.JsonTypeHandler"> ZRANGE @{macro, redisUsers} 0 -1 </select>
+    <select id="insertWithStatement" statementType="PREPARED" resultSetExtractor="net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisIntegerResultExtractor"> ZADD @{macro, redisUsers} #{id} #{#{'id':id,'name':name,'age':age,'email':email},typeHandler=net.hasor.dbvisitor.types.handler.json.JsonTypeHandler} </select>
+</mapper>

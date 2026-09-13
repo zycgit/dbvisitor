@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="xmltest.KeyGenerationMapper">
+    <sql id="entity"> #{#{'name':name,'age':age,'email':email},typeHandler=net.hasor.dbvisitor.types.handler.json.JsonTypeHandler} </sql>
+    <insert id="insertWithSelectKeyBefore"> <selectKey keyProperty="id" order="BEFORE">INCR @{macro, redisCounter}</selectKey> RPUSH @{macro, redisUsers} <include refid="entity"/> </insert>
+    <insert id="insertWithSelectKeyAfter"> <selectKey keyProperty="id" order="AFTER">LLEN @{macro, redisUsers}</selectKey> RPUSH @{macro, redisUsers} <include refid="entity"/> </insert>
+    <select id="selectById" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo" resultTypeHandler="net.hasor.dbvisitor.types.handler.json.JsonTypeHandler"> LRANGE @{macro, redisUsers} #{id - 1} #{id - 1} </select>
+</mapper>

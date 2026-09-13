@@ -22,13 +22,21 @@ public final class MilvusProfile extends AbstractDataSourceProfile {
                 FeatureId.PROCEDURE, FeatureId.PROCEDURE_CURSOR_RESULT, FeatureId.PROCEDURE_RESULT_SET,
                 FeatureId.XML_MAPPER_CALLABLE, FeatureId.SEQUENCE, FeatureId.XML_SELECT_KEY_USER_INFO_SEQUENCE,
                 FeatureId.BATCH_DUPLICATE_FAILURE_PROPAGATED, FeatureId.DUPLICATE_PRIMARY_KEY_REJECTED,
-                FeatureId.GENERATED_KEY_COLUMN, FeatureId.GENERATED_KEY_RESULT_SET, FeatureId.BINARY,
+                FeatureId.GENERATED_KEY_RESULT_SET, FeatureId.BINARY,
                 FeatureId.FUNCTION, FeatureId.FUNCTION_RECORD_RESULT, FeatureId.FUNCTION_TABLE_RESULT,
                 FeatureId.FUNCTION_CALL_CALLBACK);
     }
 
     @Override
     public SupportStatus support(String capabilityId) {
+        // Server 2.6.2 does not honor collection-level allow_insert_auto_id.
+        if (CapabilityId.KEYGEN_AUTO_MANUAL.equals(capabilityId)) {
+            return SupportStatus.UNSUPPORTED_BY_DATABASE;
+        }
+        // Pagination uses native vector ordering; it does not require scalar ORDER BY.
+        if (CapabilityId.LAMBDA_QUERY_PAGE.equals(capabilityId)) {
+            return SupportStatus.SUPPORTED;
+        }
         // The shared composite-key contracts require two stored primary-key columns.
         if (capabilityId != null && capabilityId.startsWith("basemapper.composite.")) {
             return SupportStatus.UNSUPPORTED_BY_DATABASE;
@@ -37,9 +45,9 @@ public final class MilvusProfile extends AbstractDataSourceProfile {
         if (capabilityId != null && capabilityId.startsWith("mapping.annotation.sql-template.")) {
             return SupportStatus.UNSUPPORTED_BY_DRIVER;
         }
-        // Both scenarios explicitly request scrollable results in addition to forward-only results.
-        if (CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_RESULT_SET_TYPE.equals(capabilityId)
-                || CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_COMBINED.equals(capabilityId)) {
+        // Scrollable result options are separate from the supported forward-only options.
+        if (CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_SCROLL_INSENSITIVE.equals(capabilityId)
+                || CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_SCROLL_SENSITIVE.equals(capabilityId)) {
             return SupportStatus.UNSUPPORTED_BY_DRIVER;
         }
         // The driver supports forward-only results; native regression cases verify scroll rejection.
@@ -84,11 +92,6 @@ public final class MilvusProfile extends AbstractDataSourceProfile {
         if (CapabilityId.TYPE_BINARY_NULL.equals(capabilityId)) {
             return SupportStatus.UNSUPPORTED_BY_DATABASE;
         }
-        // JDBC table/column metadata currently exposes empty result sets, not SDK collection descriptions.
-        if (CapabilityId.SCHEMA_STANDARD_TABLES.equals(capabilityId)
-                || CapabilityId.SCHEMA_STANDARD_COLUMNS.equals(capabilityId)) {
-            return SupportStatus.UNSUPPORTED_BY_DRIVER;
-        }
         // Simple primary-key DELETE acknowledges submitted keys even when no entity exists.
         // Do not disable exact counts for UPDATE, which uses a different selection/write path.
         if (CapabilityId.LAMBDA_EDGE_DELETE_NO_MATCH.equals(capabilityId)
@@ -107,11 +110,6 @@ public final class MilvusProfile extends AbstractDataSourceProfile {
                 || capabilityId.startsWith("mapper.xml.join.")
                 || capabilityId.startsWith("lambda.sort."))) {
             return SupportStatus.UNSUPPORTED_BY_DATABASE;
-        }
-        // JDBC generated-key column selection is explicitly unsupported, unlike RETURN_GENERATED_KEYS.
-        if (CapabilityId.MAPPER_XML_KEYGEN_KEY_COLUMN.equals(capabilityId)
-                || CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_KEY_COLUMN.equals(capabilityId)) {
-            return SupportStatus.UNSUPPORTED_BY_DRIVER;
         }
         // TruncateCollection was introduced in server 2.6.11, after the 2.6.2 test baseline.
         if (CapabilityId.ADAPTER_MILVUS_SQL_TRUNCATE.equals(capabilityId)) {
@@ -152,10 +150,6 @@ public final class MilvusProfile extends AbstractDataSourceProfile {
                 || CapabilityId.LAMBDA_EMPTY_GROUP_BY.equals(capabilityId)
                 || CapabilityId.LAMBDA_EMPTY_AGGREGATE.equals(capabilityId)
                 || CapabilityId.LAMBDA_EMPTY_DISTINCT.equals(capabilityId)) {
-            return SupportStatus.UNSUPPORTED_BY_DATABASE;
-        }
-        // Milvus collections have exactly one primary-key field, not a composite key.
-        if (CapabilityId.SESSION_BASEMAPPER_COMPOSITE_KEY.equals(capabilityId)) {
             return SupportStatus.UNSUPPORTED_BY_DATABASE;
         }
         return super.support(capabilityId);

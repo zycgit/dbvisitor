@@ -10,21 +10,47 @@ package net.hasor.dbvisitor.test.realdb.milvus;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.Month;
+import java.time.MonthDay;
+import java.time.Year;
+import java.time.YearMonth;
+import java.util.Map;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.test.contract.feature.type.TimePartialJdbcCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
+import net.hasor.dbvisitor.types.TypeHandler;
+import net.hasor.dbvisitor.types.handler.time.SqlTimestampAsMonthDayTypeHandler;
+import net.hasor.dbvisitor.types.handler.time.SqlTimestampAsMonthTypeHandler;
+import net.hasor.dbvisitor.types.handler.time.SqlTimestampAsYearMonthTypeHandler;
+import net.hasor.dbvisitor.types.handler.time.SqlTimestampAsYearTypeHandler;
 import org.junit.After;
 import org.junit.Before;
 
 /** Verifies the shared Java temporal conversions using native text and integer storage. */
 public class MilvusTimePartialJdbcTest extends TimePartialJdbcCase {
+    private static final Map<Class<?>, TypeHandler<?>> DATE_PART_HANDLERS = Map.of(
+            Year.class, new SqlTimestampAsYearTypeHandler(),
+            YearMonth.class, new SqlTimestampAsYearMonthTypeHandler(),
+            Month.class, new SqlTimestampAsMonthTypeHandler(),
+            MonthDay.class, new SqlTimestampAsMonthDayTypeHandler());
     private final MilvusDatabaseFixture database = new MilvusDatabaseFixture();
     private Connection connection;
 
     @Override
     protected DataSourceProfile profile() {
         return MilvusProfile.INSTANCE;
+    }
+
+    @Override
+    protected <T> T readPartialValue(int id, Class<T> type) throws SQLException {
+        TypeHandler<?> handler = DATE_PART_HANDLERS.get(type);
+        if (handler == null) {
+            throw new IllegalArgumentException("Unsupported date part: " + type.getName());
+        }
+        // The field stores a complete date, not the separate text format of Year or MonthDay.
+        return this.jdbcTemplate.queryForObject(selectCommand("time_types_explicit_test", "date_value"),
+                new Object[] { id }, (rs, rowNum) -> type.cast(handler.getResult(rs, 1)));
     }
 
     @Override

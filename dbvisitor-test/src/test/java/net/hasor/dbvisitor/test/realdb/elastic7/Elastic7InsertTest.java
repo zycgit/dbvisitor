@@ -24,12 +24,12 @@ public class Elastic7InsertTest {
             try {
                 s.execute("DELETE /test_insert_doc");
             } catch (Exception e) {
-                // ignore
+                Elastic7Cleanup.requireMissingIndex(e);
             }
             try {
                 s.execute("DELETE /test_insert_generic");
             } catch (Exception e) {
-                // ignore
+                Elastic7Cleanup.requireMissingIndex(e);
             }
         }
     }
@@ -40,12 +40,12 @@ public class Elastic7InsertTest {
             try {
                 s.execute("DELETE /test_insert_doc");
             } catch (Exception e) {
-                // ignore
+                Elastic7Cleanup.requireMissingIndex(e);
             }
             try {
                 s.execute("DELETE /test_insert_generic");
             } catch (Exception e) {
-                // ignore
+                Elastic7Cleanup.requireMissingIndex(e);
             }
         }
     }

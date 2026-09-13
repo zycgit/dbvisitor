@@ -69,7 +69,7 @@ public abstract class LambdaRowMapperCase extends LambdaResultHandlingSupport {
         };
         UserInfo partial = lambdaTemplate.query(UserInfo.class)//
                 .eq(UserInfo::getId, baseId() + 41)//
-                .applySelect("id, name")//
+                .select("id", "name")//
                 .queryForObject(partialMapper);
         assertEquals(Integer.valueOf(baseId() + 41), partial.getId());
         assertEquals("LRList2", partial.getName());

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="net.hasor.dbvisitor.test.realdb.milvus.MilvusSessionMapperSupport$XmlMapper">
+    <insert id="insertUser">
+        INSERT INTO user_info (id, name, age, email) VALUES (#{id}, #{name}, #{age}, #{email})
+    </insert>
+    <select id="queryUserById" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        SELECT * FROM user_info WHERE id = #{id}
+    </select>
+    <select id="queryAllUsers" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        SELECT * FROM user_info
+    </select>
+    <select id="countUsers" resultType="int">SELECT COUNT(*) FROM user_info</select>
+    <update id="updateUserEmail">UPDATE user_info SET email = #{email} WHERE id = #{id}</update>
+    <delete id="deleteUserById">DELETE FROM user_info WHERE id = #{id}</delete>
+</mapper>

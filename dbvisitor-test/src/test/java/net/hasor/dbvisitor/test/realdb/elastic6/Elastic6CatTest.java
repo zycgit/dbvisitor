@@ -27,7 +27,7 @@ public class Elastic6CatTest {
                 try {
                     stmt.executeUpdate("DELETE /" + INDEX_NAME);
                 } catch (Exception e) {
-                    // ignore if not exists
+                    Elastic6Cleanup.requireMissingIndex(e);
                 }
                 stmt.executeUpdate("PUT /" + INDEX_NAME);
             }
@@ -40,7 +40,7 @@ public class Elastic6CatTest {
             try {
                 stmt.executeUpdate("DELETE /" + INDEX_NAME);
             } catch (Exception e) {
-                // ignore
+                Elastic6Cleanup.requireMissingIndex(e);
             }
         }
     }

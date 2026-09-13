@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="xmltest.ResultMapMapper">
+
+    <resultMap id="baseResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+    </resultMap>
+
+    <resultMap id="extendedResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+        <result column="email" property="email"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <resultMap id="typedResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        <id column="id" property="id" javaType="java.lang.Integer"/>
+        <result column="name" property="name" javaType="java.lang.String"/>
+        <result column="age" property="age" javaType="java.lang.Integer"/>
+        <result column="email" property="email" javaType="java.lang.String"/>
+        <result column="create_time" property="createTime" javaType="java.util.Date"/>
+    </resultMap>
+
+    <resultMap id="autoMappingResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo" autoMapping="true">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+        <result column="email" property="email"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <resultMap id="caseInsensitiveResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo" caseInsensitive="true">
+        <id column="ID" property="id"/>
+        <result column="NAME" property="name"/>
+        <result column="AGE" property="age"/>
+        <result column="EMAIL" property="email"/>
+    </resultMap>
+
+    <resultMap id="camelCaseResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo" mapUnderscoreToCamelCase="true">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+        <result column="email" property="email"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <select id="selectByIdBase" resultMap="baseResultMap">@{macro, esXmlPath}/_search {"query": {"term": {"id": #{id}}}}</select>
+    <select id="selectByIdExtended" resultMap="extendedResultMap">@{macro, esXmlPath}/_search {"query": {"term": {"id": #{id}}}}</select>
+    <select id="selectByIdTyped" resultMap="typedResultMap">@{macro, esXmlPath}/_search {"query": {"term": {"id": #{id}}}}</select>
+    <select id="selectByIdAutoMapping" resultMap="autoMappingResultMap">@{macro, esXmlPath}/_search {"query": {"term": {"id": #{id}}}}</select>
+    <select id="selectByIdCaseInsensitive" resultMap="caseInsensitiveResultMap">@{macro, esXmlPath}/_search {"query": {"term": {"id": #{id}}}}</select>
+    <select id="selectByIdCamelCase" resultMap="camelCaseResultMap">@{macro, esXmlPath}/_search {"query": {"term": {"id": #{id}}}}</select>
+    <select id="selectByIdAsRenamedMap" resultType="map">
+        @{macro, esXmlPath}/_search {"_source": ["user_id","user_name","user_age"],"query": {"term": {"id": #{id}}}}
+    </select>
+    <select id="selectAllBase" resultMap="baseResultMap">
+        @{macro, esXmlPath}/_search {"size": 100,"query": {"range": {"id": {"gte": #{firstId},"lte": #{lastId}}}},"sort": [{"id": "asc"}]}
+    </select>
+</mapper>

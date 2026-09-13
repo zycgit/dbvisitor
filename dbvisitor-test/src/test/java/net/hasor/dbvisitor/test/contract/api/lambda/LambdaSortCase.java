@@ -108,7 +108,7 @@ public abstract class LambdaSortCase extends AbstractNxnContractTest {
         assertTrue(rows.get(1).getAge() <= rows.get(2).getAge());
     }
 
-    private void insertUser(int id, String name, Integer age, String email) throws SQLException {
+    protected void insertUser(int id, String name, Integer age, String email) throws SQLException {
         jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, ?)", //
                 new Object[] { id, name, age, email, new Date() });
     }

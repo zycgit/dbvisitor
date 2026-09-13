@@ -7,26 +7,36 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.session;
 
-import java.util.*;
-import net.hasor.dbvisitor.session.*;
-import net.hasor.dbvisitor.test.nxn.capability.*;
-import net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisNativeMapperSupport;
+import java.sql.SQLException;
+import net.hasor.dbvisitor.test.contract.api.session.SessionStatementLookupCase;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisEntityFixture;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
 
-public class RedisSessionStatementLookupTest extends RedisNativeMapperSupport {
-    private static final String NS = "redis.Native.";
+public class RedisSessionStatementLookupTest extends SessionStatementLookupCase {
+    private final RedisEntityFixture fixture = new RedisEntityFixture();
 
-    @Before
-    public void loadStatements() throws Exception {
-        loadXml();
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
     }
 
-    @Test
-    @Capability(CapabilityId.SESSION_STATEMENT_INVALID_ID)
-    public void invalidStatement() throws Exception {
-        assertThrows(RuntimeException.class, () -> session.executeStatement(NS + "missing", null));
-        assertThrows(RuntimeException.class, () -> session.queryStatement(NS + "missing", null));
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        this.jdbcTemplate = this.fixture.open();
+    }
+
+    @Override
+    @Before
+    public void createStatementSession() throws Exception {
+        this.session = this.fixture.session(newConfiguration(), "/session/RedisUserSessionMapper.xml");
+    }
+
+    @After
+    public void cleanupFixture() throws SQLException {
+        this.fixture.close();
     }
 }

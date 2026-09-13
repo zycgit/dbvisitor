@@ -35,11 +35,11 @@ public abstract class TimeClockJdbcCase extends TimeTypeJdbcSupport {
         Time time = Time.valueOf("14:30:45");
         Timestamp timestamp = Timestamp.valueOf("2024-03-15 14:30:45.123");
 
-        jdbcTemplate.executeUpdate("INSERT INTO time_types_explicit_test (id, time_value) VALUES (?, ?)", new Object[] { timeId, time });
-        jdbcTemplate.executeUpdate("INSERT INTO time_types_explicit_test (id, timestamp_value) VALUES (?, ?)", new Object[] { timestampId, timestamp });
+        executeInsert(insertCommand("time_types_explicit_test", "id, time_value"), new Object[] { timeId, time });
+        executeInsert(insertCommand("time_types_explicit_test", "id, timestamp_value"), new Object[] { timestampId, timestamp });
 
-        Time loadedTime = jdbcTemplate.queryForObject("SELECT time_value FROM time_types_explicit_test WHERE id = ?", new Object[] { timeId }, Time.class);
-        Timestamp loadedTimestamp = jdbcTemplate.queryForObject("SELECT timestamp_value FROM time_types_explicit_test WHERE id = ?", new Object[] { timestampId }, Timestamp.class);
+        Time loadedTime = jdbcTemplate.queryForObject(selectCommand("time_types_explicit_test", "time_value"), new Object[] { timeId }, Time.class);
+        Timestamp loadedTimestamp = jdbcTemplate.queryForObject(selectCommand("time_types_explicit_test", "timestamp_value"), new Object[] { timestampId }, Timestamp.class);
 
         assertNotNull(loadedTime);
         assertNotNull(loadedTimestamp);
@@ -55,10 +55,10 @@ public abstract class TimeClockJdbcCase extends TimeTypeJdbcSupport {
         int id = baseId() + 5;
         LocalTime time = LocalTime.of(14, 30, 45);
 
-        jdbcTemplate.executeUpdate("INSERT INTO time_types_explicit_test (id, time_value) VALUES (?, ?)", //
+        executeInsert(insertCommand("time_types_explicit_test", "id, time_value"), //
                 new Object[] { id, java.sql.Time.valueOf(time) });
 
-        LocalTime loaded = jdbcTemplate.queryForObject("SELECT time_value FROM time_types_explicit_test WHERE id = ?", //
+        LocalTime loaded = jdbcTemplate.queryForObject(selectCommand("time_types_explicit_test", "time_value"), //
                 new Object[] { id }, LocalTime.class);
 
         assertEquals(time, loaded);

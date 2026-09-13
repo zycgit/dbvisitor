@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import net.hasor.dbvisitor.test.contract.material.dao.XmlRefMapperDao;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
@@ -24,7 +25,7 @@ public abstract class XmlRefMapperAggregateCase extends XmlRefMapperSupport {
     @Test
     @Capability(CapabilityId.MAPPER_XML_REF_AGGREGATE_MAP)
     public void refMapper_shouldMapGroupedAggregateResults() throws Exception {
-        List<Map<String, Object>> stats = this.dao.selectAgeStats();
+        List<Map<String, Object>> stats = ((XmlRefMapperDao) this.dao).selectAgeStats();
 
         assertTrue(stats.size() >= 3);
         boolean foundAge28 = false;

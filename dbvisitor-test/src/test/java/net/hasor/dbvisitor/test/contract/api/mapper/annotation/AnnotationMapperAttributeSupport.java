@@ -66,6 +66,49 @@ public abstract class AnnotationMapperAttributeSupport extends AbstractNxnContra
         return user;
     }
 
+    protected enum KeyWrite {
+        GENERATED, COLUMN, RESULT_SET, EXPLICIT, BEFORE, AFTER, OPTIONS
+    }
+
+    protected boolean numericGeneratedKeys() {
+        return true;
+    }
+
+    protected Object keyRecord(Object id, String name, int age, String email) {
+        return user((Integer) id, name, age, email);
+    }
+
+    protected Object keyValue(Object record) {
+        return ((UserInfo) record).getId();
+    }
+
+    protected Object explicitKey() {
+        return explicitId(101);
+    }
+
+    protected int writeKeyRecord(KeyWrite operation, Object record) throws Exception {
+        UserInfo user = (UserInfo) record;
+        return switch (operation) {
+            case GENERATED -> this.mapper.insertWithGeneratedKeyNoKeyColumn(user);
+            case COLUMN -> this.mapper.insertWithKeyProperty(user);
+            case RESULT_SET -> this.mapper.insertWithGeneratedKeyResultSet(user);
+            case EXPLICIT -> this.mapper.insertWithoutGeneratedKey(user);
+            case BEFORE -> this.mapper.insertWithSelectKeyBefore(user);
+            case AFTER -> this.mapper.insertWithSelectKeyAfter(user);
+            case OPTIONS -> this.mapper.insertWithSelectKeyFullAttrs(user);
+        };
+    }
+
+    protected String readKeyName(Object id) throws Exception {
+        return this.mapper.selectByIdPrepared((Integer) id).getName();
+    }
+
+    protected void assertGeneratedKey(Object id) {
+        assertNotNull(id);
+        assertTrue(id instanceof Number);
+        assertTrue(((Number) id).longValue() > 0);
+    }
+
     protected int explicitId(int offset) {
         return -baseId() - offset;
     }

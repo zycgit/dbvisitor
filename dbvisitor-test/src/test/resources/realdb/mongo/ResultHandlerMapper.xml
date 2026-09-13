@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="xmltest.ResultHandlerMapper">
+
+    <resultMap id="userResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+        <result column="email" property="email"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <insert id="insertUser">
+        @{macro, mongoSource}.insert({id: #{id}, name: #{name}, age: #{age}, email: #{email}})
+    </insert>
+    <select id="selectByResultType" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        @{macro, mongoSource}.find({name: {$regex: '^ResHdl'}, age: {$gt: #{minAge}}}, {_id: 0}).sort({id: 1})
+    </select>
+    <select id="selectByResultTypeMap" resultType="map">
+        @{macro, mongoSource}.find({name: {$regex: '^ResHdl'}}, {_id: 0}).sort({id: 1})
+    </select>
+    <select id="countByResultType" resultType="int">
+        @{macro, mongoSource}.count({name: {$regex: '^ResHdl'}})
+    </select>
+    <select id="countByResultTypeLong" resultType="long">
+        @{macro, mongoSource}.count({name: {$regex: '^ResHdl'}})
+    </select>
+    <select id="selectNamesByResultType" resultType="string">
+        @{macro, mongoSource}.find({name: {$regex: '^ResHdl'}}, {_id: 0, name: 1}).sort({id: 1})
+    </select>
+    <select id="selectByResultMap" resultMap="userResultMap">
+        @{macro, mongoSource}.find({name: {$regex: '^ResHdl'}}, {_id: 0}).sort({id: 1})
+    </select>
+    <select id="selectByColumnMapRowMapper"
+            resultRowMapper="net.hasor.dbvisitor.jdbc.mapper.ColumnMapRowMapper">
+        @{macro, mongoSource}.find({name: {$regex: '^ResHdl'}
+            <if test="minAge != null">, age: {$gt: #{minAge}}</if>
+        }, {_id: 0}).sort({id: 1})
+    </select>
+    <select id="selectByColumnMapExtractor"
+            resultSetExtractor="net.hasor.dbvisitor.jdbc.extractor.ColumnMapResultSetExtractor">
+        @{macro, mongoSource}.find({name: {$regex: '^ResHdl'}
+            <if test="minAge != null">, age: {$gt: #{minAge}}</if>
+        }, {_id: 0}).sort({id: 1})
+    </select>
+    <select id="selectIdNamePairs"
+            resultSetExtractor="net.hasor.dbvisitor.jdbc.extractor.PairsResultSetExtractor">
+        @{macro, mongoSource}.find({name: {$regex: '^ResHdl'}}, {_id: 0, id: 1, name: 1}).sort({id: 1})
+    </select>
+
+</mapper>

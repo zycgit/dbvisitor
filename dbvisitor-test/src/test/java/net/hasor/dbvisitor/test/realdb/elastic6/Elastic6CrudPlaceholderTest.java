@@ -23,7 +23,7 @@ public class Elastic6CrudPlaceholderTest {
             try {
                 s.execute("DELETE /" + INDEX_NAME);
             } catch (Exception e) {
-                // ignore
+                Elastic6Cleanup.requireMissingIndex(e);
             }
         }
     }
@@ -34,7 +34,7 @@ public class Elastic6CrudPlaceholderTest {
             try {
                 s.execute("DELETE /" + INDEX_NAME);
             } catch (Exception e) {
-                // ignore
+                Elastic6Cleanup.requireMissingIndex(e);
             }
         }
     }

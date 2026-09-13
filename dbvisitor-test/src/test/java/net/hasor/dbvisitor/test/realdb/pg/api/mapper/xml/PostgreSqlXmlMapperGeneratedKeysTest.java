@@ -13,6 +13,11 @@ import net.hasor.dbvisitor.test.nxn.env.PostgreSqlProfile;
 
 public class PostgreSqlXmlMapperGeneratedKeysTest extends XmlMapperGeneratedKeysCase {
     @Override
+    protected String mapperResource() {
+        return "/realdb/pg/material/XmlGeneratedKeysMapper.xml";
+    }
+
+    @Override
     protected DataSourceProfile profile() {
         return PostgreSqlProfile.INSTANCE;
     }

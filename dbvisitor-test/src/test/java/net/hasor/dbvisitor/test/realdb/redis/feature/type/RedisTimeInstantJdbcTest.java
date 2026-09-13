@@ -8,95 +8,45 @@
 package net.hasor.dbvisitor.test.realdb.redis.feature.type;
 
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZonedDateTime;
-import java.util.Date;
 
-import org.junit.Test;
+import org.junit.After;
+import org.junit.Before;
 
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
+import net.hasor.dbvisitor.test.contract.feature.type.TimeInstantJdbcCase;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+public class RedisTimeInstantJdbcTest extends TimeInstantJdbcCase {
+    private final RedisTypeCommandFixture fixture = new RedisTypeCommandFixture();
 
-public class RedisTimeInstantJdbcTest extends RedisNativeTypeSupport {
-    @Test
-    @Capability(CapabilityId.TYPE_TIME_LOCAL_DATETIME)
-    public void timeLocalDateTimeAndTimestamp_shouldRoundTripTimestampColumn() throws SQLException {
-        requiresNxnFeature(FeatureId.TIME_ZONE_STABLE_ROUND_TRIP);
-
-        String id = key("6");
-        LocalDateTime dateTime = LocalDateTime.of(2024, 3, 15, 14, 30, 45, 123_000_000);
-        Timestamp timestamp = Timestamp.valueOf(dateTime);
-
-        jdbcTemplate.executeUpdate("SET ? ?", //
-                new Object[] { id, timestamp });
-
-        LocalDateTime loadedDateTime = jdbcTemplate.queryForObject("GET ?", //
-                new Object[] { id }, LocalDateTime.class);
-        Timestamp loadedTimestamp = jdbcTemplate.queryForObject("GET ?", //
-                new Object[] { id }, Timestamp.class);
-
-        assertNotNull(loadedDateTime);
-        assertNotNull(loadedTimestamp);
-        assertEquals(dateTime.getYear(), loadedDateTime.getYear());
-        assertEquals(dateTime.getMonth(), loadedDateTime.getMonth());
-        assertEquals(dateTime.getDayOfMonth(), loadedDateTime.getDayOfMonth());
-        assertEquals(dateTime.getHour(), loadedDateTime.getHour());
-        assertEquals(dateTime.getMinute(), loadedDateTime.getMinute());
-        assertEquals(dateTime.getSecond(), loadedDateTime.getSecond());
-        assertTrue(Math.abs(timestamp.getTime() - loadedTimestamp.getTime()) < 1000);
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
     }
 
-    @Test
-    @Capability(CapabilityId.TYPE_TIME_INSTANT)
-    public void timeInstantAndUtilDate_shouldRoundTripTimestampColumn() throws SQLException {
-        requiresNxnFeature(FeatureId.TIME_ZONE_STABLE_ROUND_TRIP);
-
-        String id = key("7");
-        Instant instant = Instant.parse("2024-03-15T14:30:45.123Z");
-
-        jdbcTemplate.executeUpdate("SET ? ?", //
-                new Object[] { id, Timestamp.from(instant) });
-
-        Instant loadedInstant = jdbcTemplate.queryForObject("GET ?", //
-                new Object[] { id }, Instant.class);
-        Date loadedDate = jdbcTemplate.queryForObject("GET ?", //
-                new Object[] { id }, Date.class);
-
-        assertNotNull(loadedInstant);
-        assertNotNull(loadedDate);
-        assertTrue(Math.abs(instant.toEpochMilli() - loadedInstant.toEpochMilli()) < 1000);
-        assertTrue(Math.abs(instant.toEpochMilli() - loadedDate.getTime()) < 1000);
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        this.jdbcTemplate = this.fixture.open();
     }
 
-    @Test
-    @Capability(CapabilityId.TYPE_TIME_ZONE_INSTANT)
-    public void timeZoneValues_shouldRoundTripAsEquivalentInstants() throws SQLException {
-        requiresNxnFeature(FeatureId.TIME_ZONE_STABLE_ROUND_TRIP);
+    @After
+    public void closeFixture() throws SQLException {
+        this.fixture.close();
+    }
 
-        String offsetId = key("8");
-        String zonedId = key("9");
-        OffsetDateTime offsetDateTime = OffsetDateTime.parse("2024-03-15T14:30:45+08:00");
-        ZonedDateTime zonedDateTime = ZonedDateTime.parse("2024-03-15T14:30:45+08:00[Asia/Shanghai]");
+    @Override
+    protected String insertCommand(String table, String columns, String... parameters) {
+        return this.fixture.insertCommand(table, columns, parameters);
+    }
 
-        jdbcTemplate.executeUpdate("SET ? ?", //
-                new Object[] { offsetId, Timestamp.from(offsetDateTime.toInstant()) });
-        jdbcTemplate.executeUpdate("SET ? ?", //
-                new Object[] { zonedId, Timestamp.from(zonedDateTime.toInstant()) });
+    @Override
+    protected int executeInsert(String command, Object[] parameters) throws SQLException {
+        return this.jdbcTemplate.queryForObject(command, parameters, Integer.class);
+    }
 
-        Timestamp loadedOffset = jdbcTemplate.queryForObject("GET ?", new Object[] { offsetId }, Timestamp.class);
-        Timestamp loadedZoned = jdbcTemplate.queryForObject("GET ?", new Object[] { zonedId }, Timestamp.class);
-
-        assertNotNull(loadedOffset);
-        assertNotNull(loadedZoned);
-        assertTrue(Math.abs(offsetDateTime.toInstant().toEpochMilli() - loadedOffset.toInstant().toEpochMilli()) < 2000);
-        assertTrue(Math.abs(zonedDateTime.toInstant().toEpochMilli() - loadedZoned.toInstant().toEpochMilli()) < 2000);
+    @Override
+    protected String selectCommand(String table, String columns) {
+        return this.fixture.selectCommand(table, columns);
     }
 }

@@ -11,15 +11,10 @@ import java.sql.SQLException;
 
 import org.junit.Before;
 import org.junit.After;
-import org.junit.Test;
-import org.junit.Assume;
 
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcBatchConflictCase;
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
-import static org.junit.Assert.*;
 
 public class RedisJdbcBatchConflictTest extends JdbcBatchConflictCase {
 
@@ -42,9 +37,60 @@ public class RedisJdbcBatchConflictTest extends JdbcBatchConflictCase {
     }
 
     @Override
-    @Test
-    @Capability(CapabilityId.JDBC_BATCH_PARTIAL_FAILURE)
-    public void jdbcBatchPartialFailure_shouldPropagateDuplicateKeyError() {
-        Assume.assumeTrue("Redis SET overwrites existing keys; SET NX refusal is a normal reply, not a duplicate-key exception", false);
+    protected String insertCommand() {
+        return "HSET '" + fixture.key("batch") + "' ? ?";
+    }
+
+    @Override
+    protected String namedInsertCommand() {
+        return "HSET '" + fixture.key("batch") + "' :id :val";
+    }
+
+    @Override
+    protected String updateCommand() {
+        return insertCommand();
+    }
+
+    @Override
+    protected String deleteCommand() {
+        return "HDEL '" + fixture.key("batch") + "' ?";
+    }
+
+    @Override
+    protected String valueCommand() {
+        return "HGET '" + fixture.key("batch") + "' ?";
+    }
+
+    @Override
+    protected String countCommand() {
+        return "HEXISTS '" + fixture.key("batch") + "' ?";
+    }
+
+    @Override
+    protected String invalidCommand() {
+        return "NXN_UNKNOWN_COMMAND";
+    }
+
+    @Override
+    protected Object[] updateArguments(String value, int id) {
+        return new Object[] { id, value };
+    }
+
+    @Override
+    protected String countRangeCommand(boolean inclusiveEnd) {
+        String bound = inclusiveEnd ? " <= " : " < ";
+        return "EVAL 'local n = 0; for _, k in ipairs(redis.call(\"HKEYS\", KEYS[1])) do "
+                + "local id = tonumber(k); if id >= tonumber(ARGV[1]) and id" + bound
+                + "tonumber(ARGV[2]) then n = n + 1 end end return n' 1 '" + fixture.key("batch") + "' ? ?";
+    }
+
+    @Override
+    protected String literalInsertCommand(int id, String value) {
+        return "HSET '" + fixture.key("batch") + "' " + id + " '" + value + "'";
+    }
+
+    @Override
+    protected String literalUpdateCommand(int id, String value) {
+        return literalInsertCommand(id, value);
     }
 }

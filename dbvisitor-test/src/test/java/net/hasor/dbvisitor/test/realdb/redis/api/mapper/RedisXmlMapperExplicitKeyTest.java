@@ -7,24 +7,35 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
-import java.util.*;
-import net.hasor.dbvisitor.test.nxn.capability.*;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import java.sql.SQLException;
+import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperExplicitKeyCase;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import org.junit.After;
+import org.junit.Before;
 
-public class RedisXmlMapperExplicitKeyTest extends RedisNativeMapperSupport {
+public class RedisXmlMapperExplicitKeyTest extends XmlMapperExplicitKeyCase {
+    private final RedisEntityFixture fixture = new RedisEntityFixture();
 
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
+    }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_XML_KEYGEN_EXPLICIT_ID)
-    public void explicitKey_shouldWriteCallerIdentifierWithoutGeneration() throws Exception {
-        session.getConfiguration().loadMapper("/mapper/redis/CoverageMapper.xml");
-        Generated value = new Generated();
-        value.setKey(key("explicit"));
-        value.setId(99L);
-        value.setValue("explicit-value");
-        assertEquals(1, ((Number) session.executeStatement("redis.Coverage.explicit", value)).intValue());
-        assertEquals(Long.valueOf(99), value.getId());
-        assertEquals(Arrays.asList("explicit-value"), session.queryStatement("redis.Coverage.explicitRead", value));
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        this.jdbcTemplate = this.fixture.open();
+    }
+
+    @Override
+    @Before
+    public void createXmlMapperSession() throws Exception {
+        this.session = this.fixture.session(newConfiguration(), "/mapper/redis/KeyGenerationMapper.xml");
+    }
+
+    @After
+    public void cleanupFixture() throws SQLException {
+        this.fixture.close();
     }
 }

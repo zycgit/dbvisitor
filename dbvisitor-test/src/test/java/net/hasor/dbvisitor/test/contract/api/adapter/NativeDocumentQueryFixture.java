@@ -43,7 +43,7 @@ public final class NativeDocumentQueryFixture implements AutoCloseable {
         return this.jdbc;
     }
 
-    public void insert(int id, String name, int age, String email, Date createdAt) throws SQLException {
+    public void insert(int id, String name, Integer age, String email, Date createdAt) throws SQLException {
         this.jdbc.executeUpdate(insertCommand(), new Object[] { id, name, age, email, createdAt });
     }
 
@@ -102,6 +102,41 @@ public final class NativeDocumentQueryFixture implements AutoCloseable {
         return select(columns, rangeFilter(lower, upper), ordered);
     }
 
+    public String selectPredicate(String columns, String predicate, boolean ordered) throws SQLException {
+        String field;
+        String operator;
+        switch (predicate) {
+            case "id BETWEEN ? AND ?":
+                return selectRange(columns, "?", "?", ordered);
+            case "age BETWEEN ? AND ?":
+                String range = this.mongo ? "{age: {$gte: ?, $lte: ?}}" : "{\"range\": {\"age\": {\"gte\": ?, \"lte\": ?}}}";
+                return select(columns, range, ordered);
+            case "id = ?":
+                field = "id";
+                operator = "eq";
+                break;
+            case "age = ?":
+                field = "age";
+                operator = "eq";
+                break;
+            case "age > ?":
+                field = "age";
+                operator = "gt";
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown result fixture predicate: " + predicate);
+        }
+        String filter;
+        if (this.mongo) {
+            filter = "{" + field + ": {$" + operator + ": ?}}";
+        } else if ("eq".equals(operator)) {
+            filter = "{\"term\": {\"" + field + "\": ?}}";
+        } else {
+            filter = "{\"range\": {\"" + field + "\": {\"" + operator + "\": ?}}}";
+        }
+        return select(columns, filter, ordered);
+    }
+
     public String countRange(String lower, String upper) throws SQLException {
         String filter = rangeFilter(lower, upper);
         if (this.mongo) {
@@ -118,10 +153,16 @@ public final class NativeDocumentQueryFixture implements AutoCloseable {
 
     private String select(String columns, String filter, boolean ordered) throws SQLException {
         List<String> fields = new ArrayList<>();
-        for (String column : columns.split(",")) {
+        boolean includesMongoId = false;
+        String selected = "*".equals(columns) ? "id, name, age, email, create_time" : columns;
+        for (String column : selected.split(",")) {
+            includesMongoId |= "_id".equals(column.trim());
             fields.add("\"" + column.trim() + "\"" + (this.mongo ? ": 1" : ""));
         }
         if (this.mongo) {
+            if (!includesMongoId) {
+                fields.add("\"_id\": 0");
+            }
             String command = "test." + this.collection + ".find(" + filter + ", {" + String.join(", ", fields) + "})";
             return ordered ? command + ".sort({id: 1})" : command;
         }

@@ -7,32 +7,36 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.session;
 
-import java.util.*;
-import net.hasor.dbvisitor.session.*;
-import net.hasor.dbvisitor.test.nxn.capability.*;
-import net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisNativeMapperSupport;
+import java.sql.SQLException;
+import net.hasor.dbvisitor.test.contract.api.session.SessionStatementParameterCase;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisEntityFixture;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
 
-public class RedisSessionStatementParameterTest extends RedisNativeMapperSupport {
-    private static final String NS = "redis.Native.";
+public class RedisSessionStatementParameterTest extends SessionStatementParameterCase {
+    private final RedisEntityFixture fixture = new RedisEntityFixture();
 
-    @Before
-    public void loadStatements() throws Exception {
-        loadXml();
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
     }
 
-    @Test
-    @Capability(CapabilityId.SESSION_STATEMENT_DYNAMIC_PARAMETER)
-    public void parameters() throws Exception {
-        String k = key("dynamic");
-        Map<String, Object> p = params(k, "v");
-        p.put("existing", false);
-        session.executeStatement(NS + "conditional", p);
-        assertEquals(Arrays.asList("v"), session.queryStatement(NS + "get", p));
-        Generated bean = new Generated();
-        bean.setKey(k);
-        assertEquals(Arrays.asList("v"), session.queryStatement(NS + "get", bean));
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        this.jdbcTemplate = this.fixture.open();
+    }
+
+    @Override
+    @Before
+    public void createStatementSession() throws Exception {
+        this.session = this.fixture.session(newConfiguration(), "/session/RedisUserSessionMapper.xml");
+    }
+
+    @After
+    public void cleanupFixture() throws SQLException {
+        this.fixture.close();
     }
 }

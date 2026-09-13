@@ -8,17 +8,15 @@
 package net.hasor.dbvisitor.test.realdb.redis.api.jdbc;
 
 import java.sql.SQLException;
+import net.hasor.dbvisitor.mapping.Column;
+import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcParameterCommand;
 
 import org.junit.Before;
 import org.junit.After;
-import org.junit.Test;
 
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcPositionalParameterCase;
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
-import static org.junit.Assert.*;
 
 public class RedisJdbcPositionalParameterTest extends JdbcPositionalParameterCase {
 
@@ -41,11 +39,64 @@ public class RedisJdbcPositionalParameterTest extends JdbcPositionalParameterCas
     }
 
     @Override
-    @Test
-    @Capability(CapabilityId.JDBC_PARAM_POSITIONAL_ARRAY)
-    public void positionalArrayParameters_shouldBindObjectArray() throws SQLException {
-        String key = fixture.key("positional");
-        jdbcTemplate.executeUpdate("SET ? ?", new Object[] { key, "hello ' \" ; 世界" });
-        assertEquals("hello ' \" ; 世界", jdbcTemplate.queryForString("GET ?", new Object[] { key }));
+    protected void insert(int id, String name, int age, String email) throws SQLException {
+        jdbcTemplate.queryForLong("ZADD ? ? ?", new Object[] { fixture.key(name), age, id });
+        jdbcTemplate.executeUpdate("HSET ? ? ?", new Object[] { fixture.key("emails"), id, email });
+    }
+
+    @Override
+    protected String command(JdbcParameterCommand command) {
+        if (command != JdbcParameterCommand.SELECT_USER) {
+            throw new IllegalArgumentException("Unexpected positional fixture command: " + command);
+        }
+        return "ZRANGEBYSCORE ? ? +inf WITHSCORES";
+    }
+
+    @Override
+    protected Object[] positionalQueryArguments() {
+        return new Object[] { fixture.key(positionalName()), 20 };
+    }
+
+    @Override
+    protected String positionalName() {
+        return "NXN-Param-Array ' \" ; 世界";
+    }
+
+    @Override
+    protected Class<?> positionalBeanType() {
+        return ScoredId.class;
+    }
+
+    @Override
+    protected Integer positionalId(Object bean) {
+        return ((ScoredId) bean).getId();
+    }
+
+    @Override
+    protected Integer positionalAge(Object bean) {
+        return ((ScoredId) bean).getAge();
+    }
+
+    public static class ScoredId {
+        @Column("ELEMENT")
+        private Integer id;
+        @Column("SCORE")
+        private Integer age;
+
+        public Integer getId() {
+            return id;
+        }
+
+        public void setId(Integer id) {
+            this.id = id;
+        }
+
+        public Integer getAge() {
+            return age;
+        }
+
+        public void setAge(Integer age) {
+            this.age = age;
+        }
     }
 }

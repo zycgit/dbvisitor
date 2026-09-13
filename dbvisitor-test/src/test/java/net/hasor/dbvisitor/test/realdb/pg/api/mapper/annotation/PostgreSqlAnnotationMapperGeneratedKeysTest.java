@@ -7,11 +7,19 @@
  */
 package net.hasor.dbvisitor.test.realdb.pg.api.mapper.annotation;
 
+import net.hasor.dbvisitor.test.contract.material.dao.declarative.AnnotationAttributesMapper;
+import net.hasor.dbvisitor.test.realdb.pg.material.PostgreSqlGeneratedKeysMapper;
+
 import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperGeneratedKeysCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.PostgreSqlProfile;
 
 public class PostgreSqlAnnotationMapperGeneratedKeysTest extends AnnotationMapperGeneratedKeysCase {
+    @Override
+    protected Class<? extends AnnotationAttributesMapper> mapperType() {
+        return PostgreSqlGeneratedKeysMapper.class;
+    }
+
     @Override
     protected DataSourceProfile profile() {
         return PostgreSqlProfile.INSTANCE;

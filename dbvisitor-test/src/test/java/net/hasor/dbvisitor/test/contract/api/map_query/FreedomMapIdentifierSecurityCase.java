@@ -41,7 +41,7 @@ public abstract class FreedomMapIdentifierSecurityCase extends AbstractNxnContra
 
         String maliciousEqColumn = closeIdentifier("id") + " = " + (baseId() + 1) + " OR 1=1 --";
         try {
-            List<Map<String, Object>> result = lambdaTemplate.queryFreedom("user_info")//
+            List<Map<String, Object>> result = lambdaTemplate.queryFreedom(tableName())//
                     .eq(maliciousEqColumn, "irrelevant")//
                     .queryForList();
             assertTrue("Column identifier payload must not expand query results: " + result, result.size() <= 1);
@@ -51,7 +51,7 @@ public abstract class FreedomMapIdentifierSecurityCase extends AbstractNxnContra
 
         String maliciousLikeColumn = closeIdentifier("name") + " = 'FreedomIdVictim1' OR " + openIdentifier("name");
         try {
-            List<Map<String, Object>> result = lambdaTemplate.queryFreedom("user_info")//
+            List<Map<String, Object>> result = lambdaTemplate.queryFreedom(tableName())//
                     .like(maliciousLikeColumn, "FreedomId%")//
                     .queryForList();
             assertTrue("LIKE column identifier payload must not bypass predicates: " + result, result.size() <= 1);
@@ -65,19 +65,27 @@ public abstract class FreedomMapIdentifierSecurityCase extends AbstractNxnContra
 
     @Test
     @Capability(CapabilityId.MAP_QUERY_FREEDOM_IDENTIFIER_SUBQUERY)
-    public void freedomIdentifier_shouldRejectSubqueryAsColumnIdentifier() throws SQLException {
+    public void freedomIdentifier_shouldNotExecuteSubqueryColumnText() throws SQLException {
         insertUser(baseId() + 3, "FreedomSubquerySafe", 25);
 
         try {
-            List<Map<String, Object>> result = lambdaTemplate.queryFreedom("user_info")//
-                    .eq("(SELECT name FROM user_info LIMIT 1)", "FreedomSubquerySafe")//
+            List<Map<String, Object>> result = lambdaTemplate.queryFreedom(tableName())//
+                    .eq("(SELECT name FROM " + tableName() + " LIMIT 1)", "FreedomSubquerySafe")//
                     .queryForList();
-            fail("Subquery column identifier should be rejected, returned " + result.size() + " rows");
+            if (acceptsLiteralUnknownColumn()) {
+                assertTrue("An unknown literal field must not execute the subquery", result.isEmpty());
+            } else {
+                fail("Subquery column identifier should be rejected, returned " + result.size() + " rows");
+            }
         } catch (SQLException e) {
             assertNotNull(e.getMessage());
         }
 
         assertEquals("FreedomSubquerySafe", loadName(baseId() + 3));
+    }
+
+    protected boolean acceptsLiteralUnknownColumn() {
+        return false;
     }
 
     @Test
@@ -86,24 +94,24 @@ public abstract class FreedomMapIdentifierSecurityCase extends AbstractNxnContra
         insertUser(baseId() + 11, "FreedomSort1", 25);
         insertUser(baseId() + 12, "FreedomSort2", 30);
 
-        String maliciousOrder = closeIdentifier("id") + "; DROP TABLE user_info; --";
+        String maliciousOrder = closeIdentifier("id") + "; DROP TABLE " + tableName() + "; --";
         try {
-            lambdaTemplate.queryFreedom("user_info")//
+            lambdaTemplate.queryFreedom(tableName())//
                     .like("name", "FreedomSort%")//
                     .asc(maliciousOrder)//
                     .queryForList();
-        } catch (SQLException e) {
+        } catch (SQLException | IllegalArgumentException e) {
             assertNotNull(e.getMessage());
         }
         assertTableSurvived(baseId() + 11);
 
-        String maliciousGroup = closeIdentifier("age") + "; DROP TABLE user_info; --";
+        String maliciousGroup = closeIdentifier("age") + "; DROP TABLE " + tableName() + "; --";
         try {
-            lambdaTemplate.queryFreedom("user_info")//
+            lambdaTemplate.queryFreedom(tableName())//
                     .like("name", "FreedomSort%")//
                     .groupBy(maliciousGroup)//
                     .queryForList();
-        } catch (SQLException e) {
+        } catch (SQLException | IllegalArgumentException e) {
             assertNotNull(e.getMessage());
         }
         assertTableSurvived(baseId() + 12);
@@ -118,7 +126,7 @@ public abstract class FreedomMapIdentifierSecurityCase extends AbstractNxnContra
         Map<String, Object> expandedSample = new LinkedHashMap<>();
         expandedSample.put(closeIdentifier("id") + " = " + (baseId() + 21) + " OR " + openIdentifier("id"), baseId() + 21);
         try {
-            List<Map<String, Object>> result = lambdaTemplate.queryFreedom("user_info")//
+            List<Map<String, Object>> result = lambdaTemplate.queryFreedom(tableName())//
                     .eqBySampleMap(expandedSample)//
                     .queryForList();
             assertTrue("eqBySampleMap key payload must not expand query results: " + result, result.size() <= 1);
@@ -129,7 +137,7 @@ public abstract class FreedomMapIdentifierSecurityCase extends AbstractNxnContra
         Map<String, Object> alwaysTrueSample = new LinkedHashMap<>();
         alwaysTrueSample.put(closeIdentifier("1") + " = 1 OR " + openIdentifier("1"), 1);
         try {
-            List<Map<String, Object>> result = lambdaTemplate.queryFreedom("user_info")//
+            List<Map<String, Object>> result = lambdaTemplate.queryFreedom(tableName())//
                     .eqBySampleMap(alwaysTrueSample)//
                     .queryForList();
             assertTrue("eqBySampleMap always-true key must not return rows: " + result, result.isEmpty());
@@ -148,7 +156,7 @@ public abstract class FreedomMapIdentifierSecurityCase extends AbstractNxnContra
 
         String maliciousColumn = closeIdentifier("name") + " = 'HACKED', " + openIdentifier("age") + " = 999 --";
         try {
-            lambdaTemplate.updateFreedom("user_info")//
+            lambdaTemplate.updateFreedom(tableName())//
                     .eq("id", baseId() + 31)//
                     .updateTo(maliciousColumn, "irrelevant")//
                     .doUpdate();
@@ -160,7 +168,7 @@ public abstract class FreedomMapIdentifierSecurityCase extends AbstractNxnContra
         Map<String, Object> maliciousMap = new LinkedHashMap<>();
         maliciousMap.put(closeIdentifier("name") + " = 'HACKED' WHERE 1=1 --", "irrelevant");
         try {
-            lambdaTemplate.updateFreedom("user_info")//
+            lambdaTemplate.updateFreedom(tableName())//
                     .eq("id", baseId() + 31)//
                     .updateToSampleMap(maliciousMap)//
                     .doUpdate();
@@ -178,7 +186,7 @@ public abstract class FreedomMapIdentifierSecurityCase extends AbstractNxnContra
         maliciousMap.put(closeIdentifier("name") + ", age) VALUES (" + (baseId() + 41) + ", 'HACKED', 999); --", "irrelevant");
 
         try {
-            lambdaTemplate.insertFreedom("user_info")//
+            lambdaTemplate.insertFreedom(tableName())//
                     .applyMap(maliciousMap)//
                     .executeSumResult();
         } catch (Exception e) {
@@ -198,8 +206,8 @@ public abstract class FreedomMapIdentifierSecurityCase extends AbstractNxnContra
     public void freedomIdentifier_shouldNotAllowTableNamePayloadsToUnionRows() throws SQLException {
         insertUser(baseId() + 51, "FreedomTableSafe", 25);
 
-        String maliciousTable = closeIdentifier("user_info")//
-                + " UNION SELECT id, name, age, email, create_time FROM " + openIdentifier("user_info");
+        String maliciousTable = closeIdentifier(tableName())//
+                + " UNION SELECT id, name, age, email, create_time FROM " + openIdentifier(tableName());
         try {
             List<Map<String, Object>> result = lambdaTemplate.queryFreedom(maliciousTable)//
                     .queryForList();
@@ -216,9 +224,9 @@ public abstract class FreedomMapIdentifierSecurityCase extends AbstractNxnContra
     public void freedomIdentifier_shouldNotAllowSelectColumnPayloadsToLeakCalculatedAliases() throws SQLException {
         insertUser(baseId() + 61, "FreedomSelectSafe", 25);
 
-        String maliciousColumn = closeIdentifier("id") + ", (SELECT count(*) FROM user_info) as leaked_count --";
+        String maliciousColumn = closeIdentifier("id") + ", (SELECT count(*) FROM " + tableName() + ") as leaked_count --";
         try {
-            List<Map<String, Object>> result = lambdaTemplate.queryFreedom("user_info")//
+            List<Map<String, Object>> result = lambdaTemplate.queryFreedom(tableName())//
                     .select(maliciousColumn)//
                     .eq("id", baseId() + 61)//
                     .queryForList();
@@ -232,12 +240,16 @@ public abstract class FreedomMapIdentifierSecurityCase extends AbstractNxnContra
         assertEquals("FreedomSelectSafe", loadName(baseId() + 61));
     }
 
-    private void insertUser(int id, String name, Integer age) throws SQLException {
-        jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, ?)", //
+    protected String tableName() {
+        return "user_info";
+    }
+
+    protected void insertUser(int id, String name, Integer age) throws SQLException {
+        jdbcTemplate.executeUpdate("INSERT INTO " + tableName() + " (id, name, age, email, create_time) VALUES (?, ?, ?, ?, ?)", //
                 new Object[] { id, name, age, id + "@freedom-id.test", new Date() });
     }
 
-    private UserInfo loadUserOrNull(int id) throws SQLException {
+    protected UserInfo loadUserOrNull(int id) throws SQLException {
         return lambdaTemplate.query(UserInfo.class)//
                 .eq(UserInfo::getId, id)//
                 .queryForObject();
@@ -258,9 +270,7 @@ public abstract class FreedomMapIdentifierSecurityCase extends AbstractNxnContra
 
     private void assertTableSurvived(int id) throws SQLException {
         try {
-            assertTrue("user_info should remain readable after identifier payload", lambdaTemplate.query(UserInfo.class)//
-                    .eq(UserInfo::getId, id)//
-                    .queryForCount() >= 1);
+            assertTrue("user_info should remain readable after identifier payload", countById(id) >= 1);
         } catch (SQLException e) {
             fail("user_info should survive identifier payload: " + e.getMessage());
         }
@@ -268,12 +278,16 @@ public abstract class FreedomMapIdentifierSecurityCase extends AbstractNxnContra
 
     private void assertTableReadable() throws SQLException {
         try {
-            lambdaTemplate.query(UserInfo.class)//
-                    .eq(UserInfo::getId, baseId() + 41)//
-                    .queryForCount();
+            countById(baseId() + 41);
         } catch (SQLException e) {
             fail("user_info should remain readable after INSERT identifier payload: " + e.getMessage());
         }
+    }
+
+    protected long countById(int id) throws SQLException {
+        return lambdaTemplate.query(UserInfo.class)//
+                .eq(UserInfo::getId, id)//
+                .queryForCount();
     }
 
     private String closeIdentifier(String name) {

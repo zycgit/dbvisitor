@@ -9,10 +9,14 @@ package net.hasor.dbvisitor.test.contract.api.mapper.annotation;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.junit.Test;
 
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
+import net.hasor.dbvisitor.test.contract.material.handler.RecordingRowCallbackHandler;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
@@ -30,7 +34,7 @@ public abstract class AnnotationMapperResultHandlerCase extends AnnotationMapper
         List<UserInfo> users = this.mapper.selectDefault(PATTERN);
 
         assertEquals(10, users.size());
-        assertEquals("AnnoHandler1", users.get(0).getName());
+        assertMappedRows(users, false);
     }
 
     @Test
@@ -44,6 +48,9 @@ public abstract class AnnotationMapperResultHandlerCase extends AnnotationMapper
             assertTrue(user.getName().startsWith("AnnoHandler"));
             assertNotNull(user.getCreateTime());
         }
+        assertMappedRows(users, false);
+        assertMappedRows(this.mapper.selectWithExtractorAndFetchSize(PATTERN), false);
+        assertTrue(this.mapper.selectWithExtractorAndFetchSize("NoAnnoHandlerMatch%").isEmpty());
     }
 
     @Test
@@ -55,6 +62,7 @@ public abstract class AnnotationMapperResultHandlerCase extends AnnotationMapper
         for (int i = 0; i < users.size(); i++) {
             assertTrue(users.get(i).getName().contains("[Row" + i + "]"));
         }
+        assertMappedRows(users, true);
     }
 
     @Test
@@ -65,6 +73,10 @@ public abstract class AnnotationMapperResultHandlerCase extends AnnotationMapper
         assertNotNull(user);
         assertTrue(user.getName().contains("[Row0]"));
         assertTrue(user.getName().contains("AnnoHandler1"));
+        assertEquals(Integer.valueOf(id(1)), user.getId());
+        assertEquals(Integer.valueOf(21), user.getAge());
+        assertEquals(timestamp(), user.getCreateTime().getTime());
+        assertEquals("AnnoHandler1", this.mapper.selectById(id(1)).getName());
     }
 
     @Test
@@ -77,14 +89,26 @@ public abstract class AnnotationMapperResultHandlerCase extends AnnotationMapper
         for (UserInfo user : mappedResult) {
             assertTrue(user.getName().contains("[Row"));
         }
+        assertMappedRows(mappedResult, true);
+        assertTrue(this.mapper.selectWithRowMapperAndOptions("NoAnnoHandlerMatch%").isEmpty());
     }
 
     @Test
     @Capability(CapabilityId.MAPPER_ANNOTATION_RESULT_HANDLER_ROW_CALLBACK)
     public void annotationResultHandler_shouldExecuteRowCallbackQueries() throws SQLException {
-        this.mapper.selectWithRowCallback(PATTERN);
-        this.mapper.selectWithRowCallbackAndTimeout(PATTERN);
-        this.mapper.selectWithRowCallback("NoAnnoHandlerMatch%");
+        try {
+            RecordingRowCallbackHandler.clear();
+            this.mapper.selectWithRowCallback(PATTERN);
+            assertCallbackIds();
+            RecordingRowCallbackHandler.clear();
+            this.mapper.selectWithRowCallbackAndTimeout(PATTERN);
+            assertCallbackIds();
+            RecordingRowCallbackHandler.clear();
+            this.mapper.selectWithRowCallback("NoAnnoHandlerMatch%");
+            assertTrue(RecordingRowCallbackHandler.ids().isEmpty());
+        } finally {
+            RecordingRowCallbackHandler.clear();
+        }
     }
 
     @Test
@@ -93,5 +117,28 @@ public abstract class AnnotationMapperResultHandlerCase extends AnnotationMapper
         assertEquals(0, this.mapper.selectWithExtractor("NoAnnoHandlerMatch%").size());
         assertEquals(0, this.mapper.selectWithRowMapper("NoAnnoHandlerMatch%").size());
         assertNull(this.mapper.selectSingleWithRowMapper(99999));
+    }
+
+    private Set<Integer> expectedIds() {
+        return IntStream.rangeClosed(1, 10).map(this::id).boxed().collect(Collectors.toSet());
+    }
+
+    private void assertCallbackIds() {
+        List<Integer> ids = RecordingRowCallbackHandler.ids();
+        assertEquals(10, ids.size());
+        assertEquals(expectedIds(), Set.copyOf(ids));
+    }
+
+    private void assertMappedRows(List<UserInfo> rows, boolean mapped) {
+        assertEquals(10, rows.size());
+        assertEquals(expectedIds(), rows.stream().map(UserInfo::getId).collect(Collectors.toSet()));
+        for (int i = 0; i < rows.size(); i++) {
+            UserInfo row = rows.get(i);
+            int index = row.getId() - id(1) + 1;
+            assertEquals((mapped ? "[Row" + i + "]" : "") + "AnnoHandler" + index, row.getName());
+            assertEquals(Integer.valueOf(20 + index), row.getAge());
+            assertEquals("anno-handler" + index + "@nxn.test", row.getEmail());
+            assertEquals(timestamp(), row.getCreateTime().getTime());
+        }
     }
 }

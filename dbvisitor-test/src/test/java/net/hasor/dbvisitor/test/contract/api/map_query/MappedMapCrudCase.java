@@ -34,13 +34,13 @@ public abstract class MappedMapCrudCase extends AbstractNxnContractTest {
     public void mappedMapInsert_shouldPersistMapThroughEntityMapping() throws SQLException {
         int id = baseId() + 1;
 
-        int rows = lambdaTemplate.insert(UserInfo.class)//
+        int rows = lambdaTemplate.insert(mappedType())//
                 .asMap()//
                 .applyMap(userMap(id, "NXN-Mapped-Map-Insert", 31, "nxn-mapped-map-insert@test.com"))//
                 .executeSumResult();
 
         assertEquals(1, rows);
-        assertEquals("NXN-Mapped-Map-Insert", jdbcTemplate.queryForString("SELECT name FROM user_info WHERE id = ?", new Object[] { id }));
+        assertEquals("NXN-Mapped-Map-Insert", jdbcTemplate.queryForString(selectColumnCommand("name"), new Object[] { id }));
     }
 
     @Test
@@ -49,7 +49,7 @@ public abstract class MappedMapCrudCase extends AbstractNxnContractTest {
         int id = baseId() + 2;
         insertByJdbc(id, "NXN-Mapped-Map-Query", 32, "nxn-mapped-map-query@test.com");
 
-        Map<String, Object> loaded = lambdaTemplate.query(UserInfo.class)//
+        Map<String, Object> loaded = lambdaTemplate.query(mappedType())//
                 .asMap()//
                 .select("id", "name", "age", "createTime")//
                 .eq("id", id)//
@@ -72,15 +72,15 @@ public abstract class MappedMapCrudCase extends AbstractNxnContractTest {
         updates.put("name", "NXN-Mapped-Map-Updated");
         updates.put("age", 34);
 
-        int rows = lambdaTemplate.update(UserInfo.class)//
+        int rows = lambdaTemplate.update(mappedType())//
                 .asMap()//
                 .eq("id", id)//
                 .updateToSampleMap(updates)//
                 .doUpdate();
 
         assertEquals(1, rows);
-        assertEquals("NXN-Mapped-Map-Updated", jdbcTemplate.queryForString("SELECT name FROM user_info WHERE id = ?", new Object[] { id }));
-        assertEquals(Integer.valueOf(34), jdbcTemplate.queryForObject("SELECT age FROM user_info WHERE id = ?", new Object[] { id }, Integer.class));
+        assertEquals("NXN-Mapped-Map-Updated", jdbcTemplate.queryForString(selectColumnCommand("name"), new Object[] { id }));
+        assertEquals(Integer.valueOf(34), jdbcTemplate.queryForObject(selectColumnCommand("age"), new Object[] { id }, Integer.class));
     }
 
     @Test
@@ -89,18 +89,34 @@ public abstract class MappedMapCrudCase extends AbstractNxnContractTest {
         int id = baseId() + 4;
         insertByJdbc(id, "NXN-Mapped-Map-Delete", 35, "nxn-mapped-map-delete@test.com");
 
-        int rows = lambdaTemplate.delete(UserInfo.class)//
+        int rows = lambdaTemplate.delete(mappedType())//
                 .asMap()//
                 .eq("id", id)//
                 .doDelete();
 
         assertEquals(1, rows);
-        assertEquals(Integer.valueOf(0), jdbcTemplate.queryForObject("SELECT COUNT(*) FROM user_info WHERE id = ?", new Object[] { id }, Integer.class));
+        assertEquals(Integer.valueOf(0), jdbcTemplate.queryForObject(countCommand(), new Object[] { id }, Integer.class));
     }
 
-    private void insertByJdbc(int id, String name, int age, String email) throws SQLException {
+    protected Class<?> mappedType() {
+        return UserInfo.class;
+    }
+
+    protected String insertCommand() {
+        return "INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, ?)";
+    }
+
+    protected String selectColumnCommand(String column) {
+        return "SELECT " + column + " FROM user_info WHERE id = ?";
+    }
+
+    protected String countCommand() {
+        return "SELECT COUNT(*) FROM user_info WHERE id = ?";
+    }
+
+    protected void insertByJdbc(int id, String name, int age, String email) throws SQLException {
         jdbcTemplate.executeUpdate(//
-                "INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, ?)", //
+                insertCommand(), //
                 new Object[] { id, name, age, email, new Date() });
     }
 

@@ -20,6 +20,7 @@ import java.util.UUID;
 import net.hasor.dbvisitor.test.contract.api.adapter.AdapterCase;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
+import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 import org.junit.After;
 import org.junit.Before;
@@ -38,15 +39,47 @@ public abstract class JdbcPreparedValueCase extends AdapterCase {
 
     protected abstract String insertSql();
 
+    protected String[] seedNames() {
+        return new String[] { HOSTILE, "ordinary", "", null };
+    }
+
+    protected void bindSeed(PreparedStatement statement, long id, String name) throws SQLException {
+        statement.setLong(1, id);
+        statement.setString(2, name);
+    }
+
+    protected String idColumn() {
+        return "id";
+    }
+
+    protected String nameColumn() {
+        return "name";
+    }
+
+    protected String expectedName(long id, String name) {
+        return name;
+    }
+
+    protected boolean missingNameReturnsNullRow() {
+        return false;
+    }
+
+    protected Set<Long> expectedIds() {
+        return Set.of(1L, 2L, 3L, 4L);
+    }
+
+    protected int executeBoundUpdate(PreparedStatement statement) throws SQLException {
+        return statement.executeUpdate();
+    }
+
     @Before
     public void prepareValues() throws SQLException {
         this.connection = newAdapterConnection();
         createFixture();
         try (PreparedStatement insert = this.connection.prepareStatement(insertSql())) {
-            String[] names = { HOSTILE, "ordinary", "", null };
+            String[] names = seedNames();
             for (int i = 0; i < names.length; i++) {
-                insert.setLong(1, i + 1);
-                insert.setString(2, names[i]);
+                bindSeed(insert, i + 1, names[i]);
                 assertEquals(1, insert.executeUpdate());
             }
         }
@@ -56,7 +89,7 @@ public abstract class JdbcPreparedValueCase extends AdapterCase {
     public void cleanupValues() throws SQLException {
         if (this.connection != null) {
             try (Connection closing = this.connection; Statement statement = closing.createStatement()) {
-                statement.execute("DROP TABLE IF EXISTS " + this.table);
+                statement.execute(dropSql());
             }
         }
     }
@@ -99,7 +132,12 @@ public abstract class JdbcPreparedValueCase extends AdapterCase {
             query.clearParameters();
             query.setString(1, "absent");
             try (ResultSet result = query.executeQuery()) {
-                assertFalse(result.next());
+                assertEquals(missingNameReturnsNullRow(), result.next());
+                if (missingNameReturnsNullRow()) {
+                    assertNull(result.getString(nameColumn()));
+                    assertTrue(result.wasNull());
+                    assertFalse(result.next());
+                }
             }
         }
     }
@@ -107,15 +145,16 @@ public abstract class JdbcPreparedValueCase extends AdapterCase {
     @Test
     @Capability(CapabilityId.JDBC_BOUND_NULL_EMPTY)
     public void nullAndEmptyString_shouldRemainDistinct() throws SQLException {
+        requiresNxnFeature(FeatureId.DISTINCT_EMPTY_STRING);
         try (PreparedStatement query = selectByName()) {
             query.setString(1, "");
             assertOnlyRow(query, 3, "");
         }
         try (Statement statement = this.connection.createStatement();
-             ResultSet result = statement.executeQuery("SELECT id, name FROM " + this.table + " WHERE name IS NULL")) {
+             ResultSet result = statement.executeQuery(selectNullSql())) {
             assertTrue(result.next());
-            assertEquals(4, result.getLong("id"));
-            assertNull(result.getString("name"));
+            assertEquals(4, result.getLong(idColumn()));
+            assertNull(result.getString(nameColumn()));
             assertTrue(result.wasNull());
             assertFalse(result.next());
         }
@@ -124,24 +163,29 @@ public abstract class JdbcPreparedValueCase extends AdapterCase {
     @Test
     @Capability(CapabilityId.JDBC_BOUND_MUTATION_LITERAL)
     public void updateAndDelete_shouldNotBroadenBoundFilter() throws SQLException {
-        try (PreparedStatement update = this.connection.prepareStatement("UPDATE " + this.table + " SET name = ? WHERE name = ?")) {
-            update.setString(1, "changed");
-            update.setString(2, HOSTILE);
-            assertEquals(1, update.executeUpdate());
+        try (PreparedStatement update = this.connection.prepareStatement(updateSql())) {
+            bindUpdateParameters(update, "changed", HOSTILE);
+            assertEquals(1, executeBoundUpdate(update));
         }
-        try (PreparedStatement delete = this.connection.prepareStatement("DELETE FROM " + this.table + " WHERE name = ?")) {
+        try (PreparedStatement delete = this.connection.prepareStatement(deleteSql())) {
             delete.setString(1, HOSTILE);
             assertMutationRows(0, delete.executeUpdate());
             delete.setObject(1, "changed", Types.VARCHAR);
             assertEquals(1, delete.executeUpdate());
         }
         try (Statement statement = this.connection.createStatement();
-             ResultSet result = statement.executeQuery("SELECT id FROM " + this.table)) {
+             ResultSet result = statement.executeQuery(selectAllSql())) {
             Set<Long> ids = new HashSet<>();
             while (result.next()) {
                 assertTrue(ids.add(result.getLong(1)));
             }
-            assertEquals(Set.of(2L, 3L, 4L), ids);
+            Set<Long> remainingIds = new HashSet<>(expectedIds());
+            remainingIds.remove(1L);
+            assertEquals(remainingIds, ids);
+        }
+        try (PreparedStatement query = selectByName()) {
+            query.setString(1, "ordinary");
+            assertOnlyRow(query, 2, "ordinary");
         }
     }
 
@@ -150,15 +194,15 @@ public abstract class JdbcPreparedValueCase extends AdapterCase {
     public void fetchSize_shouldNotLimitTotalRowsAndMaxRowsShould() throws SQLException {
         try (Statement statement = this.connection.createStatement()) {
             statement.setFetchSize(2);
-            try (ResultSet result = statement.executeQuery("SELECT id FROM " + this.table)) {
+            try (ResultSet result = statement.executeQuery(selectAllSql())) {
                 Set<Long> ids = new HashSet<>();
                 while (result.next()) {
                     assertTrue(ids.add(result.getLong(1)));
                 }
-                assertEquals(Set.of(1L, 2L, 3L, 4L), ids);
+                assertEquals(expectedIds(), ids);
             }
             statement.setMaxRows(3);
-            try (ResultSet result = statement.executeQuery("SELECT id FROM " + this.table)) {
+            try (ResultSet result = statement.executeQuery(selectAllSql())) {
                 Set<Long> ids = new HashSet<>();
                 while (result.next()) {
                     assertTrue(ids.add(result.getLong(1)));
@@ -169,14 +213,43 @@ public abstract class JdbcPreparedValueCase extends AdapterCase {
     }
 
     private PreparedStatement selectByName() throws SQLException {
-        return this.connection.prepareStatement("SELECT id, name FROM " + this.table + " WHERE name = ?");
+        return this.connection.prepareStatement(selectByNameSql());
+    }
+
+    protected String selectByNameSql() {
+        return "SELECT id, name FROM " + this.table + " WHERE name = ?";
+    }
+
+    protected String selectNullSql() {
+        return "SELECT id, name FROM " + this.table + " WHERE name IS NULL";
+    }
+
+    protected String selectAllSql() {
+        return "SELECT id FROM " + this.table;
+    }
+
+    protected String updateSql() {
+        return "UPDATE " + this.table + " SET name = ? WHERE name = ?";
+    }
+
+    protected void bindUpdateParameters(PreparedStatement statement, String newValue, String filterValue) throws SQLException {
+        statement.setString(1, newValue);
+        statement.setString(2, filterValue);
+    }
+
+    protected String deleteSql() {
+        return "DELETE FROM " + this.table + " WHERE name = ?";
+    }
+
+    protected String dropSql() {
+        return "DROP TABLE IF EXISTS " + this.table;
     }
 
     private void assertOnlyRow(PreparedStatement query, long id, String name) throws SQLException {
         try (ResultSet result = query.executeQuery()) {
             assertTrue(result.next());
-            assertEquals(id, result.getLong("id"));
-            assertEquals(name, result.getString("name"));
+            assertEquals(id, result.getLong(idColumn()));
+            assertEquals(expectedName(id, name), result.getString(nameColumn()));
             assertFalse(result.next());
         }
     }

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="xmltest.ResultHandlerMapper">
+
+    <resultMap id="userResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+        <result column="email" property="email"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <insert id="insertUser">
+        INSERT INTO user_info (id, name, age, email, create_time, v)
+        VALUES (#{id}, #{name}, #{age}, #{email}, '2023-11-14 22:13:20.123', [10, 0])
+    </insert>
+
+    <!-- resultType：实体类 -->
+    <select id="selectByResultType" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        SELECT id, name, age, email, create_time FROM user_info WHERE name LIKE 'ResHdl%' AND age &gt; #{minAge} ORDER BY v &lt;-&gt; [0, 0] LIMIT 100
+    </select>
+
+    <!-- resultType：map -->
+    <select id="selectByResultTypeMap" resultType="map">
+        SELECT id, name, age, email, create_time FROM user_info WHERE name LIKE 'ResHdl%' ORDER BY v &lt;-&gt; [0, 0] LIMIT 100
+    </select>
+
+    <!-- resultType：int -->
+    <select id="countByResultType" resultType="int">
+        SELECT COUNT(*) FROM user_info WHERE name LIKE 'ResHdl%'
+    </select>
+
+    <select id="countByResultTypeLong" resultType="long">
+        SELECT COUNT(*) FROM user_info WHERE name LIKE 'ResHdl%'
+    </select>
+
+    <!-- resultType：string -->
+    <select id="selectNamesByResultType" resultType="string">
+        SELECT name FROM user_info WHERE name LIKE 'ResHdl%' ORDER BY v &lt;-&gt; [0, 0] LIMIT 100
+    </select>
+
+    <!-- resultMap -->
+    <select id="selectByResultMap" resultMap="userResultMap">
+        SELECT id, name, age, email, create_time FROM user_info WHERE name LIKE 'ResHdl%' ORDER BY v &lt;-&gt; [0, 0] LIMIT 100
+    </select>
+
+    <!-- resultRowMapper：ColumnMapRowMapper -->
+    <select id="selectByColumnMapRowMapper"
+            resultRowMapper="net.hasor.dbvisitor.jdbc.mapper.ColumnMapRowMapper">
+        SELECT id, name, age, email, create_time FROM user_info WHERE name LIKE 'ResHdl%'
+        <if test="minAge != null">AND age &gt; #{minAge}</if>
+        ORDER BY v &lt;-&gt; [0, 0] LIMIT 100
+    </select>
+
+    <!-- resultSetExtractor：ColumnMapResultSetExtractor -->
+    <select id="selectByColumnMapExtractor"
+            resultSetExtractor="net.hasor.dbvisitor.jdbc.extractor.ColumnMapResultSetExtractor">
+        SELECT id, name, age, email, create_time FROM user_info WHERE name LIKE 'ResHdl%'
+        <if test="minAge != null">AND age &gt; #{minAge}</if>
+        ORDER BY v &lt;-&gt; [0, 0] LIMIT 100
+    </select>
+
+    <!-- resultSetExtractor：PairsResultSetExtractor -->
+    <select id="selectIdNamePairs"
+            resultSetExtractor="net.hasor.dbvisitor.jdbc.extractor.PairsResultSetExtractor">
+        SELECT id, name FROM user_info WHERE name LIKE 'ResHdl%' ORDER BY v &lt;-&gt; [0, 0] LIMIT 100
+    </select>
+
+</mapper>

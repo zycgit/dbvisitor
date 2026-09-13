@@ -12,6 +12,8 @@ import net.hasor.dbvisitor.mapper.Param;
 import net.hasor.dbvisitor.mapper.Query;
 import net.hasor.dbvisitor.mapper.Insert;
 import net.hasor.dbvisitor.mapper.SimpleMapper;
+import net.hasor.dbvisitor.mapper.ResultSetType;
+import net.hasor.dbvisitor.mapper.StatementType;
 import net.hasor.dbvisitor.test.contract.material.dao.declarative.AnnotationAttributesMapper;
 import net.hasor.dbvisitor.test.contract.material.dao.declarative.AnnotationTestMapper;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
@@ -53,6 +55,27 @@ final class MilvusCapabilityMappers {
 
     @SimpleMapper
     public interface Attributes extends AnnotationAttributesMapper {
+        @Override
+        @Query(value = "SELECT * FROM user_info", resultSetType = ResultSetType.DEFAULT)
+        List<UserInfo> selectWithDefaultResultSetType(@Param("pattern") String pattern);
+
+        @Override
+        @Query(value = "SELECT * FROM user_info", resultSetType = ResultSetType.FORWARD_ONLY)
+        List<UserInfo> selectWithForwardOnly(@Param("pattern") String pattern);
+
+        @Override
+        @Query(value = "SELECT * FROM user_info", statementType = StatementType.Prepared,
+                timeout = 60, fetchSize = 100, resultSetType = ResultSetType.FORWARD_ONLY)
+        List<UserInfo> selectWithCombinedAttributes(@Param("pattern") String pattern);
+
+        @Override
+        @Query(value = "SELECT * FROM user_info", resultSetType = ResultSetType.SCROLL_INSENSITIVE)
+        List<UserInfo> selectWithScrollInsensitive(@Param("pattern") String pattern);
+
+        @Override
+        @Query(value = "SELECT * FROM user_info", resultSetType = ResultSetType.SCROLL_SENSITIVE)
+        List<UserInfo> selectWithScrollSensitive(@Param("pattern") String pattern);
+
         // The private collection contains exactly the shared AttrNxn fixture rows.
         @Override
         @Query(value = "SELECT * FROM user_info", fetchSize = 256)

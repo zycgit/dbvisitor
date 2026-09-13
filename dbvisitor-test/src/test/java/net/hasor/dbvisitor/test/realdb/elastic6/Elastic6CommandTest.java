@@ -10,6 +10,8 @@ package net.hasor.dbvisitor.test.realdb.elastic6;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.hasor.dbvisitor.test.contract.api.adapter.AdapterCase;
 import static org.junit.Assert.*;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
@@ -33,7 +35,7 @@ public class Elastic6CommandTest extends AdapterCase {
                 try {
                     s.execute("DELETE /test_user_info");
                 } catch (Exception e) {
-                    // ignore
+                    Elastic6Cleanup.requireMissingIndex(e);
                 }
 
                 // 2. insert
@@ -48,8 +50,9 @@ public class Elastic6CommandTest extends AdapterCase {
                         int age = rs.getInt("age");
 
                         assertEquals("id not match", "1", id);
-                        assertTrue("doc not match (name): " + doc, doc.contains("\"name\":\"mali\"") || doc.contains("\"name\": \"mali\""));
-                        assertTrue("doc not match (age): " + doc, doc.contains("\"age\":26") || doc.contains("\"age\": 26"));
+                        JsonNode document = new ObjectMapper().readTree(doc);
+                        assertEquals("doc not match (name)", "mali", document.path("name").asText());
+                        assertEquals("doc not match (age)", 26, document.path("age").asInt());
                         assertEquals("name not match", "mali", name);
                         assertEquals("age not match", 26, age);
                     } else {

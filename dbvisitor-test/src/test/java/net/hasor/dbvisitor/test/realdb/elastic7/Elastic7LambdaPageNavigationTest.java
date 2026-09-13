@@ -8,26 +8,35 @@
 package net.hasor.dbvisitor.test.realdb.elastic7;
 
 import java.sql.SQLException;
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import org.junit.Test;
+import net.hasor.dbvisitor.test.contract.api.lambda.LambdaPageNavigationCase;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
+import net.hasor.dbvisitor.test.realdb.elastic7.material.ElasticMatrixFixture;
+import org.junit.After;
+import org.junit.Before;
 
-public class Elastic7LambdaPageNavigationTest extends Elastic7LambdaPaginationSupport {
-    @Test
-    @Capability(CapabilityId.ADAPTER_ELASTIC_PAGINATION_MUTABLE)
-    public void mutablePageShouldFollowNativePageSemantics() throws SQLException {
-        verifyMutablePage();
+public class Elastic7LambdaPageNavigationTest extends LambdaPageNavigationCase {
+    private final ElasticMatrixFixture fixture = new ElasticMatrixFixture();
+
+    @Override
+    protected DataSourceProfile profile() {
+        return Elastic7Profile.INSTANCE;
     }
 
-    @Test
-    @Capability(CapabilityId.ADAPTER_ELASTIC_PAGINATION_TRAVERSAL)
-    public void fullTraversalShouldFollowNativePageSemantics() throws SQLException {
-        verifyFullTraversal();
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        jdbcTemplate = fixture.open(profile().env());
+        lambdaTemplate = fixture.lambdaTemplate();
     }
 
-    @Test
-    @Capability(CapabilityId.ADAPTER_ELASTIC_PAGINATION_OFFSET)
-    public void offsetShouldFollowNativePageSemantics() throws SQLException {
-        verifyOffset();
+    @Override
+    protected void insert(int id, String name, Integer age) throws SQLException {
+        fixture.insert(id, name, age, null);
+    }
+
+    @After
+    public void closeFixture() throws SQLException {
+        fixture.close();
     }
 }

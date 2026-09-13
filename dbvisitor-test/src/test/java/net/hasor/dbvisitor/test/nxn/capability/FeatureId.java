@@ -46,17 +46,17 @@ public final class FeatureId {
     public static final String PARAMETERIZED_LIKE                 = "parameterized-like";
     public static final String PARAMETERIZED_NOT_COMPARISON       = "parameterized-not-comparison";
     public static final String KEYGEN_AUTO_BATCH_EXPLICIT_NULL    = "keygen-auto-batch-explicit-null";
-    public static final String KEYGEN_UUID_WRONG_TYPE_REJECTED    = "keygen-uuid-wrong-type-rejected";
     public static final String CASE_SENSITIVE_IDENTIFIERS         = "case-sensitive-identifiers";
     public static final String DISTINCT_EMPTY_STRING              = "distinct-empty-string";
     public static final String LARGE_IN_LIST                      = "large-in-list";
     public static final String REPEATED_ORDER_BY_COLUMN           = "repeated-order-by-column";
     public static final String SCALAR_ORDER_BY                    = "scalar-order-by";
     public static final String COMPOSITE_PRIMARY_KEY              = "composite-primary-key";
-    public static final String XML_FOREACH_BATCH_INSERT_VALUES    = "xml-foreach-batch-insert-values";
+    public static final String XML_FOREACH_BATCH_INSERT_COMMAND   = "xml-foreach-batch-insert-command";
     public static final String GENERATED_KEYS_NUMERIC             = "generated-keys-numeric";
     public static final String LOWERCASE_STANDARD_RESULT_COLUMNS  = "lowercase-standard-result-columns";
     public static final String TRANSACTION_RELEASE_SAVEPOINT      = "transaction-release-savepoint";
+    public static final String TRANSACTION_SAVEPOINT              = "transaction-savepoint";
     public static final String TRANSACTION_REPEATABLE_READ        = "transaction-repeatable-read";
 
     private FeatureId() {

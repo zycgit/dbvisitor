@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="xmltest.CrudMapper">
+    <select id="selectAll" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        @{macro, mongoSource}.find({}, {_id: 0}).sort({id: 1})
+    </select>
+    <select id="selectById" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        @{macro, mongoSource}.find({id: #{id}}, {_id: 0})
+    </select>
+    <delete id="deleteByName">
+        @{macro, mongoSource}.remove({name: #{name}})
+    </delete>
+    <select id="selectAllAsMap" resultType="java.util.Map">
+        @{macro, mongoSource}.find({}, {_id: 0}).sort({id: 1})
+    </select>
+    <select id="countAll" resultType="int">
+        @{macro, mongoSource}.count({})
+    </select>
+    <select id="selectNames" resultType="string">
+        @{macro, mongoSource}.find({}, {_id: 0, name: 1}).sort({id: 1})
+    </select>
+    <select id="selectForPage" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        @{macro, mongoSource}.find({}, {_id: 0}).sort({id: 1})
+    </select>
+</mapper>

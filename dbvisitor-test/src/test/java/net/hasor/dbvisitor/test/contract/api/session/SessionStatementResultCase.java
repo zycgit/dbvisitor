@@ -11,7 +11,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
@@ -29,10 +28,13 @@ public abstract class SessionStatementResultCase extends SessionStatementSupport
         insertUser(baseId() + 11, "StmtQueryTwo", 40, "q2@nxn.test");
         insertUser(baseId() + 12, "StmtQueryThree", 41, "q3@nxn.test");
 
-        List<UserInfo> byId = queryUsers("queryUserById", mapOf("id", baseId() + 10));
+        List<?> byId = this.session.queryStatement(NS + ".queryUserById", mapOf("id", baseId() + 10));
         assertEquals(1, byId.size());
-        assertEquals(Integer.valueOf(baseId() + 10), byId.get(0).getId());
-        assertNotNull(byId.get(0).getCreateTime());
+        assertEquals(Integer.valueOf(baseId() + 10), propertyValue(byId.get(0), resultIdProperty()));
+        assertEquals("StmtQueryOne", propertyValue(byId.get(0), resultNameProperty()));
+        for (String property : presentResultProperties()) {
+            assertNotNull(property, propertyValue(byId.get(0), property));
+        }
 
         assertEquals(2, queryUsers("queryUsersByAge", mapOf("age", 40)).size());
         assertEquals(3, queryUsers("queryAllUsers", null).size());
@@ -42,5 +44,22 @@ public abstract class SessionStatementResultCase extends SessionStatementSupport
         assertEquals(Integer.valueOf(3), counts.get(0));
 
         assertTrue(queryUsers("queryUserById", mapOf("id", baseId() + 999)).isEmpty());
+    }
+
+    protected String resultIdProperty() {
+        return "id";
+    }
+
+    protected String resultNameProperty() {
+        return "name";
+    }
+
+    protected List<String> presentResultProperties() {
+        return List.of("createTime");
+    }
+
+    private Object propertyValue(Object bean, String name) throws Exception {
+        String getter = "get" + Character.toUpperCase(name.charAt(0)) + name.substring(1);
+        return bean.getClass().getMethod(getter).invoke(bean);
     }
 }

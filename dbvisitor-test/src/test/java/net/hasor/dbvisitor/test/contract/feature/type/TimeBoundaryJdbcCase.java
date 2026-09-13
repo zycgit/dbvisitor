@@ -43,19 +43,19 @@ public abstract class TimeBoundaryJdbcCase extends TimeTypeJdbcSupport {
         LocalDateTime midnight = LocalDateTime.of(2024, 3, 15, 0, 0, 0);
         LocalDateTime endOfDay = LocalDateTime.of(2024, 3, 15, 23, 59, 59);
 
-        jdbcTemplate.executeUpdate("INSERT INTO time_types_explicit_test (id, date_value) VALUES (?, ?)", new Object[] { leapId, java.sql.Date.valueOf(leapDay) });
-        jdbcTemplate.executeUpdate("INSERT INTO time_types_explicit_test (id, date_value) VALUES (?, ?)", new Object[] { y1999Id, java.sql.Date.valueOf(y1999) });
-        jdbcTemplate.executeUpdate("INSERT INTO time_types_explicit_test (id, date_value) VALUES (?, ?)", new Object[] { y2000Id, java.sql.Date.valueOf(y2000) });
-        jdbcTemplate.executeUpdate("INSERT INTO time_types_explicit_test (id, timestamp_value) VALUES (?, ?)", new Object[] { epochId, Timestamp.from(Instant.EPOCH) });
-        jdbcTemplate.executeUpdate("INSERT INTO time_types_explicit_test (id, timestamp_value) VALUES (?, ?)", new Object[] { midnightId, Timestamp.valueOf(midnight) });
-        jdbcTemplate.executeUpdate("INSERT INTO time_types_explicit_test (id, timestamp_value) VALUES (?, ?)", new Object[] { endOfDayId, Timestamp.valueOf(endOfDay) });
+        executeInsert(insertCommand("time_types_explicit_test", "id, date_value"), new Object[] { leapId, java.sql.Date.valueOf(leapDay) });
+        executeInsert(insertCommand("time_types_explicit_test", "id, date_value"), new Object[] { y1999Id, java.sql.Date.valueOf(y1999) });
+        executeInsert(insertCommand("time_types_explicit_test", "id, date_value"), new Object[] { y2000Id, java.sql.Date.valueOf(y2000) });
+        executeInsert(insertCommand("time_types_explicit_test", "id, timestamp_value"), new Object[] { epochId, Timestamp.from(Instant.EPOCH) });
+        executeInsert(insertCommand("time_types_explicit_test", "id, timestamp_value"), new Object[] { midnightId, Timestamp.valueOf(midnight) });
+        executeInsert(insertCommand("time_types_explicit_test", "id, timestamp_value"), new Object[] { endOfDayId, Timestamp.valueOf(endOfDay) });
 
-        assertEquals(leapDay, jdbcTemplate.queryForObject("SELECT date_value FROM time_types_explicit_test WHERE id = ?", new Object[] { leapId }, java.sql.Date.class).toLocalDate());
-        assertEquals(y1999, jdbcTemplate.queryForObject("SELECT date_value FROM time_types_explicit_test WHERE id = ?", new Object[] { y1999Id }, java.sql.Date.class).toLocalDate());
-        assertEquals(y2000, jdbcTemplate.queryForObject("SELECT date_value FROM time_types_explicit_test WHERE id = ?", new Object[] { y2000Id }, java.sql.Date.class).toLocalDate());
-        assertEquals(0L, jdbcTemplate.queryForObject("SELECT timestamp_value FROM time_types_explicit_test WHERE id = ?", new Object[] { epochId }, Instant.class).getEpochSecond());
-        assertEquals(midnight, jdbcTemplate.queryForObject("SELECT timestamp_value FROM time_types_explicit_test WHERE id = ?", new Object[] { midnightId }, LocalDateTime.class));
-        assertEquals(endOfDay, jdbcTemplate.queryForObject("SELECT timestamp_value FROM time_types_explicit_test WHERE id = ?", new Object[] { endOfDayId }, LocalDateTime.class));
+        assertEquals(leapDay, jdbcTemplate.queryForObject(selectCommand("time_types_explicit_test", "date_value"), new Object[] { leapId }, java.sql.Date.class).toLocalDate());
+        assertEquals(y1999, jdbcTemplate.queryForObject(selectCommand("time_types_explicit_test", "date_value"), new Object[] { y1999Id }, java.sql.Date.class).toLocalDate());
+        assertEquals(y2000, jdbcTemplate.queryForObject(selectCommand("time_types_explicit_test", "date_value"), new Object[] { y2000Id }, java.sql.Date.class).toLocalDate());
+        assertEquals(0L, jdbcTemplate.queryForObject(selectCommand("time_types_explicit_test", "timestamp_value"), new Object[] { epochId }, Instant.class).getEpochSecond());
+        assertEquals(midnight, jdbcTemplate.queryForObject(selectCommand("time_types_explicit_test", "timestamp_value"), new Object[] { midnightId }, LocalDateTime.class));
+        assertEquals(endOfDay, jdbcTemplate.queryForObject(selectCommand("time_types_explicit_test", "timestamp_value"), new Object[] { endOfDayId }, LocalDateTime.class));
     }
 
     @Test
@@ -67,11 +67,11 @@ public abstract class TimeBoundaryJdbcCase extends TimeTypeJdbcSupport {
         LocalDate earlyDate = LocalDate.of(1900, 1, 1);
         LocalDate lateDate = LocalDate.of(2100, 12, 31);
 
-        jdbcTemplate.executeUpdate("INSERT INTO time_types_explicit_test (id, date_value) VALUES (?, ?)", new Object[] { earlyId, java.sql.Date.valueOf(earlyDate) });
-        jdbcTemplate.executeUpdate("INSERT INTO time_types_explicit_test (id, date_value) VALUES (?, ?)", new Object[] { lateId, java.sql.Date.valueOf(lateDate) });
+        executeInsert(insertCommand("time_types_explicit_test", "id, date_value"), new Object[] { earlyId, java.sql.Date.valueOf(earlyDate) });
+        executeInsert(insertCommand("time_types_explicit_test", "id, date_value"), new Object[] { lateId, java.sql.Date.valueOf(lateDate) });
 
-        assertEquals(earlyDate, jdbcTemplate.queryForObject("SELECT date_value FROM time_types_explicit_test WHERE id = ?", new Object[] { earlyId }, java.sql.Date.class).toLocalDate());
-        assertEquals(lateDate, jdbcTemplate.queryForObject("SELECT date_value FROM time_types_explicit_test WHERE id = ?", new Object[] { lateId }, java.sql.Date.class).toLocalDate());
+        assertEquals(earlyDate, jdbcTemplate.queryForObject(selectCommand("time_types_explicit_test", "date_value"), new Object[] { earlyId }, java.sql.Date.class).toLocalDate());
+        assertEquals(lateDate, jdbcTemplate.queryForObject(selectCommand("time_types_explicit_test", "date_value"), new Object[] { lateId }, java.sql.Date.class).toLocalDate());
     }
 
     @Test
@@ -85,11 +85,11 @@ public abstract class TimeBoundaryJdbcCase extends TimeTypeJdbcSupport {
         Timestamp original = new Timestamp(System.currentTimeMillis());
         original.setNanos(123456789);
 
-        jdbcTemplate.executeUpdate("INSERT INTO time_types_explicit_test (id, timestamp_value) VALUES (?, ?)", new Object[] { localDateTimeId, Timestamp.valueOf(dateTime) });
-        jdbcTemplate.executeUpdate("INSERT INTO time_types_explicit_test (id, timestamp_value) VALUES (?, ?)", new Object[] { timestampId, original });
+        executeInsert(insertCommand("time_types_explicit_test", "id, timestamp_value"), new Object[] { localDateTimeId, Timestamp.valueOf(dateTime) });
+        executeInsert(insertCommand("time_types_explicit_test", "id, timestamp_value"), new Object[] { timestampId, original });
 
-        LocalDateTime loadedDateTime = jdbcTemplate.queryForObject("SELECT timestamp_value FROM time_types_explicit_test WHERE id = ?", new Object[] { localDateTimeId }, LocalDateTime.class);
-        Timestamp loadedTimestamp = jdbcTemplate.queryForObject("SELECT timestamp_value FROM time_types_explicit_test WHERE id = ?", new Object[] { timestampId }, Timestamp.class);
+        LocalDateTime loadedDateTime = jdbcTemplate.queryForObject(selectCommand("time_types_explicit_test", "timestamp_value"), new Object[] { localDateTimeId }, LocalDateTime.class);
+        Timestamp loadedTimestamp = jdbcTemplate.queryForObject(selectCommand("time_types_explicit_test", "timestamp_value"), new Object[] { timestampId }, Timestamp.class);
 
         assertEquals(dateTime.getYear(), loadedDateTime.getYear());
         assertEquals(dateTime.getMonth(), loadedDateTime.getMonth());

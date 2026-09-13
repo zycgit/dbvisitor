@@ -23,9 +23,6 @@ public class MilvusCmdForPartitionTest extends AbstractMilvusCmdForTest {
 
     @Before
     public void setUp() {
-        if (!milvusReady) {
-            return;
-        }
         if (hasCollection(TEST_COLLECTION)) {
             dropCollection(TEST_COLLECTION);
         }
@@ -34,7 +31,7 @@ public class MilvusCmdForPartitionTest extends AbstractMilvusCmdForTest {
 
     @After
     public void tearDown() {
-        if (!milvusReady) {
+        if (!milvusSelected) {
             return;
         }
         dropCollection(TEST_COLLECTION);

@@ -29,11 +29,9 @@ public abstract class LambdaPageResultCase extends LambdaPaginationSupport {
     public void lambdaPagination_shouldTraverseMultiplePagesWithPageInfo() throws SQLException {
         insertBatch("NXN-Page-Multi-", 25, baseId() + 100);
 
-        EntityQuery<UserInfo> firstQuery = lambdaTemplate.query(UserInfo.class)//
-                .like(UserInfo::getName, "NXN-Page-Multi-%")//
-                .initPage(10, 0)//
-                .orderBy("id");
-        List<UserInfo> firstPage = firstQuery.queryForList();
+        EntityQuery<? extends UserInfo> firstQuery = orderRows(queryRows("NXN-Page-Multi-")//
+                .initPage(10, 0));
+        List<? extends UserInfo> firstPage = firstQuery.queryForList();
         Page firstInfo = firstQuery.pageInfo();
 
         assertEquals(10, firstPage.size());
@@ -44,15 +42,11 @@ public abstract class LambdaPageResultCase extends LambdaPaginationSupport {
         assertEquals(0, firstInfo.getCurrentPage());
         assertEquals(10, firstInfo.getPageSize());
 
-        List<UserInfo> secondPage = lambdaTemplate.query(UserInfo.class)//
-                .like(UserInfo::getName, "NXN-Page-Multi-%")//
-                .initPage(10, 1)//
-                .orderBy("id")//
+        List<? extends UserInfo> secondPage = orderRows(queryRows("NXN-Page-Multi-")//
+                .initPage(10, 1))//
                 .queryForList();
-        List<UserInfo> thirdPage = lambdaTemplate.query(UserInfo.class)//
-                .like(UserInfo::getName, "NXN-Page-Multi-%")//
-                .initPage(10, 2)//
-                .orderBy("id")//
+        List<? extends UserInfo> thirdPage = orderRows(queryRows("NXN-Page-Multi-")//
+                .initPage(10, 2))//
                 .queryForList();
 
         assertEquals(10, secondPage.size());
@@ -61,6 +55,9 @@ public abstract class LambdaPageResultCase extends LambdaPaginationSupport {
         assertEquals(5, thirdPage.size());
         assertEquals("NXN-Page-Multi-20", thirdPage.get(0).getName());
         assertEquals("NXN-Page-Multi-24", thirdPage.get(4).getName());
+        assertPageRows(firstPage, "NXN-Page-Multi-", 0, 10);
+        assertPageRows(secondPage, "NXN-Page-Multi-", 10, 10);
+        assertPageRows(thirdPage, "NXN-Page-Multi-", 20, 5);
     }
 
     @Test
@@ -68,22 +65,19 @@ public abstract class LambdaPageResultCase extends LambdaPaginationSupport {
     public void lambdaPagination_shouldCalculateExactDivisionPages() throws SQLException {
         insertBatch("NXN-Page-Exact-", 20, baseId() + 200);
 
-        EntityQuery<UserInfo> query = lambdaTemplate.query(UserInfo.class)//
-                .like(UserInfo::getName, "NXN-Page-Exact-%")//
-                .initPage(10, 0)//
-                .orderBy("id");
-        query.queryForList();
+        EntityQuery<? extends UserInfo> query = orderRows(queryRows("NXN-Page-Exact-")//
+                .initPage(10, 0));
+        assertPageRows(query.queryForList(), "NXN-Page-Exact-", 0, 10);
         Page page = query.pageInfo();
-        List<UserInfo> secondPage = lambdaTemplate.query(UserInfo.class)//
-                .like(UserInfo::getName, "NXN-Page-Exact-%")//
-                .initPage(10, 1)//
-                .orderBy("id")//
+        List<? extends UserInfo> secondPage = orderRows(queryRows("NXN-Page-Exact-")//
+                .initPage(10, 1))//
                 .queryForList();
 
         assertEquals(20, page.getTotalCount());
         assertEquals(2, page.getTotalPage());
         assertEquals(10, secondPage.size());
         assertEquals("NXN-Page-Exact-10", secondPage.get(0).getName());
+        assertPageRows(secondPage, "NXN-Page-Exact-", 10, 10);
     }
 
     @Test
@@ -91,17 +85,16 @@ public abstract class LambdaPageResultCase extends LambdaPaginationSupport {
     public void lambdaPagination_shouldRepresentSinglePageWhenTotalIsBelowPageSize() throws SQLException {
         insertBatch("NXN-Page-Single-", 5, baseId() + 300);
 
-        EntityQuery<UserInfo> query = lambdaTemplate.query(UserInfo.class)//
-                .like(UserInfo::getName, "NXN-Page-Single-%")//
-                .initPage(100, 0)//
-                .orderBy("id");
-        List<UserInfo> rows = query.queryForList();
+        EntityQuery<? extends UserInfo> query = orderRows(queryRows("NXN-Page-Single-")//
+                .initPage(100, 0));
+        List<? extends UserInfo> rows = query.queryForList();
         Page page = query.pageInfo();
 
         assertEquals(5, rows.size());
         assertEquals(5, page.getTotalCount());
         assertEquals(1, page.getTotalPage());
         assertEquals(0, page.getCurrentPage());
+        assertPageRows(rows, "NXN-Page-Single-", 0, 5);
     }
 
     @Test
@@ -109,16 +102,12 @@ public abstract class LambdaPageResultCase extends LambdaPaginationSupport {
     public void lambdaPagination_shouldSupportPageSizeOne() throws SQLException {
         insertBatch("NXN-Page-One-", 3, baseId() + 400);
 
-        EntityQuery<UserInfo> firstQuery = lambdaTemplate.query(UserInfo.class)//
-                .like(UserInfo::getName, "NXN-Page-One-%")//
-                .initPage(1, 0)//
-                .orderBy("id");
-        List<UserInfo> firstPage = firstQuery.queryForList();
+        EntityQuery<? extends UserInfo> firstQuery = orderRows(queryRows("NXN-Page-One-")//
+                .initPage(1, 0));
+        List<? extends UserInfo> firstPage = firstQuery.queryForList();
         Page firstInfo = firstQuery.pageInfo();
-        List<UserInfo> thirdPage = lambdaTemplate.query(UserInfo.class)//
-                .like(UserInfo::getName, "NXN-Page-One-%")//
-                .initPage(1, 2)//
-                .orderBy("id")//
+        List<? extends UserInfo> thirdPage = orderRows(queryRows("NXN-Page-One-")//
+                .initPage(1, 2))//
                 .queryForList();
 
         assertEquals(1, firstPage.size());
@@ -127,6 +116,8 @@ public abstract class LambdaPageResultCase extends LambdaPaginationSupport {
         assertEquals(3, firstInfo.getTotalPage());
         assertEquals(1, thirdPage.size());
         assertEquals("NXN-Page-One-2", thirdPage.get(0).getName());
+        assertPageRows(firstPage, "NXN-Page-One-", 0, 1);
+        assertPageRows(thirdPage, "NXN-Page-One-", 2, 1);
     }
 
     @Test
@@ -134,11 +125,9 @@ public abstract class LambdaPageResultCase extends LambdaPaginationSupport {
     public void lambdaPagination_shouldReturnEmptyRowsWhenRequestedPageIsBeyondLast() throws SQLException {
         insertBatch("NXN-Page-Beyond-", 5, baseId() + 500);
 
-        EntityQuery<UserInfo> query = lambdaTemplate.query(UserInfo.class)//
-                .like(UserInfo::getName, "NXN-Page-Beyond-%")//
-                .initPage(10, 99)//
-                .orderBy("id");
-        List<UserInfo> rows = query.queryForList();
+        EntityQuery<? extends UserInfo> query = orderRows(queryRows("NXN-Page-Beyond-")//
+                .initPage(10, 99));
+        List<? extends UserInfo> rows = query.queryForList();
         Page page = query.pageInfo();
 
         assertEquals(0, rows.size());
@@ -153,18 +142,14 @@ public abstract class LambdaPageResultCase extends LambdaPaginationSupport {
         insertBatch("NXN-Page-FactoryB-", 8, baseId() + 670);
 
         Page firstPage = PageObject.of(0, 3);
-        EntityQuery<UserInfo> firstQuery = lambdaTemplate.query(UserInfo.class)//
-                .like(UserInfo::getName, "NXN-Page-FactoryA-%")//
-                .usePage(firstPage)//
-                .orderBy("id");
-        List<UserInfo> firstRows = firstQuery.queryForList();
+        EntityQuery<? extends UserInfo> firstQuery = orderRows(queryRows("NXN-Page-FactoryA-")//
+                .usePage(firstPage));
+        List<? extends UserInfo> firstRows = firstQuery.queryForList();
         Page firstInfo = firstQuery.pageInfo();
 
         Page offsetPage = PageObject.of(1, 3, 1);
-        List<UserInfo> offsetRows = lambdaTemplate.query(UserInfo.class)//
-                .like(UserInfo::getName, "NXN-Page-FactoryB-%")//
-                .usePage(offsetPage)//
-                .orderBy("id")//
+        List<? extends UserInfo> offsetRows = orderRows(queryRows("NXN-Page-FactoryB-")//
+                .usePage(offsetPage))//
                 .queryForList();
 
         assertEquals(3, firstRows.size());
@@ -173,6 +158,8 @@ public abstract class LambdaPageResultCase extends LambdaPaginationSupport {
         assertEquals(4, firstInfo.getTotalPage());
         assertEquals(3, offsetRows.size());
         assertEquals("NXN-Page-FactoryB-0", offsetRows.get(0).getName());
+        assertPageRows(firstRows, "NXN-Page-FactoryA-", 0, 3);
+        assertPageRows(offsetRows, "NXN-Page-FactoryB-", 0, 3);
     }
 
     @Test
@@ -185,18 +172,14 @@ public abstract class LambdaPageResultCase extends LambdaPaginationSupport {
         pageObject.setPageNumberOffset(1);
         pageObject.setCurrentPage(1);
 
-        EntityQuery<UserInfo> firstQuery = lambdaTemplate.query(UserInfo.class)//
-                .like(UserInfo::getName, "NXN-Page-Offset-%")//
-                .usePage(pageObject)//
-                .orderBy("id");
-        List<UserInfo> firstPage = firstQuery.queryForList();
+        EntityQuery<? extends UserInfo> firstQuery = orderRows(queryRows("NXN-Page-Offset-")//
+                .usePage(pageObject));
+        List<? extends UserInfo> firstPage = firstQuery.queryForList();
         Page page = firstQuery.pageInfo();
 
         pageObject.setCurrentPage(3);
-        List<UserInfo> thirdPage = lambdaTemplate.query(UserInfo.class)//
-                .like(UserInfo::getName, "NXN-Page-Offset-%")//
-                .usePage(pageObject)//
-                .orderBy("id")//
+        List<? extends UserInfo> thirdPage = orderRows(queryRows("NXN-Page-Offset-")//
+                .usePage(pageObject))//
                 .queryForList();
 
         assertEquals(5, firstPage.size());
@@ -205,6 +188,8 @@ public abstract class LambdaPageResultCase extends LambdaPaginationSupport {
         assertEquals(4, page.getTotalPage());
         assertEquals(5, thirdPage.size());
         assertEquals("NXN-Page-Offset-10", thirdPage.get(0).getName());
+        assertPageRows(firstPage, "NXN-Page-Offset-", 0, 5);
+        assertPageRows(thirdPage, "NXN-Page-Offset-", 10, 5);
     }
 
     @Test
@@ -212,13 +197,10 @@ public abstract class LambdaPageResultCase extends LambdaPaginationSupport {
     public void lambdaPagination_shouldKeepPageTotalCountConsistentWithQueryForCount() throws SQLException {
         insertBatch("NXN-Page-Count-", 17, baseId() + 800);
 
-        long count = lambdaTemplate.query(UserInfo.class)//
-                .like(UserInfo::getName, "NXN-Page-Count-%")//
+        long count = queryRows("NXN-Page-Count-")//
                 .queryForCount();
-        EntityQuery<UserInfo> query = lambdaTemplate.query(UserInfo.class)//
-                .like(UserInfo::getName, "NXN-Page-Count-%")//
-                .initPage(5, 0);
-        query.queryForList();
+        EntityQuery<? extends UserInfo> query = orderRows(queryRows("NXN-Page-Count-").initPage(5, 0));
+        assertPageRows(query.queryForList(), "NXN-Page-Count-", 0, 5);
         Page page = query.pageInfo();
 
         assertEquals(count, page.getTotalCount());
@@ -233,17 +215,16 @@ public abstract class LambdaPageResultCase extends LambdaPaginationSupport {
             insert(baseId() + 910 + i, "NXN-Page-Filter-B-" + i, 50);
         }
 
-        EntityQuery<UserInfo> query = lambdaTemplate.query(UserInfo.class)//
-                .like(UserInfo::getName, "NXN-Page-Filter-%")//
+        EntityQuery<? extends UserInfo> query = orderRows(queryRows("NXN-Page-Filter-")//
                 .eq(UserInfo::getAge, 40)//
-                .initPage(3, 0)//
-                .orderBy("id");
-        List<UserInfo> rows = query.queryForList();
+                .initPage(3, 0));
+        List<? extends UserInfo> rows = query.queryForList();
         Page page = query.pageInfo();
 
         assertEquals(3, rows.size());
         assertEquals(10, page.getTotalCount());
         assertEquals(4, page.getTotalPage());
+        assertPageRows(rows, "NXN-Page-Filter-A-", 0, 3);
         for (UserInfo row : rows) {
             assertEquals(Integer.valueOf(40), row.getAge());
         }

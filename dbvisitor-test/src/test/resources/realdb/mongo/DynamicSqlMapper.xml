@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="xmltest.DynamicSqlMapper">
+    <resultMap id="userResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+        <result column="email" property="email"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <select id="selectWithIf" resultMap="userResultMap">
+        @{macro, mongoSource}.find({
+            <trim suffixOverrides=",">
+                name: {$regex: '^DynSql'},
+                <if test="minAge != null">age: {$gte: #{minAge}},</if>
+                <if test="email != null">email: #{email},</if>
+            </trim>
+        }, {_id: 0}).sort({id: 1})
+    </select>
+    <select id="selectWithChoose" resultMap="userResultMap">
+        @{macro, mongoSource}.find({name: {$regex: '^DynSql'}}, {_id: 0}).sort({
+            <choose>
+                <when test="orderBy == 'name'">name: 1</when>
+                <when test="orderBy == 'age'">age: -1</when>
+                <otherwise>id: 1</otherwise>
+            </choose>
+        })
+    </select>
+    <sql id="exactCondition">
+        <trim prefixOverrides="," suffixOverrides=",">
+            <if test="name != null">, name: #{name}</if>
+            <if test="age != null">, age: #{age}</if>
+            <if test="email != null">, email: #{email}</if>
+        </trim>
+    </sql>
+    <select id="selectWithWhere" resultMap="userResultMap">
+        @{macro, mongoSource}.find({<include refid="exactCondition"/>}, {_id: 0}).sort({id: 1})
+    </select>
+    <select id="selectWithTrim" resultMap="userResultMap">
+        @{macro, mongoSource}.find({<include refid="exactCondition"/>}, {_id: 0}).sort({id: 1})
+    </select>
+    <update id="updateWithSet">
+        @{macro, mongoSource}.update({id: #{id}}, {$set: {
+            <trim suffixOverrides=",">
+                <if test="name != null">name: #{name},</if>
+                <if test="age != null">age: #{age},</if>
+                <if test="email != null">email: #{email},</if>
+            </trim>
+        }})
+    </update>
+    <select id="selectByIdList" resultMap="userResultMap">
+        @{macro, mongoSource}.find({id: {$in:
+            <foreach collection="ids" item="id" open="[" separator="," close="]">#{id}</foreach>
+        }}, {_id: 0}).sort({id: 1})
+    </select>
+    <insert id="batchInsert">
+        @{macro, mongoSource}.insert([
+            <foreach collection="users" item="u" separator=",">
+                {id: #{u.id}, name: #{u.name}, age: #{u.age}, email: #{u.email}}
+            </foreach>
+        ])
+    </insert>
+    <select id="selectWithBind" resultMap="userResultMap">
+        <bind name="namePattern" value="'.*' + name + '.*'"/>
+        @{macro, mongoSource}.find({name: {$regex: #{namePattern}}}, {_id: 0}).sort({id: 1})
+    </select>
+    <select id="selectWithBoundAge" resultMap="userResultMap">
+        <bind name="ageFloor" value="minAge + 1"/>
+        @{macro, mongoSource}.find({name: {$regex: '^DynSql'}, age: {$gte: #{ageFloor}}}, {_id: 0}).sort({id: 1})
+    </select>
+    <select id="selectComplex" resultMap="userResultMap">
+        @{macro, mongoSource}.find({
+            <trim suffixOverrides=",">
+                <if test="name != null">
+                    $expr: {$regexMatch: {input: '$name', regex: {$replaceAll: {input: #{name}, find: '%', replacement: '.*'}}}},
+                </if>
+                <if test="ids != null">
+                    id: {$in:
+                        <foreach collection="ids" item="id" open="[" separator="," close="]">#{id}</foreach>
+                    },
+                </if>
+            </trim>
+        }, {_id: 0}).sort({id: 1})
+    </select>
+    <select id="selectByAgeCategory" resultMap="userResultMap">
+        @{macro, mongoSource}.find({name: {$regex: '^DynSql'}, age: {
+            <choose>
+                <when test="category == 'young'">$lt: 30</when>
+                <when test="category == 'middle'">$gte: 30, $lte: 40</when>
+                <otherwise>$gt: 40</otherwise>
+            </choose>
+        }}, {_id: 0}).sort({id: 1})
+    </select>
+</mapper>
+

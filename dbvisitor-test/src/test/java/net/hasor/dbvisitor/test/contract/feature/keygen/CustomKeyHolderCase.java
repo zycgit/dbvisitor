@@ -48,17 +48,49 @@ public abstract class CustomKeyHolderCase extends KeyGenerationSupport {
     @Test
     @Capability(CapabilityId.KEYGEN_HOLDER_AFTER)
     public void keygenHolderAfter_shouldReadDatabaseGeneratedKey() throws SQLException {
-        requiresNxnFeature(FeatureId.GENERATED_KEYS_NUMERIC);
+        if (numericAfterKey()) {
+            requiresNxnFeature(FeatureId.GENERATED_KEYS_NUMERIC);
+        }
         ensureAfterTable();
 
+        Object user = newAfterKeyEntity();
+        assertEquals(1, insertAfterKeyEntity(afterKeyEntityType(), user));
+        Object key = afterKeyValue(user);
+        assertNotNull(key);
+        assertAfterKey(key);
+        assertEquals("After Key User", readAfterKeyName(key));
+    }
+
+    protected boolean numericAfterKey() {
+        return true;
+    }
+
+    protected Class<?> afterKeyEntityType() {
+        return KeyHolderAfterUser.class;
+    }
+
+    protected Object newAfterKeyEntity() {
         KeyHolderAfterUser user = new KeyHolderAfterUser();
         user.setName("After Key User");
         user.setAge(45);
         user.setCreateTime(new Date());
+        return user;
+    }
 
-        assertEquals(1, lambdaTemplate.insert(KeyHolderAfterUser.class).applyEntity(user).executeSumResult());
-        assertNotNull(user.getId());
-        assertTrue(user.getId() > 0);
+    protected Object afterKeyValue(Object entity) {
+        return ((KeyHolderAfterUser) entity).getId();
+    }
+
+    protected void assertAfterKey(Object key) {
+        assertTrue(((Number) key).longValue() > 0);
+    }
+
+    protected String readAfterKeyName(Object key) throws SQLException {
+        return jdbcTemplate.queryForString("SELECT name FROM user_keygen_after WHERE id = ?", new Object[] { key });
+    }
+
+    private <T> int insertAfterKeyEntity(Class<T> type, Object entity) throws SQLException {
+        return lambdaTemplate.insert(type).applyEntity(type.cast(entity)).executeSumResult();
     }
 
     @Test
@@ -74,7 +106,7 @@ public abstract class CustomKeyHolderCase extends KeyGenerationSupport {
         lambdaTemplate.insert(KeyHolderBothUser.class).applyEntity(user).executeSumResult();
 
         assertEquals(Integer.valueOf(777777), user.getId());
-        Integer inserted = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM user_info WHERE id = ?", new Object[] { 888888 }, Integer.class);
+        Integer inserted = countStoredKey(888888);
         assertEquals(Integer.valueOf(1), inserted);
     }
 
@@ -95,15 +127,24 @@ public abstract class CustomKeyHolderCase extends KeyGenerationSupport {
     @Test
     @Capability(CapabilityId.KEYGEN_HOLDER_CONNECTION)
     public void keygenHolderConnection_shouldUseJdbcConnectionDuringBeforeGeneration() throws SQLException {
-        KeyHolderConnectionUser user = new KeyHolderConnectionUser();
-        user.setName("Connection Aware User");
-        user.setAge(60);
-        user.setCreateTime(new Date());
+        verifyConnectionKey(connectionKeyModel());
+    }
 
-        lambdaTemplate.insert(KeyHolderConnectionUser.class).applyEntity(user).executeSumResult();
+    protected NumericKeyModel<?> connectionKeyModel() {
+        return new NumericKeyModel<>(KeyHolderConnectionUser.class, (name, age) -> {
+            KeyHolderConnectionUser user = new KeyHolderConnectionUser();
+            user.setName(name);
+            user.setAge(age);
+            user.setCreateTime(new Date());
+            return user;
+        }, KeyHolderConnectionUser::getId, (user, id) -> user.setId(Math.toIntExact(id)));
+    }
 
-        assertNotNull(user.getId());
-        assertTrue(user.getId() > 0);
+    private <T> void verifyConnectionKey(NumericKeyModel<T> model) throws SQLException {
+        T user = model.factory().apply("Connection Aware User", 60);
+        lambdaTemplate.insert(model.type()).applyEntity(user).executeSumResult();
+        assertNotNull(model.key().apply(user));
+        assertTrue(model.key().apply(user).longValue() > 0);
     }
 
     @Test
@@ -143,5 +184,8 @@ public abstract class CustomKeyHolderCase extends KeyGenerationSupport {
             }
             fail("Expected SQLException cause, got " + e);
         }
+    }
+    protected Integer countStoredKey(int id) throws SQLException {
+        return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM user_info WHERE id = ?", new Object[] { id }, Integer.class);
     }
 }

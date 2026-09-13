@@ -400,7 +400,7 @@ realdb/{env}/feature/mapping/
 src/test/java/net/hasor/dbvisitor/test/nxn/report/metadata/{Env}NxnMetadataContractTest.java
 ```
 
-并检查 `NxnMetadataContractTest`、`NxnMetaTest`、`CapabilityMatrixReport` 是否能识别该数据源的 metadata 类。这个类用于验证当前数据源的 contract 绑定、能力注解、矩阵报告生成，不放在 `realdb/{env}` 下。
+并检查 `NxnMetadataContractTest`、`CapabilityMatrixReport` 是否能识别该数据源的 metadata 类。这个类用于验证当前数据源的 contract 绑定、能力注解、矩阵报告生成，不放在 `realdb/{env}` 下。
 
 ### 11.6 增加专有测试
 

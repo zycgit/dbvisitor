@@ -7,21 +7,45 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
-import java.util.*;
-import net.hasor.dbvisitor.test.nxn.capability.*;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import java.sql.SQLException;
+import net.hasor.dbvisitor.session.Configuration;
+import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperScrollableResultCase;
+import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import net.hasor.dbvisitor.types.handler.json.JsonTypeHandler;
+import org.junit.After;
+import org.junit.Before;
 
-public class RedisAnnotationMapperScrollableResultTest extends RedisNativeMapperSupport {
-    private String list() throws Exception {
-        String k = key("list");
-        session.jdbc().executeUpdate("RPUSH ? first second", k);
-        return k;
+public class RedisAnnotationMapperScrollableResultTest extends AnnotationMapperScrollableResultCase {
+    private final RedisMapperFixture fixture = new RedisMapperFixture();
+
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
     }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_RESULT_HANDLER_EXTRACTOR_OPTIONS)
-    public void extractorOptions() throws Exception {
-        assertEquals(Arrays.asList("first", "second"), mapper().extractedOptions(list()));
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        fixture.open();
+    }
+
+    @Override
+    @Before
+    public void createResultHandlerMapper() throws Exception {
+        fixture.open();
+        Configuration configuration = newConfiguration();
+        configuration.getTypeRegistry().register(UserInfo.class, new JsonTypeHandler(UserInfo.class));
+        configuration.addMacro("redisHandlerKey", "'" + fixture.key("pattern:AnnoHandler%") + "'");
+        fixture.key("pattern:NoAnnoHandlerMatch%");
+        configuration.addMacro("redisHandlerRows", "ZRANGE #{'" + fixture.key("pattern:") + "'+pattern} 0 -1");
+        this.mapper = configuration.newSession(fixture.session().jdbc().getConnection()).createMapper(RedisResultHandlerMapper.class);
+        prepareRows();
+    }
+
+    @After
+    public void closeFixture() throws SQLException {
+        fixture.close();
     }
 }

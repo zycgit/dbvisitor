@@ -30,7 +30,6 @@ public final class MySqlProfile extends AbstractDataSourceProfile {
             FeatureId.FUNCTION_TABLE_RESULT,
             FeatureId.VECTOR,
             FeatureId.GENERATED_KEY_RESULT_SET,
-            FeatureId.XML_SELECT_KEY_USER_INFO_SEQUENCE,
             FeatureId.POSTGRES_ON_CONFLICT
         };
         // @formatter:on

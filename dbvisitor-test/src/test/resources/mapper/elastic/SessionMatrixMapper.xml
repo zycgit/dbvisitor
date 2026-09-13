@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="net.hasor.dbvisitor.test.realdb.elastic7.Elastic7SessionMapperFixture$NativeRef">
+    <select id="queryUserById" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo">@{macro, esSessionOne}</select>
+    <select id="queryAllUsers" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo">@{macro, esSessionAll}</select>
+    <insert id="insertUser">@{macro, esSessionInsert}</insert>
+    <update id="updateUserEmail">@{macro, esSessionEmail}</update>
+    <delete id="deleteUserById">@{macro, esSessionDelete}</delete>
+    <select id="countUsers" resultType="int">@{macro, esSessionCount}</select>
+</mapper>

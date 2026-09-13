@@ -7,14 +7,46 @@
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
 
+import java.sql.SQLException;
+import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperResultSetTypeCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
+import org.junit.After;
+import org.junit.Before;
 
-/** Binds the common scenarios to the explicitly declared Milvus boundary. */
 public class MilvusAnnotationMapperResultSetTypeTest extends AnnotationMapperResultSetTypeCase {
+    private final MilvusCapabilityFixture fixture = new MilvusCapabilityFixture();
+    private Session session;
+
     @Override
     protected DataSourceProfile profile() {
         return MilvusProfile.INSTANCE;
+    }
+
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        this.jdbcTemplate = this.fixture.open();
+        this.fixture.userTable("user_info", "id INT64 PRIMARY KEY");
+        this.fixture.seedUsers(baseId(), 10, "AttrNxn");
+    }
+
+    @Override
+    @Before
+    public void createAnnotationMapper() throws Exception {
+        this.session = newConfiguration().newSession(this.jdbcTemplate.getConnection());
+        this.mapper = this.session.createMapper(MilvusCapabilityMappers.Attributes.class);
+    }
+
+    @After
+    public void cleanupFixture() throws Exception {
+        try {
+            this.fixture.close();
+        } finally {
+            if (this.session != null) {
+                this.session.close();
+            }
+        }
     }
 }

@@ -21,9 +21,6 @@ import org.junit.Test;
 public class MilvusCmdForDBTest extends AbstractMilvusCmdForTest {
     @Before
     public void setUp() {
-        if (!milvusReady) {
-            return;
-        }
         if (hasDatabase(TEST_DATABASE)) {
             dropDatabase(TEST_DATABASE);
         }
@@ -31,7 +28,7 @@ public class MilvusCmdForDBTest extends AbstractMilvusCmdForTest {
 
     @After
     public void tearDown() {
-        if (!milvusReady) {
+        if (!milvusSelected) {
             return;
         }
         if (hasDatabase(TEST_DATABASE)) {

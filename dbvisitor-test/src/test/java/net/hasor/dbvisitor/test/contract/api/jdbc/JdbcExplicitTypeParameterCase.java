@@ -27,7 +27,7 @@ public abstract class JdbcExplicitTypeParameterCase extends JdbcParameterSupport
     @Capability(CapabilityId.JDBC_PARAM_SQLARG)
     public void sqlArgParameters_shouldUseExplicitTypeHandlers() throws SQLException {
         int id = baseId() + 3;
-        jdbcTemplate.executeUpdate(command(JdbcParameterCommand.INSERT_POSITIONAL), //
+        writeParameters(command(JdbcParameterCommand.INSERT_POSITIONAL), //
                 // @formatter:off
                 new SqlArg[] {
                     SqlArg.valueOf(id, new IntegerTypeHandler()),

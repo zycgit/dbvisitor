@@ -7,27 +7,52 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.session;
 
-import java.util.*;
-import net.hasor.dbvisitor.session.*;
-import net.hasor.dbvisitor.test.nxn.capability.*;
-import net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisNativeMapperSupport;
+import java.sql.SQLException;
+import java.util.List;
+import net.hasor.dbvisitor.test.contract.api.session.SessionStatementResultCase;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisEntityFixture;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
 
-public class RedisSessionStatementResultTest extends RedisNativeMapperSupport {
-    private static final String NS = "redis.Native.";
+public class RedisSessionStatementResultTest extends SessionStatementResultCase {
+    private final RedisEntityFixture fixture = new RedisEntityFixture();
 
-    @Before
-    public void loadStatements() throws Exception {
-        loadXml();
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
     }
 
-    @Test
-    @Capability(CapabilityId.SESSION_STATEMENT_QUERY_RESULT)
-    public void results() throws Exception {
-        String k = key("list");
-        session.jdbc().executeUpdate("RPUSH ? a b", k);
-        assertEquals(Arrays.asList("a", "b"), session.queryStatement(NS + "list", params(k, null)));
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        this.jdbcTemplate = this.fixture.open();
+    }
+
+    @Override
+    @Before
+    public void createStatementSession() throws Exception {
+        this.session = this.fixture.session(newConfiguration(), "/session/RedisResultSessionMapper.xml");
+    }
+
+    @Override
+    protected String resultIdProperty() {
+        return "field";
+    }
+
+    @Override
+    protected String resultNameProperty() {
+        return "value";
+    }
+
+    @Override
+    protected List<String> presentResultProperties() {
+        return List.of("field", "value");
+    }
+
+    @After
+    public void cleanupFixture() throws SQLException {
+        this.fixture.close();
     }
 }

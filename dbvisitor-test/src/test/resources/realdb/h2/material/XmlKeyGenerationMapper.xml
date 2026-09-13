@@ -26,8 +26,10 @@
             keyProperty="id"
             keyColumn="id"
             generatedKeySource="resultSet">
-        INSERT INTO user_info (name, age, email, create_time)
-        VALUES (#{name}, #{age}, #{email}, @{macro, currentTimestamp})
+        SELECT id FROM FINAL TABLE (
+            INSERT INTO user_info (name, age, email, create_time)
+            VALUES (#{name}, #{age}, #{email}, @{macro, currentTimestamp})
+        )
     </insert>
 
     <insert id="insertWithSelectKeyBefore">

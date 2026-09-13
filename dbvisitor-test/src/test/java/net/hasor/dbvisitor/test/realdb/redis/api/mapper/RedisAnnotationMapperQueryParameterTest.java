@@ -7,19 +7,38 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
-import java.util.*;
-import net.hasor.dbvisitor.test.nxn.capability.*;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import java.sql.SQLException;
+import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperQueryParameterCase;
+import net.hasor.dbvisitor.test.realdb.redis.RedisAnnotationParameterFixture;
+import net.hasor.dbvisitor.test.realdb.redis.dto1.RedisRangeParameterMapper;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import org.junit.After;
+import org.junit.Before;
 
-public class RedisAnnotationMapperQueryParameterTest extends RedisNativeMapperSupport {
+public class RedisAnnotationMapperQueryParameterTest extends AnnotationMapperQueryParameterCase {
+    private final RedisAnnotationParameterFixture fixture = new RedisAnnotationParameterFixture();
 
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
+    }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_PARAM_RANGE)
-    public void range() throws Exception {
-        String k = key("range");
-        session.jdbc().queryForObject("ZADD ? 10 a 20 b 30 c", new Object[] { k }, Long.class);
-        assertEquals(Arrays.asList("b", "c"), mapper().range(k, 20, 30));
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        this.jdbcTemplate = fixture.open();
+    }
+
+    @Override
+    @Before
+    public void createAnnotationMapper() throws Exception {
+        fixture.open();
+        this.mapper = fixture.createMapper(newConfiguration(), RedisRangeParameterMapper.class);
+    }
+
+    @After
+    public void closeFixture() throws Exception {
+        fixture.close();
     }
 }

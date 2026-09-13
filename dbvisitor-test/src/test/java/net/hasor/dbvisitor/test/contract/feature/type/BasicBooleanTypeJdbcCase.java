@@ -22,16 +22,16 @@ public abstract class BasicBooleanTypeJdbcCase extends BasicTypeJdbcSupport {
     @Test
     @Capability(CapabilityId.TYPE_BASIC_BOOLEAN)
     public void basicBooleanTypes_shouldRoundTripTrueAndFalse() throws SQLException {
+        assertEquals(Boolean.TRUE, roundTripBooleanValue(true));
+        assertEquals(Boolean.FALSE, roundTripBooleanValue(false));
+    }
+
+    protected Boolean roundTripBooleanValue(boolean input) throws SQLException {
         int trueId = baseId() + 2;
         int falseId = baseId() + 8;
         String insertSql = insertCommand("basic_types_test", "id, bool_value");
-        assertEquals(1, jdbcTemplate.executeUpdate(insertSql, new Object[] { trueId, true }));
-        assertEquals(1, jdbcTemplate.executeUpdate(insertSql, new Object[] { falseId, false }));
-
-        Boolean trueValue = jdbcTemplate.queryForObject(selectCommand("basic_types_test", "bool_value"), new Object[] { trueId }, Boolean.class);
-        Boolean falseValue = jdbcTemplate.queryForObject(selectCommand("basic_types_test", "bool_value"), new Object[] { falseId }, Boolean.class);
-
-        assertEquals(Boolean.TRUE, trueValue);
-        assertEquals(Boolean.FALSE, falseValue);
+        int id = input ? trueId : falseId;
+        assertEquals(1, jdbcTemplate.executeUpdate(insertSql, new Object[] { id, input }));
+        return jdbcTemplate.queryForObject(selectCommand("basic_types_test", "bool_value"), new Object[] { id }, Boolean.class);
     }
 }

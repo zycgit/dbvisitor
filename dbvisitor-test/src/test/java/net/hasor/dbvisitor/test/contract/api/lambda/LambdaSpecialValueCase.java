@@ -192,7 +192,7 @@ public abstract class LambdaSpecialValueCase extends AbstractNxnContractTest {
         }
     }
 
-    private void insertUser(int id, String name, Integer age, String email, Date createTime) throws SQLException {
+    protected void insertUser(int id, String name, Integer age, String email, Date createTime) throws SQLException {
         UserInfo user = new UserInfo();
         user.setId(id);
         user.setName(name);
@@ -204,13 +204,13 @@ public abstract class LambdaSpecialValueCase extends AbstractNxnContractTest {
                 .executeSumResult();
     }
 
-    private String loadName(int id) throws SQLException {
+    protected String loadName(int id) throws SQLException {
         return lambdaTemplate.query(UserInfo.class)//
                 .eq(UserInfo::getId, id)//
                 .queryForObject().getName();
     }
 
-    private Integer loadAge(int id) throws SQLException {
+    protected Integer loadAge(int id) throws SQLException {
         return lambdaTemplate.query(UserInfo.class)//
                 .eq(UserInfo::getId, id)//
                 .queryForObject().getAge();

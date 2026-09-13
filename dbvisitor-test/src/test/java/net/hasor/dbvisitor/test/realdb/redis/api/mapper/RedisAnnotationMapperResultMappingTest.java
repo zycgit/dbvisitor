@@ -7,120 +7,182 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
+import java.sql.SQLException;
 import java.util.*;
-import net.hasor.dbvisitor.test.nxn.capability.*;
+import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperResultMappingCase;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
 import net.hasor.dbvisitor.test.realdb.redis.dto1.RedisParameterUser;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisNativeMapperSupport.NativeMapper;
+import org.junit.After;
+import org.junit.Before;
 
-public class RedisAnnotationMapperResultMappingTest extends RedisNativeMapperSupport {
-    private String hash() throws Exception {
-        String k = key("hash");
-        session.jdbc().executeUpdate("HSET ? name mali age 18", k);
-        return k;
+public class RedisAnnotationMapperResultMappingTest extends AnnotationMapperResultMappingCase {
+    private final RedisMapperFixture fixture = new RedisMapperFixture();
+    private NativeMapper nativeMapper;
+    private RedisCoverageMapper coverage;
+
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
     }
 
-    private String list() throws Exception {
-        String k = key("list");
-        session.jdbc().executeUpdate("RPUSH ? first second", k);
-        return k;
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        fixture.open();
     }
 
-    private RedisCoverageMapper coverage() throws Exception {
-        return session.createMapper(RedisCoverageMapper.class);
+    @Override
+    @Before
+    public void createAnnotationMapper() throws Exception {
+        fixture.open();
+        nativeMapper = fixture.session().createMapper(NativeMapper.class);
+        coverage = fixture.session().createMapper(RedisCoverageMapper.class);
+        fixture.session().jdbc().executeUpdate("HSET ? name mali", fixture.key("single"));
+        fixture.session().jdbc().executeUpdate("HSET ? name mali age 18", fixture.key("hash"));
+        fixture.session().jdbc().executeUpdate("RPUSH ? first second", fixture.key("list"));
+        fixture.session().jdbc().executeUpdate("RPUSH ? 1 2 3", fixture.key("numbers"));
+        fixture.session().jdbc().executeUpdate("SET ? 23", fixture.key("age"));
+        fixture.session().jdbc().executeUpdate("SET ? mali", fixture.key("name"));
+        fixture.session().jdbc().executeUpdate("SET ? ?", new Object[] { fixture.key("date"), expectedScalarDate() });
     }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_RESULT_ENTITY)
-    public void entity() throws Exception {
-        String k = hash();
-        List<Entry> rows = mapper().entries(k);
-        assertEquals(2, rows.size());
-        Map<String, String> values = new HashMap<>();
-        for (Entry row : rows) {
-            values.put(row.getField(), row.getValue());
-        }
-        assertEquals("18", values.get("age"));
-        assertEquals("mali", values.get("name"));
-        List<Entry> partial = mapper().partialEntries(k);
-        assertEquals(2, partial.size());
-        Set<String> projected = new HashSet<>();
-        for (Entry row : partial) {
-            projected.add(row.getField());
-            assertNull(row.getValue());
-        }
-        assertEquals(values.keySet(), projected);
+    @After
+    public void closeFixture() throws SQLException {
+        fixture.close();
     }
 
-    @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_RESULT_MAP)
-    public void maps() throws Exception {
-        List<Map<String, Object>> rows = mapper().maps(hash());
-        assertEquals(2, rows.size());
-        Set<Object> fields = new HashSet<>();
-        for (Map<String, Object> row : rows) {
-            assertEquals(2, row.size());
-            fields.add(row.get("FIELD"));
-        }
-        assertEquals(new HashSet<>(Arrays.asList("name", "age")), fields);
-        String singleKey = key("single-map");
-        session.jdbc().executeUpdate("HSET ? name mali", singleKey);
-        Map<String, Object> single = mapper().map(singleKey);
-        assertEquals(2, single.size());
-        assertEquals("name", single.get("FIELD"));
-        assertEquals("mali", single.get("VALUE"));
+    @Override
+    protected List<?> fullEntityRows() throws Exception {
+        return nativeMapper.entries(fixture.key("single"));
     }
-
-    @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_RESULT_LIST)
-    public void listResult() throws Exception {
-        assertEquals(Arrays.asList("first", "second"), mapper().list(list()));
-        String numbers = key("numbers");
-        session.jdbc().executeUpdate("RPUSH ? 1 2 3", numbers);
-        assertEquals(Arrays.asList(1, 2, 3), mapper().integers(numbers));
-        List<Entry> entities = mapper().entries(hash());
-        assertEquals(2, entities.size());
-        for (Entry entry : entities) {
-            assertNotNull(entry.getField());
-            assertNotNull(entry.getValue());
-        }
+    @Override
+    protected List<?> partialEntityRows() throws Exception {
+        return nativeMapper.partialEntries(fixture.key("single"));
     }
-
-    @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_RESULT_NULL)
-    public void missingResults() throws Exception {
-        String k = key("absent");
-        assertNull(mapper().get(k));
-        assertTrue(mapper().list(k).isEmpty());
-        assertTrue(mapper().entries(k).isEmpty());
-        RedisCoverageMapper coverage = session.createMapper(RedisCoverageMapper.class);
-        assertNull(coverage.bean(k));
+    @Override
+    protected Map<String, Object> expectedFullEntity() {
+        return Map.of("field", "name", "value", "mali");
+    }
+    @Override
+    protected Map<String, Object> expectedPartialEntity() {
+        Map<String, Object> expected = new LinkedHashMap<>();
+        expected.put("field", "name");
+        expected.put("value", null);
+        return expected;
+    }
+    @Override
+    protected List<String> nonNullFullProperties() {
+        return List.of("field", "value");
+    }
+    @Override
+    protected Map<String, Object> singleMap() throws Exception {
+        return nativeMapper.map(fixture.key("single"));
+    }
+    @Override
+    protected List<Map<String, Object>> mapList() throws Exception {
+        return nativeMapper.maps(fixture.key("hash"));
+    }
+    @Override
+    protected Map<String, Object> expectedMap() {
+        return Map.of("FIELD", "name", "VALUE", "mali");
+    }
+    @Override
+    protected int minimumMapRows() {
+        return 2;
+    }
+    @Override
+    protected Integer scalarInteger() throws Exception {
+        return coverage.integer(fixture.key("age"));
+    }
+    @Override
+    protected String scalarText() throws Exception {
+        return nativeMapper.get(fixture.key("name"));
+    }
+    @Override
+    protected String scalarTextExpected() {
+        return "mali";
+    }
+    @Override
+    protected int scalarCount() throws Exception {
+        return coverage.count(fixture.key("numbers"));
+    }
+    @Override
+    protected int minimumScalarCount() {
+        return 3;
+    }
+    @Override
+    protected Date scalarDate() throws Exception {
+        return coverage.date(fixture.key("date"));
+    }
+    @Override
+    protected Date expectedScalarDate() {
+        return java.sql.Date.valueOf("2024-03-15");
+    }
+    @Override
+    protected List<?> entityList() throws Exception {
+        return nativeMapper.entries(fixture.key("hash"));
+    }
+    @Override
+    protected List<String> stringList() throws Exception {
+        return nativeMapper.list(fixture.key("list"));
+    }
+    @Override
+    protected List<Integer> integerList() throws Exception {
+        return nativeMapper.integers(fixture.key("numbers"));
+    }
+    @Override
+    protected List<Map<String, Object>> expectedListEntities() {
+        return List.of(Map.of("field", "name", "value", "mali"), Map.of("field", "age", "value", "18"));
+    }
+    @Override
+    protected String expectedFirstName() {
+        return "first";
+    }
+    @Override
+    protected int expectedFirstId() {
+        return 1;
+    }
+    @Override
+    protected int insertNullableEntity() throws Exception {
         RedisParameterUser user = new RedisParameterUser();
         user.setId(1);
-        user.setName("nullable");
-        coverage.putBean(k, user);
-        RedisParameterUser actual = coverage.bean(k);
-        assertEquals("nullable", actual.getName());
-        assertNull(actual.getAge());
-        assertNull(actual.getEmail());
+        user.setName("AnnoResultNull");
+        return coverage.putBean(fixture.key("nullable"), user);
     }
-
-    @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_RESULT_SCALAR)
-    public void scalar_shouldMapIntegerTextCountAndDate() throws Exception {
-        RedisCoverageMapper mapper = coverage();
-        String age = key("age");
-        String name = key("name");
-        String date = key("date");
-        String list = key("list");
-        mapper().put(age, "23");
-        mapper().put(name, "mali");
-        java.sql.Date expected = java.sql.Date.valueOf("2024-03-15");
-        session.jdbc().executeUpdate("SET ? ?", new Object[] { date, expected });
-        session.jdbc().executeUpdate("RPUSH ? a b c", list);
-        assertEquals(Integer.valueOf(23), mapper.integer(age));
-        assertEquals("mali", mapper().get(name));
-        assertEquals(3, mapper.count(list));
-        assertEquals(expected, mapper.date(date));
+    @Override
+    protected Object nullableEntity() throws Exception {
+        return coverage.bean(fixture.key("nullable"));
+    }
+    @Override
+    protected Object missingEntity() throws Exception {
+        return coverage.bean(fixture.key("absent"));
+    }
+    @Override
+    protected String missingScalar() throws Exception {
+        return nativeMapper.get(fixture.key("absent"));
+    }
+    @Override
+    protected List<?> emptyEntityList() throws Exception {
+        return nativeMapper.list(fixture.key("absent"));
+    }
+    @Override
+    protected Integer expectedMapColumnCount() { return 2; }
+    @Override
+    protected List<Map<String, Object>> expectedMapRows() {
+        return List.of(Map.of("FIELD", "name", "VALUE", "mali"), Map.of("FIELD", "age", "VALUE", "18"));
+    }
+    @Override
+    protected Integer expectedScalarCount() { return 3; }
+    @Override
+    protected Integer expectedEntityCount() { return 2; }
+    @Override
+    protected List<String> expectedStringList() { return Arrays.asList("first", "second"); }
+    @Override
+    protected List<Integer> expectedIntegerList() { return Arrays.asList(1, 2, 3); }
+    @Override
+    protected List<List<?>> additionalEmptyLists() throws Exception {
+        return List.of(nativeMapper.entries(fixture.key("absent")));
     }
 }

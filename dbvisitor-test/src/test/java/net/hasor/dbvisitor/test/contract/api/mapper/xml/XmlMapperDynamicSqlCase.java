@@ -36,8 +36,12 @@ public abstract class XmlMapperDynamicSqlCase extends AbstractNxnContractTest {
     @Before
     public void createXmlMapperSession() throws Exception {
         Configuration config = newConfiguration();
-        config.loadMapper("/mapper/XmlDynamicSqlMapper.xml");
+        config.loadMapper(mapperResource());
         this.session = config.newSession(dataSource);
+    }
+
+    protected String mapperResource() {
+        return "/mapper/XmlDynamicSqlMapper.xml";
     }
 
     @Override
@@ -132,7 +136,7 @@ public abstract class XmlMapperDynamicSqlCase extends AbstractNxnContractTest {
     @Test
     @Capability(CapabilityId.MAPPER_XML_DYNAMIC_FOREACH_WRITE)
     public void dynamicForeach_shouldExpandWriteParameters() throws Exception {
-        requiresNxnFeature(FeatureId.XML_FOREACH_BATCH_INSERT_VALUES);
+        requiresNxnFeature(FeatureId.XML_FOREACH_BATCH_INSERT_COMMAND);
         List<Map<String, Object>> users = new ArrayList<>();
         for (int i = 1; i <= 3; i++) {
             Map<String, Object> user = new HashMap<>();
@@ -162,7 +166,7 @@ public abstract class XmlMapperDynamicSqlCase extends AbstractNxnContractTest {
     @Capability(CapabilityId.MAPPER_XML_DYNAMIC_BIND)
     public void dynamicBind_shouldUseBoundVariableInLikePattern() throws Exception {
         List<UserInfo> all = this.session.queryStatement("xmltest.DynamicSqlMapper.selectWithBind", mapOf("name", "DynSql"));
-        List<UserInfo> alice = this.session.queryStatement("xmltest.DynamicSqlMapper.selectWithBind", mapOf("name", "Alice"));
+        List<UserInfo> alice = this.session.queryStatement("xmltest.DynamicSqlMapper.selectWithBind", mapOf("name", boundNameParameter()));
 
         assertEquals(5, all.size());
         assertEquals(1, alice.size());
@@ -174,6 +178,10 @@ public abstract class XmlMapperDynamicSqlCase extends AbstractNxnContractTest {
         assertEquals("DynSqlBob", over22.get(0).getName());
         assertEquals(2, over35.size());
         assertEquals("DynSqlDave", over35.get(0).getName());
+    }
+
+    protected String boundNameParameter() {
+        return "Alice";
     }
 
     @Test

@@ -12,6 +12,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Date;
+import net.hasor.dbvisitor.test.contract.feature.keygen.NumericKeyModel;
+import net.hasor.dbvisitor.test.contract.material.handler.keygen.AfterInsertKeyHolder;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.mapping.Column;
 import net.hasor.dbvisitor.mapping.GeneratedKeyHandler;
@@ -22,14 +24,10 @@ import net.hasor.dbvisitor.mapping.KeyType;
 import net.hasor.dbvisitor.mapping.Table;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.test.contract.feature.keygen.CustomKeyHolderCase;
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
 
 public class MilvusCustomKeyHolderTest extends CustomKeyHolderCase {
     private final MilvusCapabilityFixture fixture = new MilvusCapabilityFixture();
@@ -53,16 +51,76 @@ public class MilvusCustomKeyHolderTest extends CustomKeyHolderCase {
     }
 
     @Override
-    @Test
-    @Capability(CapabilityId.KEYGEN_HOLDER_CONNECTION)
-    public void keygenHolderConnection_shouldUseJdbcConnectionDuringBeforeGeneration() throws SQLException {
-        ConnectionKeyUser user = new ConnectionKeyUser();
-        user.setName("Connection Aware User");
-        user.setAge(60);
+    protected NumericKeyModel<?> connectionKeyModel() {
+        return new NumericKeyModel<>(ConnectionKeyUser.class, (name, age) -> {
+            ConnectionKeyUser user = new ConnectionKeyUser();
+            user.setName(name);
+            user.setAge(age);
+            user.setCreateTime(new Date());
+            return user;
+        }, ConnectionKeyUser::getId, ConnectionKeyUser::setId);
+    }
+
+    @Override
+    protected Class<?> afterKeyEntityType() {
+        return AfterKeyUser.class;
+    }
+
+    @Override
+    protected Object newAfterKeyEntity() {
+        AfterKeyUser user = new AfterKeyUser();
+        user.setName("After Key User");
+        user.setAge(45);
         user.setCreateTime(new Date());
-        this.lambdaTemplate.insert(ConnectionKeyUser.class).applyEntity(user).executeSumResult();
-        assertNotNull(user.getId());
-        assertTrue(user.getId() > 0);
+        return user;
+    }
+
+    @Override
+    protected Object afterKeyValue(Object entity) {
+        return ((AfterKeyUser) entity).getId();
+    }
+
+    @Table("user_keygen_after")
+    public static class AfterKeyUser {
+        @Column(primary = true, keyType = KeyType.Holder)
+        @KeyHolder(AfterInsertKeyHolder.class)
+        private Long id;
+        private String name;
+        private Integer age;
+        @Column(name = "create_time")
+        private Date createTime;
+
+        public Long getId() {
+            return this.id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return this.name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public Integer getAge() {
+            return this.age;
+        }
+
+        public void setAge(Integer age) {
+            this.age = age;
+        }
+
+        public Date getCreateTime() {
+            return this.createTime;
+        }
+
+        public void setCreateTime(Date createTime) {
+            this.createTime = createTime;
+        }
     }
 
     @Table("user_info")

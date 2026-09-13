@@ -9,16 +9,33 @@ package net.hasor.dbvisitor.test.realdb.redis;
 
 import java.sql.SQLException;
 import java.math.BigDecimal;
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
+import net.hasor.dbvisitor.test.contract.feature.type.BasicDecimalTypeJdbcCase;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import org.junit.After;
+import org.junit.Before;
 
-public class RedisBasicDecimalTypeJdbcTest extends RedisBasicTypeSupport {
-    @Test
-    @Capability(CapabilityId.ADAPTER_REDIS_BASIC_DECIMAL)
-    public void decimalValue_shouldRoundTripWithoutPrecisionLoss() throws SQLException {
-        BigDecimal value = roundTrip("decimal", new BigDecimal("12345.67"), BigDecimal.class);
-        assertEquals("Decimal readback: " + value, 0, new BigDecimal("12345.67").compareTo(value));
+public class RedisBasicDecimalTypeJdbcTest extends BasicDecimalTypeJdbcCase {
+    private final RedisBasicTypeSupport fixture = new RedisBasicTypeSupport();
+
+    @Override
+    protected DataSourceProfile profile() {
+        return RedisProfile.INSTANCE;
+    }
+
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        fixture.openFixture();
+    }
+
+    @After
+    public void closeFixture() throws SQLException {
+        fixture.close();
+    }
+
+    @Override
+    protected BigDecimal roundTripDecimalValue() throws SQLException {
+        return fixture.roundTrip("decimal", new BigDecimal("12345.67"), BigDecimal.class);
     }
 }

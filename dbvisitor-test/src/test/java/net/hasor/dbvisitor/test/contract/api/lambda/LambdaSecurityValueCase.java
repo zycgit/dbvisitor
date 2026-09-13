@@ -118,13 +118,13 @@ public abstract class LambdaSecurityValueCase extends AbstractNxnContractTest {
         insertUser(baseId() + 31, "SecApply", 25);
 
         List<UserInfo> exact = lambdaTemplate.query(UserInfo.class)//
-                .apply("name = ?", "SecApply")//
+                .apply(rawNamePredicate(), "SecApply")//
                 .queryForList();
         assertEquals(1, exact.size());
         assertEquals(Integer.valueOf(baseId() + 31), exact.get(0).getId());
 
         List<UserInfo> injected = lambdaTemplate.query(UserInfo.class)//
-                .apply("name = ?", "SecApply' OR '1'='1")//
+                .apply(rawNamePredicate(), "SecApply' OR '1'='1")//
                 .queryForList();
         assertEquals(0, injected.size());
     }
@@ -145,7 +145,7 @@ public abstract class LambdaSecurityValueCase extends AbstractNxnContractTest {
 
         int deleted = lambdaTemplate.delete(UserInfo.class)//
                 .in(UserInfo::getId, Arrays.asList(baseId() + 32, baseId() + 33))//
-                .apply("1=1")//
+                .apply(rawTruePredicate())//
                 .doDelete();
 
         assertMutationRows(2, deleted);
@@ -218,7 +218,7 @@ public abstract class LambdaSecurityValueCase extends AbstractNxnContractTest {
         row.put("email", "freedom-value@test.com");
         row.put("create_time", new Date());
 
-        lambdaTemplate.insertFreedom("user_info")//
+        lambdaTemplate.insertFreedom(tableName())//
                 .applyMap(row)//
                 .executeSumResult();
 
@@ -232,12 +232,24 @@ public abstract class LambdaSecurityValueCase extends AbstractNxnContractTest {
                 .queryForCount());
     }
 
-    private void insertUser(int id, String name, Integer age) throws SQLException {
+    protected String tableName() {
+        return "user_info";
+    }
+
+    protected String rawNamePredicate() {
+        return "name = ?";
+    }
+
+    protected String rawTruePredicate() {
+        return "1=1";
+    }
+
+    protected void insertUser(int id, String name, Integer age) throws SQLException {
         jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, ?)", //
                 new Object[] { id, name, age, id + "@security.test", new Date() });
     }
 
-    private String loadName(int id) throws SQLException {
+    protected String loadName(int id) throws SQLException {
         return lambdaTemplate.query(UserInfo.class)//
                 .eq(UserInfo::getId, id)//
                 .queryForObject().getName();

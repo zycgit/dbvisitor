@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="StatementTestMapper">
+    <resultMap id="userResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+        <result column="email" property="email"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <insert id="insertUserWithId">
+        @{macro, mongoSource}.insert({id: #{id}, name: #{name}, age: #{age}, email: #{email}, create_time: 1700000000000})
+    </insert>
+    <update id="updateUserEmail">
+        @{macro, mongoSource}.update({id: #{id}}, {$set: {email: #{email}}})
+    </update>
+    <delete id="deleteUserById">
+        @{macro, mongoSource}.remove({id: #{id}})
+    </delete>
+    <delete id="deleteUsersByName">
+        @{macro, mongoSource}.remove({$expr: {$regexMatch: {input: '$name', regex: {$replaceAll: {input: #{name}, find: '%', replacement: '.*'}}}}})
+    </delete>
+    <select id="queryUserById" resultMap="userResultMap">
+        @{macro, mongoSource}.find({id: #{id}}, {_id: 0})
+    </select>
+    <select id="queryUsersByName" resultMap="userResultMap">
+        @{macro, mongoSource}.find({$expr: {$regexMatch: {input: '$name', regex: {$replaceAll: {input: #{name}, find: '%', replacement: '.*'}}}}}, {_id: 0}).sort({id: 1})
+    </select>
+    <select id="queryAllUsers" resultType="net.hasor.dbvisitor.test.contract.material.model.UserInfo">
+        @{macro, mongoSource}.find({}, {_id: 0}).sort({id: 1})
+    </select>
+</mapper>

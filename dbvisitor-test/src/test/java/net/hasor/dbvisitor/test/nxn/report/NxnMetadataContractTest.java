@@ -18,6 +18,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -114,17 +115,40 @@ public abstract class NxnMetadataContractTest extends AbstractNxnContractTest {
         assertEquals(profile().env(), current.env());
 
         boolean transactions = current.supportsFeature(FeatureId.TRANSACTION);
-        assertEquals(transactions ? SupportStatus.SUPPORTED : SupportStatus.UNSUPPORTED_BY_DATABASE,
-                current.support(CapabilityId.TRANSACTION_REQUIRED_COMMIT));
-        boolean nestedCommit = transactions && current.supportsFeature(FeatureId.TRANSACTION_RELEASE_SAVEPOINT);
+        assertSupportDeclaration(current, CapabilityId.TRANSACTION_REQUIRED_COMMIT, transactions);
+        boolean nestedCommit = transactions && current.supportsFeature(FeatureId.TRANSACTION_SAVEPOINT);
         for (String capability : new String[] { CapabilityId.TRANSACTION_NESTED_COMMIT, CapabilityId.TRANSACTION_NESTED_OUTER_ROLLBACK,
                 CapabilityId.TRANSACTION_ANNOTATION_NESTED, CapabilityId.TRANSACTION_PROXY_REQUIRED_NESTED }) {
-            assertEquals(capability, nestedCommit ? SupportStatus.SUPPORTED : SupportStatus.UNSUPPORTED_BY_DATABASE,
-                    current.support(capability));
+            assertSupportDeclaration(current, capability, nestedCommit);
         }
         boolean repeatableRead = transactions && current.supportsFeature(FeatureId.TRANSACTION_REPEATABLE_READ);
-        assertEquals(repeatableRead ? SupportStatus.SUPPORTED : SupportStatus.UNSUPPORTED_BY_DATABASE,
-                current.support(CapabilityId.TRANSACTION_ISOLATION_REPEATABLE_READ));
+        assertSupportDeclaration(current, CapabilityId.TRANSACTION_ISOLATION_REPEATABLE_READ, repeatableRead);
+        for (Map.Entry<String, SupportStatus> expected : expectedProfileStatuses().entrySet()) {
+            assertEquals(expected.getKey(), expected.getValue(), current.support(expected.getKey()));
+        }
+        for (Map.Entry<String, Boolean> expected : expectedFeatures().entrySet()) {
+            assertEquals(expected.getKey(), expected.getValue(), Boolean.valueOf(current.supportsFeature(expected.getKey())));
+        }
+    }
+
+    protected Map<String, SupportStatus> expectedProfileStatuses() {
+        return Map.of();
+    }
+
+    protected Map<String, Boolean> expectedFeatures() {
+        return Map.of();
+    }
+
+    private void assertSupportDeclaration(DataSourceProfile current, String capability, boolean supported) {
+        SupportStatus actual = current.support(capability);
+        if (supported) {
+            assertEquals(capability, SupportStatus.SUPPORTED, actual);
+        } else {
+            assertTrue(capability + " must identify the unsupported layer: " + actual,
+                    actual == SupportStatus.UNSUPPORTED_BY_DATABASE
+                            || actual == SupportStatus.UNSUPPORTED_BY_DRIVER
+                            || actual == SupportStatus.UNSUPPORTED_BY_DBVISITOR);
+        }
     }
 
     @Test
