@@ -104,9 +104,11 @@ public class JdbcConnectionTest {
         conn.prepareStatement("INSERT INTO test VALUES (1)", new int[] { 1 });
     }
 
-    @Test(expected = SQLFeatureNotSupportedException.class)
-    public void prepareStatement_columnNames_unsupported() throws Exception {
-        conn.prepareStatement("INSERT INTO test VALUES (1)", new String[] { "id" });
+    @Test
+    public void prepareStatement_columnNames() throws Exception {
+        try (PreparedStatement statement = conn.prepareStatement("INSERT INTO test VALUES (1)", new String[] { "id" })) {
+            assertEquals(1, statement.executeUpdate());
+        }
     }
 
     // ==================== prepareCall ====================

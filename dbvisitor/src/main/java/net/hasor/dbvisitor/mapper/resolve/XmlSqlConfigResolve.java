@@ -8,12 +8,13 @@
 package net.hasor.dbvisitor.mapper.resolve;
 import java.util.HashMap;
 import java.util.Map;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dynamic.logic.*;
 import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
 import net.hasor.dbvisitor.mapper.def.*;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 /**
  * parse dynamic SQL from mapperFile
  * @author 赵永春 (zyc@hasor.net)
@@ -143,6 +144,11 @@ public class XmlSqlConfigResolve implements SqlConfigResolve<Node>, ConfigKeys {
     protected void parseTextSqlNode(String namespace, ArrayDynamicSql parentSqlNode, Node curXmlNode) {
         String sqlNode = curXmlNode.getNodeValue();
         if (StringUtils.isBlank(sqlNode)) {
+            if (StringUtils.isNotEmpty(sqlNode) && !(parentSqlNode instanceof ChooseDynamicSql)) {
+                PlanDynamicSql whitespace = new PlanDynamicSql();
+                whitespace.appendString(sqlNode);
+                parentSqlNode.addChildNode(whitespace);
+            }
             return;
         }
 

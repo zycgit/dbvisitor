@@ -8,7 +8,7 @@
 package net.hasor.dbvisitor.dynamic.rule;
 import java.sql.JDBCType;
 import java.sql.SQLException;
-import java.util.Map;
+import java.util.*;
 import net.hasor.cobble.NumberUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
@@ -37,9 +37,15 @@ public class ArgRule implements SqlRule {
     public static final String  CFG_KEY_ROW_HANDLER  = "rowHandler";
     public static final String  CFG_KEY_ROW_MAPPER   = "rowMapper";
 
+    private static final Set<String>          CONFIG_KEYS;
     private static final Map<String, Integer> JDBC_TYPE_MAP = new LinkedCaseInsensitiveMap<>();
 
     static {
+        Set<String> configKeys = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        configKeys.addAll(Arrays.asList(CFG_KEY_MODE, CFG_KEY_JDBC_TYPE, CFG_KEY_JAVA_TYPE, CFG_KEY_TYPE_HANDLER, //
+                CFG_KEY_NAME, CFG_KEY_TYPE_NAME, CFG_KEY_SCALE, CFG_KEY_EXTRACTOR, CFG_KEY_ROW_HANDLER, CFG_KEY_ROW_MAPPER));
+        CONFIG_KEYS = Collections.unmodifiableSet(configKeys);
+
         JDBC_TYPE_MAP.put("INT", JDBCType.INTEGER.getVendorTypeNumber());
         for (JDBCType typeElement : JDBCType.values()) {
             JDBC_TYPE_MAP.put(typeElement.name(), typeElement.getVendorTypeNumber());
@@ -93,11 +99,49 @@ public class ArgRule implements SqlRule {
             throw new IllegalArgumentException("analysisSQL failed, format error -> '#{valueExpr [,mode= IN|OUT|INOUT] [,jdbcType=INT] [,javaType=java.lang.String] [,typeHandler=YouTypeHandlerClassName]}'");
         }
 
-        boolean noExpr = StringUtils.contains(testSplit[0], "=");
+        boolean noExpr = isConfigEntry(testSplit[0]);
         String expr = noExpr ? "" : testSplit[0];
         Map<String, String> config = ArgRule.INSTANCE.parserConfig(testSplit, noExpr ? 0 : 1, testSplit.length);
 
         this.executeRule(data, context, sqlBuilder, expr, config);
+    }
+
+    /** Distinguish a configuration assignment from comparisons and quoted equals signs in OGNL. */
+    public static boolean isConfigEntry(String content) {
+        char quote = 0;
+        for (int i = 0; i < content.length(); i++) {
+            char c = content.charAt(i);
+            if (quote != 0) {
+                if (c == '\\') {
+                    i++;
+                } else if (c == quote) {
+                    quote = 0;
+                }
+                continue;
+            }
+            if (c == '\'' || c == '"') {
+                quote = c;
+                continue;
+            }
+            if (c != '=') {
+                continue;
+            }
+
+            char previous = i > 0 ? content.charAt(i - 1) : 0;
+            char next = i + 1 < content.length() ? content.charAt(i + 1) : 0;
+            if (previous == '=' || previous == '!' || previous == '<' || previous == '>' || next == '=') {
+                continue;
+            }
+
+            String key = content.substring(0, i).trim();
+            if (CONFIG_KEYS.contains(key)) {
+                return true;
+            }
+
+            // Do not turn formerly invalid configuration into an expression that mutates parameter data.
+            throw new IllegalArgumentException("unsupported parameter configuration or assignment expression: " + content);
+        }
+        return false;
     }
 
     /** 执行参数规则 */

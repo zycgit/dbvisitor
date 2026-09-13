@@ -61,7 +61,7 @@ update      : POST updatePath1 (json)? SEM?;
 updatePath1 : pathPart (pathPart)? SLASH UPDATE_KW pathPart (ARG1 queryParams)?;
 
 updateQuery : POST updatePath2 (json)? SEM?;
-updatePath2 : pathPart? SLASH UPDATE_BY_QUERY_KW (ARG1 queryParams)?;
+updatePath2 : (pathPart (pathPart)?)? SLASH UPDATE_BY_QUERY_KW (ARG1 queryParams)?;
 
 // Delete Commands
 delete      : DELETE deletePath1 (json)? SEM?;
@@ -69,7 +69,7 @@ deletePath1 : pathPart (pathPart)? SLASH DOC_KW pathPart (ARG1 queryParams)?
             | pathPart (ARG1 queryParams)?
             ;
 deleteQuery : POST deletePath2 (json)? SEM?;
-deletePath2 : pathPart? SLASH DELETE_BY_QUERY_KW (ARG1 queryParams)?;
+deletePath2 : (pathPart (pathPart)?)? SLASH DELETE_BY_QUERY_KW (ARG1 queryParams)?;
 
 // query Commands
 query       : (GET | POST) queryPath (json)? SEM?;

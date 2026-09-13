@@ -157,7 +157,7 @@ public class DynamicXmlMapperTest {
 
         StatementDef def = registry.findStatement(DynamicXmlMapper.class, "set_04");
         SqlBuilder sqlBuilder = def.buildQuery(ctx, new JdbcQueryContext());
-        assert sqlBuilder.getSqlString().trim().equals("UPDATE\n            alert_users\n        set name = ?,\n            \n                loginName = ? \n        WHERE uid = ?");
+        assert sqlBuilder.getSqlString().trim().equals("UPDATE\n            alert_users\n        set name = ?,\n            \n            \n                loginName = ? \n        WHERE uid = ?");
         assert sqlBuilder.getArgs().length == 3;
         assert ((SqlArg) sqlBuilder.getArgs()[0]).getValue().equals("name");
         assert ((SqlArg) sqlBuilder.getArgs()[1]).getValue().equals("loginName");
@@ -187,7 +187,7 @@ public class DynamicXmlMapperTest {
 
         StatementDef def = registry.findStatement(DynamicXmlMapper.class, "where_01");
         SqlBuilder sqlBuilder = def.buildQuery(ctx, new JdbcQueryContext());
-        assert sqlBuilder.getSqlString().trim().equals("SELECT * FROM BLOG\n        where  name = ?\n            \n                and login_name like ?");
+        assert sqlBuilder.getSqlString().trim().equals("SELECT * FROM BLOG\n        where  name = ?\n            \n            \n                and login_name like ?");
         assert sqlBuilder.getArgs().length == 2;
         assert ((SqlArg) sqlBuilder.getArgs()[0]).getValue().equals("name");
         assert ((SqlArg) sqlBuilder.getArgs()[1]).getValue().equals("loginName");

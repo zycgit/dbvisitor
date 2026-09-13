@@ -157,6 +157,11 @@ public class MongoConn extends AdapterConnection {
     }
 
     @Override
+    public AdapterCursor getTables(String catalog, String schemaPattern, String tableNamePattern, String[] types) throws SQLException {
+        return MongoMetadata.tables(this.mongoCmd.getClient(), catalog, schemaPattern, tableNamePattern, types);
+    }
+
+    @Override
     public AdapterRequest newRequest(String sql) {
         MongoRequest request = new MongoRequest(sql, this.preRead);
         return request;

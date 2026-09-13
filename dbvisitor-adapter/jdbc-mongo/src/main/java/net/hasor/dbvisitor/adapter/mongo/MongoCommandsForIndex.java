@@ -43,10 +43,6 @@ class MongoCommandsForIndex extends MongoCommands {
         IndexOptions options = new IndexOptions();
         if (args.size() > 1) {
             Map<String, Object> opts = toObjBson(args.get(1));
-            if (!opts.containsKey("name")) {
-                throw new SQLException("The index name must be specified.");
-            }
-
             Boolean background = getOptionBoolean(opts, "background");
             if (background != null) {
                 options.background(background);
@@ -133,8 +129,6 @@ class MongoCommandsForIndex extends MongoCommands {
             if (hidden != null) {
                 options.hidden(hidden);
             }
-        } else {
-            throw new SQLException("The index name must be specified.");
         }
 
         MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);

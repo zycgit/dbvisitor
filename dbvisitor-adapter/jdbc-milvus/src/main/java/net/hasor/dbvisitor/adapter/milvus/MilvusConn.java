@@ -111,6 +111,16 @@ public class MilvusConn extends AdapterConnection {
     }
 
     @Override
+    public AdapterCursor getTables(String catalog, String schemaPattern, String tableNamePattern, String[] types) throws SQLException {
+        return new MilvusMetadata(this.milvusCmd).tables(catalog, schemaPattern, tableNamePattern, types);
+    }
+
+    @Override
+    public AdapterCursor getColumns(String catalog, String schemaPattern, String tableNamePattern, String columnNamePattern) throws SQLException {
+        return new MilvusMetadata(this.milvusCmd).columns(catalog, schemaPattern, tableNamePattern, columnNamePattern, this.owner.unwrap(TypeSupport.class));
+    }
+
+    @Override
     public AdapterRequest newRequest(String sql) {
         return new MilvusRequest(sql, this.consistencyLevel, this.maxRetry);
     }

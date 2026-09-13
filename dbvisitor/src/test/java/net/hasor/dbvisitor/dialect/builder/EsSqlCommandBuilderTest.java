@@ -32,7 +32,8 @@ public class EsSqlCommandBuilderTest {
         String sql = boundSql.getSqlString();
 
         assertTrue(sql.startsWith("POST /my_index/my_type/_search"));
-        assertTrue(sql.contains("\"query\": { \"bool\": { \"must\": [{ \"range\": { \"age\": { \"gt\": ? } } }] } }"));
+        assertEquals("{\"query\":{\"bool\":{\"must\":[{\"range\":{\"age\":{\"gt\":?}}}]}}}",
+                sql.substring(sql.indexOf('{')).replaceAll("\\s+", ""));
         assertEquals(1, boundSql.getArgs().length);
         assertEquals(18, boundSql.getArgs()[0]);
     }
@@ -47,7 +48,8 @@ public class EsSqlCommandBuilderTest {
         String sql = boundSql.getSqlString();
 
         assertTrue(sql.startsWith("POST /my_index/_search"));
-        assertTrue(sql.contains("\"query\": { \"bool\": { \"must\": [{ \"range\": { \"age\": { \"gt\": ? } } }] } }"));
+        assertEquals("{\"query\":{\"bool\":{\"must\":[{\"range\":{\"age\":{\"gt\":?}}}]}}}",
+                sql.substring(sql.indexOf('{')).replaceAll("\\s+", ""));
         assertEquals(1, boundSql.getArgs().length);
         assertEquals(18, boundSql.getArgs()[0]);
     }

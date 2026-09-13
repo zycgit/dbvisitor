@@ -126,6 +126,7 @@ public class PlanDynamicSql implements Cloneable, DynamicSql {
         boolean hasNamed = false;
         boolean hasRule = false;
         boolean hasInjection = false;
+
         for (SqlSegment segment : this.queryStringPlan) {
             if (segment instanceof PositionSqlSegment) {
                 hasPosition = true;

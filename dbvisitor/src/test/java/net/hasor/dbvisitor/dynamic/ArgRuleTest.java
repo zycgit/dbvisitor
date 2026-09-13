@@ -7,9 +7,13 @@
  */
 package net.hasor.dbvisitor.dynamic;
 import java.sql.SQLException;
+import java.sql.Types;
+import java.util.Collections;
+import java.util.Locale;
 import java.util.Map;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.dynamic.dto.LicenseOfValueEnum;
+import net.hasor.dbvisitor.dynamic.args.MapSqlArgSource;
 import net.hasor.dbvisitor.dynamic.dto.ResourceType;
 import net.hasor.dbvisitor.dynamic.dto.UserFutures;
 import net.hasor.dbvisitor.dynamic.rule.ArgRule;
@@ -21,8 +25,21 @@ import net.hasor.dbvisitor.types.handler.number.ShortTypeHandler;
 import net.hasor.dbvisitor.types.handler.string.EnumTypeHandler;
 import net.hasor.dbvisitor.types.handler.string.SqlXmlTypeHandler;
 import org.junit.Test;
+import static org.junit.Assert.*;
 
 public class ArgRuleTest {
+    @Test
+    public void configurationKeysAreRecognizedIgnoringCase() {
+        String[] keys = { ArgRule.CFG_KEY_MODE, ArgRule.CFG_KEY_JDBC_TYPE, ArgRule.CFG_KEY_JAVA_TYPE,
+                ArgRule.CFG_KEY_TYPE_HANDLER, ArgRule.CFG_KEY_NAME, ArgRule.CFG_KEY_TYPE_NAME, ArgRule.CFG_KEY_SCALE,
+                ArgRule.CFG_KEY_EXTRACTOR, ArgRule.CFG_KEY_ROW_HANDLER, ArgRule.CFG_KEY_ROW_MAPPER };
+        for (String key : keys) {
+            assertTrue(key, ArgRule.isConfigEntry(key + "=value"));
+            assertTrue(key, ArgRule.isConfigEntry(" " + key.toUpperCase(Locale.ROOT) + " = value"));
+            assertTrue(key, ArgRule.isConfigEntry(key.toLowerCase(Locale.ROOT) + "=value"));
+        }
+    }
+
     @Test
     public void ruleTest_3() throws SQLException {
         Map<String, Object> ctx1 = CollectionUtils.asMap("name", "abc");
@@ -114,5 +131,67 @@ public class ArgRuleTest {
     @Test
     public void toStringTest_1() {
         assert ArgRule.INSTANCE.toString().startsWith("arg [");
+    }
+
+    private void assertExpression(String expression, Map<String, Object> values, Object expected) throws SQLException {
+        SqlBuilder parsed = DynamicParsed.getParsedSql("#{" + expression + "}").buildQuery(values, new TestQueryContext());
+        SqlBuilder rule = new SqlBuilder();
+        ArgRule.INSTANCE.executeRule(new MapSqlArgSource(values), new TestQueryContext(), rule, "", expression);
+        for (SqlBuilder result : new SqlBuilder[] { parsed, rule }) {
+            assertEquals("?", result.getSqlString());
+            assertEquals(1, result.getArgs().length);
+            assertEquals(expected, ((SqlArg) result.getArgs()[0]).getValue());
+        }
+    }
+
+    @Test
+    public void comparisonExpressionsAreNotConfiguration() throws SQLException {
+        assertExpression("minAge == null ? 0 : minAge", Collections.singletonMap("minAge", null), 0);
+        assertExpression("minAge == null ? 0 : minAge", Map.of("minAge", 18), 18);
+        assertExpression("age != 18", Map.of("age", 20), true);
+        assertExpression("age >= 18", Map.of("age", 18), true);
+        assertExpression("age <= 18", Map.of("age", 20), false);
+        assertExpression("mode == null ? 1 : mode", Collections.singletonMap("mode", null), 1);
+    }
+
+    @Test
+    public void quotedEqualsSignsRemainExpressionData() throws SQLException {
+        assertExpression("'a=b'", Collections.emptyMap(), "a=b");
+        assertExpression("\"name=alice\"", Collections.emptyMap(), "name=alice");
+        assertExpression("text == 'a=b' ? text : 'other'", Map.of("text", "a=b"), "a=b");
+    }
+
+    @Test
+    public void expressionCanBeFollowedByConfiguration() throws SQLException {
+        SqlBuilder result = DynamicParsed.getParsedSql("#{age >= 18 ? age : 18,jdbcType=INTEGER,javaType=java.lang.Integer}")
+                .buildQuery(Map.of("age", 20), new TestQueryContext());
+        SqlArg arg = (SqlArg) result.getArgs()[0];
+        assertEquals(20, arg.getValue());
+        assertEquals(Integer.valueOf(Types.INTEGER), arg.getJdbcType());
+        assertEquals(Integer.class, arg.getJavaType());
+    }
+
+    @Test
+    public void outputConfigurationStillAllowsOmittedExpression() throws SQLException {
+        String config = "mode=OUT,jdbcType=DECIMAL,name=total,typeName=DECIMAL,scale=2";
+        SqlBuilder parsed = DynamicParsed.getParsedSql("#{" + config + "}").buildQuery(Collections.emptyMap(), new TestQueryContext());
+        SqlBuilder rule = new SqlBuilder();
+        ArgRule.INSTANCE.executeRule(new MapSqlArgSource(Collections.emptyMap()), new TestQueryContext(), rule, "", config);
+        for (SqlBuilder result : new SqlBuilder[] { parsed, rule }) {
+            SqlArg arg = (SqlArg) result.getArgs()[0];
+            assertEquals(SqlMode.Out, arg.getSqlMode());
+            assertEquals(Integer.valueOf(Types.DECIMAL), arg.getJdbcType());
+            assertEquals("total", arg.getAsName());
+            assertEquals("DECIMAL", arg.getJdbcTypeName());
+            assertEquals(Integer.valueOf(2), arg.getScale());
+            assertNull(arg.getValue());
+        }
+    }
+
+    @Test
+    public void unsupportedAssignmentsDoNotBecomeExecutableExpressions() {
+        assertThrows(IllegalArgumentException.class, () -> DynamicParsed.getParsedSql("#{age = 18}"));
+        assertThrows(IllegalArgumentException.class, () -> DynamicParsed.getParsedSql("#{user.age = 18}"));
+        assertThrows(IllegalArgumentException.class, () -> DynamicParsed.getParsedSql("#{unknownConfig = value}"));
     }
 }

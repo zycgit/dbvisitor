@@ -7,9 +7,11 @@
  */
 package net.hasor.dbvisitor.types.handler.json;
 
+import java.lang.reflect.Modifier;
 import java.sql.SQLException;
 import java.util.*;
 import net.hasor.cobble.ClassUtils;
+import net.hasor.cobble.convert.ConverterUtils;
 import net.hasor.cobble.reflect.resolvable.ResolvableType;
 import net.hasor.dbvisitor.types.NoCache;
 import org.bson.BsonDocument;
@@ -36,7 +38,6 @@ public class BsonListTypeHandler extends AbstractBsonTypeHandler {
         CLASS_MAPPING_MAP.put(Collection.class, ArrayList.class);
         CLASS_MAPPING_MAP.put(List.class, ArrayList.class);
         CLASS_MAPPING_MAP.put(Set.class, LinkedHashSet.class);
-        CLASS_MAPPING_MAP.put(Map.class, LinkedHashMap.class);
     }
 
     public BsonListTypeHandler(ResolvableType documentType) {
@@ -45,8 +46,27 @@ public class BsonListTypeHandler extends AbstractBsonTypeHandler {
         }
 
         Class<?> rawClass = documentType.getRawClass();
-        this.fieldType = Objects.requireNonNull(CLASS_MAPPING_MAP.get(rawClass), "Unsupported collection type: " + rawClass.getName());
-        this.elementType = documentType.resolveGeneric(0);
+        if (rawClass == null) {
+            throw new IllegalArgumentException("Unsupported collection type: " + documentType);
+        }
+
+        Class<?> collectionType = CLASS_MAPPING_MAP.get(rawClass);
+        if (collectionType == null && Collection.class.isAssignableFrom(rawClass) && !Modifier.isAbstract(rawClass.getModifiers())) {
+            collectionType = rawClass;
+        }
+
+        if (collectionType == null) {
+            throw new IllegalArgumentException("Unsupported collection type: " + rawClass.getName());
+        }
+
+        try {
+            collectionType.getConstructor();
+        } catch (NoSuchMethodException e) {
+            throw new IllegalArgumentException("Collection type requires a public no-argument constructor: " + collectionType.getName(), e);
+        }
+
+        this.fieldType = collectionType;
+        this.elementType = documentType.as(Iterable.class).resolveGeneric(0);
     }
 
     public Class<?> getFieldType() {
@@ -67,14 +87,16 @@ public class BsonListTypeHandler extends AbstractBsonTypeHandler {
             List<?> src = (List<?>) obj;
             Object result = ClassUtils.newInstance(this.fieldType);
             for (Object item : src) {
-                if (item instanceof Document) {
+                if (item == null || this.elementType == null || this.elementType == Object.class || this.elementType.isInstance(item)) {
+                    addItem(result, item);
+                } else if (item instanceof Document) {
                     Document doc = (Document) item;
                     BsonDocument bsonDoc = doc.toBsonDocument(this.elementType, CODEC_REGISTRY);
                     Codec<?> codec = CODEC_REGISTRY.get(elementType);
                     Object decoded = codec.decode(new BsonDocumentReader(bsonDoc), DecoderContext.builder().build());
                     addItem(result, decoded);
                 } else {
-                    addItem(result, item);
+                    addItem(result, ConverterUtils.convert(this.elementType, item));
                 }
             }
 

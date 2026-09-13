@@ -694,9 +694,9 @@ public final class TypeHandlerRegistry {
             typeHandler = this.abstractCachedByJavaType.get(bestMatch);
         }
 
-        // register default
+        // A fallback lookup does not register the Java type as a scalar type.
         if (typeHandler == null) {
-            typeHandler = this.defaultTypeHandler;
+            return this.defaultTypeHandler;
         }
         this.cachedByJavaType.put(typeClassName, typeHandler);
         return typeHandler;
@@ -791,9 +791,9 @@ public final class TypeHandlerRegistry {
             typeHandler = this.abstractCachedByCrossType.get(bestMatch).get(jdbcType);
         }
 
-        // register default
+        // Cache only a matched handler, not the fallback for an unknown pair.
         if (typeHandler == null) {
-            typeHandler = this.defaultTypeHandler;
+            return this.defaultTypeHandler;
         }
         register(jdbcType, typeClass, typeHandler);
         return typeHandler;

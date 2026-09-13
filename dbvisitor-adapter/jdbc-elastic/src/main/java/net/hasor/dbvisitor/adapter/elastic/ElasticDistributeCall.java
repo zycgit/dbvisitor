@@ -6,6 +6,8 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.elastic;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.List;
@@ -114,6 +116,9 @@ class ElasticDistributeCall {
                 ElasticOperation op = createOperation(h.insert().insertPath(), hints, argIndex, method, request);
                 op.setUseRefresh(((ElasticRequest) request).isIndexRefresh());
                 Object jsonBody = resolveJson(h.insert().json(), argIndex, request);
+                if (op.getQueryPath().endsWith("/_bulk")) {
+                    return ElasticCommandsForCrud.execBulk(sync, elasticCmd, op, jsonBody, receive);
+                }
                 return ElasticCommandsForCrud.execInsert(sync, elasticCmd, op, jsonBody, receive);
             }
             if (h.deleteQuery() != null) {
@@ -175,7 +180,10 @@ class ElasticDistributeCall {
                 op.setUseRefresh(((ElasticRequest) request).isIndexRefresh());
                 Object jsonBody = resolveJson(h.generic().json(), argIndex, request);
 
-                if (method == ElasticHttpMethod.GET) {
+                if ((method == ElasticHttpMethod.POST || method == ElasticHttpMethod.PUT)
+                        && op.getQueryPath().endsWith("/_bulk")) {
+                    return ElasticCommandsForCrud.execBulk(sync, elasticCmd, op, jsonBody, receive);
+                } else if (method == ElasticHttpMethod.GET) {
                     return ElasticCommandsForGeneric.execGeneric(sync, elasticCmd, op, jsonBody, receive);
                 } else {
                     return ElasticCommandsForCrud.execInsert(sync, elasticCmd, op, jsonBody, receive);
@@ -191,6 +199,9 @@ class ElasticDistributeCall {
     }
 
     private static SQLException readError(Exception e, AdapterRequest request) {
+        if (e instanceof SQLException) {
+            return (SQLException) e;
+        }
         if (e instanceof ResponseException) {
             String errorMsg = null;
             Response response = ((ResponseException) e).getResponse();
@@ -314,7 +325,7 @@ class ElasticDistributeCall {
             String text = node.getText();
             if ("{?}".equals(text)) {
                 Object arg = ElasticCommands.getArg(argIndex, request);
-                builder.append(arg);
+                builder.append(URLEncoder.encode(String.valueOf(arg), StandardCharsets.UTF_8).replace("+", "%20"));
             } else {
                 builder.append(text);
             }

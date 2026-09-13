@@ -56,19 +56,19 @@ public class AdditionalCoverageTest {
         stmt.executeLargeUpdate("INSERT INTO t VALUES(1)", new int[] { 1 });
     }
 
-    @Test(expected = SQLFeatureNotSupportedException.class)
+    @Test
     public void execute_columnNames() throws Exception {
         Statement stmt = conn.createStatement();
         stmt.execute("INSERT INTO t VALUES(1)", new String[] { "id" });
     }
 
-    @Test(expected = SQLFeatureNotSupportedException.class)
+    @Test
     public void executeUpdate_columnNames() throws Exception {
         Statement stmt = conn.createStatement();
         stmt.executeUpdate("INSERT INTO t VALUES(1)", new String[] { "id" });
     }
 
-    @Test(expected = SQLFeatureNotSupportedException.class)
+    @Test
     public void executeLargeUpdate_columnNames() throws Exception {
         Statement stmt = conn.createStatement();
         stmt.executeLargeUpdate("INSERT INTO t VALUES(1)", new String[] { "id" });

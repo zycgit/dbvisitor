@@ -199,6 +199,7 @@ public class CollectionWriteTest extends AbstractJdbcTest {
                 PowerMockito.when(res.getInsertedCount()).thenReturn(1);
                 PowerMockito.when(res.getModifiedCount()).thenReturn(1);
                 PowerMockito.when(res.getDeletedCount()).thenReturn(1);
+                PowerMockito.when(res.getUpserts()).thenReturn(java.util.Collections.emptyList());
                 PowerMockito.when(mockColl.bulkWrite(any(List.class), any(BulkWriteOptions.class))).thenReturn(res);
                 return mockColl;
             }

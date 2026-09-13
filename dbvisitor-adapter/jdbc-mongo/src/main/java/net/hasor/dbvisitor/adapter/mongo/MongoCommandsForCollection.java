@@ -7,29 +7,29 @@
  */
 package net.hasor.dbvisitor.adapter.mongo;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import org.bson.BsonValue;
-import org.bson.Document;
-import org.bson.conversions.Bson;
-
 import com.mongodb.MongoNamespace;
+import com.mongodb.bulk.BulkWriteResult;
+import com.mongodb.bulk.BulkWriteUpsert;
 import com.mongodb.client.*;
 import com.mongodb.client.model.*;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.InsertManyResult;
 import com.mongodb.client.result.InsertOneResult;
 import com.mongodb.client.result.UpdateResult;
-
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.dbvisitor.adapter.mongo.parser.MongoBsonVisitor;
 import net.hasor.dbvisitor.adapter.mongo.parser.MongoParser.*;
 import net.hasor.dbvisitor.driver.*;
+import org.bson.BsonValue;
+import org.bson.Document;
+import org.bson.conversions.Bson;
 
 @SuppressWarnings("unchecked")
 class MongoCommandsForCollection extends MongoCommands {
@@ -331,7 +331,7 @@ class MongoCommandsForCollection extends MongoCommands {
             result = mongoColl.updateOne(filter, update, options);
         }
 
-        receive.responseUpdateCount(request, result.getModifiedCount());
+        respondUpdate(request, receive, result);
         return completed(sync);
     }
 
@@ -456,7 +456,7 @@ class MongoCommandsForCollection extends MongoCommands {
         MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
         MongoCollection<Document> mongoColl = mongoDB.getCollection(collName);
         com.mongodb.bulk.BulkWriteResult result = mongoColl.bulkWrite(models, options);
-        receive.responseUpdateCount(request, result.getModifiedCount() + result.getInsertedCount() + result.getDeletedCount());
+        receive.responseUpdateCount(request, result.getModifiedCount() + result.getInsertedCount() + result.getDeletedCount() + result.getUpserts().size());
         return completed(sync);
     }
 
@@ -506,7 +506,7 @@ class MongoCommandsForCollection extends MongoCommands {
 
         if (((MongoRequest) request).isPreRead()) {
             try (MongoResultBuffer buffer = new MongoResultBuffer(conn.getPreReadThreshold(), conn.getPreReadMaxFileSize(), conn.getPreReadCacheDir())) {
-                return execFindWithPreRead(sync, request, receive, buffer, it);
+                return execFindWithPreRead(sync, request, receive, buffer, it, projection);
             } catch (IOException e) {
                 throw new SQLException(e);
             }
@@ -571,7 +571,7 @@ class MongoCommandsForCollection extends MongoCommands {
 
         if (((MongoRequest) request).isPreRead()) {
             try (MongoResultBuffer buffer = new MongoResultBuffer(conn.getPreReadThreshold(), conn.getPreReadMaxFileSize(), conn.getPreReadCacheDir())) {
-                return execFindWithPreRead(sync, request, receive, buffer, it);
+                return execFindWithPreRead(sync, request, receive, buffer, it, projection);
             } catch (IOException e) {
                 throw new SQLException(e);
             }
@@ -580,36 +580,53 @@ class MongoCommandsForCollection extends MongoCommands {
         }
     }
 
-    private static Future<?> execFindWithPreRead(Future<Object> sync, AdapterRequest request, AdapterReceive receive, MongoResultBuffer buffer, FindIterable<Document> it) throws SQLException, IOException {
-        Set<String> keySet = new LinkedHashSet<>();
-        keySet.add(COL_ID_STRING.name);
-        keySet.add(COL_JSON_STRING.name);
+    private static Future<?> execFindWithPreRead(Future<Object> sync, AdapterRequest request, AdapterReceive receive, MongoResultBuffer buffer, MongoIterable<Document> it, Bson projection) throws SQLException, IOException {
+        boolean projected = projection != null;
+        Set<String> keySet = projectedColumnNames(projection);
+        Map<String, String> fieldTypes = new LinkedHashMap<>();
+        // Explicit projections expose the fields returned by MongoDB, including its default _id.
+        // Unprojected reads retain the document access columns for compatibility.
+        if (!projected) {
+            keySet.add(COL_ID_STRING.name);
+            keySet.add(COL_JSON_STRING.name);
+        }
         long maxRows = request.getMaxRows();
         int affectRows = 0;
-        for (Document doc : it) {
-            buffer.add(doc);
-            keySet.addAll(doc.keySet());
+        try (MongoCursor<Document> documents = it.iterator()) {
+            while (documents.hasNext()) {
+                Document doc = documents.next();
+                buffer.add(doc);
+                keySet.addAll(doc.keySet());
+                for (Map.Entry<String, Object> field : doc.entrySet()) {
+                    if (field.getValue() != null) {
+                        fieldTypes.putIfAbsent(field.getKey(), MongoValues.jdbcType(field.getValue()));
+                    }
+                }
 
-            affectRows++;
-            if (maxRows > 0 && affectRows >= maxRows) {
-                break;
+                affectRows++;
+                if (maxRows > 0 && affectRows >= maxRows) {
+                    break;
+                }
             }
         }
         buffer.finish();
 
         List<JdbcColumn> columns = new ArrayList<>();
         for (String key : keySet) {
-            columns.add(new JdbcColumn(key, AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array));
+            String type = fieldTypes.getOrDefault(key, AdapterType.String);
+            columns.add(new JdbcColumn(key, type, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Unknown));
         }
 
         AdapterResultCursor cursor = new AdapterResultCursor(request, columns);
         for (Document doc : buffer) {
             Map<String, Object> row = new LinkedHashMap<>();
-            row.put(COL_ID_STRING.name, hexObjectId(doc));
-            row.put(COL_JSON_STRING.name, doc.toJson());
+            if (!projected) {
+                row.put(COL_ID_STRING.name, hexObjectId(doc));
+                row.put(COL_JSON_STRING.name, doc.toJson());
+            }
             for (String key : keySet) {
                 if (doc.containsKey(key)) {
-                    Object val = doc.get(key);
+                    Object val = MongoValues.jdbcValue(doc.get(key));
                     row.put(key, val);
                 }
             }
@@ -618,6 +635,26 @@ class MongoCommandsForCollection extends MongoCommands {
         cursor.pushFinish();
         receive.responseResult(request, cursor);
         return completed(sync);
+    }
+
+    private static Set<String> projectedColumnNames(Bson projection) {
+        Set<String> names = new LinkedHashSet<>();
+        if (!(projection instanceof Document)) {
+            return names;
+        }
+        Document fields = (Document) projection;
+        for (Map.Entry<String, Object> field : fields.entrySet()) {
+            Object value = field.getValue();
+            boolean excluded = Boolean.FALSE.equals(value) || value instanceof Number && ((Number) value).doubleValue() == 0;
+            if (!excluded) {
+                names.add(field.getKey());
+            }
+        }
+        // Exclusion projections have an open schema; discover their remaining fields from documents.
+        if (!names.isEmpty() && !fields.containsKey("_id")) {
+            names.add("_id");
+        }
+        return names;
     }
 
     private static Future<?> execFindWithDirect(Future<Object> sync, AdapterRequest request, AdapterReceive receive, FindIterable<Document> it) throws SQLException {
@@ -710,6 +747,9 @@ class MongoCommandsForCollection extends MongoCommands {
 
         MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
         MongoCollection<Document> mongoColl = mongoDB.getCollection(collName);
+        if (hint.containsKey("mongo_duplicate_strategy")) {
+            return execDuplicateInsert(sync, request, receive, mongoColl, docs, options, hint);
+        }
         InsertManyResult insertResult = mongoColl.insertMany(docs, options);
         AdapterResultCursor generatedKeys = null;
 
@@ -719,6 +759,59 @@ class MongoCommandsForCollection extends MongoCommands {
         }
 
         receive.responseUpdateCount(request, docs.size(), generatedKeys);
+        return completed(sync);
+    }
+
+    private static Future<?> execDuplicateInsert(Future<Object> sync, AdapterRequest request, AdapterReceive receive, MongoCollection<Document> collection, List<Document> documents, InsertManyOptions insertOptions, Map<String, Object> hints) throws SQLException {
+        String strategy = String.valueOf(hints.get("mongo_duplicate_strategy"));
+        if (!"ignore".equals(strategy) && !"update".equals(strategy)) {
+            throw new SQLException("Unknown MongoDB duplicate strategy: " + strategy);
+        }
+        Object encodedKeys = hints.get("mongo_primary_keys");
+        if (!(encodedKeys instanceof String) || ((String) encodedKeys).isEmpty()) {
+            throw new SQLException("MongoDB duplicate strategy requires primary-key fields.");
+        }
+        List<String> primaryKeys = new ArrayList<>();
+        try {
+            for (String encoded : ((String) encodedKeys).split("\\.", -1)) {
+                String field = new String(Base64.getUrlDecoder().decode(encoded), StandardCharsets.UTF_8);
+                if (field.isEmpty() || field.indexOf('\0') >= 0 || field.startsWith("$") || field.indexOf('.') >= 0) {
+                    throw new SQLException("Unsupported MongoDB duplicate-strategy primary-key field: " + field);
+                }
+                primaryKeys.add(field);
+            }
+        } catch (IllegalArgumentException e) {
+            throw new SQLException("Invalid MongoDB primary-key hint encoding.", e);
+        }
+
+        List<WriteModel<Document>> writes = new ArrayList<>();
+        for (Document document : documents) {
+            Document filter = new Document();
+            Document values = new Document(document);
+            for (String key : primaryKeys) {
+                Object value = values.remove(key);
+                if (value == null) {
+                    throw new SQLException("MongoDB duplicate strategy requires a non-null primary key: " + key);
+                }
+                filter.put(key, new Document("$eq", value));
+            }
+            String operator = "ignore".equals(strategy) || values.isEmpty() ? "$setOnInsert" : "$set";
+            writes.add(new UpdateOneModel<>(filter, new Document(operator, values), new UpdateOptions().upsert(true)));
+        }
+        BulkWriteOptions options = new BulkWriteOptions().ordered(insertOptions.isOrdered());
+        if (insertOptions.getBypassDocumentValidation() != null) {
+            options.bypassDocumentValidation(insertOptions.getBypassDocumentValidation());
+        }
+        BulkWriteResult result = collection.bulkWrite(writes, options);
+        AdapterResultCursor generatedKeys = null;
+        if (request.isGeneratedKeys()) {
+            Map<Integer, BsonValue> ids = new LinkedHashMap<>();
+            for (BulkWriteUpsert upsert : result.getUpserts()) {
+                ids.put(ids.size(), upsert.getId());
+            }
+            generatedKeys = listResult(request, COL_ID_STRING, ids, ids.size());
+        }
+        receive.responseUpdateCount(request, result.getModifiedCount() + result.getUpserts().size(), generatedKeys);
         return completed(sync);
     }
 
@@ -808,7 +901,7 @@ class MongoCommandsForCollection extends MongoCommands {
         MongoCollection<Document> mongoColl = mongoDB.getCollection(collName);
         UpdateResult result = mongoColl.updateOne(filter, update, options);
 
-        receive.responseUpdateCount(request, result.getModifiedCount());
+        respondUpdate(request, receive, result);
         return completed(sync);
     }
 
@@ -847,7 +940,7 @@ class MongoCommandsForCollection extends MongoCommands {
         MongoCollection<Document> mongoColl = mongoDB.getCollection(collName);
         UpdateResult result = mongoColl.updateMany(filter, update, options);
 
-        receive.responseUpdateCount(request, result.getModifiedCount());
+        respondUpdate(request, receive, result);
         return completed(sync);
     }
 
@@ -881,15 +974,22 @@ class MongoCommandsForCollection extends MongoCommands {
         MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
         MongoCollection<Document> mongoColl = mongoDB.getCollection(collName);
         UpdateResult result = mongoColl.replaceOne(filter, replacement, options);
-        AdapterResultCursor generatedKeys = null;
-
-        if (request.isGeneratedKeys()) {
-            Map<Integer, BsonValue> insertedIds = CollectionUtils.asMap(0, result.getUpsertedId());
-            generatedKeys = listResult(request, COL_ID_STRING, insertedIds, 1);
-        }
-
-        receive.responseUpdateCount(request, result.getModifiedCount(), generatedKeys);
+        respondUpdate(request, receive, result);
         return completed(sync);
+    }
+
+    private static void respondUpdate(AdapterRequest request, AdapterReceive receive, UpdateResult result) throws SQLException {
+        BsonValue upsertedId = result.getUpsertedId();
+        AdapterResultCursor generatedKeys = null;
+        if (request.isGeneratedKeys()) {
+            Map<Integer, BsonValue> ids = new LinkedHashMap<>();
+            if (upsertedId != null) {
+                ids.put(0, upsertedId);
+            }
+            generatedKeys = listResult(request, COL_ID_STRING, ids, ids.size());
+        }
+        long affected = result.getModifiedCount() + (upsertedId == null ? 0 : 1);
+        receive.responseUpdateCount(request, affected, generatedKeys);
     }
 
     public static Future<?> execRenameCollection(Future<Object> sync, MongoCmd mongoCmd, AdapterRequest request, AdapterReceive receive, int startArgIdx,//
@@ -946,7 +1046,7 @@ class MongoCommandsForCollection extends MongoCommands {
     }
 
     public static Future<?> execAggregate(Future<Object> sync, MongoCmd mongoCmd, AdapterRequest request, AdapterReceive receive, int startArgIdx,//
-            HintCommandContext h, DatabaseNameContext database, CollectionContext collection, AggregateOpContext c) throws SQLException {
+            HintCommandContext h, DatabaseNameContext database, CollectionContext collection, AggregateOpContext c, MongoConn conn) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         Map<String, Object> hint = readHints(argIndex, request, h.hint());
         String dbName = argAsDbName(argIndex, request, database, mongoCmd);
@@ -964,6 +1064,15 @@ class MongoCommandsForCollection extends MongoCommands {
             applyAggregateOptions(aggregate, options);
         }
 
+        Bson projection = aggregateProjection(pipeline);
+        if (((MongoRequest) request).isPreRead() && projection != null) {
+            try (MongoResultBuffer buffer = new MongoResultBuffer(conn.getPreReadThreshold(), conn.getPreReadMaxFileSize(), conn.getPreReadCacheDir())) {
+                return execFindWithPreRead(sync, request, receive, buffer, aggregate, projection);
+            } catch (IOException e) {
+                throw new SQLException(e);
+            }
+        }
+
         AdapterResultCursor cursor = new AdapterResultCursor(request, Arrays.asList(COL_ID_STRING, COL_JSON_STRING));
         for (Document doc : aggregate) {
             cursor.pushData(CollectionUtils.asMap(COL_ID_STRING.name, hexObjectId(doc), COL_JSON_STRING.name, doc.toJson()));
@@ -972,6 +1081,23 @@ class MongoCommandsForCollection extends MongoCommands {
 
         receive.responseResult(request, cursor);
         return completed(sync);
+    }
+
+    private static Bson aggregateProjection(List<Bson> pipeline) {
+        Bson projection = null;
+        for (Bson stage : pipeline) {
+            if (!(stage instanceof Document)) {
+                continue;
+            }
+            Document document = (Document) stage;
+            if (document.containsKey("$project")) {
+                projection = (Bson) document.get("$project");
+            } else if (document.containsKey("$group") || document.containsKey("$replaceRoot") || document.containsKey("$replaceWith")) {
+                // These stages replace the document shape declared by an earlier projection.
+                projection = null;
+            }
+        }
+        return projection;
     }
 
     private static void applyAggregateOptions(AggregateIterable<Document> aggregate, Map<String, Object> options) throws SQLException {

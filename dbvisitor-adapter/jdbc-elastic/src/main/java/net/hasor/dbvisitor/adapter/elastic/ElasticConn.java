@@ -152,6 +152,16 @@ public class ElasticConn extends AdapterConnection {
     }
 
     @Override
+    public AdapterCursor getTables(String catalog, String schemaPattern, String tableNamePattern, String[] types) throws SQLException {
+        return ElasticMetadata.tables(this.elasticCmd, this.json, catalog, schemaPattern, tableNamePattern, types);
+    }
+
+    @Override
+    public AdapterCursor getColumns(String catalog, String schemaPattern, String tableNamePattern, String columnNamePattern) throws SQLException {
+        return ElasticMetadata.columns(this.elasticCmd, this.json, catalog, schemaPattern, tableNamePattern, columnNamePattern);
+    }
+
+    @Override
     public void setCatalog(String catalog) {
     }
 
@@ -263,6 +273,10 @@ public class ElasticConn extends AdapterConnection {
     @Override
     public void cancelRequest() {
         this.cancelled = true;
+    }
+
+    boolean isCancelled() {
+        return this.cancelled;
     }
 
     @Override

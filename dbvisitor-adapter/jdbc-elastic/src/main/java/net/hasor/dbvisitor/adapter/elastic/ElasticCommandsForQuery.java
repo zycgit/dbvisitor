@@ -9,17 +9,14 @@ package net.hasor.dbvisitor.adapter.elastic;
 import java.io.InputStream;
 import java.sql.ResultSetMetaData;
 import java.util.*;
-
-import org.elasticsearch.client.Request;
-import org.elasticsearch.client.Response;
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.dbvisitor.driver.*;
+import org.elasticsearch.client.Request;
+import org.elasticsearch.client.Response;
 
 class ElasticCommandsForQuery extends ElasticCommands {
     public static Future<?> execMultiSearch(Future<Object> sync, ElasticCmd cmd, ElasticOperation o, Object jsonBody, AdapterReceive receive, ElasticConn conn) throws Exception {
@@ -96,10 +93,7 @@ class ElasticCommandsForQuery extends ElasticCommands {
                             keySet.addAll(row.keySet());
                         }
 
-                        List<JdbcColumn> columns = new ArrayList<>();
-                        for (String key : keySet) {
-                            columns.add(new JdbcColumn(key, AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array));
-                        }
+                        List<JdbcColumn> columns = bufferedColumns(keySet, buffer);
 
                         AdapterResultCursor cursor = new AdapterResultCursor(request, columns);
                         for (Map<String, Object> row : buffer) {
@@ -217,13 +211,34 @@ class ElasticCommandsForQuery extends ElasticCommands {
     //
 
     public static Future<?> execSearch(Future<Object> sync, ElasticCmd cmd, ElasticOperation o, Object jsonBody, AdapterReceive receive, ElasticConn conn) throws Exception {
+        if (ElasticCommandsForAggregation.supports(o, jsonBody)) {
+            return ElasticCommandsForAggregation.execAggregation(sync, cmd, o, jsonBody, receive, conn);
+        }
         Map<String, Object> hints = o.getHints();
         if (hints != null && !hints.isEmpty()) {
             if (hints.containsKey("overwrite_find_as_count")) {
                 String endpoint = o.getEndpoint();
                 String newEndpoint = endpoint.replace("/_search", "/_count");
                 ElasticOperation newOp = new ElasticOperation(o.getMethod(), newEndpoint, o.getQueryPath(), o.getQueryParams(), hints, o.getRequest());
-                return execCount(sync, cmd, newOp, jsonBody, receive);
+                Object countBody = jsonBody;
+                if (jsonBody instanceof Map) {
+                    Map<?, ?> searchBody = (Map<?, ?>) jsonBody;
+                    for (String option : new String[] { "aggs", "aggregations", "collapse", "min_score", "knn", "terminate_after" }) {
+                        if (searchBody.containsKey(option)) {
+                            throw new java.sql.SQLFeatureNotSupportedException("Cannot rewrite search option '" + option + "' as a document count");
+                        }
+                    }
+                    Map<String, Object> countQuery = new LinkedHashMap<>();
+                    if (searchBody.containsKey("query")) {
+                        countQuery.put("query", searchBody.get("query"));
+                    }
+                    if (searchBody.containsKey("post_filter")) {
+                        Object query = countQuery.getOrDefault("query", Collections.singletonMap("match_all", Collections.emptyMap()));
+                        countQuery.put("query", Collections.singletonMap("bool", Collections.singletonMap("filter", java.util.Arrays.asList(query, searchBody.get("post_filter")))));
+                    }
+                    countBody = countQuery;
+                }
+                return execCount(sync, cmd, newOp, countBody, receive);
             }
 
             if (jsonBody instanceof Map) {
@@ -237,12 +252,19 @@ class ElasticCommandsForQuery extends ElasticCommands {
             }
         }
 
-        Request esRequest = new Request(o.getMethod().name(), o.getEndpoint());
+        List<String> projectedFields = sourceColumns(jsonBody);
         ObjectMapper jsonMapper = ((ElasticRequest) o.getRequest()).getJson();
-        if (jsonBody != null) {
-            esRequest.setJsonEntity(jsonMapper.writeValueAsString(jsonBody));
+        ElasticFieldTypes fieldTypes = projectedFields == null ? null : ElasticFieldTypes.load(cmd, o, jsonMapper, projectedFields, (Map<String, Object>) jsonBody);
+        Object searchBody = fieldTypes == null ? jsonBody : fieldTypes.prepareBody((Map<String, Object>) jsonBody);
+        Request esRequest = new Request(o.getMethod().name(), o.getEndpoint());
+        if (searchBody != null) {
+            esRequest.setJsonEntity(jsonMapper.writeValueAsString(searchBody));
         }
         Response response = cmd.getClient().performRequest(esRequest);
+
+        if (projectedFields != null) {
+            return execProjectedSearch(sync, o.getRequest(), receive, response, jsonMapper, projectedFields, fieldTypes);
+        }
 
         if (((ElasticRequest) o.getRequest()).isPreRead()) {
             try (ElasticResultBuffer buffer = new ElasticResultBuffer(conn.getPreReadThreshold(), conn.getPreReadMaxFileSize(), conn.getPreReadCacheDir())) {
@@ -251,6 +273,69 @@ class ElasticCommandsForQuery extends ElasticCommands {
         } else {
             return execSearchWithDirect(sync, o.getRequest(), receive, response, jsonMapper);
         }
+    }
+
+    /** A literal include list declares result columns; wildcard/exclusion queries keep document results. */
+    private static List<String> sourceColumns(Object jsonBody) {
+        if (!(jsonBody instanceof Map)) {
+            return null;
+        }
+        Object source = ((Map<?, ?>) jsonBody).get("_source");
+        if (Boolean.FALSE.equals(source)) {
+            Object scripts = ((Map<?, ?>) jsonBody).get("script_fields");
+            if (scripts instanceof Map && !((Map<?, ?>) scripts).isEmpty()) {
+                List<String> aliases = new ArrayList<>();
+                for (Object alias : ((Map<?, ?>) scripts).keySet()) {
+                    aliases.add(String.valueOf(alias));
+                }
+                return aliases;
+            }
+        }
+        if (source instanceof String) {
+            source = Collections.singletonList(source);
+        }
+        if (!(source instanceof Collection) || ((Collection<?>) source).isEmpty()) {
+            return null;
+        }
+        Set<String> columns = new LinkedHashSet<>();
+        for (Object item : (Collection<?>) source) {
+            if (!(item instanceof String) || ((String) item).isEmpty() || ((String) item).contains("*") || ((String) item).contains("?")) {
+                return null;
+            }
+            columns.add((String) item);
+        }
+        return new ArrayList<>(columns);
+    }
+
+    private static Future<?> execProjectedSearch(Future<Object> sync, AdapterRequest request, AdapterReceive receive, Response response, ObjectMapper jsonMapper, List<String> fields, ElasticFieldTypes fieldTypes) throws Exception {
+        try (InputStream input = response.getEntity().getContent(); JsonParser parser = jsonMapper.getFactory().createParser(input)) {
+            boolean hasHits = navigateToHits(parser);
+            JsonNode first = hasHits && parser.nextToken() != JsonToken.END_ARRAY ? jsonMapper.readTree(parser) : null;
+            List<JdbcColumn> columns = new ArrayList<>();
+            for (String field : fields) {
+                Object value = fieldTypes.value(first, field);
+                String type = fieldTypes.columnType(field, value);
+                columns.add(new JdbcColumn(field, type, "", "", "", ResultSetMetaData.columnNullableUnknown, false, fieldTypes.elementType(field)));
+            }
+            AdapterResultCursor cursor = new AdapterResultCursor(request, columns);
+            long count = 0;
+            JsonNode hit = first;
+            while (hit != null) {
+                Map<String, Object> row = new LinkedHashMap<>();
+                for (String field : fields) {
+                    row.put(field, fieldTypes.value(hit, field));
+                }
+                cursor.pushData(row);
+                count++;
+                if (request.getMaxRows() > 0 && count >= request.getMaxRows()) {
+                    break;
+                }
+                hit = parser.nextToken() != JsonToken.END_ARRAY ? jsonMapper.readTree(parser) : null;
+            }
+            cursor.pushFinish();
+            receive.responseResult(request, cursor);
+        }
+        return completed(sync);
     }
 
     private static Future<?> execSearchWithPreRead(Future<Object> sync, AdapterRequest request, AdapterReceive receive, ElasticResultBuffer buffer, Response response, ObjectMapper jsonMapper) throws Exception {
@@ -282,10 +367,7 @@ class ElasticCommandsForQuery extends ElasticCommands {
                 keySet.addAll(row.keySet());
             }
 
-            List<JdbcColumn> columns = new ArrayList<>();
-            for (String key : keySet) {
-                columns.add(new JdbcColumn(key, AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array));
-            }
+            List<JdbcColumn> columns = bufferedColumns(keySet, buffer);
             AdapterResultCursor cursor = new AdapterResultCursor(request, columns);
 
             for (Map<String, Object> row : buffer) {
@@ -386,14 +468,59 @@ class ElasticCommandsForQuery extends ElasticCommands {
             while (fields.hasNext()) {
                 Map.Entry<String, JsonNode> field = fields.next();
                 JsonNode value = field.getValue();
-                if (value.isValueNode()) {
+                if (value.isNull()) {
+                    row.put(field.getKey(), null);
+                } else if (value.isNumber()) {
+                    row.put(field.getKey(), value.numberValue());
+                } else if (value.isBoolean()) {
+                    row.put(field.getKey(), value.booleanValue());
+                } else if (value.isValueNode()) {
                     row.put(field.getKey(), value.asText());
                 } else {
-                    row.put(field.getKey(), value.toString());
+                    row.put(field.getKey(), rawJsonValue(value));
                 }
             }
         }
         return row;
+    }
+
+    private static Object rawJsonValue(JsonNode value) {
+        if (value.isNull()) {
+            return null;
+        }
+        if (value.isArray()) {
+            List<Object> items = new ArrayList<>();
+            for (JsonNode item : value) {
+                items.add(rawJsonValue(item));
+            }
+            return items;
+        }
+        if (value.isObject()) {
+            Map<String, Object> object = new LinkedHashMap<>();
+            value.fields().forEachRemaining(entry -> object.put(entry.getKey(), rawJsonValue(entry.getValue())));
+            return object;
+        }
+        return value.isBoolean() ? value.booleanValue() : value.isNumber() ? value.numberValue() : value.asText();
+    }
+
+    private static List<JdbcColumn> bufferedColumns(Set<String> fields, ElasticResultBuffer buffer) {
+        Map<String, String> types = new LinkedHashMap<>();
+        for (Map<String, Object> row : buffer) {
+            row.forEach((field, value) -> {
+                if (value != null && !types.containsKey(field)) {
+                    String type = value instanceof Boolean ? AdapterType.Boolean : value instanceof Integer ? AdapterType.Int
+                            : value instanceof Long ? AdapterType.Long : value instanceof Number ? AdapterType.Double
+                            : value instanceof List ? AdapterType.Array : AdapterType.String;
+                    types.put(field, type);
+                }
+            });
+        }
+        List<JdbcColumn> columns = new ArrayList<>();
+        for (String field : fields) {
+            columns.add(new JdbcColumn(field, types.getOrDefault(field, AdapterType.String), "", "", "",
+                    ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array));
+        }
+        return columns;
     }
 
     //
@@ -469,7 +596,7 @@ class ElasticCommandsForQuery extends ElasticCommands {
             if (val instanceof Map || val instanceof List) {
                 row.put(entry.getKey(), jsonMapper.writeValueAsString(val));
             } else {
-                row.put(entry.getKey(), val != null ? val.toString() : null);
+                row.put(entry.getKey(), val);
             }
         }
         return row;
@@ -512,10 +639,7 @@ class ElasticCommandsForQuery extends ElasticCommands {
                         keySet.addAll(row.keySet());
                     }
 
-                    List<JdbcColumn> columns = new ArrayList<>();
-                    for (String key : keySet) {
-                        columns.add(new JdbcColumn(key, AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array));
-                    }
+                    List<JdbcColumn> columns = bufferedColumns(keySet, buffer);
 
                     AdapterResultCursor cursor = new AdapterResultCursor(request, columns);
                     for (Map<String, Object> row : buffer) {

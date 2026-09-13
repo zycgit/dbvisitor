@@ -322,8 +322,8 @@ public class JdbcStatementTest {
         stmt.execute("INSERT INTO test VALUES (1)", new int[] { 1 });
     }
 
-    @Test(expected = SQLFeatureNotSupportedException.class)
-    public void execute_columnNames_unsupported() throws Exception {
+    @Test
+    public void execute_columnNames() throws Exception {
         Statement stmt = conn.createStatement();
         stmt.execute("INSERT INTO test VALUES (1)", new String[] { "id" });
     }
@@ -334,8 +334,8 @@ public class JdbcStatementTest {
         stmt.executeUpdate("INSERT INTO test VALUES (1)", new int[] { 1 });
     }
 
-    @Test(expected = SQLFeatureNotSupportedException.class)
-    public void executeUpdate_columnNames_unsupported() throws Exception {
+    @Test
+    public void executeUpdate_columnNames() throws Exception {
         Statement stmt = conn.createStatement();
         stmt.executeUpdate("INSERT INTO test VALUES (1)", new String[] { "id" });
     }
@@ -346,8 +346,8 @@ public class JdbcStatementTest {
         stmt.executeLargeUpdate("INSERT INTO test VALUES (1)", new int[] { 1 });
     }
 
-    @Test(expected = SQLFeatureNotSupportedException.class)
-    public void executeLargeUpdate_columnNames_unsupported() throws Exception {
+    @Test
+    public void executeLargeUpdate_columnNames() throws Exception {
         Statement stmt = conn.createStatement();
         stmt.executeLargeUpdate("INSERT INTO test VALUES (1)", new String[] { "id" });
     }

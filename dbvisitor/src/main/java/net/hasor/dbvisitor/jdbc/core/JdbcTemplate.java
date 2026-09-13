@@ -1001,9 +1001,6 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
 
         @Override
         public CallableStatement createCallableStatement(Connection con) throws SQLException {
-            if (!con.getMetaData().supportsStoredProcedures()) {
-                throw new UnsupportedOperationException("target DataSource Unsupported.");
-            }
             CallableStatement cs = con.prepareCall(this.sql);
             if (this.setter != null) {
                 this.setter.setValues(cs);

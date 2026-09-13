@@ -7,31 +7,28 @@
  */
 package net.hasor.dbvisitor.adapter.elastic.commands;
 
-import static org.junit.Assert.*;
-
 import java.sql.*;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Properties;
-
+import net.hasor.dbvisitor.adapter.elastic.ElasticKeys;
 import org.apache.http.util.EntityUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-
-import net.hasor.dbvisitor.adapter.elastic.ElasticKeys;
+import static org.junit.Assert.*;
 
 @RunWith(Parameterized.class)
 public class ElasticQueryCommandTest extends AbstractElasticCommandTest {
-    private static final String HITS = """
+    private static final String  HITS = """
             {"took":1,"hits":{"total":{"value":2,"relation":"eq"},"hits":[
             {"_id":"1","_source":{"title":"Java","year":2026,"tags":["jdbc"],"author":{"name":"Alice"}}},
             {"_id":"2","_source":{"title":"SQL","active":true}}]}}
             """;
-    private final boolean       preRead;
+    private final        boolean preRead;
 
     @Rule
     public TemporaryFolder cache = new TemporaryFolder();
@@ -53,6 +50,88 @@ public class ElasticQueryCommandTest extends AbstractElasticCommandTest {
     }
 
     @Test
+    public void explicitSourceProjectionDefinesOrderedResultColumns() throws Exception {
+        respondWith("{\"books\": {\"mappings\": {\"properties\": {}}}}");
+        respondWith(HITS);
+        try (Connection connection = elasticConnection(settings()); Statement statement = connection.createStatement(); ResultSet result = statement.executeQuery("POST /books/_search {\"_source\":[\"year\",\"title\"]}")) {
+            assertEquals(2, result.getMetaData().getColumnCount());
+            assertEquals("year", result.getMetaData().getColumnLabel(1));
+            assertEquals("title", result.getMetaData().getColumnLabel(2));
+            assertTrue(result.next());
+            assertEquals(2026, result.getObject(1));
+            assertEquals("Java", result.getString(2));
+            assertTrue(result.next());
+            assertNull(result.getObject(1));
+            assertTrue(result.wasNull());
+            assertEquals("SQL", result.getString(2));
+            assertFalse(result.next());
+        }
+    }
+
+    @Test
+    public void countRewriteDropsSearchOnlyOptionsAndPreservesFilter() throws Exception {
+        respondWith("{\"count\":2}");
+        try (Connection connection = elasticConnection(settings()); Statement statement = connection.createStatement();
+                ResultSet result = statement.executeQuery("/*+overwrite_find_as_count*/ POST /books/_search {\"query\":{\"term\":{\"year\":2026}},\"_source\":[\"title\"],\"sort\":[\"year\"],\"from\":1,\"size\":1}")) {
+            assertTrue(result.next());
+            assertEquals(2, result.getInt(1));
+        }
+        assertRequest(0, "POST", "/books/_count", "{\"query\":{\"term\":{\"year\":2026}}}");
+    }
+
+    @Test
+    public void emptyProjectionResultStillDeclaresSelectedColumn() throws Exception {
+        respondWith("{\"books\": {\"mappings\": {\"properties\": {}}}}");
+        respondWith("{\"hits\":{\"hits\":[]}}");
+        try (Connection connection = elasticConnection(settings()); Statement statement = connection.createStatement(); ResultSet result = statement.executeQuery("POST /books/_search {\"_source\":\"title\"}")) {
+            assertEquals(1, result.getMetaData().getColumnCount());
+            assertEquals("title", result.getMetaData().getColumnLabel(1));
+            assertFalse(result.next());
+        }
+    }
+
+    @Test
+    public void explicitDocumentIdProjectionUsesMetadataId() throws Exception {
+        respondWith("{\"books\": {\"mappings\": {\"properties\": {}}}}");
+        respondWith("{\"hits\":{\"hits\":[{\"_id\":\"generated-42\",\"_source\":{}}]}}");
+        try (Connection connection = elasticConnection(settings()); Statement statement = connection.createStatement();
+                ResultSet result = statement.executeQuery("POST /books/_search {\"_source\":[\"_ID\"]}")) {
+            assertTrue(result.next());
+            assertEquals("generated-42", result.getString(1));
+        }
+    }
+
+    @Test
+    public void nonLiteralSourceSelectionKeepsDocumentColumns() throws Exception {
+        for (String source : new String[] { "false", "[]", "[\"author.*\"]", "{\"excludes\":[\"year\"]}" }) {
+            respondWith(HITS);
+            try (Connection connection = elasticConnection(settings()); Statement statement = connection.createStatement(); ResultSet result = statement.executeQuery("POST /books/_search {\"_source\":" + source + "}")) {
+                assertEquals("_ID", result.getMetaData().getColumnLabel(1));
+                assertEquals("_DOC", result.getMetaData().getColumnLabel(2));
+                assertTrue(result.next());
+            }
+        }
+    }
+
+    @Test
+    public void searchPreservesNullAndEmptyStringFields() throws Exception {
+        respondWith("""
+                {"hits":{"hits":[{"_id":"1","_source":{"name":null,"email":""}}]}}
+                """);
+        try (Connection connection = elasticConnection(settings()); Statement statement = connection.createStatement(); ResultSet result = statement.executeQuery("GET /books/_search")) {
+            assertTrue(result.next());
+            assertTrue(json.readTree(result.getString("_DOC")).get("name").isNull());
+            if (preRead) {
+                assertNull(result.getObject("name"));
+                assertTrue(result.wasNull());
+                assertEquals("", result.getString("email"));
+                assertFalse(result.wasNull());
+            }
+            assertFalse(result.next());
+        }
+    }
+
+    @Test
     public void searchMapsDocumentsAndRespectsMaxRows() throws Exception {
         respondWith(HITS);
         try (Connection connection = elasticConnection(settings()); Statement statement = connection.createStatement()) {
@@ -63,6 +142,8 @@ public class ElasticQueryCommandTest extends AbstractElasticCommandTest {
                 assertEquals("Alice", json.readTree(result.getString("_DOC")).at("/author/name").asText());
                 if (preRead) {
                     assertEquals(2026, result.getInt("year"));
+                    assertEquals(2026, result.getObject("year"));
+                    assertEquals(java.sql.Types.INTEGER, result.getMetaData().getColumnType(result.findColumn("year")));
                     assertEquals("[\"jdbc\"]", result.getString("tags"));
                 } else {
                     assertEquals(2, result.getMetaData().getColumnCount());

@@ -7,6 +7,7 @@
  */
 package net.hasor.dbvisitor.transaction.support;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Savepoint;
 import net.hasor.dbvisitor.transaction.Isolation;
 import net.hasor.dbvisitor.transaction.Propagation;
@@ -60,7 +61,12 @@ public class LocalTransactionStatus implements TransactionStatus {
             throw new SQLException("Connection does not support Savepoint.");
         }
 
-        manager.releaseSavepoint(this.savepoint);
+        try {
+            manager.releaseSavepoint(this.savepoint);
+        } catch (SQLFeatureNotSupportedException unsupported) {
+            // Some drivers support savepoint rollback but not release. The outer transaction
+            // still owns these changes and discards the retained savepoint when it ends.
+        }
         this.savepoint = null;
     }
 

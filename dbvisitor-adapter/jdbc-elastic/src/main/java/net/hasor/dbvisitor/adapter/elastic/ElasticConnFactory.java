@@ -9,6 +9,9 @@ package net.hasor.dbvisitor.adapter.elastic;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import net.hasor.dbvisitor.driver.ConvertUtils;
 
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
@@ -103,7 +106,20 @@ public class ElasticConnFactory implements AdapterFactory {
 
     @Override
     public TypeSupport createTypeSupport(Properties properties) {
-        return new AdapterTypeSupport(properties);
+        AdapterTypeSupport support = new AdapterTypeSupport(properties);
+        support.addTypeMappingTo(net.hasor.dbvisitor.driver.AdapterType.Array, java.sql.Types.ARRAY, List.class);
+        ObjectMapper mapper = new ObjectMapper();
+        support.addConvert(String.class.getName(), (type, value) -> {
+            if (value instanceof Map || value instanceof Collection || (value != null && value.getClass().isArray() && !(value instanceof byte[]))) {
+                try {
+                    return mapper.writeValueAsString(value);
+                } catch (JsonProcessingException error) {
+                    throw new IllegalArgumentException("Cannot serialize Elasticsearch field as JSON", error);
+                }
+            }
+            return ConvertUtils.toString(value);
+        });
+        return support;
     }
 
     @Override

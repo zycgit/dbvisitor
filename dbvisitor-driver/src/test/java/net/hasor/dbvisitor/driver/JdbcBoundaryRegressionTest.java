@@ -333,6 +333,91 @@ public class JdbcBoundaryRegressionTest {
     }
 
     @Test
+    public void namedGeneratedKeysAreOrderedAndDoNotLeakToNextExecution() throws Exception {
+        List<JdbcColumn> columns = Arrays.asList(
+                new JdbcColumn("id", AdapterType.Long, "", "", "", ResultSetMetaData.columnNoNulls, true, AdapterType.Array),
+                new JdbcColumn("token", AdapterType.String, "", "", "", ResultSetMetaData.columnNoNulls, true, AdapterType.Array));
+        script = (request, receive) -> receive.responseUpdateCount(request, 2,
+                new AdapterMemoryCursor(columns, new Object[][] { { 11L, "a" }, { 12L, "b" } }));
+        try (Statement statement = connection.createStatement()) {
+            assertFalse(statement.execute("INSERT", new String[] { "TOKEN", "id" }));
+            assertTrue(lastRequest.isGeneratedKeys());
+            try (ResultSet keys = statement.getGeneratedKeys()) {
+                assertSame(keys, statement.getGeneratedKeys());
+                assertEquals("token", keys.getMetaData().getColumnName(1));
+                assertTrue(keys.next());
+                assertEquals("a", keys.getString(1));
+                assertEquals(11L, keys.getLong(2));
+                assertTrue(keys.next());
+                assertEquals("b", keys.getString(1));
+                assertFalse(keys.next());
+            }
+            assertEquals(2, statement.executeUpdate("INSERT", Statement.RETURN_GENERATED_KEYS));
+            try (ResultSet keys = statement.getGeneratedKeys()) {
+                assertEquals("id", keys.getMetaData().getColumnName(1));
+            }
+            assertEquals(2L, statement.executeLargeUpdate("INSERT", new String[] { "id" }));
+            try (ResultSet keys = statement.getGeneratedKeys()) {
+                assertEquals(1, keys.getMetaData().getColumnCount());
+                assertTrue(keys.next());
+                assertEquals(11L, keys.getLong("id"));
+            }
+        }
+    }
+
+    @Test
+    public void preparedKeyNamesAreCopiedAndRetainedAcrossExecutions() throws Exception {
+        script = (request, receive) -> receive.responseUpdateCount(request, 1, cursor(99L, AdapterType.Long));
+        String[] names = { "V" };
+        try (PreparedStatement statement = connection.prepareStatement("INSERT ?", names)) {
+            names[0] = "missing";
+            for (int i = 0; i < 2; i++) {
+                statement.setInt(1, i);
+                assertEquals(1, statement.executeUpdate());
+                assertTrue(lastRequest.isGeneratedKeys());
+                try (ResultSet keys = statement.getGeneratedKeys()) {
+                    assertTrue(keys.next());
+                    assertEquals(99L, keys.getLong(1));
+                }
+            }
+        }
+    }
+
+    @Test
+    public void generatedKeySelectionRejectsInvalidNamesAndUnknownReturnedColumns() throws Exception {
+        script = (request, receive) -> receive.responseUpdateCount(request, 1, cursor(99L, AdapterType.Long));
+        try (Statement statement = connection.createStatement()) {
+            assertThrows(SQLException.class, () -> statement.execute("INSERT", (String[]) null));
+            assertThrows(SQLException.class, () -> statement.executeUpdate("INSERT", new String[] { " " }));
+            assertThrows(SQLException.class, () -> connection.prepareStatement("INSERT", new String[] { null }));
+            assertNull(lastRequest);
+            assertEquals(1, statement.executeUpdate("INSERT", new String[] { "missing" }));
+            SQLException error = assertThrows(SQLException.class, statement::getGeneratedKeys);
+            assertEquals("S0022", error.getSQLState());
+        }
+    }
+
+    @Test
+    public void emptyKeySelectionDoesNotRequestKeysAndSelectedCursorClosesSource() throws Exception {
+        script = (request, receive) -> receive.responseUpdateCount(request, 1);
+        try (PreparedStatement statement = connection.prepareStatement("INSERT", new String[0])) {
+            assertEquals(1, statement.executeUpdate());
+            assertFalse(lastRequest.isGeneratedKeys());
+            try (ResultSet keys = statement.getGeneratedKeys()) {
+                assertFalse(keys.next());
+            }
+        }
+        AdapterMemoryCursor source = cursor(99L, AdapterType.Long);
+        script = (request, receive) -> receive.responseUpdateCount(request, 1, source);
+        Statement statement = connection.createStatement();
+        statement.closeOnCompletion();
+        assertEquals(1, statement.executeUpdate("INSERT", new String[] { "v" }));
+        statement.getGeneratedKeys().close();
+        assertTrue(source.isClose());
+        assertTrue(statement.isClosed());
+    }
+
+    @Test
     public void wrapperChecksActualRuntimeTypeForStatementsAndMetadata() throws Exception {
         script = (request, receive) -> receive.responseResult(request, cursor(1, AdapterType.Int));
         try (Statement statement = connection.createStatement(); PreparedStatement prepared = connection.prepareStatement("SELECT ?"); CallableStatement callable = connection.prepareCall("CALL p"); ResultSet result = statement.executeQuery("SELECT 1")) {

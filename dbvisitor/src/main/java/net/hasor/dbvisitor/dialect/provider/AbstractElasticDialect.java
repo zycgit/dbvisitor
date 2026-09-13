@@ -7,10 +7,7 @@
  */
 package net.hasor.dbvisitor.dialect.provider;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
@@ -21,6 +18,8 @@ import net.hasor.dbvisitor.lambda.GeneratedKeyStrategy;
 import net.hasor.dbvisitor.lambda.core.OrderNullsStrategy;
 import net.hasor.dbvisitor.lambda.core.OrderType;
 import net.hasor.dbvisitor.lambda.segment.MergeSqlSegment;
+import net.hasor.dbvisitor.lambda.segment.Segment;
+import net.hasor.dbvisitor.types.SqlArg;
 
 /**
  * ES 命令构建器方言
@@ -28,15 +27,20 @@ import net.hasor.dbvisitor.lambda.segment.MergeSqlSegment;
  * @version 2025-12-06
  */
 public abstract class AbstractElasticDialect extends AbstractBuilderDialect implements PageSqlDialect {
-    protected       String          index;
-    protected       String          type;
-    protected final List<Object>    args        = new ArrayList<>();
-    protected final MergeSqlSegment conditions  = new MergeSqlSegment(", ");
-    protected final MergeSqlSegment projections = new MergeSqlSegment(", ");
-    protected final MergeSqlSegment sorts       = new MergeSqlSegment(", ");
-    protected final MergeSqlSegment updates     = new MergeSqlSegment(", ");
-    protected final MergeSqlSegment inserts     = new MergeSqlSegment(", ");
-    protected       boolean         selectAll   = false;
+    private final   Set<String>          insertColumns     = new LinkedHashSet<>();
+    protected       String               index;
+    protected       String               type;
+    protected final List<Object>         args              = new ArrayList<>();
+    private final   List<Segment>        nativeProjections = new ArrayList<>();
+    private final   List<String>         groupFields       = new ArrayList<>();
+    protected final MergeSqlSegment      conditions        = new MergeSqlSegment(", ");
+    protected final MergeSqlSegment      projections       = new MergeSqlSegment(", ");
+    protected final MergeSqlSegment      sorts             = new MergeSqlSegment(", ");
+    protected final MergeSqlSegment      updates           = new MergeSqlSegment(", ");
+    protected final MergeSqlSegment      inserts           = new MergeSqlSegment(", ");
+    protected       boolean              selectAll         = false;
+    private final   List<ConditionLogic> predicateLogics   = new ArrayList<>();
+    private final   List<Segment>        predicates        = new ArrayList<>();
 
     @Override
     public abstract AbstractElasticDialect newBuilder();
@@ -67,7 +71,7 @@ public abstract class AbstractElasticDialect extends AbstractBuilderDialect impl
             return valueTerm;
         }
 
-        String strVal = value == null ? "" : value.toString();
+        String strVal = value == null ? "" : value.toString().replace("%", "*").replace("_", "?");
         switch (likeType) {
             case LEFT:
                 return "*" + strVal;
@@ -92,6 +96,7 @@ public abstract class AbstractElasticDialect extends AbstractBuilderDialect impl
     @Override
     public void clearSelect() {
         this.projections.clear();
+        this.nativeProjections.clear();
         this.selectAll = false;
     }
 
@@ -106,27 +111,41 @@ public abstract class AbstractElasticDialect extends AbstractBuilderDialect impl
         this.type = null;
         this.args.clear();
         this.conditions.clear();
+        this.predicateLogics.clear();
+        this.predicates.clear();
         this.projections.clear();
+        this.nativeProjections.clear();
+        this.groupFields.clear();
         this.sorts.clear();
         this.updates.clear();
         this.inserts.clear();
+        this.insertColumns.clear();
         this.selectAll = false;
     }
 
     @Override
     public void addCondition(ConditionLogic logic, String col, String colTerm, ConditionType type, Object value, String valueTerm, SqlLike forLikeType) {
-        this.conditions.addSegment((delimited, dialect) -> {
+        addPredicate(logic, (delimited, dialect) -> {
             String field = StringUtils.isNotBlank(colTerm) ? colTerm : col;
-            String val = formatValue(value, valueTerm);
+            if (type == ConditionType.LIKE || type == ConditionType.NOT_LIKE) {
+                Object rawValue = value instanceof SqlArg ? ((SqlArg) value).getValue() : value;
+                Object pattern = dialect.like(forLikeType != null ? forLikeType : SqlLike.DEFAULT, rawValue, valueTerm);
+                if (value instanceof SqlArg) {
+                    SqlArg source = (SqlArg) value;
+                    pattern = new SqlArg(source.getName(), pattern, source.getSqlMode(), source.getJdbcType(), source.getJavaType(), source.getTypeHandler());
+                }
+                String val = formatValue(pattern, valueTerm);
+                String wildcard = "{ \"wildcard\": { \"" + field + "\": " + val + " } }";
+                return type == ConditionType.LIKE ? wildcard : "{ \"bool\": { \"must_not\": " + wildcard + " } }";
+            }
 
-            if (type == ConditionType.LIKE) {
-                val = dialect.like(forLikeType != null ? forLikeType : SqlLike.DEFAULT, value, valueTerm);
-                return "{ \"wildcard\": { \"" + field + "\": \"" + val + "\" } }";
+            if (type == ConditionType.IS_NULL) {
+                return "{ \"bool\": { \"must_not\": { \"exists\": { \"field\": \"" + field + "\" } } } }";
             }
-            if (type == ConditionType.NOT_LIKE) {
-                val = dialect.like(forLikeType != null ? forLikeType : SqlLike.DEFAULT, value, valueTerm);
-                return "{ \"bool\": { \"must_not\": { \"wildcard\": { \"" + field + "\": \"" + val + "\" } } } }";
+            if (type == ConditionType.IS_NOT_NULL) {
+                return "{ \"exists\": { \"field\": \"" + field + "\" } }";
             }
+            String val = formatValue(value, valueTerm);
 
             if (type == ConditionType.EQ) {
                 return "{ \"match\": { \"" + field + "\": " + val + " } }";
@@ -146,19 +165,13 @@ public abstract class AbstractElasticDialect extends AbstractBuilderDialect impl
             if (type == ConditionType.LE) {
                 return "{ \"range\": { \"" + field + "\": { \"lte\": " + val + " } } }";
             }
-            if (type == ConditionType.IS_NULL) {
-                return "{ \"bool\": { \"must_not\": { \"exists\": { \"field\": \"" + field + "\" } } } }";
-            }
-            if (type == ConditionType.IS_NOT_NULL) {
-                return "{ \"exists\": { \"field\": \"" + field + "\" } }";
-            }
             throw new UnsupportedOperationException("Unsupported condition type: " + type);
         });
     }
 
     @Override
     public void addConditionForBetween(ConditionLogic logic, String col, String colTerm, ConditionType type, Object value1, String value1Term, Object value2, String value2Term) {
-        this.conditions.addSegment((delimited, dialect) -> {
+        addPredicate(logic, (delimited, dialect) -> {
             String field = StringUtils.isNotBlank(colTerm) ? colTerm : col;
             String val1 = formatValue(value1, value1Term);
             String val2 = formatValue(value2, value2Term);
@@ -175,7 +188,7 @@ public abstract class AbstractElasticDialect extends AbstractBuilderDialect impl
 
     @Override
     public void addConditionForIn(ConditionLogic logic, String col, String colTerm, ConditionType type, Object[] values, String valueTerm) {
-        this.conditions.addSegment((delimited, dialect) -> {
+        addPredicate(logic, (delimited, dialect) -> {
             String field = StringUtils.isNotBlank(colTerm) ? colTerm : col;
             StringBuilder sb = new StringBuilder();
             sb.append("[");
@@ -200,28 +213,66 @@ public abstract class AbstractElasticDialect extends AbstractBuilderDialect impl
 
     @Override
     public void addRawCondition(ConditionLogic logic, BoundSql boundSql) {
-        this.conditions.addSegment((delimited, dialect) -> {
+        addPredicate(logic, (delimited, dialect) -> {
+            Collections.addAll(this.args, boundSql.getArgs());
             return boundSql.getSqlString();
         });
-        Collections.addAll(this.args, boundSql.getArgs());
     }
 
     @Override
     public void addConditionGroup(ConditionLogic logic, Consumer<SqlCommandBuilder> group) {
         AbstractElasticDialect subBuilder = this.newBuilder();
         group.accept(subBuilder);
-        this.conditions.addSegment((delimited, dialect) -> {
+        addPredicate(logic, (delimited, dialect) -> {
+            subBuilder.args.clear();
             String subSql = subBuilder.conditions.getSqlSegment(delimited, dialect);
+            this.args.addAll(subBuilder.args);
             if (StringUtils.isBlank(subSql)) {
                 return "";
             }
-            if (logic == ConditionLogic.OR) {
-                return "{ \"bool\": { \"should\": [" + subSql + "] } }";
-            } else {
-                return "{ \"bool\": { \"must\": [" + subSql + "] } }";
-            }
+            return "{ \"bool\": { \"must\": [" + subSql + "] } }";
         });
-        this.args.addAll(subBuilder.args);
+    }
+
+    protected void addPredicate(ConditionLogic logic, Segment predicate) {
+        if (predicates.isEmpty()) {
+            conditions.addSegment((delimited, dialect) -> renderPredicates(delimited));
+        }
+        predicateLogics.add(logic);
+        predicates.add(predicate);
+    }
+
+    private String renderPredicates(boolean useQualifier) throws SQLException {
+        List<String> alternatives = new ArrayList<>();
+        List<String> conjunction = new ArrayList<>();
+        for (int i = 0; i < predicates.size(); i++) {
+            String query = predicates.get(i).getSqlSegment(useQualifier, this);
+            if (StringUtils.isBlank(query)) {
+                continue;
+            }
+            ConditionLogic logic = predicateLogics.get(i);
+            if (logic == ConditionLogic.OR || logic == ConditionLogic.OR_NOT) {
+                if (!conjunction.isEmpty()) {
+                    alternatives.add(joinMust(conjunction));
+                    conjunction.clear();
+                }
+            }
+            if (logic == ConditionLogic.AND_NOT || logic == ConditionLogic.OR_NOT) {
+                query = "{\"bool\": {\"must_not\": " + query + "}}";
+            }
+            conjunction.add(query);
+        }
+        if (!conjunction.isEmpty()) {
+            alternatives.add(joinMust(conjunction));
+        }
+        if (alternatives.isEmpty()) {
+            return "{\"match_all\": {}}";
+        }
+        return alternatives.size() == 1 ? alternatives.get(0) : "{\"bool\": {\"should\": [" + String.join(",", alternatives) + "],\"minimum_should_match\": 1}}";
+    }
+
+    private String joinMust(List<String> queries) {
+        return queries.size() == 1 ? queries.get(0) : "{\"bool\": {\"must\": [" + String.join(",", queries) + "]}}";
     }
 
     @Override
@@ -234,6 +285,16 @@ public abstract class AbstractElasticDialect extends AbstractBuilderDialect impl
 
     @Override
     public void addSelectCustom(String custom, Object[] args) {
+        String expression = custom.trim();
+        if (expression.startsWith("{") && expression.endsWith("}")) {
+            this.nativeProjections.add((delimited, dialect) -> {
+                if (args != null) {
+                    Collections.addAll(this.args, args);
+                }
+                return expression.substring(1, expression.length() - 1);
+            });
+            return;
+        }
         this.projections.addSegment((delimited, dialect) -> {
             return "\"" + custom + "\"";
         });
@@ -251,20 +312,27 @@ public abstract class AbstractElasticDialect extends AbstractBuilderDialect impl
 
     @Override
     public boolean hasSelect() {
-        return !this.projections.isEmpty() || this.selectAll;
+        return !this.projections.isEmpty() || !this.nativeProjections.isEmpty() || this.selectAll;
     }
 
     @Override
     public void addGroupBy(String col, String colTerm) {
-        throw new UnsupportedOperationException("ES does not support GroupBy in this builder yet.");
+        String field = StringUtils.isNotBlank(colTerm) ? colTerm : col;
+        if (field == null || !field.matches("[A-Za-z_][A-Za-z0-9_.]*")) {
+            throw new IllegalArgumentException("Elasticsearch groupBy requires a mapped field name");
+        }
+        if (!this.groupFields.contains(field)) {
+            this.groupFields.add(field);
+        }
     }
 
     @Override
     public void addOrderBy(String col, String colTerm, OrderType type, OrderNullsStrategy nullsStrategy) {
         this.sorts.addSegment((delimited, dialect) -> {
             String field = StringUtils.isNotBlank(colTerm) ? colTerm : col;
-            String order = (type == OrderType.ASC) ? "asc" : "desc";
-            return "{ \"" + field + "\": { \"order\": \"" + order + "\" } }";
+            String order = (type == OrderType.DESC) ? "desc" : "asc";
+            String missing = nullsStrategy == OrderNullsStrategy.FIRST ? ", \"missing\": \"_first\"" : nullsStrategy == OrderNullsStrategy.LAST ? ", \"missing\": \"_last\"" : "";
+            return "{ \"" + field + "\": { \"order\": \"" + order + "\"" + missing + " } }";
         });
     }
 
@@ -278,6 +346,7 @@ public abstract class AbstractElasticDialect extends AbstractBuilderDialect impl
 
     @Override
     public void addInsert(String col, Object value, String valueTerm) {
+        this.insertColumns.add(col);
         this.inserts.addSegment((delimited, dialect) -> {
             String val = formatValue(value, valueTerm);
             return "\"" + col + "\": " + val;
@@ -304,23 +373,25 @@ public abstract class AbstractElasticDialect extends AbstractBuilderDialect impl
 
     @Override
     public BoundSql buildSelect(boolean useQualifier) throws SQLException {
+        this.args.clear();
         StringBuilder json = new StringBuilder();
         json.append("{");
 
         // Query
-        if (!this.conditions.isEmpty()) {
-            json.append("\"query\": { \"bool\": { \"must\": [");
-            json.append(this.conditions.getSqlSegment(useQualifier, this));
-            json.append("] } }, ");
-        } else {
-            json.append("\"query\": { \"match_all\": {} }, ");
-        }
+        json.append("\"query\": ").append(renderSelectQuery(useQualifier)).append(", ");
 
         // Source (Projections)
-        if (this.hasSelect() && !this.selectAll) {
+        if (!this.projections.isEmpty() && !this.selectAll && this.nativeProjections.isEmpty()) {
             json.append("\"_source\": [");
             json.append(this.projections.getSqlSegment(useQualifier, this));
             json.append("], ");
+        }
+
+        for (Segment projection : this.nativeProjections) {
+            String fragment = projection.getSqlSegment(useQualifier, this);
+            if (StringUtils.isNotBlank(fragment)) {
+                json.append(fragment).append(", ");
+            }
         }
 
         // Sort
@@ -339,9 +410,14 @@ public abstract class AbstractElasticDialect extends AbstractBuilderDialect impl
 
         String method = "POST";
         String endpoint = getSearchEndpoint();
-        String command = method + " " + endpoint + " " + json;
+        String hint = this.groupFields.isEmpty() ? "" : "/*+ aggregation_group=\"" + String.join(",", this.groupFields) + "\" */ ";
+        String command = hint + method + " " + endpoint + " " + json;
 
         return new BoundSql.BoundSqlObj(command, this.args.toArray());
+    }
+
+    protected String renderSelectQuery(boolean useQualifier) throws SQLException {
+        return this.conditions.isEmpty() ? "{\"match_all\": {}}" : "{\"bool\": {\"must\": [" + this.conditions.getSqlSegment(useQualifier, this) + "]}}";
     }
 
     protected abstract String getSearchEndpoint();
@@ -354,20 +430,29 @@ public abstract class AbstractElasticDialect extends AbstractBuilderDialect impl
 
     @Override
     public BoundSql buildInsert(boolean useQualifier, List<String> primaryKey, int insertRows, List<String> generatedColumns, DuplicateKeyStrategy duplicateStrategy, GeneratedKeyStrategy generatedStrategy) throws SQLException {
+        this.args.clear();
+        String endpoint = getInsertEndpoint();
+        int keyIndex = -1;
+        if (primaryKey != null && primaryKey.size() == 1) {
+            keyIndex = new ArrayList<>(this.insertColumns).indexOf(primaryKey.get(0));
+        }
         StringBuilder json = new StringBuilder();
         json.append("{");
         json.append(this.inserts.getSqlSegment(useQualifier, this));
         json.append("}");
 
         String method = "POST";
-        String endpoint = getInsertEndpoint();
-        String command = method + " " + endpoint + " " + json.toString();
+        DuplicateKeyStrategy strategy = duplicateStrategy == null ? DuplicateKeyStrategy.Into : duplicateStrategy;
+        String hint = keyIndex < 0 ? "" : "/*+ document_id_column=" + (keyIndex + 1) + ", duplicate_strategy=" + strategy.name() + " */ ";
+        String command = hint + method + " " + endpoint + " " + json.toString();
 
         return new BoundSql.BoundSqlObj(command, this.args.toArray());
     }
 
     @Override
-    public BoundSql buildUpdate(boolean useQualifier, boolean useReplace) throws SQLException {
+    public BoundSql buildUpdate(boolean useQualifier, boolean allowEmptyWhere) throws SQLException {
+        requireMutationCondition(allowEmptyWhere, "UPDATE");
+        this.args.clear();
         StringBuilder json = new StringBuilder();
         json.append("{");
 
@@ -393,7 +478,9 @@ public abstract class AbstractElasticDialect extends AbstractBuilderDialect impl
     }
 
     @Override
-    public BoundSql buildDelete(boolean useQualifier, boolean useReplace) throws SQLException {
+    public BoundSql buildDelete(boolean useQualifier, boolean allowEmptyWhere) throws SQLException {
+        requireMutationCondition(allowEmptyWhere, "DELETE");
+        this.args.clear();
         StringBuilder json = new StringBuilder();
         json.append("{");
 
@@ -412,6 +499,12 @@ public abstract class AbstractElasticDialect extends AbstractBuilderDialect impl
         String command = method + " " + endpoint + " " + json.toString();
 
         return new BoundSql.BoundSqlObj(command, this.args.toArray());
+    }
+
+    private void requireMutationCondition(boolean allowEmptyWhere, String operation) {
+        if (this.conditions.isEmpty() && !allowEmptyWhere) {
+            throw new IllegalStateException("The dangerous " + operation + " operation, You must call `allowEmptyWhere()` to enable " + operation + " ALL.");
+        }
     }
 
     // --- PageSqlDialect impl ---

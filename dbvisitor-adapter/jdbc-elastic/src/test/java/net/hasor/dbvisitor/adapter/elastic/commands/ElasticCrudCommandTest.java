@@ -16,10 +16,76 @@ import java.sql.Statement;
 import java.util.Properties;
 
 import org.junit.Test;
+import org.elasticsearch.client.ResponseException;
 
 import net.hasor.dbvisitor.adapter.elastic.ElasticKeys;
 
 public class ElasticCrudCommandTest extends AbstractElasticCommandTest {
+    @Test
+    public void typedDeleteByQueryReturnsDeletedCountRatherThanResponseRowCount() throws Exception {
+        respondWith("{\"deleted\":3,\"failures\":[]}");
+        try (Connection connection = elasticConnection(); PreparedStatement statement = connection.prepareStatement(
+                "POST /books/_doc/_delete_by_query?refresh=true {\"query\":{\"term\":{\"category\":?}}}")) {
+            statement.setString(1, "old");
+            assertEquals(3, statement.executeUpdate());
+            assertNull(statement.getResultSet());
+        }
+        assertRequest(0, "POST", "/books/_doc/_delete_by_query?refresh=true", "{\"query\":{\"term\":{\"category\":\"old\"}}}");
+    }
+
+    @Test
+    public void typedUpdateByQueryReturnsZeroWhenNothingMatches() throws Exception {
+        respondWith("{\"updated\":0,\"failures\":[]}");
+        try (Connection connection = elasticConnection(); PreparedStatement statement = connection.prepareStatement(
+                "POST /books/book/_update_by_query?refresh=true {\"query\":{\"term\":{\"id\":?}}}")) {
+            statement.setInt(1, 99);
+            assertEquals(0, statement.executeUpdate());
+            assertNull(statement.getResultSet());
+        }
+        assertRequest(0, "POST", "/books/book/_update_by_query?refresh=true", "{\"query\":{\"term\":{\"id\":99}}}");
+    }
+
+    @Test
+    public void updateConflictStrategyUsesPartialUpsertWithoutUnspecifiedFields() throws Exception {
+        respondWith("{\"_id\":\"42\",\"result\":\"updated\"}");
+        try (Connection connection = elasticConnection(); PreparedStatement statement = connection.prepareStatement(
+                "/*+document_id_column=1,duplicate_strategy=Update*/ POST /books/_doc {\"id\":?,\"name\":?}")) {
+            statement.setInt(1, 42);
+            statement.setString(2, "updated");
+            assertEquals(1, statement.executeUpdate());
+        }
+        assertRequest(0, "POST", "/books/_doc/42/_update", "{\"doc\":{\"id\":42,\"name\":\"updated\"},\"doc_as_upsert\":true}");
+    }
+
+    @Test
+    public void documentIdParameterIsEncodedAsOnePathSegment() throws Exception {
+        respondWith(201, "{\"_id\":\"a/b ?c\",\"result\":\"created\"}");
+        try (Connection connection = elasticConnection(); PreparedStatement statement = connection.prepareStatement(
+                "POST /books/_doc/{?}?op_type=create {\"id\": ?}")) {
+            statement.setString(1, "a/b ?c");
+            statement.setString(2, "a/b ?c");
+            assertEquals(1, statement.executeUpdate());
+        }
+        assertRequest(0, "POST", "/books/_doc/a%2Fb%20%3Fc?op_type=create", "{\"id\":\"a/b ?c\"}");
+    }
+
+    @Test
+    public void ignoreConflictOnlySuppressesVersionConflicts() throws Exception {
+        failWith(new ResponseException(response(409, "{\"error\":\"version_conflict_engine_exception\"}")));
+        try (Connection connection = elasticConnection(); Statement statement = connection.createStatement()) {
+            assertEquals(0, statement.executeUpdate("/*+ document_id_column=1, duplicate_strategy=Ignore */ POST /books/_doc {\"id\":1}"));
+        }
+        failWith(new ResponseException(response(400, "{\"error\":\"mapper_parsing_exception\"}")));
+        try (Connection connection = elasticConnection(); Statement statement = connection.createStatement()) {
+            try {
+                statement.executeUpdate("/*+ document_id_column=1, duplicate_strategy=Ignore */ POST /books/_doc {\"id\":1}");
+                fail("Only a 409 conflict can be ignored");
+            } catch (java.sql.SQLException expected) {
+                assertNotNull(expected.getMessage());
+            }
+        }
+    }
+
     @Test
     public void insertReturnsGeneratedKeyAndKeepsBoundDocument() throws Exception {
         respondWith(201, "{\"_id\":\"generated-42\",\"result\":\"created\"}");

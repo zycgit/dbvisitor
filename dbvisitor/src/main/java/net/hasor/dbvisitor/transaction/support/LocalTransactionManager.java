@@ -358,15 +358,18 @@ public class LocalTransactionManager implements TransactionManager {
         holder.requested();//ref++
         Connection conn = holder.getConnection();
 
-        // 当设置了隔离级别则设置 recoverIsolation
+        // Only restore isolation if this scope changed it. Some drivers commit even
+        // when setTransactionIsolation is called with the connection's current value.
         if (defStatus.getIsolationLevel() == null || defStatus.getIsolationLevel() == Isolation.DEFAULT) {
             return new TransactionObject(holder, null, this.getDataSource());
         } else {
             Isolation recoverIsolation = Isolation.valueOf(conn.getTransactionIsolation());
             if (defStatus.getIsolationLevel() != recoverIsolation) {
                 conn.setTransactionIsolation(defStatus.getIsolationLevel().getValue());
+                return new TransactionObject(holder, recoverIsolation, this.getDataSource());
             }
-            return new TransactionObject(holder, recoverIsolation, this.getDataSource());
+
+            return new TransactionObject(holder, null, this.getDataSource());
         }
     }
 

@@ -156,6 +156,7 @@ public abstract class BasicLambda<R, P> {
 
     protected R reset() {
         this.cmdBuilder.clearAll();
+        this.cmdBuilder.setTable(this.tableMapping.getCatalog(), this.tableMapping.getSchema(), this.tableMapping.getTable());
         return this.getSelf();
     }
 }

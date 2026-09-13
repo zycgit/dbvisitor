@@ -138,7 +138,7 @@ class MongoDistributeCall {
             return MongoCommandsForCollection.execDistinct(sync, mongoCmd, request, receive, startArgIdx, h, dbName, collName, c.distinctOp());
         }
         if (c.aggregateOp() != null) {
-            return MongoCommandsForCollection.execAggregate(sync, mongoCmd, request, receive, startArgIdx, h, dbName, collName, c.aggregateOp());
+            return MongoCommandsForCollection.execAggregate(sync, mongoCmd, request, receive, startArgIdx, h, dbName, collName, c.aggregateOp(), conn);
         }
         if (c.dropOp() != null) {
             return MongoCommandsForCollection.execDrop(sync, mongoCmd, request, receive, startArgIdx, h, dbName, collName, c.dropOp());

@@ -213,9 +213,44 @@ public class JdbcDatabaseMetaDataTest {
 
     @Test
     public void supportsResultSetFeatures() throws Exception {
+        assertTrue(md.supportsResultSetType(ResultSet.TYPE_FORWARD_ONLY));
         assertFalse(md.supportsResultSetType(ResultSet.TYPE_SCROLL_INSENSITIVE));
+        assertFalse(md.supportsResultSetType(ResultSet.TYPE_SCROLL_SENSITIVE));
+        assertFalse(md.supportsResultSetType(-1));
+        assertTrue(md.supportsResultSetConcurrency(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY));
         assertFalse(md.supportsResultSetConcurrency(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE));
-        assertFalse(md.supportsResultSetHoldability(ResultSet.HOLD_CURSORS_OVER_COMMIT));
+        assertFalse(md.supportsResultSetConcurrency(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY));
+        assertFalse(md.supportsResultSetConcurrency(-1, ResultSet.CONCUR_READ_ONLY));
+        assertFalse(md.supportsResultSetConcurrency(ResultSet.TYPE_FORWARD_ONLY, -1));
+        assertTrue(md.supportsResultSetHoldability(ResultSet.HOLD_CURSORS_OVER_COMMIT));
+        assertFalse(md.supportsResultSetHoldability(ResultSet.CLOSE_CURSORS_AT_COMMIT));
+        assertFalse(md.supportsResultSetHoldability(-1));
+    }
+
+    @Test
+    public void resultSetDeclarationsMatchConnectionAndActualCursor() throws Exception {
+        conn.setAutoCommit(false);
+        try (Statement statement = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT); ResultSet result = statement.executeQuery("SELECT * FROM multi")) {
+            assertEquals(ResultSet.TYPE_FORWARD_ONLY, result.getType());
+            assertEquals(ResultSet.CONCUR_READ_ONLY, result.getConcurrency());
+            assertEquals(md.getResultSetHoldability(), conn.getHoldability());
+            assertEquals(md.getResultSetHoldability(), result.getHoldability());
+            assertTrue(result.next());
+            assertEquals(1, result.getInt("id"));
+            conn.commit();
+            assertFalse(result.isClosed());
+            assertTrue(result.next());
+            assertEquals(2, result.getInt("id"));
+        }
+        assertThrows(SQLFeatureNotSupportedException.class,
+                () -> conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY));
+        assertThrows(SQLFeatureNotSupportedException.class,
+                () -> conn.prepareStatement("SELECT 1", ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE));
+        assertThrows(SQLFeatureNotSupportedException.class,
+                () -> conn.prepareCall("CALL p", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY));
+        assertThrows(SQLFeatureNotSupportedException.class,
+                () -> conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY, ResultSet.CLOSE_CURSORS_AT_COMMIT));
     }
 
     @Test
@@ -271,7 +306,7 @@ public class JdbcDatabaseMetaDataTest {
         assertEquals(0, md.getMaxTablesInSelect());
         assertEquals(0, md.getMaxUserNameLength());
         assertEquals(Connection.TRANSACTION_NONE, md.getDefaultTransactionIsolation());
-        assertEquals(0, md.getResultSetHoldability());
+        assertEquals(ResultSet.HOLD_CURSORS_OVER_COMMIT, md.getResultSetHoldability());
         assertEquals(0, md.getSQLStateType());
     }
 

@@ -31,7 +31,8 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.powermock.api.mockito.PowerMockito;
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 public class MongoCommandExecutionTest extends AbstractJdbcTest {
@@ -135,10 +136,13 @@ public class MongoCommandExecutionTest extends AbstractJdbcTest {
             statement.setMaxRows(1);
             try (ResultSet result = statement.executeQuery()) {
                 assertTrue(result.next());
-                assertEquals("Java", Document.parse(result.getString("_JSON")).getString("name"));
+                assertEquals(2, result.getMetaData().getColumnCount());
+                assertEquals("Java", result.getString("name"));
+                assertEquals("1", result.getString("_id"));
                 assertFalse(result.next());
             }
         }
+
         verify(collection).find(eq(new Document("active", true)));
         verify(iterable).projection(eq(new Document("name", 1L)));
         verify(iterable).sort(eq(new Document("name", 1L)));

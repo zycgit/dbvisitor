@@ -19,6 +19,7 @@ import org.bson.BsonDocument;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.junit.Test;
+import org.junit.Assert;
 import org.powermock.api.mockito.PowerMockito;
 
 import com.mongodb.client.ListIndexesIterable;
@@ -51,13 +52,21 @@ public class IndexCommandTest extends AbstractJdbcTest {
     }
 
     @Test
-    public void create_index_fail_no_name() {
+    public void create_index_without_name_uses_sdk_default() throws SQLException {
         MongoCommandInterceptor.resetInterceptor();
+        MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("getCollection", (name, args) -> {
+            MongoCollection mockColl = PowerMockito.mock(MongoCollection.class);
+            PowerMockito.when(mockColl.createIndex(any(Bson.class), any(IndexOptions.class))).thenAnswer(invocation -> {
+                IndexOptions options = invocation.getArgument(1);
+                Assert.assertNull(options.getName());
+                return "name_1";
+            });
+            return mockColl;
+        }));
         try (Connection conn = redisConnection(); Statement stmt = conn.createStatement()) {
             stmt.execute("use mydb");
-            stmt.executeUpdate("db.mycol.createIndex({name: 1})");
-        } catch (SQLException e) {
-            assert e.getMessage().contains("The index name must be specified.");
+            Assert.assertEquals(0, stmt.executeUpdate("db.mycol.createIndex({name: 1})"));
+            Assert.assertEquals(0, stmt.executeUpdate("db.mycol.createIndex({name: 1}, {unique: true})"));
         }
     }
 

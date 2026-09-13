@@ -93,6 +93,26 @@ public class DynamicParsed {
 
             //
             char c = statement[i];
+            // An odd trailing backslash escapes a parameter marker; other backslashes remain literal.
+            if (c == '\\') {
+                int marker = i;
+                while (marker < statement.length && statement[marker] == '\\') {
+                    marker++;
+                }
+                boolean oddEscape = (marker - i) % 2 != 0;
+                boolean parameterMarker = marker < statement.length//
+                        && (statement[marker] == '?' || statement[marker] == ':' || statement[marker] == '&');
+                if (oddEscape && parameterMarker) {
+                    segment.appendString(statement, pos, marker - pos - 1);
+                    segment.appendString(statement, marker, 1);
+                    i = marker + 1;
+                    pos = i;
+                } else {
+                    i = marker;
+                }
+                continue;
+            }
+
             String c2 = null;
             if (statement.length > i + 1) {
                 c2 = new String(statement, i, 2);
@@ -107,6 +127,14 @@ public class DynamicParsed {
                 pos = i;
             } else if (c == ':' || c == '&') {
                 int j = i + 1;
+                boolean positionMarker = j < statement.length && statement[j] == '?';
+                boolean bracedMarker = j + 1 < statement.length &&//
+                        statement[j + 1] == '{' && //
+                        (statement[j] == '#' || statement[j] == '$' || statement[j] == '@');
+                if (c == ':' && (positionMarker || bracedMarker)) {
+                    i++;
+                    continue;
+                }
                 if (j < statement.length && statement[j] == ':' && c == ':') {
                     i = i + 2;// Postgres-style "::" casting operator - to be skipped.
                     continue;
@@ -449,7 +477,7 @@ public class DynamicParsed {
             throw new IllegalArgumentException("analysisSQL failed, format error -> '#{valueExpr [,mode= IN|OUT|INOUT] [,jdbcType=INT] [,javaType=java.lang.String] [,typeHandler=YouTypeHandlerClassName]}'");
         }
 
-        boolean noExpr = StringUtils.contains(testSplit[0], "=");
+        boolean noExpr = ArgRule.isConfigEntry(testSplit[0]);
         String expr = noExpr ? "" : testSplit[0];
         Map<String, String> config = ArgRule.INSTANCE.parserConfig(testSplit, noExpr ? 0 : 1, testSplit.length);
         fxQuery.appendNamedParameter(content, expr, config);
