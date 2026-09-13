@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.oracle.api.lambda;
 
-import net.hasor.dbvisitor.test.contract.api.lambda.LambdaCrudContractTest;
+import net.hasor.dbvisitor.test.contract.api.lambda.LambdaCrudCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.OracleProfile;
 
-public class OracleLambdaCrudTest extends LambdaCrudContractTest {
+public class OracleLambdaCrudTest extends LambdaCrudCase {
     @Override
     protected DataSourceProfile profile() {
         return OracleProfile.INSTANCE;

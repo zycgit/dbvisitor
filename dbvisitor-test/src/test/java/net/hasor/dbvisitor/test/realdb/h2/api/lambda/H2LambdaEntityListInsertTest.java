@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.h2.api.lambda;
 
-import net.hasor.dbvisitor.test.contract.api.lambda.LambdaEntityListInsertContractTest;
+import net.hasor.dbvisitor.test.contract.api.lambda.LambdaEntityListInsertCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.H2Profile;
 
-public class H2LambdaEntityListInsertTest extends LambdaEntityListInsertContractTest {
+public class H2LambdaEntityListInsertTest extends LambdaEntityListInsertCase {
     @Override
     protected DataSourceProfile profile() {
         return H2Profile.INSTANCE;

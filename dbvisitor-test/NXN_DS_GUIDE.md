@@ -244,11 +244,11 @@ contract 不应做：
 ```java
 package net.hasor.dbvisitor.test.realdb.mysql.api.jdbc;
 
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcCrudContractTest;
+import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcCrudCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MySqlProfile;
 
-public class MySqlJdbcCrudContractTest extends JdbcCrudContractTest {
+public class MySqlJdbcCrudTest extends JdbcCrudCase {
     @Override
     protected DataSourceProfile profile() {
         return MySqlProfile.INSTANCE;
@@ -320,15 +320,14 @@ NXN_DS_CAPABILITY.md
 这份文档应持续包含：
 
 - `§2 能力矩阵`：按能力维度聚合，二级项目按业务场景排序。
-- 测试类列：类名后追加测试数量，例如 `JdbcCrudContractTest(6条)`。
+- 测试类列：类名后追加测试数量，例如 `JdbcCrudCase(4条)`。共用场景以 `Case` 结尾，数据源实现以 `Test` 结尾。
+- 分组顺序与核心 API 目录一致。同一数据源、同一场景的测试集中在一个类中；支持边界不同的场景分别列类、列行，不以减少类数量为目标。
 - 二级能力项：使用 `&emsp;` 缩进，区别于一级能力维度。
-- 数据源状态：`✅` 完整契约通过、`⚠️` 部分验证或 feature gate 跳过（注明范围和原因）、`❌` 失败/错误、`—` 没有契约绑定或未验证，不等同于数据库不支持。
-- `§3 跳过清单总览`：按数据源列出 skip 数量和 feature。
-- `§4 当前结论`：按数据源解释当前 fail/error/skip 状态。
-- `§5 下一步改进方向`：按优先级描述哪些应保留不动、哪些值得继续打开。
-- `§6 使用方式`：描述减少 skip 的标准流程。
+- 数据源状态：`✅` 全部通过，`⚠️ x/y` 表示 y 个场景中有 x 个通过，`❌` 不支持或全部验证失败，`—` 无绑定或未验证。不能将未验证直接写成不支持。
+- `§3 如何理解验证范围`：说明覆盖边界，并列出各数据源最近一次完整集合的验证结果。
+- `§4 运行与维护`：提供运行入口和矩阵维护规则。
 
-不再新增或维护单独的能力清单文档。旧清单中仍有价值的“跳过清单、当前结论、下一步方向”已经进入 `NXN_DS_CAPABILITY.md`。
+能力矩阵统一维护在这份文档中，不另建重复清单。
 
 ## §11 新数据源接入流程
 
@@ -412,7 +411,7 @@ src/test/java/net/hasor/dbvisitor/test/nxn/report/metadata/{Env}NxnMetadataContr
 建议顺序：
 
 ```bash
-./gradlew :dbvisitor-test:test -Pnxn.env=milvus --tests '*MilvusDiagnosticsSqlContractTest' --rerun-tasks
+./gradlew :dbvisitor-test:test -Pnxn.env=milvus --tests '*MilvusDiagnosticsSqlTest' --rerun-tasks
 ./runnxn.sh milvus
 # 所有数据源服务均就绪后，才运行全量：
 ./runnxn.sh all

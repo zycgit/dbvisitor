@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.oracle.api.session;
 
-import net.hasor.dbvisitor.test.contract.api.session.SessionCoreContractTest;
+import net.hasor.dbvisitor.test.contract.api.session.SessionCoreCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.OracleProfile;
 
-public class OracleSessionCoreTest extends SessionCoreContractTest {
+public class OracleSessionCoreTest extends SessionCoreCase {
     @Override
     protected DataSourceProfile profile() {
         return OracleProfile.INSTANCE;

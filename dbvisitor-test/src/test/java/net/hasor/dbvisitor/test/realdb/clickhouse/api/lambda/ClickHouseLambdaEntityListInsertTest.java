@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.clickhouse.api.lambda;
 
-import net.hasor.dbvisitor.test.contract.api.lambda.LambdaEntityListInsertContractTest;
+import net.hasor.dbvisitor.test.contract.api.lambda.LambdaEntityListInsertCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
 
-public class ClickHouseLambdaEntityListInsertTest extends LambdaEntityListInsertContractTest {
+public class ClickHouseLambdaEntityListInsertTest extends LambdaEntityListInsertCase {
     @Override
     protected DataSourceProfile profile() {
         return ClickHouseProfile.INSTANCE;

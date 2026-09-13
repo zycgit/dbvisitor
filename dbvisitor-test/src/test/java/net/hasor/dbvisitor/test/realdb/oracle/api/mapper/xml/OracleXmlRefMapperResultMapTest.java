@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.oracle.api.mapper.xml;
 
-import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlRefMapperResultMapContractTest;
+import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlRefMapperResultMapCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.OracleProfile;
 
-public class OracleXmlRefMapperResultMapTest extends XmlRefMapperResultMapContractTest {
+public class OracleXmlRefMapperResultMapTest extends XmlRefMapperResultMapCase {
     @Override
     protected DataSourceProfile profile() {
         return OracleProfile.INSTANCE;

@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.mysql.api.lambda;
 
-import net.hasor.dbvisitor.test.contract.api.lambda.LambdaDefaultKeyContractTest;
+import net.hasor.dbvisitor.test.contract.api.lambda.LambdaDefaultKeyCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MySqlProfile;
 
-public class MySqlLambdaDefaultKeyTest extends LambdaDefaultKeyContractTest {
+public class MySqlLambdaDefaultKeyTest extends LambdaDefaultKeyCase {
     @Override
     protected DataSourceProfile profile() {
         return MySqlProfile.INSTANCE;

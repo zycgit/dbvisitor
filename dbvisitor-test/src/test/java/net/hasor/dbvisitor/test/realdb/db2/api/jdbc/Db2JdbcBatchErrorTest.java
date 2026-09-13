@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.db2.api.jdbc;
 
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcBatchErrorContractTest;
+import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcBatchErrorCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Db2Profile;
 
-public class Db2JdbcBatchErrorTest extends JdbcBatchErrorContractTest {
+public class Db2JdbcBatchErrorTest extends JdbcBatchErrorCase {
     @Override
     protected DataSourceProfile profile() {
         return Db2Profile.INSTANCE;

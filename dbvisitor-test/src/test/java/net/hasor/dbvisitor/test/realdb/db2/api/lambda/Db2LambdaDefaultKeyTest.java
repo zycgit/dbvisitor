@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.db2.api.lambda;
 
-import net.hasor.dbvisitor.test.contract.api.lambda.LambdaDefaultKeyContractTest;
+import net.hasor.dbvisitor.test.contract.api.lambda.LambdaDefaultKeyCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Db2Profile;
 
-public class Db2LambdaDefaultKeyTest extends LambdaDefaultKeyContractTest {
+public class Db2LambdaDefaultKeyTest extends LambdaDefaultKeyCase {
     @Override
     protected DataSourceProfile profile() {
         return Db2Profile.INSTANCE;

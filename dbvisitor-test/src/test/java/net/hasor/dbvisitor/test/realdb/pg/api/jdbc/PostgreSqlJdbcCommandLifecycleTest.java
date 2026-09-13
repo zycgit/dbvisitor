@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.pg.api.jdbc;
 
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcCommandLifecycleContractTest;
+import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcCommandLifecycleCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.PostgreSqlProfile;
 
-public class PostgreSqlJdbcCommandLifecycleTest extends JdbcCommandLifecycleContractTest {
+public class PostgreSqlJdbcCommandLifecycleTest extends JdbcCommandLifecycleCase {
     @Override
     protected DataSourceProfile profile() {
         return PostgreSqlProfile.INSTANCE;

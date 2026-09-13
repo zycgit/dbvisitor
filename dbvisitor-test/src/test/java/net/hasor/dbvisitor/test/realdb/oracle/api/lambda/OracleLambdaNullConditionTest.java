@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.oracle.api.lambda;
 
-import net.hasor.dbvisitor.test.contract.api.lambda.LambdaNullConditionContractTest;
+import net.hasor.dbvisitor.test.contract.api.lambda.LambdaNullConditionCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.OracleProfile;
 
-public class OracleLambdaNullConditionTest extends LambdaNullConditionContractTest {
+public class OracleLambdaNullConditionTest extends LambdaNullConditionCase {
     @Override
     protected DataSourceProfile profile() {
         return OracleProfile.INSTANCE;

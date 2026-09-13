@@ -17,7 +17,7 @@ import javax.sql.DataSource;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import net.hasor.dbvisitor.test.contract.api.session.SessionCoreContractTest;
+import net.hasor.dbvisitor.test.contract.api.session.SessionCoreCase;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
@@ -25,7 +25,7 @@ import org.junit.After;
 import org.junit.Before;
 
 /** Reuses Session assertions unchanged; native BM25 supplies the required vector field. */
-public class MilvusSessionCoreTest extends SessionCoreContractTest {
+public class MilvusSessionCoreTest extends SessionCoreCase {
     private final String database = "dbv_session_" + UUID.randomUUID().toString().replace("-", "");
     private HikariDataSource sessionSource;
     private Connection admin;

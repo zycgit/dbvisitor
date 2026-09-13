@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.mssql.api.lambda;
 
-import net.hasor.dbvisitor.test.contract.api.lambda.LambdaEntityListInsertContractTest;
+import net.hasor.dbvisitor.test.contract.api.lambda.LambdaEntityListInsertCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MsSqlProfile;
 
-public class MsSqlLambdaEntityListInsertTest extends LambdaEntityListInsertContractTest {
+public class MsSqlLambdaEntityListInsertTest extends LambdaEntityListInsertCase {
     @Override
     protected DataSourceProfile profile() {
         return MsSqlProfile.INSTANCE;

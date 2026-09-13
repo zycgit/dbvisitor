@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.mssql.api.jdbc;
 
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcCountQueryContractTest;
+import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcCountQueryCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MsSqlProfile;
 
-public class MsSqlJdbcCountQueryTest extends JdbcCountQueryContractTest {
+public class MsSqlJdbcCountQueryTest extends JdbcCountQueryCase {
     @Override
     protected DataSourceProfile profile() {
         return MsSqlProfile.INSTANCE;

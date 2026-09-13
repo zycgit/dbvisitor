@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.mysql.api.jdbc;
 
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcCountQueryContractTest;
+import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcCountQueryCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MySqlProfile;
 
-public class MySqlJdbcCountQueryTest extends JdbcCountQueryContractTest {
+public class MySqlJdbcCountQueryTest extends JdbcCountQueryCase {
     @Override
     protected DataSourceProfile profile() {
         return MySqlProfile.INSTANCE;

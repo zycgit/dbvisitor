@@ -19,7 +19,7 @@ import net.hasor.dbvisitor.mapper.ResultSetType;
 import net.hasor.dbvisitor.jdbc.RowCallbackHandler;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
-import net.hasor.dbvisitor.test.contract.api.adapter.AdapterContractTest;
+import net.hasor.dbvisitor.test.contract.api.adapter.AdapterCase;
 import net.hasor.dbvisitor.test.contract.material.dao.declarative.ResultHandlerMapper;
 import net.hasor.dbvisitor.test.contract.material.handler.CustomResultSetExtractor;
 import net.hasor.dbvisitor.test.contract.material.handler.CustomRowMapper;
@@ -30,7 +30,7 @@ import org.junit.After;
 import org.junit.Before;
 import static org.junit.Assert.*;
 
-public abstract class MilvusMapperResultSqlSupport extends AdapterContractTest {
+public abstract class MilvusMapperResultSqlSupport extends AdapterCase {
     protected final MilvusUserInfoFixture fixture = new MilvusUserInfoFixture();
     protected Session session;
     protected ResultHandlerMapper shared;

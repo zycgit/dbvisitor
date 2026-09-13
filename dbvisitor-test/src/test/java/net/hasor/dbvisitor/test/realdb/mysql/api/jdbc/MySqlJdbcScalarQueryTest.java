@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.mysql.api.jdbc;
 
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcScalarQueryContractTest;
+import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcScalarQueryCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MySqlProfile;
 
-public class MySqlJdbcScalarQueryTest extends JdbcScalarQueryContractTest {
+public class MySqlJdbcScalarQueryTest extends JdbcScalarQueryCase {
     @Override
     protected DataSourceProfile profile() {
         return MySqlProfile.INSTANCE;

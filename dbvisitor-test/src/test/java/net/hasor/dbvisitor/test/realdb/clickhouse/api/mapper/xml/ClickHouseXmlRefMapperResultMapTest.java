@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.clickhouse.api.mapper.xml;
 
-import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlRefMapperResultMapContractTest;
+import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlRefMapperResultMapCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
 
-public class ClickHouseXmlRefMapperResultMapTest extends XmlRefMapperResultMapContractTest {
+public class ClickHouseXmlRefMapperResultMapTest extends XmlRefMapperResultMapCase {
     @Override
     protected DataSourceProfile profile() {
         return ClickHouseProfile.INSTANCE;

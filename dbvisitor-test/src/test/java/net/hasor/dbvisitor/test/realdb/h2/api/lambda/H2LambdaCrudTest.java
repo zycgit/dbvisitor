@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.h2.api.lambda;
 
-import net.hasor.dbvisitor.test.contract.api.lambda.LambdaCrudContractTest;
+import net.hasor.dbvisitor.test.contract.api.lambda.LambdaCrudCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.H2Profile;
 
-public class H2LambdaCrudTest extends LambdaCrudContractTest {
+public class H2LambdaCrudTest extends LambdaCrudCase {
     @Override
     protected DataSourceProfile profile() {
         return H2Profile.INSTANCE;

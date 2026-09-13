@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.oracle.api.jdbc;
 
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcMapQueryContractTest;
+import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcMapQueryCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.OracleProfile;
 
-public class OracleJdbcMapQueryTest extends JdbcMapQueryContractTest {
+public class OracleJdbcMapQueryTest extends JdbcMapQueryCase {
     @Override
     protected DataSourceProfile profile() {
         return OracleProfile.INSTANCE;

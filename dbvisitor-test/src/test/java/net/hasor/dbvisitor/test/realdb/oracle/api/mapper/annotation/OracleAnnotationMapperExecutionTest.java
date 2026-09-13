@@ -1,0 +1,26 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
+package net.hasor.dbvisitor.test.realdb.oracle.api.mapper.annotation;
+
+import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperExecutionCase;
+import net.hasor.dbvisitor.test.contract.material.dao.declarative.AnnotationAttributesMapper;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.OracleProfile;
+import net.hasor.dbvisitor.test.realdb.oracle.material.OracleAnnotationAttributesMapper;
+
+public class OracleAnnotationMapperExecutionTest extends AnnotationMapperExecutionCase {
+    @Override
+    protected DataSourceProfile profile() {
+        return OracleProfile.INSTANCE;
+    }
+
+    @Override
+    protected Class<? extends AnnotationAttributesMapper> mapperType() {
+        return OracleAnnotationAttributesMapper.class;
+    }
+}

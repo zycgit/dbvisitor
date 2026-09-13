@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.oracle.api.jdbc;
 
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcScalarListQueryContractTest;
+import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcScalarListQueryCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.OracleProfile;
 
-public class OracleJdbcScalarListQueryTest extends JdbcScalarListQueryContractTest {
+public class OracleJdbcScalarListQueryTest extends JdbcScalarListQueryCase {
     @Override
     protected DataSourceProfile profile() {
         return OracleProfile.INSTANCE;

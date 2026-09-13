@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.oracle.api.jdbc;
 
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcCountQueryContractTest;
+import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcCountQueryCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.OracleProfile;
 
-public class OracleJdbcCountQueryTest extends JdbcCountQueryContractTest {
+public class OracleJdbcCountQueryTest extends JdbcCountQueryCase {
     @Override
     protected DataSourceProfile profile() {
         return OracleProfile.INSTANCE;

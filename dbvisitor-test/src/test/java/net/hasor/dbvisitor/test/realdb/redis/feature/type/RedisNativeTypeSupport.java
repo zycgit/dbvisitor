@@ -13,13 +13,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.test.contract.api.adapter.AdapterContractTest;
+import net.hasor.dbvisitor.test.contract.api.adapter.AdapterCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
 import org.junit.After;
 import org.junit.Before;
 
-public abstract class RedisNativeTypeSupport extends AdapterContractTest {
+public abstract class RedisNativeTypeSupport extends AdapterCase {
     private final String prefix = "nxn:redis:types:" + UUID.randomUUID() + ":";
     private final List<String> keys = new ArrayList<>();
     protected Connection connection;
@@ -62,4 +62,3 @@ public abstract class RedisNativeTypeSupport extends AdapterContractTest {
         }
     }
 }
-

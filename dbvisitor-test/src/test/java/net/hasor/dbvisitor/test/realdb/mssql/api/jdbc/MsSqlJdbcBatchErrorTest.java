@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.mssql.api.jdbc;
 
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcBatchErrorContractTest;
+import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcBatchErrorCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MsSqlProfile;
 
-public class MsSqlJdbcBatchErrorTest extends JdbcBatchErrorContractTest {
+public class MsSqlJdbcBatchErrorTest extends JdbcBatchErrorCase {
     @Override
     protected DataSourceProfile profile() {
         return MsSqlProfile.INSTANCE;

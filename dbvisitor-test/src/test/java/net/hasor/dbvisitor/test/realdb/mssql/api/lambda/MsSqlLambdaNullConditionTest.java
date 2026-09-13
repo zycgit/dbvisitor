@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.mssql.api.lambda;
 
-import net.hasor.dbvisitor.test.contract.api.lambda.LambdaNullConditionContractTest;
+import net.hasor.dbvisitor.test.contract.api.lambda.LambdaNullConditionCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MsSqlProfile;
 
-public class MsSqlLambdaNullConditionTest extends LambdaNullConditionContractTest {
+public class MsSqlLambdaNullConditionTest extends LambdaNullConditionCase {
     @Override
     protected DataSourceProfile profile() {
         return MsSqlProfile.INSTANCE;

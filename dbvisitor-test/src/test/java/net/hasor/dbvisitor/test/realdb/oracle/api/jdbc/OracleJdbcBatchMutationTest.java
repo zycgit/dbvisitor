@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.oracle.api.jdbc;
 
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcBatchMutationContractTest;
+import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcBatchMutationCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.OracleProfile;
 
-public class OracleJdbcBatchMutationTest extends JdbcBatchMutationContractTest {
+public class OracleJdbcBatchMutationTest extends JdbcBatchMutationCase {
     @Override
     protected DataSourceProfile profile() {
         return OracleProfile.INSTANCE;

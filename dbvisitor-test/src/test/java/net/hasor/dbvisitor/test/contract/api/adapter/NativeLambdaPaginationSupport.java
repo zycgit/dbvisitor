@@ -22,7 +22,7 @@ import net.hasor.dbvisitor.page.PageObject;
 import static org.junit.Assert.*;
 
 /** The same page API boundaries with datasource-native ordering and Map row fixtures. */
-public abstract class NativeLambdaPaginationSupport extends AdapterContractTest {
+public abstract class NativeLambdaPaginationSupport extends AdapterCase {
     protected LambdaTemplate lambda;
     protected String collection;
 

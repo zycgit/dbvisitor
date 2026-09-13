@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.db2.api.lambda;
 
-import net.hasor.dbvisitor.test.contract.api.lambda.LambdaCountContractTest;
+import net.hasor.dbvisitor.test.contract.api.lambda.LambdaCountCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Db2Profile;
 
-public class Db2LambdaCountTest extends LambdaCountContractTest {
+public class Db2LambdaCountTest extends LambdaCountCase {
     @Override
     protected DataSourceProfile profile() {
         return Db2Profile.INSTANCE;

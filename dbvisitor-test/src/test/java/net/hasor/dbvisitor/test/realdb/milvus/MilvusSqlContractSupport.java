@@ -16,14 +16,14 @@ import java.util.List;
 import java.util.UUID;
 
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.test.contract.api.adapter.AdapterContractTest;
+import net.hasor.dbvisitor.test.contract.api.adapter.AdapterCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
 import org.junit.After;
 import org.junit.Before;
 
 /** 所有集合、索引和数据操作均通过驱动 SQL；每个用例只清理自己创建的集合。 */
-public abstract class MilvusSqlContractSupport extends AdapterContractTest {
+public abstract class MilvusSqlContractSupport extends AdapterCase {
     protected final String collection = "dbv_sql_" + UUID.randomUUID().toString().replace("-", "");
     protected Connection connection;
 

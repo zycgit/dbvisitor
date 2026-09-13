@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.oracle.api.jdbc;
 
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcTemporalPairsQueryContractTest;
+import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcTemporalPairsQueryCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.OracleProfile;
 
-public class OracleJdbcTemporalPairsQueryTest extends JdbcTemporalPairsQueryContractTest {
+public class OracleJdbcTemporalPairsQueryTest extends JdbcTemporalPairsQueryCase {
     @Override
     protected DataSourceProfile profile() {
         return OracleProfile.INSTANCE;

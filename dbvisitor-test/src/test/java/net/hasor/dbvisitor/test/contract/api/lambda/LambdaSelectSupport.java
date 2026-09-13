@@ -8,21 +8,16 @@
 package net.hasor.dbvisitor.test.contract.api.lambda;
 
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
-
-public abstract class LambdaSelectSupport extends AbstractNxnContractTest {
+public abstract class LambdaSelectSupport extends LambdaResultHandlingSupport {
     protected int baseId() {
         return 816000;
     }
 
     protected void insert(int id, String name, Integer age, String email) throws SQLException {
-        jdbcTemplate.executeUpdate(//
-                "INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, ?)", //
-                new Object[] { id, name, age, email, new Date() });
+        insertByJdbc(id, name, age, email);
     }
 
     protected Map<String, Object> findByInt(List<Map<String, Object>> rows, String key, int value) {

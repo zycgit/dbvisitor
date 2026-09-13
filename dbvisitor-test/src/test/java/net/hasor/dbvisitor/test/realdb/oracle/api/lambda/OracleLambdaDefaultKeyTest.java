@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.oracle.api.lambda;
 
-import net.hasor.dbvisitor.test.contract.api.lambda.LambdaDefaultKeyContractTest;
+import net.hasor.dbvisitor.test.contract.api.lambda.LambdaDefaultKeyCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.OracleProfile;
 
-public class OracleLambdaDefaultKeyTest extends LambdaDefaultKeyContractTest {
+public class OracleLambdaDefaultKeyTest extends LambdaDefaultKeyCase {
     @Override
     protected DataSourceProfile profile() {
         return OracleProfile.INSTANCE;

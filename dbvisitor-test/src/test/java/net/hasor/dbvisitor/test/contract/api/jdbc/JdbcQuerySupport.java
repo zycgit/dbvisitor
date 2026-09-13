@@ -11,12 +11,10 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.Map;
 
-import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public abstract class JdbcQuerySupport extends AbstractNxnContractTest {
+public abstract class JdbcQuerySupport extends JdbcCrudSupport {
     protected int baseId() {
         return 630000;
     }
@@ -51,6 +49,7 @@ public abstract class JdbcQuerySupport extends AbstractNxnContractTest {
         jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, ?)",
                 new Object[] { id, name, age, email, createTime });
     }
+
 
     protected Map<String, Object> params(int minId, int maxId) {
         Map<String, Object> params = new java.util.HashMap<>();

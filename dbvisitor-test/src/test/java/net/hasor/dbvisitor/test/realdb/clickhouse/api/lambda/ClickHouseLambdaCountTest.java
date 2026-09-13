@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.clickhouse.api.lambda;
 
-import net.hasor.dbvisitor.test.contract.api.lambda.LambdaCountContractTest;
+import net.hasor.dbvisitor.test.contract.api.lambda.LambdaCountCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
 
-public class ClickHouseLambdaCountTest extends LambdaCountContractTest {
+public class ClickHouseLambdaCountTest extends LambdaCountCase {
     @Override
     protected DataSourceProfile profile() {
         return ClickHouseProfile.INSTANCE;

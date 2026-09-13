@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.pg.api.mapper.xml;
 
-import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlRefMapperTemplateContractTest;
+import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlRefMapperTemplateCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.PostgreSqlProfile;
 
-public class PostgreSqlXmlRefMapperTemplateTest extends XmlRefMapperTemplateContractTest {
+public class PostgreSqlXmlRefMapperTemplateTest extends XmlRefMapperTemplateCase {
     @Override
     protected DataSourceProfile profile() {
         return PostgreSqlProfile.INSTANCE;

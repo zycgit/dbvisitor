@@ -12,14 +12,14 @@ import java.sql.SQLException;
 import java.util.UUID;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.EntityQuery;
-import net.hasor.dbvisitor.test.contract.api.lambda.LambdaResultValueContractTest;
+import net.hasor.dbvisitor.test.contract.api.lambda.LambdaResultValueCase;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import org.junit.After;
 import org.junit.Before;
 
 /** Document stores use isolated collections and the same public result-conversion assertions. */
-public abstract class NativeLambdaResultValueSupport extends LambdaResultValueContractTest {
+public abstract class NativeLambdaResultValueSupport extends LambdaResultValueCase {
     protected final String collection = "nxn_result_" + UUID.randomUUID().toString().replace("-", "");
     private final NativeLambdaResultFixture fixture = new NativeLambdaResultFixture();
     private Connection connection;

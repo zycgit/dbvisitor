@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.mysql.api.jdbc;
 
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcBatchMutationContractTest;
+import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcBatchMutationCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MySqlProfile;
 
-public class MySqlJdbcBatchMutationTest extends JdbcBatchMutationContractTest {
+public class MySqlJdbcBatchMutationTest extends JdbcBatchMutationCase {
     @Override
     protected DataSourceProfile profile() {
         return MySqlProfile.INSTANCE;

@@ -13,14 +13,14 @@ import java.util.UUID;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
-import net.hasor.dbvisitor.test.contract.feature.mapping.AnnotationJsonFieldMappingContractTest;
+import net.hasor.dbvisitor.test.contract.feature.mapping.AnnotationJsonFieldMappingCase;
 import net.hasor.dbvisitor.test.contract.material.model.types.SpecialJsonTypeEntity;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import org.junit.After;
 import org.junit.Before;
 
 /** Entity-field JSON conversion through Lambda and a private mapping registry. */
-public abstract class NativeJsonFieldMappingSupport extends AnnotationJsonFieldMappingContractTest {
+public abstract class NativeJsonFieldMappingSupport extends AnnotationJsonFieldMappingCase {
     private final String collection = "nxn_json_fields_" + UUID.randomUUID().toString().replace("-", "");
     private Connection connection;
     private boolean created;

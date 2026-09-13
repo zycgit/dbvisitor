@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.pg.api.jdbc;
 
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcCountQueryContractTest;
+import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcCountQueryCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.PostgreSqlProfile;
 
-public class PostgreSqlJdbcCountQueryTest extends JdbcCountQueryContractTest {
+public class PostgreSqlJdbcCountQueryTest extends JdbcCountQueryCase {
     @Override
     protected DataSourceProfile profile() {
         return PostgreSqlProfile.INSTANCE;

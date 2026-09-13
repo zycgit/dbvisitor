@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.mssql.feature.schema;
 
-import net.hasor.dbvisitor.test.contract.feature.schema.StandardSchemaContractTest;
+import net.hasor.dbvisitor.test.contract.feature.schema.StandardSchemaCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MsSqlProfile;
 
-public class MsSqlStandardSchemaTest extends StandardSchemaContractTest {
+public class MsSqlStandardSchemaTest extends StandardSchemaCase {
     @Override
     protected DataSourceProfile profile() {
         return MsSqlProfile.INSTANCE;

@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.pg.api.jdbc;
 
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcScalarListQueryContractTest;
+import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcScalarListQueryCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.PostgreSqlProfile;
 
-public class PostgreSqlJdbcScalarListQueryTest extends JdbcScalarListQueryContractTest {
+public class PostgreSqlJdbcScalarListQueryTest extends JdbcScalarListQueryCase {
     @Override
     protected DataSourceProfile profile() {
         return PostgreSqlProfile.INSTANCE;

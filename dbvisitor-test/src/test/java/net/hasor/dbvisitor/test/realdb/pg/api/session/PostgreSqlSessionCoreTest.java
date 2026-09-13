@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.pg.api.session;
 
-import net.hasor.dbvisitor.test.contract.api.session.SessionCoreContractTest;
+import net.hasor.dbvisitor.test.contract.api.session.SessionCoreCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.PostgreSqlProfile;
 
-public class PostgreSqlSessionCoreTest extends SessionCoreContractTest {
+public class PostgreSqlSessionCoreTest extends SessionCoreCase {
     @Override
     protected DataSourceProfile profile() {
         return PostgreSqlProfile.INSTANCE;

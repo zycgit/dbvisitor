@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.mssql.api.lambda;
 
-import net.hasor.dbvisitor.test.contract.api.lambda.LambdaCrudContractTest;
+import net.hasor.dbvisitor.test.contract.api.lambda.LambdaCrudCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MsSqlProfile;
 
-public class MsSqlLambdaCrudTest extends LambdaCrudContractTest {
+public class MsSqlLambdaCrudTest extends LambdaCrudCase {
     @Override
     protected DataSourceProfile profile() {
         return MsSqlProfile.INSTANCE;

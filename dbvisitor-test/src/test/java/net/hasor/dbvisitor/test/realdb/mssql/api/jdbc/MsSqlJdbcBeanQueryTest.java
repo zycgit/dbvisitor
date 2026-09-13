@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.mssql.api.jdbc;
 
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcBeanQueryContractTest;
+import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcBeanQueryCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MsSqlProfile;
 
-public class MsSqlJdbcBeanQueryTest extends JdbcBeanQueryContractTest {
+public class MsSqlJdbcBeanQueryTest extends JdbcBeanQueryCase {
     @Override
     protected DataSourceProfile profile() {
         return MsSqlProfile.INSTANCE;

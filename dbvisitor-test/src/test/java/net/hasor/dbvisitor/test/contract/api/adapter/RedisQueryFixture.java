@@ -16,6 +16,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcCrudCommand;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 
 /** Private hashes supply native scalar, list, count and two-column Pairs result shapes. */
@@ -82,6 +83,23 @@ public final class RedisQueryFixture implements AutoCloseable {
 
     public String countRange(String lower, String upper) {
         return "HLEN " + boundRangeKey("names", lower, upper);
+    }
+
+    public String crudCommand(JdbcCrudCommand command) {
+        switch (command) {
+            case SELECT_NAME:
+                return selectById("name", "?");
+            case SELECT_AGE:
+                return selectById("age", "?");
+            case UPDATE_AGE:
+                return "HSET " + this.prefix + "ages #{arg1} #{arg0}";
+            case DELETE:
+                return "HDEL " + rangeKey("names", 3) + " ?";
+            case COUNT_BY_ID:
+                return "HEXISTS " + rangeKey("names", 3) + " ?";
+            default:
+                throw new IllegalArgumentException("Unsupported query fixture command: " + command);
+        }
     }
 
     private String rangeKey(String kind, int lastRow) {

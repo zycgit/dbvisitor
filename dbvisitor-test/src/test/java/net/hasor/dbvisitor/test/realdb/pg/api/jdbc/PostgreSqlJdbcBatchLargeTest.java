@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.pg.api.jdbc;
 
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcBatchLargeContractTest;
+import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcBatchLargeCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.PostgreSqlProfile;
 
-public class PostgreSqlJdbcBatchLargeTest extends JdbcBatchLargeContractTest {
+public class PostgreSqlJdbcBatchLargeTest extends JdbcBatchLargeCase {
     @Override
     protected DataSourceProfile profile() {
         return PostgreSqlProfile.INSTANCE;

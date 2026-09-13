@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.clickhouse.api.jdbc;
 
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcBatchLargeContractTest;
+import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcBatchLargeCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
 
-public class ClickHouseJdbcBatchLargeTest extends JdbcBatchLargeContractTest {
+public class ClickHouseJdbcBatchLargeTest extends JdbcBatchLargeCase {
     @Override
     protected DataSourceProfile profile() {
         return ClickHouseProfile.INSTANCE;

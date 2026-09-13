@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.oracle.api.lambda;
 
-import net.hasor.dbvisitor.test.contract.api.lambda.LambdaEntityListInsertContractTest;
+import net.hasor.dbvisitor.test.contract.api.lambda.LambdaEntityListInsertCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.OracleProfile;
 
-public class OracleLambdaEntityListInsertTest extends LambdaEntityListInsertContractTest {
+public class OracleLambdaEntityListInsertTest extends LambdaEntityListInsertCase {
     @Override
     protected DataSourceProfile profile() {
         return OracleProfile.INSTANCE;

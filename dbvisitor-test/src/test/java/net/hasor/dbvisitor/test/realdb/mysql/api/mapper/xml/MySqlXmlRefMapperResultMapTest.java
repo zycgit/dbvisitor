@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.mysql.api.mapper.xml;
 
-import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlRefMapperResultMapContractTest;
+import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlRefMapperResultMapCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MySqlProfile;
 
-public class MySqlXmlRefMapperResultMapTest extends XmlRefMapperResultMapContractTest {
+public class MySqlXmlRefMapperResultMapTest extends XmlRefMapperResultMapCase {
     @Override
     protected DataSourceProfile profile() {
         return MySqlProfile.INSTANCE;

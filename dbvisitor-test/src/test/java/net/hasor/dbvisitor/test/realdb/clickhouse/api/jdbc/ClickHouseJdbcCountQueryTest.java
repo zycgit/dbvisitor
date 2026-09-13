@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.clickhouse.api.jdbc;
 
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcCountQueryContractTest;
+import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcCountQueryCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
 
-public class ClickHouseJdbcCountQueryTest extends JdbcCountQueryContractTest {
+public class ClickHouseJdbcCountQueryTest extends JdbcCountQueryCase {
     @Override
     protected DataSourceProfile profile() {
         return ClickHouseProfile.INSTANCE;

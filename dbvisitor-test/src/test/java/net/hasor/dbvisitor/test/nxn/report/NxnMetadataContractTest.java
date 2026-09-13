@@ -8,6 +8,7 @@
 package net.hasor.dbvisitor.test.nxn.report;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -78,7 +79,7 @@ public abstract class NxnMetadataContractTest extends AbstractNxnContractTest {
         List<String> duplicate = new ArrayList<>();
         for (Class<?> realdbClass : realdbClasses) {
             Class<?> contract = nearestContractSuperclass(realdbClass);
-            if ((contract == null || !contractSet.contains(contract)) && !hasOwnerSpecificCapability(realdbClass)) {
+            if ((contract == null || !contractSet.contains(contract)) && !hasValidNativeCapabilities(realdbClass)) {
                 invalid.add(realdbClass.getName());
                 continue;
             }
@@ -89,7 +90,7 @@ public abstract class NxnMetadataContractTest extends AbstractNxnContractTest {
                 duplicate.add(contract.getName());
             }
         }
-        assertTrue("Every realdb class must extend exactly one known contract: " + invalid, invalid.isEmpty());
+        assertTrue("Matrix tests must inherit a known case or declare valid datasource capabilities: " + invalid, invalid.isEmpty());
         assertTrue("A datasource must not bind the same contract more than once: " + duplicate, duplicate.isEmpty());
     }
 
@@ -166,7 +167,7 @@ public abstract class NxnMetadataContractTest extends AbstractNxnContractTest {
         List<Class<?>> realdbClasses = classNamesUnder("net/hasor/dbvisitor/test/realdb/" + realdbPackage(), "", "Test.java").stream()//
                 .map(this::loadClass)//
                 .filter(clazz -> !Modifier.isAbstract(clazz.getModifiers()))//
-                .filter(clazz -> AbstractNxnContractTest.class.isAssignableFrom(clazz))//
+                .filter(clazz -> nearestContractSuperclass(clazz) != null || hasCapabilityMethods(clazz))//
                 .collect(Collectors.toList());
         Class<?> metadataClass = metadataClassForCurrentProfile();
         if (metadataClass != null) {
@@ -228,24 +229,55 @@ public abstract class NxnMetadataContractTest extends AbstractNxnContractTest {
         return clazz.getDeclaredAnnotation(NxnContract.class) != null;
     }
 
-    private boolean hasOwnerSpecificCapability(Class<?> realdbClass) {
+    private boolean hasCapabilityMethods(Class<?> realdbClass) {
+        for (Method method : realdbClass.getMethods()) {
+            if (method.getAnnotation(Test.class) != null && method.getAnnotation(Capability.class) != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean hasValidNativeCapabilities(Class<?> realdbClass) throws Exception {
+        Set<String> knownCapabilities = new HashSet<>();
+        for (Field field : CapabilityId.class.getFields()) {
+            if (field.getType() == String.class) {
+                knownCapabilities.add((String) field.get(null));
+            }
+        }
         String adapterName = profile().env();
         if (profile().id() == DataSourceId.ELASTIC6 || profile().id() == DataSourceId.ELASTIC7) {
             adapterName = "elastic";
         }
         String ownerPrefix = "adapter." + adapterName + ".";
         boolean hasTest = false;
-        for (Method method : realdbClass.getDeclaredMethods()) {
+        for (Method method : realdbClass.getMethods()) {
             if (method.getAnnotation(Test.class) == null) {
                 continue;
             }
             hasTest = true;
             Capability capability = method.getAnnotation(Capability.class);
-            if (capability == null || !capability.value().startsWith(ownerPrefix)) {
+            if (capability == null || !knownCapabilities.contains(capability.value())) {
+                return false;
+            }
+            if (capability.value().startsWith("adapter.") && !capability.value().startsWith(ownerPrefix)
+                    && !isSharedCapability(capability.value())) {
                 return false;
             }
         }
         return hasTest;
+    }
+
+    private boolean isSharedCapability(String capabilityId) throws Exception {
+        for (Class<?> contract : contractClasses()) {
+            for (Method method : contract.getDeclaredMethods()) {
+                Capability capability = method.getAnnotation(Capability.class);
+                if (method.getAnnotation(Test.class) != null && capability != null && capabilityId.equals(capability.value())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private String realdbPackage() {

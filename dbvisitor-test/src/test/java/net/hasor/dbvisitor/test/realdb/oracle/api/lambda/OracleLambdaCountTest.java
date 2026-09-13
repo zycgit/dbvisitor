@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.oracle.api.lambda;
 
-import net.hasor.dbvisitor.test.contract.api.lambda.LambdaCountContractTest;
+import net.hasor.dbvisitor.test.contract.api.lambda.LambdaCountCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.OracleProfile;
 
-public class OracleLambdaCountTest extends LambdaCountContractTest {
+public class OracleLambdaCountTest extends LambdaCountCase {
     @Override
     protected DataSourceProfile profile() {
         return OracleProfile.INSTANCE;

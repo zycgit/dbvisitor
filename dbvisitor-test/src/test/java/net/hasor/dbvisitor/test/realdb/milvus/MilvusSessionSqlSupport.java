@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
-import net.hasor.dbvisitor.test.contract.api.adapter.AdapterContractTest;
+import net.hasor.dbvisitor.test.contract.api.adapter.AdapterCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
 import net.hasor.dbvisitor.test.realdb.milvus.material.user.UserInfoMilvus3Mapper;
@@ -21,7 +21,7 @@ import org.junit.After;
 import org.junit.Before;
 
 /** Isolated collection and mapper configuration shared by Milvus Session contracts. */
-public abstract class MilvusSessionSqlSupport extends AdapterContractTest {
+public abstract class MilvusSessionSqlSupport extends AdapterCase {
     protected static final String NAMESPACE = UserInfoMilvus3Mapper.class.getName();
     protected final MilvusDatabaseFixture database = new MilvusDatabaseFixture();
     protected Connection connection;

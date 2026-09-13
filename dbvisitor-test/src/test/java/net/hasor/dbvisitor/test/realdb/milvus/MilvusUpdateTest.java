@@ -1,0 +1,158 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
+package net.hasor.dbvisitor.test.realdb.milvus;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.test.contract.api.adapter.AdapterCase;
+import net.hasor.dbvisitor.test.realdb.milvus.material.user.UserInfoMilvus;
+import org.junit.Before;
+
+import static org.junit.Assert.*;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
+import net.hasor.dbvisitor.test.nxn.capability.Capability;
+import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
+import org.junit.Test;
+
+public class MilvusUpdateTest extends AdapterCase {
+    @Override
+    protected DataSourceProfile profile() {
+        return MilvusProfile.INSTANCE;
+    }
+
+    @Before
+    public void before() throws SQLException {
+        try (Connection c = newAdapterConnection()) {
+            JdbcTemplate jdbc = new JdbcTemplate(c);
+            jdbc.execute("DROP TABLE IF EXISTS tb_user_info_milvus");
+            jdbc.execute("CREATE TABLE tb_user_info_milvus (uid VARCHAR(64) PRIMARY KEY, name VARCHAR(64), loginName VARCHAR(64), loginPassword VARCHAR(64), v FLOAT_VECTOR(2)) WITH (consistency_level='Strong')");
+            jdbc.execute("CREATE INDEX idx_user_v ON TABLE tb_user_info_milvus (v) USING \"IVF_FLAT\" WITH (nlist = 128, metric_type = 'L2')");
+            jdbc.execute("LOAD TABLE tb_user_info_milvus");
+        }
+    }
+
+    private List<Float> sampleVector(float val) {
+        return Arrays.asList(val, val);
+    }
+
+    @Test
+    @Capability(CapabilityId.ADAPTER_MILVUS_LAMBDA_UPDATE_COLUMNS)
+    public void testUpdateColumns() throws SQLException {
+        try (Connection c = newAdapterConnection()) {
+            LambdaTemplate lambda = new LambdaTemplate(c);
+
+            // 1. Prepare Data
+            UserInfoMilvus user = new UserInfoMilvus();
+            user.setUid("u_001");
+            user.setName("name_init");
+            user.setLoginName("login_init");
+            user.setLoginPassword("pass_init");
+            user.setV(sampleVector(0.1f));
+
+            lambda.insert(UserInfoMilvus.class).applyEntity(user).executeSumResult();
+
+            // 2. Update Single Column
+            int r1 = lambda.update(UserInfoMilvus.class).eq(UserInfoMilvus::getUid, "u_001").updateTo(UserInfoMilvus::getName, "name_updated").doUpdate();
+            assertEquals(1, r1);
+
+            UserInfoMilvus u1 = lambda.query(UserInfoMilvus.class).eq(UserInfoMilvus::getUid, "u_001").queryForObject();
+            assertEquals("name_updated", u1.getName());
+            assertEquals("login_init", u1.getLoginName());
+
+            // 3. Update Multiple Columns
+            int r2 = lambda.update(UserInfoMilvus.class).eq(UserInfoMilvus::getUid, "u_001").updateTo(UserInfoMilvus::getName, "name_updated_2").updateTo(UserInfoMilvus::getLoginName, "login_updated").doUpdate();
+            assertEquals(1, r2);
+
+            UserInfoMilvus u2 = lambda.query(UserInfoMilvus.class).eq(UserInfoMilvus::getUid, "u_001").queryForObject();
+            assertEquals("name_updated_2", u2.getName());
+            assertEquals("login_updated", u2.getLoginName());
+        }
+    }
+
+    @Test
+    @Capability(CapabilityId.ADAPTER_MILVUS_LAMBDA_UPDATE_PASSWORD)
+    public void testUpdatePassword() throws SQLException {
+        try (Connection c = newAdapterConnection()) {
+            LambdaTemplate lambda = new LambdaTemplate(c);
+
+            // 1. Prepare Data
+            UserInfoMilvus user = new UserInfoMilvus();
+            user.setUid("u_002");
+            user.setName("name_002");
+            user.setLoginName("login_002");
+            user.setLoginPassword("pass_002");
+            user.setV(sampleVector(0.2f));
+
+            lambda.insert(UserInfoMilvus.class).applyEntity(user).executeSumResult();
+
+            // 2. Update Password
+            int r = lambda.update(UserInfoMilvus.class).eq(UserInfoMilvus::getUid, "u_002").updateTo(UserInfoMilvus::getLoginPassword, "pass_002_new").doUpdate();
+            assertEquals(1, r);
+
+            UserInfoMilvus u = lambda.query(UserInfoMilvus.class).eq(UserInfoMilvus::getUid, "u_002").queryForObject();
+            assertEquals("pass_002_new", u.getLoginPassword());
+        }
+    }
+
+    @Test
+    @Capability(CapabilityId.ADAPTER_MILVUS_LAMBDA_UPDATE_MAP)
+    public void testUpdateByMap() throws SQLException {
+        try (Connection c = newAdapterConnection()) {
+            LambdaTemplate lambda = new LambdaTemplate(c);
+
+            UserInfoMilvus user = new UserInfoMilvus();
+            user.setLoginName("login_003");
+            user.setLoginPassword("pass_003");
+            user.setUid("u_003");
+            user.setName("name_003");
+            user.setV(sampleVector(0.3f));
+            lambda.insert(UserInfoMilvus.class).applyEntity(user).executeSumResult();
+
+            Map<String, Object> updateMap = new HashMap<>();
+            updateMap.put("name", "name_003_updated");
+            updateMap.put("loginName", "login_003_new");
+
+            int r = lambda.update(UserInfoMilvus.class).eq(UserInfoMilvus::getUid, "u_003").updateToSampleMap(updateMap).doUpdate();
+            assertEquals(1, r);
+
+            UserInfoMilvus u = lambda.query(UserInfoMilvus.class).eq(UserInfoMilvus::getUid, "u_003").queryForObject();
+            assertEquals("name_003_updated", u.getName());
+            assertEquals("login_003_new", u.getLoginName());
+        }
+    }
+
+    @Test
+    @Capability(CapabilityId.ADAPTER_MILVUS_LAMBDA_UPDATE_VECTOR)
+    public void testUpdateVector() throws SQLException {
+        try (Connection c = newAdapterConnection()) {
+            LambdaTemplate lambda = new LambdaTemplate(c);
+
+            UserInfoMilvus user = new UserInfoMilvus();
+            user.setLoginName("login_004");
+            user.setLoginPassword("pass_004");
+            user.setUid("u_004");
+            user.setName("name_004");
+            user.setV(sampleVector(0.4f));
+            lambda.insert(UserInfoMilvus.class).applyEntity(user).executeSumResult();
+
+            List<Float> newVec = sampleVector(0.9f);
+            int r = lambda.update(UserInfoMilvus.class).eq(UserInfoMilvus::getUid, "u_004").updateTo(UserInfoMilvus::getV, newVec).doUpdate();
+            assertEquals(1, r);
+
+            UserInfoMilvus u = lambda.query(UserInfoMilvus.class).eq(UserInfoMilvus::getUid, "u_004").queryForObject();
+            assertTrue(newVec.equals(u.getV()) || (Math.abs(newVec.get(0) - u.getV().get(0)) < 0.0001));
+        }
+    }
+}

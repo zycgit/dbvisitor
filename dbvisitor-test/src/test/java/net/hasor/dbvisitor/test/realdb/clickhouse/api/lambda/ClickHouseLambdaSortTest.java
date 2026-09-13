@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.clickhouse.api.lambda;
 
-import net.hasor.dbvisitor.test.contract.api.lambda.LambdaSortContractTest;
+import net.hasor.dbvisitor.test.contract.api.lambda.LambdaSortCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
 
-public class ClickHouseLambdaSortTest extends LambdaSortContractTest {
+public class ClickHouseLambdaSortTest extends LambdaSortCase {
     @Override
     protected DataSourceProfile profile() {
         return ClickHouseProfile.INSTANCE;

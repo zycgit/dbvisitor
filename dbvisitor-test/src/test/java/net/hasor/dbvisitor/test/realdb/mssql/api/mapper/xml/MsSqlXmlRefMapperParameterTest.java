@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.mssql.api.mapper.xml;
 
-import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlRefMapperParameterContractTest;
+import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlRefMapperParameterCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MsSqlProfile;
 
-public class MsSqlXmlRefMapperParameterTest extends XmlRefMapperParameterContractTest {
+public class MsSqlXmlRefMapperParameterTest extends XmlRefMapperParameterCase {
     @Override
     protected DataSourceProfile profile() {
         return MsSqlProfile.INSTANCE;

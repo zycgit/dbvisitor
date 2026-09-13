@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.h2.api.jdbc;
 
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcPairsQueryContractTest;
+import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcPairsQueryCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.H2Profile;
 
-public class H2JdbcPairsQueryTest extends JdbcPairsQueryContractTest {
+public class H2JdbcPairsQueryTest extends JdbcPairsQueryCase {
     @Override
     protected DataSourceProfile profile() {
         return H2Profile.INSTANCE;

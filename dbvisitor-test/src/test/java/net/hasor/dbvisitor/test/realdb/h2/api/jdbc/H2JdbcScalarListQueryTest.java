@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.h2.api.jdbc;
 
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcScalarListQueryContractTest;
+import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcScalarListQueryCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.H2Profile;
 
-public class H2JdbcScalarListQueryTest extends JdbcScalarListQueryContractTest {
+public class H2JdbcScalarListQueryTest extends JdbcScalarListQueryCase {
     @Override
     protected DataSourceProfile profile() {
         return H2Profile.INSTANCE;
