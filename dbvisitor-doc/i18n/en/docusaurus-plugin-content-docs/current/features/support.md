@@ -57,9 +57,9 @@ This matrix covers dbVisitor-provided adapters. Relational JDBC capabilities dep
 
 | Adapter | JDBC Batch | Stored Procedures | getGeneratedKeys | Named / Indexed Generated-Key Overloads |
 | --- | :---: | :---: | :---: | :---: |
-| [jdbc-redis](redis/jdbc.mdx) | ❌ | ❌ | ❌ | ❌ |
-| [jdbc-mongo](mongo/jdbc.mdx) | ❌ | ❌ | ✅¹ | ❌ |
-| [jdbc-elastic](elastic/jdbc.mdx) | ❌ | ❌ | ✅¹ | ❌ |
+| [jdbc-redis](redis/dbvisitor/results.mdx) | ❌ | ❌ | ❌ | ❌ |
+| [jdbc-mongo](mongo/dbvisitor/results.mdx) | ❌ | ❌ | ✅¹ | ❌ |
+| [jdbc-elastic](elastic/dbvisitor/results.mdx) | ❌ | ❌ | ✅¹ | ❌ |
 | [jdbc-milvus](../drivers/milvus/limitations.md) | ❌ | ❌ | ✅¹ | ❌ |
 
 ¹ Requires Statement.RETURN_GENERATED_KEYS and a supported write command; see the data source documentation for returned columns and Mapper backfill configuration.

@@ -1,0 +1,34 @@
+---
+id: aggregate
+sidebar_position: 3
+title: Aggregation Pipelines
+---
+
+:::info[Note]
+SDK method: `aggregate`。
+:::
+
+This example expects string status values and numeric amount values in orders:
+
+```java
+String command = """
+        db.orders.aggregate([
+            {$match: {status: ?}},
+            {$group: {_id: '$customerId', total: {$sum: '$amount'}}},
+            {$sort: {total: -1, _id: 1}},
+            {$limit: 10}
+        ], {allowDiskUse: true, maxTimeMS: 5000})
+        """;
+try (PreparedStatement ps = conn.prepareStatement(command)) {
+    ps.setString(1, "paid");
+    try (ResultSet rs = ps.executeQuery()) {
+        while (rs.next()) {
+            System.out.println(rs.getString("_JSON"));
+        }
+    }
+}
+```
+
+The server filters paid orders, sums amount by customerId, sorts and returns the first ten groups. The output `_id` is a group key, not an order primary key. Grouping does not itself sort results; see [MongoDB $group](https://www.mongodb.com/docs/manual/reference/operator/aggregation/group/). The total field is not a separate JDBC column; parse it from `_JSON`.
+
+Supported aggregation options are allowDiskUse, maxTimeMS, maxAwaitTimeMS, bypassDocumentValidation, collation, comment and hint. The hint option is an index-hint object, not a command-prefix pagination Hint. batchSize is not connected to the SDK and cannot control retrieval or memory. Page's find override Hints do not rewrite pipelines; explicitly use `$skip`/`$limit` for aggregation pagination.

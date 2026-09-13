@@ -1,0 +1,9 @@
+{
+  "label": "Key Management",
+  "position": 9,
+  "key": "redis-keys",
+  "link": {
+    "type": "doc",
+    "id": "features/redis/keys/about"
+  }
+}

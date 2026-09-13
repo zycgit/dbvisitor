@@ -27,4 +27,4 @@ description: Redis JDBC 驱动的接入、连接和使用。
 - 不支持 JDBC Batch 和事务。使用连接池、ORM 或其他 JDBC 工具前，请核对[驱动适配器限制](../limited.md)。
 - JDBC URL 前缀为 `jdbc:dbvisitor:jedis://`，不是 `redis://`。
 
-[命令参考](../../features/redis/syntax/index.md) · [dbVisitor API 用法](../../features/redis/usage.mdx)
+[命令参考](../../features/redis/about.md) · [dbVisitor API 用法](../../features/redis/dbvisitor/usage.mdx)

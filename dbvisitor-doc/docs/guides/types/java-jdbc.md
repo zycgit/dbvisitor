@@ -52,9 +52,9 @@ description: dbVisitor ORM 工具 Java类型映射表介绍。
 - [DB2](../../features/db2/types.md)
 - [H2](../../features/h2/types.md)
 - [ClickHouse](../../features/clickhouse/types.md)
-- [Redis](../../features/redis/types.md)
-- [MongoDB](../../features/mongo/types.md)
-- [Elasticsearch](../../features/elastic/types.md)
+- [Redis](../../features/redis/dbvisitor/types.md)
+- [MongoDB](../../features/mongo/dbvisitor/types.md)
+- [Elasticsearch](../../features/elastic/dbvisitor/types.md)
 - [Milvus](../../features/milvus/dbvisitor/types.md)
 
 类型处理器的匹配规则与内置实现见[基础类型处理器](./handlers/about.md)。

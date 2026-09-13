@@ -5,14 +5,37 @@ hide_table_of_contents: true
 title: Elasticsearch
 ---
 
-# Elasticsearch
+Use REST requests with JdbcTemplate and Mappers. The builder API also supports basic document operations. See [JDBC Elasticsearch](../../drivers/elastic/connection.mdx) for connections.
 
-Execute REST requests through dbVisitor, or generate basic document operations with the Fluent API. Connection setup is described in [JDBC Elasticsearch](../../drivers/elastic/connection.mdx).
+## Using dbVisitor
 
-- [Type Support](types.md)：Choose Java types for stored values.
-- [Pagination](pagination.mdx)：Fetch a range and obtain totals.
-- [Key Generation](generated-keys.mdx)：Assign identifiers or read generated IDs.
-- [Data Reads and Writes](usage.mdx)：Bind commands and understand the database action.
-- [Vector Operations](vectors.mdx)：Choose metrics and scope vector candidates.
-- [Result Reading](jdbc.mdx)：Read fields and returned values.
-- [Command Syntax](syntax/index.md)：Look up supported commands and options.
+- [Type Support](dbvisitor/types.md)
+- [Pagination](dbvisitor/pagination.mdx)
+- [Key Generation](dbvisitor/generated-keys.mdx)
+- [Reading and Writing Data](dbvisitor/usage.mdx)
+- [Vector Operations](dbvisitor/vectors.mdx)
+- [Reading Results](dbvisitor/results.mdx)
+
+## Command Basics
+
+- [Request Format and Parameters](basics/requests.md)
+- [Hint Support](basics/hints.md)
+- [Command Results](basics/results.md)
+
+## Query Commands
+
+- [Search and Count](query/search.md)
+- [Multi-search and Multi-get](query/multiple.md)
+
+- [Document Source and Query Explanation](query/document.md)
+
+## Write Commands
+
+- [Document Writes and Deletes](write/documents.md)
+- [Update and Delete by Query](write/by-query.md)
+- [Write Results](write/results.md)
+
+## Management Commands
+
+- [Indexes and Mappings](admin/indexes.md)
+- [Cluster Information](admin/cluster.md)

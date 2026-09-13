@@ -1,0 +1,9 @@
+{
+  "label": "Server Commands",
+  "position": 10,
+  "key": "redis-server",
+  "link": {
+    "type": "doc",
+    "id": "features/redis/server/about"
+  }
+}

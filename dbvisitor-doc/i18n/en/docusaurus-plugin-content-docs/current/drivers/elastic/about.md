@@ -28,6 +28,6 @@ description: Elasticsearch JDBC driver setup, connections and usage.
 
 When using dbVisitor APIs, Elastic6 and Elastic7 dialects are available.
 
-[Command reference](../../features/elastic/syntax/index.md) · [dbVisitor API usage](../../features/elastic/usage.mdx)
+[Command reference](../../features/elastic/about.md) · [dbVisitor API usage](../../features/elastic/dbvisitor/usage.mdx)
 
-[Vector searches](../../features/elastic/vectors.mdx)
+[Vector searches](../../features/elastic/dbvisitor/vectors.mdx)

@@ -1,0 +1,93 @@
+---
+id: vectors
+slug: /features/elastic/vectors
+sidebar_position: 5
+title: 向量数据操作
+---
+
+# 向量数据操作
+
+## 选择检索方式
+
+Elasticsearch 向量查询取决于服务端版本和字段 Mapping，不能只根据 API 方法名判断实际检索方式。
+
+| 方式 | 实际行为 |
+| --- | --- |
+| ES 7 script_score | 通过脚本对匹配文档评分。 |
+| ES 8.4+ _search knn | 对已建索引的 dense_vector 执行原生近似检索。 |
+| Elastic7Dialect | 向量排序生成脚本排序，不是原生 knn；需确认服务端支持相应脚本上下文。 |
+| Elastic8Dialect | 生成顶层 knn，k=10、num_candidates=100；initPage 不会修改这两个值。 |
+
+## 配置向量字段
+
+使用下方 ES 8.4+ kNN 示例前，先创建索引：
+
+```text
+PUT /product_index
+{
+  "mappings": {"properties": {
+    "category": {"type": "keyword"},
+    "embedding": {"type": "dense_vector", "dims": 3, "index": true, "similarity": "cosine"}
+  }}
+}
+```
+
+索引的 similarity 决定检索度量；调用 orderByL2 不会把 cosine 索引改成 L2 索引。
+
+## 限定向量候选范围
+
+只检索 electronics 分类时，将条件放在 knn.filter 中，并将查询向量绑定为数值 List：
+
+```java
+String command = """
+        POST /product_index/_search
+        {
+          "size": 10,
+          "knn": {
+            "field": "embedding",
+            "query_vector": ?,
+            "k": 10,
+            "num_candidates": 100,
+            "filter": {"term": {"category": ?}}
+          }
+        }
+        """;
+List<Map<String, Object>> rows = jdbc.queryForList(
+        command, new Object[] { List.of(0.1f, 0.2f, 0.3f), "electronics" });
+```
+
+:::caution[注意]
+Elastic8Dialect 将构造器标量条件放在顶层 query，而不是 knn.filter。Elasticsearch 对 query 与 knn 按 OR 合并，因此 eq(...).orderByL2(...) 不是强制候选过滤。租户、分类等范围限制使用上面的命令。
+:::
+
+## ES 7 使用脚本评分
+
+ES 7 的 embedding 字段声明 dense_vector、dims=3，不使用上面的 ES 8 index、similarity 选项。余弦评分使用 script_score：
+
+```java
+String command = """
+        POST /product_index/_search
+        {
+          "size": 10,
+          "query": {"script_score": {
+            "query": {"term": {"category": ?}},
+            "script": {
+              "source": "cosineSimilarity(params.vec, 'embedding') + 1.0",
+              "params": {"vec": ?}
+            }
+          }}
+        }
+        """;
+List<Map<String, Object>> rows = jdbc.queryForList(
+        command, new Object[] { "electronics", List.of(0.1f, 0.2f, 0.3f) });
+```
+
+匹配文档都应包含 embedding。脚本加 1 是为了得到非负分数，返回评分不是原始余弦相似度。
+
+## 读取向量值
+
+适配器展开文档时，embedding 返回 JSON 文本。整篇文档可读 _DOC；embedding 可用 String 接收，需要 List 属性时配置 JSON 映射。
+
+请求语法与版本要求见：
+[script_score](https://www.elastic.co/guide/en/elasticsearch/reference/7.17/query-dsl-script-score-query.html)、
+[kNN](https://www.elastic.co/guide/en/elasticsearch/reference/8.4/knn-search.html)。

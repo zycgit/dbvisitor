@@ -140,6 +140,16 @@
     transform: translateY(-2px);
 }
 
+a.dbItem {
+    cursor: pointer;
+    text-decoration: none;
+}
+
+a.dbItem:focus-visible {
+    outline: 2px solid #49a0f8;
+    outline-offset: 2px;
+}
+
 .dbIcon {
     width: 44px;
     height: 44px;

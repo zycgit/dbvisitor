@@ -1,0 +1,43 @@
+---
+id: results
+slug: /features/redis/jdbc
+sidebar_position: 6
+title: Result Reading
+---
+
+# Result Reading
+
+Choose the result method by the command's returned columns:
+
+| Command | Columns | dbVisitor method |
+| --- | --- | --- |
+| GET | VALUE | queryForString |
+| INCR | VALUE | queryForLong |
+| LRANGE | ELEMENT | queryForList |
+| HGETALL | FIELD, VALUE | queryForPairs |
+| MGET | KEY, VALUE | queryForPairs |
+
+## Read Key-Value Pairs
+
+```java
+Map<String, String> values = jdbc.queryForPairs(
+        "MGET ? ?", String.class, String.class,
+        new Object[] { "user:1001:name", "user:1002:name" });
+```
+
+## Read a Popped List Item
+
+BLPOP and BRPOP return two ELEMENT rows: the list key first, then the item. Do not use a scalar method, which reads only the first row:
+
+```java
+jdbc.executeUpdate("LPUSH ? ?", new Object[] { "queue:demo", "hello" });
+List<String> result = jdbc.queryForList("BRPOP ? ?", new Object[] { "queue:demo", 5 }, String.class);
+String key = result.get(0);
+String message = result.get(1);
+```
+
+:::caution[Note]
+This example preloads an item. The current adapter does not normalize a blocking timeout into an empty result set. For consumers that must reliably handle empty queues and timeouts, use the Redis client directly.
+:::
+
+Complete return types are listed in [Command Syntax](../about.md).

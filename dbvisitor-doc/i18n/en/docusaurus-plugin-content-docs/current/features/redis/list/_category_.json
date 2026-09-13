@@ -1,0 +1,9 @@
+{
+  "label": "List",
+  "position": 6,
+  "key": "redis-list",
+  "link": {
+    "type": "doc",
+    "id": "features/redis/list/about"
+  }
+}

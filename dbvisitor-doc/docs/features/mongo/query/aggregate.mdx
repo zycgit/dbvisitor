@@ -1,0 +1,34 @@
+---
+id: aggregate
+sidebar_position: 3
+title: 聚合管道
+---
+
+:::info[说明]
+对应 SDK 方法： `aggregate`。
+:::
+
+以下示例要求 orders 中的 status 为字符串、amount 为数值：
+
+```java
+String command = """
+        db.orders.aggregate([
+            {$match: {status: ?}},
+            {$group: {_id: '$customerId', total: {$sum: '$amount'}}},
+            {$sort: {total: -1, _id: 1}},
+            {$limit: 10}
+        ], {allowDiskUse: true, maxTimeMS: 5000})
+        """;
+try (PreparedStatement ps = conn.prepareStatement(command)) {
+    ps.setString(1, "paid");
+    try (ResultSet rs = ps.executeQuery()) {
+        while (rs.next()) {
+            System.out.println(rs.getString("_JSON"));
+        }
+    }
+}
+```
+
+服务端先筛选已付款订单，再按 customerId 汇总 amount、排序并返回前 10 组。`$group` 输出中的 `_id` 是分组键，不是订单主键；聚合自身不保证排序，参阅[MongoDB $group](https://www.mongodb.com/docs/manual/reference/operator/aggregation/group/)。结果中的 total 不是独立 JDBC 列，应从 `_JSON` 中解析。
+
+聚合选项已接入 allowDiskUse、maxTimeMS、maxAwaitTimeMS、bypassDocumentValidation、collation、comment、hint。其中 hint 是索引提示对象，不是命令前的分页 Hint。batchSize 没有接入；不能借此控制驱动取数或内存。Page 的 find 覆盖 Hint 不会改写管道，分页必须在管道中显式加入 `$skip`、`$limit`。

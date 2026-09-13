@@ -57,9 +57,9 @@ description: 对比各数据源的内置方言与 JDBC 适配器能力。
 
 | 适配器 | JDBC Batch | 存储过程 | getGeneratedKeys | 指定列名 / 列序号的生成键重载 |
 | --- | :---: | :---: | :---: | :---: |
-| [jdbc-redis](redis/jdbc.mdx) | ❌ | ❌ | ❌ | ❌ |
-| [jdbc-mongo](mongo/jdbc.mdx) | ❌ | ❌ | ✅¹ | ❌ |
-| [jdbc-elastic](elastic/jdbc.mdx) | ❌ | ❌ | ✅¹ | ❌ |
+| [jdbc-redis](redis/dbvisitor/results.mdx) | ❌ | ❌ | ❌ | ❌ |
+| [jdbc-mongo](mongo/dbvisitor/results.mdx) | ❌ | ❌ | ✅¹ | ❌ |
+| [jdbc-elastic](elastic/dbvisitor/results.mdx) | ❌ | ❌ | ✅¹ | ❌ |
 | [jdbc-milvus](../drivers/milvus/limitations.md) | ❌ | ❌ | ✅¹ | ❌ |
 
 ¹ 需使用 Statement.RETURN_GENERATED_KEYS，且执行支持返回主键的写入命令；返回列和 Mapper 回填配置见各数据源文档。

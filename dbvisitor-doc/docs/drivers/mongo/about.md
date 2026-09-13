@@ -26,4 +26,4 @@ description: MongoDB JDBC 驱动的接入、连接和使用。
 - 命令必须使用驱动支持的语法，不会自动转换任意关系型 SQL。
 - 不支持 JDBC Batch 和事务。使用连接池、ORM 或其他 JDBC 工具前，请核对[驱动适配器限制](../limited.md)。
 
-[命令参考](../../features/mongo/syntax/index.md) · [dbVisitor API 用法](../../features/mongo/usage.mdx)
+[命令参考](../../features/mongo/about.md) · [dbVisitor API 用法](../../features/mongo/dbvisitor/usage.mdx)

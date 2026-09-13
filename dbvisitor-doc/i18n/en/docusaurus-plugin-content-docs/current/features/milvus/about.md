@@ -19,94 +19,15 @@ Use SQL-style commands and the Fluent API to operate Milvus collections and vect
 
 ## SQL Statements
 
-### Language Basics
-
-- [Notation and Comments](basics/notation.md)
-- [Identifiers](basics/identifiers.md)
-- [Literals and Parameters](basics/parameters.md)
-- [Operators](basics/operators.md)
-- [Hint Support](basics/hints.md)
-
-### Data Types
-
-- [Scalar Types](types/fields.md)
-- [JSON](types/json.md)
-- [ARRAY](types/array.md)
-- [Length, Capacity and Dimensions](types/dimensions.md)
-- [Field Constraints](types/defaults.md)
-- [Vector Values](types/vectors.md)
-- [JSON, ARRAY and Vector Binding](types/binding.md)
-
-### Query Statements
-
-- [SELECT](query/select.md)
-- [COUNT / SELECT COUNT(*)](query/count.md)
-- [HYBRID](query/hybrid.md)
-
-### Write Statements
-
-- [INSERT](write/insert.md)
-- [UPSERT](write/upsert.md)
-- [UPDATE](write/update.md)
-- [DELETE](write/delete.md)
-- [IMPORT](write/import.md)
-
-### Definition Statements
-
-- [CREATE DATABASE](ddl/create-database.md)
-- [ALTER DATABASE](ddl/alter-database.md)
-- [DROP DATABASE](ddl/drop-database.md)
-- [CREATE TABLE](ddl/create-table.md)
-- [ALTER TABLE](ddl/alter-table.md)
-- [DROP TABLE](ddl/drop-table.md)
-- [TRUNCATE TABLE](ddl/truncate-table.md)
-- [CREATE INDEX](ddl/create-index.md)
-- [ALTER INDEX](ddl/alter-index.md)
-- [DROP INDEX](ddl/drop-index.md)
-- [CREATE PARTITION](ddl/create-partition.md)
-- [DROP PARTITION](ddl/drop-partition.md)
-- [CREATE ALIAS](ddl/create-alias.md)
-- [ALTER ALIAS](ddl/alter-alias.md)
-- [DROP ALIAS](ddl/drop-alias.md)
-- [FUNCTION Definitions](ddl/functions.md)
-- [ALTER TABLE … FUNCTION](ddl/alter-function.md)
-
-### SHOW Statements
-
-- [SHOW DATABASES / DATABASE](show/databases.md)
-- [SHOW TABLES / TABLE / CREATE TABLE](show/tables.md)
-- [SHOW INDEXES / INDEX](show/indexes.md)
-- [SHOW STATS](show/stats.md)
-- [SHOW PARTITIONS / PARTITION](show/partitions.md)
-- [SHOW ALIASES / ALIAS](show/aliases.md)
-- [SHOW FLUSH ALL](show/flush.md)
-- [SHOW REPLICAS](show/replicas.md)
-- [SHOW RESOURCE GROUPS / GROUP](show/resource-groups.md)
-- [SHOW COMPACTION](show/compaction.md)
-- [SHOW PROGRESS](show/progress.md)
-- [SHOW USERS / USER](show/users.md)
-- [SHOW ROLES / ROLE](show/roles.md)
-- [SHOW GRANTS](show/grants.md)
-- [SHOW PRIVILEGE GROUPS](show/privilege-groups.md)
-- [SHOW IMPORT / IMPORTS](show/import.md)
-- [SHOW VERSION](show/version.md)
-- [SHOW HEALTH](show/health.md)
-- [SHOW PERSISTENT SEGMENTS](show/persistent-segments.md)
-- [SHOW QUERY SEGMENTS](show/query-segments.md)
-
-### Administration Statements
-
-- [ANALYZE](admin/analyze.md)
-- [LOAD](admin/load.md)
-- [RELEASE](admin/release.md)
-- [FLUSH](admin/flush.md)
-- [Resource Group Statements](admin/resource-groups.md)
-- [TRANSFER NODES / REPLICAS](admin/transfer.md)
-- [COMPACT](admin/compact.md)
-- [User Statements](admin/users.md)
-- [Role Statements](admin/roles.md)
-- [GRANT / REVOKE](admin/grant.md)
-- [Privilege Group Statements](admin/privilege-groups.md)
+| Category | Statements and Usage |
+| --- | --- |
+| <span id="language-basics">Language Basics</span> | [Notation and Comments](basics/notation.md) · [Identifiers](basics/identifiers.md) · [Literals and Parameters](basics/parameters.md) · [Operators](basics/operators.md) · [Hint Support](basics/hints.md) |
+| <span id="data-types">Data Types</span> | [Scalar Types](types/fields.md) · [JSON](types/json.md) · [ARRAY](types/array.md) · [Vector Values](types/vectors.md)<br />[Length, Capacity and Dimensions](types/dimensions.md) · [Field Constraints](types/defaults.md) · [JSON, ARRAY and Vector Binding](types/binding.md) |
+| <span id="query-statements">Query Statements</span> | [SELECT](query/select.md) · [COUNT / SELECT COUNT(*)](query/count.md) · [HYBRID](query/hybrid.md) |
+| <span id="write-statements">Write Statements</span> | [INSERT](write/insert.md) · [UPSERT](write/upsert.md) · [UPDATE](write/update.md) · [DELETE](write/delete.md) · [IMPORT](write/import.md) |
+| <span id="definition-statements">Definition Statements</span> | [CREATE DATABASE](ddl/create-database.md) · [ALTER DATABASE](ddl/alter-database.md) · [DROP DATABASE](ddl/drop-database.md)<br />[CREATE TABLE](ddl/create-table.md) · [ALTER TABLE](ddl/alter-table.md) · [DROP TABLE](ddl/drop-table.md) · [TRUNCATE TABLE](ddl/truncate-table.md)<br />[CREATE INDEX](ddl/create-index.md) · [ALTER INDEX](ddl/alter-index.md) · [DROP INDEX](ddl/drop-index.md)<br />[CREATE PARTITION](ddl/create-partition.md) · [DROP PARTITION](ddl/drop-partition.md)<br />[CREATE ALIAS](ddl/create-alias.md) · [ALTER ALIAS](ddl/alter-alias.md) · [DROP ALIAS](ddl/drop-alias.md)<br />[FUNCTION Definitions](ddl/functions.md) · [ALTER TABLE … FUNCTION](ddl/alter-function.md) |
+| <span id="show-statements">SHOW Statements</span> | [SHOW DATABASES / DATABASE](show/databases.md) · [SHOW TABLES / TABLE / CREATE TABLE](show/tables.md)<br />[SHOW INDEXES / INDEX](show/indexes.md) · [SHOW PARTITIONS / PARTITION](show/partitions.md) · [SHOW ALIASES / ALIAS](show/aliases.md)<br />[SHOW STATS](show/stats.md) · [SHOW PROGRESS](show/progress.md) · [SHOW IMPORT / IMPORTS](show/import.md) · [SHOW FLUSH ALL](show/flush.md)<br />[SHOW REPLICAS](show/replicas.md) · [SHOW RESOURCE GROUPS / GROUP](show/resource-groups.md)<br />[SHOW COMPACTION](show/compaction.md) · [SHOW PERSISTENT SEGMENTS](show/persistent-segments.md) · [SHOW QUERY SEGMENTS](show/query-segments.md)<br />[SHOW USERS / USER](show/users.md) · [SHOW ROLES / ROLE](show/roles.md) · [SHOW GRANTS](show/grants.md) · [SHOW PRIVILEGE GROUPS](show/privilege-groups.md)<br />[SHOW VERSION](show/version.md) · [SHOW HEALTH](show/health.md) |
+| <span id="administration-statements">Administration Statements</span> | [ANALYZE](admin/analyze.md) · [LOAD](admin/load.md) · [RELEASE](admin/release.md)<br />[FLUSH](admin/flush.md) · [COMPACT](admin/compact.md)<br />[Resource Group Statements](admin/resource-groups.md) · [TRANSFER NODES / REPLICAS](admin/transfer.md)<br />[User Statements](admin/users.md) · [Role Statements](admin/roles.md) · [GRANT / REVOKE](admin/grant.md) · [Privilege Group Statements](admin/privilege-groups.md) |
 
 <span id="database" />
 <span id="table" />

@@ -1,0 +1,127 @@
+---
+id: usage
+slug: /features/mongo/usage
+sidebar_position: 4
+title: Data Reads and Writes
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Data Reads and Writes
+
+dbVisitor treats MongoDB commands as executable statements: `queryForList` reads results, `executeUpdate` reads update counts, and `?` and `#{...}` bind parameters. No SQL translation is required. Connection setup: [JDBC MongoDB](../../../drivers/mongo/connection.mdx).
+
+## Entity Mapping
+
+```java
+@Table(value = "user_info", catalog = "test")
+public class UserInfo {
+    @Column(primary = true)
+    private String uid;
+    private String name;
+    // Getters and setters omitted
+}
+```
+
+`uid` is a business field. `primary=true` does not create a unique index; updates and deletes by uid affect all matches. For MongoDB `_id`, see [Key Generation](generated-keys.mdx).
+
+## Execute Commands {#exec-command}
+
+Use a JdbcTemplate backed by the datasource:
+
+```java
+JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+
+jdbc.executeUpdate(
+        "test.user_info.insertOne({uid: ?, name: ?})",
+        new Object[] { "1001", "mali" });
+
+List<UserInfo> rows = jdbc.queryForList(
+        "test.user_info.find({uid: ?})",
+        new Object[] { "1001" }, UserInfo.class);
+
+jdbc.executeUpdate(
+        "test.user_info.updateMany({uid: ?}, {$set: {name: ?}})",
+        new Object[] { "1001", "new name" });
+
+jdbc.executeUpdate(
+        "test.user_info.deleteMany({uid: ?})",
+        new Object[] { "1001" });
+```
+
+## Query Through Different APIs
+
+<Tabs>
+<TabItem value="fluent" label="Fluent API" default>
+
+```java
+LambdaTemplate lambda = new LambdaTemplate(dataSource);
+UserInfo item = lambda.query(UserInfo.class)
+        .eq(UserInfo::getUid, "1001")
+        .queryForObject();
+```
+
+Fluent operations produce these database actions:
+
+| Operation | Database action |
+| --- | --- |
+| Query | find |
+| Update selected properties | updateMany + $set |
+| Delete matching records | deleteMany |
+
+BaseMapper CRUD uses the same operations.
+
+</TabItem>
+<TabItem value="annotation" label="Method Annotations">
+
+```java
+@SimpleMapper
+public interface UserInfoMapper {
+    @Query("test.user_info.find({uid: #{uid}})")
+    UserInfo findById(@Param("uid") String uid);
+}
+```
+
+```java
+Session session = new Configuration().newSession(dataSource);
+UserInfoMapper mapper = session.createMapper(UserInfoMapper.class);
+UserInfo item = mapper.findById("1001");
+```
+
+</TabItem>
+<TabItem value="xml" label="Mapper File">
+
+```xml
+<mapper namespace="com.example.UserInfoMapper">
+    <select id="findById" resultType="com.example.UserInfo">
+        test.user_info.find({uid: #{uid}})
+    </select>
+</mapper>
+```
+
+```java
+@RefMapper("/mapper/mongo-user.xml")
+public interface UserInfoMapper {
+    UserInfo findById(@Param("uid") String uid);
+}
+```
+
+Save the XML as the resource named in @RefMapper; the example classes use package com.example. Create the Mapper through Session as in the annotation example.
+
+</TabItem>
+</Tabs>
+
+## Use Commands for Complex Filters
+
+Bind values in a MongoDB filter directly:
+
+```java
+List<Map<String, Object>> rows = jdbc.queryForList(
+        "test.user_info.find({$or: [{name: ?}, {uid: ?}]})",
+        new Object[] { "mali", "1001" });
+```
+
+The Fluent API does not replace arbitrary BSON filters. For nested AND/OR, aggregation, and custom projections, use [Command Syntax](../about.md).
+
+See [Result Reading](results.mdx) for returned columns. Multiple commands do not form a JDBC batch or transaction.

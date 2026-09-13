@@ -1,0 +1,64 @@
+---
+id: generated-keys
+slug: /features/mongo/generated-keys
+sidebar_position: 3
+title: 主键生成
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# 主键生成
+
+## 使用自动生成 ID
+
+插入文档未提供 _id 时，由 MongoDB 插入流程生成；适配器返回该 ID，供 Mapper 写入实体属性。
+
+
+
+UserInfo 提供可写的 String id 属性，下面的 Mapper 配置会在插入后回填该属性：
+
+<Tabs>
+<TabItem value="annotation" label="方法注解" default>
+
+```java
+@Insert(value = "test.user_info.insertOne({name: #{name}})",
+        useGeneratedKeys = true, keyProperty = "id")
+int insert(UserInfo item);
+```
+
+</TabItem>
+<TabItem value="xml" label="Mapper 文件">
+
+```xml
+<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+    test.user_info.insertOne({name: #{name}})
+</insert>
+```
+
+</TabItem>
+</Tabs>
+
+调用 mapper.insert(item) 后，通过 item.getId() 读取主键。这里使用单个实体参数，不额外加 @Param 包装。
+
+:::caution[注意]
+不要指定 keyColumn。适配器支持 RETURN_GENERATED_KEYS，但不支持构造器 KeyType.Auto 使用的列名式 JDBC 重载。自动回填使用上面的 Mapper 配置；使用构造器时由应用赋主键。
+:::
+
+## 使用已有 ID
+
+ObjectId 与内容相同的十六进制字符串不是同一种值。查询已有 ObjectId 时，对绑定的字符串使用 ObjectId 包装：
+
+```java
+@Query("test.user_info.find({_id: ObjectId(#{id})})")
+UserInfo findById(@Param("id") String id);
+```
+
+构造器按 ObjectId 字段查询时，配置：
+
+```java
+@Column(value = "_id", primary = true, whereValueTemplate = "ObjectId(?)")
+private String id;
+```
+
+这种包装只用于 ObjectId 字段，不用于字符串类型的 _id。

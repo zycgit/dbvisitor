@@ -1,0 +1,9 @@
+{
+  "label": "String",
+  "position": 4,
+  "key": "redis-string",
+  "link": {
+    "type": "doc",
+    "id": "features/redis/string/about"
+  }
+}

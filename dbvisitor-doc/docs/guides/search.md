@@ -103,28 +103,28 @@ description: 按使用场景组织常用手册入口，便于快速定位对应�
 - 对于 [InputStream/Reader 类型](types/stream-handler) 或 [数组类型](types/array-handler) dbVisitor 也有一定的支持。
 
 ### Redis 支持
-- 了解 dbVisitor 对 Redis [支持的 140+ 命令](../features/redis/commands)。
-- 简单了解 dbVisitor 如何操作 Redis 不同类型的数据（[字符串](../features/redis/usage)、[哈希](../features/redis/usage)、
-  [列表](../features/redis/usage)、[集合](../features/redis/usage)、[有序集合](../features/redis/usage)）
-- 使用 JdbcTemplate [执行命令方式](../features/redis/usage) 读写 Redis 数据。
-- 在 Mapper 接口上使用 @Insert、@Update、@Delete 注解，以 [注解方式](../features/redis/usage) 操作 Redis 数据。
-- 在 [Mapper 文件](../features/redis/usage) 中通过标签配置执行命令。
+- 了解 dbVisitor 对 Redis [支持的 140+ 命令](../features/redis/about)。
+- 简单了解 dbVisitor 如何操作 Redis 不同类型的数据（[字符串](../features/redis/dbvisitor/usage.mdx)、[哈希](../features/redis/dbvisitor/usage.mdx)、
+  [列表](../features/redis/dbvisitor/usage.mdx)、[集合](../features/redis/dbvisitor/usage.mdx)、[有序集合](../features/redis/dbvisitor/usage.mdx)）
+- 使用 JdbcTemplate [执行命令方式](../features/redis/dbvisitor/usage.mdx) 读写 Redis 数据。
+- 在 Mapper 接口上使用 @Insert、@Update、@Delete 注解，以 [注解方式](../features/redis/dbvisitor/usage.mdx) 操作 Redis 数据。
+- 在 [Mapper 文件](../features/redis/dbvisitor/usage.mdx) 中通过标签配置执行命令。
 
 ### MongoDB 支持
-- 了解 dbVisitor 对 MongoDB [支持的命令](../features/mongo/commands)。
-- 使用 JdbcTemplate [执行命令方式](../features/mongo/usage) 读写 MongoDB 数据。
-- 使用 [构造器方式](../features/mongo/usage) 读写 MongoDB 数据。
-- 使用 [通用 Mapper 方式](../features/mongo/usage) 读写 MongoDB 数据。
-- 在 Mapper 接口上使用 @Insert、@Update、@Delete 注解，以 [注解方式](../features/mongo/usage) 操作 MongoDB 数据。
-- 在 [Mapper 文件](../features/mongo/usage) 中通过标签配置执行命令。
+- 了解 dbVisitor 对 MongoDB [支持的命令](../features/mongo/about)。
+- 使用 JdbcTemplate [执行命令方式](../features/mongo/dbvisitor/usage.mdx) 读写 MongoDB 数据。
+- 使用 [构造器方式](../features/mongo/dbvisitor/usage.mdx) 读写 MongoDB 数据。
+- 使用 [通用 Mapper 方式](../features/mongo/dbvisitor/usage.mdx) 读写 MongoDB 数据。
+- 在 Mapper 接口上使用 @Insert、@Update、@Delete 注解，以 [注解方式](../features/mongo/dbvisitor/usage.mdx) 操作 MongoDB 数据。
+- 在 [Mapper 文件](../features/mongo/dbvisitor/usage.mdx) 中通过标签配置执行命令。
 
 ### ElasticSearch 支持
-- 了解 dbVisitor 对 ElasticSearch [支持的命令](../features/elastic/commands)。
-- 使用 JdbcTemplate [执行命令方式](../features/elastic/usage) 读写 ElasticSearch 数据。
-- 使用 [构造器方式](../features/elastic/usage) 读写 ElasticSearch 数据。
-- 使用 [通用 Mapper 方式](../features/elastic/usage) 读写 ElasticSearch 数据。
-- 在 Mapper 接口上使用 @Insert、@Update、@Delete 注解，以 [注解方式](../features/elastic/usage) 操作 ElasticSearch 数据。
-- 在 [Mapper 文件](../features/elastic/usage) 中通过标签配置执行命令。
+- 了解 dbVisitor 对 ElasticSearch [支持的命令](../features/elastic/about)。
+- 使用 JdbcTemplate [执行命令方式](../features/elastic/dbvisitor/usage.mdx) 读写 ElasticSearch 数据。
+- 使用 [构造器方式](../features/elastic/dbvisitor/usage.mdx) 读写 ElasticSearch 数据。
+- 使用 [通用 Mapper 方式](../features/elastic/dbvisitor/usage.mdx) 读写 ElasticSearch 数据。
+- 在 Mapper 接口上使用 @Insert、@Update、@Delete 注解，以 [注解方式](../features/elastic/dbvisitor/usage.mdx) 操作 ElasticSearch 数据。
+- 在 [Mapper 文件](../features/elastic/dbvisitor/usage.mdx) 中通过标签配置执行命令。
 
 
 ### 数据库事务

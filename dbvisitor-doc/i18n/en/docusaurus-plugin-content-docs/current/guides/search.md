@@ -103,28 +103,28 @@ This page skips the API overview and organizes links by usage scenarios for quic
 - dbVisitor also supports [InputStream/Reader](types/stream-handler) and [Array](types/array-handler) types.
 
 ### Redis support
-- See the 140+ Redis commands supported by dbVisitor: [Commands](../features/redis/commands).
-- Learn how dbVisitor handles Redis data types ([String](../features/redis/usage), [Hash](../features/redis/usage),
-  [List](../features/redis/usage), [Set](../features/redis/usage), [Sorted Set](../features/redis/usage)).
-- Use JdbcTemplate to [Execute commands](../features/redis/usage).
-- Use @Insert, @Update, @Delete on Mapper interfaces for [Annotation-driven](../features/redis/usage) Redis operations.
-- Configure commands via tags in [Mapper File](../features/redis/usage).
+- See the 140+ Redis commands supported by dbVisitor: [Commands](../features/redis/about).
+- Learn how dbVisitor handles Redis data types ([String](../features/redis/dbvisitor/usage.mdx), [Hash](../features/redis/dbvisitor/usage.mdx),
+  [List](../features/redis/dbvisitor/usage.mdx), [Set](../features/redis/dbvisitor/usage.mdx), [Sorted Set](../features/redis/dbvisitor/usage.mdx)).
+- Use JdbcTemplate to [Execute commands](../features/redis/dbvisitor/usage.mdx).
+- Use @Insert, @Update, @Delete on Mapper interfaces for [Annotation-driven](../features/redis/dbvisitor/usage.mdx) Redis operations.
+- Configure commands via tags in [Mapper File](../features/redis/dbvisitor/usage.mdx).
 
 ### MongoDB support
-- See MongoDB commands supported by dbVisitor: [Commands](../features/mongo/commands).
-- Use JdbcTemplate to [Execute commands](../features/mongo/usage).
-- Use [Fluent API](../features/mongo/usage).
-- Use [Common Mapper](../features/mongo/usage).
-- On Mapper interfaces, use @Insert, @Update, @Delete for [Annotation-driven](../features/mongo/usage) operations.
-- Configure commands via tags in [Mapper File](../features/mongo/usage).
+- See MongoDB commands supported by dbVisitor: [Commands](../features/mongo/about).
+- Use JdbcTemplate to [Execute commands](../features/mongo/dbvisitor/usage.mdx).
+- Use [Fluent API](../features/mongo/dbvisitor/usage.mdx).
+- Use [Common Mapper](../features/mongo/dbvisitor/usage.mdx).
+- On Mapper interfaces, use @Insert, @Update, @Delete for [Annotation-driven](../features/mongo/dbvisitor/usage.mdx) operations.
+- Configure commands via tags in [Mapper File](../features/mongo/dbvisitor/usage.mdx).
 
 ### ElasticSearch support
-- See ElasticSearch commands supported by dbVisitor: [Commands](../features/elastic/commands).
-- Use JdbcTemplate to [Execute commands](../features/elastic/usage).
-- Use [Fluent API](../features/elastic/usage).
-- Use [Common Mapper](../features/elastic/usage).
-- On Mapper interfaces, use @Insert, @Update, @Delete for [Annotation-driven](../features/elastic/usage) operations.
-- Configure commands via tags in [Mapper File](../features/elastic/usage).
+- See ElasticSearch commands supported by dbVisitor: [Commands](../features/elastic/about).
+- Use JdbcTemplate to [Execute commands](../features/elastic/dbvisitor/usage.mdx).
+- Use [Fluent API](../features/elastic/dbvisitor/usage.mdx).
+- Use [Common Mapper](../features/elastic/dbvisitor/usage.mdx).
+- On Mapper interfaces, use @Insert, @Update, @Delete for [Annotation-driven](../features/elastic/dbvisitor/usage.mdx) operations.
+- Configure commands via tags in [Mapper File](../features/elastic/dbvisitor/usage.mdx).
 
 ### Database transactions
 - Spring projects: use [Spring Annotations](yourproject/with_spring#tran).

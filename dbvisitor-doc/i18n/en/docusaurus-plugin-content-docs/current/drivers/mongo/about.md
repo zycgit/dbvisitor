@@ -26,4 +26,4 @@ description: MongoDB JDBC driver setup, connections and usage.
 - Commands must use the syntax supported by this driver; arbitrary relational SQL is not translated.
 - JDBC batch and transactions are not supported. Check the [shared JDBC limitations](../limited.md) before integrating a connection pool, ORM or other JDBC tool.
 
-[Command reference](../../features/mongo/syntax/index.md) · [dbVisitor API usage](../../features/mongo/usage.mdx)
+[Command reference](../../features/mongo/about.md) · [dbVisitor API usage](../../features/mongo/dbvisitor/usage.mdx)

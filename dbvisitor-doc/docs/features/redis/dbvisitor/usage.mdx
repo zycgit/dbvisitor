@@ -1,0 +1,97 @@
+---
+id: usage
+slug: /features/redis/usage
+sidebar_position: 4
+title: 数据读写
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# 数据读写
+
+Redis 命令与 SQL 在 dbVisitor 中使用同一套执行 API。直接写 GET、SET 即可，不需要转换为 SELECT、INSERT。Redis 使用 JdbcTemplate 和 Mapper API，不使用构造器 API 或 BaseMapper。
+
+## 写入、读取和删除键 {#exec-command}
+
+```java
+JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+jdbc.executeUpdate("SET ? ?", new Object[] { "user:1001:name", "mali" });
+String name = jdbc.queryForString("GET ?", "user:1001:name");
+jdbc.executeUpdate("DEL ?", "user:1001:name");
+```
+
+SET 会覆盖键的原值。GET 返回查询结果，SET、DEL 返回更新数。连接方式见 [JDBC Redis](../../../drivers/redis/connection.mdx)。
+
+## 通过 Mapper 执行命令
+
+<Tabs>
+<TabItem value="annotation" label="方法注解" default>
+
+```java
+@SimpleMapper
+public interface NameMapper {
+    @Insert("SET #{key} #{name}")
+    int save(@Param("key") String key, @Param("name") String name);
+
+    @Query("GET #{key}")
+    String load(@Param("key") String key);
+
+    @Delete("DEL #{key}")
+    int remove(@Param("key") String key);
+}
+```
+
+</TabItem>
+<TabItem value="xml" label="Mapper 文件">
+
+```xml
+<mapper namespace="com.example.NameMapper">
+    <insert id="save">SET #{key} #{name}</insert>
+    <select id="load" resultType="java.lang.String">GET #{key}</select>
+    <delete id="remove">DEL #{key}</delete>
+</mapper>
+```
+
+```java
+@RefMapper("/mapper/redis-name.xml")
+public interface NameMapper {
+    int save(@Param("key") String key, @Param("name") String name);
+    String load(@Param("key") String key);
+    int remove(@Param("key") String key);
+}
+```
+
+XML 保存为 /mapper/redis-name.xml，NameMapper 位于 com.example 包。
+
+</TabItem>
+</Tabs>
+
+```java
+Session session = new Configuration().newSession(dataSource);
+NameMapper mapper = session.createMapper(NameMapper.class);
+mapper.save("user:1001:name", "mali");
+String name = mapper.load("user:1001:name");
+```
+
+## 修改数据也可能返回查询结果
+
+INCR 会修改值，但返回的是新数值，应使用查询方法获取：
+
+```java
+Long value = jdbc.queryForLong("INCR ?", "order:sequence");
+```
+
+在 Mapper 中，这条命令使用 @Query，而不是 @Update。选择 API 要看适配器的返回形式，不能只看命令是否修改数据。ZADD、LPOP 也有类似情况，见[命令语法](../about.md)。
+
+## 将 Hash 读取为 Map
+
+```java
+jdbc.executeUpdate("HSET ? ? ?", new Object[] { "user:1001", "name", "mali" });
+Map<String, String> fields = jdbc.queryForPairs(
+        "HGETALL ?", String.class, String.class, "user:1001");
+```
+
+HGETALL 返回 FIELD、VALUE 两列，适合 queryForPairs。整个对象保存成 JSON 时，见[JSON 字段映射](../../../guides/core/mapping/json-field.md)；SET/GET 存取的是该 JSON 字符串。
+
+多键写入使用 MSET，它是一条 Redis 命令，不是 JDBC batch；多次 SET 调用也不是事务。

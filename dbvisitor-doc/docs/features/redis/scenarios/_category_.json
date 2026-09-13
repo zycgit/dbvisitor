@@ -1,0 +1,9 @@
+{
+  "label": "业务场景",
+  "position": 2,
+  "key": "redis-scenarios",
+  "link": {
+    "type": "doc",
+    "id": "features/redis/scenarios/about"
+  }
+}

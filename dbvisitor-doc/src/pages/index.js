@@ -28,24 +28,24 @@ const LabelList = [
 ];
 
 const RdbmsIcons = [
-    {name: 'MySQL', icon: require('../../static/img/ds_icons/mysql.svg').default},
-    {name: 'PostgreSQL', icon: require('../../static/img/ds_icons/postgresql.svg').default},
-    {name: 'Oracle', icon: require('../../static/img/ds_icons/oracle.svg').default},
-    {name: 'SQL Server', icon: require('../../static/img/ds_icons/sqlserver.svg').default},
-    {name: 'DB2', icon: require('../../static/img/ds_icons/ibmdb2.svg').default},
-    {name: 'ClickHouse', icon: require('../../static/img/ds_icons/clickhouse.svg').default},
+    {name: 'MySQL', feature: 'mysql', icon: require('../../static/img/ds_icons/mysql.svg').default},
+    {name: 'PostgreSQL', feature: 'postgresql', icon: require('../../static/img/ds_icons/postgresql.svg').default},
+    {name: 'Oracle', feature: 'oracle', icon: require('../../static/img/ds_icons/oracle.svg').default},
+    {name: 'SQL Server', feature: 'mssql', icon: require('../../static/img/ds_icons/sqlserver.svg').default},
+    {name: 'DB2', feature: 'db2', icon: require('../../static/img/ds_icons/ibmdb2.svg').default},
+    {name: 'ClickHouse', feature: 'clickhouse', icon: require('../../static/img/ds_icons/clickhouse.svg').default},
     {name: 'TiDB', icon: require('../../static/img/ds_icons/tidb.svg').default},
     {name: 'OceanBase', icon: require('../../static/img/ds_icons/oceanbase.svg').default},
-    {name: 'DM', icon: require('../../static/img/ds_icons/dm.svg').default},
+    {name: 'DM', feature: 'dm', icon: require('../../static/img/ds_icons/dm.svg').default},
     {name: 'StarRocks', icon: require('../../static/img/ds_icons/starrocks.svg').default},
     {name: 'Doris', icon: require('../../static/img/ds_icons/doris.svg').default},
 ];
 
 const NosqlIcons = [
-    {name: 'Redis', icon: require('../../static/img/ds_icons/redis.svg').default},
-    {name: 'MongoDB', icon: require('../../static/img/ds_icons/mongodb.svg').default},
-    {name: 'Elasticsearch', icon: require('../../static/img/ds_icons/elastic.svg').default},
-    {name: 'Milvus', icon: require('../../static/img/ds_icons/milvus.svg').default},
+    {name: 'Redis', feature: 'redis', icon: require('../../static/img/ds_icons/redis.svg').default},
+    {name: 'MongoDB', feature: 'mongo', icon: require('../../static/img/ds_icons/mongodb.svg').default},
+    {name: 'Elasticsearch', feature: 'elastic', icon: require('../../static/img/ds_icons/elastic.svg').default},
+    {name: 'Milvus', feature: 'milvus', icon: require('../../static/img/ds_icons/milvus.svg').default},
 ];
 
 /* ==================== Hero Section ==================== */
@@ -85,6 +85,24 @@ function HeroSection() {
 
 /* ==================== Database Support Section ==================== */
 
+function DatabaseItem({db}) {
+    const content = (
+        <>
+            <db.icon className={styles.dbIcon} aria-hidden="true"/>
+            <span className={styles.dbLabel}>{db.name}</span>
+        </>
+    );
+
+    if (db.feature) {
+        return (
+            <Link className={styles.dbItem} to={`/docs/features/${db.feature}/about`}>
+                {content}
+            </Link>
+        );
+    }
+    return <div className={styles.dbItem}>{content}</div>;
+}
+
 function DatabaseSection() {
     return (
         <section className={styles.dbSection}>
@@ -98,18 +116,12 @@ function DatabaseSection() {
                     </Translate>
                 </p>
                 <div className={styles.dbGrid}>
-                    {RdbmsIcons.map((db, idx) => (
-                        <div key={idx} className={styles.dbItem}>
-                            <db.icon className={styles.dbIcon}/>
-                            <span className={styles.dbLabel}>{db.name}</span>
-                        </div>
+                    {RdbmsIcons.map(db => (
+                        <DatabaseItem key={db.name} db={db}/>
                     ))}
                     <div className={styles.dbDivider}/>
-                    {NosqlIcons.map((db, idx) => (
-                        <div key={idx} className={styles.dbItem}>
-                            <db.icon className={styles.dbIcon}/>
-                            <span className={styles.dbLabel}>{db.name}</span>
-                        </div>
+                    {NosqlIcons.map(db => (
+                        <DatabaseItem key={db.name} db={db}/>
                     ))}
                 </div>
             </div>

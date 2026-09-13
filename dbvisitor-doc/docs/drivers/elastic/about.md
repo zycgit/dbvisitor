@@ -28,6 +28,6 @@ description: Elasticsearch JDBC 驱动的接入、连接和使用。
 
 配合 dbVisitor API 使用时，可使用 Elastic6、Elastic7 方言。
 
-[命令参考](../../features/elastic/syntax/index.md) · [dbVisitor API 用法](../../features/elastic/usage.mdx)
+[命令参考](../../features/elastic/about.md) · [dbVisitor API 用法](../../features/elastic/dbvisitor/usage.mdx)
 
-[向量查询](../../features/elastic/vectors.mdx)
+[向量查询](../../features/elastic/dbvisitor/vectors.mdx)

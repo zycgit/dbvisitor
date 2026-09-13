@@ -1,0 +1,9 @@
+{
+  "label": "Set 集合",
+  "position": 7,
+  "key": "redis-set",
+  "link": {
+    "type": "doc",
+    "id": "features/redis/set/about"
+  }
+}

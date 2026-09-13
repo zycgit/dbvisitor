@@ -1,0 +1,37 @@
+---
+id: results
+slug: /features/mongo/jdbc
+sidebar_position: 6
+title: Result Reading
+---
+
+# Result Reading
+
+Document queries expose the original document in _JSON. With the default preRead=true, fields are also expanded for entity mapping.
+
+## Read a Field by Name {#pre-read}
+
+The first column is _ID, not the first business field. When reading one value, specify its column name instead of relying on column order:
+
+```java
+List<String> names = jdbc.queryForList(
+        "test.user_info.find({uid: ?})",
+        new Object[] { "1001" },
+        (rs, rowNum) -> rs.getString("name"));
+```
+
+With preRead=false, read the original document instead of expecting expanded columns:
+
+```java
+List<String> documents = jdbc.queryForList(
+        "test.user_info.find({}).limit(10)",
+        (rs, rowNum) -> rs.getString("_JSON"));
+```
+
+For aggregate, results stay in _JSON even when preRead=true; group keys and computed fields are inside that JSON. _ID exposes ObjectId values only; for numeric or string _id, read the document's _id field.
+
+## Limit the Returned Data
+
+Specify limit on find or $limit in aggregate. Disabling preRead does not make ResultSet.next() fetch one server page at a time.
+
+For JSON-to-object mapping, see [JSON Field Mapping](../../../guides/core/mapping/json-field.md).

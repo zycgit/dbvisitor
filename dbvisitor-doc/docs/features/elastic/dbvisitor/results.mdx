@@ -1,0 +1,37 @@
+---
+id: results
+slug: /features/elastic/jdbc
+sidebar_position: 6
+title: 结果读取
+---
+
+# 结果读取
+
+文档查询通过 _DOC 返回原始文档。默认 preRead=true 时，还会展开字段，供实体映射使用。
+
+## 按名称读取字段 {#pre-read}
+
+第一列是 _ID，不是第一个业务字段。只读取某个值时，应指定列名，不要依赖列顺序：
+
+```java
+List<String> names = jdbc.queryForList(
+        "POST /user_info/_search {\"query\":{\"term\":{\"uid\": ?}}}",
+        new Object[] { "1001" },
+        (rs, rowNum) -> rs.getString("name"));
+```
+
+关闭预读（preRead=false）后，改为读取原始文档，不再依赖展开列：
+
+```java
+List<String> documents = jdbc.queryForList(
+        "POST /user_info/_search {\"size\":10,\"query\":{\"match_all\":{}}}",
+        (rs, rowNum) -> rs.getString("_DOC"));
+```
+
+嵌套对象和数组仍以 JSON 字符串返回；实体使用对象属性时需配置 JSON 映射。
+
+## 限制读取量
+
+驱动只读取当前 REST 响应。使用 size 或[分页查询](pagination.mdx)限制范围；queryForList 不会自动取完全部搜索页。
+
+JSON 到对象的映射见[JSON 字段映射](../../../guides/core/mapping/json-field.md)。

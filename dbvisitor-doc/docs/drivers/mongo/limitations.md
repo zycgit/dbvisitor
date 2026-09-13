@@ -12,4 +12,4 @@ title: 使用限制
 
 URL 的数据库路径同时用于默认认证库。选择 X-509 认证机制不等于开启 TLS。连接超时须通过 `customMongo` 配置；`connectTimeout` 连接参数不生效。
 
-命令语法与返回值约定见[命令参考](../../features/mongo/syntax/index.md)。
+命令语法与返回值约定见[命令参考](../../features/mongo/about.md)。

@@ -1,0 +1,9 @@
+{
+  "label": "Business Scenarios",
+  "position": 2,
+  "key": "redis-scenarios",
+  "link": {
+    "type": "doc",
+    "id": "features/redis/scenarios/about"
+  }
+}

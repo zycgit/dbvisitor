@@ -1,0 +1,9 @@
+{
+  "label": "Sorted Set 有序集合",
+  "position": 8,
+  "key": "redis-sorted-set",
+  "link": {
+    "type": "doc",
+    "id": "features/redis/sorted-set/about"
+  }
+}

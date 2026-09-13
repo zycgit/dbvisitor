@@ -49,7 +49,7 @@ public class UserInfo {
 }
 ```
 
-插入前为 id 赋值，例如 `UUID.randomUUID().toString()`；同一集合不要混用字符串与 ObjectId 主键示例。原生 ObjectId 和 JDBC 生成键用法见 [MongoDB 使用指南](../docs/features/mongo/usage)。
+插入前为 id 赋值，例如 `UUID.randomUUID().toString()`；同一集合不要混用字符串与 ObjectId 主键示例。原生 ObjectId 和 JDBC 生成键用法见 [MongoDB 主键生成](/docs/features/mongo/generated-keys)。
 
 ### 2.2 使用 Mapper 接口 (注解方式)
 

@@ -1,0 +1,127 @@
+---
+id: usage
+slug: /features/elastic/usage
+sidebar_position: 4
+title: 数据读写
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# 数据读写
+
+dbVisitor 将 `HTTP 方法 + 路径 + JSON` 作为可执行语句。`@Query` 中也可以写 REST 命令，并不要求 SELECT。以下示例使用 Elasticsearch 7 的无类型请求。 连接配置见 [JDBC Elasticsearch](../../../drivers/elastic/connection.mdx).
+
+## 实体映射
+
+```java
+@Table("user_info")
+public class UserInfo {
+    @Column(primary = true)
+    private String uid;
+    private String name;
+    // 省略 getter 和 setter
+}
+```
+
+`uid` 是文档中的业务字段，不是 Elasticsearch 的 `_id`；`primary=true` 不会创建唯一约束，也不会把 uid 作为文档 ID。重复 uid 的文档可能被一起更新、删除。见[主键生成](generated-keys.mdx)。
+
+## 执行命令 {#exec-command}
+
+使用对应数据源创建 JdbcTemplate：
+
+```java
+JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+
+jdbc.executeUpdate(
+        "POST /user_info/_doc?refresh=wait_for {\"uid\": ?, \"name\": ?}",
+        new Object[] { "1001", "mali" });
+
+List<UserInfo> rows = jdbc.queryForList(
+        "POST /user_info/_search {\"query\":{\"term\":{\"uid\": ?}}}",
+        new Object[] { "1001" }, UserInfo.class);
+
+jdbc.executeUpdate(
+        "POST /user_info/_update_by_query?refresh=true {\"query\":{\"term\":{\"uid\": ?}},\"script\":{\"source\":\"ctx._source.name = params.name\",\"params\":{\"name\": ?}}}",
+        new Object[] { "1001", "new name" });
+
+jdbc.executeUpdate(
+        "POST /user_info/_delete_by_query?refresh=true {\"query\":{\"term\":{\"uid\": ?}}}",
+        new Object[] { "1001" });
+```
+
+## 不同 API 如何查询
+
+<Tabs>
+<TabItem value="fluent" label="构造器 API" default>
+
+```java
+LambdaTemplate lambda = new LambdaTemplate(dataSource);
+UserInfo item = lambda.query(UserInfo.class)
+        .eq(UserInfo::getUid, "1001")
+        .queryForObject();
+```
+
+构造器操作对应以下数据库动作：
+
+| 操作 | 数据库动作 |
+| --- | --- |
+| 查询 | _search |
+| 修改指定属性 | _update_by_query |
+| 删除匹配记录 | _delete_by_query |
+
+BaseMapper 的 CRUD 复用相同操作。
+
+</TabItem>
+<TabItem value="annotation" label="方法注解">
+
+```java
+@SimpleMapper
+public interface UserInfoMapper {
+    @Query("POST /user_info/_search {\"query\":{\"term\":{\"uid\": #{uid}}}}")
+    UserInfo findById(@Param("uid") String uid);
+}
+```
+
+```java
+Session session = new Configuration().newSession(dataSource);
+UserInfoMapper mapper = session.createMapper(UserInfoMapper.class);
+UserInfo item = mapper.findById("1001");
+```
+
+</TabItem>
+<TabItem value="xml" label="Mapper 文件">
+
+```xml
+<mapper namespace="com.example.UserInfoMapper">
+    <select id="findById" resultType="com.example.UserInfo">
+        POST /user_info/_search {"query":{"term":{"uid": #{uid}}}}
+    </select>
+</mapper>
+```
+
+```java
+@RefMapper("/mapper/elastic-user.xml")
+public interface UserInfoMapper {
+    UserInfo findById(@Param("uid") String uid);
+}
+```
+
+XML 保存到 @RefMapper 指定的资源路径；示例类位于 com.example 包。通过 Session 创建 Mapper，方式与方法注解相同。
+
+</TabItem>
+</Tabs>
+
+## 精确匹配与写后查询
+
+上述索引需预先将 uid、name 定义为 keyword：
+
+```text
+PUT /user_info {"mappings":{"properties":{"uid":{"type":"keyword"},"name":{"type":"keyword"}}}}
+```
+
+构造器 `eq` 生成 match 查询。对 text 字段，它可能匹配分词后的内容；需要精确匹配时，使用 keyword 字段及上面的 term 请求。
+
+写入后立即搜索时，单文档请求使用 `refresh=wait_for`。构造器连续写后查询可在连接中配置 `indexRefresh=true`，代价是更频繁地刷新索引。
+
+返回列的读取见[结果读取](results.mdx)。多条命令不等于 JDBC batch，也不会自动构成事务。

@@ -1,0 +1,9 @@
+{
+  "label": "Hash 散列",
+  "position": 5,
+  "key": "redis-hash",
+  "link": {
+    "type": "doc",
+    "id": "features/redis/hash/about"
+  }
+}

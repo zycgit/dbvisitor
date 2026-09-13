@@ -1,0 +1,37 @@
+---
+id: results
+slug: /features/mongo/jdbc
+sidebar_position: 6
+title: 结果读取
+---
+
+# 结果读取
+
+文档查询通过 _JSON 返回原始文档。默认 preRead=true 时，还会展开字段，供实体映射使用。
+
+## 按名称读取字段 {#pre-read}
+
+第一列是 _ID，不是第一个业务字段。只读取某个值时，应指定列名，不要依赖列顺序：
+
+```java
+List<String> names = jdbc.queryForList(
+        "test.user_info.find({uid: ?})",
+        new Object[] { "1001" },
+        (rs, rowNum) -> rs.getString("name"));
+```
+
+关闭预读（preRead=false）后，改为读取原始文档，不再依赖展开列：
+
+```java
+List<String> documents = jdbc.queryForList(
+        "test.user_info.find({}).limit(10)",
+        (rs, rowNum) -> rs.getString("_JSON"));
+```
+
+aggregate 的结果始终放在 _JSON 中，分组键和计算字段不会因 preRead=true 自动变成独立列。_ID 只提取 ObjectId；数字或字符串 _id 应从文档字段中读取。
+
+## 限制读取量
+
+find 指定 limit，aggregate 使用 $limit。关闭 preRead 不表示 ResultSet.next() 会逐页向服务端取数。
+
+JSON 到对象的映射见[JSON 字段映射](../../../guides/core/mapping/json-field.md)。

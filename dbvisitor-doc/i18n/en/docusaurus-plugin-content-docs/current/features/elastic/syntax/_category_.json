@@ -1,9 +1,0 @@
-{
-  "label": "Command Syntax",
-  "position": 20,
-  "link": {
-    "type": "doc",
-    "id": "features/elastic/syntax/index"
-  },
-  "key": "elastic-command-syntax"
-}

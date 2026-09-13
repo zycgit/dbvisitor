@@ -1,0 +1,21 @@
+---
+id: generated-keys
+slug: /features/redis/generated-keys
+sidebar_position: 3
+hide_table_of_contents: true
+title: Keys and Identifiers
+---
+
+# Keys and Identifiers
+
+Redis keys are supplied by the application. There is no generated-key callback that fills an entity property. For example, store user 1001 under user:1001.
+
+For increasing identifiers, read INCR's result and then use it in the key:
+
+```java
+Long id = jdbc.queryForLong("INCR ?", "user:sequence");
+String key = "user:" + id;
+jdbc.executeUpdate("HSET ? ? ?", new Object[] { key, "name", "mali" });
+```
+
+INCR and HSET are two separate commands. If the write fails, the allocated number is not returned; retry using the saved id if that is the application's recovery policy.

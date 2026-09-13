@@ -27,4 +27,4 @@ description: Redis JDBC driver setup, connections and usage.
 - JDBC batch and transactions are not supported. Check the [shared JDBC limitations](../limited.md) before integrating a connection pool, ORM or other JDBC tool.
 - The JDBC URL prefix is `jdbc:dbvisitor:jedis://`, not `redis://`.
 
-[Command reference](../../features/redis/syntax/index.md) · [dbVisitor API usage](../../features/redis/usage.mdx)
+[Command reference](../../features/redis/about.md) · [dbVisitor API usage](../../features/redis/dbvisitor/usage.mdx)

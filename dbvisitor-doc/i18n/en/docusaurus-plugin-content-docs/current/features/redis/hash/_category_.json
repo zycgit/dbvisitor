@@ -1,0 +1,9 @@
+{
+  "label": "Hash",
+  "position": 5,
+  "key": "redis-hash",
+  "link": {
+    "type": "doc",
+    "id": "features/redis/hash/about"
+  }
+}

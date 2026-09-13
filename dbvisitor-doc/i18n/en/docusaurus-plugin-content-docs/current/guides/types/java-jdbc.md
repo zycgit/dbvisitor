@@ -52,9 +52,9 @@ The table above describes default type selection for parameter binding; it does 
 - [DB2](../../features/db2/types.md)
 - [H2](../../features/h2/types.md)
 - [ClickHouse](../../features/clickhouse/types.md)
-- [Redis](../../features/redis/types.md)
-- [MongoDB](../../features/mongo/types.md)
-- [Elasticsearch](../../features/elastic/types.md)
+- [Redis](../../features/redis/dbvisitor/types.md)
+- [MongoDB](../../features/mongo/dbvisitor/types.md)
+- [Elasticsearch](../../features/elastic/dbvisitor/types.md)
 - [Milvus](../../features/milvus/dbvisitor/types.md)
 
 For handler matching rules and built-in implementations, see [Basic Type Handlers](./handlers/about.md).
