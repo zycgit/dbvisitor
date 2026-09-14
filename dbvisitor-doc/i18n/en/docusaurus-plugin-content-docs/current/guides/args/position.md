@@ -31,6 +31,8 @@ jdbcTemplate.queryForList("select * from users where id > ? and name = ?", args)
 jdbcTemplate.queryForList("select * from users where id > ?", 2);
 ```
 
+Use `\?` for a literal question mark in a command. See [Escaping Parameter Markers](./escape) for rules and examples.
+
 ## Naming {#pos_named}
 
 Each `?` positional argument implicitly has a name. The naming rule is `arg<index>`, for example: arg0, arg1.

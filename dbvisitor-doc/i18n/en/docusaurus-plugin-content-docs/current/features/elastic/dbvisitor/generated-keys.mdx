@@ -42,7 +42,7 @@ int insert(UserInfo item);
 After mapper.insert(item), read item.getId(). These examples pass one entity argument, not an argument wrapped in @Param.
 
 :::caution[Note]
-Do not specify keyColumn. The adapter supports RETURN_GENERATED_KEYS, but not the JDBC column-name overload used by Fluent API KeyType.Auto. Use the Mapper definitions above for generated keys; assign application keys explicitly when using the Fluent API.
+The generated-key column is `_ID`. Use `_ID` when specifying `keyColumn`, and receive it in a `String` property. Elasticsearch does not generate numeric identity keys.
 :::
 
 ## Use an Assigned ID
@@ -55,4 +55,12 @@ jdbc.executeUpdate(
         new Object[] { "1001", "mali" });
 ```
 
-Writing the same document ID replaces its content. Use _update for partial changes; a business uid property does not control this ID.
+Writing the same document ID replaces its content. Use `_update` for partial changes.
+
+With the Fluent API or BaseMapper, an assigned single mapped primary key also becomes the Elasticsearch `_id`. Unmarked business fields do not affect `_id`.
+
+| Insert strategy | When the primary key already exists |
+| --- | --- |
+| `Into` (default) | Reports a duplicate-key error. |
+| `Ignore` | Skips the document and returns 0; other errors still propagate. |
+| `Update` | Updates only the supplied fields of an existing document, or inserts a new document. |

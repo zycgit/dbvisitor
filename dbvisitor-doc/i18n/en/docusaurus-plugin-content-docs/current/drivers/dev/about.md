@@ -12,12 +12,13 @@ This page describes the core components and execution model. For implementation 
 
 ## Core Components
 
-The adapter layer has four core interfaces/abstract classes in the `net.hasor.dbvisitor.driver` package:
+The main adapter interfaces and abstract classes are in the `net.hasor.dbvisitor.driver` package:
 
 | Component | Type | Responsibility |
 | ------ | ------ | ------ |
 | **AdapterFactory** | Interface | Parse JDBC URLs, create connections and provide type support |
 | **AdapterConnection** | Abstract class | Manage connection lifecycle and dispatch requests |
+| **MetadataSupport** | Interface | Query native metadata using typed paths |
 | **AdapterRequest** | Abstract class | Encapsulate a query/operation request (similar to a Statement) |
 | **AdapterReceive** | Interface | Receive results through callbacks (result sets, update counts, errors) |
 
@@ -87,6 +88,18 @@ public abstract class AdapterConnection implements Closeable {
     protected abstract void doClose() throws IOException;
 }
 ```
+
+## MetadataSupport
+
+Implement `MetadataSupport` on the adapter connection. `JdbcConnection` detects and retains it, following the same approach as `TransactionSupport`. Applications obtain it through `unwrap(MetadataSupport.class)`. The connection may delegate queries to a reusable metadata object.
+
+A path consists of a target `MetadataType` and typed parent levels. For example, querying `COLUMN` beneath `CATALOG("app")` and `TABLE("users")` lists the columns of that table. Parent names are literal: do not split them on slashes or interpret them as JDBC patterns.
+
+`supportedTypes()` declares supported object kinds independently of whether objects exist. `query(path)` returns named `MetadataNode` objects. Column attributes describe the native type, JDBC type number, nullability and other available properties using the constants in `MetadataNode`.
+
+`JdbcDatabaseMetaData` handles JDBC name patterns, sorting, standard result columns and empty results. Providers do not construct JDBC result sets. Unsupported queries return an empty list; connection and permission errors must propagate as exceptions.
+
+An adapter without metadata support does not need to implement `MetadataSupport`. Its JDBC metadata methods return standard empty results. A provider's `query` method must never return `null`.
 
 ## AdapterRequest
 

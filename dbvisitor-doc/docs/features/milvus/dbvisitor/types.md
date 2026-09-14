@@ -94,6 +94,23 @@ try (PreparedStatement ps = conn.prepareStatement(
 
 各向量类型的编码及维度限制见 [SQL 类型](../types/fields.md)。BinaryVector 不是通用 BLOB 列。
 
+## 从日期文本读取年月
+
+`VARCHAR` 保存完整日期（如 `2024-03-01`）时，读取为 `YearMonth` 需要显式指定转换；不要将完整日期当作 `2024-03` 格式的年月文本。
+
+```java
+import java.time.YearMonth;
+import net.hasor.dbvisitor.types.handler.time.SqlTimestampAsYearMonthTypeHandler;
+
+SqlTimestampAsYearMonthTypeHandler handler = new SqlTimestampAsYearMonthTypeHandler();
+YearMonth month = jdbcTemplate.queryForObject(
+        "SELECT date_value FROM event_info WHERE id = ?",
+        new Object[] { id }, (rs, rowNum) -> handler.getResult(rs, 1));
+// month 为 2024-03。
+```
+
+属性映射的配置方式见[基础类型处理器](../../../guides/types/handlers/about.md)。
+
 ## 使用限制
 
 - `BigDecimal` 写入 `DOUBLE` 会损失精度；`INT64` 只覆盖有符号 64 位整数。

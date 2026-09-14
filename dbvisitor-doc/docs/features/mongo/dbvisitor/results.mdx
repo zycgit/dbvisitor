@@ -7,11 +7,21 @@ title: 结果读取
 
 # 结果读取
 
-文档查询通过 _JSON 返回原始文档。默认 preRead=true 时，还会展开字段，供实体映射使用。
+默认 `preRead=true` 时，`find` / `findOne` 展开文档字段，供实体映射使用。未指定投影时，还提供 `_ID`、`_JSON` 原始文档列。
+
+## 按投影读取
+
+指定投影时，只返回投影后的字段，不添加 `_ID`、`_JSON`。包含型投影按声明顺序排列列；MongoDB 默认保留 `_id`，只读取业务字段时要显式排除：
+
+```java
+String name = jdbc.queryForString(
+        "test.user_info.find({uid: ?}, {_id: 0, name: 1})",
+        new Object[] { "1001" });
+```
 
 ## 按名称读取字段 {#pre-read}
 
-第一列是 _ID，不是第一个业务字段。只读取某个值时，应指定列名，不要依赖列顺序：
+未指定投影时，按列名读取业务字段：
 
 ```java
 List<String> names = jdbc.queryForList(
@@ -28,7 +38,7 @@ List<String> documents = jdbc.queryForList(
         (rs, rowNum) -> rs.getString("_JSON"));
 ```
 
-aggregate 的结果始终放在 _JSON 中，分组键和计算字段不会因 preRead=true 自动变成独立列。_ID 只提取 ObjectId；数字或字符串 _id 应从文档字段中读取。
+`aggregate` 未指定输出投影时，从 `_JSON` 读取文档。需要将分组结果或计算字段映射到属性时，在管线末尾增加 `$project`；默认 `preRead=true` 会将投影字段展开为结果列。`_ID` 只提取 ObjectId；数字或字符串 `_id` 从文档字段读取。
 
 ## 限制读取量
 

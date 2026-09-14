@@ -24,4 +24,4 @@ test.user_info.find({name: {$regex: ?}})
 
 `$regex` accepts a regular expression, not a SQL LIKE pattern. Escape regex metacharacters when matching plain text.
 
-Document fields are expanded by default; `_JSON` is also available. See [Reading Results](../dbvisitor/results.mdx) for entity and scalar access.
+In the default pre-read mode, a projection exposes only the projected fields. Without a projection, `_JSON` is also available. See [Reading Results](../dbvisitor/results.mdx) for entity and scalar access.

@@ -31,4 +31,6 @@ try (PreparedStatement ps = conn.prepareStatement(command)) {
 
 The server filters paid orders, sums amount by customerId, sorts and returns the first ten groups. The output `_id` is a group key, not an order primary key. Grouping does not itself sort results; see [MongoDB $group](https://www.mongodb.com/docs/manual/reference/operator/aggregation/group/). The total field is not a separate JDBC column; parse it from `_JSON`.
 
-Supported aggregation options are allowDiskUse, maxTimeMS, maxAwaitTimeMS, bypassDocumentValidation, collation, comment and hint. The hint option is an index-hint object, not a command-prefix pagination Hint. batchSize is not connected to the SDK and cannot control retrieval or memory. Page's find override Hints do not rewrite pipelines; explicitly use `$skip`/`$limit` for aggregation pagination.
+To map the result to an entity or call `getBigDecimal("total")`, append `{$project: {_id: 0, customerId: '$_id', total: 1}}` to the pipeline and keep the default `preRead=true`.
+
+Supported options are `allowDiskUse`, `batchSize`, `maxTimeMS`, `maxAwaitTimeMS`, `bypassDocumentValidation`, `collation`, `comment`, and `hint`. `batchSize` controls SDK retrieval batches, not the total result size buffered by the driver. `hint` is an index hint, not a pagination Hint. Use explicit `$skip` and `$limit` stages for pagination.

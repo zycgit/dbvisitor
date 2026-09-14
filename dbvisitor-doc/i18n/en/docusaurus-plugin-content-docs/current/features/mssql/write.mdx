@@ -57,3 +57,7 @@ Use the same `dataSource` for `jdbc` and the transaction manager. Do not catch a
 :::
 
 The calling method must handle or declare `Throwable` from `execute`. The Fluent API and Mapper can also participate in the transaction; see [Transaction Template](../../guides/transaction/template.md).
+
+:::caution[Driver version for nested transactions]
+For `NESTED` transactions, use Microsoft JDBC Driver `13.4`. Version `12.6` reports “This operation is not supported” when releasing a savepoint, causing the nested commit to fail.
+:::

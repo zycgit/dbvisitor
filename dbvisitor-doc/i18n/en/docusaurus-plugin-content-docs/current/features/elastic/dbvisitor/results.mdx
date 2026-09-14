@@ -7,11 +7,28 @@ title: Result Reading
 
 # Result Reading
 
-Document queries expose the original document in _DOC. With the default preRead=true, fields are also expanded for entity mapping.
+Document queries without a field projection expose the original document in `_DOC`. With the default `preRead=true`, fields are also expanded for entity mapping.
+
+## Read Selected Fields
+
+An explicit `_source` field list defines the result columns and their order, so scalar, list and Pairs methods can read them directly. This also works with `preRead=false`.
+
+:::caution[Note]
+Ordinary field projections require permission to read index mappings. Read `binary` fields as `byte[]` and `date` or `date_nanos` fields as `Timestamp`.
+With `doc_values` disabled or a custom date format, values that cannot be normalized remain in their original form. Use ISO dates or enable `doc_values` when date conversion is needed.
+:::
+
+```java
+List<String> names = jdbc.queryForList(
+        "POST /user_info/_search {\"_source\": [\"name\"], \"query\": {\"term\": {\"uid\": ?}}}",
+        new Object[] { "1001" }, String.class);
+```
+
+Wildcard, exclusion-based or unspecified projections keep the document result format below.
 
 ## Read a Field by Name {#pre-read}
 
-The first column is _ID, not the first business field. When reading one value, specify its column name instead of relying on column order:
+The first document-result column is `_ID`. Read business fields by name:
 
 ```java
 List<String> names = jdbc.queryForList(
@@ -28,7 +45,7 @@ List<String> documents = jdbc.queryForList(
         (rs, rowNum) -> rs.getString("_DOC"));
 ```
 
-Nested objects and arrays remain JSON strings. Configure JSON mapping when the entity uses structured Java properties.
+For nested objects and arrays, `getString()` returns JSON; `getObject()` with an explicit field projection returns a `Map` or `List`. Configure JSON mapping for structured entity properties.
 
 ## Limit the Returned Data
 

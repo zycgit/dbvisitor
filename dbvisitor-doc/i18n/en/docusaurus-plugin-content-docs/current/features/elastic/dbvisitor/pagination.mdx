@@ -31,10 +31,12 @@ Page page = new PageObject(1, 10);
 List<UserInfo> rows = mapper.findPage(page);
 ```
 
-Page numbering starts at zero. Page overrides from/size on search requests and uses `_count` when a total is required. This pages search hits, not aggregation buckets.
+Page numbering starts at zero. For ordinary searches, Page overrides from/size and uses `_count` when a total is required.
+
+`composite` aggregations page result buckets through `after_key`. The Page total counts buckets, not documents. An exact total requires traversing all buckets; see [Aggregations](../query/search.md#aggregations).
 
 ## Notes
 
-Deep pages are subject to the server result window. The driver does not switch to search_after or scroll. `queryForList` reads only this response, not the entire index.
+Deep pages of ordinary searches are subject to the server result window. The driver does not switch to search_after or scroll. `queryForList` reads only this search response, not the entire index.
 
 Counts and page reads are separate requests; concurrent writes can change their results. See [9.5 Pagination](../../../guides/result/page_object.mdx) for the common API.

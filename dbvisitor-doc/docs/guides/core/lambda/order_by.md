@@ -42,6 +42,8 @@ result = lambda.query(User.class)
 //   select * from users where id >= 100 order by name, age;
 ```
 
+对同一个普通映射字段重复设置排序时，保留首次指定的方向和空值排序规则。自由查询、表达式和模板排序不作此去重。
+
 ## 空值排序
 
 ```java title='NULL 最前'

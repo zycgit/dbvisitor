@@ -7,11 +7,21 @@ title: Result Reading
 
 # Result Reading
 
-Document queries expose the original document in _JSON. With the default preRead=true, fields are also expanded for entity mapping.
+With the default `preRead=true`, `find` / `findOne` expand document fields for entity mapping. Without a projection, `_ID` and `_JSON` document columns are also available.
+
+## Read Projected Fields
+
+A projection returns only the projected fields, without synthetic `_ID` or `_JSON` columns. Inclusion projections preserve the declared column order. MongoDB includes `_id` by default, so exclude it explicitly when reading a single business field:
+
+```java
+String name = jdbc.queryForString(
+        "test.user_info.find({uid: ?}, {_id: 0, name: 1})",
+        new Object[] { "1001" });
+```
 
 ## Read a Field by Name {#pre-read}
 
-The first column is _ID, not the first business field. When reading one value, specify its column name instead of relying on column order:
+Without a projection, read business fields by column name:
 
 ```java
 List<String> names = jdbc.queryForList(
@@ -28,7 +38,7 @@ List<String> documents = jdbc.queryForList(
         (rs, rowNum) -> rs.getString("_JSON"));
 ```
 
-For aggregate, results stay in _JSON even when preRead=true; group keys and computed fields are inside that JSON. _ID exposes ObjectId values only; for numeric or string _id, read the document's _id field.
+Without an output projection, read `aggregate` documents from `_JSON`. To map group results or computed fields to properties, add `$project` at the end of the pipeline; the default `preRead=true` exposes those fields as result columns. `_ID` exposes ObjectId values only; read numeric or string `_id` from the document field.
 
 ## Limit the Returned Data
 

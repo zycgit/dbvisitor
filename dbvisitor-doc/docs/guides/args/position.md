@@ -31,6 +31,8 @@ jdbcTemplate.queryForList("select * from users where id > ? and name = ?", args)
 jdbcTemplate.queryForList("select * from users where id > ?", 2);
 ```
 
+命令中需要输出字面的 `?` 时，使用 `\?`。规则与示例见[参数符号转义](./escape)。
+
 ## 名称化 {#pos_named}
 
 每一个 “?” 位置参数都隐含了一个对应的名称。名称规则为 “arg + &lt;位置编号&gt;”，例如：arg0、arg1。

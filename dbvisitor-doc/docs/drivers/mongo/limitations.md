@@ -6,7 +6,9 @@ title: 使用限制
 
 ## JDBC 接口
 
-不支持 JDBC Batch、事务、保存点和可更新 ResultSet。多命令执行、单条命令的多行写入不等于 JDBC Batch。元数据接口仅提供部分信息；接入 ORM、连接池或迁移工具前，请核对[驱动适配器限制](../limited.md)。
+不支持 JDBC Batch、事务、保存点和可更新 ResultSet。JdbcTemplate 的批量操作可逐条执行，但不等于 JDBC Batch，也不构成事务。其他接口见[驱动适配器限制](../limited.md)。
+
+`DatabaseMetaData.getTables()` 返回集合和视图，数据库名对应 catalog。`getColumns()` 不会通过采样文档推测字段类型，未提供固定字段元数据。
 
 ## 数据源限制
 

@@ -24,7 +24,9 @@ public class UserInfo {
 }
 ```
 
-`uid` 是文档中的业务字段，不是 Elasticsearch 的 `_id`；`primary=true` 不会创建唯一约束，也不会把 uid 作为文档 ID。重复 uid 的文档可能被一起更新、删除。见[主键生成](generated-keys.mdx)。
+使用构造器 API 或 BaseMapper 插入时，已赋值的单个映射主键同时作为文档 `_id`。直接执行 REST 命令时，文档 ID 由请求路径决定。见[主键生成](generated-keys.mdx)。
+
+多个属性标记为 `primary=true` 时，BaseMapper 使用全部主键字段定位记录，但不会将它们合成为 `_id` 或创建复合唯一约束。业务需保证这些字段的组合唯一，否则修改、删除可能影响多条文档。
 
 ## 执行命令 {#exec-command}
 

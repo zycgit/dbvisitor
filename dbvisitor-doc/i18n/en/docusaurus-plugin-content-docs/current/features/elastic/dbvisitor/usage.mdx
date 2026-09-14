@@ -24,7 +24,9 @@ public class UserInfo {
 }
 ```
 
-`uid` is a document field, not Elasticsearch `_id`. `primary=true` neither creates a unique constraint nor uses uid as the document ID. Duplicate uid values can cause multiple documents to be updated or deleted. See [Key Generation](generated-keys.mdx).
+When inserting through the Fluent API or BaseMapper, an assigned single mapped primary key also becomes the document `_id`. With a direct REST command, the request path determines the document ID. See [Key Generation](generated-keys.mdx).
+
+When several properties have `primary=true`, BaseMapper uses all of them to locate records. It does not combine them into `_id` or create a composite unique constraint. Ensure the combination is unique; otherwise, updates or deletes may affect multiple documents.
 
 ## Execute Commands {#exec-command}
 

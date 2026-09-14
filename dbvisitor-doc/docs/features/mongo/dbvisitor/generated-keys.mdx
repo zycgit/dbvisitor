@@ -42,7 +42,7 @@ int insert(UserInfo item);
 调用 mapper.insert(item) 后，通过 item.getId() 读取主键。这里使用单个实体参数，不额外加 @Param 包装。
 
 :::caution[注意]
-不要指定 keyColumn。适配器支持 RETURN_GENERATED_KEYS，但不支持构造器 KeyType.Auto 使用的列名式 JDBC 重载。自动回填使用上面的 Mapper 配置；使用构造器时由应用赋主键。
+生成键结果集的列名是 `_ID`；需要显式指定返回列时，设置 `keyColumn = "_ID"`。查询文档中的主键字段则使用 `_id`。
 :::
 
 ## 使用已有 ID

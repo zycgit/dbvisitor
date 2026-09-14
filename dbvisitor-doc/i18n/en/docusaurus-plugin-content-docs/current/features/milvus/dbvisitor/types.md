@@ -94,6 +94,23 @@ try (PreparedStatement ps = conn.prepareStatement(
 
 Vector representation and dimension restrictions are detailed in [SQL types](../types/fields.md). BinaryVector is not a general BLOB column.
 
+## Reading a Year and Month from Date Text
+
+When a `VARCHAR` stores a complete date such as `2024-03-01`, explicitly select the conversion to `YearMonth`. A complete date is not year-month text in the `2024-03` format.
+
+```java
+import java.time.YearMonth;
+import net.hasor.dbvisitor.types.handler.time.SqlTimestampAsYearMonthTypeHandler;
+
+SqlTimestampAsYearMonthTypeHandler handler = new SqlTimestampAsYearMonthTypeHandler();
+YearMonth month = jdbcTemplate.queryForObject(
+        "SELECT date_value FROM event_info WHERE id = ?",
+        new Object[] { id }, (rs, rowNum) -> handler.getResult(rs, 1));
+// month is 2024-03.
+```
+
+For property mapping configuration, see [Basic Type Handlers](../../../guides/types/handlers/about.md).
+
 ## Limits
 
 - Writing `BigDecimal` to `DOUBLE` loses precision; `INT64` covers only signed 64-bit integers.

@@ -6,7 +6,9 @@ title: Usage Limitations
 
 ## JDBC Interfaces
 
-JDBC Batch, transactions, savepoints and updatable ResultSets are not supported. Multiple commands and multi-row writes are not JDBC Batch. Metadata is partial; check the [shared JDBC interface limitations](../limited.md) before integrating an ORM, connection pool or migration tool.
+JDBC Batch, transactions, savepoints and updatable ResultSets are not supported. JdbcTemplate batch operations can execute commands individually; this is neither JDBC Batch nor a transaction. See the [shared JDBC interface limitations](../limited.md) for other interfaces.
+
+`DatabaseMetaData.getTables()` returns collections and views, using the database name as the catalog. `getColumns()` does not infer field types by sampling documents; fixed column metadata is not provided.
 
 ## Database-Specific Restrictions
 

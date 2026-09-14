@@ -24,4 +24,4 @@ test.user_info.find({name: {$regex: ?}})
 
 `$regex` 接收正则表达式，不是 SQL LIKE 模式。按普通文本匹配时，应先处理正则元字符。
 
-结果默认展开文档字段，也可读取 `_JSON`。实体和标量的读取方式见[结果读取](../dbvisitor/results.mdx)。
+默认预读模式下，指定投影时只展开投影字段；未指定投影时还可读取 `_JSON`。实体和标量的读取方式见[结果读取](../dbvisitor/results.mdx)。

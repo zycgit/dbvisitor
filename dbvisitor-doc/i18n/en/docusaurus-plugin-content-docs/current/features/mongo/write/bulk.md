@@ -16,4 +16,4 @@ test.user_info.bulkWrite([
 ])
 ```
 
-One command combines multiple write operations. The returned count sums inserts, modifications and deletions, excluding the separate upsert count. This is not JDBC batch and does not guarantee all-document success or rollback.
+One command combines multiple write operations. The returned count sums inserted, actually modified, deleted and newly upserted documents. This is not JDBC batch and does not guarantee all-document success or rollback.

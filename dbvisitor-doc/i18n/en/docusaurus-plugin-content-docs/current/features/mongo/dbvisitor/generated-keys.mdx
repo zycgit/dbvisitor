@@ -42,7 +42,7 @@ int insert(UserInfo item);
 After mapper.insert(item), read item.getId(). These examples pass one entity argument, not an argument wrapped in @Param.
 
 :::caution[Note]
-Do not specify keyColumn. The adapter supports RETURN_GENERATED_KEYS, but not the JDBC column-name overload used by Fluent API KeyType.Auto. Use the Mapper definitions above for generated keys; assign application keys explicitly when using the Fluent API.
+The generated-key result column is `_ID`. To select it explicitly, set `keyColumn = "_ID"`. Use `_id` when querying the primary-key field in a document.
 :::
 
 ## Use an Assigned ID

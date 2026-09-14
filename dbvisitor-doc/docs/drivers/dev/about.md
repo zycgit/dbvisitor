@@ -12,12 +12,13 @@ dbVisitor 的协议适配层（dbvisitor-driver）允许开发者通过 JDBC 接
 
 ## 核心组件
 
-适配器层由 4 个核心接口/抽象类组成，位于 `net.hasor.dbvisitor.driver` 包：
+适配器层的主要接口和抽象类位于 `net.hasor.dbvisitor.driver` 包：
 
 | 组件 | 类型 | 职责 |
 | ------ | ------ | ------ |
 | **AdapterFactory** | 接口 | 解析 JDBC URL、创建连接、提供类型支持 |
 | **AdapterConnection** | 抽象类 | 管理连接生命周期、执行请求调度 |
+| **MetadataSupport** | 接口 | 根据带类型的路径查询原生元信息 |
 | **AdapterRequest** | 抽象类 | 封装一次查询/操作请求（类似 Statement） |
 | **AdapterReceive** | 接口 | 接收执行结果的回调（结果集、更新计数、异常） |
 
@@ -87,6 +88,18 @@ public abstract class AdapterConnection implements Closeable {
     protected abstract void doClose() throws IOException;
 }
 ```
+
+## MetadataSupport
+
+适配器连接实现 `MetadataSupport`，由 `JdbcConnection` 自动识别并持有，与 `TransactionSupport` 的接入方式一致。应用通过 `unwrap(MetadataSupport.class)` 获取；具体查询逻辑可委托给连接内复用的元信息对象。
+
+路径由目标 `MetadataType` 和带类型的父级组成。例如，在 `CATALOG("app")`、`TABLE("users")` 下查询 `COLUMN`，表示列出该表的字段。父级名称按原值使用，不按斜杠拆分，也不解释为 JDBC 通配符。
+
+`supportedTypes()` 声明支持的对象类型，与库中是否已有对象无关；`query(path)` 查询实际对象，返回带名称的 `MetadataNode`。字段属性通过 `MetadataNode` 中的常量描述原生类型、JDBC 类型编号、可空性等已知信息。
+
+`JdbcDatabaseMetaData` 负责 JDBC 名称过滤、排序、标准结果列和空结果，适配器无需组装 JDBC 结果集。不支持的查询返回空列表；连接、权限等异常应直接抛出。
+
+完全不提供元信息时，无需实现 `MetadataSupport`，JDBC 元信息方法会返回标准空结果。已提供的 `query` 方法不能返回 `null`。
 
 ## AdapterRequest
 

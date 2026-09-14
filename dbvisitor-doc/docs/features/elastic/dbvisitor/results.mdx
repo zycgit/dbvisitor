@@ -7,11 +7,28 @@ title: 结果读取
 
 # 结果读取
 
-文档查询通过 _DOC 返回原始文档。默认 preRead=true 时，还会展开字段，供实体映射使用。
+未指定字段投影的文档查询通过 `_DOC` 返回原始文档。默认 `preRead=true` 时，还会展开字段，供实体映射使用。
+
+## 读取指定字段
+
+`_source` 指定明确字段名时，结果只包含这些字段，顺序与列表一致；可直接使用标量、列表或 Pairs 读取方法。此方式也适用于 `preRead=false`。
+
+:::caution[注意]
+普通字段投影需要读取索引 mapping 的权限。`binary` 字段可读取为 `byte[]`，`date`、`date_nanos` 可读取为 `Timestamp`。
+关闭 `doc_values` 或使用自定义日期格式时，无法规范化的值按原值返回；需要日期转换时使用 ISO 日期或开启 `doc_values`。
+:::
+
+```java
+List<String> names = jdbc.queryForList(
+        "POST /user_info/_search {\"_source\": [\"name\"], \"query\": {\"term\": {\"uid\": ?}}}",
+        new Object[] { "1001" }, String.class);
+```
+
+通配符、排除式 `_source` 或未声明字段列表时，保留下面的文档结果形式。
 
 ## 按名称读取字段 {#pre-read}
 
-第一列是 _ID，不是第一个业务字段。只读取某个值时，应指定列名，不要依赖列顺序：
+文档结果的第一列是 `_ID`。读取业务字段时指定列名：
 
 ```java
 List<String> names = jdbc.queryForList(
@@ -28,7 +45,7 @@ List<String> documents = jdbc.queryForList(
         (rs, rowNum) -> rs.getString("_DOC"));
 ```
 
-嵌套对象和数组仍以 JSON 字符串返回；实体使用对象属性时需配置 JSON 映射。
+读取嵌套对象和数组时，`getString()` 返回 JSON；显式字段投影的 `getObject()` 返回 `Map` 或 `List`。实体使用对象属性时可配置 JSON 映射。
 
 ## 限制读取量
 

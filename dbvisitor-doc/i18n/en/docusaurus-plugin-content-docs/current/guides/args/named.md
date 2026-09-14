@@ -119,13 +119,15 @@ select * from users where
 
 ## Ignore Rule
 
-If a colon `:` is followed immediately by whitespace (space, newline, tab, etc.), dbVisitor ignores argument parsing for that colon and treats it as a normal character.
-This makes it easy to write JSON or MongoDB-like queries directly in SQL without escaping colons.
+A space after a field colon separates it from a named parameter:
 
-```sql
--- The colon is followed by a space, so it is not treated as an argument
-select * from table where config = '{ "key": "value" }'
+```text
+{"name": :name}
 ```
+
+The first colon is literal; `:name` binds a value. You can also use `{"name":#{name}}` or `{"name":?}` without adding a space.
+
+Use `\:name` or `\&name` for literal `:name` or `&name`. See [Escaping Parameter Markers](./escape) for rules and examples.
 
 Additional special handling to note:
 - **PostgreSQL type cast** `::` is not recognized as an argument, so you can safely use `column::integer` syntax.

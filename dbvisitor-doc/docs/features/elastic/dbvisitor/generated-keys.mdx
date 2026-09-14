@@ -42,7 +42,7 @@ int insert(UserInfo item);
 调用 mapper.insert(item) 后，通过 item.getId() 读取主键。这里使用单个实体参数，不额外加 @Param 包装。
 
 :::caution[注意]
-不要指定 keyColumn。适配器支持 RETURN_GENERATED_KEYS，但不支持构造器 KeyType.Auto 使用的列名式 JDBC 重载。自动回填使用上面的 Mapper 配置；使用构造器时由应用赋主键。
+生成键列名为 `_ID`。需要指定 `keyColumn` 时使用 `_ID`，接收属性使用 `String`；Elasticsearch 不生成数值型自增主键。
 :::
 
 ## 使用已有 ID
@@ -55,4 +55,12 @@ jdbc.executeUpdate(
         new Object[] { "1001", "mali" });
 ```
 
-相同文档 ID 再次写入会覆盖文档内容；只改部分字段使用 _update。实体中的业务 uid 属性不会自动控制这个 ID。
+相同文档 ID 再次写入会覆盖文档内容；只改部分字段使用 `_update`。
+
+使用构造器 API 或 BaseMapper 时，已赋值的单个映射主键会同时作为 Elasticsearch 的 `_id`。未标记为主键的业务字段不影响 `_id`。
+
+| 插入策略 | 同一主键已存在时 |
+| --- | --- |
+| `Into`（默认） | 报主键冲突错误。 |
+| `Ignore` | 跳过该条，返回 0；其他错误仍抛出。 |
+| `Update` | 文档存在时只更新本次提供的字段；不存在时新增文档。 |

@@ -42,6 +42,8 @@ result = lambda.query(User.class)
 //   select * from users where id >= 100 order by name, age;
 ```
 
+Repeated ordering on the same ordinary mapped field keeps the first direction and null-ordering rule. This deduplication does not apply to freedom queries, expressions, or ordering templates.
+
 ## Null Ordering
 
 ```java title='NULLS FIRST'

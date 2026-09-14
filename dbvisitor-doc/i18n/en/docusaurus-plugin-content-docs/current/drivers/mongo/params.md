@@ -23,7 +23,7 @@ description: Connection parameter names, accepted values, defaults and constrain
 | `retryReads` | `true` / `false` | Driver default | Enable retry reads. |
 | `timeZone` | Time-zone ID or offset, e.g. UTC, +08:00 | `UTC` | Driver time zone used for type conversion (for example `+08:00`). |
 | `customMongo` | Fully qualified class name | None | Fully qualified class name implementing `CustomMongo`. |
-| `preRead` | `true` / `false` | `true` | Enable pre-read mode. Expands document fields while retaining raw-document columns. Disabled mode returns dedicated raw-document columns. |
+| `preRead` | `true` / `false` | `true` | Pre-read and expand document fields; explicit projections expose only projected fields. Disabled mode returns raw-document columns only. |
 | `preReadThreshold` | Size with B / KB / MB / GB suffix | `5MB` | Pre-read threshold size. Accepts `B/KB/MB/GB`. Defaults to MB when no unit is supplied. |
 | `preReadMaxFileSize` | Size with B / KB / MB / GB suffix | `20MB` | Maximum pre-read file size. Accepts `B/KB/MB/GB`. Defaults to MB when no unit is supplied. |
 | `preReadCacheDir` | Directory path | `java.io.tmpdir` | Cache directory for pre-read mode. |

@@ -31,10 +31,12 @@ Page page = new PageObject(1, 10);
 List<UserInfo> rows = mapper.findPage(page);
 ```
 
-页码从 0 开始。 Page 覆盖搜索请求的 from/size；需要总数时另发 `_count`。只适用于搜索命中，不用于聚合桶。
+页码从 0 开始。普通搜索中，Page 覆盖 from/size，需要总数时另发 `_count`。
+
+`composite` 聚合按结果桶分页，通过 `after_key` 继续读取；Page 的总数是桶数，不是文档数。精确统计需要遍历全部桶，见[聚合](../query/search.md#聚合)。
 
 ## 注意事项
 
-深分页受服务端结果窗口限制；驱动不会自动改用 search_after 或 scroll。`queryForList` 只读取本次响应，不会遍历整个索引。
+普通搜索的深分页受服务端结果窗口限制；驱动不会自动改用 search_after 或 scroll。`queryForList` 只读取本次搜索响应，不会遍历整个索引。
 
 总数和取页是两次请求，并发写入可能使两次结果不一致。公共 API 见 [9.5 分页](../../../guides/result/page_object.mdx)。

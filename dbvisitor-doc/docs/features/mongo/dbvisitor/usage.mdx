@@ -122,6 +122,52 @@ List<Map<String, Object>> rows = jdbc.queryForList(
         new Object[] { "mali", "1001" });
 ```
 
-构造器不能替代任意 BSON 条件组合；嵌套 AND/OR、聚合和自定义投影使用[命令语法](../about.md)。
+## 构造器聚合与投影
+
+`applySelect` 使用 MongoDB 表达式，不使用 SQL 的 `SUM(age)` 等写法。结合 `groupBy` 时，传入累加器文档：
+
+```java
+List<Map<String, Object>> groups = lambda.query(UserInfo.class)
+        .applySelect("{cnt: {$sum: 1}}")
+        .groupBy("age")
+        .orderBy("age")
+        .queryForMapList();
+```
+
+此操作按 `age` 分组，返回 `age`、`cnt` 两列。驱动生成 `$group`，将分组字段展开为结果列。
+
+不调用 `groupBy` 时，表达式文档用于 `$project`；数组用于完整聚合管线：
+
+```java
+Long total = lambda.query(UserInfo.class)
+        .applySelect("[{$group: {_id: null, value: {$sum: '$age'}}}, {$project: {_id: 0, value: 1}}]")
+        .eq("name", name)
+        .queryForObject(Long.class);
+```
+
+条件通过参数绑定生成前置 `$match`；`orderBy` 生成末尾 `$sort`。管线数组不能再与 `groupBy` 或普通字段投影组合。
+
+:::caution
+`applySelect` 的内容是命令表达式，只使用程序中确定的表达式。用户输入应通过 `eq` 等条件参数传入，不要拼接到表达式中。
+:::
+
+更多原生命令见[命令语法](../about.md)。
+
+## 插入冲突
+
+```java
+lambda.insert(UserInfo.class)
+        .onDuplicateStrategy(DuplicateKeyStrategy.Update)
+        .applyEntity(user)
+        .executeSumResult();
+```
+
+`Ignore` 按映射主键查找，存在时保留原文档，不存在时插入；`Update` 存在时修改本次提供的非主键字段，不存在时插入。操作使用 MongoDB 原生 upsert，不会先查询再写入。
+
+必须提供全部映射主键，并为这些字段建立唯一索引；`primary=true` 不会代建索引。其他唯一字段的冲突仍会报错。只有实际新增的文档返回生成键。
+
+:::note 更新条数
+更新返回实际改变的文档数。例如匹配 3 条文档，其中 1 条的值已经相同，返回 `2`，不是 `3`。upsert 新增一条文档返回 `1`。
+:::
 
 返回列的读取见[结果读取](results.mdx)。多条命令不等于 JDBC batch，也不会自动构成事务。

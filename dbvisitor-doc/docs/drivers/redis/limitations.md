@@ -10,6 +10,8 @@ title: 使用限制
 
 ## 数据源限制
 
+`DatabaseMetaData.getCatalogs()` 返回当前选中的数据库编号；成功切库后返回新的编号。不枚举服务器配置的全部数据库，也不把 key 映射成表或字段。
+
 Redis Cluster 连接不能通过 `database` 切换到非零数据库。默认客户端不启用 TLS；如需设置，使用 `customJedis` 自定义客户端。
 
 命令语法与返回值约定见[命令参考](../../features/redis/about.md)。

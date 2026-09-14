@@ -23,7 +23,7 @@ description: 连接参数名称、可配置值、默认值及约束。
 | `retryReads` | `true` / `false` | 驱动默认值 | 是否启用重试读取。 |
 | `timeZone` | 时区 ID 或偏移量，如 UTC、+08:00 | `UTC` | 驱动用于类型转换的时区（例如 `+08:00`）。 |
 | `customMongo` | 类全限定名 | 无 | 实现 `CustomMongo` 的类全名。 |
-| `preRead` | `true` / `false` | `true` | 是否启用预读模式。 展开文档字段，同时保留原始文档列；关闭后使用专用原始文档列。 |
+| `preRead` | `true` / `false` | `true` | 预读并展开文档字段；显式投影只返回投影字段。关闭后仅返回原始文档列。 |
 | `preReadThreshold` | 数值，可带 B / KB / MB / GB 单位 | `5MB` | 预读阈值，支持 `B/KB/MB/GB`。 无单位时按 MB。 |
 | `preReadMaxFileSize` | 数值，可带 B / KB / MB / GB 单位 | `20MB` | 预读最大文件大小，支持 `B/KB/MB/GB`。 无单位时按 MB。 |
 | `preReadCacheDir` | 目录路径 | `java.io.tmpdir` | 预读缓存目录。 |

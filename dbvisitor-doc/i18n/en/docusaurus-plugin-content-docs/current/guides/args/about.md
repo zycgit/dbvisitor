@@ -19,3 +19,4 @@ dbVisitor provides multiple ways to pass arguments. This section explains how to
 ## Additional Notes
 
 - [Argument Options](./options): when using `#{...}` or `SqlArg` for arguments, you can specify extra options.
+- [Escaping Parameter Markers](./escape): output literal `?`, `:`, and `&` without binding arguments.

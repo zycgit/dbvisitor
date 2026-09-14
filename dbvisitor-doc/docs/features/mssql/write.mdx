@@ -57,3 +57,7 @@ Bob 插入失败后，异常传出回调，Alice 的插入也随之回滚，表�
 :::
 
 调用方法需处理或声明 `execute` 抛出的 `Throwable`。构造器 API 和 Mapper 也可以参与事务，完整配置见[事务模板](../../guides/transaction/template.md)。
+
+:::caution[嵌套事务的驱动版本]
+使用 `NESTED` 嵌套事务时，建议采用 Microsoft JDBC Driver `13.4`。`12.6` 在释放保存点时会报“不支持此操作”，导致嵌套事务提交失败。
+:::

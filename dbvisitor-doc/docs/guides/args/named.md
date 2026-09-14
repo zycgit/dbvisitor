@@ -119,13 +119,15 @@ select * from users where
 
 ## 忽略规则
 
-在 SQL 中如果冒号 `:` 后面紧跟空白字符（如空格、换行、制表符等），dbVisitor 会忽略该冒号的参数解析，将其视为普通字符。
-这一特性使得在 SQL 中可以直接书写 JSON 或类似 MongoDB 的查询语句，而无需对冒号进行转义。
+冒号后加空格，可以将字段冒号与名称参数分开：
 
-```sql
--- 冒号后面有空格，不会被识别为参数
-select * from table where config = '{ "key": "value" }'
+```text
+{"name": :name}
 ```
+
+这里第一个冒号是普通字符，`:name` 是绑定参数。`{"name":#{name}}` 和 `{"name":?}` 也可以直接使用，无需增加空格。
+
+需要输出普通文本 `:name` 或 `&name` 时，使用 `\:name` 或 `\&name`。完整规则与示例见[参数符号转义](./escape)。
 
 此外需注意以下特殊处理：
 - **PostgreSQL 类型转换** `::` 不会被识别为参数，可以安全使用 `column::integer` 语法。
