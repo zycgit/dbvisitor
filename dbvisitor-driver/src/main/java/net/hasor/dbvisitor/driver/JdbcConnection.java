@@ -21,6 +21,7 @@ class JdbcConnection implements Connection, Closeable {
     private final    AdapterConnection  connection;
     private final    TypeSupport        typeSupport;
     private final    TransactionSupport txSupport;
+    private final    MetadataSupport    metadataSupport;
 
     JdbcConnection(String jdbcUrl, Properties properties) throws SQLException {
         Objects.requireNonNull(properties, "parameter properties is null.");
@@ -32,6 +33,7 @@ class JdbcConnection implements Connection, Closeable {
         this.connection = factory.createConnection(this, jdbcUrl, properties);
         this.typeSupport = ts == null ? new AdapterTypeSupport(properties) : ts;
         this.txSupport = this.connection instanceof TransactionSupport ? (TransactionSupport) this.connection : null;
+        this.metadataSupport = this.connection instanceof MetadataSupport ? (MetadataSupport) this.connection : null;
         AdapterConnManager.newConnection(this.connection);
     }
 
@@ -41,6 +43,10 @@ class JdbcConnection implements Connection, Closeable {
 
     protected TransactionSupport txSupport() {
         return this.txSupport;
+    }
+
+    protected MetadataSupport metadataSupport() {
+        return this.metadataSupport;
     }
 
     protected AdapterConnection adapterConnection() {
@@ -258,7 +264,10 @@ class JdbcConnection implements Connection, Closeable {
     @Override
     public PreparedStatement prepareStatement(String sql, String[] columnNames) throws SQLException {
         this.checkOpen();
-        throw new SQLFeatureNotSupportedException("columnNames not supported");
+        String[] names = JdbcStatement.copyKeyColumns(columnNames);
+        JdbcPreparedStatement statement = new JdbcPreparedStatement(this, sql, names.length == 0 ? Statement.NO_GENERATED_KEYS : Statement.RETURN_GENERATED_KEYS);
+        statement.generatedKeyColumns = names;
+        return statement;
     }
 
     @Override

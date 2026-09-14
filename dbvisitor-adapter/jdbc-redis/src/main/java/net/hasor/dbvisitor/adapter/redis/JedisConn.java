@@ -11,6 +11,7 @@ import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Set;
 import java.util.Map;
 import java.util.Properties;
 import net.hasor.cobble.ExceptionUtils;
@@ -19,30 +20,28 @@ import net.hasor.cobble.concurrent.future.BasicFuture;
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
-import net.hasor.dbvisitor.adapter.redis.parser.JedisArgVisitor;
-import net.hasor.dbvisitor.adapter.redis.parser.RedisLexer;
-import net.hasor.dbvisitor.adapter.redis.parser.RedisParser;
-import net.hasor.dbvisitor.adapter.redis.parser.QueryParseException;
-import net.hasor.dbvisitor.adapter.redis.parser.ThrowingListener;
+import net.hasor.dbvisitor.adapter.redis.parser.*;
 import net.hasor.dbvisitor.driver.*;
 import org.antlr.v4.runtime.BufferedTokenStream;
 import org.antlr.v4.runtime.CharStreams;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisCluster;
 
-public class JedisConn extends AdapterConnection {
-    private static final Logger     logger    = LoggerFactory.getLogger(JedisConn.class);
-    private final        Connection owner;
-    private final        JedisCmd   jedisCmd;
-    private              int        database;
-    private final        boolean    uncheckNumKeys;
-    private final        char       separatorChar;
-    private volatile     boolean    cancelled = false;
+public class JedisConn extends AdapterConnection implements MetadataSupport {
+    private static final Logger        logger    = LoggerFactory.getLogger(JedisConn.class);
+    private final        Connection    owner;
+    private final        JedisCmd      jedisCmd;
+    private final        JedisMetadata metadata;
+    private              int           database;
+    private final        boolean       uncheckNumKeys;
+    private final        char          separatorChar;
+    private volatile     boolean       cancelled = false;
 
     JedisConn(Connection owner, JedisCmd jedisCmd, String jdbcUrl, Map<String, String> prop, int database) throws SQLException {
         super(jdbcUrl, prop.get(JedisKeys.USERNAME));
         this.owner = owner;
         this.jedisCmd = jedisCmd;
+        this.metadata = new JedisMetadata(this);
         this.database = database;
         this.uncheckNumKeys = Boolean.parseBoolean(prop.getOrDefault(JedisKeys.UNCHECK_NUM_KEYS, "false"));
 
@@ -105,6 +104,16 @@ public class JedisConn extends AdapterConnection {
     }
 
     @Override
+    public Set<MetadataType> supportedTypes() {
+        return this.metadata.supportedTypes();
+    }
+
+    @Override
+    public List<MetadataNode> query(MetadataPath path) throws SQLException {
+        return this.metadata.query(path);
+    }
+
+    @Override
     public void setCatalog(String catalog) throws SQLException {
         this.setSchema(catalog);
     }
@@ -118,11 +127,12 @@ public class JedisConn extends AdapterConnection {
     public void setSchema(String schema) throws SQLException {
         int newDatabase = Integer.parseInt(schema);
         if (this.database != newDatabase) {
-            this.database = newDatabase;
             String status = this.jedisCmd.getDatabaseCommands().select(newDatabase);
             if (!StringUtils.equalsIgnoreCase(status, "ok")) {
                 throw new SQLException("select database failed, status: " + status);
             }
+
+            this.database = newDatabase;
         }
     }
 

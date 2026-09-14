@@ -8,15 +8,11 @@
 package net.hasor.dbvisitor.adapter.milvus;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import java.sql.Statement;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.antlr.v4.runtime.BufferedTokenStream;
-import org.antlr.v4.runtime.CharStreams;
-
 import io.milvus.common.clientenum.ConsistencyLevelEnum;
 import io.milvus.v2.client.MilvusClientV2;
 import net.hasor.cobble.StringUtils;
@@ -26,22 +22,26 @@ import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.dbvisitor.adapter.milvus.parser.*;
 import net.hasor.dbvisitor.driver.*;
+import org.antlr.v4.runtime.BufferedTokenStream;
+import org.antlr.v4.runtime.CharStreams;
 
-public class MilvusConn extends AdapterConnection {
+public class MilvusConn extends AdapterConnection implements MetadataSupport {
     private static final String DEFAULT_CLIENT_NAME = "Milvus-JDBC-Client";
     private static final int    DEFAULT_MAX_RETRY   = 3;
 
-    private static final Logger        logger         = LoggerFactory.getLogger(MilvusConn.class);
-    private final Connection           owner;
-    private final MilvusCmd            milvusCmd;
-    private final ConsistencyLevelEnum consistencyLevel;
-    private final int                  maxRetry;
-    private final Set<MilvusRequest>   activeRequests = ConcurrentHashMap.newKeySet();
+    private static final Logger               logger         = LoggerFactory.getLogger(MilvusConn.class);
+    private final        Connection           owner;
+    private final        MilvusCmd            milvusCmd;
+    private final        MilvusMetadata       metadata;
+    private final        ConsistencyLevelEnum consistencyLevel;
+    private final        int                  maxRetry;
+    private final        Set<MilvusRequest>   activeRequests = ConcurrentHashMap.newKeySet();
 
     public MilvusConn(Connection owner, MilvusCmd milvusCmd, String jdbcUrl, Map<String, String> prop) throws SQLException {
         super(jdbcUrl, prop.get(MilvusKeys.USERNAME));
         this.owner = owner;
         this.milvusCmd = milvusCmd;
+        this.metadata = new MilvusMetadata(this.milvusCmd, this.owner);
 
         String cl = prop.get(MilvusKeys.CONSISTENCY_LEVEL);
         if (StringUtils.isNotBlank(cl)) {
@@ -111,13 +111,13 @@ public class MilvusConn extends AdapterConnection {
     }
 
     @Override
-    public AdapterCursor getTables(String catalog, String schemaPattern, String tableNamePattern, String[] types) throws SQLException {
-        return new MilvusMetadata(this.milvusCmd).tables(catalog, schemaPattern, tableNamePattern, types);
+    public Set<MetadataType> supportedTypes() {
+        return this.metadata.supportedTypes();
     }
 
     @Override
-    public AdapterCursor getColumns(String catalog, String schemaPattern, String tableNamePattern, String columnNamePattern) throws SQLException {
-        return new MilvusMetadata(this.milvusCmd).columns(catalog, schemaPattern, tableNamePattern, columnNamePattern, this.owner.unwrap(TypeSupport.class));
+    public List<MetadataNode> query(MetadataPath path) throws SQLException {
+        return this.metadata.query(path);
     }
 
     @Override

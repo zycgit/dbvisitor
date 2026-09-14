@@ -8,19 +8,44 @@
 package net.hasor.dbvisitor.adapter.milvus.commands;
 
 import java.sql.*;
-import java.util.*;
+import java.util.List;
+import java.util.Properties;
 import io.milvus.v2.client.MilvusClientV2;
 import io.milvus.v2.service.collection.request.CreateCollectionReq;
 import io.milvus.v2.service.collection.request.ListCollectionsReq;
 import io.milvus.v2.service.collection.response.DescribeCollectionResp;
 import io.milvus.v2.service.collection.response.ListCollectionsResp;
-import net.hasor.dbvisitor.adapter.milvus.*;
+import net.hasor.dbvisitor.adapter.milvus.MilvusCommandInterceptor;
+import net.hasor.dbvisitor.adapter.milvus.MilvusConn;
+import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
+import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
+import net.hasor.dbvisitor.driver.MetadataSupport;
 import org.junit.After;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class MilvusMetadataTest {
+    @Test
+    public void metadataProviderIsReusedAndReadsCurrentDatabase() throws Exception {
+        MilvusCommandInterceptor.resetInterceptor();
+        Properties properties = new Properties();
+        properties.setProperty(MilvusKeys.CUSTOM_MILVUS, MilvusCustomClient.class.getName());
+        properties.setProperty(MilvusKeys.INTERCEPTOR, MilvusCommandInterceptor.class.getName());
+        try (Connection first = new JdbcDriver().connect("jdbc:dbvisitor:milvus://test:19530/db1", properties); Connection second = new JdbcDriver().connect("jdbc:dbvisitor:milvus://test:19530/db1", properties)) {
+            MilvusConn adapter = first.unwrap(MilvusConn.class);
+            assertTrue(first.isWrapperFor(MetadataSupport.class));
+            assertSame(adapter, first.unwrap(MetadataSupport.class));
+            assertNotSame(adapter, second.unwrap(MetadataSupport.class));
+            DatabaseMetaData metadata = first.getMetaData();
+            try (ResultSet rows = metadata.getCatalogs()) {
+                assertTrue(rows.next());
+                assertEquals("db1", rows.getString("TABLE_CAT"));
+                assertFalse(rows.next());
+            }
+        }
+    }
+
     private CreateCollectionReq collection;
 
     @After
@@ -42,8 +67,7 @@ public class MilvusMetadataTest {
                     assertEquals("db1", ((ListCollectionsReq) args[0]).getDatabaseName());
                     return ListCollectionsResp.builder().collectionNames(List.of("sample_table")).build();
                 case "describeCollection":
-                    return DescribeCollectionResp.builder().collectionName("sample_table")
-                            .collectionSchema(collection.getCollectionSchema()).description("Stored collection").build();
+                    return DescribeCollectionResp.builder().collectionName("sample_table").collectionSchema(collection.getCollectionSchema()).description("Stored collection").build();
                 default:
                     return null;
             }
@@ -51,10 +75,17 @@ public class MilvusMetadataTest {
         Properties properties = new Properties();
         properties.setProperty(MilvusKeys.CUSTOM_MILVUS, MilvusCustomClient.class.getName());
         properties.setProperty(MilvusKeys.INTERCEPTOR, MilvusCommandInterceptor.class.getName());
-        try (Connection connection = new JdbcDriver().connect("jdbc:dbvisitor:milvus://test:19530/db1", properties);
-                Statement statement = connection.createStatement()) {
+        try (Connection connection = new JdbcDriver().connect("jdbc:dbvisitor:milvus://test:19530/db1", properties); Statement statement = connection.createStatement()) {
             statement.execute("CREATE TABLE sample_table (id INT64 PRIMARY KEY AUTO_ID, name VARCHAR(128) NULL, v FLOAT_VECTOR(2))");
             DatabaseMetaData metadata = connection.getMetaData();
+            try (ResultSet catalogs = metadata.getCatalogs(); ResultSet types = metadata.getTableTypes()) {
+                assertTrue(catalogs.next());
+                assertEquals("db1", catalogs.getString("TABLE_CAT"));
+                assertFalse(catalogs.next());
+                assertTrue(types.next());
+                assertEquals("TABLE", types.getString("TABLE_TYPE"));
+                assertFalse(types.next());
+            }
             try (ResultSet rows = metadata.getTables("db1", null, "sample\\_table", new String[] { "TABLE" })) {
                 assertTrue(rows.next());
                 assertEquals("sample_table", rows.getString("TABLE_NAME"));

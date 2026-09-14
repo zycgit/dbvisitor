@@ -144,6 +144,8 @@ public abstract class AdapterConnection implements Closeable {
         Object candidate = null;
         if (jdbcConn != null && TransactionSupport.class.isAssignableFrom(iface)) {
             candidate = jdbcConn.txSupport();
+        } else if (jdbcConn != null && MetadataSupport.class.isAssignableFrom(iface)) {
+            candidate = jdbcConn.metadataSupport();
         } else if (jdbcConn != null && TypeSupport.class.isAssignableFrom(iface)) {
             candidate = jdbcConn.typeSupport();
         } else if (Connection.class.isAssignableFrom(iface)) {

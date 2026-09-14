@@ -6,6 +6,7 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.elastic;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -13,6 +14,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.hasor.cobble.StringUtils;
@@ -20,7 +22,9 @@ import net.hasor.cobble.concurrent.future.BasicFuture;
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
-import net.hasor.dbvisitor.adapter.elastic.parser.*;
+import net.hasor.dbvisitor.adapter.elastic.parser.ElasticArgVisitor;
+import net.hasor.dbvisitor.adapter.elastic.parser.QueryParseException;
+import net.hasor.dbvisitor.adapter.elastic.parser.ThrowingListener;
 import net.hasor.dbvisitor.driver.*;
 import org.antlr.v4.runtime.BufferedTokenStream;
 import org.antlr.v4.runtime.CharStreams;
@@ -28,22 +32,24 @@ import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
 
-public class ElasticConn extends AdapterConnection {
-    private static final Logger       logger    = LoggerFactory.getLogger(ElasticConn.class);
-    private final        Connection   owner;
-    private final        ElasticCmd   elasticCmd;
-    private final        boolean      preRead;
-    private final        long         preReadThreshold;
-    private final        long         preReadMaxFileSize;
-    private final        java.io.File preReadCacheDir;
-    private final        boolean      indexRefresh;
-    private final        ObjectMapper json      = new ObjectMapper();
-    private volatile     boolean      cancelled = false;
+public class ElasticConn extends AdapterConnection implements MetadataSupport {
+    private static final Logger          logger    = LoggerFactory.getLogger(ElasticConn.class);
+    private final        Connection      owner;
+    private final        ElasticCmd      elasticCmd;
+    private final        ElasticMetadata metadata;
+    private final        boolean         preRead;
+    private final        long            preReadThreshold;
+    private final        long            preReadMaxFileSize;
+    private final        File            preReadCacheDir;
+    private final        boolean         indexRefresh;
+    private final        ObjectMapper    json      = new ObjectMapper();
+    private volatile     boolean         cancelled = false;
 
     public ElasticConn(Connection owner, ElasticCmd elasticCmd, String jdbcUrl, Map<String, String> prop) {
         super(jdbcUrl, prop.get(ElasticKeys.USERNAME));
         this.owner = owner;
         this.elasticCmd = elasticCmd;
+        this.metadata = new ElasticMetadata(this.elasticCmd, this.json);
 
         this.preRead = "true".equalsIgnoreCase(prop.getOrDefault(ElasticKeys.PREREAD_ENABLED, "true"));
         this.preReadThreshold = parseSize(prop.get(ElasticKeys.PREREAD_THRESHOLD), 5 * 1024 * 1024); // Default 5MB
@@ -152,13 +158,13 @@ public class ElasticConn extends AdapterConnection {
     }
 
     @Override
-    public AdapterCursor getTables(String catalog, String schemaPattern, String tableNamePattern, String[] types) throws SQLException {
-        return ElasticMetadata.tables(this.elasticCmd, this.json, catalog, schemaPattern, tableNamePattern, types);
+    public Set<MetadataType> supportedTypes() {
+        return this.metadata.supportedTypes();
     }
 
     @Override
-    public AdapterCursor getColumns(String catalog, String schemaPattern, String tableNamePattern, String columnNamePattern) throws SQLException {
-        return ElasticMetadata.columns(this.elasticCmd, this.json, catalog, schemaPattern, tableNamePattern, columnNamePattern);
+    public List<MetadataNode> query(MetadataPath path) throws SQLException {
+        return this.metadata.query(path);
     }
 
     @Override

@@ -7,17 +7,19 @@
  */
 package net.hasor.dbvisitor.driver;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.regex.Pattern;
 import net.hasor.cobble.StringUtils;
 
 class JdbcDatabaseMetaData implements DatabaseMetaData {
     private final JdbcConnection    jdbcConnection;
     private final AdapterConnection adapterConnection;
+    private final MetadataSupport   metadataSupport;
 
     JdbcDatabaseMetaData(JdbcConnection jdbcConnection, AdapterConnection adapterConnection) {
         this.jdbcConnection = jdbcConnection;
         this.adapterConnection = adapterConnection;
+        this.metadataSupport = jdbcConnection.metadataSupport();
     }
 
     @Override
@@ -613,12 +615,12 @@ class JdbcDatabaseMetaData implements DatabaseMetaData {
 
     @Override
     public boolean supportsResultSetType(int type) {
-        return false;
+        return type == ResultSet.TYPE_FORWARD_ONLY;
     }
 
     @Override
     public boolean supportsResultSetConcurrency(int type, int concurrency) {
-        return false;
+        return this.supportsResultSetType(type) && concurrency == ResultSet.CONCUR_READ_ONLY;
     }
 
     @Override
@@ -683,12 +685,12 @@ class JdbcDatabaseMetaData implements DatabaseMetaData {
 
     @Override
     public boolean supportsResultSetHoldability(int holdability) {
-        return false;
+        return holdability == ResultSet.HOLD_CURSORS_OVER_COMMIT;
     }
 
     @Override
     public int getResultSetHoldability() {
-        return 0;
+        return ResultSet.HOLD_CURSORS_OVER_COMMIT;
     }
 
     @Override
@@ -733,7 +735,7 @@ class JdbcDatabaseMetaData implements DatabaseMetaData {
 
     @Override
     public String getSearchStringEscape() {
-        return "";
+        return "\\";
     }
 
     @Override
@@ -768,25 +770,40 @@ class JdbcDatabaseMetaData implements DatabaseMetaData {
 
     @Override
     public ResultSet getCatalogs() throws SQLException {
-        return emptySet(new Object[] {//
-                "TABLE_CAT",          //
-        });
+        this.jdbcConnection.checkOpen();
+        List<Map<String, Object>> rows = new ArrayList<>();
+        for (MetadataNode node : queryMetadata(new MetadataPath(MetadataType.CATALOG))) {
+            rows.add(metadataIdentity(node.name(), null, null));
+        }
+        rows.sort(metadataOrder("TABLE_CAT"));
+        return metadataResult(metadataCursor(new String[] { "TABLE_CAT" }, rows));
     }
 
     @Override
     public ResultSet getSchemas() throws SQLException {
-        return emptySet(new Object[] {//
-                "TABLE_SCHEM",        //
-                "TABLE_CATALOG",      //
-        });
+        this.jdbcConnection.checkOpen();
+        return getSchemas(null, null);
     }
 
     @Override
     public ResultSet getSchemas(String catalog, String schemaPattern) throws SQLException {
-        return emptySet(new Object[] {//
-                "TABLE_SCHEM",        //
-                "TABLE_CATALOG",      //
-        });
+        this.jdbcConnection.checkOpen();
+        List<Map<String, Object>> rows = new ArrayList<>();
+        Set<MetadataType> kinds = metadataKinds();
+        if (kinds.contains(MetadataType.SCHEMA)) {
+            for (MetadataPath path : metadataCatalogs(catalog, kinds)) {
+                for (MetadataNode node : queryMetadata(path.target(MetadataType.SCHEMA))) {
+                    if (matchesMetadataPattern(node.name(), schemaPattern)) {
+                        Map<String, Object> row = new HashMap<>();
+                        row.put("TABLE_SCHEM", node.name());
+                        row.put("TABLE_CATALOG", path.name(MetadataType.CATALOG));
+                        rows.add(row);
+                    }
+                }
+            }
+        }
+        rows.sort(metadataOrder("TABLE_CATALOG", "TABLE_SCHEM"));
+        return metadataResult(metadataCursor(new String[] { "TABLE_SCHEM", "TABLE_CATALOG" }, rows));
     }
 
     @Override
@@ -796,7 +813,7 @@ class JdbcDatabaseMetaData implements DatabaseMetaData {
 
     @Override
     public ResultSet getProcedures(String catalog, String schemaPattern, String procedureNamePattern) throws SQLException {
-        return emptySet(new Object[] {                //
+        return emptySet(//
                 "PROCEDURE_CAT",                      //
                 "PROCEDURE_SCHEM",                    //
                 "PROCEDURE_NAME",                     //
@@ -806,12 +823,12 @@ class JdbcDatabaseMetaData implements DatabaseMetaData {
                 "REMARKS",                            //
                 "PROCEDURE_TYPE", JDBCType.SMALLINT,  //
                 "SPECIFIC_NAME"                       //
-        });
+        );
     }
 
     @Override
     public ResultSet getProcedureColumns(String catalog, String schemaPattern, String procedureNamePattern, String columnNamePattern) throws SQLException {
-        return emptySet(new Object[] {                //
+        return emptySet(//
                 "PROCEDURE_CAT",                      //
                 "PROCEDURE_SCHEM",                    //
                 "PROCEDURE_NAME",                     //
@@ -831,8 +848,8 @@ class JdbcDatabaseMetaData implements DatabaseMetaData {
                 "CHAR_OCTET_LENGTH", JDBCType.INTEGER,//
                 "ORDINAL_POSITION", JDBCType.INTEGER, //
                 "IS_NULLABLE",                        //
-                "SPECIFIC_NAME",                      //
-        });
+                "SPECIFIC_NAME"                      //
+        );
     }
 
     @Override
@@ -842,73 +859,66 @@ class JdbcDatabaseMetaData implements DatabaseMetaData {
 
     @Override
     public ResultSet getTables(String catalog, String schemaPattern, String tableNamePattern, String[] types) throws SQLException {
-        return emptySet(new Object[] {      //
-                "TABLE_CAT",                //
-                "TABLE_SCHEM",              //
-                "TABLE_NAME",               //
-                "TABLE_TYPE",               //
-                "REMARKS",                  //
-                "TYPE_CAT",                 //
-                "TYPE_SCHEM",               //
-                "TYPE_NAME",                //
-                "SELF_REFERENCING_COL_NAME",//
-                "REF_GENERATION"            //
-        });
+        this.jdbcConnection.checkOpen();
+        List<Map<String, Object>> rows = new ArrayList<>();
+        for (MetadataTable table : metadataTables(catalog, schemaPattern, tableNamePattern, types)) {
+            Map<String, Object> row = metadataIdentity(table.path.name(MetadataType.CATALOG), table.path.name(MetadataType.SCHEMA), table.node.name());
+            row.put("TABLE_TYPE", table.node.type().name());
+            row.put("REMARKS", table.node.attributes().get(MetadataNode.REMARKS));
+            rows.add(row);
+        }
+        rows.sort(metadataOrder("TABLE_TYPE", "TABLE_CAT", "TABLE_SCHEM", "TABLE_NAME"));
+        return metadataResult(metadataCursor(TABLE_COLUMNS, rows));
     }
 
     @Override
     public ResultSet getTableTypes() throws SQLException {
-        return emptySet(new Object[] {  //
-                "TABLE_TYPE",           //
-        });
+        this.jdbcConnection.checkOpen();
+        List<Map<String, Object>> rows = new ArrayList<>();
+        for (MetadataType kind : metadataKinds()) {
+            if (kind == MetadataType.TABLE || kind == MetadataType.VIEW) {
+                rows.add(Map.of("TABLE_TYPE", kind.name()));
+            }
+        }
+        rows.sort(metadataOrder("TABLE_TYPE"));
+        return metadataResult(metadataCursor(new String[] { "TABLE_TYPE" }, rows));
     }
 
     @Override
     public ResultSet getTablePrivileges(String catalog, String schemaPattern, String tableNamePattern) throws SQLException {
-        return emptySet(new Object[] {//
+        return emptySet(//
                 "TABLE_CAT",          //
                 "TABLE_SCHEM",        //
                 "TABLE_NAME",         //
                 "GRANTOR",            //
                 "GRANTEE",            //
                 "PRIVILEGE",          //
-                "IS_GRANTABLE",       //
-        });
+                "IS_GRANTABLE"       //
+        );
     }
 
     @Override
     public ResultSet getColumns(String catalog, String schemaPattern, String tableNamePattern, String columnNamePattern) throws SQLException {
-        return emptySet(new Object[] {                //
-                "TABLE_CAT",                          //
-                "TABLE_SCHEM",                        //
-                "TABLE_NAME",                         //
-                "COLUMN_NAME",                        //
-                "DATA_TYPE", JDBCType.INTEGER,        //
-                "TYPE_NAME",                          //
-                "COLUMN_SIZE", JDBCType.INTEGER,      //
-                "BUFFER_LENGTH", JDBCType.INTEGER,    //
-                "DECIMAL_DIGITS", JDBCType.INTEGER,   //
-                "NUM_PREC_RADIX", JDBCType.INTEGER,   //
-                "NULLABLE", JDBCType.INTEGER,         //
-                "REMARKS",                            //
-                "COLUMN_DEF",                         //
-                "SQL_DATA_TYPE", JDBCType.INTEGER,    //
-                "SQL_DATETIME_SUB", JDBCType.INTEGER, //
-                "CHAR_OCTET_LENGTH", JDBCType.INTEGER,//
-                "ORDINAL_POSITION", JDBCType.INTEGER, //
-                "IS_NULLABLE",                        //
-                "SCOPE_CATALOG",                      //
-                "SCOPE_SCHEMA",                       //
-                "SCOPE_TABLE",                        //
-                "SOURCE_DATA_TYPE", JDBCType.SMALLINT,//
-                "IS_AUTOINCREMENT",                   //
-                "IS_GENERATEDCOLUMN",                 //
-        });
+        this.jdbcConnection.checkOpen();
+        List<Map<String, Object>> rows = new ArrayList<>();
+        if (metadataKinds().contains(MetadataType.COLUMN)) {
+            for (MetadataTable table : metadataTables(catalog, schemaPattern, tableNamePattern, null)) {
+                int ordinal = 0;
+                for (MetadataNode column : queryMetadata(table.path.child(table.node, MetadataType.COLUMN))) {
+                    ordinal++;
+                    if (matchesMetadataPattern(column.name(), columnNamePattern)) {
+                        rows.add(metadataColumn(table, column, ordinal));
+                    }
+                }
+            }
+        }
+        rows.sort(metadataOrder("TABLE_CAT", "TABLE_SCHEM", "TABLE_NAME").thenComparingInt(row -> ((Number) row.get("ORDINAL_POSITION")).intValue()));
+        return metadataResult(metadataCursor(FIELD_COLUMNS, rows));
     }
 
     @Override
     public ResultSet getColumnPrivileges(String catalog, String schema, String table, String columnNamePattern) throws SQLException {
-        return emptySet(new Object[] {//
+        return emptySet(//
                 "TABLE_CAT",          //
                 "TABLE_SCHEM",        //
                 "TABLE_NAME",         //
@@ -916,13 +926,13 @@ class JdbcDatabaseMetaData implements DatabaseMetaData {
                 "GRANTOR",            //
                 "GRANTEE",            //
                 "PRIVILEGE",          //
-                "IS_GRANTABLE",       //
-        });
+                "IS_GRANTABLE"       //
+        );
     }
 
     @Override
     public ResultSet getVersionColumns(String catalog, String schema, String table) throws SQLException {
-        return emptySet(new Object[] {             //
+        return emptySet(//
                 "SCOPE", JDBCType.SMALLINT,        //
                 "COLUMN_NAME",                     //
                 "DATA_TYPE", JDBCType.INTEGER,     //
@@ -930,26 +940,25 @@ class JdbcDatabaseMetaData implements DatabaseMetaData {
                 "COLUMN_SIZE", JDBCType.INTEGER,   //
                 "BUFFER_LENGTH", JDBCType.INTEGER, //
                 "DECIMAL_DIGITS", JDBCType.INTEGER,//
-                "PSEUDO_COLUMN", JDBCType.SMALLINT,//
-
-        });
+                "PSEUDO_COLUMN", JDBCType.SMALLINT//
+        );
     }
 
     @Override
     public ResultSet getFunctions(String catalog, String schemaPattern, String functionNamePattern) throws SQLException {
-        return emptySet(new Object[] {             //
+        return emptySet(//
                 "FUNCTION_CAT",                    //
                 "FUNCTION_SCHEM",                  //
                 "FUNCTION_NAME",                   //
                 "REMARKS",                         //
                 "FUNCTION_TYPE", JDBCType.SMALLINT,//
-                "SPECIFIC_NAME",                   //
-        });
+                "SPECIFIC_NAME"                   //
+        );
     }
 
     @Override
     public ResultSet getFunctionColumns(String catalog, String schemaPattern, String functionNamePattern, String columnNamePattern) throws SQLException {
-        return emptySet(new Object[] {                //
+        return emptySet(//
                 "FUNCTION_CAT",                       //
                 "FUNCTION_SCHEM",                     //
                 "FUNCTION_NAME",                      //
@@ -966,13 +975,13 @@ class JdbcDatabaseMetaData implements DatabaseMetaData {
                 "CHAR_OCTET_LENGTH", JDBCType.INTEGER,//
                 "ORDINAL_POSITION", JDBCType.INTEGER, //
                 "IS_NULLABLE",                        //
-                "SPECIFIC_NAME",                      //
-        });
+                "SPECIFIC_NAME"                      //
+        );
     }
 
     @Override
     public ResultSet getBestRowIdentifier(String catalog, String schema, String table, int scope, boolean nullable) throws SQLException {
-        return emptySet(new Object[] {             //
+        return emptySet(//
                 "SCOPE", JDBCType.SMALLINT,        //
                 "COLUMN_NAME",                     //
                 "DATA_TYPE", JDBCType.INTEGER,     //
@@ -980,25 +989,25 @@ class JdbcDatabaseMetaData implements DatabaseMetaData {
                 "COLUMN_SIZE", JDBCType.INTEGER,   //
                 "BUFFER_LENGTH", JDBCType.INTEGER, //
                 "DECIMAL_DIGITS", JDBCType.INTEGER,//
-                "PSEUDO_COLUMN", JDBCType.SMALLINT,//
-        });
+                "PSEUDO_COLUMN", JDBCType.SMALLINT//
+        );
     }
 
     @Override
     public ResultSet getPrimaryKeys(String catalog, String schema, String table) throws SQLException {
-        return emptySet(new Object[] {       //
+        return emptySet(//
                 "TABLE_CAT",                 //
                 "TABLE_SCHEM",               //
                 "TABLE_NAME",                //
                 "COLUMN_NAME",               //
                 "KEY_SEQ", JDBCType.SMALLINT,//
-                "PK_NAME",                   //
-        });
+                "PK_NAME"                   //
+        );
     }
 
     @Override
     public ResultSet getImportedKeys(String catalog, String schema, String table) throws SQLException {
-        return emptySet(new Object[] {            //
+        return emptySet(//
                 "PKTABLE_CAT",                    //
                 "PKTABLE_SCHEM",                  //
                 "PKTABLE_NAME",                   //
@@ -1014,12 +1023,12 @@ class JdbcDatabaseMetaData implements DatabaseMetaData {
                 "PKCOLUMN_NAME",                  //
                 "PK_NAME",                        //
                 "DEFERRABILITY", JDBCType.SMALLINT//
-        });
+        );
     }
 
     @Override
     public ResultSet getExportedKeys(String catalog, String schema, String table) throws SQLException {
-        return emptySet(new Object[] {            //
+        return emptySet(//
                 "PKTABLE_CAT",                    //
                 "PKTABLE_SCHEM",                  //
                 "PKTABLE_NAME",                   //
@@ -1034,12 +1043,12 @@ class JdbcDatabaseMetaData implements DatabaseMetaData {
                 "FK_NAME",                        //
                 "PK_NAME",                        //
                 "DEFERRABILITY", JDBCType.SMALLINT//
-        });
+        );
     }
 
     @Override
     public ResultSet getCrossReference(String parentCatalog, String parentSchema, String parentTable, String foreignCatalog, String foreignSchema, String foreignTable) throws SQLException {
-        return emptySet(new Object[] {            //
+        return emptySet(//
                 "PKTABLE_CAT",                    //
                 "PKTABLE_SCHEM",                  //
                 "PKTABLE_NAME",                   //
@@ -1054,12 +1063,12 @@ class JdbcDatabaseMetaData implements DatabaseMetaData {
                 "FK_NAME",                        //
                 "PK_NAME",                        //
                 "DEFERRABILITY", JDBCType.SMALLINT//
-        });
+        );
     }
 
     @Override
     public ResultSet getTypeInfo() throws SQLException {
-        return emptySet(new Object[] {                 //
+        return emptySet(//
                 "TYPE_NAME",                           //
                 "DATA_TYPE", JDBCType.INTEGER,         //
                 "PRECISION", JDBCType.INTEGER,         //
@@ -1077,13 +1086,13 @@ class JdbcDatabaseMetaData implements DatabaseMetaData {
                 "MAXIMUM_SCALE", JDBCType.SMALLINT,    //
                 "SQL_DATA_TYPE", JDBCType.INTEGER,     //
                 "SQL_DATETIME_SUB", JDBCType.INTEGER,  //
-                "NUM_PREC_RADIX", JDBCType.INTEGER,    //
-        });
+                "NUM_PREC_RADIX", JDBCType.INTEGER    //
+        );
     }
 
     @Override
     public ResultSet getIndexInfo(String catalog, String schema, String table, boolean unique, boolean approximate) throws SQLException {
-        return emptySet(new Object[] {                //
+        return emptySet(//
                 "TABLE_CAT",                          //
                 "TABLE_SCHEM",                        //
                 "TABLE_NAME",                         //
@@ -1096,48 +1105,48 @@ class JdbcDatabaseMetaData implements DatabaseMetaData {
                 "ASC_OR_DESC",                        //
                 "CARDINALITY", JDBCType.BIGINT,       //
                 "PAGES", JDBCType.BIGINT,             //
-                "FILTER_CONDITION",                   //
-        });
+                "FILTER_CONDITION"                   //
+        );
     }
 
     @Override
     public ResultSet getUDTs(String catalog, String schemaPattern, String typeNamePattern, int[] types) throws SQLException {
-        return emptySet(new Object[] {         //
+        return emptySet(//
                 "TYPE_CAT",                    //
                 "TYPE_SCHEM",                  //
                 "TYPE_NAME",                   //
                 "CLASS_NAME",                  //
                 "DATA_TYPE", JDBCType.INTEGER, //
                 "REMARKS",                     //
-                "BASE_TYPE", JDBCType.SMALLINT,//
-        });
+                "BASE_TYPE", JDBCType.SMALLINT//
+        );
     }
 
     @Override
     public ResultSet getSuperTypes(String catalog, String schemaPattern, String typeNamePattern) throws SQLException {
-        return emptySet(new Object[] {//
+        return emptySet(//
                 "TYPE_CAT",           //
                 "TYPE_SCHEM",         //
                 "TYPE_NAME",          //
                 "SUPERTYPE_CAT",      //
                 "SUPERTYPE_SCHEM",    //
-                "SUPERTYPE_NAME",     //
-        });
+                "SUPERTYPE_NAME"     //
+        );
     }
 
     @Override
     public ResultSet getSuperTables(String catalog, String schemaPattern, String tableNamePattern) throws SQLException {
-        return emptySet(new Object[] {//
+        return emptySet(//
                 "TABLE_CAT",          //
                 "TABLE_SCHEM",        //
                 "TABLE_NAME",         //
-                "SUPERTABLE_NAME",    //
-        });
+                "SUPERTABLE_NAME"    //
+        );
     }
 
     @Override
     public ResultSet getAttributes(String catalog, String schemaPattern, String typeNamePattern, String attributeNamePattern) throws SQLException {
-        return emptySet(new Object[] {                //
+        return emptySet(//
                 "TYPE_CAT",                           //
                 "TYPE_SCHEM",                         //
                 "TYPE_NAME",                          //
@@ -1159,22 +1168,22 @@ class JdbcDatabaseMetaData implements DatabaseMetaData {
                 "SCOPE_SCHEMA",                       //
                 "SCOPE_TABLE",                        //
                 "SOURCE_DATA_TYPE", JDBCType.SMALLINT //
-        });
+        );
     }
 
     @Override
     public ResultSet getClientInfoProperties() throws SQLException {
-        return emptySet(new Object[] {      //
+        return emptySet(//
                 "NAME",                     //
                 "MAX_LEN", JDBCType.INTEGER,//
                 "DEFAULT_VALUE",            //
-                "DESCRIPTION",              //
-        });
+                "DESCRIPTION"              //
+        );
     }
 
     @Override
     public ResultSet getPseudoColumns(String catalog, String schemaPattern, String tableNamePattern, String columnNamePattern) throws SQLException {
-        return emptySet(new Object[] {                //
+        return emptySet(//
                 "TABLE_CAT",                          //
                 "TABLE_SCHEM",                        //
                 "TABLE_NAME",                         //
@@ -1186,8 +1195,15 @@ class JdbcDatabaseMetaData implements DatabaseMetaData {
                 "COLUMN_USAGE",                       //
                 "REMARKS",                            //
                 "CHAR_OCTET_LENGTH", JDBCType.INTEGER,//
-                "IS_NULLABLE",                        //
-        });
+                "IS_NULLABLE"                        //
+        );
+    }
+
+    private ResultSet metadataResult(AdapterCursor cursor) throws SQLException {
+        JdbcStatement statement = new JdbcStatement(this.jdbcConnection);
+        JdbcResultSet result = new JdbcResultSet(statement, cursor);
+        statement.closeOnCompletion();
+        return result;
     }
 
     private ResultSet emptySet(Object... cols) throws SQLException {
@@ -1216,5 +1232,194 @@ class JdbcDatabaseMetaData implements DatabaseMetaData {
             }
         }
         return columns;
+    }
+
+    // @formatter:off
+    private static final String[] TABLE_COLUMNS = {
+        "TABLE_CAT", "TABLE_SCHEM", "TABLE_NAME", "TABLE_TYPE", "REMARKS",
+        "TYPE_CAT", "TYPE_SCHEM", "TYPE_NAME", "SELF_REFERENCING_COL_NAME", "REF_GENERATION"
+    };
+    private static final String[] FIELD_COLUMNS = {
+        "TABLE_CAT", "TABLE_SCHEM", "TABLE_NAME", "COLUMN_NAME", "DATA_TYPE", "TYPE_NAME",
+        "COLUMN_SIZE", "BUFFER_LENGTH", "DECIMAL_DIGITS", "NUM_PREC_RADIX", "NULLABLE", "REMARKS",
+        "COLUMN_DEF", "SQL_DATA_TYPE", "SQL_DATETIME_SUB", "CHAR_OCTET_LENGTH", "ORDINAL_POSITION",
+        "IS_NULLABLE", "SCOPE_CATALOG", "SCOPE_SCHEMA", "SCOPE_TABLE", "SOURCE_DATA_TYPE",
+        "IS_AUTOINCREMENT", "IS_GENERATEDCOLUMN"
+    };
+    private static final Set<String> INTEGER_FIELDS = Set.of("DATA_TYPE", "COLUMN_SIZE",
+            "BUFFER_LENGTH", "DECIMAL_DIGITS", "NUM_PREC_RADIX", "NULLABLE", "SQL_DATA_TYPE",
+            "SQL_DATETIME_SUB", "CHAR_OCTET_LENGTH", "ORDINAL_POSITION");
+    // @formatter:on
+
+    private Set<MetadataType> metadataKinds() throws SQLException {
+        return metadataSupport == null ? Set.of() : metadataSupport.supportedTypes();
+    }
+
+    private List<MetadataNode> queryMetadata(MetadataPath path) throws SQLException {
+        if (metadataSupport == null) {
+            return List.of();
+        }
+        List<MetadataNode> nodes = metadataSupport.query(path);
+        if (nodes == null) {
+            throw new SQLException("MetadataSupport returned null for " + path);
+        }
+        for (MetadataNode node : nodes) {
+            if (node == null || (node.type() != path.type() || node.name() == null)) {
+                throw new SQLException("Invalid metadata node for " + path);
+            }
+        }
+        return nodes;
+    }
+
+    private List<MetadataPath> metadataCatalogs(String catalog, Set<MetadataType> kinds) throws SQLException {
+        MetadataPath root = new MetadataPath(MetadataType.TABLE);
+        if (!kinds.contains(MetadataType.CATALOG)) {
+            return catalog == null || catalog.isEmpty() ? List.of(root) : List.of();
+        }
+        if ("".equals(catalog)) {
+            return List.of();
+        }
+        List<MetadataNode> catalogs = catalog == null ? queryMetadata(root.target(MetadataType.CATALOG)) : List.of(new MetadataNode(MetadataType.CATALOG, catalog));
+        List<MetadataPath> paths = new ArrayList<>();
+        for (MetadataNode node : catalogs) {
+            paths.add(root.child(node, MetadataType.TABLE));
+        }
+        return paths;
+    }
+
+    private List<MetadataTable> metadataTables(String catalog, String schemaPattern, String tablePattern, String[] types) throws SQLException {
+        List<MetadataTable> tables = new ArrayList<>();
+        if (types != null && types.length == 0) {
+            return tables;
+        }
+        Set<MetadataType> kinds = metadataKinds();
+        List<MetadataType> tableKinds = new ArrayList<>();
+        for (MetadataType kind : List.of(MetadataType.TABLE, MetadataType.VIEW)) {
+            if (kinds.contains(kind) && (types == null || Arrays.asList(types).contains(kind.name()))) {
+                tableKinds.add(kind);
+            }
+        }
+        if (tableKinds.isEmpty()) {
+            return tables;
+        }
+        for (MetadataPath catalogPath : metadataCatalogs(catalog, kinds)) {
+            List<MetadataPath> namespaces = new ArrayList<>();
+            if (kinds.contains(MetadataType.SCHEMA)) {
+                for (MetadataNode schema : queryMetadata(catalogPath.target(MetadataType.SCHEMA))) {
+                    if (matchesMetadataPattern(schema.name(), schemaPattern)) {
+                        namespaces.add(catalogPath.child(schema, MetadataType.TABLE));
+                    }
+                }
+            } else if (matchesMetadataPattern("", schemaPattern)) {
+                namespaces.add(catalogPath);
+            }
+            for (MetadataPath namespace : namespaces) {
+                for (MetadataType kind : tableKinds) {
+                    for (MetadataNode table : queryMetadata(namespace.target(kind))) {
+                        if (matchesMetadataPattern(table.name(), tablePattern)) {
+                            tables.add(new MetadataTable(namespace, table));
+                        }
+                    }
+                }
+            }
+        }
+        return tables;
+    }
+
+    private Map<String, Object> metadataIdentity(String catalog, String schema, String table) {
+        Map<String, Object> row = new HashMap<>();
+        row.put("TABLE_CAT", catalog);
+        row.put("TABLE_SCHEM", schema);
+        row.put("TABLE_NAME", table);
+        return row;
+    }
+
+    private Map<String, Object> metadataColumn(MetadataTable table, MetadataNode column, int ordinal) {
+        Map<String, Object> row = metadataIdentity(table.path.name(MetadataType.CATALOG), table.path.name(MetadataType.SCHEMA), table.node.name());
+        Map<String, Object> attributes = column.attributes();
+        row.put("COLUMN_NAME", column.name());
+        row.put("DATA_TYPE", attributes.getOrDefault(MetadataNode.JDBC_TYPE, Types.OTHER));
+        row.put("TYPE_NAME", attributes.get(MetadataNode.TYPE_NAME));
+        row.put("COLUMN_SIZE", attributes.get(MetadataNode.SIZE));
+        row.put("DECIMAL_DIGITS", attributes.get(MetadataNode.SCALE));
+        row.put("CHAR_OCTET_LENGTH", attributes.get(MetadataNode.OCTET_LENGTH));
+        row.put("COLUMN_DEF", attributes.get(MetadataNode.DEFAULT_VALUE));
+        row.put("REMARKS", attributes.get(MetadataNode.REMARKS));
+        row.put("ORDINAL_POSITION", attributes.getOrDefault(MetadataNode.ORDINAL, ordinal));
+        Object nullable = attributes.get(MetadataNode.NULLABLE);
+        row.put("NULLABLE", nullable == null ? columnNullableUnknown : Boolean.TRUE.equals(nullable) ? columnNullable : columnNoNulls);
+        row.put("IS_NULLABLE", metadataBoolean(nullable));
+        row.put("IS_AUTOINCREMENT", metadataBoolean(attributes.get(MetadataNode.AUTO_INCREMENT)));
+        row.put("IS_GENERATEDCOLUMN", metadataBoolean(attributes.get(MetadataNode.GENERATED)));
+        return row;
+    }
+
+    private String metadataBoolean(Object value) {
+        return value == null ? "" : Boolean.TRUE.equals(value) ? "YES" : "NO";
+    }
+
+    private Comparator<Map<String, Object>> metadataOrder(String... keys) {
+        return (left, right) -> {
+            for (String key : keys) {
+                int order = Comparator.nullsFirst(String::compareTo).compare((String) left.get(key), (String) right.get(key));
+                if (order != 0) {
+                    return order;
+                }
+            }
+            return 0;
+        };
+    }
+
+    private record MetadataTable(MetadataPath path, MetadataNode node) {
+    }
+
+    /** JDBC patterns use percent and underscore wildcards, escaped with a backslash. */
+    private boolean matchesMetadataPattern(String value, String pattern) {
+        if (pattern == null) {
+            return true;
+        }
+        if (value == null) {
+            return false;
+        }
+
+        StringBuilder regex = new StringBuilder();
+        for (int i = 0; i < pattern.length(); i++) {
+            char item = pattern.charAt(i);
+            if (item == '\\' && i + 1 < pattern.length()) {
+                regex.append(Pattern.quote(String.valueOf(pattern.charAt(++i))));
+            } else if (item == '%') {
+                regex.append(".*");
+            } else if (item == '_') {
+                regex.append('.');
+            } else {
+                regex.append(Pattern.quote(String.valueOf(item)));
+            }
+        }
+
+        return Pattern.compile(regex.toString(), Pattern.DOTALL).matcher(value).matches();
+    }
+
+    private AdapterCursor metadataCursor(String[] names, List<Map<String, Object>> rows) {
+        List<JdbcColumn> columns = new ArrayList<>();
+        for (String name : names) {
+            String type = INTEGER_FIELDS.contains(name) ? AdapterType.Int : "SOURCE_DATA_TYPE".equals(name) ? AdapterType.Short : AdapterType.String;
+            columns.add(new JdbcColumn(name, type, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Unknown));
+        }
+
+        Object[][] data = new Object[rows.size()][names.length];
+        for (int row = 0; row < rows.size(); row++) {
+            for (int column = 0; column < names.length; column++) {
+                String name = names[column];
+                Object value = rows.get(row).get(name);
+                if (value == null && "NULLABLE".equals(name)) {
+                    value = DatabaseMetaData.columnNullableUnknown;
+                } else if (value == null && name.startsWith("IS_")) {
+                    value = "";
+                }
+                data[row][column] = value;
+            }
+        }
+
+        return new AdapterMemoryCursor(columns, data);
     }
 }

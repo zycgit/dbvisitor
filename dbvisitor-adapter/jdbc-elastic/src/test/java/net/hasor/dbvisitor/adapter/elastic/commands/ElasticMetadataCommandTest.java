@@ -8,17 +8,35 @@
 package net.hasor.dbvisitor.adapter.elastic.commands;
 
 import java.sql.*;
+import net.hasor.dbvisitor.adapter.elastic.ElasticConn;
+import net.hasor.dbvisitor.driver.MetadataSupport;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class ElasticMetadataCommandTest extends AbstractElasticCommandTest {
     @Test
+    public void metadataProviderBelongsToConnection() throws Exception {
+        try (Connection first = elasticConnection(); Connection second = elasticConnection()) {
+            ElasticConn firstAdapter = first.unwrap(ElasticConn.class);
+            assertTrue(first.isWrapperFor(MetadataSupport.class));
+            assertSame(firstAdapter, first.unwrap(MetadataSupport.class));
+            assertNotSame(firstAdapter, second.unwrap(MetadataSupport.class));
+        }
+    }
+
+    @Test
     public void tablePatternsAndNamespacesUseRealIndices() throws Exception {
         respondWith("{\"book_one\": {\"mappings\": {}}, \"bookXone\": {\"mappings\": {}}}");
         try (Connection connection = elasticConnection()) {
             DatabaseMetaData metadata = connection.getMetaData();
+            try (ResultSet catalogs = metadata.getCatalogs(); ResultSet types = metadata.getTableTypes()) {
+                assertFalse(catalogs.next());
+                assertTrue(types.next());
+                assertEquals("TABLE", types.getString("TABLE_TYPE"));
+                assertFalse(types.next());
+            }
             assertEquals("\\", metadata.getSearchStringEscape());
-            try (ResultSet rows = metadata.getTables(null, null, "book\\_one", new String[] {"TABLE"})) {
+            try (ResultSet rows = metadata.getTables(null, null, "book\\_one", new String[] { "TABLE" })) {
                 assertTrue(rows.next());
                 assertEquals("book_one", rows.getString("TABLE_NAME"));
                 assertEquals("TABLE", rows.getString("TABLE_TYPE"));
@@ -28,7 +46,7 @@ public class ElasticMetadataCommandTest extends AbstractElasticCommandTest {
             try (ResultSet rows = metadata.getTables("other", null, "%", null)) {
                 assertFalse(rows.next());
             }
-            try (ResultSet rows = metadata.getTables(null, null, "%", new String[] {"VIEW"})) {
+            try (ResultSet rows = metadata.getTables(null, null, "%", new String[] { "VIEW" })) {
                 assertFalse(rows.next());
             }
         }
@@ -38,12 +56,14 @@ public class ElasticMetadataCommandTest extends AbstractElasticCommandTest {
 
     @Test
     public void typedMappingReportsDeclaredTypesWithoutInventingPrecision() throws Exception {
-        respondWith("""
+        String mapping = """
                 {"books": {"mappings": {"_doc": {"properties": {
                   "id": {"type": "long"}, "name": {"type": "keyword"},
                   "address": {"properties": {"city": {"type": "keyword"}}}
                 }}}}}
-                """);
+                """;
+        respondWith(mapping); // List tables.
+        respondWith(mapping); // Read the selected table's columns.
         try (Connection connection = elasticConnection(); ResultSet rows = connection.getMetaData().getColumns(null, "", "books", "id")) {
             assertTrue(rows.next());
             assertEquals(Types.BIGINT, rows.getInt("DATA_TYPE"));

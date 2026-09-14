@@ -32,12 +32,15 @@ public class AdapterResponse extends BasicFuture<AdapterResponse> {
         return this.jdbcResultSet;
     }
 
-    JdbcResultSet generatedKeys(JdbcStatement statement) {
+    JdbcResultSet generatedKeys(JdbcStatement statement, String[] columnNames) throws SQLException {
         if (this.jdbcGeneratedKeys == null) {
             AdapterCursor cursor = this.generatedKeysResultSet;
             if (cursor == null) {
                 cursor = new AdapterMemoryCursor(Collections.emptyList(), new Object[0][]);
+            } else if (columnNames != null && columnNames.length > 0) {
+                cursor = new GeneratedKeyCursor(cursor, columnNames);
             }
+
             this.jdbcGeneratedKeys = new JdbcResultSet(statement, cursor);
         }
         return this.jdbcGeneratedKeys;

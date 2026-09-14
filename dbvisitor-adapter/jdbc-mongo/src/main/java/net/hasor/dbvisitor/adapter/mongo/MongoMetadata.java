@@ -9,62 +9,60 @@ package net.hasor.dbvisitor.adapter.mongo;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import com.mongodb.MongoException;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCursor;
-import net.hasor.dbvisitor.driver.AdapterCursor;
-import net.hasor.dbvisitor.driver.AdapterMetadata;
+import net.hasor.dbvisitor.driver.MetadataNode;
+import net.hasor.dbvisitor.driver.MetadataPath;
+import net.hasor.dbvisitor.driver.MetadataSupport;
+import net.hasor.dbvisitor.driver.MetadataType;
 import org.bson.Document;
 
-/** MongoDB databases are JDBC catalogs; collections have no separate SQL schema. */
-final class MongoMetadata {
-    private MongoMetadata() {
+/** Databases and collections from MongoDB; document fields are not inferred. */
+final class MongoMetadata implements MetadataSupport {
+    private final MongoClient client;
+
+    MongoMetadata(MongoClient client) {
+        this.client = client;
     }
 
-    static AdapterCursor tables(MongoClient client, String catalog, String schemaPattern, String tablePattern, String[] types) throws SQLException {
-        List<Map<String, Object>> rows = new ArrayList<>();
-        if (!AdapterMetadata.matchesPattern("", schemaPattern) || (types != null && types.length == 0) || "".equals(catalog)) {
-            return AdapterMetadata.tables(rows);
-        }
+    @Override
+    public Set<MetadataType> supportedTypes() {
+        return Set.of(MetadataType.CATALOG, MetadataType.TABLE, MetadataType.VIEW);
+    }
+
+    @Override
+    public List<MetadataNode> query(MetadataPath path) throws SQLException {
         try {
-            List<String> databases = new ArrayList<>();
-            if (catalog != null) {
-                databases.add(catalog);
-            } else {
+            if (path.type() == MetadataType.CATALOG && path.levels().isEmpty()) {
+                List<MetadataNode> nodes = new ArrayList<>();
                 try (MongoCursor<String> cursor = client.listDatabaseNames().iterator()) {
                     while (cursor.hasNext()) {
-                        databases.add(cursor.next());
+                        nodes.add(new MetadataNode(MetadataType.CATALOG, cursor.next()));
+                    }
+                }
+                return nodes;
+            }
+            String database = path.name(MetadataType.CATALOG);
+            if (database == null || path.levels().size() != 1 || (path.type() != MetadataType.TABLE && path.type() != MetadataType.VIEW)) {
+                return List.of();
+            }
+            List<MetadataNode> nodes = new ArrayList<>();
+            try (MongoCursor<Document> cursor = client.getDatabase(database).listCollections().iterator()) {
+                while (cursor.hasNext()) {
+                    Document collection = cursor.next();
+                    String name = collection.getString("name");
+                    MetadataType type = "view".equals(collection.getString("type")) ? MetadataType.VIEW : MetadataType.TABLE;
+                    if (name != null && path.type() == type) {
+                        nodes.add(new MetadataNode(type, name));
                     }
                 }
             }
-            for (String database : databases) {
-                try (MongoCursor<Document> cursor = client.getDatabase(database).listCollections().iterator()) {
-                    while (cursor.hasNext()) {
-                        Document collection = cursor.next();
-                        String name = collection.getString("name");
-                        String type = "view".equals(collection.getString("type")) ? "VIEW" : "TABLE";
-                        if (name == null || !AdapterMetadata.matchesPattern(name, tablePattern) || (types != null && !Arrays.asList(types).contains(type))) {
-                            continue;
-                        }
-                        Map<String, Object> row = new LinkedHashMap<>();
-                        row.put("TABLE_CAT", database);
-                        row.put("TABLE_NAME", name);
-                        row.put("TABLE_TYPE", type);
-                        rows.add(row);
-                    }
-                }
-            }
+            return nodes;
         } catch (MongoException e) {
-            throw new SQLException("Unable to read MongoDB collection metadata.", e);
+            throw new SQLException("Unable to read MongoDB metadata.", e);
         }
-        rows.sort(Comparator.comparing((Map<String, Object> row) -> row.get("TABLE_TYPE").toString())
-                .thenComparing(row -> row.get("TABLE_CAT").toString()).thenComparing(row -> row.get("TABLE_NAME").toString()));
-        return AdapterMetadata.tables(rows);
     }
-
 }
