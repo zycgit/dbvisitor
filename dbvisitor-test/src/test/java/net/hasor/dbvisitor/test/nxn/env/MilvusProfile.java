@@ -29,6 +29,10 @@ public final class MilvusProfile extends AbstractDataSourceProfile {
 
     @Override
     public SupportStatus support(String capabilityId) {
+        // This datasource has no separate JDBC namespace at this level.
+        if (CapabilityId.JDBC_METADATA_SCHEMAS.equals(capabilityId)) {
+            return SupportStatus.UNSUPPORTED_BY_DATABASE;
+        }
         // Server 2.6.2 does not honor collection-level allow_insert_auto_id.
         if (CapabilityId.KEYGEN_AUTO_MANUAL.equals(capabilityId)) {
             return SupportStatus.UNSUPPORTED_BY_DATABASE;

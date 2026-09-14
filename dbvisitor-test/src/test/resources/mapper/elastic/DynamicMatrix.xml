@@ -17,7 +17,7 @@
         </trim>
     </sql>
     <select id="selectWithIf" resultMap="user">
-        @{macro, esSessionPath}/_search {
+        POST /@{macro,esSessionIndex}/_search {
             "query": {"bool": {"filter": [{"prefix": {"name": "DynSql"}}
                 <if test="minAge != null">,{"range": {"age": {"gte": #{minAge}}}}</if>
                 <if test="email != null">,{"term": {"email": #{email}}}</if>
@@ -25,7 +25,7 @@
         }
     </select>
     <select id="selectWithChoose" resultMap="user">
-        @{macro, esSessionPath}/_search {
+        POST /@{macro,esSessionIndex}/_search {
             "query": {"prefix": {"name": "DynSql"}},
             "sort": [<choose>
                 <when test="orderBy == 'name'">{"name": "asc"}</when>
@@ -35,17 +35,17 @@
         }
     </select>
     <select id="selectWithWhere" resultMap="user">
-        @{macro, esSessionPath}/_search {
+        POST /@{macro,esSessionIndex}/_search {
             "query": {"bool": {"filter": [<include refid="conditions"/>]}}, <include refid="sort"/>
         }
     </select>
     <select id="selectWithTrim" resultMap="user">
-        @{macro, esSessionPath}/_search {
+        POST /@{macro,esSessionIndex}/_search {
             "query": {"bool": {"filter": [<include refid="conditions"/>]}}, <include refid="sort"/>
         }
     </select>
     <update id="updateWithSet">
-        @{macro, esSessionPath}/_update_by_query?refresh=true {
+        POST /@{macro,esSessionIndex}/_update_by_query {
             "query": {"term": {"id": #{id}}},
             "script": {"source": "for (def entry : params.entrySet()) { ctx._source[entry.getKey()] = entry.getValue(); }",
                 "params": {<trim suffixOverrides=",">
@@ -57,13 +57,13 @@
         }
     </update>
     <select id="selectByIdList" resultMap="user">
-        @{macro, esSessionPath}/_search {
+        POST /@{macro,esSessionIndex}/_search {
             "query": {"terms": {"id": [<foreach collection="ids" item="id" separator=",">#{id}</foreach>]}},
             <include refid="sort"/>
         }
     </select>
     <insert id="batchInsert">
-        @{macro, esSessionPath}/_bulk?refresh=true [
+        POST /@{macro,esSessionIndex}/_bulk [
             <foreach collection="users" item="u" separator=",">
                 @{macro, esBulkAction},{"id": #{u.id},"name": #{u.name},"age": #{u.age},"email": #{u.email}}
             </foreach>
@@ -71,18 +71,18 @@
     </insert>
     <select id="selectWithBind" resultMap="user">
         <bind name="namePattern" value="'*' + name + '*'"/>
-        @{macro, esSessionPath}/_search {
+        POST /@{macro,esSessionIndex}/_search {
             "query": {"wildcard": {"name": #{namePattern}}}, <include refid="sort"/>
         }
     </select>
     <select id="selectWithBoundAge" resultMap="user">
         <bind name="ageFloor" value="minAge + 1"/>
-        @{macro, esSessionPath}/_search {
+        POST /@{macro,esSessionIndex}/_search {
             "query": {"range": {"age": {"gte": #{ageFloor}}}}, <include refid="sort"/>
         }
     </select>
     <select id="selectComplex" resultMap="user">
-        @{macro, esSessionPath}/_search {
+        POST /@{macro,esSessionIndex}/_search {
             "query": {"bool": {"filter": [
                 <trim prefixOverrides=",">
                     <if test="name != null">,{"wildcard": {"name": #{name.replace('%', '*')}}}</if>
@@ -94,7 +94,7 @@
         }
     </select>
     <select id="selectByAgeCategory" resultMap="user">
-        @{macro, esSessionPath}/_search {
+        POST /@{macro,esSessionIndex}/_search {
             "query": {"range": {"age": <choose>
                 <when test="category == 'young'">{"lt": 30}</when>
                 <when test="category == 'middle'">{"gte": 30,"lte": 40}</when>

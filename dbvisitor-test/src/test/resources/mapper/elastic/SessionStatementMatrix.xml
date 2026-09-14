@@ -17,16 +17,16 @@
     <insert id="insertUser">@{macro, esSessionInsert}</insert>
     <select id="countUsers" resultType="int">@{macro, esSessionCount}</select>
     <select id="queryUsersByAge" resultMap="userInfoMap">
-        @{macro, esSessionPath}/_search {"size": 100,"query": {"term": {"age": #{age}}},"sort": [{"id": "asc"}]}
+        POST /@{macro,esSessionIndex}/_search {"size": 100,"query": {"term": {"age": #{age}}},"sort": [{"id": "asc"}]}
     </select>
     <select id="queryUsersByCondition" resultMap="userInfoMap">
-        @{macro, esSessionPath}/_search {"size": 100,"query": {"bool": {"filter": [{"match_all": {}}
+        POST /@{macro,esSessionIndex}/_search {"size": 100,"query": {"bool": {"filter": [{"match_all": {}}
         <if test="name != null">,{"term": {"name": #{name}}}</if>
         <if test="age != null">,{"term": {"age": #{age}}}</if>
         ]}},"sort": [{"id": "asc"}]}
     </select>
     <select id="queryUserByBean" resultMap="userInfoMap">
-        @{macro, esSessionPath}/_search {"size": 100,"query": {"bool": {"filter": [
+        POST /@{macro,esSessionIndex}/_search {"size": 100,"query": {"bool": {"filter": [
         {"term": {"name": #{name}}},{"term": {"age": #{age}}}]}}}
     </select>
 </mapper>

@@ -29,8 +29,8 @@ public class Elastic7BaseMapperCompositeKeyTest extends BaseMapperCompositeKeyCa
     @Before
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open(profile().env(), UserRole.class, """
-                {"properties":{"user_id":{"type":"integer"},"role_id":{"type":"integer"},
-                "role_name":{"type":"keyword"},"create_time":{"type":"date"}}}
+                {"properties": {"user_id": {"type": "integer"},"role_id": {"type": "integer"},
+                "role_name": {"type": "keyword"},"create_time": {"type": "date"}}}
                 """);
         this.lambdaTemplate = this.fixture.lambdaTemplate();
     }

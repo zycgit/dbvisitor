@@ -46,7 +46,7 @@ public class Elastic7SessionFactoryTest extends SessionFactoryCase {
 
     @Override
     protected String jdbcInsertCommand() {
-        return "POST /" + fixture.index() + "/_doc?refresh=true {\"id\": ?,\"name\": ?,\"age\": ?}";
+        return "POST /" + fixture.index() + "/_doc {\"id\": ?,\"name\": ?,\"age\": ?}";
     }
 
     @Override

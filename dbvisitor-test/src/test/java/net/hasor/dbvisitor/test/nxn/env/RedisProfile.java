@@ -60,6 +60,11 @@ public final class RedisProfile extends AbstractDataSourceProfile {
 
     @Override
     public SupportStatus support(String capabilityId) {
+        // This datasource has no separate JDBC namespace at this level.
+        if (CapabilityId.JDBC_METADATA_SCHEMAS.equals(capabilityId)
+                || CapabilityId.JDBC_METADATA_TABLE_TYPES.equals(capabilityId)) {
+            return SupportStatus.UNSUPPORTED_BY_DATABASE;
+        }
         if (capabilityId == null) {
             return super.support(null);
         }

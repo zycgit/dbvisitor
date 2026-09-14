@@ -52,6 +52,10 @@ public final class ClickHouseProfile extends AbstractDataSourceProfile {
 
     @Override
     public SupportStatus support(String capabilityId) {
+        // This datasource has no separate JDBC namespace at this level.
+        if (CapabilityId.JDBC_METADATA_SCHEMAS.equals(capabilityId)) {
+            return SupportStatus.UNSUPPORTED_BY_DATABASE;
+        }
         if (CapabilityId.JDBC_CALL_RESULT_SET.equals(capabilityId)
                 || CapabilityId.PROCEDURE_CALL_CURSOR_RESULT.equals(capabilityId)) {
             // ClickHouseConnection.prepareCall rejects every SQL string; query support does not imply call support.

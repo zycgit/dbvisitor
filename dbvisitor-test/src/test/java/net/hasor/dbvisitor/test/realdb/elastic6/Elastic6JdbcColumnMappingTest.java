@@ -32,7 +32,7 @@ public class Elastic6JdbcColumnMappingTest extends JdbcColumnMappingCase {
 
     @Override
     protected void seedColumnValue() throws SQLException {
-        jdbcTemplate.executeUpdate("POST /" + fixture.index() + "/_doc?refresh=true {\"NXN_VALUE\": ?}",
+        jdbcTemplate.executeUpdate("POST /" + fixture.index() + "/_doc\\?refresh=true {\"NXN_VALUE\": ?}",
                 new Object[] { "NXN-Column" });
     }
 

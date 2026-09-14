@@ -59,33 +59,33 @@ public final class Elastic7SessionMapperFixture implements AutoCloseable {
         Session session = fixture.session();
         Configuration configuration = session.getConfiguration();
         String path = "POST /" + fixture.index();
-        configuration.addMacro("esSessionInsert", path + "/_doc?refresh=true "
+        configuration.addMacro("esSessionInsert", path + "/_doc "
                 + "{\"id\": #{id},\"name\": #{name},\"age\": #{age},\"email\": #{email},"
                 + "\"create_time\": " + System.currentTimeMillis() + "}");
-        configuration.addMacro("esSessionPath", path);
+        configuration.addMacro("esSessionIndex", fixture.index());
         configuration.addMacro("esXmlPath", path);
         configuration.addMacro("esBulkAction", "es6".equals(environment)
                 ? "{\"index\": {\"_type\": \"_doc\"}}" : "{\"index\": {}}");
         configuration.addMacro("esSessionOne", path + "/_search {\"query\": {\"term\": {\"id\": #{id}}}}");
         configuration.addMacro("esSessionAll", path + "/_search {\"size\": 100,\"sort\": [{\"id\": \"asc\"}]}");
         configuration.addMacro("esSessionCount", countCommand());
-        configuration.addMacro("esSessionUpdate", path + "/_update_by_query?refresh=true "
+        configuration.addMacro("esSessionUpdate", path + "/_update_by_query "
                 + "{\"query\": {\"term\": {\"id\": #{id}}},\"script\": {"
                 + "\"source\": \"ctx._source.name=params.name; ctx._source.age=params.age\","
                 + "\"params\": {\"name\": #{name},\"age\": #{age}}}}");
-        configuration.addMacro("esSessionEmail", path + "/_update_by_query?refresh=true "
+        configuration.addMacro("esSessionEmail", path + "/_update_by_query "
                 + "{\"query\": {\"term\": {\"id\": #{id}}},\"script\": {"
                 + "\"source\": \"ctx._source.email=params.email\",\"params\": {\"email\": #{email}}}}");
-        configuration.addMacro("esSessionDelete", path + "/_delete_by_query?refresh=true "
+        configuration.addMacro("esSessionDelete", path + "/_delete_by_query "
                 + "{\"query\": {\"term\": {\"id\": #{id}}}}");
-        configuration.addMacro("esBoundaryInsert", "PUT /" + fixture.index() + "/_doc/${id}?op_type=create&refresh=true "
+        configuration.addMacro("esBoundaryInsert", "PUT /" + fixture.index() + "/_doc/${id}\\?op_type=create\\&refresh=true "
                 + "{\"id\": #{id},\"name\": #{name},\"age\": #{age},\"email\": #{email}}");
-        configuration.addMacro("esBoundaryAge", path + "/_update_by_query?refresh=true "
+        configuration.addMacro("esBoundaryAge", path + "/_update_by_query "
                 + "{\"query\": {\"term\": {\"id\": #{id}}},\"script\": {"
                 + "\"source\": \"ctx._source.age=params.age\",\"params\": {\"age\": #{age}}}}");
         configuration.addMacro("esBoundaryMissing", "POST /" + temporaryIndex() + "/_search");
         configuration.addMacro("esTempInsert", "POST /" + temporaryIndex()
-                + "/_doc?refresh=true {\"id\": #{id},\"name\": #{name}}");
+                + "/_doc {\"id\": #{id},\"name\": #{name}}");
         configuration.addMacro("esTempSelect", "POST /" + temporaryIndex()
                 + "/_search {\"_source\": [\"name\"],\"query\": {\"term\": {\"id\": #{id}}}}");
         configuration.addMacro("esBoundarySyntax", path + "/_search {\"query\": {\"unknown_query\": {}}}");
@@ -148,7 +148,7 @@ public final class Elastic7SessionMapperFixture implements AutoCloseable {
         UserInfo selectUserById(@Param("id") Integer id);
 
         @Override
-        @Query("@{macro, esSessionPath}/_search {\"_source\": [\"id\",\"name\"],\"query\": {\"term\": {\"id\": #{id}}}}")
+        @Query("POST /@{macro,esSessionIndex}/_search {\"_source\": [\"id\",\"name\"],\"query\": {\"term\": {\"id\": #{id}}}}")
         UserInfo selectUserPartial(@Param("id") Integer id);
 
         @Override
@@ -160,11 +160,11 @@ public final class Elastic7SessionMapperFixture implements AutoCloseable {
         List<Map<String, Object>> selectUsersAsMapList();
 
         @Override
-        @Query("@{macro, esSessionPath}/_search {\"_source\": [\"age\"],\"query\": {\"term\": {\"id\": #{id}}}}")
+        @Query("POST /@{macro,esSessionIndex}/_search {\"_source\": [\"age\"],\"query\": {\"term\": {\"id\": #{id}}}}")
         Integer selectAgeById(@Param("id") Integer id);
 
         @Override
-        @Query("@{macro, esSessionPath}/_search {\"_source\": [\"name\"],\"query\": {\"term\": {\"id\": #{id}}}}")
+        @Query("POST /@{macro,esSessionIndex}/_search {\"_source\": [\"name\"],\"query\": {\"term\": {\"id\": #{id}}}}")
         String selectNameById(@Param("id") Integer id);
 
         @Override
@@ -172,48 +172,48 @@ public final class Elastic7SessionMapperFixture implements AutoCloseable {
         Long selectCount();
 
         @Override
-        @Query("@{macro, esSessionPath}/_search {\"_source\": [\"create_time\"],\"query\": {\"term\": {\"id\": #{id}}}}")
+        @Query("POST /@{macro,esSessionIndex}/_search {\"_source\": [\"create_time\"],\"query\": {\"term\": {\"id\": #{id}}}}")
         Date selectCreateTimeById(@Param("id") Integer id);
 
         @Override
-        @Query("@{macro, esSessionPath}/_search {\"size\": 100,\"query\": {\"range\": {\"age\": {\"gte\": #{minAge},\"lte\": #{maxAge}}}}}")
+        @Query("POST /@{macro,esSessionIndex}/_search {\"size\": 100,\"query\": {\"range\": {\"age\": {\"gte\": #{minAge},\"lte\": #{maxAge}}}}}")
         List<UserInfo> selectUsersByAgeRange(@Param("minAge") Integer minAge, @Param("maxAge") Integer maxAge);
 
         @Override
-        @Query("@{macro, esSessionPath}/_search {\"_source\": [\"name\"],\"size\": 100,\"query\": {\"range\": {\"id\": {\"gte\": #{minId},\"lte\": #{maxId}}}}}")
+        @Query("POST /@{macro,esSessionIndex}/_search {\"_source\": [\"name\"],\"size\": 100,\"query\": {\"range\": {\"id\": {\"gte\": #{minId},\"lte\": #{maxId}}}}}")
         List<String> selectAllNames(@Param("minId") Integer minId, @Param("maxId") Integer maxId);
 
         @Override
-        @Query("@{macro, esSessionPath}/_search {\"_source\": [\"id\"],\"size\": 100,\"query\": {\"range\": {\"id\": {\"gte\": #{minId},\"lte\": #{maxId}}}}}")
+        @Query("POST /@{macro,esSessionIndex}/_search {\"_source\": [\"id\"],\"size\": 100,\"query\": {\"range\": {\"id\": {\"gte\": #{minId},\"lte\": #{maxId}}}}}")
         List<Integer> selectIdRange(@Param("minId") Integer minId, @Param("maxId") Integer maxId);
 
         @Override
-        @Query("@{macro, esSessionPath}/_search {\"size\": 100,\"query\": {\"wildcard\": {\"name\": #{pattern.replace('%', '*')}}},\"sort\": [{\"id\": \"asc\"}]}")
+        @Query("POST /@{macro,esSessionIndex}/_search {\"size\": 100,\"query\": {\"wildcard\": {\"name\": #{pattern.replace('%', '*')}}},\"sort\": [{\"id\": \"asc\"}]}")
         List<UserInfo> selectUsersWithPagination(@Param("pattern") String pattern, PageObject page);
     }
 
     @SimpleMapper
     public interface NativeBoundary extends AnnotationTestMapper {
         @Override
-        @Insert({"@{macro, esSessionPath}/_doc?refresh=true",
+        @Insert({"POST /@{macro,esSessionIndex}/_doc",
                 "{\"id\": #{id},\"name\": #{name},",
                 "\"age\": #{age},\"email\": #{email}}"})
         int insertUserMultiLine(UserInfo user);
 
         @Override
-        @Query("@{macro, esSessionPath}/_search {\"query\": {\"term\": {\"age\": #{age}}},\"size\": 100}")
+        @Query("POST /@{macro,esSessionIndex}/_search {\"query\": {\"term\": {\"age\": #{age}}},\"size\": 100}")
         List<UserInfo> selectByAge(@Param("age") Integer age);
 
         @Override
-        @Query("@{macro, esSessionPath}/_search {\"query\": {\"wildcard\": {\"name\": #{pattern.replace('%', '*')}}},\"size\": 100}")
+        @Query("POST /@{macro,esSessionIndex}/_search {\"query\": {\"wildcard\": {\"name\": #{pattern.replace('%', '*')}}},\"size\": 100}")
         List<UserInfo> selectByNameLike(@Param("pattern") String pattern);
 
         @Override
-        @Query("@{macro, esSessionPath}/_count {\"query\": {\"term\": {\"age\": #{age}}}}")
+        @Query("POST /@{macro,esSessionIndex}/_count {\"query\": {\"term\": {\"age\": #{age}}}}")
         int countByAge(@Param("age") Integer age);
 
         @Override
-        @Delete("@{macro, esSessionPath}/_delete_by_query?refresh=true {\"query\": {\"term\": {\"age\": #{age}}}}")
+        @Delete("POST /@{macro,esSessionIndex}/_delete_by_query {\"query\": {\"term\": {\"age\": #{age}}}}")
         int deleteByAge(@Param("age") Integer age);
 
         @Override

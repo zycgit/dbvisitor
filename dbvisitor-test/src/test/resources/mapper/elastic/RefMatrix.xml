@@ -15,31 +15,31 @@
     <update id="updateEmail">@{macro, esSessionEmail}</update>
     <delete id="deleteById">@{macro, esSessionDelete}</delete>
     <select id="selectByCondition" resultMap="userResultMap">
-        @{macro, esSessionPath}/_search {"size": 100,"query": {"bool": {"filter": [{"match_all": {}}
+        POST /@{macro,esSessionIndex}/_search {"size": 100,"query": {"bool": {"filter": [{"match_all": {}}
         <if test="name != null">,{"wildcard": {"name": #{name.replace('%', '*')}}}</if>
         <if test="minAge != null">,{"range": {"age": {"gte": #{minAge}}}}</if>
         ]}},"sort": [{"id": "asc"}]}
     </select>
     <select id="selectByIds" resultMap="userResultMap">
-        @{macro, esSessionPath}/_search {"size": 100,"query": {"terms": {"id": [
+        POST /@{macro,esSessionIndex}/_search {"size": 100,"query": {"terms": {"id": [
         <foreach collection="ids" item="id" separator=",">#{id}</foreach>
         ]}},"sort": [{"id": "asc"}]}
     </select>
     <select id="selectByAgeRange" resultMap="userResultMap">
-        @{macro, esSessionPath}/_search {"size": 100,"query": {"range": {"age": {"gte": #{range.minAge},"lte": #{range.maxAge}}}},"sort": [{"id": "asc"}]}
+        POST /@{macro,esSessionIndex}/_search {"size": 100,"query": {"range": {"age": {"gte": #{range.minAge},"lte": #{range.maxAge}}}},"sort": [{"id": "asc"}]}
     </select>
     <select id="selectByBean" resultMap="userResultMap">
-        @{macro, esSessionPath}/_search {"size": 100,"query": {"bool": {"filter": [
+        POST /@{macro,esSessionIndex}/_search {"size": 100,"query": {"bool": {"filter": [
         {"range": {"name": {"gte": #{user.name}}}},{"range": {"age": {"gte": #{user.age}}}}
         ]}},"sort": [{"id": "asc"}]}
     </select>
     <select id="selectWithOrderBy" resultMap="userResultMap">
-        @{macro, esSessionPath}/_search {"size": 100,"sort": [{${orderColumn}: "asc"}]}
+        POST /@{macro,esSessionIndex}/_search {"size": 100,"sort": [{${orderColumn}: "asc"}]}
     </select>
     <select id="selectAsMaps" resultType="map">
-        @{macro, esSessionPath}/_search {"_source": ["id","name","age","email","create_time"],"size": 100,"sort": [{"id": "asc"}]}
+        POST /@{macro,esSessionIndex}/_search {"_source": ["id","name","age","email","create_time"],"size": 100,"sort": [{"id": "asc"}]}
     </select>
     <select id="selectAgeStats" resultType="map">
-        @{macro, esSessionPath}/_search {"size": 0,"aggs": {"by_age": {"terms": {"field": "age"}}}}
+        POST /@{macro,esSessionIndex}/_search {"size": 0,"aggs": {"by_age": {"terms": {"field": "age"}}}}
     </select>
 </mapper>

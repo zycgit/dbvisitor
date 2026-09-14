@@ -48,7 +48,7 @@ public class Elastic7AnnotationMapperResultHandlerTest extends AnnotationMapperR
         Session session = fixture.session();
         Configuration configuration = session.getConfiguration();
         String path = "POST /" + fixture.index();
-        configuration.addMacro("esHandlerInsert", path + "/_doc?refresh=true "
+        configuration.addMacro("esHandlerInsert", path + "/_doc "
                 + "{\"id\": #{id},\"name\": #{name},\"age\": #{age},\"email\": #{email},\"create_time\": #{createTime}}");
         configuration.addMacro("esHandlerAll", path + "/_search {\"_source\": [\"id\",\"name\",\"age\",\"email\",\"create_time\"],\"size\": 100,\"sort\": [{\"id\": \"asc\"}],"
                 + "\"query\": {\"wildcard\": {\"name\": #{pattern.replace('%', '*')}}}}");

@@ -8,6 +8,10 @@
 package net.hasor.dbvisitor.test.nxn.capability;
 
 public final class CapabilityId {
+    public static final String JDBC_METADATA_CATALOGS = "jdbc.metadata.catalogs";
+    public static final String JDBC_METADATA_SCHEMAS = "jdbc.metadata.schemas";
+    public static final String JDBC_METADATA_TABLE_TYPES = "jdbc.metadata.table-types";
+    public static final String JDBC_METADATA_EMPTY_RESULTS = "jdbc.metadata.empty-results";
     public static final String ADAPTER_NAMED_FIELD_DATE                     = "adapter.named.field.date";
     public static final String ADAPTER_NAMED_FIELD_ENUM                     = "adapter.named.field.enum";
     public static final String ADAPTER_NAMED_FIELD_BOOLEAN                  = "adapter.named.field.boolean";

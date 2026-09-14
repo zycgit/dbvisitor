@@ -272,7 +272,7 @@ public class Elastic7SearchTest {
     @Test
     public void testMGet() throws Exception {
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
-            s.executeUpdate("POST /test_search/_doc/99?refresh=true { \"name\": \"User99\", \"value\": 99 }");
+            s.executeUpdate("POST /test_search/_doc/99 { \"name\": \"User99\", \"value\": 99 }");
 
             try (ResultSet rs = s.executeQuery("POST /test_search/_mget { \"ids\": [\"99\"] }")) {
                 if (rs.next()) {
@@ -291,7 +291,7 @@ public class Elastic7SearchTest {
     @Test
     public void testQueryBySource() throws Exception {
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
-            s.executeUpdate("POST /test_search/_doc/99?refresh=true { \"name\": \"User99\", \"value\": 99 }");
+            s.executeUpdate("POST /test_search/_doc/99 { \"name\": \"User99\", \"value\": 99 }");
 
             String sql = "GET /test_search/_source/99";
 
@@ -311,7 +311,7 @@ public class Elastic7SearchTest {
     @Test
     public void testExplain() throws Exception {
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
-            s.executeUpdate("POST /test_search/_doc/99?refresh=true { \"name\": \"User99\", \"value\": 99 }");
+            s.executeUpdate("POST /test_search/_doc/99 { \"name\": \"User99\", \"value\": 99 }");
 
             String sql = "POST /test_search/_explain/99 { \"query\": { \"match_all\": {} } }";
 

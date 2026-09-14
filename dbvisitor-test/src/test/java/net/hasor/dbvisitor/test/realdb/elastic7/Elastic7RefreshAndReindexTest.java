@@ -92,7 +92,7 @@ public class Elastic7RefreshAndReindexTest {
             stmt.executeUpdate("POST /" + INDEX_DEST + "/_refresh");
             assertCount(stmt, INDEX_DEST, 2);
             for (int id = 1; id <= 2; id++) {
-                try (ResultSet rs = stmt.executeQuery("POST /" + INDEX_DEST + "/_search {\"_source\":[\"name\"],\"query\":{\"ids\":{\"values\":[\"" + id + "\"]}}}")) {
+                try (ResultSet rs = stmt.executeQuery("POST /" + INDEX_DEST + "/_search {\"_source\": [\"name\"],\"query\": {\"ids\": {\"values\": [\"" + id + "\"]}}}")) {
                     Assert.assertTrue(rs.next());
                     Assert.assertEquals("doc" + id, rs.getString("name"));
                     Assert.assertFalse(rs.next());

@@ -32,7 +32,7 @@ public class Elastic7SessionStatementCoordinationTest extends SessionStatementCo
         this.jdbcTemplate = fixture.open(profile().env());
         orders.open(profile().env());
         this.session = fixture.session();
-        session.getConfiguration().addMacro("esOrderPath", "POST /" + orders.index());
+        session.getConfiguration().addMacro("esOrderIndex", orders.index());
         session.getConfiguration().loadMapper("/mapper/elastic/SessionCoordinationMatrix.xml");
     }
     @After

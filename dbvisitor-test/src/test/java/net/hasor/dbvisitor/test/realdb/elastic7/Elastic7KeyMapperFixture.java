@@ -18,22 +18,22 @@ public final class Elastic7KeyMapperFixture implements AutoCloseable {
     public JdbcTemplate open(String environment) throws SQLException { return fixture.open(environment); }
     public void prepareReservation(String name) throws SQLException {
         new JdbcTemplate(fixture.connection()).executeUpdate("POST /" + fixture.index()
-                + "/_doc?refresh=true {\"reserved_for\": ?,\"reserved_key\": ?}",
+                + "/_doc {\"reserved_for\": ?,\"reserved_key\": ?}",
                 new Object[] { name, java.util.UUID.randomUUID().toString() });
     }
     public Session session() throws Exception {
         Session session = fixture.session();
         String path = "/" + fixture.index();
         session.getConfiguration().addMacro("esKeyInsert", "POST " + path
-                + "/_doc?refresh=true {\"name\": #{name},\"age\": #{age},\"email\": #{email}}");
+                + "/_doc {\"name\": #{name},\"age\": #{age},\"email\": #{email}}");
         session.getConfiguration().addMacro("esKeyExplicit", "PUT " + path
-                + "/_doc/${id}?refresh=true {\"name\": #{name},\"age\": #{age},\"email\": #{email}}");
+                + "/_doc/${id} {\"name\": #{name},\"age\": #{age},\"email\": #{email}}");
         session.getConfiguration().addMacro("esKeyRead", "POST " + path
                 + "/_search {\"_source\": [\"name\"],\"query\": {\"ids\": {\"values\": [#{id}]}}}");
         session.getConfiguration().addMacro("esKeyBefore", "POST " + path
                 + "/_search {\"_source\": [\"reserved_key\"],\"query\": {\"term\": {\"reserved_for.keyword\": #{name}}}}");
         session.getConfiguration().addMacro("esKeyAfterInsert", "PUT " + path
-                + "/_doc/${name}?refresh=true {\"name\": #{name},\"age\": #{age},\"email\": #{email},\"key_ref\": #{name}}");
+                + "/_doc/${name} {\"name\": #{name},\"age\": #{age},\"email\": #{email},\"key_ref\": #{name}}");
         session.getConfiguration().addMacro("esKeyAfter", "POST " + path
                 + "/_search {\"_source\": [\"key_ref\"],\"query\": {\"term\": {\"name\": #{name}}}}");
         return session;

@@ -34,7 +34,7 @@ public class Elastic7XmlMapperResultMapTest extends XmlMapperResultMapCase {
             int id = baseId() + i;
             String name = "RmCfg" + i;
             int age = 25 + i;
-            jdbcTemplate.executeUpdate("PUT /" + fixture.index() + "/_doc/" + id + "?refresh=true "
+            jdbcTemplate.executeUpdate("PUT /" + fixture.index() + "/_doc/" + id + " "
                     + "{\"id\": ?,\"name\": ?,\"age\": ?,\"email\": ?,\"create_time\": ?,"
                     + "\"user_id\": ?,\"user_name\": ?,\"user_age\": ?}",
                     new Object[] { id, name, age, "rmcfg" + i + "@nxn.test", new Date(), id, name, age });

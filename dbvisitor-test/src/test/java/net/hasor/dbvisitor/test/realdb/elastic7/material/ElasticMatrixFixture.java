@@ -33,9 +33,9 @@ public final class ElasticMatrixFixture implements AutoCloseable {
 
     public JdbcTemplate open(String environment) throws SQLException {
         String properties = """
-                {"properties": {"id": {"type":"integer"},"name": {"type":"keyword"},
-                 "age": {"type":"integer"},"email": {"type":"keyword"},
-                 "create_time": {"type":"date"}}}
+                {"properties": {"id": {"type": "integer"},"name": {"type": "keyword"},
+                 "age": {"type": "integer"},"email": {"type": "keyword"},
+                 "create_time": {"type": "date"}}}
                 """;
         return open(environment, UserInfo.class, properties);
     }
@@ -77,7 +77,7 @@ public final class ElasticMatrixFixture implements AutoCloseable {
     }
 
     public void insert(int id, String name, Integer age, String email) throws SQLException {
-        jdbc.executeUpdate("PUT /" + index + "/_doc/" + id + "?refresh=true " + """
+        jdbc.executeUpdate("PUT /" + index + "/_doc/" + id + "\\?refresh=true " + """
                 {"id": ?,"name": ?,"age": ?,"email": ?,"create_time": ?}
                 """, new Object[] { id, name, age, email, new Date() });
     }

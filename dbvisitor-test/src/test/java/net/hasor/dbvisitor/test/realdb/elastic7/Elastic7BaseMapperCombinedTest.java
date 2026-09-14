@@ -44,6 +44,6 @@ public class Elastic7BaseMapperCombinedTest extends BaseMapperCombinedCase {
 
     @Override
     protected String accessorInsertCommand() {
-        return "POST /" + fixture.index() + "/_doc?refresh=true {\"id\": ?,\"name\": ?,\"age\": ?,\"create_time\": ?}";
+        return "POST /" + fixture.index() + "/_doc {\"id\": ?,\"name\": ?,\"age\": ?,\"create_time\": ?}";
     }
 }

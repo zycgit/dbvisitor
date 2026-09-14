@@ -38,7 +38,7 @@ public class Elastic7JdbcCallResultTest extends JdbcCallResultCase {
     @Override
     protected String callCommand() {
         return "POST /" + this.fixture.index()
-                + "/_search {\"_source\":[\"name\",\"age\"],\"query\":{\"term\":{\"id\":#{p_id}}}}";
+                + "/_search {\"_source\": [\"name\",\"age\"],\"query\": {\"term\": {\"id\": #{p_id}}}}";
     }
 
     @After

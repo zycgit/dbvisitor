@@ -55,7 +55,7 @@ public class Elastic7SessionCoreTest extends SessionCoreCase {
 
     @Override
     protected String sessionInsertCommand() {
-        return "POST /" + users.index() + "/_doc?refresh=true {\"id\": ?,\"name\": ?,\"age\": ?}";
+        return "POST /" + users.index() + "/_doc {\"id\": ?,\"name\": ?,\"age\": ?}";
     }
 
     @Override

@@ -77,7 +77,7 @@ public class Elastic7AnnotationMapperProjectionResultTest extends AnnotationMapp
     public interface NativeProjection extends Elastic7SessionMapperFixture.NativeResultMapping {
         @Override
         @Query("""
-                @{macro, esSessionPath}/_search {
+                POST /@{macro,esSessionIndex}/_search {
                   "query": {"wildcard": {"name": #{pattern.replace('%', '*')}}},
                   "aggs": {"rows": {"composite": {"size": 2,
                     "sources": [{"age": {"terms": {"field": "age"}}}]}}}
@@ -87,13 +87,13 @@ public class Elastic7AnnotationMapperProjectionResultTest extends AnnotationMapp
 
         @Override
         @Query("""
-                @{macro, esSessionPath}/_search {"aggs": {"maxAge": {"max": {"field": "age"}}}}
+                POST /@{macro,esSessionIndex}/_search {"aggs": {"maxAge": {"max": {"field": "age"}}}}
                 """)
         Integer selectMaxAge();
 
         @Override
         @Query("""
-                @{macro, esSessionPath}/_search {
+                POST /@{macro,esSessionIndex}/_search {
                   "query": {"wildcard": {"name": #{pattern.replace('%', '*')}}},
                   "aggs": {"minAge": {"min": {"field": "age"}},
                            "maxAge": {"max": {"field": "age"}},
@@ -104,7 +104,7 @@ public class Elastic7AnnotationMapperProjectionResultTest extends AnnotationMapp
 
         @Override
         @Query("""
-                @{macro, esSessionPath}/_search {
+                POST /@{macro,esSessionIndex}/_search {
                   "query": {"wildcard": {"name": #{pattern.replace('%', '*')}}},
                   "aggs": {"rows": {"composite": {"size": 2,
                     "sources": [{"age": {"terms": {"field": "age", "order": "asc"}}}]},

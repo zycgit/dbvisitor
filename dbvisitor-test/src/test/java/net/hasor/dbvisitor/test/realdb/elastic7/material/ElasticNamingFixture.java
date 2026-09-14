@@ -50,7 +50,7 @@ public final class ElasticNamingFixture implements AutoCloseable {
             }
             body.append('"').append(column.trim()).append("\": ?");
         }
-        return "POST /" + index() + "/_doc?refresh=true {" + body + "}";
+        return "POST /" + index() + "/_doc {" + body + "}";
     }
 
     @Override

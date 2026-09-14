@@ -52,7 +52,7 @@ public class Elastic7ArrayTypeJdbcTest extends ArrayTypeJdbcCase {
             }
             body.append('"').append(names[i].trim()).append("\": ").append(values[i]);
         }
-        return "POST /" + fixture.index() + "/_doc?refresh=true {" + body + "}";
+        return "POST /" + fixture.index() + "/_doc {" + body + "}";
     }
 
     @Override
@@ -73,8 +73,8 @@ public class Elastic7ArrayTypeJdbcTest extends ArrayTypeJdbcCase {
 
     @Override
     protected String updateArrayCommand() {
-        return "POST /" + fixture.index() + "/_update_by_query?refresh=true " + """
-                {"query": {"term": {"id": :id}},"script": {"source":"ctx._source.int_array=params.values","params": {"values": :array}}}
+        return "POST /" + fixture.index() + "/_update_by_query " + """
+                {"query": {"term": {"id": :id}},"script": {"source": "ctx._source.int_array=params.values","params": {"values": :array}}}
                 """;
     }
 

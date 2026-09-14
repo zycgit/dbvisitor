@@ -3,13 +3,13 @@
 <mapper namespace="session.UserSessionMapper">
     <insert id="insertUser">@{macro, esSessionInsert}</insert>
     <insert id="insertOrder">
-        @{macro, esOrderPath}/_doc?refresh=true
+        POST /@{macro,esOrderIndex}/_doc
         {"id": #{id},"user_id": #{userId},"order_no": #{orderNo},"amount": #{amount}}
     </insert>
     <select id="queryOrdersByUserId" resultType="net.hasor.dbvisitor.test.contract.material.model.UserOrder">
-        @{macro, esOrderPath}/_search {"query": {"term": {"user_id": #{userId}}},"sort": [{"id": "asc"}]}
+        POST /@{macro,esOrderIndex}/_search {"query": {"term": {"user_id": #{userId}}},"sort": [{"id": "asc"}]}
     </select>
     <delete id="deleteOrderById">
-        @{macro, esOrderPath}/_delete_by_query?refresh=true {"query": {"term": {"id": #{id}}}}
+        POST /@{macro,esOrderIndex}/_delete_by_query {"query": {"term": {"id": #{id}}}}
     </delete>
 </mapper>

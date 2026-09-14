@@ -26,6 +26,11 @@ public final class Elastic6Profile extends AbstractDataSourceProfile {
 
     @Override
     public SupportStatus support(String capabilityId) {
+        // This datasource has no separate JDBC namespace at this level.
+        if (CapabilityId.JDBC_METADATA_SCHEMAS.equals(capabilityId)
+                || CapabilityId.JDBC_METADATA_CATALOGS.equals(capabilityId)) {
+            return SupportStatus.UNSUPPORTED_BY_DATABASE;
+        }
         // Index names must be lowercase; field names still preserve their case.
         if (CapabilityId.NAMING_CASE_SENSITIVE_TABLE_ISOLATION.equals(capabilityId)) {
             return SupportStatus.UNSUPPORTED_BY_DATABASE;

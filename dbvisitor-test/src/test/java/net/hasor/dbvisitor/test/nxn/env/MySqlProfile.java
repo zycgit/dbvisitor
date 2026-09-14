@@ -10,9 +10,20 @@ package net.hasor.dbvisitor.test.nxn.env;
 import org.jetbrains.annotations.NotNull;
 
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
+import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
+import net.hasor.dbvisitor.test.nxn.capability.SupportStatus;
 
 public final class MySqlProfile extends AbstractDataSourceProfile {
     public static final MySqlProfile INSTANCE = new MySqlProfile();
+
+    @Override
+    public SupportStatus support(String capabilityId) {
+        // The default Connector/J databaseTerm=CATALOG exposes databases as catalogs.
+        if (CapabilityId.JDBC_METADATA_SCHEMAS.equals(capabilityId)) {
+            return SupportStatus.UNSUPPORTED_BY_DRIVER;
+        }
+        return super.support(capabilityId);
+    }
 
     private MySqlProfile() {
         super(features());

@@ -10,9 +10,20 @@ package net.hasor.dbvisitor.test.nxn.env;
 import org.jetbrains.annotations.NotNull;
 
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
+import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
+import net.hasor.dbvisitor.test.nxn.capability.SupportStatus;
 
 public final class Db2Profile extends AbstractDataSourceProfile {
     public static final Db2Profile INSTANCE = new Db2Profile();
+
+    @Override
+    public SupportStatus support(String capabilityId) {
+        // JCC returns a null catalog placeholder, not a list of named databases.
+        if (CapabilityId.JDBC_METADATA_CATALOGS.equals(capabilityId)) {
+            return SupportStatus.UNSUPPORTED_BY_DRIVER;
+        }
+        return super.support(capabilityId);
+    }
 
     private Db2Profile() {
         super(features());

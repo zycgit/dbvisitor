@@ -36,8 +36,8 @@ public final class ElasticVectorFixture implements AutoCloseable {
         connection = OneApiDataSourceManager.getConnection("es7");
         jdbc = new JdbcTemplate(connection);
         jdbc.execute("PUT /" + index + " " + """
-                {"mappings": {"properties": {"id": {"type":"integer"},"name": {"type":"keyword"},
-                 "embedding": {"type":"dense_vector","dims": 128}}}}
+                {"mappings": {"properties": {"id": {"type": "integer"},"name": {"type": "keyword"},
+                 "embedding": {"type": "dense_vector","dims": 128}}}}
                 """);
         created = true;
         String mapping = """

@@ -26,7 +26,7 @@ public interface Elastic7AttributeMapper extends AnnotationAttributesMapper {
     UserInfo selectByIdPrepared(@Param("id") Integer id);
 
     @Override
-    @Query(value = "@{macro, esSessionPath}/_search {\"query\": {\"term\": {\"id\": ${id}}}}", statementType = StatementType.Statement)
+    @Query(value = "POST /@{macro,esSessionIndex}/_search {\"query\": {\"term\": {\"id\": ${id}}}}", statementType = StatementType.Statement)
     UserInfo selectByIdStatement(@Param("id") Integer id);
 
     @Override
@@ -54,44 +54,44 @@ public interface Elastic7AttributeMapper extends AnnotationAttributesMapper {
     int insertWithTimeout(UserInfo user);
 
     @Override
-    @Insert({ "@{macro, esSessionPath}/_doc?refresh=true", "{\"id\": #{id},\"name\": #{name},",
+    @Insert({ "POST /@{macro,esSessionIndex}/_doc", "{\"id\": #{id},\"name\": #{name},",
             "\"age\": #{age},\"email\": #{email},\"create_time\": #{createTime}}" })
     int insertMultiLine(UserInfo user);
 
     @Override
-    @Query(value = "@{macro, esSessionPath}/_search {\"size\": 100,\"query\": {\"wildcard\": {\"name\": #{pattern.replace('%', '*')}}},\"sort\": [{\"id\": \"asc\"}]}", fetchSize = 256)
+    @Query(value = "POST /@{macro,esSessionIndex}/_search {\"size\": 100,\"query\": {\"wildcard\": {\"name\": #{pattern.replace('%', '*')}}},\"sort\": [{\"id\": \"asc\"}]}", fetchSize = 256)
     List<UserInfo> selectWithDefaultFetchSize(@Param("pattern") String pattern);
 
     @Override
-    @Query(value = "@{macro, esSessionPath}/_search {\"size\": 100,\"query\": {\"wildcard\": {\"name\": #{pattern.replace('%', '*')}}},\"sort\": [{\"id\": \"asc\"}]}", fetchSize = 10)
+    @Query(value = "POST /@{macro,esSessionIndex}/_search {\"size\": 100,\"query\": {\"wildcard\": {\"name\": #{pattern.replace('%', '*')}}},\"sort\": [{\"id\": \"asc\"}]}", fetchSize = 10)
     List<UserInfo> selectWithSmallFetchSize(@Param("pattern") String pattern);
 
     @Override
-    @Query(value = "@{macro, esSessionPath}/_search {\"size\": 100,\"query\": {\"wildcard\": {\"name\": #{pattern.replace('%', '*')}}},\"sort\": [{\"id\": \"asc\"}]}", fetchSize = 1000)
+    @Query(value = "POST /@{macro,esSessionIndex}/_search {\"size\": 100,\"query\": {\"wildcard\": {\"name\": #{pattern.replace('%', '*')}}},\"sort\": [{\"id\": \"asc\"}]}", fetchSize = 1000)
     List<UserInfo> selectWithLargeFetchSize(@Param("pattern") String pattern);
 
     @Override
-    @Query(value = "@{macro, esSessionPath}/_search {\"size\": 100,\"query\": {\"wildcard\": {\"name\": #{pattern.replace('%', '*')}}},\"sort\": [{\"id\": \"asc\"}]}", fetchSize = 1)
+    @Query(value = "POST /@{macro,esSessionIndex}/_search {\"size\": 100,\"query\": {\"wildcard\": {\"name\": #{pattern.replace('%', '*')}}},\"sort\": [{\"id\": \"asc\"}]}", fetchSize = 1)
     List<UserInfo> selectWithFetchSizeOne(@Param("pattern") String pattern);
 
     @Override
-    @Query(value = "@{macro, esSessionPath}/_search {\"size\": 100,\"query\": {\"wildcard\": {\"name\": #{pattern.replace('%', '*')}}},\"sort\": [{\"id\": \"asc\"}]}", resultSetType = ResultSetType.DEFAULT)
+    @Query(value = "POST /@{macro,esSessionIndex}/_search {\"size\": 100,\"query\": {\"wildcard\": {\"name\": #{pattern.replace('%', '*')}}},\"sort\": [{\"id\": \"asc\"}]}", resultSetType = ResultSetType.DEFAULT)
     List<UserInfo> selectWithDefaultResultSetType(@Param("pattern") String pattern);
 
     @Override
-    @Query(value = "@{macro, esSessionPath}/_search {\"size\": 100,\"query\": {\"wildcard\": {\"name\": #{pattern.replace('%', '*')}}},\"sort\": [{\"id\": \"asc\"}]}", resultSetType = ResultSetType.FORWARD_ONLY)
+    @Query(value = "POST /@{macro,esSessionIndex}/_search {\"size\": 100,\"query\": {\"wildcard\": {\"name\": #{pattern.replace('%', '*')}}},\"sort\": [{\"id\": \"asc\"}]}", resultSetType = ResultSetType.FORWARD_ONLY)
     List<UserInfo> selectWithForwardOnly(@Param("pattern") String pattern);
 
     @Override
-    @Query(value = "@{macro, esSessionPath}/_search {\"size\": 100,\"query\": {\"wildcard\": {\"name\": #{pattern.replace('%', '*')}}},\"sort\": [{\"id\": \"asc\"}]}", resultSetType = ResultSetType.SCROLL_INSENSITIVE)
+    @Query(value = "POST /@{macro,esSessionIndex}/_search {\"size\": 100,\"query\": {\"wildcard\": {\"name\": #{pattern.replace('%', '*')}}},\"sort\": [{\"id\": \"asc\"}]}", resultSetType = ResultSetType.SCROLL_INSENSITIVE)
     List<UserInfo> selectWithScrollInsensitive(@Param("pattern") String pattern);
 
     @Override
-    @Query(value = "@{macro, esSessionPath}/_search {\"size\": 100,\"query\": {\"wildcard\": {\"name\": #{pattern.replace('%', '*')}}},\"sort\": [{\"id\": \"asc\"}]}", resultSetType = ResultSetType.SCROLL_SENSITIVE)
+    @Query(value = "POST /@{macro,esSessionIndex}/_search {\"size\": 100,\"query\": {\"wildcard\": {\"name\": #{pattern.replace('%', '*')}}},\"sort\": [{\"id\": \"asc\"}]}", resultSetType = ResultSetType.SCROLL_SENSITIVE)
     List<UserInfo> selectWithScrollSensitive(@Param("pattern") String pattern);
 
     @Override
-    @Query(value = "@{macro, esSessionPath}/_search {\"size\": 100,\"query\": {\"wildcard\": {\"name\": #{pattern.replace('%', '*')}}},\"sort\": [{\"id\": \"asc\"}]}", statementType = StatementType.Prepared, timeout = 60, fetchSize = 100, resultSetType = ResultSetType.FORWARD_ONLY)
+    @Query(value = "POST /@{macro,esSessionIndex}/_search {\"size\": 100,\"query\": {\"wildcard\": {\"name\": #{pattern.replace('%', '*')}}},\"sort\": [{\"id\": \"asc\"}]}", statementType = StatementType.Prepared, timeout = 60, fetchSize = 100, resultSetType = ResultSetType.FORWARD_ONLY)
     List<UserInfo> selectWithCombinedAttributes(@Param("pattern") String pattern);
 
     @Override

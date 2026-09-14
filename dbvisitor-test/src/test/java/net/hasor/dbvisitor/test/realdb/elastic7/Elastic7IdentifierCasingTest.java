@@ -47,7 +47,7 @@ public class Elastic7IdentifierCasingTest extends IdentifierCasingCase {
 
     @Override
     protected String insertCommand(String table, String columns) {
-        return "POST /" + fixture.index() + "/_doc?refresh=true {\"Id\": ?, \"Name\": ?, \"Age\": ?, \"Memo\": ?}";
+        return "POST /" + fixture.index() + "/_doc {\"Id\": ?, \"Name\": ?, \"Age\": ?, \"Memo\": ?}";
     }
 
     @Override

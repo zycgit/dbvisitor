@@ -29,7 +29,7 @@ public class Elastic7JdbcPreparedValueTest extends JdbcPreparedValueCase {
 
     @Override
     protected String insertSql() {
-        return "POST /" + table + "/_doc?refresh=true {\"id\": ?,\"name\": ?}";
+        return "POST /" + table + "/_doc {\"id\": ?,\"name\": ?}";
     }
 
     @Override
@@ -49,7 +49,7 @@ public class Elastic7JdbcPreparedValueTest extends JdbcPreparedValueCase {
 
     @Override
     protected String updateSql() {
-        return "POST /" + table + "/_update_by_query?refresh=true {\"query\": {\"term\": {\"name\": ?}},"
+        return "POST /" + table + "/_update_by_query {\"query\": {\"term\": {\"name\": ?}},"
                 + "\"script\": {\"source\": \"ctx._source.name = params.value\",\"params\": {\"value\": ?}}}";
     }
 
@@ -61,7 +61,7 @@ public class Elastic7JdbcPreparedValueTest extends JdbcPreparedValueCase {
 
     @Override
     protected String deleteSql() {
-        return "POST /" + table + "/_delete_by_query?refresh=true {\"query\": {\"term\": {\"name\": ?}}}";
+        return "POST /" + table + "/_delete_by_query {\"query\": {\"term\": {\"name\": ?}}}";
     }
 
     @Override

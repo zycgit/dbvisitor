@@ -36,22 +36,22 @@ public class Elastic7JdbcBatchMutationTest extends JdbcBatchMutationCase {
 
     @Override
     protected String insertCommand() {
-        return "POST /" + fixture.index() + "/_doc?refresh=true {\"id\": ?,\"name\": ?}";
+        return "POST /" + fixture.index() + "/_doc {\"id\": ?,\"name\": ?}";
     }
 
     @Override
     protected String namedInsertCommand() {
-        return "POST /" + fixture.index() + "/_doc?refresh=true {\"id\": :id,\"name\": :val}";
+        return "POST /" + fixture.index() + "/_doc {\"id\": :id,\"name\": :val}";
     }
 
     @Override
     protected String updateCommand() {
-        return "POST /" + fixture.index() + "/_update_by_query?refresh=true {\"script\": {\"source\": \"ctx._source.name=params.name\",\"params\": {\"name\": ?}},\"query\": {\"term\": {\"id\": ?}}}";
+        return "POST /" + fixture.index() + "/_update_by_query {\"script\": {\"source\": \"ctx._source.name=params.name\",\"params\": {\"name\": ?}},\"query\": {\"term\": {\"id\": ?}}}";
     }
 
     @Override
     protected String deleteCommand() {
-        return "POST /" + fixture.index() + "/_delete_by_query?refresh=true {\"query\": {\"term\": {\"id\": ?}}}";
+        return "POST /" + fixture.index() + "/_delete_by_query {\"query\": {\"term\": {\"id\": ?}}}";
     }
 
     @Override
@@ -71,16 +71,16 @@ public class Elastic7JdbcBatchMutationTest extends JdbcBatchMutationCase {
 
     @Override
     protected String literalInsertCommand(int id, String value) {
-        return "POST /" + fixture.index() + "/_doc?refresh=true {\"id\": " + id + ",\"name\": \"" + value + "\"}";
+        return "POST /" + fixture.index() + "/_doc {\"id\": " + id + ",\"name\": \"" + value + "\"}";
     }
 
     @Override
     protected String literalUpdateCommand(int id, String value) {
-        return "POST /" + fixture.index() + "/_update_by_query?refresh=true {\"script\": {\"source\": \"ctx._source.name=params.name\",\"params\": {\"name\": \"" + value + "\"}},\"query\": {\"term\": {\"id\": " + id + "}}}";
+        return "POST /" + fixture.index() + "/_update_by_query {\"script\": {\"source\": \"ctx._source.name=params.name\",\"params\": {\"name\": \"" + value + "\"}},\"query\": {\"term\": {\"id\": " + id + "}}}";
     }
 
     @Override
     protected String invalidCommand() {
-        return "POST /" + fixture.index() + "/_doc?refresh=true {\"id\": \"invalid-number\"}";
+        return "POST /" + fixture.index() + "/_doc {\"id\": \"invalid-number\"}";
     }
 }
