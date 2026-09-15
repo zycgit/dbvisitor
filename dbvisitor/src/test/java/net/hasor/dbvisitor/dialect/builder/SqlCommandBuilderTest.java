@@ -13,6 +13,7 @@ import net.hasor.dbvisitor.dialect.SqlCommandBuilder;
 import net.hasor.dbvisitor.dialect.SqlCommandBuilder.ConditionLogic;
 import net.hasor.dbvisitor.dialect.SqlCommandBuilder.ConditionType;
 import net.hasor.dbvisitor.dialect.provider.MySqlDialect;
+import net.hasor.dbvisitor.dialect.provider.H2Dialect;
 import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
 import net.hasor.dbvisitor.lambda.GeneratedKeyStrategy;
 import net.hasor.dbvisitor.lambda.core.OrderNullsStrategy;
@@ -229,5 +230,27 @@ public class SqlCommandBuilderTest {
 
         BoundSql boundSql = builder.buildSelect(false);
         assertEquals("SELECT * FROM user_table ORDER BY name IS NULL DESC, name ASC", boundSql.getSqlString());
+    }
+
+    @Test
+    public void testDefaultNullOrderShouldNotAddSortExpression() throws SQLException {
+        SqlCommandBuilder builder = new MySqlDialect().newBuilder();
+        builder.setTable(null, null, "user_table");
+        builder.addOrderBy("name", null, OrderType.ASC, OrderNullsStrategy.DEFAULT);
+        assertEquals("SELECT * FROM user_table ORDER BY name ASC", builder.buildSelect(false).getSqlString());
+    }
+
+    @Test
+    public void testStandardNullOrderUsesSeparateNullRank() throws SQLException {
+        for (OrderType direction : new OrderType[] { OrderType.ASC, OrderType.DESC }) {
+            for (OrderNullsStrategy strategy : new OrderNullsStrategy[] { OrderNullsStrategy.FIRST, OrderNullsStrategy.LAST }) {
+                SqlCommandBuilder builder = new H2Dialect().newBuilder();
+                builder.setTable(null, null, "user_table");
+                builder.addOrderBy("name", null, direction, strategy);
+                String rank = strategy == OrderNullsStrategy.FIRST ? "DESC" : "ASC";
+                assertEquals("SELECT * FROM user_table ORDER BY CASE WHEN name IS NULL THEN 1 ELSE 0 END "
+                        + rank + ", name " + direction, builder.buildSelect(false).getSqlString());
+            }
+        }
     }
 }

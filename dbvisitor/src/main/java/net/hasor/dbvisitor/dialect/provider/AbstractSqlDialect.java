@@ -362,6 +362,15 @@ public abstract class AbstractSqlDialect extends AbstractBuilderDialect {
     }
 
     @Override
+    public String orderByNulls(boolean useQualifier, String name, String nameTerm, OrderType orderType) {
+        if (orderType == OrderType.DEFAULT) {
+            return "";
+        }
+        String column = StringUtils.isBlank(nameTerm) ? this.fmtName(useQualifier, name) : nameTerm;
+        return "CASE WHEN " + column + " IS NULL THEN 1 ELSE 0 END " + orderType.name();
+    }
+
+    @Override
     public void addOrderBy(String col, String colTerm, OrderType type, OrderNullsStrategy nullsStrategy) {
         // first order by
         if (this.orderByColumns.isEmpty()) {
