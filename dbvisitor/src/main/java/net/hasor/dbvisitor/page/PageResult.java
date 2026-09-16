@@ -42,8 +42,9 @@ public class PageResult<T> extends PageObject {
 
     /** 多用于二次分页结果构建 */
     public PageResult(Page pageInfo, List<T> data) {
-        super(pageInfo.getCurrentPage(), pageInfo.getPageSize(), pageInfo.getTotalCount());
+        super(0, pageInfo.getPageSize(), pageInfo.getTotalCount());
         this.setPageNumberOffset(pageInfo.getPageNumberOffset());
+        this.setCurrentPage(pageInfo.getCurrentPage());
         this.data = data == null ? new ArrayList<>() : data;
     }
 
