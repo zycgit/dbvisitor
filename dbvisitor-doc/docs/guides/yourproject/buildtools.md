@@ -18,7 +18,7 @@ dbVisitor 正式发布的模块可以通过 [Maven Central](https://central.sona
 
 dbVisitor 最新正式版本为：**<Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>**
 
-当前使用指南对应 **{Vars.docsVersion}**。SNAPSHOT 不在 Maven Central 正式版列表中，使用前需从源码构建并安装到本地 Maven 仓库；不要把开发版能力直接套用到旧版。
+当前使用指南对应 **{Vars.docsVersion}**。
 
 ## 选择接入方式
 

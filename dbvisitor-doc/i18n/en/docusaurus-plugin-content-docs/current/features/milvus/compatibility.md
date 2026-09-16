@@ -8,7 +8,6 @@ title: Versions and Supported Scope
 
 | Component | Version |
 | --- | --- |
-| Java | 17+ |
 | Milvus Java SDK | 2.6.22, V2 API |
 | Milvus server | 2.6.x, minimum 2.6.2 |
 

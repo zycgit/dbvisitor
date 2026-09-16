@@ -11,7 +11,6 @@ import com.example.demo.dao.user.UserMapper;
 import com.example.demo.dto.UserDTO;
 import net.hasor.dbvisitor.session.Session;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.IOException;
@@ -31,7 +30,7 @@ public class MultiDsService {
     @Inject()
     private Session dalSession;
 
-    @PostConstruct
+    @Inject
     public void init() throws SQLException, IOException {
         this.dalSession.jdbc().loadSQL("CreateDB.sql");
     }

@@ -582,7 +582,6 @@ SqlDialectRegister.registerDialectAlias(JdbcHelper.MYSQL, MyDialect.class);
 | **暴露原生客户端** | 在 `unwrap()` 中返回底层 SDK 对象，允许高级用户绕过适配层 |
 | **异常包装** | 将 SDK 异常包装为 `SQLException`，保留原始错误信息和错误码 |
 | **资源安全** | `createConnection` 和 `doClose` 中确保异常时不泄漏底层连接 |
-| **Java 版本** | 当前项目使用 Java 17，适配器及 SDK 应与目标运行环境兼容 |
 | **命名规范** | 遵循 `XxxConnFactory` / `XxxConn` / `XxxCmd` / `XxxRequest` / `XxxKeys` 的命名惯例 |
 
 ## 完整文件清单

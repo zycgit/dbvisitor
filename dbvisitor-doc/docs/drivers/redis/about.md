@@ -36,7 +36,6 @@ description: Redis JDBC 驱动的接入、连接和使用。
 
 ## 使用前须知
 
-- 运行环境要求 Java 17 或更高版本。
 - 命令必须使用驱动支持的语法，不会自动转换任意关系型 SQL。
 - 不支持 JDBC Batch 和事务。使用连接池、ORM 或其他 JDBC 工具前，请核对[驱动适配器限制](../limited.md)。
 - JDBC URL 前缀为 `jdbc:dbvisitor:jedis://`，不是 `redis://`。

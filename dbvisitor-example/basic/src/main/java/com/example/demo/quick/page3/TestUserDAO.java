@@ -7,8 +7,8 @@
  */
 package com.example.demo.quick.page3;
 
-import net.hasor.dbvisitor.dialect.Page;
-import net.hasor.dbvisitor.dialect.PageResult;
+import net.hasor.dbvisitor.page.Page;
+import net.hasor.dbvisitor.page.PageResult;
 import net.hasor.dbvisitor.mapper.BaseMapper;
 import net.hasor.dbvisitor.mapper.Param;
 import net.hasor.dbvisitor.mapper.RefMapper;

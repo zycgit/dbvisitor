@@ -9,12 +9,14 @@ package com.example.demo.quick.page2;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Collections;
 import javax.sql.DataSource;
 import com.example.demo.DsUtils;
 import com.example.demo.PrintUtils;
 import net.hasor.dbvisitor.dialect.provider.MySqlDialect;
 import net.hasor.dbvisitor.mapper.BaseMapper;
 import net.hasor.dbvisitor.mapping.Options;
+import net.hasor.dbvisitor.lambda.core.OrderType;
 import net.hasor.dbvisitor.page.Page;
 import net.hasor.dbvisitor.page.PageObject;
 import net.hasor.dbvisitor.page.PageResult;
@@ -37,11 +39,12 @@ public class PageMain {
 
         Page pageInfo = new PageObject();
         pageInfo.setPageSize(3);
-        PageResult<TestUser> pageData1 = baseMapper.pageBySample(null, pageInfo);
+        TestUser sample = new TestUser();
+        PageResult<TestUser> pageData1 = baseMapper.pageBySample(sample, pageInfo, Collections.singletonMap("id", OrderType.ASC));
         PrintUtils.printObjectList(pageData1.getData());
 
         pageInfo.nextPage();
-        PageResult<TestUser> pageData2 = baseMapper.pageBySample(null, pageInfo);
+        PageResult<TestUser> pageData2 = baseMapper.pageBySample(sample, pageInfo, Collections.singletonMap("id", OrderType.ASC));
         PrintUtils.printObjectList(pageData2.getData());
     }
 }

@@ -19,9 +19,6 @@
     <a target="_blank" href="LICENSE.txt">
 		<img src="https://img.shields.io/:License-Apache2-blue.svg" alt="Apache 2" />
 	</a>
-    <a target="_blank" href="https://www.oracle.com/java/technologies/javase/jdk17-downloads.html">
-		<img src="https://img.shields.io/badge/JDK-17-green.svg" alt="jdk-17" />
-	</a>
     <a target="_blank" href='https://gitee.com/zycgit/dbvisitor/stargazers'>
 		<img src='https://gitee.com/zycgit/dbvisitor/badge/star.svg' alt='gitee star'/>
 	</a>
@@ -66,7 +63,7 @@ dbVisitor provides multi-level API abstraction, allowing for free switching betw
 ### ⚙️ Framework Characteristics
 
 - **🛡️ Unified Base**: One API conquers both RDBMS (MySQL, PG...) and NoSQL (Mongo, ES...).
-- **🔌 Wide Compatibility**: Pure Java (JDK8+), zero dependencies, perfectly adapted to mainstream frameworks like Spring/Solon.
+- **🔌 Wide Compatibility**: Pure Java, zero dependencies, perfectly adapted to mainstream frameworks like Spring/Solon.
 - **📦 Lightweight**: Minimalist design, core capability depends only on the `cobble` toolkit.
 
 ### 🔋 Capabilities
@@ -135,7 +132,7 @@ dbVisitor provides multi-level API abstraction, allowing for free switching betw
 - **Unified Underlying Architecture**
   - Unlike simple patching, the various API levels in dbVisitor's **Layered Abstraction** **share** the same underlying mechanisms, avoiding the "Frankenstein" effect of multiple frameworks.
 - **Independence**
-  - Not bound to any ecosystem framework like Spring or any Web container. Built on pure Java (JDK 17+) and JDBC standards. Seamlessly integrates whether it's Spring, SpringBoot, Solon, Hasor, Guice, or a Main method console program.
+  - Not bound to any ecosystem framework like Spring or any Web container. Built on pure Java and JDBC standards. Seamlessly integrates whether it's Spring, SpringBoot, Solon, Hasor, Guice, or a Main method console program.
 
 ## 🚀 Usage
 

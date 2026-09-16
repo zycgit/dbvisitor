@@ -27,7 +27,7 @@ npm run build
 
 ## 文档版本变量
 
-`plugins/projectVars.js` 统一维护版本：`docsVersion` 用于使用指南及依赖示例，`lastReleaseVer`、`lastReleaseTime` 用于最新发布信息。首页也从此文件读取版本。
+`plugins/projectVars.js` 统一维护版本：`docsVersion` 用于使用指南及依赖示例，`developmentVersion` 用于开发版本入口，`lastReleaseVer`、`lastReleaseTime` 用于最新发布信息。首页也从此文件读取版本。
 
 Markdown/MDX 正文、行内代码、代码块和链接可使用 `@project.docsVersion@`、`@project.lastReleaseVer@`、`@project.lastReleaseTime@`。构建后显示和复制的内容均为实际值；变量名拼错会使构建失败。
 

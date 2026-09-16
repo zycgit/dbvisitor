@@ -29,7 +29,8 @@ public class Update3Main {
         newValue.put("age", 88);
 
         MapUpdate update = wrapper.updateFreedom("test_user");
-        int result = update.eq("id", 1).updateRowUsingMap(newValue).doUpdate();
+        // 纯 Map 模式没有主键映射，显式排除 id，避免修改主键。
+        int result = update.eq("id", 1).updateRowUsingMap(newValue, column -> !"id".equals(column)).doUpdate();
 
         System.out.println("res = " + result);
         PrintUtils.printObjectList(wrapper.jdbc().queryForList("select * from test_user"));

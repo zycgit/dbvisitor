@@ -8,7 +8,6 @@ title: 版本与支持范围
 
 | 组件 | 版本 |
 | --- | --- |
-| Java | 17+ |
 | Milvus Java SDK | 2.6.22，V2 API |
 | Milvus 服务端 | 2.6.x，最低 2.6.2 |
 

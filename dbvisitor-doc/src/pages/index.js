@@ -416,9 +416,6 @@ function QuickStartSection() {
                             {'</'}<span className={styles.codeKeyword}>{'dependency'}</span>{'>\n'}
                         </pre>
                     </div>
-                    <p className={styles.runtimeNote}>
-                        <Translate id="dbv.start.runtime">环境要求：dbVisitor 6.7.1 起要求 Java 17+。</Translate>
-                    </p>
                     <div className={styles.quickStartButtons}>
                         <Link className="button button--primary button--lg" to="/docs/guides/overview">
                             <Translate id="commons.document">使用手册</Translate>

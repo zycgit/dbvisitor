@@ -45,11 +45,7 @@ In terms of API design, dbVisitor provides APIs with a style similar to Spring J
 
 - dbVisitor uses the commercially friendly [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0.html) license.
 - The dbVisitor core module only has one dependency, [Cobble](https://gitee.com/zycgit/cobble) (cobble is a toolkit similar to Apache Commons or Guava).
-- Published modules are available on [Maven Central](https://central.sonatype.com/search?q=dbvisitor). SNAPSHOT versions require the corresponding snapshot repository or local installation from source.
-
-## JVM Compatibility
-
-dbVisitor 6.7.1 and later require Java 17+. For 6.7.0 and earlier, consult the matching version documentation. Modules and third-party JDBC drivers also have their own dependency requirements.
+- Published modules are available on [Maven Central](https://central.sonatype.com/search?q=dbvisitor).
 
 ## Getting Started
 
@@ -78,8 +74,8 @@ dbVisitor 6.7.1 and later require Java 17+. For 6.7.0 and earlier, consult the m
 
 ## Version Events
 
-- Latest release: v{Vars.lastReleaseVer} ({Vars.lastReleaseTime})
-- This guide describes {Vars.docsVersion}. Build the development version from source; do not assume new capabilities exist in older releases.
+- Latest release: v{Vars.lastReleaseVer}
+- This guide describes {Vars.docsVersion}.
 - `6.x` version is a brand new upgrade. While inheriting the functions of 5.x, it has made major improvements to the implementation of different style APIs to keep usage and behavior unified in all aspects.
 - `5.x` version: dbVisitor was officially separated from the Hasor framework and provides three different styles of APIs — Programmatic API, Declarative API, and Builder API — to access the database.
 - `4.x` and earlier versions did not have their own independent versions, and their release followed the [Hasor](https://www.hasor.net/) framework release.

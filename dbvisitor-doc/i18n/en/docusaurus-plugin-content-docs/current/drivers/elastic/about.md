@@ -34,7 +34,6 @@ Query through `connection.getMetaData()`:
 
 ## Before You Connect
 
-- Requires Java 17 or later.
 - Commands must use the syntax supported by this driver; arbitrary relational SQL is not translated.
 - JDBC batch and transactions are not supported. Check the [shared JDBC limitations](../limited.md) before integrating a connection pool, ORM or other JDBC tool.
 

@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({ "classpath:application.xml" })
+@ContextConfiguration({ "classpath:application.xml", "classpath:test-datasource.xml" })
 public class ApplicationTests {
     @Resource
     private UserService userService;

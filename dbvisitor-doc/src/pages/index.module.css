@@ -398,12 +398,6 @@ a.dbItem:focus-visible .dbLabel {
     margin-top: 1.5rem;
 }
 
-.runtimeNote {
-    color: #5f6368;
-    font-size: 0.88rem;
-    text-align: left;
-}
-
 /* ==================== Bottom CTA ==================== */
 .ctaSection {
     padding: 3rem 0;

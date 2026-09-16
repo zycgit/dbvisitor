@@ -43,7 +43,12 @@ dependencies {
     testImplementation 'com.microsoft.sqlserver:mssql-jdbc:11.2.0.jre8'
 }
 
+tasks.named('jar') {
+    archiveClassifier = 'plain'
+}
+
 tasks.named('shadowJar') {
+    archiveClassifier = ''
     configurations = [project.configurations.shaded]
     relocate 'ognl', 'net.hasor.dbvisitor.internal.jars.ognl'
     relocate 'javassist', 'net.hasor.dbvisitor.internal.jars.javassist'

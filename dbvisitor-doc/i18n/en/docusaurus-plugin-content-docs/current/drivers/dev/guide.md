@@ -582,7 +582,6 @@ An explicitly configured dialect takes precedence. Otherwise, dbVisitor looks up
 | **Expose the native client** | Return the underlying SDK object from `unwrap()` for advanced access |
 | **Wrap exceptions** | Wrap SDK errors in SQLException, preserving the original message and error code |
 | **Resource safety** | Prevent connection leaks on failure in createConnection and doClose |
-| **Java version** | The project uses Java 17; the adapter and SDK must match the target runtime |
 | **Naming** | Follow the XxxConnFactory / XxxConn / XxxCmd / XxxRequest / XxxKeys convention |
 
 ## File Checklist

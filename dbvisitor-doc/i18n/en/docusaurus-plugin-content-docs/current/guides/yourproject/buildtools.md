@@ -18,7 +18,7 @@ Therefore, any project using dependency management tools (Apache Maven, Gradle, 
 
 The latest stable dbVisitor release is: **<Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>**
 
-This guide targets **{Vars.docsVersion}**. SNAPSHOT is not listed as a stable release on Maven Central; build it from source and install it in your local Maven repository before use. Do not assume development-version capabilities are available in an older release.
+This guide targets **{Vars.docsVersion}**.
 
 ## Choose an Integration
 

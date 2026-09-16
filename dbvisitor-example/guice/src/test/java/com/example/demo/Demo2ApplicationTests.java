@@ -29,7 +29,7 @@ public class Demo2ApplicationTests {
     @Before
     public void beforeTest() throws IOException {
         Properties properties = new Properties();
-        properties.load(ResourcesUtils.getResourceAsStream("multi-ds.properties"));
+        properties.load(ResourcesUtils.getResourceAsStream("multi-ds-test.properties"));
 
         Injector injector = Guice.createInjector(new DbVisitorModule(properties));
         injector.injectMembers(this);

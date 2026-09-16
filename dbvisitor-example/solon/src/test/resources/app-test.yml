@@ -1,0 +1,5 @@
+server.port: 0
+
+solon.dataSources:
+  default!:
+    jdbcUrl: "jdbc:h2:mem:solon_example;MODE=MySQL;DB_CLOSE_DELAY=-1;USER=sa"

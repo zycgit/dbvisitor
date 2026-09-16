@@ -32,11 +32,6 @@
             <groupId>net.hasor</groupId>
             <artifactId>dbvisitor</artifactId>
         </dependency>
-        <dependency>
-            <groupId>net.hasor</groupId>
-            <artifactId>cobble-all</artifactId>
-            <version>4.8.1</version>
-        </dependency>
 
         <!-- driver -->
         <dependency>

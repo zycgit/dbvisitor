@@ -265,7 +265,7 @@ JDBC Template、LambdaQuery、Mapper XML 全部共享同一套 **TypeHandler 机
 ### 3. 生态框架的无关性
 
 这是 dbVisitor 区别于 Spring Data 或 MyBatis-Plus 的另一个重要特征。
-dbVisitor 的核心不依赖 Spring，也不依赖任何 Web 容器。它基于纯 Java（6.7.1 起要求 JDK 17+） 和 JDBC 标准构建。
+dbVisitor 的核心不依赖 Spring，也不依赖任何 Web 容器。它基于纯 Java 和 JDBC 标准构建。
 这意味着：
 
 * 你可以在 **Spring Boot** 中用它。

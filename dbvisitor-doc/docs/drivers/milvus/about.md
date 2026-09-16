@@ -38,7 +38,6 @@ description: Milvus JDBC 驱动的接入、连接和使用。
 
 ## 使用前须知
 
-- 运行环境要求 Java 17 或更高版本。
 - 命令必须使用驱动支持的语法，不会自动转换任意关系型 SQL。
 - 不支持 JDBC Batch 和事务。使用连接池、ORM 或其他 JDBC 工具前，请核对[驱动适配器限制](../limited.md)。
 - Milvus 服务端最低要求 2.6.2，部分功能要求更高版本，具体见[版本与支持范围](../../features/milvus/compatibility.md)。TLS/mTLS 和 Zilliz Cloud 接入见[安全连接示例](./connection.mdx#tls)。

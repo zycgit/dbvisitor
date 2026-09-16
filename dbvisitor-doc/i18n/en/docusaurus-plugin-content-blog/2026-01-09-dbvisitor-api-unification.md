@@ -267,7 +267,7 @@ In dbVisitor, you can reuse the ResultMap defined by Mapper in Lambda queries. T
 ### 3. Ecosystem Framework Agnostic
 
 This is another important feature that distinguishes dbVisitor from Spring Data or MyBatis-Plus.
-dbVisitor's core does not depend on Spring, nor does it depend on any Web container. It is built based on pure Java (JDK 17+ from 6.7.1) and JDBC standards.
+dbVisitor's core does not depend on Spring, nor does it depend on any Web container. It is built based on pure Java and JDBC standards.
 This means:
 
 * You can use it in **Spring Boot**.

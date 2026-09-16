@@ -161,9 +161,6 @@
   "dbv.start.subtitle": {
     "message": "Add the core library and your JDBC driver; the example uses the latest release"
   },
-  "dbv.start.runtime": {
-    "message": "Requirements: dbVisitor 6.7.1 and later require Java 17+."
-  },
   "dbv.cta.title": {
     "message": "Join the Community"
   },

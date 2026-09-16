@@ -11,7 +11,6 @@ import com.example.demo.dao.role.RoleMapper;
 import com.example.demo.dao.user.UserMapper;
 import com.example.demo.dto.UserDTO;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -27,7 +26,7 @@ public class TestService {
     @Inject
     private Session dalSession;
 
-    @PostConstruct
+    @Inject
     public void init() throws SQLException, IOException {
         this.dalSession.jdbc().loadSQL("CreateDB.sql");
     }

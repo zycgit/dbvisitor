@@ -52,7 +52,7 @@ public class DsUtils {
     }
 
     public static DataSource dsMySql() throws SQLException {
-        return createDs("com.mysql.jdbc.Driver", MYSQL_JDBC_URL, "root", "123456");
+        return createDs("com.mysql.cj.jdbc.Driver", MYSQL_JDBC_URL, "root", "123456");
     }
 
     public static DataSource dsPg() throws SQLException {

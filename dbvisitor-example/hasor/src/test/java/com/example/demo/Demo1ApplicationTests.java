@@ -9,10 +9,10 @@ package com.example.demo;
 
 import com.example.demo.dto.UserDTO;
 import com.example.demo.service.TestService;
-import net.hasor.core.AppContext;
-import net.hasor.core.Hasor;
+import net.hasor.boot.Boot;
+import net.hasor.boot.BootApplication;
 import net.hasor.core.Inject;
-import net.hasor.dbvisitor.hasor.autoconfig.AutoConfigModule;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -20,16 +20,22 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Demo1ApplicationTests {
+    private BootApplication application;
+
     @Inject
     private TestService userService;
 
     @Before
-    public void beforeTest() {
-        AppContext injector = Hasor.create().mainSettingWith("single-ds.properties").build(binder -> {
-            binder.installModule(new AutoConfigModule());
-        });
+    public void beforeTest() throws Exception {
+        application = new Boot().sources(DemoApplication.class).hconfigFile("single-ds-test.properties").start();
+        application.getAppContext().justInject(this);
+    }
 
-        injector.justInject(this);
+    @After
+    public void afterTest() throws Exception {
+        if (application != null) {
+            application.close();
+        }
     }
 
     @Test

@@ -10,19 +10,16 @@ package com.example.demo;
 import com.example.demo.dto.UserDTO;
 import com.example.demo.service.TestService;
 import net.hasor.dbvisitor.session.Session;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.noear.solon.annotation.Import;
+import org.junit.jupiter.api.Test;
 import org.noear.solon.annotation.Inject;
-import org.noear.solon.test.SolonJUnit4ClassRunner;
+import org.noear.solon.test.SolonTest;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Import(profiles = "classpath:app.yml")
-@RunWith(SolonJUnit4ClassRunner.class)
+@SolonTest(value = DemoApp.class, env = "test")
 public class DemoAppTests {
     @Inject
     private TestService userService;

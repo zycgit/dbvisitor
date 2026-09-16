@@ -12,6 +12,7 @@ import com.example.demo.service.UserService;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @SpringBootTest
+@ActiveProfiles("test")
 public class DemoApplicationTests {
 
     @Resource
