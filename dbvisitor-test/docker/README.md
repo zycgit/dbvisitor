@@ -47,10 +47,10 @@ DB2 的数据库名不能超过 8 bytes，测试库使用 `DEVTEST`。如果已�
 启动对应测试服务后，沿用统一的真库测试入口：
 
 ```bash
-./runnxn.sh es6
-./runnxn.sh es7
-./runnxn.sh mongo
-./runnxn.sh milvus
+./dbvisitor-test/runnxn.sh es6
+./dbvisitor-test/runnxn.sh es7
+./dbvisitor-test/runnxn.sh mongo
+./dbvisitor-test/runnxn.sh milvus
 ```
 
 这些测试会创建、修改或删除测试数据，只能连接专用测试环境。`dbvisitor-test:test` 未指定 `nxn.env` 时不执行真库测试；脚本负责选择对应测试包并强制重新执行。`milvus` 包含明文/TLS/mTLS 连接测试，执行 `milvus` 或 `all` 前还需按下文启动 `milvus-tls` profile 的测试服务。
@@ -121,10 +121,10 @@ docker compose --profile milvus-tls ps milvus milvus_tls_gateway milvus_tls milv
 等待测试服务健康、网关启动后，在 dbvisitor 根目录执行：
 
 ```bash
-./runnxn.sh milvus --no-daemon --offline
+./dbvisitor-test/runnxn.sh milvus --no-daemon --offline
 ```
 
-该命令使用 `dbvisitor-test` 的普通 `test` 任务，执行 `realdb/milvus` 包中的全部测试，包含 `MilvusTlsConnectionTest`；等价于 `./gradlew :dbvisitor-test:test -Pnxn.env=milvus --rerun-tasks --no-daemon --offline`。其中连接测试使用上述固定本机端口，验证明文/TLS/mTLS 下同端口的 JDBC 建表、写入和 Import 任务列表，以及错误名称、缺少客户端证书、不可信证书和对 TLS 入口发送明文被拒绝。连接测试只创建随机命名的测试集合，并在测试结束时删除；服务缺失直接失败，不跳过。`./runnxn.sh all` 同样包含这些测试。普通 `:jdbc-milvus:test` 另含不依赖 Docker 的本地 TLS 协议测试；仅修改共用证书时需加 `--rerun-tasks` 重新检查。
+该命令使用 `dbvisitor-test` 的普通 `test` 任务，执行 `realdb/milvus` 包中的全部测试，包含 `MilvusTlsConnectionTest`；等价于 `./gradlew :dbvisitor-test:test -Pnxn.env=milvus --rerun-tasks --no-daemon --offline`。其中连接测试使用上述固定本机端口，验证明文/TLS/mTLS 下同端口的 JDBC 建表、写入和 Import 任务列表，以及错误名称、缺少客户端证书、不可信证书和对 TLS 入口发送明文被拒绝。连接测试只创建随机命名的测试集合，并在测试结束时删除；服务缺失直接失败，不跳过。`./dbvisitor-test/runnxn.sh all` 同样包含这些测试。普通 `:jdbc-milvus:test` 另含不依赖 Docker 的本地 TLS 协议测试；仅修改共用证书时需加 `--rerun-tasks` 重新检查。
 
 在对应平台目录中停止可选服务：
 

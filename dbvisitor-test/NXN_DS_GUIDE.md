@@ -171,12 +171,12 @@ requiresNxnFeature(FeatureId.ARRAY);
 ./gradlew :dbvisitor-test:checkNxnMapping
 
 # 单数据源 / 全部真实数据源，只运行测试
-./runnxn.sh h2
-./runnxn.sh all
+./dbvisitor-test/runnxn.sh h2
+./dbvisitor-test/runnxn.sh all
 
 # 运行完整集合，并更新相应数据源的兼容性结果
-./runnxn.sh h2 --update-docs
-./runnxn.sh all --update-docs
+./dbvisitor-test/runnxn.sh h2 --update-docs
+./dbvisitor-test/runnxn.sh all --update-docs
 
 # 等价的 Gradle 更新入口
 ./gradlew :dbvisitor-test:updateNxnDocs -Pnxn.env=h2
@@ -185,7 +185,7 @@ requiresNxnFeature(FeatureId.ARRAY);
 ./gradlew :dbvisitor-test:test -Pnxn.env=redis --tests '*RedisJdbcMapQueryTest'
 ```
 
-支持的环境标识见 `DataSourceId` 和 `runnxn.sh --help`；`elastic6`、`elastic7` 是脚本对 `es6`、`es7` 的别名。不指定环境只运行 `unit`，不会自动连接全部数据库。
+支持的环境标识见 `DataSourceId` 和 `./dbvisitor-test/runnxn.sh --help`；`elastic6`、`elastic7` 是脚本对 `es6`、`es7` 的别名。不指定环境只运行 `unit`，不会自动连接全部数据库。
 
 普通测试不会改文档。`--update-docs` 会重新运行测试，并在全部关联方法得到确定结果后只更新 `datasources/{env}.json`，不会改动表格定义和其他数据源。不能用 `-x test` 跳过测试，也不会使用旧的筛选结果。`all` 按数据源依次运行，遇到失败停止，已成功更新的数据源结果保留，不能把它们视为全部完成。
 

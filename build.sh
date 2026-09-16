@@ -231,7 +231,7 @@ for arg in "$@"; do
 done
 
 if [[ "$run_nxn" == "true" && "$run_tests" != "true" && "$mode_explicit" != "true" ]]; then
-    ./runnxn.sh all "${gradle_args[@]}"
+    ./dbvisitor-test/runnxn.sh all "${gradle_args[@]}"
     exit 0
 fi
 
@@ -314,7 +314,7 @@ fi
 ./gradlew "${tasks[@]}" "${gradle_defaults[@]}" "${build_gradle_args[@]}"
 
 if [[ "$run_nxn" == "true" ]]; then
-    ./runnxn.sh all "${gradle_args[@]}"
+    ./dbvisitor-test/runnxn.sh all "${gradle_args[@]}"
 fi
 
 if [[ "$mode" == "deploy" && "$dry_run" != "true" ]]; then
