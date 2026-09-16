@@ -868,12 +868,12 @@ public final class TypeHandlerRegistry {
             TypeHandler argHandler = arg.getTypeHandler();
             Object argValue = arg.getValue();
 
-            if (argType == null && argValue != null) {
-                argType = TypeHandlerRegistry.toSqlType(argValue.getClass());
-            }
-
             if (argHandler == null && argValue != null) {
                 argHandler = this.getTypeHandler(argValue.getClass());
+            }
+
+            if (argType == null && argValue != null) {
+                argType = inferParameterJdbcType(argValue, argHandler);
             }
 
             if (argHandler != null) {
@@ -887,7 +887,15 @@ public final class TypeHandlerRegistry {
 
         Class<?> valueClass = value.getClass();
         TypeHandler<Object> typeHandler = (TypeHandler<Object>) getTypeHandler(valueClass);
-        typeHandler.setParameter(ps, parameterPosition, value, toSqlType(valueClass));
+        typeHandler.setParameter(ps, parameterPosition, value, inferParameterJdbcType(value, typeHandler));
+    }
+
+    private Integer inferParameterJdbcType(Object value, TypeHandler<?> typeHandler) {
+        // Let the built-in enum handler choose name, string code or numeric code when no JDBC type was specified.
+        if (value instanceof Enum && typeHandler != null && typeHandler.getClass() == EnumTypeHandler.class) {
+            return null;
+        }
+        return toSqlType(value.getClass());
     }
 
     /** 一个工具方法，设置 {@link CallableStatement} 参数值，自动选择对应的 {@link TypeHandler} */
