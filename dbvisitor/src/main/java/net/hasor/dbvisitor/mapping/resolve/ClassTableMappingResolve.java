@@ -254,7 +254,7 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
                     typeHandler = typeRegistry.getDefaultTypeHandler();
                 }
             } else {
-                typeHandler = typeRegistry.createTypeHandler(typeHandlerType, type);
+                typeHandler = typeRegistry.createTypeHandler(typeHandlerType, resolveHandlerType(type, javaType));
             }
 
             colDef = new ColumnDef(column, name, jdbcType, javaType, typeHandler, handler);
@@ -319,5 +319,18 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
         }
 
         def.addMapping(colDef);
+    }
+
+    private ResolvableType resolveHandlerType(ResolvableType propertyType, Class<?> javaType) {
+        if (javaType == propertyType.getRawClass()) {
+            return propertyType;
+        }
+
+        // Keep the property arguments when substituting a concrete generic implementation.
+        ResolvableType[] generics = propertyType.getGenerics();
+        if (generics.length > 0 && javaType.getTypeParameters().length == generics.length) {
+            return ResolvableType.forClassWithGenerics(javaType, generics);
+        }
+        return ResolvableType.forClass(javaType);
     }
 }
