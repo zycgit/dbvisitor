@@ -599,7 +599,7 @@ class MongoCommandsForCollection extends MongoCommands {
                 keySet.addAll(doc.keySet());
                 for (Map.Entry<String, Object> field : doc.entrySet()) {
                     if (field.getValue() != null) {
-                        fieldTypes.putIfAbsent(field.getKey(), MongoValues.jdbcType(field.getValue()));
+                        fieldTypes.putIfAbsent(field.getKey(), MongoUtils.jdbcType(field.getValue()));
                     }
                 }
 
@@ -626,7 +626,7 @@ class MongoCommandsForCollection extends MongoCommands {
             }
             for (String key : keySet) {
                 if (doc.containsKey(key)) {
-                    Object val = MongoValues.jdbcValue(doc.get(key));
+                    Object val = MongoUtils.jdbcValue(doc.get(key));
                     row.put(key, val);
                 }
             }
@@ -639,10 +639,9 @@ class MongoCommandsForCollection extends MongoCommands {
 
     private static Set<String> projectedColumnNames(Bson projection) {
         Set<String> names = new LinkedHashSet<>();
-        if (!(projection instanceof Document)) {
+        if (!(projection instanceof Document fields)) {
             return names;
         }
-        Document fields = (Document) projection;
         for (Map.Entry<String, Object> field : fields.entrySet()) {
             Object value = field.getValue();
             boolean excluded = Boolean.FALSE.equals(value) || value instanceof Number && ((Number) value).doubleValue() == 0;
@@ -1086,10 +1085,9 @@ class MongoCommandsForCollection extends MongoCommands {
     private static Bson aggregateProjection(List<Bson> pipeline) {
         Bson projection = null;
         for (Bson stage : pipeline) {
-            if (!(stage instanceof Document)) {
+            if (!(stage instanceof Document document)) {
                 continue;
             }
-            Document document = (Document) stage;
             if (document.containsKey("$project")) {
                 projection = (Bson) document.get("$project");
             } else if (document.containsKey("$group") || document.containsKey("$replaceRoot") || document.containsKey("$replaceWith")) {

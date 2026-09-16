@@ -19,6 +19,7 @@ import io.milvus.shaded.io.grpc.StatusException;
 import io.milvus.shaded.io.grpc.StatusRuntimeException;
 import io.milvus.v2.exception.MilvusClientException;
 import net.hasor.dbvisitor.adapter.milvus.MilvusRequest;
+import net.hasor.dbvisitor.adapter.milvus.MilvusUtils;
 import net.hasor.dbvisitor.driver.AdapterRequest;
 import static net.hasor.dbvisitor.adapter.milvus.MilvusRequest.checkActive;
 import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommands.sleepQuietly;
@@ -54,7 +55,7 @@ public final class MilvusRetry {
                 }
                 return result;
             } catch (SQLException | RuntimeException e) {
-                failure = sqlException(e);
+                failure = MilvusUtils.sqlException(e);
             }
             checkActive(request);
             if (retries >= maxRetry || !isRetryable(failure)) {
@@ -64,10 +65,6 @@ public final class MilvusRetry {
             delay = Math.min(MAX_DELAY_MS, delay * 2);
             retries++;
         }
-    }
-
-    public static SQLException sqlException(Exception failure) {
-        return failure instanceof SQLException ? (SQLException) failure : new SQLException(failure.getMessage(), failure);
     }
 
     private static boolean isRetryable(Throwable failure) {

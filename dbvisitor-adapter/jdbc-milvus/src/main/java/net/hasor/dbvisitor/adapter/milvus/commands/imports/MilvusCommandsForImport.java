@@ -6,22 +6,17 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.milvus.commands.imports;
-import static net.hasor.dbvisitor.adapter.milvus.MilvusRequest.checkActive;
-import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandUtils.*;
-
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCmd;
+import net.hasor.dbvisitor.adapter.milvus.MilvusUtils;
 import net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandKeys;
 import net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommands;
-import net.hasor.dbvisitor.adapter.milvus.commands.MilvusRetry;
 import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser.HintCommandContext;
 import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser.ImportCmdContext;
 import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser.ShowCmdContext;
@@ -30,15 +25,17 @@ import net.hasor.dbvisitor.driver.AdapterReceive;
 import net.hasor.dbvisitor.driver.AdapterRequest;
 import net.hasor.dbvisitor.driver.AdapterType;
 import net.hasor.dbvisitor.driver.JdbcColumn;
+import static net.hasor.dbvisitor.adapter.milvus.MilvusRequest.checkActive;
+import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandUtils.*;
 
 /** Server-side file imports: submission, bounded waiting and JDBC job inspection. */
 public final class MilvusCommandsForImport extends MilvusCommands {
     private MilvusCommandsForImport() {
     }
 
-    private static final long       DEFAULT_WAIT_TIMEOUT_MS = 60_000;
-    private static final long       POLL_INTERVAL_MS        = 100;
-    private static final JdbcColumn JOB_ID                  = new JdbcColumn("JOB_ID", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+    private static final long             DEFAULT_WAIT_TIMEOUT_MS = 60_000;
+    private static final long             POLL_INTERVAL_MS        = 100;
+    private static final JdbcColumn       JOB_ID                  = new JdbcColumn("JOB_ID", AdapterType.String, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
     // @formatter:off
     private static final List<JdbcColumn> JOB_COLUMNS             = Arrays.asList(
         JOB_ID,
@@ -165,7 +162,7 @@ public final class MilvusCommandsForImport extends MilvusCommands {
                 sleepQuietly(Math.min(POLL_INTERVAL_MS, remaining));
             }
         } catch (SQLException | RuntimeException failure) {
-            SQLException cause = MilvusRetry.sqlException(failure);
+            SQLException cause = MilvusUtils.sqlException(failure);
             // @formatter:off
             String message = cause.getMessage()
                     + ", " + MilvusCommandKeys.REST_JOB_ID + "=" + jobId

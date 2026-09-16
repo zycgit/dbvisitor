@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import net.hasor.dbvisitor.adapter.elastic.ElasticUtils;
 import net.hasor.dbvisitor.driver.AdapterRequest;
 import net.hasor.dbvisitor.driver.JdbcArg;
 
@@ -30,7 +31,7 @@ public class ElasticJsonVisitor extends ElasticParserBaseVisitor<Object> {
         if (jdbcArg == null) {
             throw new RuntimeException(argName + " not found in request.");
         } else {
-            return jdbcArg.getValue();
+            return ElasticUtils.normalizeParameter(jdbcArg.getValue());
         }
     }
 

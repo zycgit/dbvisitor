@@ -12,7 +12,7 @@ import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 import net.hasor.dbvisitor.adapter.milvus.MilvusRequest;
-import net.hasor.dbvisitor.adapter.milvus.commands.MilvusRetry;
+import net.hasor.dbvisitor.adapter.milvus.MilvusUtils;
 import net.hasor.dbvisitor.adapter.milvus.mapping.MilvusVectorCodec;
 import net.hasor.dbvisitor.driver.AdapterCursor;
 import net.hasor.dbvisitor.driver.AdapterType;
@@ -103,7 +103,7 @@ public final class MilvusResultCursor implements AdapterCursor {
                 return true;
             }
         } catch (SQLException | RuntimeException e) {
-            failure = MilvusRetry.sqlException(e);
+            failure = MilvusUtils.sqlException(e);
             try {
                 finish();
             } catch (RuntimeException closeFailure) {

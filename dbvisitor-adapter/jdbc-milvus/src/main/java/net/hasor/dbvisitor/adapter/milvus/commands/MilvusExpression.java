@@ -14,7 +14,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import io.milvus.v2.utils.VectorUtils;
-import net.hasor.dbvisitor.adapter.milvus.mapping.MilvusSchema;
+import net.hasor.dbvisitor.adapter.milvus.MilvusUtils;
 import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser.*;
 import net.hasor.dbvisitor.driver.AdapterRequest;
 import net.hasor.dbvisitor.driver.AdapterType;
@@ -227,7 +227,7 @@ public final class MilvusExpression {
         try {
             // Explicit VARCHAR bindings are text even when the supplied Java object is not String.
             if (value != null && AdapterType.String.equals(argument.getType())) {
-                value = value instanceof java.util.Date date ? MilvusSchema.temporalText(date) : String.valueOf(value);
+                value = String.valueOf(MilvusUtils.temporalValue(value));
             }
             return templateValue(value);
         } catch (IllegalArgumentException | ArithmeticException e) {
@@ -236,11 +236,9 @@ public final class MilvusExpression {
     }
 
     private static Object templateValue(Object value) throws SQLException {
+        value = MilvusUtils.temporalValue(value);
         if (value == null) {
             throw new SQLException("Milvus filter templates do not support null; use IS NULL or IS NOT NULL.");
-        }
-        if (value instanceof java.util.Date date) {
-            return MilvusSchema.temporalText(date);
         }
         if (value instanceof String || value instanceof Boolean || value instanceof Integer || value instanceof Long) {
             return value;

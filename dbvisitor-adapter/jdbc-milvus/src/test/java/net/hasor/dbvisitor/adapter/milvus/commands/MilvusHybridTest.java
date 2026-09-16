@@ -106,6 +106,39 @@ public class MilvusHybridTest extends AbstractJdbcTest {
     }
 
     @Test
+    public void bm25OperatorShouldNotConsumeJdbcParameters() throws Exception {
+        try (Connection conn = connect(); Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate(DDL);
+            for (boolean range : new boolean[] { false, true }) {
+                String query = "SELECT id FROM docs WHERE body = ?" + (range ? " AND sparse <?> ? > ?" : " ORDER BY sparse <?> ?") + " LIMIT 2";
+                try (PreparedStatement statement = conn.prepareStatement(query)) {
+                    statement.setString(1, "tenant");
+                    statement.setString(2, "search ? <?> text");
+                    if (range) {
+                        statement.setDouble(3, 0.75);
+                    }
+                    try (ResultSet rows = statement.executeQuery()) {
+                        assertTrue(rows.next());
+                        assertEquals(8, rows.getLong("id"));
+                        assertTrue(rows.next());
+                        assertEquals(3, rows.getLong("id"));
+                        assertFalse(rows.next());
+                    }
+                    assertEquals("body == {arg1}", search.getDsl());
+                    assertEquals("tenant", search.getExprTemplateValuesOrThrow("arg1").getStringVal());
+                    PlaceholderValue value = PlaceholderGroup.parseFrom(search.getPlaceholderGroup()).getPlaceholders(0);
+                    assertEquals(PlaceholderType.VarChar, value.getType());
+                    assertEquals("search ? <?> text", value.getValues(0).toStringUtf8());
+                    assertTrue(search.getSearchParamsList().stream().anyMatch(param -> "metric_type".equals(param.getKey()) && "BM25".equals(param.getValue())));
+                    if (range) {
+                        assertTrue(search.getSearchParamsList().stream().anyMatch(param -> param.getValue().contains("\"radius\":0.75")));
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
     public void hybridBindsInSqlOrderAndReturnsOneFusedResult() throws Exception {
         try (Connection conn = connect(); Statement stmt = conn.createStatement()) {
             stmt.executeUpdate(DDL);

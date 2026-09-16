@@ -27,7 +27,7 @@ abstract class ElasticCommands {
         if (jdbcArg == null) {
             throw new SQLException(argName + " not found in request.");
         } else {
-            return jdbcArg.getValue();
+            return ElasticUtils.normalizeParameter(jdbcArg.getValue());
         }
     }
 

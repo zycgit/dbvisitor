@@ -20,9 +20,9 @@ import io.milvus.v2.service.vector.response.InsertResp;
 import io.milvus.v2.service.vector.response.UpsertResp;
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCmd;
+import net.hasor.dbvisitor.adapter.milvus.MilvusUtils;
 import net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandKeys;
 import net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommands;
-import net.hasor.dbvisitor.adapter.milvus.commands.MilvusRetry;
 import net.hasor.dbvisitor.adapter.milvus.mapping.MilvusSchema;
 import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser.*;
 import net.hasor.dbvisitor.driver.AdapterReceive;
@@ -148,7 +148,7 @@ public final class MilvusCommandsForWrite extends MilvusCommands {
                     failure.addSuppressed(closeFailure);
                 }
             }
-            SQLException cause = MilvusRetry.sqlException(failure);
+            SQLException cause = MilvusUtils.sqlException(failure);
             // @formatter:off
             String message = "Milvus " + (upsert ? "UPSERT" : "INSERT") + " failed: phase=" + phase
                     + ", confirmedPages=" + confirmedPages

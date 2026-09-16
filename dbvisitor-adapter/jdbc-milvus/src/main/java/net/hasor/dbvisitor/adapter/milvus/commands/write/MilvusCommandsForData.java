@@ -31,6 +31,7 @@ import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCmd;
 import net.hasor.dbvisitor.adapter.milvus.MilvusRequest;
+import net.hasor.dbvisitor.adapter.milvus.MilvusUtils;
 import net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandKeys;
 import net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommands;
 import net.hasor.dbvisitor.adapter.milvus.commands.MilvusExpression.Filter;
@@ -464,7 +465,7 @@ public final class MilvusCommandsForData extends MilvusCommands {
     }
 
     private static SQLException pageFailure(String operation, String iteratorType, String phase, long pageNumber, long confirmedPages, long confirmedRows, int currentPageRows, Exception cause) {
-        SQLException error = MilvusRetry.sqlException(cause);
+        SQLException error = MilvusUtils.sqlException(cause);
         // @formatter:off
         String message = "Milvus " + operation + " failed during paged execution: phase=" + phase
                 + ", iterator=" + iteratorType

@@ -65,7 +65,7 @@ class ElasticCommandsForQuery extends ElasticCommands {
         try (InputStream inputStream = response.getEntity().getContent()) {
             JsonParser parser = jsonMapper.getFactory().createParser(inputStream);
 
-            if (navigateToResponses(parser)) {
+            if (ElasticUtils.navigateToArray(parser, "responses")) {
                 while (parser.nextToken() != JsonToken.END_ARRAY) {
                     try (ElasticResultBuffer buffer = new ElasticResultBuffer(conn.getPreReadThreshold(), conn.getPreReadMaxFileSize(), conn.getPreReadCacheDir())) {
                         if (navigateToHits(parser)) {
@@ -112,7 +112,7 @@ class ElasticCommandsForQuery extends ElasticCommands {
         try (InputStream inputStream = response.getEntity().getContent()) {
             JsonParser parser = jsonMapper.getFactory().createParser(inputStream);
 
-            if (navigateToResponses(parser)) {
+            if (ElasticUtils.navigateToArray(parser, "responses")) {
                 while (parser.nextToken() != JsonToken.END_ARRAY) {
                     if (navigateToHits(parser)) {
                         if (parser.nextToken() != JsonToken.END_ARRAY) {
@@ -166,48 +166,6 @@ class ElasticCommandsForQuery extends ElasticCommands {
         return completed(sync);
     }
 
-    private static boolean navigateToResponses(JsonParser parser) throws java.io.IOException {
-        if (parser.currentToken() == null) {
-            parser.nextToken();
-        }
-        if (parser.currentToken() != JsonToken.START_OBJECT) {
-            return false;
-        }
-
-        while (parser.nextToken() != JsonToken.END_OBJECT) {
-            String fieldName = parser.currentName();
-            parser.nextToken(); // move to value
-
-            if ("responses".equals(fieldName) && parser.currentToken() == JsonToken.START_ARRAY) {
-                return true;
-            } else {
-                parser.skipChildren();
-            }
-        }
-        return false;
-    }
-
-    private static boolean navigateToDocs(JsonParser parser) throws java.io.IOException {
-        if (parser.currentToken() == null) {
-            parser.nextToken();
-        }
-        if (parser.currentToken() != JsonToken.START_OBJECT) {
-            return false;
-        }
-
-        while (parser.nextToken() != JsonToken.END_OBJECT) {
-            String fieldName = parser.currentName();
-            parser.nextToken(); // move to value
-
-            if ("docs".equals(fieldName) && parser.currentToken() == JsonToken.START_ARRAY) {
-                return true;
-            } else {
-                parser.skipChildren();
-            }
-        }
-        return false;
-    }
-
     //
 
     public static Future<?> execSearch(Future<Object> sync, ElasticCmd cmd, ElasticOperation o, Object jsonBody, AdapterReceive receive, ElasticConn conn) throws Exception {
@@ -221,8 +179,7 @@ class ElasticCommandsForQuery extends ElasticCommands {
                 String newEndpoint = endpoint.replace("/_search", "/_count");
                 ElasticOperation newOp = new ElasticOperation(o.getMethod(), newEndpoint, o.getQueryPath(), o.getQueryParams(), hints, o.getRequest());
                 Object countBody = jsonBody;
-                if (jsonBody instanceof Map) {
-                    Map<?, ?> searchBody = (Map<?, ?>) jsonBody;
+                if (jsonBody instanceof Map<?, ?> searchBody) {
                     for (String option : new String[] { "aggs", "aggregations", "collapse", "min_score", "knn", "terminate_after" }) {
                         if (searchBody.containsKey(option)) {
                             throw new java.sql.SQLFeatureNotSupportedException("Cannot rewrite search option '" + option + "' as a document count");
@@ -439,17 +396,7 @@ class ElasticCommandsForQuery extends ElasticCommands {
             parser.nextToken(); // move to value
 
             if ("hits".equals(fieldName) && parser.currentToken() == JsonToken.START_OBJECT) {
-                while (parser.nextToken() != JsonToken.END_OBJECT) {
-                    String innerFieldName = parser.currentName();
-                    parser.nextToken(); // move to value
-
-                    if ("hits".equals(innerFieldName) && parser.currentToken() == JsonToken.START_ARRAY) {
-                        return true;
-                    } else if (parser.currentToken() == JsonToken.START_OBJECT || parser.currentToken() == JsonToken.START_ARRAY) {
-                        parser.skipChildren();
-                    }
-                }
-                return false; // Found "hits" object but no "hits" array inside
+                return ElasticUtils.navigateToArray(parser, "hits");
             } else if (parser.currentToken() == JsonToken.START_OBJECT || parser.currentToken() == JsonToken.START_ARRAY) {
                 parser.skipChildren();
             }
@@ -467,40 +414,10 @@ class ElasticCommandsForQuery extends ElasticCommands {
             Iterator<Map.Entry<String, JsonNode>> fields = source.fields();
             while (fields.hasNext()) {
                 Map.Entry<String, JsonNode> field = fields.next();
-                JsonNode value = field.getValue();
-                if (value.isNull()) {
-                    row.put(field.getKey(), null);
-                } else if (value.isNumber()) {
-                    row.put(field.getKey(), value.numberValue());
-                } else if (value.isBoolean()) {
-                    row.put(field.getKey(), value.booleanValue());
-                } else if (value.isValueNode()) {
-                    row.put(field.getKey(), value.asText());
-                } else {
-                    row.put(field.getKey(), rawJsonValue(value));
-                }
+                row.put(field.getKey(), ElasticUtils.rawJsonValue(field.getValue()));
             }
         }
         return row;
-    }
-
-    private static Object rawJsonValue(JsonNode value) {
-        if (value.isNull()) {
-            return null;
-        }
-        if (value.isArray()) {
-            List<Object> items = new ArrayList<>();
-            for (JsonNode item : value) {
-                items.add(rawJsonValue(item));
-            }
-            return items;
-        }
-        if (value.isObject()) {
-            Map<String, Object> object = new LinkedHashMap<>();
-            value.fields().forEachRemaining(entry -> object.put(entry.getKey(), rawJsonValue(entry.getValue())));
-            return object;
-        }
-        return value.isBoolean() ? value.booleanValue() : value.isNumber() ? value.numberValue() : value.asText();
     }
 
     private static List<JdbcColumn> bufferedColumns(Set<String> fields, ElasticResultBuffer buffer) {
@@ -508,17 +425,14 @@ class ElasticCommandsForQuery extends ElasticCommands {
         for (Map<String, Object> row : buffer) {
             row.forEach((field, value) -> {
                 if (value != null && !types.containsKey(field)) {
-                    String type = value instanceof Boolean ? AdapterType.Boolean : value instanceof Integer ? AdapterType.Int
-                            : value instanceof Long ? AdapterType.Long : value instanceof Number ? AdapterType.Double
-                            : value instanceof List ? AdapterType.Array : AdapterType.String;
+                    String type = value instanceof Boolean ? AdapterType.Boolean : value instanceof Integer ? AdapterType.Int : value instanceof Long ? AdapterType.Long : value instanceof Number ? AdapterType.Double : value instanceof List ? AdapterType.Array : AdapterType.String;
                     types.put(field, type);
                 }
             });
         }
         List<JdbcColumn> columns = new ArrayList<>();
         for (String field : fields) {
-            columns.add(new JdbcColumn(field, types.getOrDefault(field, AdapterType.String), "", "", "",
-                    ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array));
+            columns.add(new JdbcColumn(field, types.getOrDefault(field, AdapterType.String), "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array));
         }
         return columns;
     }
@@ -623,7 +537,7 @@ class ElasticCommandsForQuery extends ElasticCommands {
         try (InputStream inputStream = response.getEntity().getContent()) {
             JsonParser parser = jsonMapper.getFactory().createParser(inputStream);
 
-            if (navigateToDocs(parser)) {
+            if (ElasticUtils.navigateToArray(parser, "docs")) {
                 try (ElasticResultBuffer buffer = new ElasticResultBuffer(conn.getPreReadThreshold(), conn.getPreReadMaxFileSize(), conn.getPreReadCacheDir())) {
                     while (parser.nextToken() != JsonToken.END_ARRAY) {
                         JsonNode hitNode = jsonMapper.readTree(parser);
@@ -657,7 +571,7 @@ class ElasticCommandsForQuery extends ElasticCommands {
         try (InputStream inputStream = response.getEntity().getContent()) {
             JsonParser parser = jsonMapper.getFactory().createParser(inputStream);
 
-            if (navigateToDocs(parser)) {
+            if (ElasticUtils.navigateToArray(parser, "docs")) {
                 if (parser.nextToken() != JsonToken.END_ARRAY) {
                     JsonNode firstHit = jsonMapper.readTree(parser);
                     Map<String, Object> firstRow = parseHit(firstHit);

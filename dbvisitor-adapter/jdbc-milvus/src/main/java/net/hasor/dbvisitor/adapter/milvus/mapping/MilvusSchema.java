@@ -18,6 +18,7 @@ import io.milvus.grpc.FieldSchema;
 import io.milvus.v2.service.collection.request.CreateCollectionReq;
 import io.milvus.v2.service.collection.response.DescribeCollectionResp;
 import io.milvus.v2.utils.SchemaUtils;
+import net.hasor.dbvisitor.adapter.milvus.MilvusUtils;
 import net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandKeys;
 import net.hasor.dbvisitor.driver.AdapterType;
 import net.hasor.dbvisitor.driver.JdbcColumn;
@@ -33,8 +34,8 @@ public final class MilvusSchema {
         }
         String fieldName = field.getName();
         DataType dataType = field.getDataType();
-        if (dataType == DataType.VarChar && value instanceof java.util.Date date) {
-            return temporalText(date);
+        if (dataType == DataType.VarChar) {
+            return MilvusUtils.temporalValue(value);
         }
         if (MilvusVectorCodec.isVector(dataType)) {
             return MilvusVectorCodec.writeValue(field, value);
@@ -74,14 +75,6 @@ public final class MilvusSchema {
     }
 
     // JDBC type mapping
-
-    /** Stable JDBC text for VARCHAR storage and filter templates, not a native Milvus temporal type. */
-    public static String temporalText(java.util.Date value) {
-        if (value instanceof java.sql.Date || value instanceof java.sql.Time || value instanceof java.sql.Timestamp) {
-            return value.toString();
-        }
-        return new java.sql.Timestamp(value.getTime()).toString();
-    }
 
     public static String adapterType(DataType type) {
         if (type == null) {

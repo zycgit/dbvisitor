@@ -22,7 +22,9 @@ import net.hasor.cobble.concurrent.future.BasicFuture;
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
-import net.hasor.dbvisitor.adapter.elastic.parser.*;
+import net.hasor.dbvisitor.adapter.elastic.parser.ElasticArgVisitor;
+import net.hasor.dbvisitor.adapter.elastic.parser.QueryParseException;
+import net.hasor.dbvisitor.adapter.elastic.parser.ThrowingListener;
 import net.hasor.dbvisitor.driver.*;
 import org.antlr.v4.runtime.BufferedTokenStream;
 import org.antlr.v4.runtime.CharStreams;
@@ -50,8 +52,8 @@ public class ElasticConn extends AdapterConnection implements MetadataSupport {
         this.metadata = new ElasticMetadata(this.elasticCmd, this.json);
 
         this.preRead = "true".equalsIgnoreCase(prop.getOrDefault(ElasticKeys.PREREAD_ENABLED, "true"));
-        this.preReadThreshold = parseSize(prop.get(ElasticKeys.PREREAD_THRESHOLD), 5 * 1024 * 1024); // Default 5MB
-        this.preReadMaxFileSize = parseSize(prop.get(ElasticKeys.PREREAD_MAX_FILE_SIZE), 20 * 1024 * 1024); // Default 20MB
+        this.preReadThreshold = ElasticUtils.parseSize(prop.get(ElasticKeys.PREREAD_THRESHOLD), 5 * 1024 * 1024); // Default 5MB
+        this.preReadMaxFileSize = ElasticUtils.parseSize(prop.get(ElasticKeys.PREREAD_MAX_FILE_SIZE), 20 * 1024 * 1024); // Default 20MB
         String cacheDirStr = prop.get(ElasticKeys.PREREAD_CACHE_DIR);
         this.preReadCacheDir = StringUtils.isBlank(cacheDirStr) ? new java.io.File(System.getProperty("java.io.tmpdir")) : new java.io.File(cacheDirStr);
         this.indexRefresh = "true".equalsIgnoreCase(prop.getOrDefault(ElasticKeys.INDEX_REFRESH, "false"));
@@ -60,33 +62,6 @@ public class ElasticConn extends AdapterConnection implements MetadataSupport {
     @Override
     public int getDefaultGeneratedKeys() {
         return Statement.RETURN_GENERATED_KEYS;
-    }
-
-    private long parseSize(String sizeStr, long defaultValue) {
-        if (StringUtils.isBlank(sizeStr)) {
-            return defaultValue;
-        }
-        sizeStr = sizeStr.toUpperCase().trim();
-        long multiplier = 1;
-        if (StringUtils.endsWithIgnoreCase(sizeStr, "KB")) {
-            multiplier = 1024;
-            sizeStr = sizeStr.substring(0, sizeStr.length() - 2);
-        } else if (StringUtils.endsWithIgnoreCase(sizeStr, "MB")) {
-            multiplier = 1024 * 1024;
-            sizeStr = sizeStr.substring(0, sizeStr.length() - 2);
-        } else if (StringUtils.endsWithIgnoreCase(sizeStr, "GB")) {
-            multiplier = 1024 * 1024 * 1024;
-            sizeStr = sizeStr.substring(0, sizeStr.length() - 2);
-        } else if (StringUtils.endsWithIgnoreCase(sizeStr, "B")) {
-            sizeStr = sizeStr.substring(0, sizeStr.length() - 1);
-        } else {
-            multiplier = 1024 * 1024;
-        }
-        try {
-            return Long.parseLong(sizeStr.trim()) * multiplier;
-        } catch (NumberFormatException e) {
-            return defaultValue;
-        }
     }
 
     public boolean isPreRead() {

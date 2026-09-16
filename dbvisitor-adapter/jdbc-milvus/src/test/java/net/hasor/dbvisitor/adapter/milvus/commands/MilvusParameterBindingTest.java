@@ -10,6 +10,10 @@ package net.hasor.dbvisitor.adapter.milvus.commands;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.*;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 import io.milvus.grpc.*;
 import io.milvus.orm.iterator.QueryIterator;
@@ -26,6 +30,7 @@ import io.milvus.v2.utils.VectorUtils;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCommandInterceptor;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
+import net.hasor.dbvisitor.adapter.milvus.mapping.MilvusSchema;
 import net.hasor.dbvisitor.driver.JdbcDriver;
 import org.junit.After;
 import org.junit.Before;
@@ -223,6 +228,50 @@ public class MilvusParameterBindingTest {
             DeleteRequest wire = new DataUtils().ConvertToGrpcDeleteRequest((DeleteReq) requests.get(i));
             assertEquals("title == {arg1}", wire.getExpr());
             assertEquals(expected.get(i), wire.getExprTemplateValuesOrThrow("arg1").getStringVal());
+        }
+    }
+
+    @Test
+    public void javaTimeQueryAndUpdateFiltersShouldMatchJdbcBindingsAndVarcharWritesInNonUtcZone() throws Exception {
+        TimeZone previous = TimeZone.getDefault();
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Shanghai"));
+        try {
+            LocalDate date = LocalDate.of(2026, 9, 10);
+            LocalTime time = LocalTime.of(8, 9, 10, 123456789);
+            LocalDateTime dateTime = LocalDateTime.of(date, time);
+            Instant instant = Instant.parse("2026-09-10T00:09:10.123456789Z");
+            Object[][] values = { { dateTime, Timestamp.valueOf(dateTime) }, { date, java.sql.Date.valueOf(date) }, { time, Time.valueOf(time) }, { instant, Timestamp.from(instant) } };
+            FieldSchema varchar = FieldSchema.newBuilder().setName("title").setDataType(DataType.VarChar).build();
+            for (String sql : Arrays.asList("SELECT id FROM t WHERE title = ? LIMIT 1", "UPDATE t SET n = 1 WHERE title = ?")) {
+                for (Object[] pair : values) {
+                    requests.clear();
+                    try (Connection conn = connect(); PreparedStatement statement = conn.prepareStatement(sql)) {
+                        statement.setObject(1, pair[0]);
+                        statement.execute();
+                        statement.setObject(1, pair[0], Types.VARCHAR);
+                        statement.execute();
+                        if (pair[1] instanceof Timestamp timestamp) {
+                            statement.setTimestamp(1, timestamp);
+                        } else if (pair[1] instanceof java.sql.Date jdbcDate) {
+                            statement.setDate(1, jdbcDate);
+                        } else {
+                            statement.setTime(1, (Time) pair[1]);
+                        }
+                        statement.execute();
+                    }
+                    String expected = pair[1].toString();
+                    assertEquals(expected, MilvusSchema.convertFieldValue(varchar, pair[0]));
+                    assertEquals(3, requests.size());
+                    for (Object request : requests) {
+                        BoundFilter bound = filter(request);
+                        assertEquals(sql, "title == {arg1}", bound.expression());
+                        assertEquals(sql, Collections.singletonMap("arg1", expected), bound.values());
+                        assertEquals(expected, VectorUtils.deduceAndCreateTemplateValue(bound.values().get("arg1")).getStringVal());
+                    }
+                }
+            }
+        } finally {
+            TimeZone.setDefault(previous);
         }
     }
 

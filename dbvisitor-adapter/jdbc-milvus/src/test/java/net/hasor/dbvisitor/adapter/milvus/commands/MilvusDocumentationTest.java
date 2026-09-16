@@ -156,9 +156,7 @@ public class MilvusDocumentationTest {
         Path reference = repositoryRoot().resolve("dbvisitor-doc").resolve(directory).resolve("features/milvus");
         List<String> documents = new ArrayList<>();
         try (Stream<Path> paths = Files.walk(reference)) {
-            paths.filter(Files::isRegularFile)
-                    .filter(path -> Arrays.asList("basics", "types", "query", "write", "ddl", "show", "admin").contains(reference.relativize(path).getName(0).toString()))
-                    .filter(path -> {
+            paths.filter(Files::isRegularFile).filter(path -> Arrays.asList("basics", "types", "query", "write", "ddl", "show", "admin").contains(reference.relativize(path).getName(0).toString())).filter(path -> {
                 return path.toString().endsWith(".md") || path.toString().endsWith(".mdx");
             }).sorted().forEach(path -> {
                 documents.add(reference.relativize(path).toString().replace(File.separatorChar, '/'));
@@ -258,7 +256,7 @@ public class MilvusDocumentationTest {
         };
         for (String language : Arrays.asList("cn", "en")) {
             List<String> sqlBlocks = new ArrayList<>();
-            List<String> documents = new ArrayList<>(Arrays.asList("dbvisitor/usage.mdx", "dbvisitor/generated-keys.mdx", "params.md"));
+            List<String> documents = new ArrayList<>(Arrays.asList("dbvisitor/query.mdx", "dbvisitor/write.mdx", "dbvisitor/generated-keys.mdx", "params.md"));
             documents.addAll(referenceDocuments(language));
             for (String name : documents) {
                 sqlBlocks.addAll(blocks(document(language, name), "sql"));

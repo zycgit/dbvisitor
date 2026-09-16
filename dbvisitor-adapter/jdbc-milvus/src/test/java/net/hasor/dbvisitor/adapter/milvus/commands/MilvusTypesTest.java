@@ -9,6 +9,10 @@ package net.hasor.dbvisitor.adapter.milvus.commands;
 
 import java.nio.ByteBuffer;
 import java.sql.*;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 import io.milvus.grpc.*;
 import io.milvus.v2.client.MilvusClientV2;
@@ -21,10 +25,8 @@ import io.milvus.v2.service.vector.request.UpsertReq;
 import io.milvus.v2.utils.DataUtils;
 import io.milvus.v2.utils.SchemaUtils;
 import io.milvus.v2.utils.VectorUtils;
-import net.hasor.dbvisitor.adapter.milvus.AbstractJdbcTest;
-import net.hasor.dbvisitor.adapter.milvus.MilvusCommandInterceptor;
-import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
-import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
+import net.hasor.dbvisitor.adapter.milvus.*;
+import net.hasor.dbvisitor.adapter.milvus.mapping.MilvusSchema;
 import net.hasor.dbvisitor.driver.JdbcDriver;
 import org.junit.After;
 import org.junit.Test;
@@ -145,6 +147,69 @@ public class MilvusTypesTest extends AbstractJdbcTest {
                 }
             }
         }
+    }
+
+    @Test
+    public void javaTimeValuesShouldMatchJdbcTemporalBindingsInNonUtcZone() throws Exception {
+        TimeZone previous = TimeZone.getDefault();
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Shanghai"));
+        try {
+            LocalDate date = LocalDate.of(2026, 9, 10);
+            LocalTime time = LocalTime.of(8, 9, 10, 123456789);
+            LocalDateTime dateTime = LocalDateTime.of(date, time);
+            Instant instant = Instant.parse("2026-09-10T00:09:10.123456789Z");
+            try (Connection conn = connect(); Statement statement = conn.createStatement()) {
+                statement.executeUpdate("CREATE TABLE t (id INT64 PRIMARY KEY,ld VARCHAR(128),jd VARCHAR(128),lt VARCHAR(128),jt VARCHAR(128),ldt VARCHAR(128),jdt VARCHAR(128),ins VARCHAR(128),jins VARCHAR(128),label VARCHAR(128))");
+                for (String operation : Arrays.asList("INSERT", "UPSERT")) {
+                    try (PreparedStatement insert = conn.prepareStatement(operation + " INTO t (id,ld,jd,lt,jt,ldt,jdt,ins,jins,label) VALUES (1,?,?,?,?,?,?,?,?,?)")) {
+                        insert.setObject(1, date);
+                        insert.setDate(2, java.sql.Date.valueOf(date));
+                        insert.setObject(3, time);
+                        insert.setTime(4, Time.valueOf(time));
+                        insert.setObject(5, dateTime);
+                        insert.setTimestamp(6, Timestamp.valueOf(dateTime));
+                        insert.setObject(7, instant);
+                        insert.setTimestamp(8, Timestamp.from(instant));
+                        insert.setObject(9, "unchanged text");
+                        assertEquals(1, insert.executeUpdate());
+                    }
+                    try (ResultSet rows = statement.executeQuery("SELECT id,ld,jd,lt,jt,ldt,jdt,ins,jins,label FROM t LIMIT 1")) {
+                        assertTrue(rows.next());
+                        assertEquals("2026-09-10", rows.getString("ld"));
+                        assertEquals(rows.getString("jd"), rows.getString("ld"));
+                        assertEquals("08:09:10", rows.getString("lt"));
+                        assertEquals(rows.getString("jt"), rows.getString("lt"));
+                        assertEquals("2026-09-10 08:09:10.123456789", rows.getString("ldt"));
+                        assertEquals(rows.getString("jdt"), rows.getString("ldt"));
+                        assertEquals("2026-09-10 08:09:10.123456789", rows.getString("ins"));
+                        assertEquals(rows.getString("jins"), rows.getString("ins"));
+                        assertEquals(dateTime, rows.getTimestamp("ldt").toLocalDateTime());
+                        assertEquals(instant, rows.getTimestamp("ins").toInstant());
+                        assertEquals("unchanged text", rows.getString("label"));
+                        assertFalse(rows.next());
+                    }
+                }
+            }
+        } finally {
+            TimeZone.setDefault(previous);
+        }
+    }
+
+    @Test
+    public void temporalVarcharConversionShouldPreserveNullAndNonTemporalValues() throws Exception {
+        FieldSchema varchar = FieldSchema.newBuilder().setName("value").setDataType(DataType.VarChar).build();
+        String text = "unchanged text";
+        Integer number = 42;
+        assertNull(MilvusSchema.convertFieldValue(varchar, null));
+        assertSame(text, MilvusSchema.convertFieldValue(varchar, text));
+        assertSame(number, MilvusSchema.convertFieldValue(varchar, number));
+        Map<String, Integer> map = Collections.singletonMap("value", 42);
+        float[] vector = { 1, 2 };
+        assertSame(map, MilvusUtils.temporalValue(map));
+        assertSame(vector, MilvusUtils.temporalValue(vector));
+        LocalDateTime dateTime = LocalDateTime.of(2026, 9, 10, 8, 9, 10);
+        FieldSchema nonVarchar = FieldSchema.newBuilder().setName("value").setDataType(DataType.None).build();
+        assertSame(dateTime, MilvusSchema.convertFieldValue(nonVarchar, dateTime));
     }
 
     @Test

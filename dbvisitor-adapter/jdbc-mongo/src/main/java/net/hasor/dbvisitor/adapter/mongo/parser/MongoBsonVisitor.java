@@ -11,13 +11,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-
+import net.hasor.dbvisitor.adapter.mongo.MongoUtils;
+import net.hasor.dbvisitor.driver.AdapterRequest;
+import net.hasor.dbvisitor.driver.JdbcArg;
 import org.bson.BsonValue;
 import org.bson.Document;
 import org.bson.types.*;
-
-import net.hasor.dbvisitor.driver.AdapterRequest;
-import net.hasor.dbvisitor.driver.JdbcArg;
 
 public class MongoBsonVisitor extends MongoParserBaseVisitor<Object> {
     private final AdapterRequest request;
@@ -35,7 +34,7 @@ public class MongoBsonVisitor extends MongoParserBaseVisitor<Object> {
         if (jdbcArg == null) {
             throw new RuntimeException(argName + " not found in request.");
         } else {
-            return jdbcArg.getValue();
+            return MongoUtils.normalizeParameter(jdbcArg.getValue());
         }
     }
 
