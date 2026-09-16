@@ -141,7 +141,7 @@ dbVisitor provides multi-level API abstraction, allowing for free switching betw
 <dependency>
     <groupId>net.hasor</groupId>
     <artifactId>dbvisitor</artifactId>
-    <version>6.4.0</version> <!-- Check Maven Central for the latest version -->
+    <version>6.8.0</version>
 </dependency>
 ```
 
@@ -157,9 +157,9 @@ template.insert(UserInfo.class)
         .executeSumResult();
 
 // Query Data (Automatically translated to SQL or DSL)
-List<UserInfo> list = template.lambdaQuery(UserInfo.class)
+List<UserInfo> list = template.query(UserInfo.class)
         .eq(UserInfo::getAge, 18)
-        .list();
+        .queryForList();
 ```
 
 #### Complex Query (Mapper Interface)
@@ -170,11 +170,11 @@ Define an interface to enjoy a MyBatis-like development experience:
 public interface UserMapper extends BaseMapper<UserInfo> {
     
     // Method 1: Pure Java Construction (No XML needed)
-    default List<UserInfo> findActiveUsers(int minAge) {
+    default List<UserInfo> findActiveUsers(int minAge) throws SQLException {
         return this.query()
                    .eq(UserInfo::getStatus, "ENABLE")
                    .gt(UserInfo::getAge, minAge)
-                   .list();
+                   .queryForList();
     }
 
     // Method 2: Annotation Binding (SQL / DSL)

@@ -142,7 +142,7 @@ dbVisitor 提供了多层次的 API 抽象，允许在 **简单性** 与 **灵�
 <dependency>
     <groupId>net.hasor</groupId>
     <artifactId>dbvisitor</artifactId>
-    <version>6.4.0</version> <!-- 请检查 Maven Central 获取最新版本 -->
+    <version>6.8.0</version>
 </dependency>
 ```
 
@@ -158,9 +158,9 @@ template.insert(UserInfo.class)
         .executeSumResult();
 
 // 查询数据 (自动翻译为 SQL 或 DSL)
-List<UserInfo> list = template.lambdaQuery(UserInfo.class)
+List<UserInfo> list = template.query(UserInfo.class)
         .eq(UserInfo::getAge, 18)
-        .list();
+        .queryForList();
 ```
 
 #### 复杂查询 (Mapper 接口)
@@ -171,11 +171,11 @@ List<UserInfo> list = template.lambdaQuery(UserInfo.class)
 public interface UserMapper extends BaseMapper<UserInfo> {
     
     // 方式一：纯 Java 构建 (无需 XML)
-    default List<UserInfo> findActiveUsers(int minAge) {
+    default List<UserInfo> findActiveUsers(int minAge) throws SQLException {
         return this.query()
                    .eq(UserInfo::getStatus, "ENABLE")
                    .gt(UserInfo::getAge, minAge)
-                   .list();
+                   .queryForList();
     }
 
     // 方式二：注解绑定 (SQL / DSL)
