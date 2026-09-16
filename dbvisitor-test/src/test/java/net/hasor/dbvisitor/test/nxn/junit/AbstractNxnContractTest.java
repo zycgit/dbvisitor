@@ -12,6 +12,9 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Set;
+import net.hasor.dbvisitor.dynamic.MacroRegistry;
+import net.hasor.dbvisitor.dynamic.RuleRegistry;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.test.contract.AbstractOneApiTest;
@@ -21,6 +24,7 @@ import net.hasor.dbvisitor.test.nxn.capability.SupportStatus;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.report.NxnTestResult;
+import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import org.junit.Assume;
 import org.junit.AssumptionViolatedException;
 import org.junit.Before;
@@ -246,13 +250,12 @@ public abstract class AbstractNxnContractTest extends AbstractOneApiTest {
     }
 
     protected Configuration newConfiguration() {
-        Configuration configuration = new Configuration();
-        applyNxnMacros(configuration);
-        return configuration;
+        return newConfiguration(Options.of());
     }
 
     protected Configuration newConfiguration(Options options) {
-        Configuration configuration = new Configuration(options);
+        MappingRegistry mapping = new MappingRegistry(null, new TypeHandlerRegistry(), options);
+        Configuration configuration = new Configuration(mapping, new MacroRegistry(), new RuleRegistry());
         applyNxnMacros(configuration);
         return configuration;
     }

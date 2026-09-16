@@ -49,13 +49,9 @@ final class MilvusUserInfoFixture implements AutoCloseable {
     @Override
     public void close() throws SQLException {
         try {
-            if (this.connection != null) {
-                try (Statement statement = this.connection.createStatement()) {
-                    statement.executeUpdate("DROP TABLE IF EXISTS user_info");
-                }
-            }
-        } finally {
             this.database.close();
+        } finally {
+            this.connection = null;
         }
     }
 }

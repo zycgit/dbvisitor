@@ -16,6 +16,7 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import com.google.gson.Gson;
+import net.hasor.dbvisitor.test.nxn.config.NxnContext;
 import org.junit.runner.Description;
 
 /** One observed JUnit execution; declarations alone never produce a passing result. */
@@ -30,12 +31,12 @@ public final class NxnTestResult {
     public String reason;
 
     public static void write(String env, Description description, String capability, String outcome, String reason) throws Exception {
-        String resultDir = System.getProperty("nxn.resultDir");
+        Path resultDir = NxnContext.results();
         if (resultDir == null) {
             return;
         }
         NxnTestResult result = new NxnTestResult();
-        result.runId = System.getProperty("nxn.runId");
+        result.runId = NxnContext.executionId();
         result.env = env;
         result.fingerprint = Fingerprint.VALUE;
         result.testClass = description.getClassName();
@@ -43,7 +44,7 @@ public final class NxnTestResult {
         result.capability = capability;
         result.outcome = outcome;
         result.reason = reason;
-        Path directory = Path.of(resultDir, "cases");
+        Path directory = resultDir.resolve("cases");
         Files.createDirectories(directory);
         String key = result.testClass + "#" + result.method;
         Path output = directory.resolve(UUID.nameUUIDFromBytes(key.getBytes(StandardCharsets.UTF_8)) + ".json");

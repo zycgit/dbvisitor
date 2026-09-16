@@ -172,7 +172,7 @@ public abstract class LambdaIteratorCase extends AbstractNxnContractTest {
         return query.orderBy("id");
     }
 
-    private void seedUsers(int startId, String prefix, int count, int age) throws SQLException {
+    protected void seedUsers(int startId, String prefix, int count, int age) throws SQLException {
         for (int i = 0; i < count; i++) {
             insertUser(startId + i, prefix + (i + 1), age);
         }

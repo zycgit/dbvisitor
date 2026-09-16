@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.SupportStatus;
+import net.hasor.dbvisitor.test.nxn.config.NxnContext;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceId;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfileRegistry;
@@ -30,7 +31,8 @@ public final class CapabilityMatrixReport {
     }
 
     public static Path writeCurrentProfileReport(DataSourceProfile currentProfile) throws Exception {
-        Path output = Paths.get("target", "nxn-capability-matrix-" + currentProfile.env() + ".md");
+        Path resultDirectory = NxnContext.results();
+        Path output = resultDirectory == null ? Paths.get("target", "nxn-capability-matrix-" + currentProfile.env() + ".md") : resultDirectory.resolve("capability-bindings.md");
         Files.createDirectories(output.getParent());
         Files.write(output, render(currentProfile).getBytes(StandardCharsets.UTF_8));
         return output;

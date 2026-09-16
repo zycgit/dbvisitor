@@ -231,8 +231,7 @@ for arg in "$@"; do
 done
 
 if [[ "$run_nxn" == "true" && "$run_tests" != "true" && "$mode_explicit" != "true" ]]; then
-    ./dbvisitor-test/runnxn.sh all "${gradle_args[@]}"
-    exit 0
+    exec ./dbvisitor-test/runnxn.sh all "${gradle_args[@]}"
 fi
 
 if [[ "$mode" == "release" ]]; then
@@ -314,7 +313,15 @@ fi
 ./gradlew "${tasks[@]}" "${gradle_defaults[@]}" "${build_gradle_args[@]}"
 
 if [[ "$run_nxn" == "true" ]]; then
-    ./dbvisitor-test/runnxn.sh all "${gradle_args[@]}"
+    if [[ "$mode" != "deploy" || "$dry_run" == "true" ]]; then
+        exec ./dbvisitor-test/runnxn.sh all "${gradle_args[@]}"
+    fi
+    ./dbvisitor-test/runnxn.sh all "${gradle_args[@]}" &
+    nxn_pid=$!
+    trap 'kill -TERM "$nxn_pid" 2>/dev/null || true; wait "$nxn_pid" 2>/dev/null || true; exit 130' INT
+    trap 'kill -TERM "$nxn_pid" 2>/dev/null || true; wait "$nxn_pid" 2>/dev/null || true; exit 143' TERM
+    wait "$nxn_pid"
+    trap - INT TERM
 fi
 
 if [[ "$mode" == "deploy" && "$dry_run" != "true" ]]; then

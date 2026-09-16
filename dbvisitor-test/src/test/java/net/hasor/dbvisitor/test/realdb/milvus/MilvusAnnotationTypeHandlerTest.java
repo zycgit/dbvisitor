@@ -28,7 +28,7 @@ public class MilvusAnnotationTypeHandlerTest extends AnnotationTypeHandlerCase {
     @Override
     @Before
     public void createLambdaTemplate() throws SQLException {
-        // Initialize the fixture before the inherited mapper setup, without replacing the shared static DataSource.
+        // Initialize the fixture before the inherited mapper setup.
         setup();
         super.createLambdaTemplate();
     }

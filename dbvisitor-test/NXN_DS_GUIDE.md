@@ -175,6 +175,10 @@ requiresNxnFeature(FeatureId.ARRAY);
 ./dbvisitor-test/runnxn.sh h2
 ./dbvisitor-test/runnxn.sh all
 
+# 默认 16 个工作线程，按数据库并发；1 表示串行
+./dbvisitor-test/runnxn.sh all --jobs 4
+./dbvisitor-test/runnxn.sh all --jobs 1
+
 # 运行完整集合，并更新相应数据源的兼容性结果
 ./dbvisitor-test/runnxn.sh h2 --update-docs
 ./dbvisitor-test/runnxn.sh all --update-docs
@@ -183,12 +187,82 @@ requiresNxnFeature(FeatureId.ARRAY);
 ./gradlew :dbvisitor-test:updateNxnDocs -Pnxn.env=h2
 
 # 定位问题时可以筛选，但筛选结果不能更新完整矩阵
+./dbvisitor-test/runnxn.sh all --tests '*JdbcCrudTest'
 ./gradlew :dbvisitor-test:test -Pnxn.env=redis --tests '*RedisJdbcMapQueryTest'
 ```
 
-支持的环境标识见 `DataSourceId` 和 `./dbvisitor-test/runnxn.sh --help`；`elastic6`、`elastic7` 是脚本对 `es6`、`es7` 的别名。不指定环境只运行 `unit`，不会自动连接全部数据库。
+支持的环境标识见 `DataSourceId` 和 `./dbvisitor-test/runnxn.sh --help`；`elastic6`、`elastic7` 是脚本对 `es6`、`es7` 的别名。Gradle `test` 不指定环境只运行 `unit`；`runnxn.sh` 不传参数只显示帮助，均不会自动连接全部数据库。
 
-普通测试不会改文档。`--update-docs` 会重新运行测试，并在全部关联方法得到确定结果后只更新 `datasources/{env}.json`，不会改动表格定义和其他数据源。不能用 `-x test` 跳过测试，也不会使用旧的筛选结果。`all` 按数据源依次运行，遇到失败停止，已成功更新的数据源结果保留，不能把它们视为全部完成。
+普通测试不会改文档。`--update-docs` 会重新运行测试，并在全部关联方法得到确定结果后只更新 `datasources/{env}.json`，不会改动表格定义和其他数据源。筛选执行不能更新文档，脚本也不接受 `-x` 跳过任务。
+
+### 按数据源并发
+
+`all` 使用一个测试 JVM，共享默认 16 个工作线程。同一数据源中，只有具体测试类显式添加 `@NxnConcurrent` 后，才能与其他已标记的类并发。未标记的类仍串行执行，类内方法始终顺序执行。
+
+`--jobs` 设置全部数据源合计的执行线程上限。`--class-jobs` 设置每个数据源中已标记类的并发上限，默认 16；设为 1 可恢复库内串行。两层上限共同生效，默认全部数据源合计最多使用 16 个执行线程，不是每个数据源各有 16 个线程。`--max-workers` 只控制前面的 Gradle 编译，不控制测试并发。
+
+直接运行 `./build.sh test nxn` 即使用上述默认值，无需额外参数；`./build.sh nxn` 使用相同入口。
+
+- 未标记的测试类独占当前数据源：开始前等待正在运行的类完成，包含类级准备与清理；执行期间不启动该数据源的其他类。其他数据源不受此独占约束影响。
+- Gradle 只负责编译并解析运行依赖。测试由 `NxnRunner` 在当前进程执行，每轮生成新的运行标识，不缓存数据库测试结果。
+- `NxnContext` 隔离当前数据库和报告路径，连接池按数据库缓存；不要在用例中修改全局 `nxn.env`、全局输出流或共享可变状态。
+- 脚本通过 `flock` 阻止同一工作区同时启动两轮 NxN。不要同时从 IDE 或直接 Gradle 命令运行同一个测试库。
+- 启动后脚本通过 `exec` 替换为测试 JVM。Ctrl+C 或终止该 PID 会结束全部测试线程，不留下独立的测试子进程。正常中断会记录 `cancelled`；强制杀进程时不能保证最后一次报告写入，但未完成任务不会被当作通过。
+- 一个数据源失败后，其余数据源继续执行，最后统一汇总并以失败状态退出。
+- 指定 `--update-docs` 时，在测试阶段结束后更新成功数据源的文档；失败、缺失或筛选结果不能导出。某个数据源更新失败不撤销其他数据源已经成功完成的更新，整轮仍返回失败。
+- 并发数是上限，不代表数据库之间没有资源竞争；内存、CPU 或磁盘压力较大时可以调低。
+
+并发入口保留原 `realdb/{env}` 测试范围，不增加或移除契约场景，Cloud 测试仍须单独启用。
+
+### 开放测试类并发
+
+仅在具体 `realdb` 测试类上添加标记，不添加到公共契约类或父类。该注解不继承，也不会自动创建隔离资源。
+
+```java
+@NxnConcurrent
+public class MilvusJdbcCrudTest extends JdbcCrudCase {
+    // 每个测试独立准备、访问和清理自己的资源。
+}
+```
+
+添加前必须确认：
+
+- 所有连接、初始化和清理都指向该类或方法自己的测试库；不能在准备阶段清空公共测试表。
+- 不共享 Connection、Session 或可变的测试状态；不修改全局属性、注册器或其他测试依赖的配置。
+- 不共享实体映射注册表；并发首次加载同一个实体可能相互干扰。公共初始化为已标记类创建独立注册表；重写 `setup()` 时也应显式传入独立的 `MappingRegistry`。
+- 不依赖全局库列表数量，不修改服务端全局配置或权限；无法隔离的场景保持不标记。
+- 清理只删除自己创建的资源，准备或测试失败时也执行清理。标记并不能替代这些隔离条件。
+
+ClickHouse 的 `ClickHouseUserInfoFixture` 为每个类创建独立库和连接池，类内每个方法清空自己的 `user_info`。Milvus 的 `MilvusDatabaseFixture` 保留每个方法的独立库；退出时清理其中遗留的集合，再删除库。
+
+库名采用 `dbv_nxn_clickhouse_000001`、`dbv_nxn_milvus_000001` 格式。编号在进程内递增，并避开服务器已有编号；不接管或自动删除以前留下的库。创建、删除和清理失败的库名记录在数据源的 `execution.log` 中。强制中断后，可对照对应运行的日志人工确认遗留资源再清理；不要按前缀批量删除共享服务器上的库。
+
+```bash
+# 同一套场景分别串行、并发执行，报告互不覆盖
+./dbvisitor-test/runnxn.sh milvus --class-jobs 1 --output build/nxn-serial
+./dbvisitor-test/runnxn.sh milvus --output build/nxn-parallel
+```
+
+`--output` 为报告根目录，相对路径以 `dbvisitor-test` 为基准。Gradle/IDE 的普通 JUnit 执行不读取并发标记，仍按其自身调度方式运行。
+
+### 查看执行进度
+
+启动时打印一次 PID、并发上限、数据源列表和报告目录。执行中每 5 秒输出仍在运行或排队的数据源；每个数据源结束时输出结果，最后输出整轮汇总。详细的 SQL、SDK 日志和异常堆栈仍写入各数据源的 `execution.log`。
+
+以下为输出格式示例：
+
+```text
+NxN mysql      RUNNING   428/698 | PASS=410 FAIL=0 SKIP=18 | elapsed=00:01:12 avg=0.152s/test | current=MySqlJdbcCrudTest#jdbcInsert_shouldPersistOneUser (00:00:02)
+```
+
+- `428/698`：已完成数／本次选中的测试总数，按测试方法及参数化实例计数，不是测试类数；使用 `--tests` 时按筛选后的数量计算。
+- `PASS`、`FAIL`、`SKIP`：已通过、失败、跳过的数量。每个测试结束即更新，不必等整个测试类结束。
+- `elapsed`：该数据源从准备到当前的总耗时，包含初始化与清理。
+- `avg`：已完成且未跳过的测试方法平均耗时，包含方法的准备与清理，不包含类级准备、清理和排队。并发时不能用它乘以剩余数量估算完成时间。
+- `current`：当前测试或准备、清理阶段，括号内是该步骤已运行的时间；库内并发时列出所有正在执行的类。测试长时间未返回时仍会定时刷新。
+- `QUEUED`：等待空闲工作线程；总数尚未计算时显示 `?`。
+
+`run.json` 和 `summary.json` 同步定时更新，结束或中断时保存最后状态。未执行的测试不会因为初始化失败而被计为通过。
 
 ### Zilliz Cloud 按需验证
 
@@ -223,13 +297,18 @@ Cloud 测试默认关闭，不属于 `runnxn.sh milvus` 或 `runnxn.sh all`。�
 
 | 位置（相对于 `dbvisitor-test`） | 内容 |
 | --- | --- |
-| `build/test-results/nxn/{env}` | JUnit XML，包含该数据源完整测试集合 |
-| `build/reports/tests/nxn/{env}` | 可浏览的 HTML 测试报告 |
+| `build/nxn/summary.json` | 整轮各数据源的状态、测试数量和耗时 |
+| `build/nxn/session.json` | 本轮运行标识、开始时间和选中的数据源 |
+| `build/nxn/runner.log` | 无法归属到数据库任务的公共运行日志 |
+| `build/nxn/{env}/execution.log` | 该数据源的测试输出、结果及异常 |
+| `build/nxn/{env}/test-results` | 每个测试类的 JUnit XML |
+| `build/nxn/{env}/reports` | 可浏览的 HTML 测试报告 |
 | `build/nxn/{env}/run.json` | 本次运行标识、是否完成、失败及筛选状态 |
 | `build/nxn/{env}/cases` | 实际测试方法的结果、能力编号及限制原因 |
 | `build/nxn/{env}/compatibility.json` | 成功导出后的逐列明细，可追溯到契约和执行类 |
+| `build/nxn/{env}/capability-bindings.md` | profile 声明和测试绑定清单，不作为通过依据 |
 
-不同数据源的报告分别保存；同一数据源再次运行会替换自己的报告。运行标识和测试类指纹用于拒绝混入旧记录。上述文件是构建产物，不提交到源码仓库。
+不同数据源的报告分别保存；再次运行只替换本轮选中数据源的报告。`summary.json` 只汇总本轮，不拼入未选择的数据源的历史结果。运行标识和测试类指纹用于拒绝混入旧记录。上述文件是构建产物，不提交到源码仓库。编译产物和测试资源仍位于 `build/classes`、`build/resources`，测试期间共享只读；`build/nxn-launcher` 保存 Gradle 生成的启动参数，不手工拼装依赖路径。
 
 原有 `CapabilityMatrixReport` 输出的是 profile 声明和绑定清单，不是执行结果，不用于更新用户文档。
 
@@ -312,7 +391,7 @@ Cloud 测试默认关闭，不属于 `runnxn.sh milvus` 或 `runnxn.sh all`。�
 2. 在 `nxn/env` 增加 `DataSourceId`、profile，并注册到 `DataSourceProfileRegistry`。参考已有 profile 声明限制，不把环境缺失列为不支持。
 3. 添加 `jdbc-{env}.properties`、幂等的 `sql/{env}/init.sql` 及专有物料。连接配置不承载 feature gate。
 4. 在 `realdb/{env}` 绑定通用契约，补充专有回归；不能跨数据源继承执行入口。
-5. 同步 `build.gradle` 的环境选择、`runnxn.sh`、`sources.json` 以及报告基础设施的环境入口；新增 `datasources/{env}.json`，包含所有表格能力标识。不必修改已有表格定义或其他数据源文件。
+5. 同步 `DataSourceId`、`nxn.gradle` 的环境选择、`runnxn.sh`、`sources.json` 以及报告基础设施的环境入口；新增 `datasources/{env}.json`，包含所有表格能力标识。不必修改已有表格定义或其他数据源文件。
 6. 完整运行该数据源并导出结果；发现框架缺陷时修复并回归相关数据源，不为提高支持率模拟数据库本不支持的事务、关联或约束。
 
 资源约定：通用 Mapper、映射和 Session 物料分别放在 `mapper`、`mapping`、`session`；专有 XML、DSL、DTO、索引及向量物料放在 `realdb/{env}`。容器配置位于 `docker`。

@@ -16,6 +16,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.sql.DataSource;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -28,19 +29,28 @@ import org.junit.Assume;
  * Provides database initialization with SQL script loading
  */
 public class OneApiDataSourceManager {
-    private static final String                  DEFAULT_ENV        = "pg";
-    private static final String                  PROP_FILE_TEMPLATE = "/jdbc-%s.properties";
-    private static final Map<String, Properties> adapterPropsCache  = new HashMap<>();
-    private static       Properties              cachedProperties;
-    private static       DataSource              cachedDataSource;
-    private static       DataSource              observedDataSource;
-    private static       boolean                 initialized        = false;
+    private static final String                       PROP_FILE_TEMPLATE = "/jdbc-%s.properties";
+    private static final Map<String, Properties>      adapterPropsCache  = new HashMap<>();
+    private static final Map<String, DataSourceState> STATES             = new ConcurrentHashMap<>();
 
-    private static synchronized Properties loadProperties() throws IOException {
-        if (cachedProperties != null) {
-            return cachedProperties;
-        }
+    private static final class DataSourceState {
+        private Properties       properties;
+        private HikariDataSource dataSource;
+        private DataSource       observed;
+    }
+
+    private static Properties loadProperties() throws IOException {
         String env = getDbDialect();
+        DataSourceState state = STATES.computeIfAbsent(env, ignored -> new DataSourceState());
+        synchronized (state) {
+            if (state.properties == null) {
+                state.properties = readProperties(env);
+            }
+            return state.properties;
+        }
+    }
+
+    private static Properties readProperties(String env) throws IOException {
         String propFileName = String.format(PROP_FILE_TEMPLATE, env);
 
         Properties props = new Properties();
@@ -50,7 +60,6 @@ public class OneApiDataSourceManager {
             }
             props.load(in);
         }
-        cachedProperties = props;
         return props;
     }
 
@@ -130,14 +139,20 @@ public class OneApiDataSourceManager {
         return false;
     }
 
-    public static synchronized DataSource createDataSource() throws IOException {
-        if (cachedDataSource != null) {
-            return observedDataSource;
-        }
-
-        Properties props = loadProperties();
+    public static DataSource createDataSource() throws IOException {
         String dialect = getDbDialect();
+        DataSourceState state = STATES.computeIfAbsent(dialect, ignored -> new DataSourceState());
+        synchronized (state) {
+            if (state.dataSource == null) {
+                state.dataSource = createPool(loadProperties());
+                state.observed = ResultHandlerProbe.observe(state.dataSource);
+                initDatabase(new JdbcTemplate(state.dataSource), dialect);
+            }
+            return state.observed;
+        }
+    }
 
+    private static HikariDataSource createPool(Properties props) {
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl(props.getProperty("jdbc.url"));
         config.setUsername(props.getProperty("jdbc.username"));
@@ -151,30 +166,12 @@ public class OneApiDataSourceManager {
         config.setMaximumPoolSize(5);
         config.setMinimumIdle(1);
 
-        cachedDataSource = new HikariDataSource(config);
-        observedDataSource = ResultHandlerProbe.observe(cachedDataSource);
-
-        // Initialize database on first creation
-        if (!initialized) {
-            try {
-                JdbcTemplate jdbcTemplate = new JdbcTemplate(cachedDataSource);
-                initDatabase(jdbcTemplate, dialect);
-                initialized = true;
-            } catch (Exception e) {
-                System.err.println("[OneAPI] Database initialization failed: " + e.getMessage());
-                // Continue anyway - tests will handle missing schema
-            }
-        }
-
-        return observedDataSource;
+        return new HikariDataSource(config);
     }
 
     public static String getDbDialect() {
-        String env = System.getProperty("nxn.env");
-        if (env == null || env.trim().isEmpty()) {
-            return DEFAULT_ENV;
-        }
-        return env.trim();
+        String env = NxnContext.environment();
+        return env.isEmpty() ? "pg" : env;
     }
 
     public static void assumeCurrentDataSource(String targetEnv) {
@@ -195,14 +192,18 @@ public class OneApiDataSourceManager {
     /**
      * Reset cached data source (for testing or reconfiguration)
      */
-    public static synchronized void reset() {
-        if (cachedDataSource != null && cachedDataSource instanceof HikariDataSource) {
-            ((HikariDataSource) cachedDataSource).close();
+    public static void reset() {
+        DataSourceState state = STATES.get(getDbDialect());
+        if (state != null) {
+            synchronized (state) {
+                if (state.dataSource != null) {
+                    state.dataSource.close();
+                }
+                state.dataSource = null;
+                state.observed = null;
+                state.properties = null;
+            }
         }
-        cachedDataSource = null;
-        observedDataSource = null;
-        cachedProperties = null;
-        initialized = false;
     }
 
     /**

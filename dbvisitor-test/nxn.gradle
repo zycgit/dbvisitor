@@ -1,0 +1,106 @@
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
+
+// Gradle prepares the runtime once; the shell then execs a single test JVM.
+def launchDirectory = layout.buildDirectory.dir('nxn-launcher').get().asFile
+def runtimeClasspath = sourceSets.test.runtimeClasspath
+def javaExecutable = javaToolchains.launcherFor(java.toolchain).get().executablePath.asFile.absolutePath
+def opens = tasks.named('test', Test).get().jvmArgs
+tasks.register('prepareNxnRunner') {
+    group = 'verification'
+    description = 'Compile NxN and export its Gradle-resolved Java runtime.'
+    dependsOn testClasses
+    inputs.files(runtimeClasspath)
+    inputs.property('javaExecutable', javaExecutable)
+    inputs.property('jvmArgs', opens)
+    outputs.dir(launchDirectory)
+    doLast {
+        launchDirectory.mkdirs()
+        def quote = { String value -> '"' + value.replace('\\', '\\\\').replace('"', '\\"') + '"' }
+        def arguments = ['-ea', '-Xmx2g', '-Dfile.encoding=UTF-8'] + opens +
+                ['-classpath', runtimeClasspath.asPath, 'net.hasor.dbvisitor.test.nxn.runner.NxnRunner']
+        new File(launchDirectory, 'java.txt').text = javaExecutable + '\n'
+        new File(launchDirectory, 'arguments.txt').text = arguments.collect { quote(it.toString()) }.join('\n') + '\n'
+    }
+}
+
+// Preserve single-datasource Gradle runs and their standard reports.
+class NxnLegacyListener implements TestListener {
+    final File directory
+    final Map run
+    NxnLegacyListener(File directory, boolean filtered) {
+        this.directory = directory
+        this.run = new JsonSlurper().parse(new File(directory, 'run.json')) as Map
+        run.filtered = filtered
+    }
+    void beforeSuite(TestDescriptor suite) {}
+    void beforeTest(TestDescriptor test) {}
+    void afterTest(TestDescriptor test, TestResult result) {}
+    void afterSuite(TestDescriptor suite, TestResult result) {
+        if (suite.parent == null) {
+            run.tests = result.testCount
+            run.failed = result.failedTestCount
+            run.skipped = result.skippedTestCount
+            run.complete = result.resultType != TestResult.ResultType.FAILURE && result.testCount > 0
+            new File(directory, 'run.json').text = JsonOutput.prettyPrint(JsonOutput.toJson(run)) + '\n'
+        }
+    }
+}
+
+def selected = findProperty('nxn.env')?.toString()
+def environments = ['h2', 'mysql', 'pg', 'mssql', 'oracle', 'db2', 'clickhouse', 'redis', 'mongo', 'es6', 'es7', 'milvus']
+if (selected && !environments.contains(selected)) {
+    throw new GradleException("Use runnxn.sh all for concurrent execution; unknown single datasource: ${selected}")
+}
+def resultDir = layout.buildDirectory.dir("nxn/${selected}").get().asFile
+def sessionFile = new File(resultDir, 'session.json')
+def documentation = rootProject.file('dbvisitor-doc/src/data/capabilities').absolutePath
+def testClasspath = sourceSets.test.runtimeClasspath
+
+if (selected) {
+    def prepare = tasks.register('prepareNxn', Delete) {
+        delete resultDir
+        doLast {
+            resultDir.mkdirs()
+            def run = [runId: UUID.randomUUID().toString(), env: selected, tests: 0, failed: 0, skipped: 0, complete: false, filtered: false]
+            sessionFile.text = JsonOutput.toJson(run)
+            new File(resultDir, 'run.json').text = JsonOutput.toJson(run)
+        }
+    }
+    tasks.named('test', Test) {
+        dependsOn prepare
+        def packageName = selected == 'es6' ? 'elastic6' : selected == 'es7' ? 'elastic7' : selected
+        include "**/realdb/${packageName}/**/*Test.class"
+        systemProperty 'nxn.env', selected
+        systemProperty 'nxn.resultDir', resultDir.absolutePath
+        maxParallelForks = 1
+        reports.junitXml.outputLocation = new File(resultDir, 'test-results')
+        reports.html.outputLocation = new File(resultDir, 'reports')
+        outputs.upToDateWhen { false }
+        outputs.doNotCacheIf('NxN always runs against the current database') { true }
+        doFirst { Test execution ->
+            execution.systemProperty 'nxn.runId', new JsonSlurper().parse(sessionFile).runId
+            def filtered = !execution.filter.commandLineIncludePatterns.empty || !execution.filter.includePatterns.empty || !execution.filter.excludePatterns.empty
+            execution.addTestListener(new NxnLegacyListener(resultDir, filtered))
+        }
+    }
+    tasks.register('updateNxnDocs', JavaExec) {
+        group = 'verification'
+        description = 'Run one datasource suite and update its compatibility JSON.'
+        dependsOn prepare, tasks.named('test'), tasks.named('checkNxnMapping')
+        classpath = testClasspath
+        mainClass = 'net.hasor.dbvisitor.test.nxn.report.NxnDocumentation'
+        args 'update', documentation, selected, resultDir.absolutePath
+        doFirst {
+            def session = new JsonSlurper().parse(sessionFile)
+            def run = new JsonSlurper().parse(new File(resultDir, 'run.json'))
+            if (run.runId != session.runId || !run.complete) {
+                throw new GradleException('No fresh successful NxN test run; do not skip the test task.')
+            }
+        }
+    }
+} else {
+    tasks.register('updateNxnDocs') {
+        doLast { throw new GradleException('Use -Pnxn.env=<datasource> or runnxn.sh all --update-docs.') }
+    }
+}

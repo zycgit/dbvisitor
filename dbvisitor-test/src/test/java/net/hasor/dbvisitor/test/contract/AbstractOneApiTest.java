@@ -13,30 +13,35 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
+import net.hasor.dbvisitor.dynamic.MacroRegistry;
 import net.hasor.dbvisitor.jdbc.core.JdbcQueryContext;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
+import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
 
 public abstract class AbstractOneApiTest {
-    protected static DataSource     dataSource;
+    protected DataSource     dataSource;
     @Rule
-    public           TestName       testName = new TestName();
-    protected        JdbcTemplate   jdbcTemplate;
-    protected        LambdaTemplate lambdaTemplate;
+    public    TestName       testName = new TestName();
+    protected JdbcTemplate   jdbcTemplate;
+    protected LambdaTemplate lambdaTemplate;
 
     @Before
     public void setup() throws IOException, SQLException {
         if (dataSource == null) {
             dataSource = OneApiDataSourceManager.createDataSource();
         }
-        jdbcTemplate = new JdbcTemplate(dataSource);
+        // Concurrent fixtures must not lazily register entities in the shared mapping registry.
+        MappingRegistry mapping = getClass().getDeclaredAnnotation(NxnConcurrent.class) != null ? new MappingRegistry() : MappingRegistry.DEFAULT;
+        jdbcTemplate = new JdbcTemplate(dataSource, mapping, null);
         registerCommonMacros(jdbcTemplate);
         lambdaTemplate = new LambdaTemplate(jdbcTemplate);
 
@@ -167,8 +172,9 @@ public abstract class AbstractOneApiTest {
     }
 
     private void registerCommonMacros(JdbcTemplate template) {
-        if (template.getQueryContext() instanceof JdbcQueryContext) {
-            ((JdbcQueryContext) template.getQueryContext()).addMacro("currentTimestamp", currentTimestampExpression());
+        if (template.getQueryContext() instanceof JdbcQueryContext context) {
+            context.setMacroRegistry(new MacroRegistry());
+            context.addMacro("currentTimestamp", currentTimestampExpression());
         }
     }
 }

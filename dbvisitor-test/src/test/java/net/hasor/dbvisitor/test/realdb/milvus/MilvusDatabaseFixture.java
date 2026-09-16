@@ -12,19 +12,21 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
-import java.util.UUID;
 import net.hasor.dbvisitor.driver.JdbcDriver;
 import net.hasor.dbvisitor.test.contract.material.handler.ResultHandlerProbe;
+import net.hasor.dbvisitor.test.nxn.config.NxnDatabaseNames;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
 
 /** Owns one isolated database on the configured endpoint; callers own their collection schemas. */
 final class MilvusDatabaseFixture implements AutoCloseable {
-    private final String     database = "dbv_contract_" + UUID.randomUUID().toString().replace("-", "");
-    private       Connection admin;
-    private       Connection connection;
-    private       boolean    databaseCreated;
+    private String database;
+    private Connection admin;
+    private Connection connection;
+    private boolean databaseCreated;
 
     Connection open() throws SQLException {
         if (this.connection != null) {
@@ -33,11 +35,18 @@ final class MilvusDatabaseFixture implements AutoCloseable {
         String env = MilvusProfile.INSTANCE.env();
         OneApiDataSourceManager.assumeCurrentDataSource(env);
         this.admin = OneApiDataSourceManager.getConnection(env);
-        try (Statement statement = this.admin.createStatement()) {
-            statement.executeUpdate("CREATE DATABASE " + this.database);
+        try {
+            this.database = NxnDatabaseNames.create(this.admin, env);
             this.databaseCreated = true;
+            this.connection = connectToDatabase(env);
+        } catch (SQLException failure) {
+            try {
+                close();
+            } catch (SQLException cleanup) {
+                failure.addSuppressed(cleanup);
+            }
+            throw failure;
         }
-        this.connection = connectToDatabase(env);
         return this.connection;
     }
 
@@ -70,18 +79,56 @@ final class MilvusDatabaseFixture implements AutoCloseable {
 
     @Override
     public void close() throws SQLException {
+        SQLException failure = null;
         try {
-            if (this.connection != null) {
-                this.connection.close();
+            if (this.databaseCreated) {
+                // Milvus cannot drop a non-empty database. Clean only the database we created,
+                // including collections left behind when setup or a test failed.
+                if (this.connection == null || this.connection.isClosed()) {
+                    this.connection = connectToDatabase(MilvusProfile.INSTANCE.env());
+                }
+                try (Statement statement = this.connection.createStatement()) {
+                    List<String> tables = new ArrayList<>();
+                    try (var rows = statement.executeQuery("SHOW TABLES")) {
+                        while (rows.next()) {
+                            tables.add(rows.getString("TABLE"));
+                        }
+                    }
+                    for (String table : tables) {
+                        if (!table.matches("[a-zA-Z_][a-zA-Z0-9_.-]*")) {
+                            throw new SQLException("Cannot safely address fixture collection: " + table);
+                        }
+                        statement.executeUpdate("DROP TABLE IF EXISTS " + table);
+                    }
+                }
+                try (Statement statement = this.admin.createStatement()) {
+                    statement.executeUpdate("DROP DATABASE " + this.database);
+                    this.databaseCreated = false;
+                    System.out.println("NxN fixture dropped database " + this.database);
+                }
             }
+        } catch (SQLException cleanup) {
+            failure = new SQLException("Cannot clean owned Milvus database " + this.database, cleanup);
         } finally {
-            if (this.admin != null) {
-                try (Connection closing = this.admin; Statement statement = closing.createStatement()) {
-                    if (this.databaseCreated) {
-                        statement.executeUpdate("DROP DATABASE " + this.database);
+            for (Connection closing : new Connection[] { this.connection, this.admin }) {
+                if (closing != null) {
+                    try {
+                        closing.close();
+                    } catch (SQLException closeFailure) {
+                        if (failure == null) {
+                            failure = closeFailure;
+                        } else {
+                            failure.addSuppressed(closeFailure);
+                        }
                     }
                 }
             }
+            this.connection = null;
+            this.admin = null;
+            this.databaseCreated = false;
+        }
+        if (failure != null) {
+            throw failure;
         }
     }
 }

@@ -46,39 +46,7 @@ test {
         reports.html.outputLocation = layout.buildDirectory.dir('reports/tests/milvus-cloud')
         maxParallelForks = 1
         outputs.upToDateWhen { false }
-    } else if (findProperty('nxn.env')) {
-        def nxnEnv = findProperty('nxn.env').toString()
-        def environments = ['h2', 'mysql', 'pg', 'mssql', 'oracle', 'db2', 'clickhouse', 'redis', 'mongo', 'es6', 'es7', 'milvus']
-        if (!environments.contains(nxnEnv)) {
-            throw new GradleException("Unknown nxn.env: ${nxnEnv}")
-        }
-
-        def realdbPackage = nxnEnv == 'es6' ? 'elastic6' : nxnEnv == 'es7' ? 'elastic7' : nxnEnv
-        def resultDir = layout.buildDirectory.dir("nxn/${nxnEnv}").get().asFile
-        def runId = UUID.randomUUID().toString()
-        systemProperty 'nxn.env', nxnEnv
-        systemProperty 'nxn.resultDir', resultDir.absolutePath
-        systemProperty 'nxn.runId', runId
-        include "**/realdb/${realdbPackage}/**/*Test.class"
-        reports.junitXml.outputLocation = layout.buildDirectory.dir("test-results/nxn/${nxnEnv}")
-        reports.html.outputLocation = layout.buildDirectory.dir("reports/tests/nxn/${nxnEnv}")
-        // A documentation update must use a new execution, never an earlier filtered run.
-        outputs.upToDateWhen { false }
-        doFirst {
-            delete resultDir
-            resultDir.mkdirs()
-        }
-
-        afterSuite { descriptor, result ->
-            if (descriptor.parent == null) {
-                def summary = [runId   : runId, env: nxnEnv, tests: result.testCount,
-                               failed  : result.failedTestCount, skipped: result.skippedTestCount,
-                               filtered: !filter.commandLineIncludePatterns.empty,
-                               complete: result.resultType != TestResult.ResultType.FAILURE && result.testCount > 0]
-                new File(resultDir, 'run.json').text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(summary)) + '\n'
-            }
-        }
-    } else {
+    } else if (!findProperty('nxn.env')) {
         include '**/unit/**/*Test.class'
     }
 }
@@ -92,28 +60,4 @@ tasks.register('checkNxnMapping', JavaExec) {
     args 'check', rootProject.file('dbvisitor-doc/src/data/capabilities').absolutePath
 }
 
-tasks.register('updateNxnDocs', JavaExec) {
-    if (findProperty('milvus.cloud')?.toString() == 'true') {
-        throw new GradleException('Cloud checks do not update the local NxN capability matrix.')
-    }
-    group = 'verification'
-    description = 'Run one datasource suite and update its compatibility JSON results.'
-    dependsOn tasks.named('checkNxnMapping'), tasks.named('test')
-    classpath = sourceSets.test.runtimeClasspath
-    mainClass = 'net.hasor.dbvisitor.test.nxn.report.NxnDocumentation'
-    doFirst {
-        def nxnEnv = project.findProperty('nxn.env')
-        if (!nxnEnv) {
-            throw new GradleException('Use -Pnxn.env=<datasource> to update compatibility results.')
-        }
-
-        def resultDir = layout.buildDirectory.dir("nxn/${nxnEnv}").get().asFile
-        def summaryFile = new File(resultDir, 'run.json')
-        def expectedRunId = tasks.named('test').get().systemProperties['nxn.runId']
-        if (!summaryFile.isFile() || new groovy.json.JsonSlurper().parse(summaryFile).runId != expectedRunId) {
-            throw new GradleException('No fresh NxN test run; do not skip the test task when updating documentation.')
-        }
-
-        args 'update', rootProject.file('dbvisitor-doc/src/data/capabilities').absolutePath, nxnEnv, resultDir.absolutePath
-    }
-}
+apply from: 'nxn.gradle'
