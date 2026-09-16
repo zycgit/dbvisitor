@@ -10,6 +10,7 @@ N×N 验证 dbVisitor 的同一项 API 能力在不同数据源上的实际行�
 | JDBC 元信息 | `contract/api/jdbc/metadata` | 保留真实数据源测试，说明放在各驱动文档，不计入 API 差异表 |
 | 数据源专有功能 | `realdb/{env}` | 随该数据源回归，用法放在数据源文档，不扩大通用能力的分母 |
 | 原生语句综合场景 | `scenario`，由 `realdb` 入口执行 | 保留综合回归，不重复计入通用能力列 |
+| 可选 Cloud 验证 | `realdb/milvus_cloud` | 显式启用；独立报告，不覆盖本地 Milvus 能力 JSON |
 | 框架单元测试 | `unit` | 不连接数据库，也不重复计入每个数据源 |
 | 契约与报告检查 | `nxn/report` | 检查分类、绑定及报告，不作为业务能力 |
 
@@ -188,6 +189,35 @@ requiresNxnFeature(FeatureId.ARRAY);
 支持的环境标识见 `DataSourceId` 和 `./dbvisitor-test/runnxn.sh --help`；`elastic6`、`elastic7` 是脚本对 `es6`、`es7` 的别名。不指定环境只运行 `unit`，不会自动连接全部数据库。
 
 普通测试不会改文档。`--update-docs` 会重新运行测试，并在全部关联方法得到确定结果后只更新 `datasources/{env}.json`，不会改动表格定义和其他数据源。不能用 `-x test` 跳过测试，也不会使用旧的筛选结果。`all` 按数据源依次运行，遇到失败停止，已成功更新的数据源结果保留，不能把它们视为全部完成。
+
+### Zilliz Cloud 按需验证
+
+Cloud 测试默认关闭，不属于 `runnxn.sh milvus` 或 `runnxn.sh all`。继续使用同一个 `test` 任务，只有显式设置 `-Pmilvus.cloud=true` 才选中 `realdb/milvus_cloud`；不能与 `nxn.env` 同时使用。
+
+在环境中提供以下配置，真实凭据不要写入仓库或脚本：
+
+| 环境变量 | 说明 |
+| --- | --- |
+| `MILVUS_CLOUD_ENDPOINT` | 控制台提供的 HTTPS 端点；省略端口时使用 443 |
+| `MILVUS_CLOUD_DATABASE` | 实际数据库名称，不假定为 `default` |
+| `MILVUS_CLOUD_TOKEN` | API key/token，与用户名密码二选一 |
+| `MILVUS_CLOUD_USER`、`MILVUS_CLOUD_PASSWORD` | 用户名密码认证，必须同时提供 |
+
+```bash
+# 运行 Cloud 检查；配置由当前进程环境提供
+./gradlew :dbvisitor-test:test -Pmilvus.cloud=true
+
+# 只验证连接、认证、版本及连接池，不创建测试集合
+./gradlew :dbvisitor-test:test -Pmilvus.cloud=true --tests '*CloudConnectionTest'
+```
+
+- **启用与失败**：未启用时不访问云端；启用后缺配置、连接失败和断言失败都会报错，不作为“不支持”或通过。IDE 单独运行时需要 `-Dmilvus.cloud=true -Dlogback.configurationFile=milvus-cloud-logback.xml`。
+- **日志安全**：Cloud 使用独立的 WARN 日志配置；不要开启 SDK 传输层 DEBUG 日志，其中可能包含认证头。
+- **认证覆盖**：仅提供一组凭据时验证该方式；同时提供两组时，连接用例分别验证 token 和用户名密码。
+- **测试范围**：按连接、JDBC、Mapper、向量分组，验证 Cloud 接入，不代替完整 NxN。版本解析等可离线验证的驱动行为留在 `jdbc-milvus` 的 mock 单元测试。
+- **资源隔离**：不创建数据库，只在指定库创建 `dbv_cloud_` 开头的随机集合，并只删除这些集合。请使用专门的测试数据库；运行会产生云端读写和存储用量。
+- **请求与清理**：单进程执行，连接超时 20 秒、单次 RPC 上限 120 秒，测试关闭驱动写入重试以暴露原始错误。清理失败也计入失败，错误会携带本轮集合名；不要吞掉异常或删除库内其他集合。
+- **结果隔离**：JUnit XML 位于 `build/test-results/milvus-cloud`，HTML 位于 `build/reports/tests/milvus-cloud`。不生成 NxN 能力结果，不允许用本次执行调用 `updateNxnDocs`。
 
 ### 结果文件
 

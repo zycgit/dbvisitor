@@ -8,10 +8,10 @@
 package net.hasor.dbvisitor.adapter.milvus;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Set;
 import java.sql.Statement;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import io.milvus.common.clientenum.ConsistencyLevelEnum;
 import io.milvus.v2.client.MilvusClientV2;
@@ -20,22 +20,23 @@ import net.hasor.cobble.concurrent.future.BasicFuture;
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
-import net.hasor.dbvisitor.adapter.milvus.parser.*;
+import net.hasor.dbvisitor.adapter.milvus.parser.MilvusArgVisitor;
+import net.hasor.dbvisitor.adapter.milvus.parser.QueryParseException;
+import net.hasor.dbvisitor.adapter.milvus.parser.ThrowingListener;
 import net.hasor.dbvisitor.driver.*;
 import org.antlr.v4.runtime.BufferedTokenStream;
 import org.antlr.v4.runtime.CharStreams;
 
 public class MilvusConn extends AdapterConnection implements MetadataSupport {
-    private static final String DEFAULT_CLIENT_NAME = "Milvus-JDBC-Client";
-    private static final int    DEFAULT_MAX_RETRY   = 3;
-
-    private static final Logger               logger         = LoggerFactory.getLogger(MilvusConn.class);
+    private static final String               DEFAULT_CLIENT_NAME = "Milvus-JDBC-Client";
+    private static final int                  DEFAULT_MAX_RETRY   = 3;
+    private static final Logger               logger              = LoggerFactory.getLogger(MilvusConn.class);
     private final        Connection           owner;
     private final        MilvusCmd            milvusCmd;
     private final        MilvusMetadata       metadata;
     private final        ConsistencyLevelEnum consistencyLevel;
     private final        int                  maxRetry;
-    private final        Set<MilvusRequest>   activeRequests = ConcurrentHashMap.newKeySet();
+    private final        Set<MilvusRequest>   activeRequests      = ConcurrentHashMap.newKeySet();
 
     public MilvusConn(Connection owner, MilvusCmd milvusCmd, String jdbcUrl, Map<String, String> prop) throws SQLException {
         super(jdbcUrl, prop.get(MilvusKeys.USERNAME));
@@ -71,22 +72,39 @@ public class MilvusConn extends AdapterConnection implements MetadataSupport {
         AdapterInfo info = this.getInfo();
         info.getDriverVersion().setName(DEFAULT_CLIENT_NAME);
         info.getDbVersion().setName("Milvus");
+        info.getDbVersion().setMajorVersion(0);
+        info.getDbVersion().setMinorVersion(0);
 
+        String version;
         try {
-            String ver = this.milvusCmd.getServerVersion();
-            info.getDbVersion().setVersion(ver);
-            if (ver != null) {
-                String[] parts = (ver.startsWith("v") ? ver.substring(1) : ver).split("\\.");
-                if (parts.length > 0) {
-                    info.getDbVersion().setMajorVersion(Integer.parseInt(parts[0]));
-                }
-                if (parts.length > 1) {
-                    info.getDbVersion().setMinorVersion(Integer.parseInt(parts[1]));
-                }
-            }
+            version = this.milvusCmd.getServerVersion();
         } catch (Exception e) {
             logger.warn("Failed to get Milvus version: " + e.getMessage());
             info.getDbVersion().setVersion("Unknown");
+            return;
+        }
+        info.getDbVersion().setVersion(StringUtils.isBlank(version) ? "Unknown" : version);
+        if (StringUtils.isBlank(version)) {
+            return;
+        }
+
+        // Cloud may return a product description rather than its own numeric version.
+        String[] parts = StringUtils.splitPreserveAllTokens(StringUtils.removeStart(version, "v"), '.');
+        if (parts.length < 2) {
+            return;
+        }
+        String majorPart = parts[0];
+        String minorPart = StringUtils.substringBefore(parts[1], "-");
+        if (!StringUtils.isNumeric(majorPart) || !StringUtils.isNumeric(minorPart)) {
+            return;
+        }
+        try {
+            int major = Integer.parseInt(majorPart);
+            int minor = Integer.parseInt(minorPart);
+            info.getDbVersion().setMajorVersion(major);
+            info.getDbVersion().setMinorVersion(minor);
+        } catch (NumberFormatException e) {
+            logger.warn("Failed to parse Milvus numeric version: " + version);
         }
     }
 

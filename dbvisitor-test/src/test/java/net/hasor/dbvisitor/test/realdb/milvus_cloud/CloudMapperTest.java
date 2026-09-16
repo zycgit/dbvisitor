@@ -1,0 +1,105 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
+package net.hasor.dbvisitor.test.realdb.milvus_cloud;
+
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
+import net.hasor.dbvisitor.jdbc.RowCallbackHandler;
+import net.hasor.dbvisitor.jdbc.RowMapper;
+import net.hasor.dbvisitor.mapper.BaseMapper;
+import net.hasor.dbvisitor.mapper.Param;
+import net.hasor.dbvisitor.mapper.Query;
+import net.hasor.dbvisitor.mapper.SimpleMapper;
+import net.hasor.dbvisitor.session.Configuration;
+import net.hasor.dbvisitor.session.Session;
+import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+public class CloudMapperTest extends CloudTestSupport {
+    private String table;
+
+    @Before
+    public void prepareUsers() throws Exception {
+        this.table = createCollection("""
+                id INT64 PRIMARY KEY, name VARCHAR(128) WITH(enable_analyzer=true),
+                age INT32 NULL, email VARCHAR(128) NULL, create_time VARCHAR(128) NULL,
+                v SPARSE_FLOAT_VECTOR, FUNCTION name_vector USING BM25(name) INTO(v)
+                """, "BM25");
+        this.jdbc.executeUpdate("INSERT INTO " + this.table + " (id,name,age) VALUES (1,'first',21)");
+    }
+
+    @Test
+    public void jdbcTemplateShouldBindNamedValuesAndInvokeResultHandlers() throws Exception {
+        String sql = "SELECT id,name FROM " + this.table + " WHERE id=:id LIMIT 1";
+        assertEquals("first", this.jdbc.queryForMap(sql, Map.of("id", 1)).get("name"));
+        RowMapper<String> mapper = (row, index) -> row.getString("name");
+        assertEquals(List.of("first"), this.jdbc.queryForList(sql, Map.of("id", 1), mapper));
+        List<Long> ids = new ArrayList<>();
+        RowCallbackHandler callback = (row, index) -> ids.add(row.getLong("id"));
+        this.jdbc.query(sql, Map.of("id", 1), callback);
+        assertEquals(List.of(1L), ids);
+        ResultSetExtractor<List<Long>> extractor = CloudTestSupport::readIds;
+        assertEquals(List.of(1L), this.jdbc.query(sql, Map.of("id", 1), extractor));
+    }
+
+    @Test
+    public void builderAndBaseMapperShouldShareEntityMapping() throws Exception {
+        Configuration config = new Configuration();
+        config.getMappingRegistry().loadEntityAsTable(UserInfo.class, this.table);
+        Session session = config.newSession(this.connection);
+        BaseMapper<UserInfo> mapper = session.createBaseMapper(UserInfo.class);
+        UserInfo user = new UserInfo();
+        user.setId(2);
+        user.setName("second");
+        user.setAge(22);
+        assertEquals(1, mapper.insert(user));
+        assertEquals("second", mapper.selectById(2).getName());
+        assertEquals(1, session.lambda().update(UserInfo.class).eq(UserInfo::getId, 2).updateTo(UserInfo::getAge, 23).doUpdate());
+        assertEquals(Integer.valueOf(23), session.lambda().query(UserInfo.class).eq(UserInfo::getId, 2).queryForObject().getAge());
+        assertEquals("second", session.lambda().queryFreedom(this.table).eq("id", 2).queryForMap().get("name"));
+        assertEquals(1, mapper.deleteById(2));
+        assertNull(mapper.selectById(2));
+    }
+
+    @Test
+    public void annotationAndXmlMappersShouldBindValuesAndMapBeans() throws Exception {
+        Session annotationSession = new Configuration().newSession(this.connection);
+        UserInfo annotated = annotationSession.createMapper(UserQueries.class).find(this.table, 1);
+        assertEquals("first", annotated.getName());
+        assertEquals(Integer.valueOf(21), annotated.getAge());
+
+        String xml = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+                <mapper namespace="CloudUsers">
+                    <select id="find" resultType="%s">
+                        SELECT id,name,age FROM %s WHERE id=#{id} LIMIT 1
+                    </select>
+                </mapper>
+                """.formatted(UserInfo.class.getName(), this.table);
+        Configuration config = new Configuration();
+        config.getMapperRegistry().loadMapper("cloud-users.xml", new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
+        List<UserInfo> users = config.newSession(this.connection).queryStatement("CloudUsers.find", Map.of("id", 1));
+        assertEquals(1, users.size());
+        assertEquals(annotated.getId(), users.get(0).getId());
+        assertEquals(annotated.getName(), users.get(0).getName());
+    }
+
+    @SimpleMapper
+    public interface UserQueries {
+        // The table name is generated by this fixture, never accepted from application input.
+        @Query("SELECT id,name,age FROM ${table} WHERE id=#{id} LIMIT 1")
+        UserInfo find(@Param("table") String table, @Param("id") int id);
+    }
+}

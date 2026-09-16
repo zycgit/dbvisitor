@@ -81,12 +81,18 @@ Properties props = new Properties();
 props.setProperty("secure", "true");
 props.setProperty("token", "YOUR_ZILLIZ_API_KEY");
 try (Connection conn = DriverManager.getConnection(
-        "jdbc:dbvisitor:milvus://YOUR_CLUSTER_HOST:443/default", props)) {
+        "jdbc:dbvisitor:milvus://YOUR_CLUSTER_HOST:443/YOUR_DATABASE", props)) {
     // A publicly trusted certificate normally needs no PEM configuration.
 }
 ```
 
-Keep credentials out of URLs and logs. Before connecting to Cloud, check endpoint permissions, network allowlists and Import API availability.
+Replace `YOUR_DATABASE` with the actual database name shown in the console, rather than assuming `default`. An explicit database keeps SQL, JDBC metadata and Import REST on the same database. Keep credentials out of URLs and logs.
+
+Cloud uses the same JDBC driver for SQL execution, parameter binding and dbVisitor API calls. Also consider:
+
+- **Management permissions**: database creation, user management and role management depend on the deployment option and account permissions. Use an authorized database for ordinary reads and writes; see [database creation API availability](https://docs.zilliz.com/reference/python/python/Database-create_database).
+- **Quotas and rate limits**: collection, partition and data operations are subject to Cloud quotas. Reduce request frequency when rate-limited instead of retrying in a tight loop; see [Cloud limits](https://docs.zilliz.com/docs/limits) for current values.
+- **Network access**: ensure that the endpoint is reachable and access policies allow the client. Import files must also be accessible to the cloud service.
 
 For endpoint and authentication configuration, see the [Zilliz Cloud connection guide](https://docs.zilliz.com/docs/connect-to-cluster).
 

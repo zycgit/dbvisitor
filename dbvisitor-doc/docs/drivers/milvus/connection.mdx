@@ -81,12 +81,18 @@ Properties props = new Properties();
 props.setProperty("secure", "true");
 props.setProperty("token", "YOUR_ZILLIZ_API_KEY");
 try (Connection conn = DriverManager.getConnection(
-        "jdbc:dbvisitor:milvus://YOUR_CLUSTER_HOST:443/default", props)) {
+        "jdbc:dbvisitor:milvus://YOUR_CLUSTER_HOST:443/YOUR_DATABASE", props)) {
     // 公共 CA 签发的可信证书通常无需额外配置 PEM 文件。
 }
 ```
 
-认证信息不要放进 URL 或日志。连接 Cloud 前，请确认端点权限、网络白名单及 Import API 可用性。
+`YOUR_DATABASE` 使用控制台提供的实际数据库名，不要假定为 `default`。显式指定数据库可让 SQL、JDBC 元信息和 Import REST 使用同一个库。认证信息不要放进 URL 或日志。
+
+Cloud 仍使用同一个 JDBC 驱动，通过 SQL、参数绑定和 dbVisitor API 访问。使用时另需注意：
+
+- **管理权限**：建库、用户及角色管理等操作取决于产品形态和账号权限。普通读写使用已授权的数据库；参见[建库 API 的适用范围](https://docs.zilliz.com/reference/python/python/Database-create_database)。
+- **配额与限流**：集合、分区及数据操作受云端配额约束。收到限流错误时降低请求频率，不要立即循环重试；具体数值见[Cloud 限制](https://docs.zilliz.com/docs/limits)。
+- **网络访问**：确认端点可达、访问策略允许当前客户端；Import 文件还需能被云服务访问。
 
 端点与认证配置可参考[Zilliz Cloud 连接说明](https://docs.zilliz.com/docs/connect-to-cluster)。
 

@@ -7,26 +7,16 @@
  */
 package net.hasor.dbvisitor.adapter.milvus.commands;
 
-import static org.junit.Assert.*;
-
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.sun.net.httpserver.HttpServer;
-
 import io.milvus.grpc.CollectionSchema;
 import io.milvus.grpc.DataType;
 import io.milvus.grpc.DescribeCollectionResponse;
@@ -46,22 +36,28 @@ import io.milvus.v2.service.vector.response.InsertResp;
 import io.milvus.v2.service.vector.response.UpsertResp;
 import net.hasor.dbvisitor.adapter.milvus.*;
 import net.hasor.dbvisitor.driver.JdbcDriver;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+import static org.junit.Assert.*;
 
 public class MilvusV2ConnectionTest {
-    private HttpServer             server;
-    private ExecutorService        executor;
-    private final List<String>     paths          = new CopyOnWriteArrayList<>();
-    private final List<JsonObject> bodies         = new CopyOnWriteArrayList<>();
-    private final List<String>     authorizations = new CopyOnWriteArrayList<>();
-    private volatile String        state          = "Completed";
-    private volatile int           apiCode;
-    private volatile int           httpStatus     = 200;
-    private volatile boolean       delay;
-    private CountDownLatch         entered;
+    private          HttpServer       server;
+    private          ExecutorService  executor;
+    private final    List<String>     paths          = new CopyOnWriteArrayList<>();
+    private final    List<JsonObject> bodies         = new CopyOnWriteArrayList<>();
+    private final    List<String>     authorizations = new CopyOnWriteArrayList<>();
+    private volatile String           state          = "Completed";
+    private volatile int              apiCode;
+    private volatile int              httpStatus     = 200;
+    private volatile boolean          delay;
+    private          CountDownLatch   entered;
 
     public static class ClientFactory implements CustomMilvus {
-        static MilvusClientV2      client;
-        static final AtomicInteger calls = new AtomicInteger();
+        static       MilvusClientV2 client;
+        static final AtomicInteger  calls = new AtomicInteger();
 
         @Override
         public MilvusClientV2 createMilvusClient(String jdbcUrl, Map<String, String> props) {
@@ -156,6 +152,50 @@ public class MilvusV2ConnectionTest {
             }
         }
         Mockito.verify(ClientFactory.client).close();
+    }
+
+    @Test
+    public void cloudVersionShouldPreserveDescriptionWithoutInventingProductVersion() throws Exception {
+        String version = "Zilliz Cloud Vector Database(Compatible with Milvus 2.6)";
+        Mockito.when(ClientFactory.client.getServerVersion()).thenReturn(version);
+        try (Connection connection = connect(new Properties())) {
+            assertEquals(version, connection.getMetaData().getDatabaseProductVersion());
+            assertEquals(0, connection.getMetaData().getDatabaseMajorVersion());
+            assertEquals(0, connection.getMetaData().getDatabaseMinorVersion());
+        }
+    }
+
+    @Test
+    public void numericVersionsShouldKeepMajorMinorAndOriginalText() throws Exception {
+        for (String version : List.of("2.6", "2.6.22", "v2.6.2", "2.6.2-rc1", "v2.6-rc1", "2.6.2+build1")) {
+            Mockito.when(ClientFactory.client.getServerVersion()).thenReturn(version);
+            try (Connection connection = connect(new Properties())) {
+                assertEquals(version, connection.getMetaData().getDatabaseProductVersion());
+                assertEquals(2, connection.getMetaData().getDatabaseMajorVersion());
+                assertEquals(6, connection.getMetaData().getDatabaseMinorVersion());
+            }
+        }
+    }
+
+    @Test
+    public void unavailableVersionShouldNotPreventConnection() throws Exception {
+        Mockito.when(ClientFactory.client.getServerVersion()).thenThrow(new IllegalStateException("unavailable"));
+        try (Connection connection = connect(new Properties())) {
+            assertEquals("Unknown", connection.getMetaData().getDatabaseProductVersion());
+        }
+    }
+
+    @Test
+    public void unparseableVersionShouldNotLoseAvailableText() throws Exception {
+        for (String version : Arrays.asList(null, "", " ", "2", "2.", ".6", "2..6", "2.6rc1", "-2.6", "999999999999.6.2", "2.999999999999.2")) {
+            Mockito.when(ClientFactory.client.getServerVersion()).thenReturn(version);
+            try (Connection connection = connect(new Properties())) {
+                String expected = version == null || version.isBlank() ? "Unknown" : version;
+                assertEquals(expected, connection.getMetaData().getDatabaseProductVersion());
+                assertEquals(0, connection.getMetaData().getDatabaseMajorVersion());
+                assertEquals(0, connection.getMetaData().getDatabaseMinorVersion());
+            }
+        }
     }
 
     @Test

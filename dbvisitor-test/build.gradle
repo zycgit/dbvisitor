@@ -33,7 +33,22 @@ dependencies {
 }
 
 test {
-    if (findProperty('nxn.env')) {
+    def cloudOption = findProperty('milvus.cloud')?.toString() ?: 'false'
+    if (!(cloudOption in ['true', 'false'])) {
+        throw new GradleException('milvus.cloud must be true or false.')
+    }
+    if (cloudOption == 'true') {
+        if (findProperty('nxn.env')) {
+            throw new GradleException('milvus.cloud and nxn.env cannot be selected together.')
+        }
+        systemProperty 'milvus.cloud', 'true'
+        systemProperty 'logback.configurationFile', 'milvus-cloud-logback.xml'
+        include '**/realdb/milvus_cloud/**/*Test.class'
+        reports.junitXml.outputLocation = layout.buildDirectory.dir('test-results/milvus-cloud')
+        reports.html.outputLocation = layout.buildDirectory.dir('reports/tests/milvus-cloud')
+        maxParallelForks = 1
+        outputs.upToDateWhen { false }
+    } else if (findProperty('nxn.env')) {
         def nxnEnv = findProperty('nxn.env').toString()
         def environments = ['h2', 'mysql', 'pg', 'mssql', 'oracle', 'db2', 'clickhouse', 'redis', 'mongo', 'es6', 'es7', 'milvus']
         if (!environments.contains(nxnEnv)) {
@@ -80,6 +95,9 @@ tasks.register('checkNxnMapping', JavaExec) {
 }
 
 tasks.register('updateNxnDocs', JavaExec) {
+    if (findProperty('milvus.cloud')?.toString() == 'true') {
+        throw new GradleException('Cloud checks do not update the local NxN capability matrix.')
+    }
     group = 'verification'
     description = 'Run one datasource suite and update its compatibility JSON results.'
     dependsOn tasks.named('checkNxnMapping'), tasks.named('test')
