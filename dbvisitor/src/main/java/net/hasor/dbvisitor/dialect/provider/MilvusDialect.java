@@ -122,7 +122,7 @@ public class MilvusDialect extends AbstractSqlDialect implements PageSqlDialect,
             } else if (metricType == MetricType.JACCARD) { // Jaccard
                 operator = "<%>";
             } else if (metricType == MetricType.BM25) { // BM25
-                operator = "<?>";
+                operator = "<\\?>"; // Keep the operator marker literal when JdbcTemplate parses this command template.
             } else {
                 operator = "<->";
             }
@@ -149,7 +149,7 @@ public class MilvusDialect extends AbstractSqlDialect implements PageSqlDialect,
         } else if (metricType == MetricType.JACCARD) { // Jaccard
             operator = "<%>";
         } else if (metricType == MetricType.BM25) { // BM25
-            operator = "<?>";
+            operator = "<\\?>"; // Keep the operator marker literal when JdbcTemplate parses this command template.
         } else {
             operator = "<->";
         }
