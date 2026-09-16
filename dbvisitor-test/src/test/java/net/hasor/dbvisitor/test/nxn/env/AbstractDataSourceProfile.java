@@ -30,8 +30,7 @@ public abstract class AbstractDataSourceProfile implements DataSourceProfile {
 
     @Override
     public SupportStatus support(String capabilityId) {
-        if (CapabilityId.TRANSACTION_SUPPORTS_NO_TX.equals(capabilityId)
-                || CapabilityId.TRANSACTION_NEVER_NO_TX.equals(capabilityId)) {
+        if (CapabilityId.TRANSACTION_SUPPORTS_NO_TX.equals(capabilityId) || CapabilityId.TRANSACTION_NEVER_NO_TX.equals(capabilityId) || CapabilityId.TRANSACTION_NOT_SUPPORTED_NO_TX.equals(capabilityId)) {
             return SupportStatus.SUPPORTED;
         }
         if (capabilityId != null && capabilityId.startsWith("transaction.") && !supportsFeature(FeatureId.TRANSACTION)) {
@@ -57,16 +56,13 @@ public abstract class AbstractDataSourceProfile implements DataSourceProfile {
         if (CapabilityId.BASEMAPPER_INSERT_DUPLICATE_KEY.equals(capabilityId)) {
             return FeatureId.DUPLICATE_PRIMARY_KEY_REJECTED;
         }
-        if (CapabilityId.BASEMAPPER_INSERT_LENGTH_ERROR.equals(capabilityId)
-                || CapabilityId.LAMBDA_SPECIAL_LENGTH_CONSTRAINT.equals(capabilityId)) {
+        if (CapabilityId.BASEMAPPER_INSERT_LENGTH_ERROR.equals(capabilityId)) {
             return FeatureId.LENGTH_LIMIT_ENFORCED;
         }
-        if (CapabilityId.LAMBDA_QUERY_LIKE.equals(capabilityId)
-                || CapabilityId.LAMBDA_SPECIAL_UNICODE_LIKE.equals(capabilityId)) {
+        if (CapabilityId.LAMBDA_QUERY_LIKE.equals(capabilityId) || CapabilityId.LAMBDA_SPECIAL_UNICODE_LIKE.equals(capabilityId)) {
             return FeatureId.PARAMETERIZED_LIKE;
         }
-        if (CapabilityId.LAMBDA_QUERY_ORDER.equals(capabilityId) || CapabilityId.LAMBDA_QUERY_PAGE.equals(capabilityId)
-                || CapabilityId.LAMBDA_BATCH_MUTATION_DELETE_CHUNKS.equals(capabilityId)) {
+        if (CapabilityId.LAMBDA_QUERY_ORDER.equals(capabilityId) || CapabilityId.LAMBDA_QUERY_PAGE.equals(capabilityId)) {
             return FeatureId.SCALAR_ORDER_BY;
         }
         if (capabilityId == null) {
@@ -90,14 +86,8 @@ public abstract class AbstractDataSourceProfile implements DataSourceProfile {
         if (capabilityId.startsWith("type.binary.")) {
             return FeatureId.BINARY;
         }
-        boolean partialDate = CapabilityId.TYPE_TIME_PARTIAL.equals(capabilityId)
-                || CapabilityId.TYPE_TIME_PARTIAL_YEAR_MONTH.equals(capabilityId)
-                || CapabilityId.TYPE_TIME_PARTIAL_MONTH.equals(capabilityId)
-                || CapabilityId.TYPE_TIME_PARTIAL_MONTH_DAY.equals(capabilityId);
-        if (capabilityId.startsWith("type.time.") && !CapabilityId.TYPE_TIME_SQL_DATE.equals(capabilityId)
-                && !CapabilityId.TYPE_TIME_LOCAL_DATE.equals(capabilityId) && !partialDate
-                && !CapabilityId.TYPE_TIME_JULIAN_DAY.equals(capabilityId) && !CapabilityId.TYPE_TIME_NULL.equals(capabilityId)
-                && !CapabilityId.TYPE_TIME_EXTREME_DATE.equals(capabilityId)) {
+        boolean partialDate = CapabilityId.TYPE_TIME_PARTIAL.equals(capabilityId) || CapabilityId.TYPE_TIME_PARTIAL_YEAR_MONTH.equals(capabilityId) || CapabilityId.TYPE_TIME_PARTIAL_MONTH.equals(capabilityId) || CapabilityId.TYPE_TIME_PARTIAL_MONTH_DAY.equals(capabilityId);
+        if (capabilityId.startsWith("type.time.") && !CapabilityId.TYPE_TIME_SQL_DATE.equals(capabilityId) && !CapabilityId.TYPE_TIME_LOCAL_DATE.equals(capabilityId) && !partialDate && !CapabilityId.TYPE_TIME_JULIAN_DAY.equals(capabilityId) && !CapabilityId.TYPE_TIME_NULL.equals(capabilityId) && !CapabilityId.TYPE_TIME_EXTREME_DATE.equals(capabilityId)) {
             return FeatureId.TIME_ZONE_STABLE_ROUND_TRIP;
         }
         if (capabilityId.startsWith("mapping.annotation.special-type.json")) {
@@ -115,20 +105,11 @@ public abstract class AbstractDataSourceProfile implements DataSourceProfile {
         if (CapabilityId.KEYGEN_AUTO_SINGLE.equals(capabilityId) || CapabilityId.KEYGEN_AUTO_MANUAL.equals(capabilityId) || CapabilityId.KEYGEN_AUTO_LONG.equals(capabilityId) || CapabilityId.KEYGEN_HOLDER_AFTER.equals(capabilityId) || CapabilityId.MAPPER_XML_KEYGEN_GENERATED_KEYS.equals(capabilityId) || CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_GENERATED_KEYS.equals(capabilityId)) {
             return FeatureId.GENERATED_KEYS_NUMERIC;
         }
-        if (CapabilityId.JDBC_BOUND_NULL_EMPTY.equals(capabilityId) || CapabilityId.LAMBDA_EMPTY_STRING_VS_NULL.equals(capabilityId) || CapabilityId.MAPPER_ANNOTATION_PARAM_EMPTY_STRING.equals(capabilityId) || CapabilityId.MAPPING_ANNOTATION_EMPTY_STRING_ROUND_TRIP.equals(capabilityId)) {
+        if (CapabilityId.JDBC_BOUND_NULL_EMPTY.equals(capabilityId) || CapabilityId.MAPPER_ANNOTATION_PARAM_EMPTY_STRING.equals(capabilityId) || CapabilityId.MAPPING_ANNOTATION_EMPTY_STRING_ROUND_TRIP.equals(capabilityId)) {
             return FeatureId.DISTINCT_EMPTY_STRING;
-        }
-        if (CapabilityId.LAMBDA_PREDICATE_IN_LARGE.equals(capabilityId)) {
-            return FeatureId.LARGE_IN_LIST;
-        }
-        if (CapabilityId.LAMBDA_PREDICATE_NOT_IN_NULL.equals(capabilityId)) {
-            return FeatureId.SQL_NOT_IN_NULL_SEMANTICS;
         }
         if (CapabilityId.LAMBDA_PREDICATE_RANGE_NOT_HALF_OPEN.equals(capabilityId)) {
             return FeatureId.PARAMETERIZED_NOT_COMPARISON;
-        }
-        if (CapabilityId.LAMBDA_SORT_REPEATED_COLUMN.equals(capabilityId)) {
-            return FeatureId.REPEATED_ORDER_BY_COLUMN;
         }
         if (CapabilityId.MAPPER_XML_DYNAMIC_FOREACH_WRITE.equals(capabilityId)) {
             return FeatureId.XML_FOREACH_BATCH_INSERT_COMMAND;

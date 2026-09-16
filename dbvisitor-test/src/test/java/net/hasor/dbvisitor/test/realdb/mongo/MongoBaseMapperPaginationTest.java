@@ -8,11 +8,11 @@
 package net.hasor.dbvisitor.test.realdb.mongo;
 
 import java.sql.SQLException;
+import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.api.mapper.basemapper.BaseMapperPaginationCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
 import net.hasor.dbvisitor.test.realdb.mongo.material.MongoEntityFixture;
-import net.hasor.dbvisitor.session.Session;
 import org.junit.After;
 import org.junit.Before;
 

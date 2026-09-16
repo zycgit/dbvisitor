@@ -7,12 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.session;
 
-import org.junit.Before;
-
 import net.hasor.dbvisitor.test.contract.api.session.SessionMapperSharingCase;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import org.junit.Before;
 
 /** BaseMapper-generated CRUD sharing remains distinct from declared Redis commands. */
 public class RedisSessionMapperSharingTest extends SessionMapperSharingCase {

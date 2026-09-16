@@ -7,13 +7,47 @@
  */
 package net.hasor.dbvisitor.test.realdb.elastic6;
 
-import net.hasor.dbvisitor.test.realdb.elastic7.Elastic7EnumTypeJdbcTest;
+import java.sql.SQLException;
+import net.hasor.dbvisitor.test.contract.api.adapter.NativeBasicTypeFixture;
+import net.hasor.dbvisitor.test.contract.feature.type.EnumTypeJdbcCase;
+import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic6Profile;
+import org.junit.After;
+import org.junit.Before;
 
-public class Elastic6EnumTypeJdbcTest extends Elastic7EnumTypeJdbcTest {
+public class Elastic6EnumTypeJdbcTest extends EnumTypeJdbcCase {
+    private final NativeBasicTypeFixture fixture = new NativeBasicTypeFixture();
+
     @Override
     protected DataSourceProfile profile() {
         return Elastic6Profile.INSTANCE;
+    }
+
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        OneApiDataSourceManager.assumeCurrentDataSource(profile().env());
+        jdbcTemplate = fixture.open(profile().env(), "enum_types_explicit_test");
+    }
+
+    @Override
+    protected String insertCommand(String table, String columns) throws SQLException {
+        return fixture.insertCommand(table, columns);
+    }
+
+    @Override
+    protected String insertCommand(String table, String columns, String... values) throws SQLException {
+        return fixture.insertCommand(table, columns, values);
+    }
+
+    @Override
+    protected String selectCommand(String table, String columns) throws SQLException {
+        return fixture.selectCommand(table, columns);
+    }
+
+    @After
+    public void closeFixture() throws SQLException {
+        fixture.close();
     }
 }

@@ -25,12 +25,11 @@ import net.hasor.dbvisitor.test.realdb.mongo.material.MongoMapperFixture;
 import org.junit.After;
 import org.junit.Before;
 
-
 public class MongoSessionCoreTest extends SessionCoreCase {
-    private final MongoMapperFixture users = new MongoMapperFixture();
+    private final MongoMapperFixture users  = new MongoMapperFixture();
     private final MongoMapperFixture orders = new MongoMapperFixture();
-    private final MongoMapperFixture roles = new MongoMapperFixture();
-    private HikariDataSource sessionSource;
+    private final MongoMapperFixture roles  = new MongoMapperFixture();
+    private       HikariDataSource   sessionSource;
 
     @Override
     protected DataSourceProfile profile() {

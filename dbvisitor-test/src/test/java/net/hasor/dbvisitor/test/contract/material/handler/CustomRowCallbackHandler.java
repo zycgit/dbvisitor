@@ -20,7 +20,7 @@ import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
  */
 public class CustomRowCallbackHandler implements RowCallbackHandler {
 
-    private List<UserInfo> userList = new ArrayList<>();
+    private final List<UserInfo> userList = new ArrayList<>();
 
     @Override
     public void processRow(ResultSet rs, int rowNum) throws SQLException {

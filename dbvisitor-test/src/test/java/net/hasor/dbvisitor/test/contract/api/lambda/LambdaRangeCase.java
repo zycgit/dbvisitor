@@ -8,20 +8,19 @@
 package net.hasor.dbvisitor.test.contract.api.lambda;
 
 import java.sql.SQLException;
-
-import org.junit.Test;
-
+import java.util.List;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class LambdaRangeCase extends LambdaPredicateSupport {
+    // 能力归属：构造器 API / 条件构造器。
     @Test
-    @Capability(CapabilityId.LAMBDA_PREDICATE_RANGE_BOUNDARIES)
+    @Capability(value = CapabilityId.LAMBDA_PREDICATE_RANGE_BOUNDARIES, column = "builder/condition-builders/predicates")
     public void lambdaPredicate_shouldApplyAllRangeBoundaryVariants() throws SQLException {
         insertRangeSet("NXN-Predicate-Range-", baseId() + 100);
 
@@ -53,8 +52,9 @@ public abstract class LambdaRangeCase extends LambdaPredicateSupport {
         assertEquals(1, equalBounds);
     }
 
+    // 能力归属：构造器 API / 条件构造器。
     @Test
-    @Capability(CapabilityId.LAMBDA_PREDICATE_RANGE_NOT_VARIANTS)
+    @Capability(value = CapabilityId.LAMBDA_PREDICATE_RANGE_NOT_VARIANTS, column = "builder/condition-builders/predicates")
     public void lambdaPredicate_shouldApplyNotBetweenAndReversedBounds() throws SQLException {
         insertRangeSet("NXN-Predicate-NotRange-", baseId() + 200);
 
@@ -71,8 +71,9 @@ public abstract class LambdaRangeCase extends LambdaPredicateSupport {
         assertEquals(0, reversedBetween);
     }
 
+    // 能力归属：构造器 API / 条件构造器。
     @Test
-    @Capability(CapabilityId.LAMBDA_PREDICATE_RANGE_NOT_HALF_OPEN)
+    @Capability(value = CapabilityId.LAMBDA_PREDICATE_RANGE_NOT_HALF_OPEN, column = "builder/condition-builders/predicates")
     public void lambdaPredicate_shouldNegateHalfOpenRanges() throws SQLException {
         insertRangeSet("NXN-Predicate-NotRange-", baseId() + 200);
         long notOpenClosed = lambdaTemplate.query(UserInfo.class)//
@@ -87,8 +88,9 @@ public abstract class LambdaRangeCase extends LambdaPredicateSupport {
         assertEquals(3, notClosedOpen);
     }
 
+    // 能力归属：构造器 API / 条件构造器。
     @Test
-    @Capability(CapabilityId.LAMBDA_PREDICATE_RANGE_DYNAMIC)
+    @Capability(value = CapabilityId.LAMBDA_PREDICATE_RANGE_DYNAMIC, column = "builder/condition-builders/predicates")
     public void lambdaPredicate_shouldHonorDynamicRangeFlags() throws SQLException {
         insertRangeSet("NXN-Predicate-DynRange-", baseId() + 300);
 
@@ -113,5 +115,20 @@ public abstract class LambdaRangeCase extends LambdaPredicateSupport {
         assertEquals(5, betweenDisabled);
         assertEquals(3, notBetweenEnabled);
         assertEquals(5, notBetweenDisabled);
+    }
+
+    // 能力归属：构造器 API / 条件构造器。
+    @Test
+    @Capability(value = CapabilityId.LAMBDA_EMPTY_REVERSED_BETWEEN, column = "builder/condition-builders/predicates")
+    public void lambdaBetween_shouldReturnEmptyListForReversedRange() throws SQLException {
+        insert(baseId() + 71, "NXN-Lambda-Empty-Between", 25, "between@nxn.test");
+
+        List<UserInfo> result = lambdaTemplate.query(UserInfo.class)//
+                .eq(UserInfo::getName, "NXN-Lambda-Empty-Between")//
+                .rangeBetween(UserInfo::getAge, 100, 50)//
+                .queryForList();
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
     }
 }

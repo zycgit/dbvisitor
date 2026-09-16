@@ -9,7 +9,8 @@ package net.hasor.dbvisitor.test.realdb.redis.scenario;
 
 import net.hasor.dbvisitor.test.realdb.redis.scenario.mapper.ViewCounterMapper;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class ViewCounterScenarioTest extends RedisScenarioSupport {
     @Test

@@ -8,9 +8,6 @@
 package net.hasor.dbvisitor.test.contract.api.mapper.xml;
 
 import java.util.List;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.page.Page;
 import net.hasor.dbvisitor.page.PageObject;
 import net.hasor.dbvisitor.page.PageResult;
@@ -18,16 +15,14 @@ import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class XmlMapperPaginationCase extends XmlMapperCrudSupport {
+    // 能力归属：Mapper 文件 / 分页查询。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_QUERY_PAGE)
+    @Capability(value = CapabilityId.MAPPER_XML_QUERY_PAGE, column = "mapper-files/pagination/file-pagination")
     public void xmlMapperQueryStatement_shouldApplyPageObjectBoundaries() throws Exception {
         List<UserInfo> first = this.session.queryStatement("xmltest.CrudMapper.selectForPage", null, new PageObject(0, 3));
         List<UserInfo> second = this.session.queryStatement("xmltest.CrudMapper.selectForPage", null, new PageObject(1, 2));
@@ -51,8 +46,9 @@ public abstract class XmlMapperPaginationCase extends XmlMapperCrudSupport {
         assertEquals("XmlCrud5", lastSingle.get(0).getName());
     }
 
+    // 能力归属：Mapper 文件 / 分页查询。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_PAGE_STATEMENT)
+    @Capability(value = CapabilityId.MAPPER_XML_PAGE_STATEMENT, column = "mapper-files/pagination/file-pagination")
     public void xmlMapperPageStatement_shouldReturnPageResult() throws Exception {
         Page page = new PageObject(1, 2);
 
@@ -67,8 +63,9 @@ public abstract class XmlMapperPaginationCase extends XmlMapperCrudSupport {
         assertEquals(3, result.getTotalPage());
     }
 
+    // 能力归属：Mapper 文件 / 分页查询。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_PAGE_STATEMENT_BOUNDARY)
+    @Capability(value = CapabilityId.MAPPER_XML_PAGE_STATEMENT_BOUNDARY, column = "mapper-files/pagination/file-pagination")
     public void xmlMapperPageStatement_shouldReturnTotalsForBoundaryPagesAndOffset() throws Exception {
         PageResult<UserInfo> first = this.session.pageStatement("xmltest.CrudMapper.selectForPage", null, new PageObject(0, 2));
         PageResult<UserInfo> lastPartial = this.session.pageStatement("xmltest.CrudMapper.selectForPage", null, new PageObject(2, 2));
@@ -95,5 +92,11 @@ public abstract class XmlMapperPaginationCase extends XmlMapperCrudSupport {
         assertEquals(1, exactOnePage.getTotalPage());
         assertEquals("XmlCrud1", offsetFirst.getData().get(0).getName());
         assertEquals("XmlCrud3", offsetSecond.getData().get(0).getName());
+        assertEquals(1, offsetFirst.getCurrentPage());
+        assertEquals(2, offsetSecond.getCurrentPage());
+        assertEquals(1, offsetFirst.getPageNumberOffset());
+        assertEquals(1, offsetSecond.getPageNumberOffset());
+        assertEquals(0, offsetFirst.getFirstRecordPosition());
+        assertEquals(2, offsetSecond.getFirstRecordPosition());
     }
 }

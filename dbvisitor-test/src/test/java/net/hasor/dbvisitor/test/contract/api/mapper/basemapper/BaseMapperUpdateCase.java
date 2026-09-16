@@ -7,22 +7,18 @@
  */
 package net.hasor.dbvisitor.test.contract.api.mapper.basemapper;
 
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class BaseMapperUpdateCase extends BaseMapperCrudSupport {
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_REPLACE)
+    @Capability(value = CapabilityId.BASEMAPPER_REPLACE, column = "mapper/base-mapper/operations")
     public void baseMapperReplace_shouldWriteNullFields() {
         int id = baseId() + 261;
         this.mapper.insert(user(id, "BaseReplaceBefore", 28, "replace@basemapper.com"));
@@ -40,8 +36,9 @@ public abstract class BaseMapperUpdateCase extends BaseMapperCrudSupport {
         assertNull(loaded.getEmail());
     }
 
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_UPSERT_INSERT)
+    @Capability(value = CapabilityId.BASEMAPPER_UPSERT_INSERT, column = "mapper/base-mapper/operations")
     public void baseMapperUpsert_shouldInsertMissingEntity() {
         int id = baseId() + 271;
 
@@ -53,8 +50,9 @@ public abstract class BaseMapperUpdateCase extends BaseMapperCrudSupport {
         assertEquals("BaseUpsertInsert", loaded.getName());
     }
 
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_UPSERT_UPDATE)
+    @Capability(value = CapabilityId.BASEMAPPER_UPSERT_UPDATE, column = "mapper/base-mapper/operations")
     public void baseMapperUpsert_shouldUpdateExistingEntity() {
         int id = baseId() + 281;
         this.mapper.insert(user(id, "BaseUpsertBefore", 25, "upsert-update@basemapper.com"));
@@ -67,8 +65,9 @@ public abstract class BaseMapperUpdateCase extends BaseMapperCrudSupport {
         assertEquals(Integer.valueOf(26), loaded.getAge());
     }
 
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_UPDATE)
+    @Capability(value = CapabilityId.BASEMAPPER_UPDATE, column = "mapper/base-mapper/operations")
     public void baseMapperUpdate_shouldUpdateOnlyNonNullFields() {
         this.mapper.insert(user(baseId() + 81, "BaseUpdate", 81, "before@basemapper.com"));
 
@@ -85,8 +84,9 @@ public abstract class BaseMapperUpdateCase extends BaseMapperCrudSupport {
         assertEquals("before@basemapper.com", loaded.getEmail());
     }
 
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_UPDATE_BOUNDARY)
+    @Capability(value = CapabilityId.BASEMAPPER_UPDATE_BOUNDARY, column = "mapper/base-mapper/operations")
     public void baseMapperUpdate_shouldReturnZeroForMissingOrNullPrimaryKey() {
         UserInfo missing = user(baseId() + 99901, "BaseMissingUpdate", 30, null);
         assertMutationRows(0, this.mapper.update(missing));

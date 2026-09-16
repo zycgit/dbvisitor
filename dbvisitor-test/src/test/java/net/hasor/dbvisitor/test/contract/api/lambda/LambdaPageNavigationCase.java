@@ -10,24 +10,19 @@ package net.hasor.dbvisitor.test.contract.api.lambda;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.Assert.assertNotNull;
-import org.junit.Test;
-
 import net.hasor.dbvisitor.page.PageObject;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class LambdaPageNavigationCase extends LambdaPaginationSupport {
+    // 能力归属：构造器 API / 分页查询。
     @Test
-    @Capability(CapabilityId.LAMBDA_PAGE_USE_PAGE)
+    @Capability(value = CapabilityId.LAMBDA_PAGE_USE_PAGE, column = "builder/pagination-and-iteration/pagination")
     public void lambdaPagination_shouldUseMutablePageObjectForNavigation() throws SQLException {
         insertBatch("NXN-Page-Use-", 12, baseId() + 600);
 
@@ -58,8 +53,9 @@ public abstract class LambdaPageNavigationCase extends LambdaPaginationSupport {
         assertPageRows(thirdPage, "NXN-Page-Use-", 10, 2);
     }
 
+    // 能力归属：构造器 API / 分页查询。
     @Test
-    @Capability(CapabilityId.LAMBDA_PAGE_FULL_TRAVERSAL)
+    @Capability(value = CapabilityId.LAMBDA_PAGE_FULL_TRAVERSAL, column = "builder/pagination-and-iteration/pagination")
     public void lambdaPagination_shouldTraverseAllPagesWithoutOverlap() throws SQLException {
         int total = 23;
         int pageSize = 7;
@@ -88,8 +84,9 @@ public abstract class LambdaPageNavigationCase extends LambdaPaginationSupport {
         }
     }
 
+    // 能力归属：构造器 API / 分页查询。
     @Test
-    @Capability(CapabilityId.LAMBDA_QUERY_PAGE)
+    @Capability(value = CapabilityId.LAMBDA_QUERY_PAGE, column = "builder/pagination-and-iteration/pagination")
     public void lambdaQueryPage_shouldLimitAndOffsetResults() throws SQLException {
         for (int i = 1; i <= 12; i++) {
             insert(baseId() + 60 + i, "PageQ" + i, 20 + i);

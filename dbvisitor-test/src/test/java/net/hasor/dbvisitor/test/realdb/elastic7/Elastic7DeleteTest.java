@@ -31,15 +31,15 @@ public class Elastic7DeleteTest {
 
             // Create index
             String putIndex = "PUT /" + INDEX_NAME + """
-                 {
-                "mappings": {
-                    "properties": {
-                      "name": { "type": "keyword" },
-                      "age": { "type": "integer" }
+                     {
+                    "mappings": {
+                        "properties": {
+                          "name": { "type": "keyword" },
+                          "age": { "type": "integer" }
+                        }
                     }
-                }
-                }
-                """;
+                    }
+                    """;
             stmt.executeUpdate(putIndex);
         }
     }
@@ -98,6 +98,7 @@ public class Elastic7DeleteTest {
             }
         }
     }
+
     public static void main(String[] args) {
         net.hasor.dbvisitor.test.realdb.RealDbTestRunner.run(Elastic7DeleteTest.class);
     }

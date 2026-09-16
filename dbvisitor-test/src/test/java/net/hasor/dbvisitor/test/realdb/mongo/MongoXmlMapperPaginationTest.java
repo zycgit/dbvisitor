@@ -29,8 +29,7 @@ public class MongoXmlMapperPaginationTest extends XmlMapperPaginationCase {
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open();
         for (int i = 1; i <= 5; i++) {
-            this.jdbcTemplate.executeUpdate(this.fixture.source() + ".insert({id: ?, name: ?, age: ?})",
-                    new Object[] { baseId() + i, "XmlCrud" + i, 20 + i });
+            this.jdbcTemplate.executeUpdate(this.fixture.source() + ".insert({id: ?, name: ?, age: ?})", new Object[] { baseId() + i, "XmlCrud" + i, 20 + i });
         }
     }
 

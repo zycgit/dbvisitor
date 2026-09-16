@@ -8,20 +8,18 @@
 package net.hasor.dbvisitor.test.contract.api.session;
 
 import java.util.List;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserOrder;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 @NxnContract
 public abstract class SessionStatementCoordinationCase extends SessionStatementSupport {
+    // 能力归属：Mapper 文件 / 命令执行。
     @Test
-    @Capability(CapabilityId.SESSION_STATEMENT_CROSS_TABLE)
+    @Capability(value = CapabilityId.SESSION_STATEMENT_CROSS_TABLE, column = "mapper-files/statements/execution")
     public void sessionStatement_shouldCoordinateCrossTableOperations() throws Exception {
         int userId = baseId() + 300;
         insertUser(userId, "StmtCross", 30, "cross@nxn.test");

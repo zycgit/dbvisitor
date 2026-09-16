@@ -8,8 +8,6 @@
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
 import java.sql.SQLException;
-import org.junit.After;
-import org.junit.Before;
 import net.hasor.dbvisitor.mapper.Delete;
 import net.hasor.dbvisitor.mapper.Param;
 import net.hasor.dbvisitor.mapper.Query;
@@ -20,6 +18,8 @@ import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperC
 import net.hasor.dbvisitor.test.contract.material.dao.declarative.AnnotationTestMapper;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import org.junit.After;
+import org.junit.Before;
 
 public class RedisAnnotationMapperConditionalDeleteTest extends AnnotationMapperConditionalDeleteCase {
     private final RedisMapperFixture fixture = new RedisMapperFixture();
@@ -54,10 +54,8 @@ public class RedisAnnotationMapperConditionalDeleteTest extends AnnotationMapper
     @SimpleMapper
     public interface ConditionalMapper extends AnnotationTestMapper {
         @Override
-        @Query("ZADD @{macro, redisConditionalUsers} #{age} "
-                + "#{#{'id': id, 'name': name, 'age': age, 'email': email}, typeHandler=net.hasor.dbvisitor.types.handler.json.JsonTypeHandler}")
-        int insertUserWithParams(@Param("id") Integer id, @Param("name") String name,
-                @Param("age") Integer age, @Param("email") String email);
+        @Query("ZADD @{macro, redisConditionalUsers} #{age} " + "#{#{'id': id, 'name': name, 'age': age, 'email': email}, typeHandler=net.hasor.dbvisitor.types.handler.json.JsonTypeHandler}")
+        int insertUserWithParams(@Param("id") Integer id, @Param("name") String name, @Param("age") Integer age, @Param("email") String email);
 
         @Override
         @Delete("ZREMRANGEBYSCORE @{macro, redisConditionalUsers} #{age} #{age}")

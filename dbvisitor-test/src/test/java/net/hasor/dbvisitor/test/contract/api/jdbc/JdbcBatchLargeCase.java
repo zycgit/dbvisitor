@@ -10,19 +10,17 @@ package net.hasor.dbvisitor.test.contract.api.jdbc;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 @NxnContract
 public abstract class JdbcBatchLargeCase extends JdbcBatchSupport {
+    // 能力归属：编程式 API / 批量化。
     @Test
-    @Capability(CapabilityId.JDBC_BATCH_LARGE_INSERT)
+    @Capability(value = CapabilityId.JDBC_BATCH_LARGE_INSERT, column = "jdbc/batch-operations/batch")
     public void jdbcBatchLargeInsert_shouldInsertManyNamedRows() throws SQLException {
         Map<String, Object>[] args = new Map[200];
         for (int i = 0; i < args.length; i++) {

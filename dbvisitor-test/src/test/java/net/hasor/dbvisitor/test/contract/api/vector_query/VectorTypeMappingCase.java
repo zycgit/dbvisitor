@@ -10,23 +10,19 @@ package net.hasor.dbvisitor.test.contract.api.vector_query;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.ProductVectorForPg;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class VectorTypeMappingCase extends VectorQuerySupport {
+    // 能力归属：向量操作 / 向量类型映射。
     @Test
-    @Capability(CapabilityId.VECTOR_CRUD_ROUND_TRIP)
+    @Capability(value = CapabilityId.VECTOR_CRUD_ROUND_TRIP, column = "vectors/vectors/vector-mapping")
     public void vector_shouldRoundTripAndUpdateEmbedding() throws SQLException {
         requiresNxnFeature(FeatureId.VECTOR);
         int id = baseId() + 1;
@@ -51,8 +47,9 @@ public abstract class VectorTypeMappingCase extends VectorQuerySupport {
         }
     }
 
+    // 能力归属：向量操作 / 向量类型映射。
     @Test
-    @Capability(CapabilityId.VECTOR_BATCH_QUERY)
+    @Capability(value = CapabilityId.VECTOR_BATCH_QUERY, column = "vectors/vectors/vector-mapping")
     public void vector_shouldInsertMultipleRowsAndQueryByScalarRange() throws SQLException {
         requiresNxnFeature(FeatureId.VECTOR);
         int startId = baseId() + 20;
@@ -67,13 +64,20 @@ public abstract class VectorTypeMappingCase extends VectorQuerySupport {
                     .le(ProductVectorForPg::getId, startId + count - 1)//
                     .queryForList();
             assertEquals(count, rows.size());
+            assertVectorIds(rows, startId, startId + 1, startId + 2, startId + 3, startId + 4, startId + 5);
+            for (ProductVectorForPg row : rows) {
+                int index = row.getId() - startId;
+                assertEquals("VectorBatch-" + index, row.getName());
+                assertVectorEquals(fixedVector(index * 0.1f, 0.005f), row.getEmbedding());
+            }
         } finally {
             cleanupRange(startId, count);
         }
     }
 
+    // 能力归属：向量操作 / 向量类型映射。
     @Test
-    @Capability(CapabilityId.VECTOR_CRUD_DELETE_AND_SCALAR_UPDATE)
+    @Capability(value = CapabilityId.VECTOR_CRUD_DELETE_AND_SCALAR_UPDATE, column = "vectors/vectors/vector-mapping")
     public void vector_shouldDeleteRowsAndUpdateScalarColumnsWithoutChangingEmbedding() throws SQLException {
         requiresNxnFeature(FeatureId.VECTOR);
         int updateId = baseId() + 40;
@@ -102,8 +106,9 @@ public abstract class VectorTypeMappingCase extends VectorQuerySupport {
         }
     }
 
+    // 能力归属：向量操作 / 向量类型映射。
     @Test
-    @Capability(CapabilityId.VECTOR_PRECISION_BOUNDARY)
+    @Capability(value = CapabilityId.VECTOR_PRECISION_BOUNDARY, column = "vectors/vectors/vector-mapping")
     public void vector_shouldPreserveRepresentativePrecisionBoundaryValues() throws SQLException {
         requiresNxnFeature(FeatureId.VECTOR);
         int id = baseId() + 600;
@@ -121,12 +126,56 @@ public abstract class VectorTypeMappingCase extends VectorQuerySupport {
             insertVector(id, "VectorPrecision", vector);
             ProductVectorForPg loaded = loadVector(id);
             assertNotNull(loaded);
+            assertVectorEquals(vector, loaded.getEmbedding());
+            // An absolute tolerance of 0.0001 would incorrectly accept zero for these values.
+            assertEquals(Float.valueOf(Float.MIN_VALUE), loaded.getEmbedding().get(0));
+            assertEquals(Float.valueOf(-Float.MIN_VALUE), loaded.getEmbedding().get(1));
             assertEquals(1.0f, loaded.getEmbedding().get(2), 0.0001f);
             assertEquals(-1.0f, loaded.getEmbedding().get(3), 0.0001f);
             assertEquals(0.0f, loaded.getEmbedding().get(4), 0.0001f);
             assertEquals(0.12345f, loaded.getEmbedding().get(5), 0.0001f);
         } finally {
             cleanup(id);
+        }
+    }
+
+    // 能力归属：向量操作 / 向量类型映射。
+    @Test
+    @Capability(value = CapabilityId.VECTOR_NULL_ROUND_TRIP, column = "vectors/vectors/vector-mapping")
+    public void vector_shouldRoundTripNullEmbeddingAndUpdateBetweenNullAndValue() throws SQLException {
+        requiresNxnFeature(FeatureId.VECTOR);
+        int nullId = baseId() + 620;
+        int populatedId = baseId() + 621;
+        List<Float> populated = fixedVector(0.25f, 0.005f);
+        try {
+            insertVector(nullId, "VectorNull", null);
+            insertVector(populatedId, "VectorPopulated", populated);
+
+            ProductVectorForPg nullRow = loadVector(nullId);
+            assertNotNull(nullRow);
+            assertEquals("VectorNull", nullRow.getName());
+            assertNull(nullRow.getEmbedding());
+            assertVectorEquals(populated, loadVector(populatedId).getEmbedding());
+
+            int populatedRows = lambdaTemplate.update(ProductVectorForPg.class)//
+                    .eq(ProductVectorForPg::getId, nullId)//
+                    .updateTo(ProductVectorForPg::getEmbedding, populated)//
+                    .doUpdate();
+            assertEquals(1, populatedRows);
+            assertVectorEquals(populated, loadVector(nullId).getEmbedding());
+
+            int nullRows = lambdaTemplate.update(ProductVectorForPg.class)//
+                    .eq(ProductVectorForPg::getId, nullId)//
+                    .updateTo(ProductVectorForPg::getEmbedding, null)//
+                    .doUpdate();
+            assertEquals(1, nullRows);
+            ProductVectorForPg restoredNull = loadVector(nullId);
+            assertNotNull(restoredNull);
+            assertEquals("VectorNull", restoredNull.getName());
+            assertNull(restoredNull.getEmbedding());
+            assertVectorEquals(populated, loadVector(populatedId).getEmbedding());
+        } finally {
+            cleanup(nullId, populatedId);
         }
     }
 

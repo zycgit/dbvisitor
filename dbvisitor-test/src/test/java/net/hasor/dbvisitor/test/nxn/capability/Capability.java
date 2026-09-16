@@ -16,4 +16,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Capability {
     String value();
+
+    /** Compatibility table/column path: table/group/column. Required on each compatibility test method. */
+    String column() default "";
+
+    /** Named variants verified by this method, when the JSON column counts variants instead of methods. */
+    String[] variants() default {};
 }

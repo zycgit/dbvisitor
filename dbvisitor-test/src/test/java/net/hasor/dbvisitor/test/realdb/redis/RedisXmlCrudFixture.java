@@ -20,10 +20,10 @@ import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 
 /** One JSON entity per private list; native LRANGE preserves an empty result for a missing key. */
 final class RedisXmlCrudFixture implements AutoCloseable {
-    private final String prefix = "nxn_xml_crud_" + UUID.randomUUID().toString().replace("-", "") + ":";
-    private final int baseId;
-    private JdbcTemplate jdbc;
-    private Session session;
+    private final String       prefix = "nxn_xml_crud_" + UUID.randomUUID().toString().replace("-", "") + ":";
+    private final int          baseId;
+    private       JdbcTemplate jdbc;
+    private       Session      session;
 
     RedisXmlCrudFixture(int baseId) {
         this.baseId = baseId;
@@ -47,8 +47,7 @@ final class RedisXmlCrudFixture implements AutoCloseable {
             user.setAge(20 + i);
             user.setEmail("crud" + i + "@test.com");
             user.setCreateTime(new Date());
-            this.jdbc.executeUpdate("RPUSH #{arg0} #{arg1, typeHandler=net.hasor.dbvisitor.types.handler.json.JsonTypeHandler}",
-                    new Object[] { this.prefix + user.getId(), user });
+            this.jdbc.executeUpdate("RPUSH #{arg0} #{arg1, typeHandler=net.hasor.dbvisitor.types.handler.json.JsonTypeHandler}", new Object[] { this.prefix + user.getId(), user });
         }
     }
 

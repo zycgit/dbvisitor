@@ -11,10 +11,6 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
-
-import org.junit.After;
-import org.junit.Before;
-
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.session.Configuration;
@@ -22,10 +18,12 @@ import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperResultMapCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
+import org.junit.After;
+import org.junit.Before;
 
 public class MilvusXmlMapperResultMapTest extends XmlMapperResultMapCase {
     private final MilvusUserInfoFixture fixture = new MilvusUserInfoFixture();
-    private Session session;
+    private       Session               session;
 
     @Override
     protected DataSourceProfile profile() {
@@ -60,8 +58,7 @@ public class MilvusXmlMapperResultMapTest extends XmlMapperResultMapCase {
                     """);
             this.jdbcTemplate.executeUpdate("CREATE INDEX labels_v ON result_map_labels(v) USING SPARSE_INVERTED_INDEX WITH (metric_type=BM25)");
             this.jdbcTemplate.executeUpdate("LOAD TABLE result_map_labels");
-            this.jdbcTemplate.executeUpdate("INSERT INTO result_map_labels (user_id, user_name, user_age) VALUES (?, ?, ?)",
-                    new Object[] { baseId() + 3, "RmCfg3", 28 });
+            this.jdbcTemplate.executeUpdate("INSERT INTO result_map_labels (user_id, user_name, user_age) VALUES (?, ?, ?)", new Object[] { baseId() + 3, "RmCfg3", 28 });
             return this.session.queryStatement("milvus.ResultMapLabels.selectLabels", Map.of("id", baseId() + 3));
         } finally {
             this.jdbcTemplate.executeUpdate("DROP TABLE IF EXISTS result_map_labels");

@@ -7,9 +7,9 @@
  */
 package net.hasor.dbvisitor.test.realdb.pg.feature.type;
 
-import net.hasor.dbvisitor.test.contract.feature.type.BasicBitValueJdbcCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.PostgreSqlProfile;
+import net.hasor.dbvisitor.test.scenario.type.BasicBitValueJdbcCase;
 
 public class PostgreSqlBasicBitValueJdbcTest extends BasicBitValueJdbcCase {
     @Override

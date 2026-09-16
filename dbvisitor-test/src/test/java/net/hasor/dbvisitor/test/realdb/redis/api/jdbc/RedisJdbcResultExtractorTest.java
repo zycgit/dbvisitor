@@ -9,7 +9,7 @@ package net.hasor.dbvisitor.test.realdb.redis.api.jdbc;
 
 import java.sql.SQLException;
 import java.util.Map;
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcResultExtractorCase;
+import net.hasor.dbvisitor.test.contract.feature.result.JdbcResultExtractorCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
 import org.junit.After;
@@ -46,7 +46,7 @@ public class RedisJdbcResultExtractorTest extends JdbcResultExtractorCase {
 
     @Override
     protected String selectSql(String columns, String predicate, boolean ordered) {
-        return "ZRANGE ? ? ? WITHSCORES";
+        return "ZRANGE ? ? ?" + ("id".equals(columns) ? "" : " WITHSCORES");
     }
 
     @Override
@@ -59,33 +59,45 @@ public class RedisJdbcResultExtractorTest extends JdbcResultExtractorCase {
     }
 
     @Override
+    protected Object[] emptyResultArguments() {
+        return new Object[] { this.fixture.key("missingScores"), 0, -1 };
+    }
+
+    @Override
     protected String customKeyColumn() {
         return "ELEMENT";
     }
+
     @Override
     protected String customValueColumn() {
         return "SCORE";
     }
+
     @Override
     protected boolean customIntegerKey() {
         return false;
     }
+
     @Override
     protected boolean customIntegerValue() {
         return true;
     }
+
     @Override
     protected Class<?> pairKeyType() {
         return String.class;
     }
+
     @Override
     protected Class<?> pairValueType() {
         return Double.class;
     }
+
     @Override
     protected String filterNumberProperty() {
         return "score";
     }
+
     @Override
     protected int expectedColumnMapCount() {
         return 10;

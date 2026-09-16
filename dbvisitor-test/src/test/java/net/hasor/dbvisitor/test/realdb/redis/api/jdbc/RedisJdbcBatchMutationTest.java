@@ -8,12 +8,11 @@
 package net.hasor.dbvisitor.test.realdb.redis.api.jdbc;
 
 import java.sql.SQLException;
-import org.junit.Before;
-import org.junit.After;
-
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcBatchMutationCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import org.junit.After;
+import org.junit.Before;
 
 public class RedisJdbcBatchMutationTest extends JdbcBatchMutationCase {
 
@@ -83,9 +82,7 @@ public class RedisJdbcBatchMutationTest extends JdbcBatchMutationCase {
     @Override
     protected String countRangeCommand(boolean inclusiveEnd) {
         String bound = inclusiveEnd ? " <= " : " < ";
-        return "EVAL 'local n = 0; for _, k in ipairs(redis.call(\"HKEYS\", KEYS[1])) do "
-                + "local id = tonumber(k); if id >= tonumber(ARGV[1]) and id" + bound
-                + "tonumber(ARGV[2]) then n = n + 1 end end return n' 1 '" + fixture.key("batch") + "' ? ?";
+        return "EVAL 'local n = 0; for _, k in ipairs(redis.call(\"HKEYS\", KEYS[1])) do " + "local id = tonumber(k); if id >= tonumber(ARGV[1]) and id" + bound + "tonumber(ARGV[2]) then n = n + 1 end end return n' 1 '" + fixture.key("batch") + "' ? ?";
     }
 
     @Override

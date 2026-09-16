@@ -9,9 +9,6 @@ package net.hasor.dbvisitor.test.contract.feature.naming;
 
 import java.sql.SQLException;
 import java.util.Map;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.test.contract.material.model.naming.CaseTestLower;
@@ -20,11 +17,8 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class IdentifierCasingCase extends NamingMappingSupport {
@@ -37,8 +31,9 @@ public abstract class IdentifierCasingCase extends NamingMappingSupport {
         return "Case_Test_Upper";
     }
 
+    // 能力归属：对象映射 / 命名与名称敏感性 / 标识符大小写。
     @Test
-    @Capability(CapabilityId.NAMING_CASE_INSENSITIVE_MIXED_CASE_CRUD)
+    @Capability(value = CapabilityId.NAMING_CASE_INSENSITIVE_MIXED_CASE_CRUD, column = "mapping-keys/naming-and-case-sensitivity/identifiers")
     public void caseInsensitiveMixedCaseTable_shouldRoundTripWhenIdentifiersAreCaseSensitive() throws SQLException {
         prepareMixedCaseFields();
         int id = baseId() + 16;
@@ -70,8 +65,9 @@ public abstract class IdentifierCasingCase extends NamingMappingSupport {
                 .doDelete());
     }
 
+    // 能力归属：对象映射 / 命名与名称敏感性 / 标识符大小写。
     @Test
-    @Capability(CapabilityId.NAMING_CASE_SENSITIVE_TABLE_ISOLATION)
+    @Capability(value = CapabilityId.NAMING_CASE_SENSITIVE_TABLE_ISOLATION, column = "mapping-keys/naming-and-case-sensitivity/identifiers")
     public void caseSensitiveIdentifiers_shouldKeepLowerAndMixedCaseTablesIsolated() throws SQLException {
         requiresNxnFeature(FeatureId.CASE_SENSITIVE_IDENTIFIERS);
         ensureCaseSensitivityTables();
@@ -100,11 +96,12 @@ public abstract class IdentifierCasingCase extends NamingMappingSupport {
         assertEquals("from-lower", loadedLower.getMemo());
         assertEquals("NXN-UpperData", loadedUpper.getName());
         assertEquals("from-upper", loadedUpper.getMemo());
-        assertTrue(!loadedLower.getName().equals(loadedUpper.getName()));
+        assertNotEquals(loadedLower.getName(), loadedUpper.getName());
     }
 
+    // 能力归属：对象映射 / 命名与名称敏感性 / 标识符大小写。
     @Test
-    @Capability(CapabilityId.NAMING_CASE_SENSITIVE_FREEDOM_MIXED_CASE)
+    @Capability(value = CapabilityId.NAMING_CASE_SENSITIVE_FREEDOM_MIXED_CASE, column = "mapping-keys/naming-and-case-sensitivity/identifiers")
     public void caseSensitiveFreedomQuery_shouldPreserveMixedCaseResultKeys() throws SQLException {
         prepareMixedCaseFields();
         int id = baseId() + 21;
@@ -121,8 +118,9 @@ public abstract class IdentifierCasingCase extends NamingMappingSupport {
         assertNull(row.get("name"));
     }
 
+    // 能力归属：对象映射 / 命名与名称敏感性 / 标识符大小写。
     @Test
-    @Capability(CapabilityId.NAMING_CASE_INSENSITIVE_BATCH_MAPPING)
+    @Capability(value = CapabilityId.NAMING_CASE_INSENSITIVE_BATCH_MAPPING, column = "mapping-keys/naming-and-case-sensitivity/identifiers")
     public void caseInsensitiveMixedCaseTable_shouldMapMultipleRows() throws SQLException {
         prepareMixedCaseFields();
 

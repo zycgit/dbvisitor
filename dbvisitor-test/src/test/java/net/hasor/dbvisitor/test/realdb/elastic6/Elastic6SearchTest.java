@@ -144,14 +144,14 @@ public class Elastic6SearchTest {
     public void testMultiSearch() throws Exception {
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
             boolean hasResult = s.execute("""
-                POST /_msearch\s
-                [\s
-                    { "index": "test_msearch_1" },\s
-                    { "query": { "match_all": {} } },\s
-                    { "index": "test_msearch_2" },\s
-                    { "query": { "match_all": {} } }\s
-                ]
-                """);
+                    POST /_msearch\s
+                    [\s
+                        { "index": "test_msearch_1" },\s
+                        { "query": { "match_all": {} } },\s
+                        { "index": "test_msearch_2" },\s
+                        { "query": { "match_all": {} } }\s
+                    ]
+                    """);
 
             if (hasResult) {
                 try (ResultSet rs = s.getResultSet()) {
@@ -217,14 +217,14 @@ public class Elastic6SearchTest {
             // Hints: limit=1, skip=0 -> Both should return Bob (first result)
 
             String sql = """
-                /*+ overwrite_find_limit=1; overwrite_find_skip=0 */ POST /_msearch\s
-                [
-                  { "index": "test_search" },
-                  { "query": { "match_all": {} }, "sort": [{"age": "asc"}] },
-                  { "index": "test_search" },
-                  { "query": { "match_all": {} }, "sort": [{"age": "asc"}] }
-                ]
-                """;
+                    /*+ overwrite_find_limit=1; overwrite_find_skip=0 */ POST /_msearch\s
+                    [
+                      { "index": "test_search" },
+                      { "query": { "match_all": {} }, "sort": [{"age": "asc"}] },
+                      { "index": "test_search" },
+                      { "query": { "match_all": {} }, "sort": [{"age": "asc"}] }
+                    ]
+                    """;
 
             boolean hasResult = s.execute(sql);
             if (hasResult) {
@@ -334,6 +334,7 @@ public class Elastic6SearchTest {
             }
         }
     }
+
     public static void main(String[] args) {
         net.hasor.dbvisitor.test.realdb.RealDbTestRunner.run(Elastic6SearchTest.class);
     }

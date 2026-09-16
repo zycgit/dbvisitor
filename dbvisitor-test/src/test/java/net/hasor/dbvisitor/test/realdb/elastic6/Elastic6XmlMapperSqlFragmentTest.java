@@ -7,13 +7,50 @@
  */
 package net.hasor.dbvisitor.test.realdb.elastic6;
 
-import net.hasor.dbvisitor.test.realdb.elastic7.Elastic7XmlMapperSqlFragmentTest;
+import java.sql.SQLException;
+import java.util.Date;
+import net.hasor.dbvisitor.session.Configuration;
+import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperSqlFragmentCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic6Profile;
+import net.hasor.dbvisitor.test.realdb.elastic7.material.ElasticMatrixFixture;
+import org.junit.After;
+import org.junit.Before;
 
-public class Elastic6XmlMapperSqlFragmentTest extends Elastic7XmlMapperSqlFragmentTest {
+public class Elastic6XmlMapperSqlFragmentTest extends XmlMapperSqlFragmentCase {
+    private final ElasticMatrixFixture fixture = new ElasticMatrixFixture();
+
     @Override
     protected DataSourceProfile profile() {
         return Elastic6Profile.INSTANCE;
+    }
+
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        this.jdbcTemplate = fixture.open(profile().env());
+        for (int i = 1; i <= 5; i++) {
+            jdbcTemplate.executeUpdate("PUT /" + fixture.index() + "/_doc/" + (baseId() + i) + " {\"id\": ?,\"name\": ?,\"age\": ?,\"email\": ?,\"create_time\": ?}", new Object[] { baseId() + i, "SqlFrag" + i, 20 + i * 5, "frag" + i + "@nxn.test", new Date(timestamp()) });
+        }
+    }
+
+    @Override
+    protected String mapperResource() {
+        return "/mapper/elastic/SqlFragmentMatrix.xml";
+    }
+
+    @Override
+    @Before
+    public void createXmlMapperSession() throws Exception {
+        this.jdbcTemplate = fixture.open(profile().env());
+        this.session = fixture.session();
+        Configuration configuration = session.getConfiguration();
+        configuration.addMacro("esXmlPath", "POST /" + fixture.index());
+        configuration.loadMapper(mapperResource());
+    }
+
+    @After
+    public void closeXmlFixture() throws Exception {
+        fixture.close();
     }
 }

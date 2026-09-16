@@ -8,14 +8,12 @@
 package net.hasor.dbvisitor.test.realdb.mongo;
 
 import java.sql.SQLException;
-
-import org.junit.After;
-import org.junit.Before;
-
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcColumnMappingCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
 import net.hasor.dbvisitor.test.realdb.mongo.material.MongoEntityFixture;
+import org.junit.After;
+import org.junit.Before;
 
 public class MongoJdbcColumnMappingTest extends JdbcColumnMappingCase {
     private final MongoEntityFixture fixture = new MongoEntityFixture();
@@ -33,8 +31,7 @@ public class MongoJdbcColumnMappingTest extends JdbcColumnMappingCase {
 
     @Override
     protected void seedColumnValue() throws SQLException {
-        this.jdbcTemplate.executeUpdate(this.fixture.command("insert({id: ?, name: ?, age: ?})"),
-                new Object[] { 932001, "NXN-Column", 21 });
+        this.jdbcTemplate.executeUpdate(this.fixture.command("insert({id: ?, name: ?, age: ?})"), new Object[] { 932001, "NXN-Column", 21 });
     }
 
     @Override

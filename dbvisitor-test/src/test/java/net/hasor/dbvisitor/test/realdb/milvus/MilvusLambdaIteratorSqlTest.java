@@ -9,17 +9,11 @@ package net.hasor.dbvisitor.test.realdb.milvus;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-
+import java.util.*;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import org.junit.Test;
-
 import static org.junit.Assert.*;
 
 /** Lambda page iteration over stable, explicitly vector-ordered Milvus results. */
@@ -29,9 +23,7 @@ public class MilvusLambdaIteratorSqlTest extends MilvusSqlContractSupport {
     public void pagedIteratorShouldPreserveOrderAndTransformAcrossPageBoundaries() throws SQLException {
         prepareRows(12);
         LambdaTemplate lambda = new LambdaTemplate(this.connection);
-        Iterator<Long> iterator = lambda.queryFreedom(this.collection).ge("id", 3)
-                .orderByL2("v", new float[] { 0, 0 })
-                .iteratorByBatch(3, row -> ((Number) row.get("id")).longValue());
+        Iterator<Long> iterator = lambda.queryFreedom(this.collection).ge("id", 3).orderByL2("v", new float[] { 0, 0 }).iteratorByBatch(3, row -> ((Number) row.get("id")).longValue());
         List<Long> ids = new ArrayList<>();
         while (iterator.hasNext()) {
             assertTrue(iterator.hasNext());
@@ -47,8 +39,7 @@ public class MilvusLambdaIteratorSqlTest extends MilvusSqlContractSupport {
     public void iteratorShouldStopAtNonPageAlignedLimitAndHandleEmptyQuery() throws SQLException {
         prepareRows(12);
         LambdaTemplate lambda = new LambdaTemplate(this.connection);
-        Iterator<Long> limited = lambda.queryFreedom(this.collection).orderByL2("v", new float[] { 0, 0 })
-                .iteratorForLimit(5, 3, row -> ((Number) row.get("id")).longValue());
+        Iterator<Long> limited = lambda.queryFreedom(this.collection).orderByL2("v", new float[] { 0, 0 }).iteratorForLimit(5, 3, row -> ((Number) row.get("id")).longValue());
         List<Long> ids = new ArrayList<>();
         while (limited.hasNext()) {
             ids.add(limited.next());
@@ -64,8 +55,7 @@ public class MilvusLambdaIteratorSqlTest extends MilvusSqlContractSupport {
     @Capability(CapabilityId.ADAPTER_MILVUS_LAMBDA_ITERATOR_ALL)
     public void negativeLimitShouldTraverseAllRows() throws SQLException {
         prepareRows(12);
-        Iterator<Map<String, Object>> iterator = new LambdaTemplate(this.connection).queryFreedom(this.collection)
-                .orderByL2("v", new float[] { 0, 0 }).iteratorForLimit(-1, 3);
+        Iterator<Map<String, Object>> iterator = new LambdaTemplate(this.connection).queryFreedom(this.collection).orderByL2("v", new float[] { 0, 0 }).iteratorForLimit(-1, 3);
         int count = 0;
         while (iterator.hasNext()) {
             assertEquals(count, ((Number) iterator.next().get("id")).intValue());
@@ -78,8 +68,7 @@ public class MilvusLambdaIteratorSqlTest extends MilvusSqlContractSupport {
     @Capability(CapabilityId.ADAPTER_MILVUS_LAMBDA_ITERATOR_EARLY_BREAK)
     public void consumerShouldStopBeforeExhaustion() throws SQLException {
         prepareRows(12);
-        Iterator<Map<String, Object>> iterator = new LambdaTemplate(this.connection).queryFreedom(this.collection)
-                .orderByL2("v", new float[] { 0, 0 }).iteratorForLimit(-1, 3);
+        Iterator<Map<String, Object>> iterator = new LambdaTemplate(this.connection).queryFreedom(this.collection).orderByL2("v", new float[] { 0, 0 }).iteratorForLimit(-1, 3);
         int count = 0;
         while (iterator.hasNext() && count < 10) {
             assertEquals(count, ((Number) iterator.next().get("id")).intValue());
@@ -93,8 +82,7 @@ public class MilvusLambdaIteratorSqlTest extends MilvusSqlContractSupport {
     @Capability(CapabilityId.ADAPTER_MILVUS_LAMBDA_ITERATOR_LARGE_BATCH)
     public void largeBatchShouldTraverseAllFiveHundredRows() throws SQLException {
         prepareRows(500);
-        Iterator<Map<String, Object>> iterator = new LambdaTemplate(this.connection).queryFreedom(this.collection)
-                .orderByL2("v", new float[] { 0, 0 }).iteratorByBatch(100);
+        Iterator<Map<String, Object>> iterator = new LambdaTemplate(this.connection).queryFreedom(this.collection).orderByL2("v", new float[] { 0, 0 }).iteratorByBatch(100);
         int count = 0;
         while (iterator.hasNext()) {
             assertEquals(count, ((Number) iterator.next().get("id")).intValue());

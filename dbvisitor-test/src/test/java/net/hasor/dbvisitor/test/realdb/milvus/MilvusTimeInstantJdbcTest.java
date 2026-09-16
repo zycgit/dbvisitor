@@ -20,7 +20,7 @@ import org.junit.Before;
 /** Verifies the shared Java temporal conversions using native text and integer storage. */
 public class MilvusTimeInstantJdbcTest extends TimeInstantJdbcCase {
     private final MilvusDatabaseFixture database = new MilvusDatabaseFixture();
-    private Connection connection;
+    private       Connection            connection;
 
     @Override
     protected DataSourceProfile profile() {

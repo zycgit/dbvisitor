@@ -7,20 +7,19 @@
  */
 package net.hasor.dbvisitor.test.contract.api.mapper.annotation;
 
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @NxnContract
 public abstract class AnnotationMapperPositionalParameterCase extends AnnotationMapperParameterBindingSupport {
+    // 能力归属：参数传递与规则 / 位置参数 / 方法注解。
     @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_PARAM_POSITIONAL)
+    @Capability(value = CapabilityId.MAPPER_ANNOTATION_PARAM_POSITIONAL, column = "parameters/positional-and-named-parameters/positional")
     public void positionalParameters_shouldBindByDeclarationOrder() throws Exception {
         int id = baseId() + 1;
         assertEquals(1, this.mapper.insertByPosition(id, "AnnoPositional", 28));

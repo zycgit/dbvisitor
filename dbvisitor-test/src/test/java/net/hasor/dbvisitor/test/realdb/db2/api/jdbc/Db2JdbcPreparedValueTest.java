@@ -10,7 +10,7 @@ package net.hasor.dbvisitor.test.realdb.db2.api.jdbc;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcPreparedValueCase;
+import net.hasor.dbvisitor.test.contract.feature.parameter.JdbcPreparedValueCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Db2Profile;
 

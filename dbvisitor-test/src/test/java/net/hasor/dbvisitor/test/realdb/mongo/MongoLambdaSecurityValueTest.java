@@ -9,10 +9,10 @@ package net.hasor.dbvisitor.test.realdb.mongo;
 
 import java.sql.SQLException;
 import java.util.Date;
-import net.hasor.dbvisitor.test.realdb.mongo.material.MongoEntityFixture;
 import net.hasor.dbvisitor.test.contract.api.lambda.LambdaSecurityValueCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
+import net.hasor.dbvisitor.test.realdb.mongo.material.MongoEntityFixture;
 import org.junit.After;
 import org.junit.Before;
 
@@ -31,7 +31,6 @@ public class MongoLambdaSecurityValueTest extends LambdaSecurityValueCase {
         this.lambdaTemplate = this.fixture.lambda();
     }
 
-
     @After
     public void cleanupFixture() throws SQLException {
         this.fixture.close();
@@ -39,8 +38,7 @@ public class MongoLambdaSecurityValueTest extends LambdaSecurityValueCase {
 
     @Override
     protected void insertUser(int id, String name, Integer age) throws SQLException {
-        this.jdbcTemplate.executeUpdate(fixture.command("insert({id: ?, name: ?, age: ?, email: ?, create_time: ?})"),
-                new Object[] { id, name, age, id + "@security.test", new Date() });
+        this.jdbcTemplate.executeUpdate(fixture.command("insert({id: ?, name: ?, age: ?, email: ?, create_time: ?})"), new Object[] { id, name, age, id + "@security.test", new Date() });
     }
 
     @Override

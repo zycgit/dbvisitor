@@ -9,12 +9,10 @@ package net.hasor.dbvisitor.test.contract.api.adapter;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-
-import org.junit.Assume;
-import org.junit.Before;
-
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
+import org.junit.Assume;
+import org.junit.Before;
 
 public abstract class AdapterCase extends AbstractNxnContractTest {
     @Override

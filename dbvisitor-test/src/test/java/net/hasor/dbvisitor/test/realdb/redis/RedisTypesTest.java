@@ -15,21 +15,18 @@ import java.util.Map;
 import net.hasor.cobble.ref.Tuple;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.session.Configuration;
-import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import net.hasor.dbvisitor.test.realdb.redis.dto1.UserInfo1;
+import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.types.SqlArg;
 import org.junit.Test;
-import static org.junit.Assert.assertTrue;
-import redis.clients.jedis.Jedis;
+import static org.junit.Assert.*;
 
 public class RedisTypesTest {
     @org.junit.BeforeClass
     public static void assumeDataSource() {
         OneApiDataSourceManager.assumeCurrentDataSource("redis");
     }
-
 
     @Test
     @Capability(CapabilityId.ADAPTER_REDIS_TYPE_STRING)
@@ -42,17 +39,17 @@ public class RedisTypesTest {
             jdbc.executeUpdate("del myKey1");// 预删除避免 test case 相互污染
 
             // read
-            assertTrue(jdbc.queryForInt("get myKey1") == null);
+            assertNull(jdbc.queryForInt("get myKey1"));
 
             // write
-            assertTrue(jdbc.executeUpdate("set myKey1 123") == 1);
+            assertEquals(1, jdbc.executeUpdate("set myKey1 123"));
 
             // read
-            assertTrue(jdbc.queryForInt("get myKey1") == 123);
+            assertEquals(123, (int) jdbc.queryForInt("get myKey1"));
 
             // delete
-            assertTrue(jdbc.executeUpdate("del myKey1") == 1);
-            assertTrue(jdbc.queryForInt("get myKey1") == null);
+            assertEquals(1, jdbc.executeUpdate("del myKey1"));
+            assertNull(jdbc.queryForInt("get myKey1"));
         }
     }
 
@@ -67,12 +64,12 @@ public class RedisTypesTest {
             jdbc.executeUpdate("del myKey1");// 预删除避免 test case 相互污染
 
             // read
-            assertTrue(jdbc.executeUpdate("HSET myKey1 field1 value1") == 1);
-            assertTrue(jdbc.queryForString("HGET ? ?", new Object[] { "myKey1", "field1" }).equals("value1"));
+            assertEquals(1, jdbc.executeUpdate("HSET myKey1 field1 value1"));
+            assertEquals("value1", jdbc.queryForString("HGET ? ?", new Object[] { "myKey1", "field1" }));
 
             // delete
-            assertTrue(jdbc.executeUpdate("del myKey1") == 1);
-            assertTrue(jdbc.queryForInt("get myKey1") == null);
+            assertEquals(1, jdbc.executeUpdate("del myKey1"));
+            assertNull(jdbc.queryForInt("get myKey1"));
         }
     }
 
@@ -86,23 +83,23 @@ public class RedisTypesTest {
             JdbcTemplate jdbc = new JdbcTemplate(c);
             jdbc.executeUpdate("del myKey1");// 预删除避免 test case 相互污染
 
-            assertTrue(jdbc.executeUpdate("HSET myKey1 field1 value1 field2 value2") == 2);
+            assertEquals(2, jdbc.executeUpdate("HSET myKey1 field1 value1 field2 value2"));
 
             // read 1
             List<String> keys = jdbc.queryForList("HKEYS myKey1", String.class);
-            assertTrue(keys.size() == 2);
+            assertEquals(2, keys.size());
             assertTrue(keys.contains("field1"));
             assertTrue(keys.contains("field2"));
 
             // read 2
             Map<String, String> keyValue = jdbc.queryForPairs("HGETALL myKey1", String.class, String.class);
-            assertTrue(keyValue.size() == 2);
-            assertTrue(keyValue.get("field1").equals("value1"));
-            assertTrue(keyValue.get("field2").equals("value2"));
+            assertEquals(2, keyValue.size());
+            assertEquals("value1", keyValue.get("field1"));
+            assertEquals("value2", keyValue.get("field2"));
 
             // delete
-            assertTrue(jdbc.executeUpdate("del myKey1") == 1);
-            assertTrue(jdbc.queryForInt("get myKey1") == null);
+            assertEquals(1, jdbc.executeUpdate("del myKey1"));
+            assertNull(jdbc.queryForInt("get myKey1"));
         }
     }
 
@@ -123,19 +120,19 @@ public class RedisTypesTest {
 
             // read 1
             List<String> keys = jdbc.queryForList("HKEYS myKey1", String.class);
-            assertTrue(keys.size() == 2);
+            assertEquals(2, keys.size());
             assertTrue(keys.contains("field1"));
             assertTrue(keys.contains("field2"));
 
             // read 2
             Map<String, String> keyValue = jdbc.queryForPairs("HGETALL myKey1", String.class, String.class);
-            assertTrue(keyValue.size() == 2);
-            assertTrue(keyValue.get("field1").equals("value1"));
-            assertTrue(keyValue.get("field2").equals("value2"));
+            assertEquals(2, keyValue.size());
+            assertEquals("value1", keyValue.get("field1"));
+            assertEquals("value2", keyValue.get("field2"));
 
             // delete
-            assertTrue(jdbc.executeUpdate("del myKey1") == 1);
-            assertTrue(jdbc.queryForInt("get myKey1") == null);
+            assertEquals(1, jdbc.executeUpdate("del myKey1"));
+            assertNull(jdbc.queryForInt("get myKey1"));
         }
     }
 
@@ -152,12 +149,12 @@ public class RedisTypesTest {
             jdbc.executeUpdate("LPUSH myListKey value1 value2 value3");
 
             // read 1
-            assertTrue(jdbc.queryForString("LPOP myListKey").equals("value3"));
-            assertTrue(jdbc.queryForString("RPOP myListKey").equals("value1"));
+            assertEquals("value3", jdbc.queryForString("LPOP myListKey"));
+            assertEquals("value1", jdbc.queryForString("RPOP myListKey"));
 
             // delete
-            assertTrue(jdbc.executeUpdate("del myListKey") == 1);
-            assertTrue(jdbc.queryForInt("get myListKey") == null);
+            assertEquals(1, jdbc.executeUpdate("del myListKey"));
+            assertNull(jdbc.queryForInt("get myListKey"));
         }
     }
 
@@ -179,16 +176,15 @@ public class RedisTypesTest {
             // read 1
             int size = jdbc.queryForInt("LLEN myListKey");
             List<String> keys = jdbc.queryForList("LRANGE myListKey 0 " + (size - 1), String.class);
-            assertTrue(keys.size() == 2);
+            assertEquals(2, keys.size());
             assertTrue(keys.contains("value1"));
             assertTrue(keys.contains("value2"));
 
             // delete
-            assertTrue(jdbc.executeUpdate("del myListKey") == 1);
-            assertTrue(jdbc.queryForInt("get myListKey") == null);
+            assertEquals(1, jdbc.executeUpdate("del myListKey"));
+            assertNull(jdbc.queryForInt("get myListKey"));
         }
     }
-
 
     @Test
     @Capability(CapabilityId.ADAPTER_REDIS_TYPE_SET)
@@ -202,14 +198,14 @@ public class RedisTypesTest {
 
             jdbc.executeUpdate("SADD mySetKey value1 value2 value3");
             List<String> members = jdbc.queryForList("SMEMBERS mySetKey", String.class);
-            assertTrue(members.size() == 3);
+            assertEquals(3, members.size());
             assertTrue(members.contains("value1"));
             assertTrue(members.contains("value2"));
             assertTrue(members.contains("value3"));
 
             // delete
-            assertTrue(jdbc.executeUpdate("del mySetKey") == 1);
-            assertTrue(jdbc.queryForInt("get mySetKey") == null);
+            assertEquals(1, jdbc.executeUpdate("del mySetKey"));
+            assertNull(jdbc.queryForInt("get mySetKey"));
         }
     }
 
@@ -228,14 +224,14 @@ public class RedisTypesTest {
 
             // read
             List<String> members = jdbc.queryForList("SMEMBERS article_1", String.class);
-            assertTrue(members.size() == 3);
+            assertEquals(3, members.size());
             assertTrue(members.contains("tag1"));
             assertTrue(members.contains("tag2"));
             assertTrue(members.contains("tag3"));
 
             // delete
-            assertTrue(jdbc.executeUpdate("del article_1") == 1);
-            assertTrue(jdbc.queryForInt("get article_1") == null);
+            assertEquals(1, jdbc.executeUpdate("del article_1"));
+            assertNull(jdbc.queryForInt("get article_1"));
         }
     }
 
@@ -256,13 +252,13 @@ public class RedisTypesTest {
 
             // read
             List<String> members = jdbc.queryForList("SMEMBERS myKey1", String.class);
-            assertTrue(members.size() == 2);
+            assertEquals(2, members.size());
             assertTrue(members.contains("field1"));
             assertTrue(members.contains("field2"));
 
             // delete
-            assertTrue(jdbc.executeUpdate("del myKey1") == 1);
-            assertTrue(jdbc.queryForInt("get myKey1") == null);
+            assertEquals(1, jdbc.executeUpdate("del myKey1"));
+            assertNull(jdbc.queryForInt("get myKey1"));
         }
     }
 
@@ -278,14 +274,14 @@ public class RedisTypesTest {
 
             jdbc.execute("ZADD mySetKey 3 value3 2 value2 1 value1");
             List<String> members = jdbc.queryForList("ZRANGEBYSCORE mySetKey -inf +inf ", String.class);
-            assertTrue(members.size() == 3);
+            assertEquals(3, members.size());
             assertTrue(members.contains("value1"));
             assertTrue(members.contains("value2"));
             assertTrue(members.contains("value3"));
 
             // delete
-            assertTrue(jdbc.executeUpdate("del mySetKey") == 1);
-            assertTrue(jdbc.queryForInt("get mySetKey") == null);
+            assertEquals(1, jdbc.executeUpdate("del mySetKey"));
+            assertNull(jdbc.queryForInt("get mySetKey"));
         }
     }
 
@@ -307,14 +303,14 @@ public class RedisTypesTest {
 
             // read
             List<String> members = jdbc.queryForList("ZRANGEBYSCORE myKey1 -inf +inf ", String.class);
-            assertTrue(members.size() == 3);
-            assertTrue(members.get(0).equals("field3"));
-            assertTrue(members.get(1).equals("field2"));
-            assertTrue(members.get(2).equals("field1"));
+            assertEquals(3, members.size());
+            assertEquals("field3", members.get(0));
+            assertEquals("field2", members.get(1));
+            assertEquals("field1", members.get(2));
 
             // delete
-            assertTrue(jdbc.executeUpdate("del myKey1") == 1);
-            assertTrue(jdbc.queryForInt("get myKey1") == null);
+            assertEquals(1, jdbc.executeUpdate("del myKey1"));
+            assertNull(jdbc.queryForInt("get myKey1"));
         }
     }
 
@@ -336,14 +332,14 @@ public class RedisTypesTest {
 
             // read
             List<String> members = jdbc.queryForList("ZRANGEBYSCORE myKey1 -inf +inf ", String.class);
-            assertTrue(members.size() == 3);
-            assertTrue(members.get(0).equals("field3"));
-            assertTrue(members.get(1).equals("field2"));
-            assertTrue(members.get(2).equals("field1"));
+            assertEquals(3, members.size());
+            assertEquals("field3", members.get(0));
+            assertEquals("field2", members.get(1));
+            assertEquals("field1", members.get(2));
 
             // delete
-            assertTrue(jdbc.executeUpdate("del myKey1") == 1);
-            assertTrue(jdbc.queryForInt("get myKey1") == null);
+            assertEquals(1, jdbc.executeUpdate("del myKey1"));
+            assertNull(jdbc.queryForInt("get myKey1"));
         }
     }
 }

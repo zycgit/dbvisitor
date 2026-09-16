@@ -8,23 +8,21 @@
 package net.hasor.dbvisitor.test.contract.api.mapper.xml;
 
 import java.util.List;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @NxnContract
 public abstract class XmlMapperStatementAccessCase extends XmlMapperCrudSupport {
+    // 能力归属：Mapper 文件 / 命令执行。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_LOAD)
+    @Capability(value = CapabilityId.MAPPER_XML_LOAD, column = "mapper-files/statements/execution")
     public void xmlMapperLoad_shouldExposeMappedStatement() throws Exception {
         List<UserInfo> list = this.session.queryStatement("xmltest.CrudMapper.selectAll", null);
 
@@ -33,8 +31,9 @@ public abstract class XmlMapperStatementAccessCase extends XmlMapperCrudSupport 
         assertEquals("XmlCrud5", list.get(4).getName());
     }
 
+    // 能力归属：Mapper 文件 / 命令执行。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_CRUD_EXECUTE)
+    @Capability(value = CapabilityId.MAPPER_XML_CRUD_EXECUTE, column = "mapper-files/statements/execution")
     public void xmlMapperExecute_shouldRunDmlStatementAndReturnAffectedRows() throws Exception {
         Object result = this.session.executeStatement("xmltest.CrudMapper.deleteByName", mapOf("name", "XmlCrud1"));
 
@@ -46,8 +45,9 @@ public abstract class XmlMapperStatementAccessCase extends XmlMapperCrudSupport 
         assertTrue(deleted.isEmpty());
     }
 
+    // 能力归属：Mapper 文件 / 命令执行。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_NAMESPACE_MULTIPLE)
+    @Capability(value = CapabilityId.MAPPER_XML_NAMESPACE_MULTIPLE, column = "mapper-files/statements/execution")
     public void xmlMapperNamespace_shouldResolveStatementsAcrossMultipleLoadedMappers() throws Exception {
         Session multiMapperSession = createMultiNamespaceSession();
         List<UserInfo> fromCrud = multiMapperSession.queryStatement("xmltest.CrudMapper.selectById", mapOf("id", baseId() + 1));

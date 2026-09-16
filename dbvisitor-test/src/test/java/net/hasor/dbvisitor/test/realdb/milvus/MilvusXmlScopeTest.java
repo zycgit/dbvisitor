@@ -7,14 +7,15 @@
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class MilvusXmlScopeTest extends MilvusXmlResultSqlSupport {
     @Test
@@ -40,7 +41,6 @@ public class MilvusXmlScopeTest extends MilvusXmlResultSqlSupport {
             }
         }
     }
-
 
     @Test
     @Capability(CapabilityId.ADAPTER_MILVUS_XML_DYNAMIC_UPDATE)

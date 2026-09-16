@@ -7,12 +7,7 @@
  */
 package net.hasor.dbvisitor.test.contract.material.model.types;
 
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import java.util.*;
 import net.hasor.dbvisitor.mapping.Column;
 import net.hasor.dbvisitor.mapping.Table;
 import net.hasor.dbvisitor.types.handler.json.JsonTypeHandler;

@@ -10,20 +10,18 @@ package net.hasor.dbvisitor.test.contract.api.lambda;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 @NxnContract
 public abstract class LambdaEntityListInsertCase extends LambdaCrudSupport {
+    // 能力归属：构造器 API / 写入操作。
     @Test
-    @Capability(CapabilityId.LAMBDA_ENTITY_CRUD_BATCH_INSERT)
+    @Capability(value = CapabilityId.LAMBDA_ENTITY_CRUD_BATCH_INSERT, column = "builder/inserts-updates-and-deletes/writes")
     public void lambdaEntityBatchInsert_shouldPersistEntityList() throws SQLException {
         List<UserInfo> users = new ArrayList<>();
         for (int i = 0; i < 10; i++) {

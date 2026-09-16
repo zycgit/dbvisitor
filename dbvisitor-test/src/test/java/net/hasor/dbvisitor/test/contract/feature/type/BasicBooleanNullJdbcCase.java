@@ -8,20 +8,18 @@
 package net.hasor.dbvisitor.test.contract.feature.type;
 
 import java.sql.SQLException;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 @NxnContract
 public abstract class BasicBooleanNullJdbcCase extends BasicTypeJdbcSupport {
+    // 能力归属：类型处理器 / 数字与布尔 / 布尔值。
     @Test
-    @Capability(CapabilityId.TYPE_BASIC_BOOLEAN_NULL)
+    @Capability(value = CapabilityId.TYPE_BASIC_BOOLEAN_NULL, column = "types/basic-types/values")
     public void basicBooleanNull_shouldRemainNull() throws SQLException {
         int nullId = baseId() + 3;
         assertEquals(1, jdbcTemplate.executeUpdate(insertCommand("basic_types_test", "id, bool_value"), new Object[] { nullId, null }));

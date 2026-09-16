@@ -21,11 +21,9 @@ public interface RedisKeyMapper {
     int after(Generated record);
 
     @Insert("HSET #{key} #{id} #{value}")
-    @SelectKeySql(value = "INCR #{counter}", keyProperty = "id", order = Order.Before,
-            statementType = StatementType.Prepared, timeout = 30, fetchSize = 1, resultSetType = ResultSetType.DEFAULT)
+    @SelectKeySql(value = "INCR #{counter}", keyProperty = "id", order = Order.Before, statementType = StatementType.Prepared, timeout = 30, fetchSize = 1, resultSetType = ResultSetType.DEFAULT)
     int options(Generated record);
 
-    @Insert(value = "EVAL \"local id=redis.call('INCR',KEYS[1]); redis.call('HSET',KEYS[2],id,ARGV[1]); return id\" 2 #{counter} #{key} #{value}",
-            useGeneratedKeys = true, generatedKeySource = GeneratedKeySource.ResultSet, keyProperty = "id", keyColumn = "VALUE")
+    @Insert(value = "EVAL \"local id=redis.call('INCR',KEYS[1]); redis.call('HSET',KEYS[2],id,ARGV[1]); return id\" 2 #{counter} #{key} #{value}", useGeneratedKeys = true, generatedKeySource = GeneratedKeySource.ResultSet, keyProperty = "id", keyColumn = "VALUE")
     int resultKey(Generated record);
 }

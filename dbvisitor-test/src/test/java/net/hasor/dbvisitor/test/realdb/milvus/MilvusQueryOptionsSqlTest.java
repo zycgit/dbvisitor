@@ -30,8 +30,7 @@ public class MilvusQueryOptionsSqlTest extends MilvusSqlContractSupport {
         loadCollection();
         // The first two rows are sealed before LOAD; the third is a fresh growing row.
         jdbcTemplate.executeUpdate("INSERT INTO " + collection + " (id,v) VALUES (3,[1,1])");
-        try (PreparedStatement statement = connection.prepareStatement("SELECT id FROM " + collection
-                + " WHERE id > ? LIMIT ? WITH(ignore_growing=?,timezone=?)")) {
+        try (PreparedStatement statement = connection.prepareStatement("SELECT id FROM " + collection + " WHERE id > ? LIMIT ? WITH(ignore_growing=?,timezone=?)")) {
             statement.setLong(1, 0L);
             statement.setInt(2, 10);
             statement.setString(4, "UTC");
@@ -52,8 +51,7 @@ public class MilvusQueryOptionsSqlTest extends MilvusSqlContractSupport {
             }
         }
         for (String count : new String[] { "COUNT", "SELECT COUNT(*)" }) {
-            try (PreparedStatement statement = connection.prepareStatement(count + " FROM " + collection
-                    + " WHERE id > ? WITH(ignore_growing=?,timezone=?)")) {
+            try (PreparedStatement statement = connection.prepareStatement(count + " FROM " + collection + " WHERE id > ? WITH(ignore_growing=?,timezone=?)")) {
                 statement.setLong(1, 0L);
                 statement.setString(3, "UTC");
                 for (boolean ignoreGrowing : new boolean[] { true, false }) {
@@ -73,8 +71,7 @@ public class MilvusQueryOptionsSqlTest extends MilvusSqlContractSupport {
     public void unsupportedOptionsShouldFailWithoutPoisoningTheStatement() throws SQLException {
         try (Statement statement = connection.createStatement()) {
             for (String options : new String[] { "nprobe=8", "ignore_growing='false'", "timezone=123", "round_decimal=2" }) {
-                SQLException error = assertThrows(SQLException.class, () -> statement.executeQuery(
-                        "SELECT id FROM " + collection + " WITH(" + options + ")"));
+                SQLException error = assertThrows(SQLException.class, () -> statement.executeQuery("SELECT id FROM " + collection + " WITH(" + options + ")"));
                 assertTrue(error.getMessage(), error.getMessage().contains("WITH"));
             }
             try (ResultSet rows = statement.executeQuery("SHOW VERSION")) {

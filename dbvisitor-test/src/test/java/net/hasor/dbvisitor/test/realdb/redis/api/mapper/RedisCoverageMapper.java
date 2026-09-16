@@ -8,8 +8,12 @@
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
 import java.sql.SQLException;
-import java.util.*;
-import net.hasor.dbvisitor.mapper.*;
+import java.util.List;
+import java.util.Map;
+import net.hasor.dbvisitor.mapper.Insert;
+import net.hasor.dbvisitor.mapper.Param;
+import net.hasor.dbvisitor.mapper.Query;
+import net.hasor.dbvisitor.mapper.SimpleMapper;
 import net.hasor.dbvisitor.test.realdb.redis.dto1.RedisParameterUser;
 
 @SimpleMapper

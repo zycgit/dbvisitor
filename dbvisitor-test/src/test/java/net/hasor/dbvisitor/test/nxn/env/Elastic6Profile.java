@@ -15,20 +15,13 @@ public final class Elastic6Profile extends AbstractDataSourceProfile {
     public static final Elastic6Profile INSTANCE = new Elastic6Profile();
 
     private Elastic6Profile() {
-        super(FeatureId.TRANSACTION, FeatureId.SEQUENCE, FeatureId.GENERATED_KEYS_NUMERIC,
-                FeatureId.VECTOR, FeatureId.KNN,
-                FeatureId.LENGTH_LIMIT_ENFORCED, FeatureId.SQL_NOT_IN_NULL_SEMANTICS,
-                FeatureId.KEYGEN_AUTO_BATCH_EXPLICIT_NULL, FeatureId.NON_NULL_PRIMARY_KEY_REJECTED,
-                FeatureId.GENERATED_KEY_RESULT_SET, FeatureId.PROCEDURE, FeatureId.PROCEDURE_CURSOR_RESULT,
-                FeatureId.PROCEDURE_RESULT_SET, FeatureId.XML_MAPPER_CALLABLE,
-                FeatureId.FUNCTION_CALL_CALLBACK, FeatureId.FUNCTION_RECORD_RESULT, FeatureId.FUNCTION_TABLE_RESULT);
+        super(FeatureId.TRANSACTION, FeatureId.SEQUENCE, FeatureId.GENERATED_KEYS_NUMERIC, FeatureId.VECTOR, FeatureId.KNN, FeatureId.LENGTH_LIMIT_ENFORCED, FeatureId.SQL_NOT_IN_NULL_SEMANTICS, FeatureId.KEYGEN_AUTO_BATCH_EXPLICIT_NULL, FeatureId.NON_NULL_PRIMARY_KEY_REJECTED, FeatureId.GENERATED_KEY_RESULT_SET, FeatureId.PROCEDURE, FeatureId.PROCEDURE_CURSOR_RESULT, FeatureId.PROCEDURE_RESULT_SET, FeatureId.XML_MAPPER_CALLABLE, FeatureId.FUNCTION_CALL_CALLBACK, FeatureId.FUNCTION_RECORD_RESULT, FeatureId.FUNCTION_TABLE_RESULT);
     }
 
     @Override
     public SupportStatus support(String capabilityId) {
         // This datasource has no separate JDBC namespace at this level.
-        if (CapabilityId.JDBC_METADATA_SCHEMAS.equals(capabilityId)
-                || CapabilityId.JDBC_METADATA_CATALOGS.equals(capabilityId)) {
+        if (CapabilityId.JDBC_METADATA_SCHEMAS.equals(capabilityId) || CapabilityId.JDBC_METADATA_CATALOGS.equals(capabilityId)) {
             return SupportStatus.UNSUPPORTED_BY_DATABASE;
         }
         // Index names must be lowercase; field names still preserve their case.
@@ -36,24 +29,14 @@ public final class Elastic6Profile extends AbstractDataSourceProfile {
             return SupportStatus.UNSUPPORTED_BY_DATABASE;
         }
         // These templates emit SQL conditions/expressions, not native JSON queries or scripts.
-        if (capabilityId != null && (capabilityId.startsWith("mapping.annotation.sql-template.")
-                || capabilityId.startsWith("mapper.xml.dynamic-rule.")
-                || CapabilityId.MAPPER_ANNOTATION_DYNAMIC_IN.equals(capabilityId)
-                || CapabilityId.MAPPER_ANNOTATION_PARAM_IN_LIST.equals(capabilityId)
-                || CapabilityId.JDBC_PARAM_RULE_AND_IN_SET.equals(capabilityId)
-                || CapabilityId.JDBC_PARAM_RULE_SET.equals(capabilityId))) {
+        if (capabilityId != null && (capabilityId.startsWith("mapping.annotation.sql-template.") || capabilityId.startsWith("mapper.xml.dynamic-rule.") || CapabilityId.MAPPER_ANNOTATION_DYNAMIC_IN.equals(capabilityId) || CapabilityId.MAPPER_ANNOTATION_PARAM_IN_LIST.equals(capabilityId) || CapabilityId.JDBC_PARAM_RULE_AND_IN_SET.equals(capabilityId) || CapabilityId.JDBC_PARAM_RULE_SET.equals(capabilityId))) {
             return SupportStatus.UNSUPPORTED_BY_DBVISITOR;
         }
-        if (CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_SCROLL_INSENSITIVE.equals(capabilityId)
-                || CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_SCROLL_SENSITIVE.equals(capabilityId)
-                || CapabilityId.MAPPER_ANNOTATION_RESULT_HANDLER_EXTRACTOR_OPTIONS.equals(capabilityId)
-                || CapabilityId.MAPPER_XML_STATEMENT_RESULT_SET_TYPE.equals(capabilityId)) {
+        if (CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_SCROLL_INSENSITIVE.equals(capabilityId) || CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_SCROLL_SENSITIVE.equals(capabilityId) || CapabilityId.MAPPER_ANNOTATION_RESULT_HANDLER_EXTRACTOR_OPTIONS.equals(capabilityId) || CapabilityId.MAPPER_XML_STATEMENT_RESULT_SET_TYPE.equals(capabilityId)) {
             return SupportStatus.UNSUPPORTED_BY_DRIVER;
         }
         // Elasticsearch generates string document IDs, not numeric identity columns.
-        if (CapabilityId.MAPPER_XML_KEYGEN_GENERATED_KEYS.equals(capabilityId)
-                || CapabilityId.MAPPER_XML_KEYGEN_DISTINCT_GENERATED_KEYS.equals(capabilityId)
-                || CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_GENERATED_KEYS.equals(capabilityId)) {
+        if (CapabilityId.MAPPER_XML_KEYGEN_GENERATED_KEYS.equals(capabilityId) || CapabilityId.MAPPER_XML_KEYGEN_DISTINCT_GENERATED_KEYS.equals(capabilityId) || CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_GENERATED_KEYS.equals(capabilityId)) {
             return SupportStatus.SUPPORTED;
         }
         return super.support(capabilityId);

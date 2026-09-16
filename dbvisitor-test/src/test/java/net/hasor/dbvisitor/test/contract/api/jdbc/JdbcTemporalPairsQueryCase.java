@@ -10,20 +10,18 @@ package net.hasor.dbvisitor.test.contract.api.jdbc;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.Map;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @NxnContract
 public abstract class JdbcTemporalPairsQueryCase extends JdbcQuerySupport {
+    // 能力归属：编程式 API / 查询键值对。
     @Test
-    @Capability(CapabilityId.JDBC_QUERY_TEMPORAL_PAIRS)
+    @Capability(value = CapabilityId.JDBC_QUERY_TEMPORAL_PAIRS, column = "jdbc/queries/pairs-queries")
     public void jdbcQueryForPairs_shouldConvertLongKeysAndDateValues() throws SQLException {
         seedUsers();
         Map<Long, Date> idToDate = jdbcTemplate.queryForPairs(//

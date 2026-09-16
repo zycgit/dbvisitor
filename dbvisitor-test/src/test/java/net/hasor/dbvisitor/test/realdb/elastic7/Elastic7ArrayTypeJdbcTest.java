@@ -67,8 +67,7 @@ public class Elastic7ArrayTypeJdbcTest extends ArrayTypeJdbcCase {
 
     private String queryColumn(String column, String id) throws SQLException {
         jdbcTemplate.execute("POST /" + fixture.index() + "/_refresh");
-        return "POST /" + fixture.index() + "/_search {\"_source\": [\"" + column
-                + "\"],\"query\": {\"term\": {\"id\": " + id + "}}}";
+        return "POST /" + fixture.index() + "/_search {\"_source\": [\"" + column + "\"],\"query\": {\"term\": {\"id\": " + id + "}}}";
     }
 
     @Override

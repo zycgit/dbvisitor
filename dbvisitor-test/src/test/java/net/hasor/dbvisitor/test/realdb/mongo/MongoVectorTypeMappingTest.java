@@ -12,10 +12,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.List;
-
-import org.junit.After;
-import org.junit.Before;
-
 import net.hasor.cobble.reflect.resolvable.ResolvableType;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
@@ -27,6 +23,8 @@ import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
 import net.hasor.dbvisitor.test.realdb.mongo.material.MongoEntityFixture;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import net.hasor.dbvisitor.types.handler.json.BsonListTypeHandler;
+import org.junit.After;
+import org.junit.Before;
 
 /** Shared embedding storage assertions using BSON numeric arrays, without vector search. */
 public class MongoVectorTypeMappingTest extends VectorTypeMappingCase {

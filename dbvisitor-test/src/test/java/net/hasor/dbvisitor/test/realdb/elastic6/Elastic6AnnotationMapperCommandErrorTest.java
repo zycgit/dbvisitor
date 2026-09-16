@@ -7,9 +7,9 @@
  */
 package net.hasor.dbvisitor.test.realdb.elastic6;
 
-import net.hasor.dbvisitor.test.realdb.elastic7.Elastic7AnnotationMapperCommandErrorTest;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic6Profile;
+import net.hasor.dbvisitor.test.realdb.elastic7.Elastic7AnnotationMapperCommandErrorTest;
 
 public class Elastic6AnnotationMapperCommandErrorTest extends Elastic7AnnotationMapperCommandErrorTest {
     @Override

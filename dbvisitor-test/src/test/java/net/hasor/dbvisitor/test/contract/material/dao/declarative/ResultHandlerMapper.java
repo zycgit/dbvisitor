@@ -8,10 +8,12 @@
 package net.hasor.dbvisitor.test.contract.material.dao.declarative;
 
 import java.util.List;
+import java.util.Map;
 import net.hasor.dbvisitor.mapper.*;
 import net.hasor.dbvisitor.test.contract.material.handler.CustomResultSetExtractor;
-import net.hasor.dbvisitor.test.contract.material.handler.RecordingRowCallbackHandler;
 import net.hasor.dbvisitor.test.contract.material.handler.CustomRowMapper;
+import net.hasor.dbvisitor.test.contract.material.handler.RecordingRowCallbackHandler;
+import net.hasor.dbvisitor.test.contract.material.handler.UserNameMapExtractor;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 
 /**
@@ -38,6 +40,10 @@ public interface ResultHandlerMapper {
     @Query(value = "SELECT * FROM user_info WHERE name LIKE #{pattern} ORDER BY id",//
             resultSetExtractor = CustomResultSetExtractor.class)
     List<UserInfo> selectWithExtractor(@Param("pattern") String pattern);
+
+    @Query(value = "SELECT * FROM user_info WHERE name LIKE #{pattern} ORDER BY id",//
+            resultSetExtractor = UserNameMapExtractor.class)
+    Map<Integer, String> selectMapWithExtractor(@Param("pattern") String pattern);
 
     @Query(value = "SELECT * FROM user_info WHERE name LIKE #{pattern} ORDER BY id",//
             resultSetExtractor = CustomResultSetExtractor.class, fetchSize = 1, timeout = 30)

@@ -20,6 +20,7 @@ public class RecordingRowCallbackHandler implements RowCallbackHandler {
 
     @Override
     public void processRow(ResultSet result, int rowNum) throws SQLException {
+        ResultHandlerProbe.record(result);
         List<Integer> ids = IDS.get();
         assertEquals(ids.size(), rowNum);
         ids.add(readId(result));

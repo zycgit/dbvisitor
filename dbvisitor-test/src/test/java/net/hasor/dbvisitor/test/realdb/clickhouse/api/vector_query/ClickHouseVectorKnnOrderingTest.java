@@ -7,14 +7,14 @@
  */
 package net.hasor.dbvisitor.test.realdb.clickhouse.api.vector_query;
 
-import net.hasor.dbvisitor.test.contract.api.vector_query.VectorKnnOrderingCase;
-import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
-import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
+import net.hasor.dbvisitor.test.contract.api.vector_query.VectorKnnOrderingCase;
+import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 
 public class ClickHouseVectorKnnOrderingTest extends VectorKnnOrderingCase {
     @Override

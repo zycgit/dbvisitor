@@ -9,18 +9,19 @@ package net.hasor.dbvisitor.test.realdb.milvus;
 
 import java.sql.SQLException;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
+import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.test.contract.api.lambda.LambdaDuplicateStrategyCase;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import net.hasor.dbvisitor.test.contract.api.lambda.LambdaDuplicateStrategyCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 public class MilvusLambdaDuplicateStrategyTest extends LambdaDuplicateStrategyCase {
     private final MilvusUserInfoFixture fixture = new MilvusUserInfoFixture();
@@ -48,11 +49,9 @@ public class MilvusLambdaDuplicateStrategyTest extends LambdaDuplicateStrategyCa
         UserInfo user = new UserInfo();
         user.setId(1);
         user.setName("must-not-be-inserted");
-        assertThrows(SQLException.class, () -> this.lambdaTemplate.insert(UserInfo.class)
-                .onDuplicateStrategy(DuplicateKeyStrategy.Ignore).applyEntity(user).executeSumResult());
+        assertThrows(SQLException.class, () -> this.lambdaTemplate.insert(UserInfo.class).onDuplicateStrategy(DuplicateKeyStrategy.Ignore).applyEntity(user).executeSumResult());
         user.setId(null);
-        assertThrows(SQLException.class, () -> this.lambdaTemplate.insert(UserInfo.class)
-                .onDuplicateStrategy(DuplicateKeyStrategy.Update).applyEntity(user).executeSumResult());
+        assertThrows(SQLException.class, () -> this.lambdaTemplate.insert(UserInfo.class).onDuplicateStrategy(DuplicateKeyStrategy.Update).applyEntity(user).executeSumResult());
         assertEquals(0, this.lambdaTemplate.query(UserInfo.class).queryForCount());
     }
 }

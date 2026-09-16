@@ -129,8 +129,7 @@ public class MilvusFlushSqlTest extends AdapterCase {
                 }
             }
             try (Statement statement = connection.createStatement()) {
-                SQLException error = assertThrows(SQLException.class,
-                        () -> statement.executeQuery("SHOW FLUSH ALL 0 IN DATABASE " + database + "_missing"));
+                SQLException error = assertThrows(SQLException.class, () -> statement.executeQuery("SHOW FLUSH ALL 0 IN DATABASE " + database + "_missing"));
                 assertNotNull(error.getMessage());
                 try (ResultSet rows = statement.executeQuery("SHOW STATS FROM user_info")) {
                     assertTrue(rows.next());

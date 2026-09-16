@@ -8,7 +8,7 @@
 package net.hasor.dbvisitor.test.realdb.elastic7;
 
 import java.sql.SQLException;
-import net.hasor.dbvisitor.test.contract.api.lambda.LambdaRowMapperCase;
+import net.hasor.dbvisitor.test.contract.feature.result.LambdaRowMapperCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
 import net.hasor.dbvisitor.test.realdb.elastic7.material.ElasticMatrixFixture;
@@ -40,4 +40,3 @@ public class Elastic7LambdaRowMapperTest extends LambdaRowMapperCase {
         fixture.close();
     }
 }
-

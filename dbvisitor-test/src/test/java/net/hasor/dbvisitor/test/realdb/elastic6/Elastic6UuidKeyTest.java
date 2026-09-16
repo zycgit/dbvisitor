@@ -20,7 +20,7 @@ import org.junit.Before;
 
 public class Elastic6UuidKeyTest extends UuidKeyCase {
     private final ElasticMatrixFixture fixture = new ElasticMatrixFixture();
-    private boolean stringIndexCreated;
+    private       boolean              stringIndexCreated;
 
     @Override
     protected DataSourceProfile profile() {

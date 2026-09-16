@@ -7,16 +7,13 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.feature.type;
 
-import java.sql.SQLException;
 import java.nio.charset.StandardCharsets;
-
-import org.junit.After;
-import org.junit.Before;
-
+import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.feature.type.BinaryTypeJdbcCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
-
+import org.junit.After;
+import org.junit.Before;
 import static org.junit.Assert.assertArrayEquals;
 
 public class RedisBinaryTypeJdbcTest extends BinaryTypeJdbcCase {
@@ -63,8 +60,7 @@ public class RedisBinaryTypeJdbcTest extends BinaryTypeJdbcCase {
         int id = baseId() + 6;
         byte[] empty = new byte[0];
         executeInsert(insertCommand("binary_types_explicit_test", "id, blob_value", "?", "?"), new Object[] { id, empty });
-        byte[] loaded = this.jdbcTemplate.queryForObject(selectCommand("binary_types_explicit_test", "blob_value"),
-                selectParameters(id), byte[].class);
+        byte[] loaded = this.jdbcTemplate.queryForObject(selectCommand("binary_types_explicit_test", "blob_value"), selectParameters(id), byte[].class);
         assertArrayEquals(empty, loaded);
     }
 }

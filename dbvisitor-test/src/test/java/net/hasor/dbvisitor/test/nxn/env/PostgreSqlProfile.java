@@ -7,9 +7,10 @@
  */
 package net.hasor.dbvisitor.test.nxn.env;
 
-import org.jetbrains.annotations.NotNull;
-
+import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
+import net.hasor.dbvisitor.test.nxn.capability.SupportStatus;
+import org.jetbrains.annotations.NotNull;
 
 public final class PostgreSqlProfile extends AbstractDataSourceProfile {
     public static final PostgreSqlProfile INSTANCE = new PostgreSqlProfile();
@@ -21,6 +22,15 @@ public final class PostgreSqlProfile extends AbstractDataSourceProfile {
     @NotNull
     private static String[] features() {
         return new String[] { FeatureId.PROCEDURE_RESULT_SET };
+    }
+
+    @Override
+    public SupportStatus support(String capabilityId) {
+        // pgvector provides distance operators, not BM25 full-text scoring.
+        if (CapabilityId.VECTOR_KNN_ORDER_BM25.equals(capabilityId) || CapabilityId.VECTOR_RANGE_BM25.equals(capabilityId)) {
+            return SupportStatus.UNSUPPORTED_BY_DATABASE;
+        }
+        return super.support(capabilityId);
     }
 
     @Override

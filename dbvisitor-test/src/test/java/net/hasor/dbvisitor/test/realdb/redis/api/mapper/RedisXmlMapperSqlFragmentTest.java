@@ -35,8 +35,7 @@ public class RedisXmlMapperSqlFragmentTest extends XmlMapperSqlFragmentCase {
     public void createXmlMapperSession() throws Exception {
         this.jdbcTemplate = this.fixture.open();
         for (int i = 1; i <= 5; i++) {
-            Map<String, Object> user = Map.of("id", baseId() + i, "name", "SqlFrag" + i,
-                    "age", 20 + i * 5, "email", "frag" + i + "@nxn.test", "createTime", timestamp());
+            Map<String, Object> user = Map.of("id", baseId() + i, "name", "SqlFrag" + i, "age", 20 + i * 5, "email", "frag" + i + "@nxn.test", "createTime", timestamp());
             store("users", baseId() + i, user);
             store("ages", 20 + i * 5, user);
             store("name-SqlFrag" + i, 20 + i * 5, user);
@@ -47,8 +46,7 @@ public class RedisXmlMapperSqlFragmentTest extends XmlMapperSqlFragmentCase {
     }
 
     private void store(String index, int score, Map<String, Object> user) throws SQLException {
-        this.jdbcTemplate.queryForLong("ZADD #{arg0} #{arg1} #{arg2,typeHandler=net.hasor.dbvisitor.types.handler.json.JsonTypeHandler}",
-                new Object[] { this.fixture.key(index), score, user });
+        this.jdbcTemplate.queryForLong("ZADD #{arg0} #{arg1} #{arg2,typeHandler=net.hasor.dbvisitor.types.handler.json.JsonTypeHandler}", new Object[] { this.fixture.key(index), score, user });
     }
 
     @Override

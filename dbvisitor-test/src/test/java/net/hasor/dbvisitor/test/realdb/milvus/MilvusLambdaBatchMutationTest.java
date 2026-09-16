@@ -52,11 +52,7 @@ public class MilvusLambdaBatchMutationTest extends LambdaBatchMutationCase {
     public void nativePredicatesShouldUpdateMultipleFieldsAndPreserveOtherRows() throws SQLException {
         insertNativeRows(7);
         List<Integer> ids = List.of(1, 3, 5);
-        int updated = this.lambdaTemplate.update(UserInfo.class)
-                .in(UserInfo::getId, ids)
-                .updateTo(UserInfo::getAge, 99)
-                .updateTo(UserInfo::getEmail, null)
-                .doUpdate();
+        int updated = this.lambdaTemplate.update(UserInfo.class).in(UserInfo::getId, ids).updateTo(UserInfo::getAge, 99).updateTo(UserInfo::getEmail, null).doUpdate();
         assertEquals(3, updated);
         List<UserInfo> changed = this.lambdaTemplate.query(UserInfo.class).in(UserInfo::getId, ids).queryForList();
         assertEquals(Set.of(1, 3, 5), changed.stream().map(UserInfo::getId).collect(Collectors.toSet()));
@@ -80,8 +76,7 @@ public class MilvusLambdaBatchMutationTest extends LambdaBatchMutationCase {
         Set<Integer> deletedIds = new HashSet<>();
         int deletedCount = 0;
         while (true) {
-            List<UserInfo> page = this.lambdaTemplate.query(UserInfo.class)
-                    .ge(UserInfo::getId, 2).le(UserInfo::getId, 8).initPage(2, 0).queryForList();
+            List<UserInfo> page = this.lambdaTemplate.query(UserInfo.class).ge(UserInfo::getId, 2).le(UserInfo::getId, 8).initPage(2, 0).queryForList();
             if (page.isEmpty()) {
                 break;
             }

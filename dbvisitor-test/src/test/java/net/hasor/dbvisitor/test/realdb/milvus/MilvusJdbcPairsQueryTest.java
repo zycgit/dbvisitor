@@ -7,8 +7,8 @@
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
 
-import java.sql.SQLException;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Date;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
@@ -45,8 +45,7 @@ public class MilvusJdbcPairsQueryTest extends JdbcPairsQueryCase {
 
     @Override
     protected void insertUser(int id, String name, int age, String email, Date createTime) throws SQLException {
-        jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, email, create_time, v) VALUES (?, ?, ?, ?, ?, ?)",
-                new Object[] { id, name, age, email, createTime, new float[] { id - baseId(), 0F } });
+        jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, email, create_time, v) VALUES (?, ?, ?, ?, ?, ?)", new Object[] { id, name, age, email, createTime, new float[] { id - baseId(), 0F } });
     }
 
     @Override

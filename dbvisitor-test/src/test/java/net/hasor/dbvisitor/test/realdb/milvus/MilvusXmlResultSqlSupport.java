@@ -12,7 +12,7 @@ import java.sql.Timestamp;
 import java.util.Map;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public abstract class MilvusXmlResultSqlSupport extends MilvusSqlContractSupport {
 

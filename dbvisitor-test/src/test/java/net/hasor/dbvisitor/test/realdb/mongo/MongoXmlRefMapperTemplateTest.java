@@ -42,6 +42,11 @@ public class MongoXmlRefMapperTemplateTest extends XmlRefMapperTemplateCase {
     }
 
     @Override
+    protected String pageQueryCommand() {
+        return this.fixture.source() + ".find({age: {$gte: #{minAge}}}, {_id: 0}).sort({id: 1})";
+    }
+
+    @Override
     @Before
     public void createRefMapper() throws Exception {
         this.dao = this.fixture.session(newConfiguration()).createMapper(MongoRefMapper.class);

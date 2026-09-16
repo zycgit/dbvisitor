@@ -7,13 +7,40 @@
  */
 package net.hasor.dbvisitor.test.realdb.elastic6;
 
-import net.hasor.dbvisitor.test.realdb.elastic7.Elastic7SessionStatementMutationTest;
+import java.sql.SQLException;
+import net.hasor.dbvisitor.session.Session;
+import net.hasor.dbvisitor.test.contract.api.session.SessionStatementMutationCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic6Profile;
+import net.hasor.dbvisitor.test.realdb.elastic7.Elastic7SessionMapperFixture;
+import org.junit.After;
+import org.junit.Before;
 
-public class Elastic6SessionStatementMutationTest extends Elastic7SessionStatementMutationTest {
+public class Elastic6SessionStatementMutationTest extends SessionStatementMutationCase {
+    private final Elastic7SessionMapperFixture fixture = new Elastic7SessionMapperFixture();
+
     @Override
     protected DataSourceProfile profile() {
         return Elastic6Profile.INSTANCE;
+    }
+
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        this.jdbcTemplate = fixture.open(profile().env());
+    }
+
+    @Override
+    @Before
+    public void createStatementSession() throws Exception {
+        this.jdbcTemplate = fixture.open(profile().env());
+        Session session = fixture.session();
+        session.getConfiguration().loadMapper("/mapper/elastic/SessionStatementMatrix.xml");
+        this.session = session;
+    }
+
+    @After
+    public void closeStatementFixture() throws Exception {
+        fixture.close();
     }
 }

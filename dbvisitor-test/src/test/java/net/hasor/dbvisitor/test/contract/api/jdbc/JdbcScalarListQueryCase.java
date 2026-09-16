@@ -9,19 +9,17 @@ package net.hasor.dbvisitor.test.contract.api.jdbc;
 
 import java.sql.SQLException;
 import java.util.List;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 @NxnContract
 public abstract class JdbcScalarListQueryCase extends JdbcQuerySupport {
+    // 能力归属：编程式 API / 查询。
     @Test
-    @Capability(CapabilityId.JDBC_QUERY_SCALAR_LIST)
+    @Capability(value = CapabilityId.JDBC_QUERY_SCALAR_LIST, column = "jdbc/queries/queries")
     public void jdbcQueryForList_shouldReturnTypedScalarRows() throws SQLException {
         seedUsers();
         List<String> names = jdbcTemplate.queryForList(selectRange("name", "?", "?", true), //

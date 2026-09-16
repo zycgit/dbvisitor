@@ -7,9 +7,9 @@
  */
 package net.hasor.dbvisitor.test.realdb.mssql.api.session;
 
-import net.hasor.dbvisitor.test.contract.api.session.SessionStatementJoinQueryCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MsSqlProfile;
+import net.hasor.dbvisitor.test.scenario.query.session.SessionStatementJoinQueryCase;
 
 public class MsSqlSessionStatementJoinQueryTest extends SessionStatementJoinQueryCase {
     @Override

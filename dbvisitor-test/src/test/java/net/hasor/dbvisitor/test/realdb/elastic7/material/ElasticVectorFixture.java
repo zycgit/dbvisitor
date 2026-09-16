@@ -10,11 +10,7 @@ package net.hasor.dbvisitor.test.realdb.elastic7.material;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -26,10 +22,10 @@ import net.hasor.dbvisitor.types.TypeHandler;
 
 /** A dense-vector index for the shared API contracts, without PostgreSQL-specific mapping. */
 public final class ElasticVectorFixture implements AutoCloseable {
-    private final String index = "nxn_vector_" + UUID.randomUUID().toString().replace("-", "");
-    private Connection connection;
-    private JdbcTemplate jdbc;
-    private boolean created;
+    private final String       index = "nxn_vector_" + UUID.randomUUID().toString().replace("-", "");
+    private       Connection   connection;
+    private       JdbcTemplate jdbc;
+    private       boolean      created;
 
     public LambdaTemplate open() throws SQLException, IOException {
         OneApiDataSourceManager.assumeCurrentDataSource("es7");

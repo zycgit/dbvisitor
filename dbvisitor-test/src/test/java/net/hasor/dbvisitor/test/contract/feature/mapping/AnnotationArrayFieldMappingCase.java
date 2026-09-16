@@ -8,22 +8,19 @@
 package net.hasor.dbvisitor.test.contract.feature.mapping;
 
 import java.sql.SQLException;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.types.SpecialArrayTypeEntity;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertNotNull;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class AnnotationArrayFieldMappingCase extends AnnotationSpecialTypeSupport {
+    // 能力归属：类型处理器 / 数组类型 / 实体数组映射。
     @Test
-    @Capability(CapabilityId.MAPPING_ANNOTATION_SPECIAL_TYPE_ARRAY)
+    @Capability(value = CapabilityId.MAPPING_ANNOTATION_SPECIAL_TYPE_ARRAY, column = "types/array-handlers/arrays")
     public void annotationSpecialType_shouldRoundTripNativeIntegerArray() throws SQLException {
         requiresNxnFeature(FeatureId.ARRAY);
         int id = baseId() + 4;
@@ -35,6 +32,7 @@ public abstract class AnnotationArrayFieldMappingCase extends AnnotationSpecialT
         insert(entity);
 
         SpecialArrayTypeEntity loaded = queryArray(id);
+        assertEquals(id, loaded.getId());
         assertNotNull(loaded.getIntArray());
         assertArrayEquals(expected, loaded.getIntArray());
     }

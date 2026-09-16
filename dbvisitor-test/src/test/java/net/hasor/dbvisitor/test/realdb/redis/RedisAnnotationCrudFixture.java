@@ -18,10 +18,10 @@ import net.hasor.dbvisitor.test.realdb.redis.dto1.RedisCrudMapper;
 
 /** Native SET/GET/DEL CRUD; SET replaces a JSON value, not individual fields of a relational row. */
 public final class RedisAnnotationCrudFixture implements AutoCloseable {
-    private final String prefix = "nxn_anno_crud_" + UUID.randomUUID().toString().replace("-", "") + ":";
-    private final int baseId;
-    private JdbcTemplate jdbc;
-    private Session session;
+    private final String       prefix = "nxn_anno_crud_" + UUID.randomUUID().toString().replace("-", "") + ":";
+    private final int          baseId;
+    private       JdbcTemplate jdbc;
+    private       Session      session;
 
     public RedisAnnotationCrudFixture(int baseId) {
         this.baseId = baseId;
@@ -49,8 +49,7 @@ public final class RedisAnnotationCrudFixture implements AutoCloseable {
     }
 
     private String set(String fields) {
-        return "SET #{'" + this.prefix + "' + id} "
-                + "#{#{" + fields + "}, typeHandler=net.hasor.dbvisitor.types.handler.json.JsonTypeHandler}";
+        return "SET #{'" + this.prefix + "' + id} " + "#{#{" + fields + "}, typeHandler=net.hasor.dbvisitor.types.handler.json.JsonTypeHandler}";
     }
 
     @Override

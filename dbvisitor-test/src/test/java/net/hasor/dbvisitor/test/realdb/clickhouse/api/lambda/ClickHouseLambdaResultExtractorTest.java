@@ -7,9 +7,9 @@
  */
 package net.hasor.dbvisitor.test.realdb.clickhouse.api.lambda;
 
-import net.hasor.dbvisitor.test.contract.api.lambda.LambdaResultExtractorCase;
-import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.contract.feature.result.LambdaResultExtractorCase;
 import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 
 public class ClickHouseLambdaResultExtractorTest extends LambdaResultExtractorCase {
     @Override

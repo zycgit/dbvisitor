@@ -8,20 +8,18 @@
 package net.hasor.dbvisitor.test.contract.api.session;
 
 import java.util.List;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 @NxnContract
 public abstract class SessionStatementParameterCase extends SessionStatementSupport {
+    // 能力归属：参数传递与规则 / 名称参数。
     @Test
-    @Capability(CapabilityId.SESSION_STATEMENT_DYNAMIC_PARAMETER)
+    @Capability(value = CapabilityId.SESSION_STATEMENT_DYNAMIC_PARAMETER, column = "parameters/positional-and-named-parameters/named")
     public void sessionStatement_shouldBindDynamicMapAndBeanParameters() throws Exception {
         insertUser(baseId() + 20, "StmtDyn", 28, "dyn@nxn.test");
         insertUser(baseId() + 21, "StmtOther", 29, "other@nxn.test");

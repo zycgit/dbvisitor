@@ -7,17 +7,15 @@
  */
 package net.hasor.dbvisitor.test.realdb.elastic7;
 
-import static org.junit.Assert.*;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.List;
-
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  * Elasticsearch 7 向量搜索测试

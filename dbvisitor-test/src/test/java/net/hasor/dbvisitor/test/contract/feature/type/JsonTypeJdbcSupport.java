@@ -7,17 +7,15 @@
  */
 package net.hasor.dbvisitor.test.contract.feature.type;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.Set;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.hasor.dbvisitor.test.contract.material.model.types.JsonAnnotatedBean;
 import net.hasor.dbvisitor.test.contract.material.model.types.JsonTestBean;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public abstract class JsonTypeJdbcSupport extends AbstractNxnContractTest {
     protected int baseId() {
@@ -40,6 +38,15 @@ public abstract class JsonTypeJdbcSupport extends AbstractNxnContractTest {
     protected String storedJson(Object id) throws SQLException {
         Map<String, Object> row = jdbcTemplate.queryForMap(selectCommand("json_varchar"), new Object[] { id });
         return (String) value(row, "json_varchar");
+    }
+
+    protected void assertStoredJsonEquals(JsonTestBean expected, String json) throws SQLException {
+        assertNotNull(json);
+        try {
+            assertEquals(expected, new ObjectMapper().readValue(json, JsonTestBean.class));
+        } catch (IOException e) {
+            throw new SQLException("Stored JSON is not a complete, readable JSON object", e);
+        }
     }
 
     protected void assertJsonSetContainsName(Set loadedSet, String expectedName) {

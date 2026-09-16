@@ -7,19 +7,18 @@
  */
 package net.hasor.dbvisitor.test.contract.api.mapper.annotation;
 
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 @NxnContract
 public abstract class AnnotationMapperConditionalDeleteCase extends AnnotationMapperCrudSupport {
+    // 能力归属：Mapper API / 方法注解。
     @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_DELETE_CONDITION)
+    @Capability(value = CapabilityId.MAPPER_ANNOTATION_DELETE_CONDITION, column = "mapper/method-annotations/execution")
     public void annotationMapperDelete_shouldDeleteMatchingRows() throws Exception {
         this.mapper.insertUserWithParams(baseId() + 6, "AnnoDeleteTwo", 42, "d2@test.com");
         this.mapper.insertUserWithParams(baseId() + 7, "AnnoDeleteThree", 42, "d3@test.com");

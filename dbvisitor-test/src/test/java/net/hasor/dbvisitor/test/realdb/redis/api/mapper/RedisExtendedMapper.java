@@ -7,8 +7,10 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
-import java.util.*;
-import net.hasor.dbvisitor.mapper.*;
+import java.util.List;
+import java.util.Map;
+import net.hasor.dbvisitor.mapper.Param;
+import net.hasor.dbvisitor.mapper.RefMapper;
 
 @RefMapper("/mapper/redis/ExtendedMapper.xml")
 public interface RedisExtendedMapper {

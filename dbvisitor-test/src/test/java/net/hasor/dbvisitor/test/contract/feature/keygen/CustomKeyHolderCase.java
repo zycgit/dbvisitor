@@ -9,30 +9,19 @@ package net.hasor.dbvisitor.test.contract.feature.keygen;
 
 import java.sql.SQLException;
 import java.util.Date;
-
-import org.junit.Test;
-
-import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyHolderAfterUser;
-import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyHolderBothUser;
-import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyHolderConnectionUser;
-import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyHolderContextUser;
-import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyHolderFailingUser;
-import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyHolderSqlExceptionUser;
-import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyHolderUser;
+import net.hasor.dbvisitor.test.contract.material.model.keygen.*;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class CustomKeyHolderCase extends KeyGenerationSupport {
+    // 能力归属：对象映射 / 主键策略 / 自定义主键。
     @Test
-    @Capability(CapabilityId.KEYGEN_HOLDER_BEFORE)
+    @Capability(value = CapabilityId.KEYGEN_HOLDER_BEFORE, column = "mapping-keys/key-generators/strategies")
     public void keygenHolderBefore_shouldUseCustomGeneratedKeyHandler() throws SQLException {
         KeyHolderUser user = new KeyHolderUser();
         user.setAge(40);
@@ -43,10 +32,17 @@ public abstract class CustomKeyHolderCase extends KeyGenerationSupport {
         assertEquals(1, rows);
         assertEquals(Integer.valueOf(999999), user.getId());
         assertNotNull(user.getName());
+        KeyHolderUser stored = lambdaTemplate.query(KeyHolderUser.class)//
+                .eq(KeyHolderUser::getId, user.getId())//
+                .queryForObject();
+        assertNotNull(stored);
+        assertEquals(user.getName(), stored.getName());
+        assertEquals(Integer.valueOf(40), stored.getAge());
     }
 
+    // 能力归属：对象映射 / 主键策略 / 自定义主键。
     @Test
-    @Capability(CapabilityId.KEYGEN_HOLDER_AFTER)
+    @Capability(value = CapabilityId.KEYGEN_HOLDER_AFTER, column = "mapping-keys/key-generators/strategies")
     public void keygenHolderAfter_shouldReadDatabaseGeneratedKey() throws SQLException {
         if (numericAfterKey()) {
             requiresNxnFeature(FeatureId.GENERATED_KEYS_NUMERIC);
@@ -93,8 +89,9 @@ public abstract class CustomKeyHolderCase extends KeyGenerationSupport {
         return lambdaTemplate.insert(type).applyEntity(type.cast(entity)).executeSumResult();
     }
 
+    // 能力归属：对象映射 / 主键策略 / 自定义主键。
     @Test
-    @Capability(CapabilityId.KEYGEN_HOLDER_BOTH)
+    @Capability(value = CapabilityId.KEYGEN_HOLDER_BOTH, column = "mapping-keys/key-generators/strategies")
     public void keygenHolderBoth_shouldRunBeforeAndAfterWhenBothHooksAreEnabled() throws SQLException {
         deleteUserInfoIds(888888, 777777);
 
@@ -108,10 +105,12 @@ public abstract class CustomKeyHolderCase extends KeyGenerationSupport {
         assertEquals(Integer.valueOf(777777), user.getId());
         Integer inserted = countStoredKey(888888);
         assertEquals(Integer.valueOf(1), inserted);
+        assertEquals(Integer.valueOf(0), countStoredKey(777777));
     }
 
+    // 能力归属：对象映射 / 主键策略 / 自定义主键。
     @Test
-    @Capability(CapabilityId.KEYGEN_HOLDER_CONTEXT)
+    @Capability(value = CapabilityId.KEYGEN_HOLDER_CONTEXT, column = "mapping-keys/key-generators/strategies")
     public void keygenHolderContext_shouldExposeMappingContext() throws SQLException {
         KeyHolderContextUser user = new KeyHolderContextUser();
         user.setName("Context Key User");
@@ -122,10 +121,12 @@ public abstract class CustomKeyHolderCase extends KeyGenerationSupport {
 
         assertNotNull(user.getId());
         assertTrue(user.getId() >= 700000 && user.getId() < 800000);
+        assertEquals(Integer.valueOf(1), countStoredKey(user.getId()));
     }
 
+    // 能力归属：对象映射 / 主键策略 / 自定义主键。
     @Test
-    @Capability(CapabilityId.KEYGEN_HOLDER_CONNECTION)
+    @Capability(value = CapabilityId.KEYGEN_HOLDER_CONNECTION, column = "mapping-keys/key-generators/strategies")
     public void keygenHolderConnection_shouldUseJdbcConnectionDuringBeforeGeneration() throws SQLException {
         verifyConnectionKey(connectionKeyModel());
     }
@@ -145,10 +146,14 @@ public abstract class CustomKeyHolderCase extends KeyGenerationSupport {
         lambdaTemplate.insert(model.type()).applyEntity(user).executeSumResult();
         assertNotNull(model.key().apply(user));
         assertTrue(model.key().apply(user).longValue() > 0);
+        assertEquals(1, lambdaTemplate.query(model.type()).asMap()//
+                .eq("id", model.key().apply(user))//
+                .queryForCount());
     }
 
+    // 能力归属：对象映射 / 主键策略 / 自定义主键。
     @Test
-    @Capability(CapabilityId.KEYGEN_HOLDER_EXCEPTION)
+    @Capability(value = CapabilityId.KEYGEN_HOLDER_EXCEPTION, column = "mapping-keys/key-generators/strategies")
     public void keygenHolderException_shouldPropagateRuntimeException() throws SQLException {
         KeyHolderFailingUser user = new KeyHolderFailingUser();
         user.setName("Failing Key User");
@@ -163,8 +168,9 @@ public abstract class CustomKeyHolderCase extends KeyGenerationSupport {
         }
     }
 
+    // 能力归属：对象映射 / 主键策略 / 自定义主键。
     @Test
-    @Capability(CapabilityId.KEYGEN_HOLDER_SQL_EXCEPTION)
+    @Capability(value = CapabilityId.KEYGEN_HOLDER_SQL_EXCEPTION, column = "mapping-keys/key-generators/strategies")
     public void keygenHolderSqlException_shouldExposeSqlExceptionCause() throws SQLException {
         KeyHolderSqlExceptionUser user = new KeyHolderSqlExceptionUser();
         user.setName("SQL Ex User");
@@ -185,6 +191,7 @@ public abstract class CustomKeyHolderCase extends KeyGenerationSupport {
             fail("Expected SQLException cause, got " + e);
         }
     }
+
     protected Integer countStoredKey(int id) throws SQLException {
         return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM user_info WHERE id = ?", new Object[] { id }, Integer.class);
     }

@@ -48,8 +48,7 @@ public class Elastic7JdbcMultipleResultSetTest extends JdbcMultipleResultSetCase
 
     @Override
     protected String literalMultipleCommand() {
-        return search("{\"term\": {\"id\": " + (baseId() + 1) + "}}") + ";"
-                + search("{\"range\": {\"id\": {\"gte\": " + (baseId() + 2) + ",\"lte\": " + (baseId() + 3) + "}}}");
+        return search("{\"term\": {\"id\": " + (baseId() + 1) + "}}") + ";" + search("{\"range\": {\"id\": {\"gte\": " + (baseId() + 2) + ",\"lte\": " + (baseId() + 3) + "}}}");
     }
 
     @Override
@@ -65,9 +64,6 @@ public class Elastic7JdbcMultipleResultSetTest extends JdbcMultipleResultSetCase
     @Override
     protected String ruleMultipleCommand() {
         String type = UserInfo.class.getName();
-        return search("{\"term\": {\"id\": " + (baseId() + 1) + "}}")
-                + "; @{resultSet,name=youngUsers,javaType=" + type + "}\n"
-                + search("{\"term\": {\"id\": " + (baseId() + 3) + "}}")
-                + "; @{resultSet,name=seniorUsers,javaType=" + type + "}";
+        return search("{\"term\": {\"id\": " + (baseId() + 1) + "}}") + "; @{resultSet,name=youngUsers,javaType=" + type + "}\n" + search("{\"term\": {\"id\": " + (baseId() + 3) + "}}") + "; @{resultSet,name=seniorUsers,javaType=" + type + "}";
     }
 }

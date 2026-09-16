@@ -8,7 +8,7 @@
 package net.hasor.dbvisitor.test.realdb.db2.jdbc.call;
 
 import java.sql.SQLException;
-import net.hasor.dbvisitor.test.contract.jdbc.call.JdbcCallResultCase;
+import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcCallResultCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Db2Profile;
 
@@ -30,13 +30,13 @@ public class Db2JdbcCallResultTest extends JdbcCallResultCase {
             }
         }
         jdbcTemplate.execute("""
-            CREATE PROCEDURE nxn_sp_result_set_users(IN p_id INT)
-            DYNAMIC RESULT SETS 1 LANGUAGE SQL
-            BEGIN
-                DECLARE c1 CURSOR WITH RETURN TO CLIENT FOR SELECT id, name, age, email FROM user_info WHERE id = p_id;
-                OPEN c1;
-            END
-            """);
+                CREATE PROCEDURE nxn_sp_result_set_users(IN p_id INT)
+                DYNAMIC RESULT SETS 1 LANGUAGE SQL
+                BEGIN
+                    DECLARE c1 CURSOR WITH RETURN TO CLIENT FOR SELECT id, name, age, email FROM user_info WHERE id = p_id;
+                    OPEN c1;
+                END
+                """);
     }
 
     @Override

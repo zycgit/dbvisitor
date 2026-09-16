@@ -7,21 +7,18 @@
  */
 package net.hasor.dbvisitor.test.contract.api.mapper.annotation;
 
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertNotEquals;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class AnnotationMapperGeneratedKeysCase extends AnnotationMapperAttributeSupport {
+    // 能力归属：Mapper API / 主键策略。
     @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_GENERATED_KEYS)
+    @Capability(value = CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_GENERATED_KEYS, column = "mapper/key-strategies/strategies")
     public void annotationAttributes_shouldPopulateGeneratedKeysAndSupportExplicitIds() throws Exception {
         if (numericGeneratedKeys()) {
             requiresNxnFeature(FeatureId.GENERATED_KEYS_NUMERIC);
@@ -41,8 +38,9 @@ public abstract class AnnotationMapperGeneratedKeysCase extends AnnotationMapper
         assertEquals("AttrManualKey", readKeyName(explicitId));
     }
 
+    // 能力归属：Mapper API / 主键策略。
     @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_KEY_COLUMN)
+    @Capability(value = CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_KEY_COLUMN, column = "mapper/key-strategies/strategies")
     public void annotationAttributes_shouldPopulateGeneratedKeysWithKeyColumnWhenSupported() throws Exception {
         requiresNxnFeature(FeatureId.GENERATED_KEY_COLUMN);
         Object user = keyRecord(null, "AttrKeyColumn", 33, "key-column@nxn.test");
@@ -53,8 +51,9 @@ public abstract class AnnotationMapperGeneratedKeysCase extends AnnotationMapper
         assertEquals("AttrKeyColumn", readKeyName(keyValue(user)));
     }
 
+    // 能力归属：Mapper API / 主键策略。
     @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_RESULT_SET_KEY_SOURCE)
+    @Capability(value = CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_RESULT_SET_KEY_SOURCE, column = "mapper/key-strategies/strategies")
     public void annotationAttributes_shouldPopulateGeneratedKeysFromCurrentResultSetWhenSupported() throws Exception {
         requiresNxnFeature(FeatureId.GENERATED_KEY_RESULT_SET);
         Object user = keyRecord(null, "AttrResultSetKeySource", 34, "result-set-key-source@nxn.test");

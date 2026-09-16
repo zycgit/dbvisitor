@@ -16,15 +16,12 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-
 import javax.sql.DataSource;
-
-import org.junit.Assume;
-
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.test.contract.material.handler.ResultHandlerProbe;
+import org.junit.Assume;
 
 /**
  * OneAPI DataSource Manager - Follows DsUtils pattern
@@ -34,9 +31,10 @@ public class OneApiDataSourceManager {
     private static final String                  DEFAULT_ENV        = "pg";
     private static final String                  PROP_FILE_TEMPLATE = "/jdbc-%s.properties";
     private static final Map<String, Properties> adapterPropsCache  = new HashMap<>();
-    private static Properties                    cachedProperties;
-    private static DataSource                    cachedDataSource;
-    private static boolean                       initialized        = false;
+    private static       Properties              cachedProperties;
+    private static       DataSource              cachedDataSource;
+    private static       DataSource              observedDataSource;
+    private static       boolean                 initialized        = false;
 
     private static synchronized Properties loadProperties() throws IOException {
         if (cachedProperties != null) {
@@ -134,7 +132,7 @@ public class OneApiDataSourceManager {
 
     public static synchronized DataSource createDataSource() throws IOException {
         if (cachedDataSource != null) {
-            return cachedDataSource;
+            return observedDataSource;
         }
 
         Properties props = loadProperties();
@@ -154,6 +152,7 @@ public class OneApiDataSourceManager {
         config.setMinimumIdle(1);
 
         cachedDataSource = new HikariDataSource(config);
+        observedDataSource = ResultHandlerProbe.observe(cachedDataSource);
 
         // Initialize database on first creation
         if (!initialized) {
@@ -167,7 +166,7 @@ public class OneApiDataSourceManager {
             }
         }
 
-        return cachedDataSource;
+        return observedDataSource;
     }
 
     public static String getDbDialect() {
@@ -201,6 +200,7 @@ public class OneApiDataSourceManager {
             ((HikariDataSource) cachedDataSource).close();
         }
         cachedDataSource = null;
+        observedDataSource = null;
         cachedProperties = null;
         initialized = false;
     }
@@ -255,7 +255,7 @@ public class OneApiDataSourceManager {
             }
         }
 
-        return DriverManager.getConnection(url, connProps);
+        return ResultHandlerProbe.observe(DriverManager.getConnection(url, connProps));
     }
 
     /**
@@ -287,7 +287,7 @@ public class OneApiDataSourceManager {
             connProps.putAll(extraProps);
         }
 
-        return DriverManager.getConnection(url, connProps);
+        return ResultHandlerProbe.observe(DriverManager.getConnection(url, connProps));
     }
 
     /** 获取适配器配置属性 */

@@ -15,7 +15,8 @@ import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.realdb.milvus.material.user.UserInfoMilvus2;
 import net.hasor.dbvisitor.test.realdb.milvus.material.user.UserInfoMilvus3;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /** Named-statement execution through BaseMapper with native Milvus commands. */
 public class MilvusBaseMapperStatementTest extends MilvusSessionSqlSupport {

@@ -31,12 +31,10 @@ public final class RedisXmlRefFixture implements AutoCloseable {
         String[] names = { "RefMapA", "RefMapB", "RefMapC", "RefMapD" };
         int[] ages = { 22, 28, 35, 28 };
         for (int i = 0; i < names.length; i++) {
-            Map<String, Object> user = Map.of("id", baseId + i + 1, "name", names[i], "age", ages[i],
-                    "email", "ref" + (char) ('a' + i) + "@nxn.test", "createTime", 1L);
+            Map<String, Object> user = Map.of("id", baseId + i + 1, "name", names[i], "age", ages[i], "email", "ref" + (char) ('a' + i) + "@nxn.test", "createTime", 1L);
             session.executeStatement("session.UserSessionMapper.insertUser", user);
             session.jdbc().queryForLong("ZADD ? ? ?", new Object[] { index("owners"), baseId + i + 1, names[i] });
-            session.jdbc().queryForLong("ZADD #{arg0} #{arg1} #{arg2,typeHandler=net.hasor.dbvisitor.types.handler.json.JsonTypeHandler}",
-                    new Object[] { index("record-" + (baseId + i + 1)), baseId + i + 1, user });
+            session.jdbc().queryForLong("ZADD #{arg0} #{arg1} #{arg2,typeHandler=net.hasor.dbvisitor.types.handler.json.JsonTypeHandler}", new Object[] { index("record-" + (baseId + i + 1)), baseId + i + 1, user });
         }
         return session.createMapper(RedisXmlRefMapperDao.class);
     }

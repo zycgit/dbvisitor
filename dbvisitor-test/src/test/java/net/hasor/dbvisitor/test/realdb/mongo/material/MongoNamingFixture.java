@@ -18,9 +18,9 @@ import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 
 /** Keeps literal entity collection names in a database owned by one test. */
 public final class MongoNamingFixture implements AutoCloseable {
-    private final String database = "nxn_names_" + UUID.randomUUID().toString().replace("-", "");
-    private Connection connection;
-    private JdbcTemplate jdbc;
+    private final String       database = "nxn_names_" + UUID.randomUUID().toString().replace("-", "");
+    private       Connection   connection;
+    private       JdbcTemplate jdbc;
 
     public JdbcTemplate open() throws SQLException {
         OneApiDataSourceManager.assumeCurrentDataSource("mongo");
@@ -41,8 +41,7 @@ public final class MongoNamingFixture implements AutoCloseable {
     }
 
     public void createStrictKeyCollection() throws SQLException {
-        this.jdbc.execute("db.createCollection('user_strict_none', {validator: {$jsonSchema: {bsonType: 'object', "
-                + "required: ['id'], properties: {id: {bsonType: 'int'}}}}})");
+        this.jdbc.execute("db.createCollection('user_strict_none', {validator: {$jsonSchema: {bsonType: 'object', " + "required: ['id'], properties: {id: {bsonType: 'int'}}}}})");
         this.jdbc.execute("db.user_strict_none.createIndex({id: 1}, {unique: true})");
     }
 

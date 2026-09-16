@@ -7,8 +7,8 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis;
 
-import java.sql.SQLException;
 import java.math.BigInteger;
+import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.feature.type.BasicBigIntegerTypeJdbcCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;

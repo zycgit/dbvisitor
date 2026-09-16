@@ -12,10 +12,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import net.hasor.dbvisitor.mapper.BaseMapper;
 import net.hasor.dbvisitor.page.PageObject;
 import net.hasor.dbvisitor.page.PageResult;
@@ -24,12 +20,9 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class BaseMapperCompositeKeyCase extends AbstractNxnContractTest {
@@ -44,8 +37,9 @@ public abstract class BaseMapperCompositeKeyCase extends AbstractNxnContractTest
         return 920000;
     }
 
+    // 能力归属：Mapper API / 主键策略。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_COMPOSITE_INSERT)
+    @Capability(value = CapabilityId.BASEMAPPER_COMPOSITE_INSERT, column = "mapper/key-strategies/strategies")
     public void compositeInsert_shouldPersistDistinctCompositeKeys() {
         List<UserRole> roles = Arrays.asList(//
                 role(1, 100, "admin"), //
@@ -61,8 +55,9 @@ public abstract class BaseMapperCompositeKeyCase extends AbstractNxnContractTest
         assertEquals("auditor", this.mapper.loadBy(ref(2, 100)).getRoleName());
     }
 
+    // 能力归属：Mapper API / 主键策略。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_COMPOSITE_LOAD)
+    @Capability(value = CapabilityId.BASEMAPPER_COMPOSITE_LOAD, column = "mapper/key-strategies/strategies")
     public void compositeLoad_shouldSupportEntityAndMapReferences() {
         this.mapper.insert(role(11, 100, "entity-ref"));
         this.mapper.insert(role(11, 200, "map-ref"));
@@ -80,8 +75,9 @@ public abstract class BaseMapperCompositeKeyCase extends AbstractNxnContractTest
         assertNull(this.mapper.loadBy(ref(99, 99)));
     }
 
+    // 能力归属：Mapper API / 主键策略。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_COMPOSITE_QUERY)
+    @Capability(value = CapabilityId.BASEMAPPER_COMPOSITE_QUERY, column = "mapper/key-strategies/strategies")
     public void compositeQuery_shouldFilterAndCountBySample() {
         this.mapper.insert(role(21, 100, "admin"));
         this.mapper.insert(role(21, 200, "editor"));
@@ -98,8 +94,9 @@ public abstract class BaseMapperCompositeKeyCase extends AbstractNxnContractTest
         assertEquals(2, this.mapper.countBySample(admins));
     }
 
+    // 能力归属：Mapper API / 主键策略。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_COMPOSITE_UPDATE)
+    @Capability(value = CapabilityId.BASEMAPPER_COMPOSITE_UPDATE, column = "mapper/key-strategies/strategies")
     public void compositeUpdate_shouldUseAllPrimaryKeyColumns() {
         this.mapper.insert(role(31, 100, "before"));
         this.mapper.insert(role(31, 200, "untouched"));
@@ -120,8 +117,9 @@ public abstract class BaseMapperCompositeKeyCase extends AbstractNxnContractTest
         assertEquals("after-map", this.mapper.loadBy(ref(31, 200)).getRoleName());
     }
 
+    // 能力归属：Mapper API / 主键策略。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_COMPOSITE_REPLACE)
+    @Capability(value = CapabilityId.BASEMAPPER_COMPOSITE_REPLACE, column = "mapper/key-strategies/strategies")
     public void compositeReplace_shouldWriteNullFieldsAndSupportMapReplacement() {
         this.mapper.insert(role(51, 100, "before"));
         this.mapper.insert(role(51, 200, "before-map"));
@@ -142,8 +140,9 @@ public abstract class BaseMapperCompositeKeyCase extends AbstractNxnContractTest
         assertEquals("after-map", this.mapper.loadBy(ref(51, 200)).getRoleName());
     }
 
+    // 能力归属：Mapper API / 主键策略。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_COMPOSITE_UPSERT)
+    @Capability(value = CapabilityId.BASEMAPPER_COMPOSITE_UPSERT, column = "mapper/key-strategies/strategies")
     public void compositeUpsert_shouldInsertOrUpdateByFullCompositeKey() {
         this.mapper.insert(role(61, 100, "before"));
 
@@ -172,8 +171,9 @@ public abstract class BaseMapperCompositeKeyCase extends AbstractNxnContractTest
         assertEquals("map-updated", this.mapper.loadBy(ref(62, 100)).getRoleName());
     }
 
+    // 能力归属：Mapper API / 主键策略。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_COMPOSITE_DELETE)
+    @Capability(value = CapabilityId.BASEMAPPER_COMPOSITE_DELETE, column = "mapper/key-strategies/strategies")
     public void compositeDelete_shouldUseAllPrimaryKeyColumns() {
         this.mapper.insert(role(41, 100, "delete-entity"));
         this.mapper.insert(role(41, 200, "keep"));
@@ -194,8 +194,9 @@ public abstract class BaseMapperCompositeKeyCase extends AbstractNxnContractTest
         assertEquals(1, this.mapper.countAll());
     }
 
+    // 能力归属：Mapper API / 主键策略。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_COMPOSITE_BATCH)
+    @Capability(value = CapabilityId.BASEMAPPER_COMPOSITE_BATCH, column = "mapper/key-strategies/strategies")
     public void compositeBatchOperations_shouldHandleDeleteListsAndRepeatedMutations() {
         List<UserRole> roles = Arrays.asList(//
                 role(71, 100, "a"), //
@@ -223,7 +224,7 @@ public abstract class BaseMapperCompositeKeyCase extends AbstractNxnContractTest
         Map<String, Object> deleteMap = new HashMap<>();
         deleteMap.put("userId", baseId() + 71);
         deleteMap.put("roleId", 200);
-        int deleteMapRows = this.mapper.deleteListByMap(Arrays.asList(deleteMap));
+        int deleteMapRows = this.mapper.deleteListByMap(List.of(deleteMap));
 
         assertEquals(2, replaceRows);
         assertEquals(2, updateRows);
@@ -236,8 +237,9 @@ public abstract class BaseMapperCompositeKeyCase extends AbstractNxnContractTest
         assertNotNull(this.mapper.loadBy(ref(73, 100)));
     }
 
+    // 能力归属：Mapper API / 主键策略。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_COMPOSITE_MISSING_KEY)
+    @Capability(value = CapabilityId.BASEMAPPER_COMPOSITE_MISSING_KEY, column = "mapper/key-strategies/strategies")
     public void compositeMissingKey_shouldRejectMapReferencesWithoutAllPrimaryKeys() {
         assertRejectsMissingPrimaryKey(() -> {
             Map<String, Object> load = new HashMap<>();
@@ -251,8 +253,9 @@ public abstract class BaseMapperCompositeKeyCase extends AbstractNxnContractTest
         });
     }
 
+    // 能力归属：Mapper API / 主键策略。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_COMPOSITE_PAGE)
+    @Capability(value = CapabilityId.BASEMAPPER_COMPOSITE_PAGE, column = "mapper/key-strategies/strategies")
     public void compositePage_shouldPageBySampleOnCompositeKeyTable() {
         for (int i = 1; i <= 10; i++) {
             this.mapper.insert(role(90 + i, 100, "page-admin"));
@@ -271,8 +274,9 @@ public abstract class BaseMapperCompositeKeyCase extends AbstractNxnContractTest
         }
     }
 
+    // 能力归属：Mapper API / 主键策略。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_COMPOSITE_KEY_ISOLATION)
+    @Capability(value = CapabilityId.BASEMAPPER_COMPOSITE_KEY_ISOLATION, column = "mapper/key-strategies/strategies")
     public void compositeKeyIsolation_shouldMutateOnlyExactCompositeKeyMatches() {
         this.mapper.insert(role(111, 100, "a"));
         this.mapper.insert(role(111, 200, "b"));
@@ -298,8 +302,9 @@ public abstract class BaseMapperCompositeKeyCase extends AbstractNxnContractTest
         assertEquals(5, this.mapper.countAll());
     }
 
+    // 能力归属：Mapper API / 主键策略。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_COMPOSITE_REJECT_SINGLE_ID)
+    @Capability(value = CapabilityId.BASEMAPPER_COMPOSITE_REJECT_SINGLE_ID, column = "mapper/key-strategies/strategies")
     public void compositeKey_shouldRejectSingleIdShortcuts() {
         assertRejectsCompositePrimaryKey(() -> this.mapper.selectById(baseId() + 1));
         assertRejectsCompositePrimaryKey(() -> this.mapper.selectByIds(Arrays.asList(baseId() + 1, baseId() + 2)));

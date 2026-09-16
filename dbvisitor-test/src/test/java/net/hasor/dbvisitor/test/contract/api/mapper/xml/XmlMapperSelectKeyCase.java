@@ -8,20 +8,18 @@
 package net.hasor.dbvisitor.test.contract.api.mapper.xml;
 
 import java.util.Map;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @NxnContract
 public abstract class XmlMapperSelectKeyCase extends XmlMapperKeyGenerationSupport {
+    // 能力归属：Mapper 文件 / 主键策略。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_KEYGEN_SELECT_KEY_BEFORE)
+    @Capability(value = CapabilityId.MAPPER_XML_KEYGEN_SELECT_KEY_BEFORE, column = "mapper-files/statements/key-strategies")
     public void xmlKeygen_shouldRunSelectKeyBeforeWhenFixtureSequenceIsSupported() throws Exception {
         Map<String, Object> params = keygenParams("XmlKeyGenBefore", 40, "xml-key-before@nxn.test");
 
@@ -32,8 +30,9 @@ public abstract class XmlMapperSelectKeyCase extends XmlMapperKeyGenerationSuppo
         assertEquals("XmlKeyGenBefore", readKeyName(generatedId));
     }
 
+    // 能力归属：Mapper 文件 / 主键策略。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_KEYGEN_SELECT_KEY_AFTER)
+    @Capability(value = CapabilityId.MAPPER_XML_KEYGEN_SELECT_KEY_AFTER, column = "mapper-files/statements/key-strategies")
     public void xmlKeygen_shouldRunSelectKeyAfterWhenFixtureSequenceIsSupported() throws Exception {
         Map<String, Object> params = keygenParams("XmlKeyGenAfter", 41, "xml-key-after@nxn.test");
 

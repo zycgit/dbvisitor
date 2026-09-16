@@ -8,29 +8,55 @@
 package net.hasor.dbvisitor.test.contract.feature.transaction;
 
 import java.sql.SQLException;
-
-import org.junit.Test;
-
+import net.hasor.dbvisitor.test.contract.material.service.CallerTransactionService;
+import net.hasor.dbvisitor.test.contract.material.service.UserTransactionService;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-import net.hasor.dbvisitor.test.contract.material.service.CallerTransactionService;
-import net.hasor.dbvisitor.test.contract.material.service.UserTransactionService;
-import net.hasor.dbvisitor.transaction.Propagation;
-import net.hasor.dbvisitor.transaction.TransactionCallback;
-import net.hasor.dbvisitor.transaction.TransactionManager;
-import net.hasor.dbvisitor.transaction.TransactionStatus;
-import net.hasor.dbvisitor.transaction.TransactionTemplate;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import net.hasor.dbvisitor.transaction.*;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class TransactionNestedCase extends TransactionSupport {
+    // 能力归属：数据库事务 / 事务传播 / 事务传播。
     @Test
-    @Capability(CapabilityId.TRANSACTION_NESTED_SAVEPOINT)
+    @Capability(value = CapabilityId.TRANSACTION_NESTED_NO_OUTER, column = "transactions/transaction-propagation/propagation", variants = { "NESTED" })
+    public void nested_shouldStartARootTransactionWhenNoOuterScopeExists() throws SQLException {
+        int committedId = baseId() + 27;
+        int rolledBackId = baseId() + 28;
+        TransactionManager manager = txManager();
+        assertFalse(manager.hasTransaction());
+
+        TransactionStatus committed = manager.begin(Propagation.NESTED);
+        try {
+            assertTrue(committed.isNewConnection());
+            assertFalse(committed.hasSavepoint());
+            insertUser(committedId, "NXN-TX-Nested-Root-Commit");
+            manager.commit(committed);
+        } finally {
+            if (!committed.isCompleted()) {
+                manager.rollBack(committed);
+            }
+        }
+        assertEquals(1, countById(committedId));
+
+        TransactionStatus rolledBack = manager.begin(Propagation.NESTED);
+        try {
+            assertTrue(rolledBack.isNewConnection());
+            assertFalse(rolledBack.hasSavepoint());
+            insertUser(rolledBackId, "NXN-TX-Nested-Root-Rollback");
+        } finally {
+            manager.rollBack(rolledBack);
+        }
+        assertEquals(0, countById(rolledBackId));
+        assertFalse(manager.hasTransaction());
+    }
+
+    // 能力归属：数据库事务 / 事务传播 / 事务传播。
+    @Test
+    @Capability(value = CapabilityId.TRANSACTION_NESTED_SAVEPOINT, column = "transactions/transaction-propagation/propagation", variants = { "NESTED" })
     public void nested_shouldRollbackToSavepointAndCommitOuterWork() throws SQLException {
         int outerId = baseId() + 21;
         int nestedId = baseId() + 22;
@@ -47,8 +73,9 @@ public abstract class TransactionNestedCase extends TransactionSupport {
         assertEquals(0, countById(nestedId));
     }
 
+    // 能力归属：数据库事务 / 事务传播 / 事务传播。
     @Test
-    @Capability(CapabilityId.TRANSACTION_NESTED_COMMIT)
+    @Capability(value = CapabilityId.TRANSACTION_NESTED_COMMIT, column = "transactions/transaction-propagation/propagation", variants = { "NESTED" })
     public void nested_shouldCommitNestedWorkWithOuterTransaction() throws SQLException {
         requiresNxnFeature(FeatureId.TRANSACTION_SAVEPOINT);
         int outerId = baseId() + 23;
@@ -66,8 +93,9 @@ public abstract class TransactionNestedCase extends TransactionSupport {
         assertEquals(1, countById(nestedId));
     }
 
+    // 能力归属：数据库事务 / 事务传播 / 事务传播。
     @Test
-    @Capability(CapabilityId.TRANSACTION_NESTED_OUTER_ROLLBACK)
+    @Capability(value = CapabilityId.TRANSACTION_NESTED_OUTER_ROLLBACK, column = "transactions/transaction-propagation/propagation", variants = { "NESTED" })
     public void nested_shouldRollbackCommittedNestedWorkWhenOuterRollsBack() throws SQLException {
         requiresNxnFeature(FeatureId.TRANSACTION_SAVEPOINT);
         int outerId = baseId() + 25;
@@ -85,8 +113,9 @@ public abstract class TransactionNestedCase extends TransactionSupport {
         assertEquals(0, countById(nestedId));
     }
 
+    // 能力归属：数据库事务 / 事务传播 / 事务传播。
     @Test
-    @Capability(CapabilityId.TRANSACTION_TEMPLATE_NESTED_SAVEPOINT)
+    @Capability(value = CapabilityId.TRANSACTION_TEMPLATE_NESTED_SAVEPOINT, column = "transactions/transaction-propagation/propagation", variants = { "NESTED" })
     public void template_shouldRollbackNestedCallbackToSavepointAndCommitOuterWork() throws Throwable {
         int outerId = baseId() + 93;
         int nestedId = baseId() + 94;
@@ -113,8 +142,9 @@ public abstract class TransactionNestedCase extends TransactionSupport {
         assertEquals(0, countById(nestedId));
     }
 
+    // 能力归属：数据库事务 / 事务传播 / 事务传播。
     @Test
-    @Capability(CapabilityId.TRANSACTION_ANNOTATION_NESTED)
+    @Capability(value = CapabilityId.TRANSACTION_ANNOTATION_NESTED, column = "transactions/transaction-propagation/propagation", variants = { "NESTED" })
     public void annotationNested_shouldRollbackToSavepointInsideProgrammaticOuter() throws Exception {
         requiresNxnFeature(FeatureId.TRANSACTION_SAVEPOINT);
         UserTransactionService service = userProxy();
@@ -136,8 +166,9 @@ public abstract class TransactionNestedCase extends TransactionSupport {
         assertEquals(0, countById(rolledBackNestedId));
     }
 
+    // 能力归属：数据库事务 / 事务传播 / 事务传播。
     @Test
-    @Capability(CapabilityId.TRANSACTION_PROXY_REQUIRED_NESTED)
+    @Capability(value = CapabilityId.TRANSACTION_PROXY_REQUIRED_NESTED, column = "transactions/transaction-propagation/propagation", variants = { "NESTED" })
     public void proxyRequiredToNested_shouldApplySavepointSemantics() throws Exception {
         requiresNxnFeature(FeatureId.TRANSACTION_SAVEPOINT);
         CallerTransactionService caller = callerProxy();

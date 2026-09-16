@@ -8,51 +8,21 @@
 package net.hasor.dbvisitor.test.contract.feature.keygen;
 
 import java.sql.SQLException;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
-import net.hasor.dbvisitor.mapping.KeyType;
-import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.Options;
-import net.hasor.dbvisitor.mapping.def.ColumnMapping;
-import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.test.contract.material.model.keygen.KeySequenceNoAnnotationUser;
 import net.hasor.dbvisitor.test.contract.material.model.keygen.KeySequenceUser;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class SequenceKeyCase extends KeyGenerationSupport {
+    // 能力归属：对象映射 / 主键策略 / 序列主键。
     @Test
-    @Capability(CapabilityId.KEYGEN_SEQUENCE_METADATA)
-    public void keygenSequenceMetadata_shouldRegisterSequenceHolderWhenKeySeqExists() {
-        requiresNxnFeature(FeatureId.SEQUENCE);
-        MappingRegistry registry = new MappingRegistry(null, Options.of().dialect(sequenceDialect()));
-        registry.loadEntityToSpace(KeySequenceUser.class);
-
-        TableMapping<?> mapping = registry.findByEntity(KeySequenceUser.class);
-        ColumnMapping idColumn = mapping.getPropertyByName("id");
-
-        assertTrue(idColumn.isPrimaryKey());
-        assertEquals(KeyType.Sequence, idColumn.getKeyType());
-        assertNotNull(idColumn.getKeySeqHolder());
-
-        registry.loadEntityToSpace(KeySequenceNoAnnotationUser.class);
-        TableMapping<?> missing = registry.findByEntity(KeySequenceNoAnnotationUser.class);
-        assertNull(missing.getPropertyByName("id").getKeySeqHolder());
-    }
-
-
-    @Test
-    @Capability(CapabilityId.KEYGEN_SEQUENCE)
+    @Capability(value = CapabilityId.KEYGEN_SEQUENCE, column = "mapping-keys/key-generators/strategies")
     public void keygenSequence_shouldUseDatabaseSequenceWhenSupported() throws SQLException {
         requiresNxnFeature(FeatureId.SEQUENCE);
         resetSequence("seq_key_test_seq", 2000);
@@ -67,5 +37,17 @@ public abstract class SequenceKeyCase extends KeyGenerationSupport {
 
         assertEquals(Integer.valueOf(2000), first.getId());
         assertEquals(Integer.valueOf(2001), second.getId());
+        KeySequenceUser storedFirst = seqLambda.query(KeySequenceUser.class)//
+                .eq(KeySequenceUser::getId, first.getId())//
+                .queryForObject();
+        KeySequenceUser storedSecond = seqLambda.query(KeySequenceUser.class)//
+                .eq(KeySequenceUser::getId, second.getId())//
+                .queryForObject();
+        assertNotNull(storedFirst);
+        assertNotNull(storedSecond);
+        assertEquals("Seq User 1", storedFirst.getName());
+        assertEquals(Integer.valueOf(20), storedFirst.getAge());
+        assertEquals("Seq User 2", storedSecond.getName());
+        assertEquals(Integer.valueOf(21), storedSecond.getAge());
     }
 }

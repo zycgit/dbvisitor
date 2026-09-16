@@ -22,6 +22,7 @@ public class CustomResultSetExtractor implements ResultSetExtractor<List<UserInf
 
     @Override
     public List<UserInfo> extractData(ResultSet rs) throws SQLException {
+        ResultHandlerProbe.record(rs);
         List<UserInfo> result = new ArrayList<>();
 
         while (rs.next()) {

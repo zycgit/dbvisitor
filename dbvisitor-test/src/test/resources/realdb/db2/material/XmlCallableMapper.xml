@@ -19,6 +19,20 @@
                               #{p_length, mode=INOUT, jdbcType=INTEGER})
     </execute>
 
+    <execute id="callMultiInoutFiltered" statementType="CALLABLE" bindOut="p_concat">
+        CALL proc_multi_inout(#{p_prefix},
+                              #{p_suffix},
+                              #{p_concat, mode=INOUT, jdbcType=VARCHAR},
+                              #{p_length, mode=INOUT, jdbcType=INTEGER})
+    </execute>
+
+    <execute id="callMultiInoutNoBind" statementType="CALLABLE">
+        CALL proc_multi_inout(#{p_prefix},
+                              #{p_suffix},
+                              #{p_concat, mode=INOUT, jdbcType=VARCHAR},
+                              #{p_length, mode=INOUT, jdbcType=INTEGER})
+    </execute>
+
     <execute id="callUserCount" statementType="CALLABLE" bindOut="p_count">
         CALL proc_user_count(#{p_count, mode=INOUT, jdbcType=INTEGER})
     </execute>

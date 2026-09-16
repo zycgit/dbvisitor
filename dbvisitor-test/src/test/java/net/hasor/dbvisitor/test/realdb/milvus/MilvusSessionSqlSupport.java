@@ -22,10 +22,10 @@ import org.junit.Before;
 
 /** Isolated collection and mapper configuration shared by Milvus Session contracts. */
 public abstract class MilvusSessionSqlSupport extends AdapterCase {
-    protected static final String NAMESPACE = UserInfoMilvus3Mapper.class.getName();
-    protected final MilvusDatabaseFixture database = new MilvusDatabaseFixture();
-    protected Connection connection;
-    protected Session session;
+    protected static final String                NAMESPACE = UserInfoMilvus3Mapper.class.getName();
+    protected final        MilvusDatabaseFixture database  = new MilvusDatabaseFixture();
+    protected              Connection            connection;
+    protected              Session               session;
 
     @Override
     protected DataSourceProfile profile() {

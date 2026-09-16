@@ -50,7 +50,6 @@ public class Elastic7JdbcMapQueryTest extends JdbcMapQueryCase {
         return this.fixture.countRange(lower, upper);
     }
 
-
     @After
     public void cleanupFixture() throws SQLException {
         this.fixture.close();

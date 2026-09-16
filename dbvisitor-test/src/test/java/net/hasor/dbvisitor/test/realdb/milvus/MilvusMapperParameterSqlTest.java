@@ -27,9 +27,9 @@ import static org.junit.Assert.*;
 
 /** Checks special values and exact collection-query identities through the shared Mapper. */
 public class MilvusMapperParameterSqlTest extends AdapterCase {
-    private final MilvusUserInfoFixture fixture = new MilvusUserInfoFixture();
-    private Session session;
-    private ParameterBindingMapper mapper;
+    private final MilvusUserInfoFixture  fixture = new MilvusUserInfoFixture();
+    private       Session                session;
+    private       ParameterBindingMapper mapper;
 
     @Override
     protected DataSourceProfile profile() {

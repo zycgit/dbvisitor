@@ -11,11 +11,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.UUID;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Collections;
-import java.util.Arrays;
+import java.util.*;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -114,8 +110,7 @@ public class MilvusPrivilegeSqlTest extends AdapterCase {
             while (result.next()) {
                 if (group.equals(result.getString("PRIVILEGE_GROUP"))) {
                     Set<String> privileges = new HashSet<>();
-                    JsonParser.parseString(result.getString("PRIVILEGES")).getAsJsonArray()
-                            .forEach(value -> privileges.add(value.getAsString()));
+                    JsonParser.parseString(result.getString("PRIVILEGES")).getAsJsonArray().forEach(value -> privileges.add(value.getAsString()));
                     return privileges;
                 }
             }

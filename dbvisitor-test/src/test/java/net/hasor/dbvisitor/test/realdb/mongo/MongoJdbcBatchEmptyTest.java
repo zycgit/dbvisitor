@@ -7,14 +7,13 @@
  */
 package net.hasor.dbvisitor.test.realdb.mongo;
 
+import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcBatchEmptyCase;
-import net.hasor.dbvisitor.test.realdb.mongo.material.MongoEntityFixture;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
-import org.junit.Before;
+import net.hasor.dbvisitor.test.realdb.mongo.material.MongoEntityFixture;
 import org.junit.After;
-
-import java.sql.SQLException;
+import org.junit.Before;
 
 public class MongoJdbcBatchEmptyTest extends JdbcBatchEmptyCase {
 

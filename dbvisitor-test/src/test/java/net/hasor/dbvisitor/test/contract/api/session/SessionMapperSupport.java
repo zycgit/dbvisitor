@@ -9,12 +9,11 @@ package net.hasor.dbvisitor.test.contract.api.session;
 
 import java.math.BigDecimal;
 import java.util.Date;
-
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
-import net.hasor.dbvisitor.test.contract.material.dao.SessionUserMapper;
-import net.hasor.dbvisitor.test.contract.material.dao.SessionRefUserMapper;
 import net.hasor.dbvisitor.test.contract.material.dao.SessionRefCrudMapper;
+import net.hasor.dbvisitor.test.contract.material.dao.SessionRefUserMapper;
+import net.hasor.dbvisitor.test.contract.material.dao.SessionUserMapper;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.contract.material.model.UserOrder;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;

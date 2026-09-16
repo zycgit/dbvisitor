@@ -9,23 +9,14 @@ package net.hasor.dbvisitor.test.contract.feature.naming;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.Arrays;
-
+import java.util.Date;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
+import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.mapping.Options;
-import net.hasor.dbvisitor.test.contract.material.model.naming.AllNamingOptionsUser;
-import net.hasor.dbvisitor.test.contract.material.model.naming.CamelCaseEnabledUser;
-import net.hasor.dbvisitor.test.contract.material.model.naming.CaseTestUpperCI;
-import net.hasor.dbvisitor.test.contract.material.model.naming.KeywordColumnEntity;
-import net.hasor.dbvisitor.test.contract.material.model.naming.KeywordColumnNoDelimitedEntity;
-import net.hasor.dbvisitor.test.contract.material.model.naming.KeywordTableEntity;
-import net.hasor.dbvisitor.test.contract.material.model.naming.KeywordTableNoDelimitedEntity;
-import net.hasor.dbvisitor.test.contract.material.model.naming.UpperCaseColumnStrictUser;
-import net.hasor.dbvisitor.test.contract.material.model.naming.UpperCaseColumnUser;
+import net.hasor.dbvisitor.test.contract.material.model.naming.*;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 
 public abstract class NamingMappingSupport extends AbstractNxnContractTest {

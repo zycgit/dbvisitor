@@ -26,10 +26,10 @@ import org.junit.Before;
 
 /** Reuses Session assertions unchanged; native BM25 supplies the required vector field. */
 public class MilvusSessionFactoryTest extends SessionFactoryCase {
-    private final String database = "dbv_session_" + UUID.randomUUID().toString().replace("-", "");
-    private HikariDataSource sessionSource;
-    private Connection admin;
-    private boolean databaseCreated;
+    private final String           database = "dbv_session_" + UUID.randomUUID().toString().replace("-", "");
+    private       HikariDataSource sessionSource;
+    private       Connection       admin;
+    private       boolean          databaseCreated;
 
     @Override
     protected DataSourceProfile profile() {

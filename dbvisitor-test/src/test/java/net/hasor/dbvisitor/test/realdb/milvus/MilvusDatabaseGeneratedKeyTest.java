@@ -9,9 +9,9 @@ package net.hasor.dbvisitor.test.realdb.milvus;
 
 import java.sql.SQLException;
 import java.util.Date;
-import net.hasor.dbvisitor.test.contract.feature.keygen.NumericKeyModel;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.test.contract.feature.keygen.DatabaseGeneratedKeyCase;
+import net.hasor.dbvisitor.test.contract.feature.keygen.NumericKeyModel;
 import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyAutoLongUser;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
@@ -57,6 +57,11 @@ public class MilvusDatabaseGeneratedKeyTest extends DatabaseGeneratedKeyCase {
     @Override
     protected long readAutoKey(long id) throws SQLException {
         return this.jdbcTemplate.queryForObject("SELECT id FROM user_keygen_auto_long WHERE id = ?", new Object[] { id }, Long.class);
+    }
+
+    @Override
+    protected String readAutoKeyName(long id) throws SQLException {
+        return this.jdbcTemplate.queryForString("SELECT name FROM user_keygen_auto_long WHERE id = ?", new Object[] { id });
     }
 
     private KeyAutoLongUser nativeUser(String name, int age) {

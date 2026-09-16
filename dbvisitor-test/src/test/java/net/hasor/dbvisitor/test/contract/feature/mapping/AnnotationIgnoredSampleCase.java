@@ -9,21 +9,19 @@ package net.hasor.dbvisitor.test.contract.feature.mapping;
 
 import java.sql.SQLException;
 import java.util.Date;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.annotation.IgnoredEmailUser;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @NxnContract
 public abstract class AnnotationIgnoredSampleCase extends AnnotationMappingPolicySupport {
+    // 能力归属：对象映射 / 映射表 / 忽略字段。
     @Test
-    @Capability(CapabilityId.MAPPING_ANNOTATION_IGNORE_SAMPLE)
+    @Capability(value = CapabilityId.MAPPING_ANNOTATION_IGNORE_SAMPLE, column = "mapping-keys/table-mapping/fields")
     public void annotationMapping_shouldExcludeIgnoredFieldFromSampleConditions() throws SQLException {
         IgnoredEmailUser user = new IgnoredEmailUser();
         user.setId(baseId() + 31);

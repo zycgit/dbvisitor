@@ -8,18 +8,15 @@
 package net.hasor.dbvisitor.test.contract.api.jdbc;
 
 import java.sql.SQLException;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.LinkedHashMap;
-import java.util.Collections;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -44,16 +41,16 @@ public abstract class JdbcBeanQueryCase extends JdbcQuerySupport {
     }
 
     protected Map<String, Object> expectedBeanValues(int offset) {
-        return Map.of("id", baseId() + offset, "name", "NXN-JDBC-Query-" + offset,
-                "age", 60 + offset, "email", "nxn-jdbc-query-" + offset + "@test.com");
+        return Map.of("id", baseId() + offset, "name", "NXN-JDBC-Query-" + offset, "age", 60 + offset, "email", "nxn-jdbc-query-" + offset + "@test.com");
     }
 
     protected List<?> requiredBeanValues(Object bean) {
         return Collections.singletonList(((UserInfo) bean).getCreateTime());
     }
 
+    // 能力归属：编程式 API / 查询。
     @Test
-    @Capability(CapabilityId.JDBC_QUERY_BEAN)
+    @Capability(value = CapabilityId.JDBC_QUERY_BEAN, column = "jdbc/queries/queries")
     public void jdbcQueryForList_shouldReturnBeans() throws SQLException {
         seedUsers();
 

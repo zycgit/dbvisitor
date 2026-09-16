@@ -7,9 +7,9 @@
  */
 package net.hasor.dbvisitor.test.realdb.elastic6;
 
-import net.hasor.dbvisitor.test.realdb.elastic7.Elastic7StandardSchemaTest;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic6Profile;
+import net.hasor.dbvisitor.test.realdb.elastic7.Elastic7StandardSchemaTest;
 
 public class Elastic6StandardSchemaTest extends Elastic7StandardSchemaTest {
     @Override

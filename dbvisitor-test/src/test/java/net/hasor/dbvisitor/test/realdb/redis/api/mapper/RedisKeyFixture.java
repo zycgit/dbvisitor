@@ -13,10 +13,10 @@ import java.util.Map;
 import net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisNativeMapperSupport.Generated;
 
 public final class RedisKeyFixture implements AutoCloseable {
-    private final RedisMapperFixture fixture = new RedisMapperFixture();
-    private final Map<Object, Generated> records = new HashMap<>();
-    private final Map<Object, Boolean> listStorage = new HashMap<>();
-    private RedisKeyMapper mapper;
+    private final RedisMapperFixture     fixture     = new RedisMapperFixture();
+    private final Map<Object, Generated> records     = new HashMap<>();
+    private final Map<Object, Boolean>   listStorage = new HashMap<>();
+    private       RedisKeyMapper         mapper;
 
     public void open() throws Exception {
         fixture.open();

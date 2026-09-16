@@ -42,8 +42,7 @@ public class Elastic7LambdaLogicalConditionTest extends LambdaLogicalConditionCa
 
     @Override
     protected String rawAgePredicate(String operator, String value) {
-        return "eq".equals(operator) ? "{\"term\": {\"age\": " + value + "}}"
-                : "{\"range\": {\"age\": {\"" + ("le".equals(operator) ? "lte" : operator) + "\": " + value + "}}}";
+        return "eq".equals(operator) ? "{\"term\": {\"age\": " + value + "}}" : "{\"range\": {\"age\": {\"" + ("le".equals(operator) ? "lte" : operator) + "\": " + value + "}}}";
     }
 
     @Override

@@ -7,15 +7,15 @@
  */
 package net.hasor.dbvisitor.test.realdb.clickhouse.feature.type;
 
-import net.hasor.dbvisitor.test.contract.feature.type.BinaryTypeJdbcCase;
-import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
-import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.test.contract.feature.type.BinaryTypeJdbcCase;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
+import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import org.junit.After;
 
 public class ClickHouseBinaryTypeJdbcTest extends BinaryTypeJdbcCase {

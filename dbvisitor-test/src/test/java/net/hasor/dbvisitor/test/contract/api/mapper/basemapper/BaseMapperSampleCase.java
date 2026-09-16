@@ -10,22 +10,18 @@ package net.hasor.dbvisitor.test.contract.api.mapper.basemapper;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class BaseMapperSampleCase extends BaseMapperCrudSupport {
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_PARAMETER_SAMPLE)
+    @Capability(value = CapabilityId.BASEMAPPER_PARAMETER_SAMPLE, column = "mapper/base-mapper/operations")
     public void baseMapperSampleParameters_shouldMatchMultiplePropertiesAndIgnoreNulls() {
         this.mapper.insert(user(baseId() + 331, "BaseParamSample", 25, "sample1@basemapper.com"));
         this.mapper.insert(user(baseId() + 332, "BaseParamSample", 25, null));
@@ -44,8 +40,9 @@ public abstract class BaseMapperSampleCase extends BaseMapperCrudSupport {
         assertEquals(2, this.mapper.countBySample(sample));
     }
 
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_PARAMETER_MAP)
+    @Capability(value = CapabilityId.BASEMAPPER_PARAMETER_MAP, column = "mapper/base-mapper/operations")
     public void baseMapperMapParameters_shouldCountAndDeleteByNamedValues() {
         this.mapper.insert(user(baseId() + 341, "BaseParamMap", 25, null));
         this.mapper.insert(user(baseId() + 342, "BaseParamMap", 25, null));
@@ -62,8 +59,9 @@ public abstract class BaseMapperSampleCase extends BaseMapperCrudSupport {
         assertNotNull(this.mapper.selectById(baseId() + 342));
     }
 
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_LIST_BY_SAMPLE)
+    @Capability(value = CapabilityId.BASEMAPPER_LIST_BY_SAMPLE, column = "mapper/base-mapper/operations")
     public void baseMapperListBySample_shouldFilterByNonNullFields() {
         this.mapper.insert(user(baseId() + 41, "BaseSample1", 51, null));
         this.mapper.insert(user(baseId() + 42, "BaseSample2", 52, null));
@@ -80,8 +78,9 @@ public abstract class BaseMapperSampleCase extends BaseMapperCrudSupport {
         }
     }
 
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_COUNT_BY_SAMPLE)
+    @Capability(value = CapabilityId.BASEMAPPER_COUNT_BY_SAMPLE, column = "mapper/base-mapper/operations")
     public void baseMapperCountBySample_shouldCountMatchingRows() {
         this.mapper.insert(user(baseId() + 51, "BaseCount1", 61, null));
         this.mapper.insert(user(baseId() + 52, "BaseCount2", 62, null));

@@ -8,23 +8,18 @@
 package net.hasor.dbvisitor.test.contract.api.adapter;
 
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import java.util.*;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.lambda.MapQuery;
 import net.hasor.dbvisitor.page.Page;
 import net.hasor.dbvisitor.page.PageObject;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /** The same page API boundaries with datasource-native ordering and Map row fixtures. */
 public abstract class NativeLambdaPaginationSupport extends AdapterCase {
     protected LambdaTemplate lambda;
-    protected String collection;
+    protected String         collection;
 
     protected abstract MapQuery order(MapQuery query);
 

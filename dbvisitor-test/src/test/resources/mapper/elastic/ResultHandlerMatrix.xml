@@ -21,10 +21,14 @@
         @{macro, esXmlPath}/_search {"_source": ["name"],"size": 100,"sort": [{"id": "asc"}]}
     </select>
     <select id="selectByResultMap" resultMap="userResultMap"><include refid="query"/></select>
-    <select id="selectByColumnMapRowMapper" resultRowMapper="net.hasor.dbvisitor.jdbc.mapper.ColumnMapRowMapper">
+    <select id="selectByColumnMapRowMapper" resultRowMapper="net.hasor.dbvisitor.test.contract.material.handler.ResultHandlerProbe$ColumnMapMapper">
         <include refid="query"/>
     </select>
-    <select id="selectByColumnMapExtractor" resultSetExtractor="net.hasor.dbvisitor.jdbc.extractor.ColumnMapResultSetExtractor">
+
+    <select id="selectByRowCallback" resultRowCallback="net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperResultHandlerCase$CountingCallback">
+        <include refid="query"/>
+    </select>
+    <select id="selectByColumnMapExtractor" resultSetExtractor="net.hasor.dbvisitor.test.contract.material.handler.ResultHandlerProbe$ColumnMapExtractor">
         <include refid="query"/>
     </select>
     <select id="selectIdNamePairs" resultSetExtractor="net.hasor.dbvisitor.jdbc.extractor.PairsResultSetExtractor">

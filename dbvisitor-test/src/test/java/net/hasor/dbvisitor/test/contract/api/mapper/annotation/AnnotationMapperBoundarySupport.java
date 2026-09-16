@@ -7,13 +7,11 @@
  */
 package net.hasor.dbvisitor.test.contract.api.mapper.annotation;
 
-import org.junit.Before;
-
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.material.dao.declarative.AnnotationTestMapper;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
-
+import org.junit.Before;
 import static org.junit.Assert.assertNotNull;
 
 public abstract class AnnotationMapperBoundarySupport extends AbstractNxnContractTest {

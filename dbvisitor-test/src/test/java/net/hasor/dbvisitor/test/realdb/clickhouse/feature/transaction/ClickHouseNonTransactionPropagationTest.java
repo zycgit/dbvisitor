@@ -8,8 +8,8 @@
 package net.hasor.dbvisitor.test.realdb.clickhouse.feature.transaction;
 
 import net.hasor.dbvisitor.test.contract.feature.transaction.NonTransactionPropagationCase;
-import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 
 public class ClickHouseNonTransactionPropagationTest extends NonTransactionPropagationCase {
     @Override

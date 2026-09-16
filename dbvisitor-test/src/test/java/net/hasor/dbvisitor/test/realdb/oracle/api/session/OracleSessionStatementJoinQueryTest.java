@@ -7,9 +7,9 @@
  */
 package net.hasor.dbvisitor.test.realdb.oracle.api.session;
 
-import net.hasor.dbvisitor.test.contract.api.session.SessionStatementJoinQueryCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.OracleProfile;
+import net.hasor.dbvisitor.test.scenario.query.session.SessionStatementJoinQueryCase;
 
 public class OracleSessionStatementJoinQueryTest extends SessionStatementJoinQueryCase {
     @Override

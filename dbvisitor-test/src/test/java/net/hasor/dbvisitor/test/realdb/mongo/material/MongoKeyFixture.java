@@ -13,7 +13,7 @@ import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 
 public final class MongoKeyFixture implements AutoCloseable {
-    private final MongoMapperFixture target = new MongoMapperFixture();
+    private final MongoMapperFixture target   = new MongoMapperFixture();
     private final MongoMapperFixture reserved = new MongoMapperFixture();
 
     public JdbcTemplate open() throws SQLException {

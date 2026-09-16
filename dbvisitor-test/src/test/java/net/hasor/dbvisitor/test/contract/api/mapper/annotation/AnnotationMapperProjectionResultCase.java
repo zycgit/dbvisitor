@@ -10,21 +10,17 @@ package net.hasor.dbvisitor.test.contract.api.mapper.annotation;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class AnnotationMapperProjectionResultCase extends AnnotationMapperResultMappingSupport {
+    // 能力归属：Mapper API / 方法注解。
     @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_RESULT_DISTINCT_LIST)
+    @Capability(value = CapabilityId.MAPPER_ANNOTATION_RESULT_DISTINCT_LIST, column = "mapper/method-annotations/execution")
     public void queryResult_shouldMapDistinctScalarProjection() throws Exception {
         List<Integer> distinctAges = distinctValues();
         assertEquals(distinctAges.size(), new HashSet<Integer>(distinctAges).size());
@@ -37,10 +33,13 @@ public abstract class AnnotationMapperProjectionResultCase extends AnnotationMap
         return this.mapper.selectDistinctAges(PATTERN);
     }
 
-    protected List<Integer> expectedDistinctValues() { return null; }
+    protected List<Integer> expectedDistinctValues() {
+        return null;
+    }
 
+    // 能力归属：Mapper API / 方法注解。
     @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_RESULT_AGGREGATE)
+    @Capability(value = CapabilityId.MAPPER_ANNOTATION_RESULT_AGGREGATE, column = "mapper/method-annotations/execution")
     public void queryResult_shouldMapAggregateScalarsAndMaps() throws Exception {
         prepareAggregateRows();
         Number scalar = aggregateScalar();
@@ -89,14 +88,42 @@ public abstract class AnnotationMapperProjectionResultCase extends AnnotationMap
         }
     }
 
-    protected void prepareAggregateRows() throws Exception { }
-    protected Number aggregateScalar() throws Exception { return this.mapper.selectMaxAge(); }
-    protected double minimumAggregateScalar() { return 30; }
-    protected Number expectedAggregateScalar() { return null; }
-    protected Map<String, Object> aggregateMap() throws Exception { return this.mapper.selectAgeStats(PATTERN); }
-    protected List<String> aggregateMapColumns() { return List.of("minAge", "maxAge", "avgAge"); }
-    protected Map<String, Object> expectedAggregateMap() { return Map.of(); }
-    protected List<List<Map<String, Object>>> aggregateGroups() throws Exception { return List.of(this.mapper.selectCountByAge(PATTERN)); }
-    protected List<String> aggregateGroupColumns() { return List.of("age", "cnt"); }
-    protected List<List<Map<String, Object>>> expectedAggregateGroups() { return null; }
+    protected void prepareAggregateRows() throws Exception {
+    }
+
+    protected Number aggregateScalar() throws Exception {
+        return this.mapper.selectMaxAge();
+    }
+
+    protected double minimumAggregateScalar() {
+        return 30;
+    }
+
+    protected Number expectedAggregateScalar() {
+        return null;
+    }
+
+    protected Map<String, Object> aggregateMap() throws Exception {
+        return this.mapper.selectAgeStats(PATTERN);
+    }
+
+    protected List<String> aggregateMapColumns() {
+        return List.of("minAge", "maxAge", "avgAge");
+    }
+
+    protected Map<String, Object> expectedAggregateMap() {
+        return Map.of();
+    }
+
+    protected List<List<Map<String, Object>>> aggregateGroups() throws Exception {
+        return List.of(this.mapper.selectCountByAge(PATTERN));
+    }
+
+    protected List<String> aggregateGroupColumns() {
+        return List.of("age", "cnt");
+    }
+
+    protected List<List<Map<String, Object>>> expectedAggregateGroups() {
+        return null;
+    }
 }

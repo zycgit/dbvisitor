@@ -8,25 +8,17 @@
 package net.hasor.dbvisitor.test.contract.api.mapper.xml;
 
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Date;
-import java.util.LinkedHashMap;
-
-import org.junit.Before;
-import org.junit.Test;
-
+import java.util.*;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
+import net.hasor.dbvisitor.test.contract.material.handler.ResultHandlerProbe;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class XmlMapperResultHandlerCase extends AbstractNxnContractTest {
@@ -67,8 +59,9 @@ public abstract class XmlMapperResultHandlerCase extends AbstractNxnContractTest
         return 1700000000000L;
     }
 
+    // 能力归属：Mapper 文件 / 映射结果集。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_RESULT_HANDLER_RESULT_TYPE)
+    @Capability(value = CapabilityId.MAPPER_XML_RESULT_HANDLER_RESULT_TYPE, column = "mapper-files/dynamic-sql-and-result-mapping/resultmap")
     public void resultHandler_shouldSupportEntityMapAndScalarResultTypes() throws Exception {
         List<?> entities = this.session.queryStatement("xmltest.ResultHandlerMapper.selectByResultType", mapOf("minAge", 20));
         List<Map<String, Object>> maps = this.session.queryStatement("xmltest.ResultHandlerMapper.selectByResultTypeMap", null);
@@ -92,8 +85,9 @@ public abstract class XmlMapperResultHandlerCase extends AbstractNxnContractTest
         assertTrue(this.session.queryStatement("xmltest.ResultHandlerMapper.selectByResultType", mapOf("minAge", 99)).isEmpty());
     }
 
+    // 能力归属：Mapper 文件 / 映射结果集。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_RESULT_HANDLER_RESULT_MAP)
+    @Capability(value = CapabilityId.MAPPER_XML_RESULT_HANDLER_RESULT_MAP, column = "mapper-files/dynamic-sql-and-result-mapping/resultmap")
     public void resultHandler_shouldSupportNamedResultMap() throws Exception {
         List<?> list = this.session.queryStatement("xmltest.ResultHandlerMapper.selectByResultMap", null);
 
@@ -101,26 +95,30 @@ public abstract class XmlMapperResultHandlerCase extends AbstractNxnContractTest
         assertEntities(list);
     }
 
+    // 能力归属：结果接收 / rowmapper / mapper-file。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_RESULT_HANDLER_ROW_MAPPER)
+    @Capability(value = CapabilityId.MAPPER_XML_RESULT_HANDLER_ROW_MAPPER, column = "results/rowmapper/mapping", variants = { "mapper-file" })
     public void resultHandler_shouldSupportCustomRowMapper() throws Exception {
-        List<Map<String, Object>> list = this.session.queryStatement("xmltest.ResultHandlerMapper.selectByColumnMapRowMapper", null);
+        List<Map<String, Object>> list = ResultHandlerProbe.verify(3, () -> this.session.queryStatement("xmltest.ResultHandlerMapper.selectByColumnMapRowMapper", null));
 
         assertEquals(3, list.size());
         assertMaps(list);
-        assertTrue(this.session.queryStatement("xmltest.ResultHandlerMapper.selectByColumnMapRowMapper", mapOf("minAge", 99)).isEmpty());
+        assertTrue(ResultHandlerProbe.verify(0, () -> this.session.queryStatement("xmltest.ResultHandlerMapper.selectByColumnMapRowMapper", mapOf("minAge", 99))).isEmpty());
+        ResultHandlerProbe.verifyFailure(() -> this.session.queryStatement("xmltest.ResultHandlerMapper.selectByColumnMapRowMapper", null));
     }
 
+    // 能力归属：结果接收 / resultsetextractor / mapper-file。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_RESULT_HANDLER_EXTRACTOR)
+    @Capability(value = CapabilityId.MAPPER_XML_RESULT_HANDLER_EXTRACTOR, column = "results/resultsetextractor/extraction", variants = { "mapper-file" })
     @SuppressWarnings("unchecked")
     public void resultHandler_shouldSupportResultSetExtractors() throws Exception {
-        Object columnMapResult = this.session.queryStatement("xmltest.ResultHandlerMapper.selectByColumnMapExtractor", null);
+        Object columnMapResult = ResultHandlerProbe.verify(1, () -> this.session.queryStatement("xmltest.ResultHandlerMapper.selectByColumnMapExtractor", null));
         assertTrue(columnMapResult instanceof List);
         List<Map<String, Object>> rows = (List<Map<String, Object>>) columnMapResult;
         assertEquals(3, rows.size());
         assertMaps(rows);
-        assertTrue(this.session.queryStatement("xmltest.ResultHandlerMapper.selectByColumnMapExtractor", mapOf("minAge", 99)).isEmpty());
+        assertTrue(ResultHandlerProbe.verify(1, () -> this.session.queryStatement("xmltest.ResultHandlerMapper.selectByColumnMapExtractor", mapOf("minAge", 99))).isEmpty());
+        ResultHandlerProbe.verifyFailure(() -> this.session.queryStatement("xmltest.ResultHandlerMapper.selectByColumnMapExtractor", null));
 
         List<Object> pairsWrappedAsList = this.session.queryStatement("xmltest.ResultHandlerMapper.selectIdNamePairs", null);
         assertEquals(1, pairsWrappedAsList.size());
@@ -129,6 +127,35 @@ public abstract class XmlMapperResultHandlerCase extends AbstractNxnContractTest
         assertEquals(3, pairs.size());
         for (Map.Entry<Object, Object> entry : expectedPairs().entrySet()) {
             assertEquals(entry.getValue(), pairValue(pairs, entry.getKey()));
+        }
+    }
+
+    // 能力归属：结果接收 / RowCallbackHandler / Mapper 文件。
+    @Test
+    @Capability(value = CapabilityId.MAPPER_XML_RESULT_HANDLER_CALLBACK, column = "results/rowcallbackhandler/callback", variants = { "mapper-file" })
+    public void resultHandler_shouldInvokeRowCallback() throws Exception {
+        try {
+            CountingCallback.COUNT.set(0);
+            assertTrue(ResultHandlerProbe.verify(3, () -> this.session.queryStatement("xmltest.ResultHandlerMapper.selectByRowCallback", null)).isEmpty());
+            assertEquals(3, CountingCallback.COUNT.get().intValue());
+            CountingCallback.COUNT.set(0);
+            assertTrue(ResultHandlerProbe.verify(0, () -> this.session.queryStatement("xmltest.ResultHandlerMapper.selectByRowCallback", mapOf("minAge", 99))).isEmpty());
+            assertEquals(0, CountingCallback.COUNT.get().intValue());
+            ResultHandlerProbe.verifyFailure(() -> this.session.queryStatement("xmltest.ResultHandlerMapper.selectByRowCallback", null));
+        } finally {
+            CountingCallback.COUNT.remove();
+        }
+    }
+
+    public static class CountingCallback implements net.hasor.dbvisitor.jdbc.RowCallbackHandler {
+        private static final ThreadLocal<Integer> COUNT = ThreadLocal.withInitial(() -> 0);
+
+        @Override
+        public void processRow(java.sql.ResultSet rs, int rowNum) throws SQLException {
+            ResultHandlerProbe.record(rs);
+            assertEquals(COUNT.get().intValue(), rowNum);
+            assertNotNull(rs.getObject(1));
+            COUNT.set(COUNT.get() + 1);
         }
     }
 
@@ -158,8 +185,7 @@ public abstract class XmlMapperResultHandlerCase extends AbstractNxnContractTest
     }
 
     protected Map<String, Object> expectedEntity(int offset) {
-        return Map.of("id", baseId() + offset, "name", "ResHdl" + offset, "age", 20 + offset * 5,
-                "email", "hdl" + offset + "@nxn.test", "createTime", new Date(timestamp()));
+        return Map.of("id", baseId() + offset, "name", "ResHdl" + offset, "age", 20 + offset * 5, "email", "hdl" + offset + "@nxn.test", "createTime", new Date(timestamp()));
     }
 
     protected Map<String, Object> expectedMap(int offset) {

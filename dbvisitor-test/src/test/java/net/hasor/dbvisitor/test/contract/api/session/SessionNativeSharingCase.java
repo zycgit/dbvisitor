@@ -11,16 +11,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.material.dao.SessionRefUserMapper;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
@@ -49,8 +46,7 @@ public abstract class SessionNativeSharingCase extends SessionMapperSupport {
     }
 
     protected int xmlPut(Session session, int id, String value) throws Exception {
-        return ((Number) session.executeStatement(xmlNamespace() + ".insertUser",
-                user(id, "NativeShared", 30, value))).intValue();
+        return ((Number) session.executeStatement(xmlNamespace() + ".insertUser", user(id, "NativeShared", 30, value))).intValue();
     }
 
     protected List<String> xmlGet(Session session, int id) throws Exception {
@@ -71,8 +67,9 @@ public abstract class SessionNativeSharingCase extends SessionMapperSupport {
         return session.jdbc().queryForString("SELECT email FROM user_info WHERE id = ?", id);
     }
 
+    // 能力归属：Mapper API / Session 管理。
     @Test
-    @Capability(CapabilityId.SESSION_MAPPER_ANNOTATION_XML_SHARING)
+    @Capability(value = CapabilityId.SESSION_MAPPER_ANNOTATION_XML_SHARING, column = "mapper/session/management")
     public void session_shouldShareAnnotationWritesWithXmlStatements() throws Exception {
         Session session = createSession();
         prepareSharing(session);
@@ -85,8 +82,9 @@ public abstract class SessionNativeSharingCase extends SessionMapperSupport {
         assertNull(annotationGet(session, id));
     }
 
+    // 能力归属：Mapper API / Session 管理。
     @Test
-    @Capability(CapabilityId.SESSION_MAPPER_JDBC_SHARING)
+    @Capability(value = CapabilityId.SESSION_MAPPER_JDBC_SHARING, column = "mapper/session/management")
     public void session_shouldShareXmlWritesWithJdbcAndMapperInterfaces() throws Exception {
         Session session = createSession();
         prepareSharing(session);

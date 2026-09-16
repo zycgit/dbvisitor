@@ -66,8 +66,7 @@ public class MilvusVectorSqlTest extends MilvusSqlContractSupport {
     @Capability(CapabilityId.ADAPTER_MILVUS_SQL_INT8_VECTOR)
     public void int8Vector_shouldPreserveSignedBytesThroughSearchAndMutations() throws SQLException {
         createCollection("id INT64 PRIMARY KEY, v INT8_VECTOR(2)");
-        this.jdbcTemplate.execute("CREATE INDEX idx_v ON " + this.collection
-                + "(v) USING HNSW WITH (metric_type=L2, M=8, efConstruction=200)");
+        this.jdbcTemplate.execute("CREATE INDEX idx_v ON " + this.collection + "(v) USING HNSW WITH (metric_type=L2, M=8, efConstruction=200)");
         loadCollection();
         byte[] target = { -128, 127 };
         insertVector(1, target);
@@ -84,8 +83,7 @@ public class MilvusVectorSqlTest extends MilvusSqlContractSupport {
                 assertFalse(result.next());
             }
         }
-        String hybridSql = "SELECT id, v FROM " + this.collection
-                + " ORDER BY HYBRID (v <-> ? LIMIT 2, v <-> ? LIMIT 2) LIMIT 1 WITH (reranker='rrf', k=60)";
+        String hybridSql = "SELECT id, v FROM " + this.collection + " ORDER BY HYBRID (v <-> ? LIMIT 2, v <-> ? LIMIT 2) LIMIT 1 WITH (reranker='rrf', k=60)";
         try (PreparedStatement hybrid = this.connection.prepareStatement(hybridSql)) {
             hybrid.setBytes(1, target);
             hybrid.setObject(2, new int[] { -127, 126 });

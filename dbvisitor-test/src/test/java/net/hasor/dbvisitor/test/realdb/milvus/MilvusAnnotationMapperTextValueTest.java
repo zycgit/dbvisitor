@@ -19,7 +19,7 @@ import org.junit.Before;
 
 public class MilvusAnnotationMapperTextValueTest extends AnnotationMapperTextValueCase {
     private final MilvusUserInfoFixture fixture = new MilvusUserInfoFixture();
-    private Session session;
+    private       Session               session;
 
     @Override
     protected DataSourceProfile profile() {

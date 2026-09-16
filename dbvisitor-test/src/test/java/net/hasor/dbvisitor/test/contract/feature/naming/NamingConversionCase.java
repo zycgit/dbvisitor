@@ -9,31 +9,21 @@ package net.hasor.dbvisitor.test.contract.feature.naming;
 
 import java.sql.SQLException;
 import java.util.Date;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.mapping.Options;
-import net.hasor.dbvisitor.test.contract.material.model.naming.CamelCaseColumnOverrideUser;
-import net.hasor.dbvisitor.test.contract.material.model.naming.CamelCaseDisabledUser;
-import net.hasor.dbvisitor.test.contract.material.model.naming.CamelCaseEnabledUser;
-import net.hasor.dbvisitor.test.contract.material.model.naming.PlainUser;
-import net.hasor.dbvisitor.test.contract.material.model.naming.UpperCaseColumnStrictUser;
-import net.hasor.dbvisitor.test.contract.material.model.naming.UpperCaseColumnUser;
+import net.hasor.dbvisitor.test.contract.material.model.naming.*;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class NamingConversionCase extends NamingMappingSupport {
+    // 能力归属：对象映射 / 命名与名称敏感性 / 命名转换。
     @Test
-    @Capability(CapabilityId.NAMING_CAMELCASE_ENTITY)
+    @Capability(value = CapabilityId.NAMING_CAMELCASE_ENTITY, column = "mapping-keys/naming-and-case-sensitivity/name-conversion")
     public void camelCaseEntity_shouldMapCreateTimeToCreateTimeColumn() throws SQLException {
         int id = baseId() + 1;
         CamelCaseEnabledUser user = new CamelCaseEnabledUser();
@@ -54,8 +44,9 @@ public abstract class NamingConversionCase extends NamingMappingSupport {
         assertNotNull(loaded.getCreateTime());
     }
 
+    // 能力归属：对象映射 / 命名与名称敏感性 / 命名转换。
     @Test
-    @Capability(CapabilityId.NAMING_CAMELCASE_DISABLED)
+    @Capability(value = CapabilityId.NAMING_CAMELCASE_DISABLED, column = "mapping-keys/naming-and-case-sensitivity/name-conversion")
     public void camelCaseDisabled_shouldNotMapCreateTimeColumnWithoutFallbackOptions() throws SQLException {
         int id = baseId() + 11;
         jdbcTemplate.executeUpdate(insertCommand("user_info", "id, name, age, email, create_time"), //
@@ -73,8 +64,9 @@ public abstract class NamingConversionCase extends NamingMappingSupport {
         assertEquals(enabled.getName(), disabled.getName());
     }
 
+    // 能力归属：对象映射 / 命名与名称敏感性 / 命名转换。
     @Test
-    @Capability(CapabilityId.NAMING_CAMELCASE_OPTIONS)
+    @Capability(value = CapabilityId.NAMING_CAMELCASE_OPTIONS, column = "mapping-keys/naming-and-case-sensitivity/name-conversion")
     public void camelCaseOptions_shouldApplyToPlainEntityAndAnnotationDefaults() throws SQLException {
         ensurePlainUserTable();
         int plainId = baseId() + 12;
@@ -103,16 +95,21 @@ public abstract class NamingConversionCase extends NamingMappingSupport {
         assertNotNull(explicit.getCreateTime());
     }
 
+    // 能力归属：对象映射 / 命名与名称敏感性 / 命名转换。
     @Test
-    @Capability(CapabilityId.NAMING_CAMELCASE_UPDATE)
+    @Capability(value = CapabilityId.NAMING_CAMELCASE_UPDATE, column = "mapping-keys/naming-and-case-sensitivity/name-conversion")
     public void camelCaseUpdate_shouldUseMappedCreateTimeColumn() throws SQLException {
         int id = baseId() + 14;
         CamelCaseEnabledUser user = camelCaseUser(id, "NXN-CamelUpdate", 22);
         lambdaTemplate.insert(CamelCaseEnabledUser.class).applyEntity(user).executeSumResult();
+        CamelCaseEnabledUser before = lambdaTemplate.query(CamelCaseEnabledUser.class)//
+                .eq(CamelCaseEnabledUser::getId, id)//
+                .queryForObject();
+        assertNotNull(before.getCreateTime());
 
         int rows = lambdaTemplate.update(CamelCaseEnabledUser.class)//
                 .eq(CamelCaseEnabledUser::getId, id)//
-                .updateTo(CamelCaseEnabledUser::getCreateTime, new Date(System.currentTimeMillis() + 1000))//
+                .updateTo(CamelCaseEnabledUser::getCreateTime, new Date(user.getCreateTime().getTime() + 86400000L))//
                 .doUpdate();
         CamelCaseEnabledUser loaded = lambdaTemplate.query(CamelCaseEnabledUser.class)//
                 .eq(CamelCaseEnabledUser::getId, id)//
@@ -120,10 +117,14 @@ public abstract class NamingConversionCase extends NamingMappingSupport {
 
         assertEquals(1, rows);
         assertNotNull(loaded.getCreateTime());
+        assertTrue("The mapped create_time value must actually change", loaded.getCreateTime().after(before.getCreateTime()));
+        assertEquals(before.getName(), loaded.getName());
+        assertEquals(before.getEmail(), loaded.getEmail());
     }
 
+    // 能力归属：对象映射 / 命名与名称敏感性 / 命名转换。
     @Test
-    @Capability(CapabilityId.NAMING_CAMELCASE_DELETE)
+    @Capability(value = CapabilityId.NAMING_CAMELCASE_DELETE, column = "mapping-keys/naming-and-case-sensitivity/name-conversion")
     public void camelCaseDelete_shouldUseMappedCreateTimeCondition() throws SQLException {
         int id = baseId() + 15;
         CamelCaseEnabledUser user = camelCaseUser(id, "NXN-CamelDelete", 29);
@@ -141,8 +142,9 @@ public abstract class NamingConversionCase extends NamingMappingSupport {
         assertEquals(0, count);
     }
 
+    // 能力归属：对象映射 / 命名与名称敏感性 / 命名转换。
     @Test
-    @Capability(CapabilityId.NAMING_COLUMN_OVERRIDE)
+    @Capability(value = CapabilityId.NAMING_COLUMN_OVERRIDE, column = "mapping-keys/naming-and-case-sensitivity/name-conversion")
     public void columnAnnotation_shouldOverrideCamelCaseName() throws SQLException {
         int id = baseId() + 2;
         CamelCaseColumnOverrideUser user = new CamelCaseColumnOverrideUser();
@@ -163,8 +165,9 @@ public abstract class NamingConversionCase extends NamingMappingSupport {
         assertNotNull(loaded.getCreateTime());
     }
 
+    // 能力归属：对象映射 / 命名与名称敏感性 / 命名转换。
     @Test
-    @Capability(CapabilityId.NAMING_LAMBDA_PROPERTY_REF)
+    @Capability(value = CapabilityId.NAMING_LAMBDA_PROPERTY_REF, column = "mapping-keys/naming-and-case-sensitivity/name-conversion")
     public void lambdaPropertyRef_shouldUseMappedColumnNames() throws SQLException {
         int id = baseId() + 3;
         CamelCaseColumnOverrideUser user = new CamelCaseColumnOverrideUser();
@@ -184,8 +187,9 @@ public abstract class NamingConversionCase extends NamingMappingSupport {
         assertEquals(Integer.valueOf(id), loaded.getId());
     }
 
+    // 能力归属：对象映射 / 命名与名称敏感性 / 命名转换。
     @Test
-    @Capability(CapabilityId.NAMING_CASE_INSENSITIVE_SQL)
+    @Capability(value = CapabilityId.NAMING_CASE_INSENSITIVE_SQL, column = "mapping-keys/naming-and-case-sensitivity/name-conversion")
     public void caseInsensitive_shouldNotChangeGeneratedSql() throws SQLException {
         BoundSql ciInsert = lambdaTemplate.insert(UpperCaseColumnUser.class)//
                 .applyEntity(newUpperCaseUser(baseId() + 4, "NXN-CI"))//
@@ -198,8 +202,9 @@ public abstract class NamingConversionCase extends NamingMappingSupport {
         assertTrue(ciInsert.getSqlString().contains("NAME"));
     }
 
+    // 能力归属：对象映射 / 命名与名称敏感性 / 命名转换。
     @Test
-    @Capability(CapabilityId.NAMING_CASE_INSENSITIVE_FREEDOM_SQL)
+    @Capability(value = CapabilityId.NAMING_CASE_INSENSITIVE_FREEDOM_SQL, column = "mapping-keys/naming-and-case-sensitivity/name-conversion")
     public void caseInsensitiveOptions_shouldNotChangeFreedomSqlGeneration() throws SQLException {
         LambdaTemplate ciLambda = optionsLambda(Options.of().caseInsensitive(true));
         LambdaTemplate csLambda = optionsLambda(Options.of().caseInsensitive(false));

@@ -18,8 +18,7 @@ import net.hasor.dbvisitor.types.handler.json.JsonTypeHandler;
 public interface RedisRangeParameterMapper extends RedisParameterBindingMapper {
     @Override
     @Query("@{macro, nxnRangeInsert}")
-    int insertWithParam(@Param("id") Integer id, @Param("name") String name,
-            @Param("age") Integer age, @Param("email") String email);
+    int insertWithParam(@Param("id") Integer id, @Param("name") String name, @Param("age") Integer age, @Param("email") String email);
 
     @Override
     @Query(value = "@{macro, nxnSelectRange}", resultTypeHandler = JsonTypeHandler.class)

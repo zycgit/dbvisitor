@@ -7,9 +7,9 @@
  */
 package net.hasor.dbvisitor.test.realdb.mysql.api.session;
 
-import net.hasor.dbvisitor.test.contract.api.session.SessionMapperJoinQueryCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MySqlProfile;
+import net.hasor.dbvisitor.test.scenario.query.session.SessionMapperJoinQueryCase;
 
 public class MySqlSessionMapperJoinQueryTest extends SessionMapperJoinQueryCase {
     @Override

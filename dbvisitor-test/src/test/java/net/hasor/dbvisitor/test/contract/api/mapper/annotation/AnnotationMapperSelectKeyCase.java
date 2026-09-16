@@ -7,19 +7,18 @@
  */
 package net.hasor.dbvisitor.test.contract.api.mapper.annotation;
 
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @NxnContract
 public abstract class AnnotationMapperSelectKeyCase extends AnnotationMapperAttributeSupport {
+    // 能力归属：Mapper API / 主键策略。
     @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_SELECT_KEY)
+    @Capability(value = CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_SELECT_KEY, column = "mapper/key-strategies/strategies")
     public void annotationAttributes_shouldRunSelectKeySqlWhenFixtureSequenceIsSupported() throws Exception {
 
         Object before = keyRecord(null, "AttrSelectKeyBefore", 34, "select-before@nxn.test");

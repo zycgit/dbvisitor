@@ -7,9 +7,9 @@
  */
 package net.hasor.dbvisitor.test.realdb.mysql.api.jdbc;
 
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcJoinQueryCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MySqlProfile;
+import net.hasor.dbvisitor.test.scenario.query.jdbc.JdbcJoinQueryCase;
 
 public class MySqlJdbcJoinQueryTest extends JdbcJoinQueryCase {
     @Override

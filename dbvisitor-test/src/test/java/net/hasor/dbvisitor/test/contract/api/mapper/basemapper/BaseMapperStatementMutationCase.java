@@ -7,19 +7,18 @@
  */
 package net.hasor.dbvisitor.test.contract.api.mapper.basemapper;
 
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @NxnContract
 public abstract class BaseMapperStatementMutationCase extends BaseMapperStatementSupport {
+    // 能力归属：Mapper API / 引用文件 Mapper。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_STATEMENT_EXECUTE_DML)
+    @Capability(value = CapabilityId.BASEMAPPER_STATEMENT_EXECUTE_DML, column = "mapper/file-mapper/calls")
     public void baseMapperStatement_shouldExecuteDmlStatements() {
         int id = baseId() + 1;
 
@@ -33,8 +32,9 @@ public abstract class BaseMapperStatementMutationCase extends BaseMapperStatemen
         assertTrue(query("queryUserById", mapOf("id", id)).isEmpty());
     }
 
+    // 能力归属：Mapper API / 引用文件 Mapper。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_STATEMENT_BATCH_DELETE)
+    @Capability(value = CapabilityId.BASEMAPPER_STATEMENT_BATCH_DELETE, column = "mapper/file-mapper/calls")
     public void baseMapperStatement_shouldExecuteBatchDeleteByStatement() {
         for (int i = 1; i <= 5; i++) {
             insert(baseId() + 200 + i, "BaseStmtDelete" + i, 40 + i);

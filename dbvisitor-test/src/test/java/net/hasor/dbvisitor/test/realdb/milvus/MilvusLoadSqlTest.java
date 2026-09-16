@@ -14,7 +14,7 @@ import java.util.Collections;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class MilvusLoadSqlTest extends MilvusSqlContractSupport {
     @Test
@@ -24,8 +24,7 @@ public class MilvusLoadSqlTest extends MilvusSqlContractSupport {
         createIndex("v", "FLAT", "L2");
         this.jdbcTemplate.executeUpdate("INSERT INTO " + this.collection + " (id,note,v) VALUES (1,'stored',[1,0])");
         this.jdbcTemplate.executeUpdate("FLUSH " + this.collection);
-        try (PreparedStatement load = this.connection.prepareStatement("LOAD TABLE " + this.collection
-                + " WITH (num_replicas=?, load_fields=?, skip_load_dynamic_field=?, resource_groups=?)")) {
+        try (PreparedStatement load = this.connection.prepareStatement("LOAD TABLE " + this.collection + " WITH (num_replicas=?, load_fields=?, skip_load_dynamic_field=?, resource_groups=?)")) {
             load.setInt(1, 1);
             load.setObject(2, new String[] { "id", "v" });
             load.setBoolean(3, true);
@@ -50,8 +49,7 @@ public class MilvusLoadSqlTest extends MilvusSqlContractSupport {
         this.jdbcTemplate.executeUpdate("CREATE PARTITION p ON " + this.collection);
         this.jdbcTemplate.executeUpdate("INSERT INTO " + this.collection + " PARTITION p (id,note,v) VALUES (1,'partition',[1,0])");
         this.jdbcTemplate.executeUpdate("FLUSH " + this.collection);
-        try (PreparedStatement load = this.connection.prepareStatement("LOAD TABLE " + this.collection
-                + " PARTITION p WITH (num_replicas=1, load_fields=?, refresh=?)")) {
+        try (PreparedStatement load = this.connection.prepareStatement("LOAD TABLE " + this.collection + " PARTITION p WITH (num_replicas=1, load_fields=?, refresh=?)")) {
             load.setObject(1, Arrays.asList("id", "note", "v"));
             load.setBoolean(2, false);
             assertEquals(0, load.executeUpdate());

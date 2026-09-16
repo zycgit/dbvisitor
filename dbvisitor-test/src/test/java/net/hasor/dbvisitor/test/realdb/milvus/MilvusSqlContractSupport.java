@@ -24,8 +24,8 @@ import org.junit.Before;
 
 /** 所有集合、索引和数据操作均通过驱动 SQL；每个用例只清理自己创建的集合。 */
 public abstract class MilvusSqlContractSupport extends AdapterCase {
-    protected final String collection = "dbv_sql_" + UUID.randomUUID().toString().replace("-", "");
-    protected Connection connection;
+    protected final String     collection = "dbv_sql_" + UUID.randomUUID().toString().replace("-", "");
+    protected       Connection connection;
 
     @Override
     protected DataSourceProfile profile() {

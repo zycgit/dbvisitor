@@ -7,8 +7,8 @@
  */
 package net.hasor.dbvisitor.test.nxn.env;
 
-import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
+import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.capability.SupportStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -52,21 +52,22 @@ public final class ClickHouseProfile extends AbstractDataSourceProfile {
 
     @Override
     public SupportStatus support(String capabilityId) {
+        // ClickHouseDialect translates dense L2/COSINE/IP queries only.
+        if (CapabilityId.VECTOR_KNN_ORDER_HAMMING.equals(capabilityId) || CapabilityId.VECTOR_KNN_ORDER_JACCARD.equals(capabilityId) || CapabilityId.VECTOR_RANGE_HAMMING.equals(capabilityId) || CapabilityId.VECTOR_RANGE_JACCARD.equals(capabilityId) || CapabilityId.VECTOR_KNN_ORDER_BM25.equals(capabilityId) || CapabilityId.VECTOR_RANGE_BM25.equals(capabilityId)) {
+            return SupportStatus.UNSUPPORTED_BY_DBVISITOR;
+        }
         // This datasource has no separate JDBC namespace at this level.
         if (CapabilityId.JDBC_METADATA_SCHEMAS.equals(capabilityId)) {
             return SupportStatus.UNSUPPORTED_BY_DATABASE;
         }
-        if (CapabilityId.JDBC_CALL_RESULT_SET.equals(capabilityId)
-                || CapabilityId.PROCEDURE_CALL_CURSOR_RESULT.equals(capabilityId)) {
+        if (CapabilityId.JDBC_CALL_RESULT_SET.equals(capabilityId) || CapabilityId.PROCEDURE_CALL_CURSOR_RESULT.equals(capabilityId)) {
             // ClickHouseConnection.prepareCall rejects every SQL string; query support does not imply call support.
             return SupportStatus.UNSUPPORTED_BY_DRIVER;
         }
-        if (CapabilityId.MAPPER_XML_KEYGEN_SELECT_KEY_BEFORE.equals(capabilityId)
-                || CapabilityId.MAPPER_XML_KEYGEN_SELECT_KEY_AFTER.equals(capabilityId)
-                || CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_SELECT_KEY.equals(capabilityId)) {
+        if (CapabilityId.MAPPER_XML_KEYGEN_SELECT_KEY_BEFORE.equals(capabilityId) || CapabilityId.MAPPER_XML_KEYGEN_SELECT_KEY_AFTER.equals(capabilityId) || CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_SELECT_KEY.equals(capabilityId)) {
             return SupportStatus.SUPPORTED;
         }
-        if (CapabilityId.TYPE_ARRAY_NULL.equals(capabilityId)) {
+        if (CapabilityId.TYPE_ARRAY_NULL.equals(capabilityId) || CapabilityId.VECTOR_NULL_ROUND_TRIP.equals(capabilityId)) {
             // Array elements can be nullable; the array itself cannot be Nullable(Array(...)).
             return SupportStatus.UNSUPPORTED_BY_DATABASE;
         }

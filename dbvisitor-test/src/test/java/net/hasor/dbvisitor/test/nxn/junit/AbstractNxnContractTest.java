@@ -7,30 +7,29 @@
  */
 package net.hasor.dbvisitor.test.nxn.junit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Set;
-
+import net.hasor.dbvisitor.mapping.Options;
+import net.hasor.dbvisitor.session.Configuration;
+import net.hasor.dbvisitor.test.contract.AbstractOneApiTest;
+import net.hasor.dbvisitor.test.nxn.capability.Capability;
+import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
+import net.hasor.dbvisitor.test.nxn.capability.SupportStatus;
+import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.report.NxnTestResult;
 import org.junit.Assume;
+import org.junit.AssumptionViolatedException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
-
-import net.hasor.dbvisitor.mapping.Options;
-import net.hasor.dbvisitor.session.Configuration;
-import net.hasor.dbvisitor.test.contract.AbstractOneApiTest;
-import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
-import net.hasor.dbvisitor.test.nxn.capability.SupportStatus;
-import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public abstract class AbstractNxnContractTest extends AbstractOneApiTest {
     @Rule
@@ -47,7 +46,9 @@ public abstract class AbstractNxnContractTest extends AbstractOneApiTest {
     }
 
     protected void requiresNxnFeature(String featureId) {
-        Assume.assumeTrue("Feature '" + featureId + "' is unsupported by " + profile().env(), profile().supportsFeature(featureId));
+        if (!profile().supportsFeature(featureId)) {
+            throw new UnsupportedCapability("Feature '" + featureId + "' is unsupported by " + profile().env());
+        }
     }
 
     private Statement applyNxnCapabilityRule(Statement base, Description description) {
@@ -55,13 +56,49 @@ public abstract class AbstractNxnContractTest extends AbstractOneApiTest {
             @Override
             public void evaluate() throws Throwable {
                 Capability capability = findCapability(description);
-                if (capability != null) {
-                    SupportStatus support = profile().support(capability.value());
-                    Assume.assumeTrue("Capability '" + capability.value() + "' is " + support + " by " + profile().env(), SupportStatus.SUPPORTED == support);
+                String outcome = "passed";
+                Throwable failure = null;
+                try {
+                    Assume.assumeTrue("Wrong NxN environment", profile().env().equals(currentEnv()));
+                    if (capability != null) {
+                        SupportStatus support = profile().support(capability.value());
+                        if (support == SupportStatus.UNSUPPORTED_BY_DATABASE || support == SupportStatus.UNSUPPORTED_BY_DRIVER || support == SupportStatus.UNSUPPORTED_BY_DBVISITOR) {
+                            throw new UnsupportedCapability("Capability '" + capability.value() + "' is " + support + " by " + profile().env());
+                        }
+                        Assume.assumeTrue("Capability is not implemented: " + capability.value(), support == SupportStatus.SUPPORTED);
+                    }
+                    base.evaluate();
+                } catch (UnsupportedCapability e) {
+                    outcome = "unsupported";
+                    failure = e;
+                    throw e;
+                } catch (AssumptionViolatedException e) {
+                    outcome = "unverified";
+                    failure = e;
+                    throw e;
+                } catch (Throwable e) {
+                    outcome = "failed";
+                    failure = e;
+                    throw e;
+                } finally {
+                    try {
+                        NxnTestResult.write(profile().env(), description, capability == null ? null : capability.value(), outcome, failure == null ? null : failure.toString());
+                    } catch (Exception recordingFailure) {
+                        if (failure != null) {
+                            failure.addSuppressed(recordingFailure);
+                        } else {
+                            throw recordingFailure;
+                        }
+                    }
                 }
-                base.evaluate();
             }
         };
+    }
+
+    private static final class UnsupportedCapability extends AssumptionViolatedException {
+        private UnsupportedCapability(String reason) {
+            super(reason);
+        }
     }
 
     private Capability findCapability(Description description) {
@@ -198,7 +235,7 @@ public abstract class AbstractNxnContractTest extends AbstractOneApiTest {
         if (builder.length() > 0) {
             builder.append('\n');
         }
-        builder.append(throwable.getClass().getName()).append(": ").append(String.valueOf(throwable.getMessage()));
+        builder.append(throwable.getClass().getName()).append(": ").append(throwable.getMessage());
         for (Throwable suppressed : throwable.getSuppressed()) {
             appendMessages(builder, suppressed, visited);
         }

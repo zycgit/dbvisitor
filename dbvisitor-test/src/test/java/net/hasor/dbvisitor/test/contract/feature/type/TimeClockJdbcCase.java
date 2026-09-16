@@ -11,22 +11,18 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.LocalTime;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class TimeClockJdbcCase extends TimeTypeJdbcSupport {
+    // 能力归属：类型处理器 / 日期与时间 / 时间与时间戳。
     @Test
-    @Capability(CapabilityId.TYPE_TIME_SQL_STANDARD)
+    @Capability(value = CapabilityId.TYPE_TIME_SQL_STANDARD, column = "types/dates-and-times/values")
     public void timeSqlStandardTypes_shouldRoundTripTimeAndTimestampColumns() throws SQLException {
         requiresNxnFeature(FeatureId.TIME_ZONE_STABLE_ROUND_TRIP);
 
@@ -47,8 +43,9 @@ public abstract class TimeClockJdbcCase extends TimeTypeJdbcSupport {
         assertTrue(Math.abs(timestamp.getTime() - loadedTimestamp.getTime()) < 1000);
     }
 
+    // 能力归属：类型处理器 / 日期与时间 / 时间与时间戳。
     @Test
-    @Capability(CapabilityId.TYPE_TIME_LOCAL_TIME)
+    @Capability(value = CapabilityId.TYPE_TIME_LOCAL_TIME, column = "types/dates-and-times/values")
     public void timeLocalTime_shouldRoundTripTimeColumn() throws SQLException {
         requiresNxnFeature(FeatureId.TIME_ZONE_STABLE_ROUND_TRIP);
 

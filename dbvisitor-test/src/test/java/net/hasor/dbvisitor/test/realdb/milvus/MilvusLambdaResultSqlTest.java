@@ -29,19 +29,15 @@ public class MilvusLambdaResultSqlTest extends MilvusSqlContractSupport {
     @Capability(CapabilityId.ADAPTER_MILVUS_LAMBDA_RESULT_VALUES)
     public void mapsScalarsAndCustomRowsShouldPreserveSelectedValues() throws SQLException {
         LambdaTemplate lambda = prepareRows();
-        List<Map<String, Object>> rows = lambda.queryFreedom(this.collection)
-                .orderByL2("v", new float[] { 0, 0 }).queryForMapList();
+        List<Map<String, Object>> rows = lambda.queryFreedom(this.collection).orderByL2("v", new float[] { 0, 0 }).queryForMapList();
         assertEquals(3, rows.size());
         assertEquals("row1", rows.get(0).get("name"));
         assertEquals("row3", rows.get(2).get("name"));
         assertEquals(3, lambda.queryFreedom(this.collection).queryForCount());
-        assertEquals(Long.valueOf(1), lambda.queryFreedom(this.collection).eq("id", 1)
-                .applySelect("id").queryForObject(Long.class));
-        assertEquals("1", lambda.queryFreedom(this.collection).eq("id", 1)
-                .applySelect("id").queryForObject(String.class));
+        assertEquals(Long.valueOf(1), lambda.queryFreedom(this.collection).eq("id", 1).applySelect("id").queryForObject(Long.class));
+        assertEquals("1", lambda.queryFreedom(this.collection).eq("id", 1).applySelect("id").queryForObject(String.class));
         RowMapper<String> mapper = (rs, rowNum) -> rowNum + ":" + rs.getString("name");
-        assertEquals(List.of("0:row1", "1:row2", "2:row3"), lambda.queryFreedom(this.collection)
-                .orderByL2("v", new float[] { 0, 0 }).queryForList(mapper));
+        assertEquals(List.of("0:row1", "1:row2", "2:row3"), lambda.queryFreedom(this.collection).orderByL2("v", new float[] { 0, 0 }).queryForList(mapper));
         assertNull(lambda.queryFreedom(this.collection).eq("id", 99).queryForObject(mapper));
         assertTrue(lambda.queryFreedom(this.collection).eq("id", 99).queryForMapList().isEmpty());
     }
@@ -73,8 +69,7 @@ public class MilvusLambdaResultSqlTest extends MilvusSqlContractSupport {
         assertEquals(expected, lambda.queryFreedom(this.collection).query(extractor));
         assertEquals(expected, lambda.queryFreedom(this.collection).queryForPairs("id", "name", Long.class, String.class));
         ResultSetExtractor<List<Long>> filtered = new FilterResultSetExtractor<>((rs, rowNum) -> rs.getLong("id"), id -> id != 2L);
-        assertEquals(List.of(1L, 3L), lambda.queryFreedom(this.collection)
-                .orderByL2("v", new float[] { 0, 0 }).query(filtered));
+        assertEquals(List.of(1L, 3L), lambda.queryFreedom(this.collection).orderByL2("v", new float[] { 0, 0 }).query(filtered));
         assertTrue(lambda.queryFreedom(this.collection).eq("id", 99).query(extractor).isEmpty());
         assertTrue(lambda.queryFreedom(this.collection).eq("id", 99).query(filtered).isEmpty());
     }

@@ -45,8 +45,7 @@ public class MongoJdbcMultipleResultSetTest extends JdbcMultipleResultSetCase {
 
     @Override
     protected String literalMultipleCommand() {
-        return find("{id: " + (baseId() + 1) + "}") + ";"
-                + find("{id: {$gte: " + (baseId() + 2) + ", $lte: " + (baseId() + 3) + "}}");
+        return find("{id: " + (baseId() + 1) + "}") + ";" + find("{id: {$gte: " + (baseId() + 2) + ", $lte: " + (baseId() + 3) + "}}");
     }
 
     @Override
@@ -62,7 +61,6 @@ public class MongoJdbcMultipleResultSetTest extends JdbcMultipleResultSetCase {
     @Override
     protected String ruleMultipleCommand() {
         String type = "net.hasor.dbvisitor.test.contract.material.model.UserInfo";
-        return find("{id: " + (baseId() + 1) + "}") + "; @{resultSet,name=youngUsers,javaType=" + type + "}\n"
-                + find("{id: " + (baseId() + 3) + "}") + "; @{resultSet,name=seniorUsers,javaType=" + type + "}";
+        return find("{id: " + (baseId() + 1) + "}") + "; @{resultSet,name=youngUsers,javaType=" + type + "}\n" + find("{id: " + (baseId() + 3) + "}") + "; @{resultSet,name=seniorUsers,javaType=" + type + "}";
     }
 }

@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.test.contract.feature.schema.StandardSchemaCase;
+import net.hasor.dbvisitor.test.contract.api.jdbc.metadata.StandardSchemaCase;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
@@ -23,7 +23,7 @@ import org.junit.Before;
 
 public class MongoStandardSchemaTest extends StandardSchemaCase {
     private final Map<String, List<String>> schema = new LinkedHashMap<>();
-    private Connection connection;
+    private       Connection                connection;
 
     @Override
     protected DataSourceProfile profile() {

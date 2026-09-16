@@ -17,8 +17,8 @@ import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
 import net.hasor.dbvisitor.test.realdb.mongo.material.MongoMapperFixture;
-import net.hasor.dbvisitor.test.realdb.mongo.material.MongoSessionUserMapper;
 import net.hasor.dbvisitor.test.realdb.mongo.material.MongoSessionRefMapper;
+import net.hasor.dbvisitor.test.realdb.mongo.material.MongoSessionUserMapper;
 import org.junit.After;
 import org.junit.Before;
 

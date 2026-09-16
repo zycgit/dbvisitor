@@ -29,13 +29,9 @@ import org.junit.Before;
 
 /** Verifies the shared Java temporal conversions using native text and integer storage. */
 public class MilvusTimePartialJdbcTest extends TimePartialJdbcCase {
-    private static final Map<Class<?>, TypeHandler<?>> DATE_PART_HANDLERS = Map.of(
-            Year.class, new SqlTimestampAsYearTypeHandler(),
-            YearMonth.class, new SqlTimestampAsYearMonthTypeHandler(),
-            Month.class, new SqlTimestampAsMonthTypeHandler(),
-            MonthDay.class, new SqlTimestampAsMonthDayTypeHandler());
-    private final MilvusDatabaseFixture database = new MilvusDatabaseFixture();
-    private Connection connection;
+    private static final Map<Class<?>, TypeHandler<?>> DATE_PART_HANDLERS = Map.of(Year.class, new SqlTimestampAsYearTypeHandler(), YearMonth.class, new SqlTimestampAsYearMonthTypeHandler(), Month.class, new SqlTimestampAsMonthTypeHandler(), MonthDay.class, new SqlTimestampAsMonthDayTypeHandler());
+    private final        MilvusDatabaseFixture         database           = new MilvusDatabaseFixture();
+    private              Connection                    connection;
 
     @Override
     protected DataSourceProfile profile() {
@@ -49,8 +45,7 @@ public class MilvusTimePartialJdbcTest extends TimePartialJdbcCase {
             throw new IllegalArgumentException("Unsupported date part: " + type.getName());
         }
         // The field stores a complete date, not the separate text format of Year or MonthDay.
-        return this.jdbcTemplate.queryForObject(selectCommand("time_types_explicit_test", "date_value"),
-                new Object[] { id }, (rs, rowNum) -> type.cast(handler.getResult(rs, 1)));
+        return this.jdbcTemplate.queryForObject(selectCommand("time_types_explicit_test", "date_value"), new Object[] { id }, (rs, rowNum) -> type.cast(handler.getResult(rs, 1)));
     }
 
     @Override

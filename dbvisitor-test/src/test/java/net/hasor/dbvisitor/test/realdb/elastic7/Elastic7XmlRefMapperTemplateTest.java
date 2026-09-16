@@ -35,6 +35,11 @@ public class Elastic7XmlRefMapperTemplateTest extends XmlRefMapperTemplateCase {
     }
 
     @Override
+    protected String pageQueryCommand() {
+        return "POST /" + this.fixture.index() + "/_search {\"query\": {\"range\": {\"age\": {\"gte\": #{minAge}}}},\"sort\": [{\"id\": \"asc\"}]}";
+    }
+
+    @Override
     protected void insertUser(Object[] values) throws SQLException {
         fixture.insert((Integer) values[0], (String) values[1], (Integer) values[2], (String) values[3]);
     }

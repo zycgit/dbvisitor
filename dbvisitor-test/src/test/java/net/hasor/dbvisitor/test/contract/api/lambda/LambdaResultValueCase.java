@@ -10,20 +10,18 @@ package net.hasor.dbvisitor.test.contract.api.lambda;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 @NxnContract
 public abstract class LambdaResultValueCase extends LambdaResultHandlingSupport {
+    // 能力归属：构造器 API / 查询操作。
     @Test
-    @Capability(CapabilityId.LAMBDA_RESULT_MAP_AND_SCALAR)
+    @Capability(value = CapabilityId.LAMBDA_RESULT_MAP_AND_SCALAR, column = "builder/queries/query")
     public void lambdaResult_shouldReturnMapListsMapsCountsAndScalars() throws SQLException {
         insertUsers("LRMap", new int[] { 21, 22, 23, 24, 25 }, baseId() + 10);
 

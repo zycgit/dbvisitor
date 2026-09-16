@@ -10,22 +10,18 @@ package net.hasor.dbvisitor.test.realdb.mongo;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.UUID;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import java.util.List;
 import java.util.Map;
-
+import java.util.UUID;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.test.contract.api.adapter.AdapterCase;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
-import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
 import org.junit.Test;
+import static org.junit.Assert.*;
 
 public class MongoJdbcDslTest extends AdapterCase {
     @Override

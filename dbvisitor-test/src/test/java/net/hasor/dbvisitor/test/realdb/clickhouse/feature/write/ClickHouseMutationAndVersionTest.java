@@ -13,10 +13,7 @@ import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public class ClickHouseMutationAndVersionTest extends AbstractNxnContractTest {
     @Override
@@ -30,14 +27,9 @@ public class ClickHouseMutationAndVersionTest extends AbstractNxnContractTest {
         try {
             jdbcTemplate.executeUpdate("CREATE TABLE doc_event_log (id String, event_name String) ENGINE = MergeTree ORDER BY id");
             jdbcTemplate.executeUpdate("INSERT INTO doc_event_log VALUES ('E1', 'login')");
-            jdbcTemplate.executeUpdate(
-                    "ALTER TABLE doc_event_log UPDATE event_name = ? WHERE id = ? SETTINGS mutations_sync = 0",
-                    new Object[] { "archived", "E1" });
-            jdbcTemplate.executeUpdate(
-                    "ALTER TABLE doc_event_log UPDATE event_name = ? WHERE id = ? SETTINGS mutations_sync = 1",
-                    new Object[] { "archived", "E1" });
-            assertEquals("archived", jdbcTemplate.queryForObject("SELECT event_name FROM doc_event_log WHERE id = ?",
-                    new Object[] { "E1" }, String.class));
+            jdbcTemplate.executeUpdate("ALTER TABLE doc_event_log UPDATE event_name = ? WHERE id = ? SETTINGS mutations_sync = 0", new Object[] { "archived", "E1" });
+            jdbcTemplate.executeUpdate("ALTER TABLE doc_event_log UPDATE event_name = ? WHERE id = ? SETTINGS mutations_sync = 1", new Object[] { "archived", "E1" });
+            assertEquals("archived", jdbcTemplate.queryForObject("SELECT event_name FROM doc_event_log WHERE id = ?", new Object[] { "E1" }, String.class));
             List<Map<String, Object>> tasks = jdbcTemplate.queryForList("""
                     SELECT mutation_id, command, is_done, parts_to_do, latest_fail_reason
                     FROM system.mutations
@@ -64,8 +56,7 @@ public class ClickHouseMutationAndVersionTest extends AbstractNxnContractTest {
         try {
             jdbcTemplate.executeUpdate("CREATE TABLE doc_event_version (id String, event_name String, version UInt64) ENGINE = MergeTree ORDER BY id");
             jdbcTemplate.executeUpdate("INSERT INTO doc_event_version VALUES ('E1', 'login', 1), ('E1', 'archived', 2)");
-            List<Map<String, Object>> records = jdbcTemplate.queryForList(
-                    "SELECT id, event_name, version FROM doc_event_version WHERE id = ? ORDER BY version", new Object[] { "E1" });
+            List<Map<String, Object>> records = jdbcTemplate.queryForList("SELECT id, event_name, version FROM doc_event_version WHERE id = ? ORDER BY version", new Object[] { "E1" });
             assertEquals(2, records.size());
             assertEquals("login", records.get(0).get("event_name"));
             assertEquals("archived", records.get(1).get("event_name"));

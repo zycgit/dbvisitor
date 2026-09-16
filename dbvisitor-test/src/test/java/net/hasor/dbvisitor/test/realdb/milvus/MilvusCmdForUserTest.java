@@ -7,18 +7,16 @@
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class MilvusCmdForUserTest extends AbstractMilvusCmdForTest {
     private static final String TEST_USER = "test_dbv_user";

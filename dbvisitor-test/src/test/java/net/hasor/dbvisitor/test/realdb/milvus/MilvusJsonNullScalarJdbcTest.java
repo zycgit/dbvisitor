@@ -20,7 +20,7 @@ import org.junit.Before;
 /** Shared JSON serialization contracts, retaining their VARCHAR storage semantics. */
 public class MilvusJsonNullScalarJdbcTest extends JsonNullScalarJdbcCase {
     private final MilvusDatabaseFixture database = new MilvusDatabaseFixture();
-    private Connection connection;
+    private       Connection            connection;
 
     @Override
     protected DataSourceProfile profile() {

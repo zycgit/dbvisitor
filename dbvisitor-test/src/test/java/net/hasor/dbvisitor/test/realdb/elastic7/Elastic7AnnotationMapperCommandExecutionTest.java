@@ -45,8 +45,7 @@ public class Elastic7AnnotationMapperCommandExecutionTest extends AnnotationMapp
         try {
             jdbcTemplate.executeUpdate("DELETE /" + fixture.temporaryIndex());
         } catch (SQLException error) {
-            if (!String.valueOf(error.getMessage()).contains("index_not_found_exception")
-                    && !String.valueOf(error.getMessage()).contains("no such index")) {
+            if (!String.valueOf(error.getMessage()).contains("index_not_found_exception") && !String.valueOf(error.getMessage()).contains("no such index")) {
                 throw error;
             }
         }

@@ -8,7 +8,6 @@
 package net.hasor.dbvisitor.test.realdb.elastic7.material.user;
 import net.hasor.dbvisitor.mapper.Param;
 import net.hasor.dbvisitor.mapper.RefMapper;
-import net.hasor.dbvisitor.test.realdb.elastic7.material.user.UserInfo1a;
 
 @RefMapper("realdb/elastic7/material/user-mapper-4.xml")
 public interface UserInfo4Mapper {

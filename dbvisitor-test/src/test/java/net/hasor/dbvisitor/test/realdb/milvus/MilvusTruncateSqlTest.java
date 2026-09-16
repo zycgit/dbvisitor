@@ -52,8 +52,7 @@ public class MilvusTruncateSqlTest extends MilvusSqlContractSupport {
         String catalog = this.connection.getCatalog();
         String schema = createScript();
         try (Statement statement = this.connection.createStatement()) {
-            SQLException failure = assertThrows(SQLException.class, () -> statement.execute(
-                    "TRUNCATE TABLE " + this.collection + " IN DATABASE " + catalog + "; DELETE FROM " + this.collection));
+            SQLException failure = assertThrows(SQLException.class, () -> statement.execute("TRUNCATE TABLE " + this.collection + " IN DATABASE " + catalog + "; DELETE FROM " + this.collection));
             assertTrue(failure.getMessage(), failure.getMessage().contains("UNIMPLEMENTED"));
             assertEquals(catalog, this.connection.getCatalog());
             assertEquals(schema, createScript());
@@ -65,8 +64,7 @@ public class MilvusTruncateSqlTest extends MilvusSqlContractSupport {
     }
 
     private String createScript() throws SQLException {
-        return this.jdbcTemplate.queryForObject("SHOW CREATE TABLE " + this.collection,
-                (rows, rowNum) -> rows.getString("CREATE SCRIPT"));
+        return this.jdbcTemplate.queryForObject("SHOW CREATE TABLE " + this.collection, (rows, rowNum) -> rows.getString("CREATE SCRIPT"));
     }
 
     private void assertIndexPresent(Statement statement) throws SQLException {

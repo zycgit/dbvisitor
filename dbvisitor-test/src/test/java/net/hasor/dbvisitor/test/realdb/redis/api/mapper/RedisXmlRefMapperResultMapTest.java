@@ -8,8 +8,8 @@
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
 import java.sql.SQLException;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlRefMapperResultMapCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;

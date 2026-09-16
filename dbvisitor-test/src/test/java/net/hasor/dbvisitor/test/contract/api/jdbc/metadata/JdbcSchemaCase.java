@@ -11,16 +11,16 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.HashSet;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
+import org.junit.Before;
+import org.junit.Test;
 import static org.junit.Assert.*;
 
-@NxnContract
+@NxnContract(scope = NxnContract.Scope.JDBC_METADATA)
 public abstract class JdbcSchemaCase extends AbstractNxnContractTest {
     @Override
     @Before
@@ -32,8 +32,7 @@ public abstract class JdbcSchemaCase extends AbstractNxnContractTest {
     @Test
     @Capability(CapabilityId.JDBC_METADATA_SCHEMAS)
     public void schemasExposeNativeNamespaces() throws Exception {
-        try (Connection connection = OneApiDataSourceManager.getConnection(profile().env());
-                ResultSet rows = connection.getMetaData().getSchemas()) {
+        try (Connection connection = OneApiDataSourceManager.getConnection(profile().env()); ResultSet rows = connection.getMetaData().getSchemas()) {
             Set<String> names = new HashSet<>();
             while (rows.next()) {
                 String name = rows.getString("TABLE_SCHEM");

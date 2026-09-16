@@ -12,13 +12,13 @@ import java.util.List;
 import java.util.Map;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.test.contract.api.adapter.AdapterCase;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
-import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
 import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class Elastic7JdbcDslTest extends AdapterCase {
     @Override

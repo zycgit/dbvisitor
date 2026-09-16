@@ -13,7 +13,7 @@ import java.sql.Statement;
 import java.util.Arrays;
 import java.util.UUID;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcRowCallbackCase;
+import net.hasor.dbvisitor.test.contract.feature.result.JdbcRowCallbackCase;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
@@ -23,8 +23,8 @@ import org.junit.Before;
 
 /** Native Milvus fixtures for the unchanged shared result-mapping assertions. */
 public class MilvusJdbcRowCallbackTest extends JdbcRowCallbackCase {
-    private final String table = "dbv_mapping_" + UUID.randomUUID().toString().replace("-", "");
-    private Connection connection;
+    private final String     table = "dbv_mapping_" + UUID.randomUUID().toString().replace("-", "");
+    private       Connection connection;
 
     @Override
     protected DataSourceProfile profile() {
@@ -62,8 +62,7 @@ public class MilvusJdbcRowCallbackTest extends JdbcRowCallbackCase {
     @Override
     protected void insertUser(int id, String name, int age, String email) throws SQLException {
         // Distance from [0,0] gives the shared assertions their deterministic fixture order.
-        jdbcTemplate.executeUpdate("INSERT INTO " + this.table + " (id, name, age, email, v) VALUES (?, ?, ?, ?, ?)",
-                new Object[] { id, name, age, email, Arrays.asList((float) (id - baseId()), 0F) });
+        jdbcTemplate.executeUpdate("INSERT INTO " + this.table + " (id, name, age, email, v) VALUES (?, ?, ?, ?, ?)", new Object[] { id, name, age, email, Arrays.asList((float) (id - baseId()), 0F) });
     }
 
     @Override

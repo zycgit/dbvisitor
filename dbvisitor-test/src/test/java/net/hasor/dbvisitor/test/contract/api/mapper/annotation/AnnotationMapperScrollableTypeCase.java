@@ -7,21 +7,23 @@
  */
 package net.hasor.dbvisitor.test.contract.api.mapper.annotation;
 
-import org.junit.Test;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
+import org.junit.Test;
 
 @NxnContract
 public abstract class AnnotationMapperScrollableTypeCase extends AnnotationMapperAttributeSupport {
+    // 能力归属：Mapper API / 执行选项。
     @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_SCROLL_INSENSITIVE)
+    @Capability(value = CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_SCROLL_INSENSITIVE, column = "mapper/execution-options/options")
     public void annotationAttributes_shouldApplyScrollInsensitiveResults() throws Exception {
         assertAtLeastSeedRows(this.mapper.selectWithScrollInsensitive(PATTERN));
     }
 
+    // 能力归属：Mapper API / 执行选项。
     @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_SCROLL_SENSITIVE)
+    @Capability(value = CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_SCROLL_SENSITIVE, column = "mapper/execution-options/options")
     public void annotationAttributes_shouldApplyScrollSensitiveResults() throws Exception {
         assertAtLeastSeedRows(this.mapper.selectWithScrollSensitive(PATTERN));
     }

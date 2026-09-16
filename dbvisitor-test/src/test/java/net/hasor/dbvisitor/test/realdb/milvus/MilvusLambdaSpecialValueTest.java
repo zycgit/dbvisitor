@@ -21,7 +21,7 @@ import org.junit.Before;
 /** Keep the shared contract's VARCHAR(100) length constraint, without changing its assertions. */
 public class MilvusLambdaSpecialValueTest extends LambdaSpecialValueCase {
     private final MilvusDatabaseFixture database = new MilvusDatabaseFixture();
-    private Connection connection;
+    private       Connection            connection;
 
     @Override
     protected DataSourceProfile profile() {

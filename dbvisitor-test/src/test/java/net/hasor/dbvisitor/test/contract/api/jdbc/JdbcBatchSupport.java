@@ -46,8 +46,7 @@ public abstract class JdbcBatchSupport extends AbstractNxnContractTest {
     }
 
     protected String countRangeCommand(boolean inclusiveEnd) {
-        return inclusiveEnd ? "SELECT COUNT(*) FROM basic_types_test WHERE id BETWEEN ? AND ?"
-                : "SELECT COUNT(*) FROM basic_types_test WHERE id >= ? AND id < ?";
+        return inclusiveEnd ? "SELECT COUNT(*) FROM basic_types_test WHERE id BETWEEN ? AND ?" : "SELECT COUNT(*) FROM basic_types_test WHERE id >= ? AND id < ?";
     }
 
     protected String literalInsertCommand(int id, String value) {
@@ -64,8 +63,7 @@ public abstract class JdbcBatchSupport extends AbstractNxnContractTest {
 
     protected void insertPositionalFixture() throws SQLException {
         for (int i = 0; i < 3; i++) {
-            jdbcTemplate.executeUpdate(insertCommand(),
-                    new Object[] { baseId() + i + 1, "NXN-Batch-Pos-" + i });
+            jdbcTemplate.executeUpdate(insertCommand(), new Object[] { baseId() + i + 1, "NXN-Batch-Pos-" + i });
         }
     }
 

@@ -9,9 +9,6 @@ package net.hasor.dbvisitor.test.contract.feature.keygen;
 
 import java.sql.SQLException;
 import java.util.Date;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.lambda.Insert;
 import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyAutoLongUser;
 import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyAutoUser;
@@ -19,32 +16,32 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class DatabaseGeneratedKeyCase extends KeyGenerationSupport {
+    // 能力归属：对象映射 / 主键策略 / 自增主键。
     @Test
-    @Capability(CapabilityId.KEYGEN_AUTO_SINGLE)
+    @Capability(value = CapabilityId.KEYGEN_AUTO_SINGLE, column = "mapping-keys/key-generators/strategies")
     public void keygenAuto_shouldPopulateDatabaseGeneratedKeyOnSingleInsert() throws SQLException {
         requiresNxnFeature(FeatureId.GENERATED_KEYS_NUMERIC);
         ensureAutoTable();
         verifySingleAutoKey(autoKeyModel());
     }
 
+    // 能力归属：对象映射 / 主键策略 / 自增主键。
     @Test
-    @Capability(CapabilityId.KEYGEN_AUTO_BATCH)
+    @Capability(value = CapabilityId.KEYGEN_AUTO_BATCH, column = "mapping-keys/key-generators/strategies")
     public void keygenAuto_shouldPopulateGeneratedKeysOnBatchInsert() throws SQLException {
         requiresNxnFeature(FeatureId.KEYGEN_AUTO_BATCH_EXPLICIT_NULL);
         ensureAutoTable();
         verifyBatchAutoKeys(autoKeyModel());
     }
 
+    // 能力归属：对象映射 / 主键策略 / 自增主键。
     @Test
-    @Capability(CapabilityId.KEYGEN_AUTO_MANUAL)
+    @Capability(value = CapabilityId.KEYGEN_AUTO_MANUAL, column = "mapping-keys/key-generators/strategies")
     public void keygenAuto_shouldKeepManuallyAssignedPrimaryKey() throws SQLException {
         requiresNxnFeature(FeatureId.GENERATED_KEYS_NUMERIC);
         ensureAutoTable();
@@ -52,8 +49,9 @@ public abstract class DatabaseGeneratedKeyCase extends KeyGenerationSupport {
         verifyExplicitAutoKey(autoKeyModel());
     }
 
+    // 能力归属：对象映射 / 主键策略 / 自增主键。
     @Test
-    @Capability(CapabilityId.KEYGEN_AUTO_LONG)
+    @Capability(value = CapabilityId.KEYGEN_AUTO_LONG, column = "mapping-keys/key-generators/strategies")
     public void keygenAuto_shouldPopulateLongPrimaryKey() throws SQLException {
         requiresNxnFeature(FeatureId.GENERATED_KEYS_NUMERIC);
         ensureAutoLongTable();
@@ -66,11 +64,17 @@ public abstract class DatabaseGeneratedKeyCase extends KeyGenerationSupport {
         assertEquals(1, lambdaTemplate.insert(KeyAutoLongUser.class).applyEntity(user).executeSumResult());
         assertNotNull(user.getId());
         assertTrue(user.getId() > 0L);
+        KeyAutoLongUser stored = lambdaTemplate.query(KeyAutoLongUser.class)//
+                .eq(KeyAutoLongUser::getId, user.getId())//
+                .queryForObject();
+        assertNotNull(stored);
+        assertEquals(user.getId(), stored.getId());
+        assertEquals("Long ID User", stored.getName());
+        assertEquals(Integer.valueOf(65), stored.getAge());
     }
 
     protected NumericKeyModel<?> autoKeyModel() {
-        return new NumericKeyModel<>(KeyAutoUser.class, this::autoUser, KeyAutoUser::getId,
-                (user, id) -> user.setId(Math.toIntExact(id)));
+        return new NumericKeyModel<>(KeyAutoUser.class, this::autoUser, KeyAutoUser::getId, (user, id) -> user.setId(Math.toIntExact(id)));
     }
 
     protected void allowExplicitAutoId() throws SQLException {
@@ -81,11 +85,17 @@ public abstract class DatabaseGeneratedKeyCase extends KeyGenerationSupport {
         return jdbcTemplate.queryForObject("SELECT id FROM user_keygen_auto WHERE id = ?", new Object[] { id }, Long.class);
     }
 
+    protected String readAutoKeyName(long id) throws SQLException {
+        return jdbcTemplate.queryForString("SELECT name FROM user_keygen_auto WHERE id = ?", new Object[] { id });
+    }
+
     private <T> void verifySingleAutoKey(NumericKeyModel<T> model) throws SQLException {
         T user = model.factory().apply("Auto Key User", 30);
         assertEquals(1, lambdaTemplate.insert(model.type()).applyEntity(user).executeSumResult());
         assertNotNull(model.key().apply(user));
         assertTrue(model.key().apply(user).longValue() > 0);
+        assertEquals(model.key().apply(user).longValue(), readAutoKey(model.key().apply(user).longValue()));
+        assertEquals("Auto Key User", readAutoKeyName(model.key().apply(user).longValue()));
     }
 
     private <T> void verifyBatchAutoKeys(NumericKeyModel<T> model) throws SQLException {
@@ -97,8 +107,12 @@ public abstract class DatabaseGeneratedKeyCase extends KeyGenerationSupport {
         assertNotNull(model.key().apply(first));
         assertNotNull(model.key().apply(second));
         assertNotNull(model.key().apply(third));
-        assertFalse(model.key().apply(first).equals(model.key().apply(second)));
-        assertFalse(model.key().apply(second).equals(model.key().apply(third)));
+        assertNotEquals(model.key().apply(first), model.key().apply(second));
+        assertNotEquals(model.key().apply(second), model.key().apply(third));
+        assertNotEquals(model.key().apply(first), model.key().apply(third));
+        assertEquals("Auto Batch 1", readAutoKeyName(model.key().apply(first).longValue()));
+        assertEquals("Auto Batch 2", readAutoKeyName(model.key().apply(second).longValue()));
+        assertEquals("Auto Batch 3", readAutoKeyName(model.key().apply(third).longValue()));
     }
 
     private <T> void verifyExplicitAutoKey(NumericKeyModel<T> model) throws SQLException {

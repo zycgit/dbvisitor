@@ -95,6 +95,7 @@ public class Elastic6HintPageTest {
             }
         }
     }
+
     public static void main(String[] args) {
         net.hasor.dbvisitor.test.realdb.RealDbTestRunner.run(Elastic6HintPageTest.class);
     }

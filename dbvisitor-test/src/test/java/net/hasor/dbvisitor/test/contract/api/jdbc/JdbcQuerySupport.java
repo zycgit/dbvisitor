@@ -46,10 +46,8 @@ public abstract class JdbcQuerySupport extends JdbcCrudSupport {
     }
 
     protected void insertUser(int id, String name, int age, String email, Date createTime) throws SQLException {
-        jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, ?)",
-                new Object[] { id, name, age, email, createTime });
+        jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, ?)", new Object[] { id, name, age, email, createTime });
     }
-
 
     protected Map<String, Object> params(int minId, int maxId) {
         Map<String, Object> params = new java.util.HashMap<>();

@@ -8,14 +8,12 @@
 package net.hasor.dbvisitor.test.realdb.mongo;
 
 import java.sql.SQLException;
-
-import org.junit.After;
-import org.junit.Before;
-
 import net.hasor.dbvisitor.test.contract.api.adapter.NativeBasicTypeFixture;
 import net.hasor.dbvisitor.test.contract.feature.type.TimeInstantJdbcCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
+import org.junit.After;
+import org.junit.Before;
 
 public class MongoTimeInstantJdbcTest extends TimeInstantJdbcCase {
     private final NativeBasicTypeFixture fixture = new NativeBasicTypeFixture();

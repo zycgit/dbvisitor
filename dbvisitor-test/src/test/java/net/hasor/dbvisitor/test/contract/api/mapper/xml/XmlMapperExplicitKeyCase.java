@@ -9,20 +9,18 @@ package net.hasor.dbvisitor.test.contract.api.mapper.xml;
 
 import java.util.List;
 import java.util.Map;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 @NxnContract
 public abstract class XmlMapperExplicitKeyCase extends XmlMapperKeyGenerationSupport {
+    // 能力归属：Mapper 文件 / 主键策略。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_KEYGEN_EXPLICIT_ID)
+    @Capability(value = CapabilityId.MAPPER_XML_KEYGEN_EXPLICIT_ID, column = "mapper-files/statements/key-strategies")
     public void xmlKeygen_shouldInsertExplicitIdWithoutGeneration() throws Exception {
         Map<String, Object> params = keygenParams("XmlKeyGenExplicit", 50, "xml-key-explicit@nxn.test");
         params.put("id", baseId() + 99);

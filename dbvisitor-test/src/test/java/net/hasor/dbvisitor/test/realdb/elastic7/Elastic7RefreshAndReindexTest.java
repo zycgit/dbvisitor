@@ -108,6 +108,7 @@ public class Elastic7RefreshAndReindexTest {
             Assert.assertFalse(rs.next());
         }
     }
+
     public static void main(String[] args) {
         net.hasor.dbvisitor.test.realdb.RealDbTestRunner.run(Elastic7RefreshAndReindexTest.class);
     }

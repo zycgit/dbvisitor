@@ -12,10 +12,6 @@ import java.time.Month;
 import java.time.MonthDay;
 import java.time.Year;
 import java.time.YearMonth;
-
-import org.junit.After;
-import org.junit.Before;
-
 import net.hasor.dbvisitor.test.contract.feature.type.TimePartialJdbcCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
@@ -24,6 +20,8 @@ import net.hasor.dbvisitor.types.handler.time.SqlTimestampAsMonthDayTypeHandler;
 import net.hasor.dbvisitor.types.handler.time.SqlTimestampAsMonthTypeHandler;
 import net.hasor.dbvisitor.types.handler.time.SqlTimestampAsYearMonthTypeHandler;
 import net.hasor.dbvisitor.types.handler.time.SqlTimestampAsYearTypeHandler;
+import org.junit.After;
+import org.junit.Before;
 
 public class RedisTimePartialJdbcTest extends TimePartialJdbcCase {
     private final RedisTypeCommandFixture fixture = new RedisTypeCommandFixture();
@@ -73,7 +71,6 @@ public class RedisTimePartialJdbcTest extends TimePartialJdbcCase {
         } else {
             throw new IllegalArgumentException("Unexpected partial time type: " + type);
         }
-        return this.jdbcTemplate.queryForObject(selectCommand("time_types_explicit_test", "date_value"),
-                selectParameters(id), (rs, row) -> type.cast(handler.getResult(rs, "VALUE")));
+        return this.jdbcTemplate.queryForObject(selectCommand("time_types_explicit_test", "date_value"), selectParameters(id), (rs, row) -> type.cast(handler.getResult(rs, "VALUE")));
     }
 }

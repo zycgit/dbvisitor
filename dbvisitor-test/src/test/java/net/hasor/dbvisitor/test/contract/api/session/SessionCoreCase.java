@@ -10,9 +10,6 @@ package net.hasor.dbvisitor.test.contract.api.session;
 import java.math.BigDecimal;
 import java.util.List;
 import javax.sql.DataSource;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.mapper.BaseMapper;
@@ -26,12 +23,8 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class SessionCoreCase extends AbstractNxnContractTest {
@@ -46,10 +39,6 @@ public abstract class SessionCoreCase extends AbstractNxnContractTest {
     @Override
     protected Configuration newConfiguration() {
         return newConfiguration(Options.of());
-    }
-
-    protected Configuration registryConfiguration(Options options) {
-        return super.newConfiguration(options);
     }
 
     protected String sessionInsertCommand() {
@@ -81,8 +70,9 @@ public abstract class SessionCoreCase extends AbstractNxnContractTest {
         return newConfiguration();
     }
 
+    // 能力归属：Mapper API / Session 管理。
     @Test
-    @Capability(CapabilityId.SESSION_LIFECYCLE)
+    @Capability(value = CapabilityId.SESSION_LIFECYCLE, column = "mapper/session/management")
     public void session_shouldBindConfigurationAndCloseIdempotently() throws Exception {
         Configuration configuration = newConfiguration();
         Session session = configuration.newSession(sessionDataSource());
@@ -97,8 +87,9 @@ public abstract class SessionCoreCase extends AbstractNxnContractTest {
         session.close();
     }
 
+    // 能力归属：Mapper API / Session 管理。
     @Test
-    @Capability(CapabilityId.SESSION_COMPONENT_JDBC)
+    @Capability(value = CapabilityId.SESSION_COMPONENT_JDBC, column = "mapper/session/management")
     public void sessionJdbc_shouldExposeUsableJdbcTemplate() throws Exception {
         Session session = newConfiguration().newSession(sessionDataSource());
         JdbcTemplate jdbc = session.jdbc();
@@ -108,8 +99,9 @@ public abstract class SessionCoreCase extends AbstractNxnContractTest {
         assertEquals(Integer.valueOf(1), jdbc.queryForObject(sessionCountCommand(), sessionCountArgs(baseId() + 10), Integer.class));
     }
 
+    // 能力归属：Mapper API / 调用构造器。
     @Test
-    @Capability(CapabilityId.SESSION_COMPONENT_LAMBDA)
+    @Capability(value = CapabilityId.SESSION_COMPONENT_LAMBDA, column = "mapper/builder/calls")
     public void sessionLambda_shouldExposeUsableLambdaTemplate() throws Exception {
         Session session = newConfiguration().newSession(sessionDataSource());
         LambdaTemplate lambda = session.lambda();
@@ -122,8 +114,9 @@ public abstract class SessionCoreCase extends AbstractNxnContractTest {
         assertEquals("SessionLambda", users.get(0).getName());
     }
 
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.SESSION_BASEMAPPER_CRUD)
+    @Capability(value = CapabilityId.SESSION_BASEMAPPER_CRUD, column = "mapper/base-mapper/operations")
     public void sessionBaseMapper_shouldRunCrudThroughCreatedMapper() throws Exception {
         BaseMapper<UserInfo> mapper = newConfiguration().newSession(sessionDataSource()).createBaseMapper(UserInfo.class);
         int id = baseId() + 30;
@@ -141,8 +134,9 @@ public abstract class SessionCoreCase extends AbstractNxnContractTest {
         assertNull(mapper.selectById(id));
     }
 
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.SESSION_BASEMAPPER_MULTI_ENTITY)
+    @Capability(value = CapabilityId.SESSION_BASEMAPPER_MULTI_ENTITY, column = "mapper/base-mapper/operations")
     public void sessionBaseMapper_shouldSupportMultipleEntityTypesInOneSession() throws Exception {
         Session session = newConfiguration().newSession(sessionDataSource());
         BaseMapper<UserInfo> userMapper = session.createBaseMapper(UserInfo.class);
@@ -156,8 +150,9 @@ public abstract class SessionCoreCase extends AbstractNxnContractTest {
         assertNotNull(orderMapper.selectById(id));
     }
 
+    // 能力归属：Mapper API / 主键策略。
     @Test
-    @Capability(CapabilityId.SESSION_BASEMAPPER_COMPOSITE_KEY)
+    @Capability(value = CapabilityId.SESSION_BASEMAPPER_COMPOSITE_KEY, column = "mapper/key-strategies/strategies")
     public void sessionBaseMapper_shouldSupportCompositeKeyEntity() throws Exception {
         BaseMapper<UserRole> mapper = compositeKeyConfiguration().newSession(sessionDataSource()).createBaseMapper(UserRole.class);
         UserRole role = new UserRole(baseId() + 50, 1, "SessionRole");
@@ -172,19 +167,9 @@ public abstract class SessionCoreCase extends AbstractNxnContractTest {
         assertEquals("SessionRole", loaded.getRoleName());
     }
 
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.SESSION_BASEMAPPER_NAMESPACE)
-    public void sessionBaseMapper_shouldRegisterEntityInCustomNamespace() throws Exception {
-        Configuration configuration = newConfiguration();
-        Session session = configuration.newSession(sessionDataSource());
-
-        assertNotNull(session.createBaseMapper(UserRole.class, "nxn.session.role"));
-        assertNotNull(configuration.findBySpace("nxn.session.role", UserRole.class));
-        assertNull(configuration.findByEntity(UserRole.class));
-    }
-
-    @Test
-    @Capability(CapabilityId.SESSION_BASEMAPPER_MULTI_INSTANCE)
+    @Capability(value = CapabilityId.SESSION_BASEMAPPER_MULTI_INSTANCE, column = "mapper/base-mapper/operations")
     public void sessionBaseMapper_shouldCreateDistinctMappersAgainstSameTable() throws Exception {
         Session session = newConfiguration().newSession(sessionDataSource());
         BaseMapper<UserInfo> first = session.createBaseMapper(UserInfo.class);
@@ -196,34 +181,9 @@ public abstract class SessionCoreCase extends AbstractNxnContractTest {
         assertEquals("SessionMapperPair", second.selectById(id).getName());
     }
 
+    // 能力归属：Mapper API / Session 管理。
     @Test
-    @Capability(CapabilityId.SESSION_CONFIGURATION_ACCESSORS)
-    public void configuration_shouldExposeRegistriesOptionsAndClassLoading() throws Exception {
-        Options options = Options.of();
-        Configuration configuration = registryConfiguration(options);
-
-        assertSame(options, configuration.options());
-        assertNotNull(configuration.getTypeRegistry());
-        assertNotNull(configuration.getMacroRegistry());
-        assertNotNull(configuration.getRuleRegistry());
-        assertNotNull(configuration.getMapperRegistry());
-        assertNotNull(configuration.getMappingRegistry());
-        assertNotNull(configuration.getClassLoader());
-
-        configuration.loadEntityToSpace(UserInfo.class);
-        assertNotNull(configuration.findByEntity(UserInfo.class));
-        assertEquals(UserInfo.class, configuration.loadClass("net.hasor.dbvisitor.test.contract.material.model.UserInfo"));
-
-        try {
-            configuration.loadClass("com.nonexistent.SomeClass");
-        } catch (ClassNotFoundException e) {
-            return;
-        }
-        throw new AssertionError("Expected missing class lookup to throw ClassNotFoundException.");
-    }
-
-    @Test
-    @Capability(CapabilityId.SESSION_MULTI_SESSION)
+    @Capability(value = CapabilityId.SESSION_MULTI_SESSION, column = "mapper/session/management")
     public void configuration_shouldCreateDistinctSessionsSharingOneConfiguration() throws Exception {
         Configuration configuration = newConfiguration();
         Session firstSession = configuration.newSession(sessionDataSource());

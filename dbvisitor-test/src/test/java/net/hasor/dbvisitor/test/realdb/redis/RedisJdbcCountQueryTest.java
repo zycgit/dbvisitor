@@ -8,10 +8,10 @@
 package net.hasor.dbvisitor.test.realdb.redis;
 
 import java.sql.SQLException;
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcCrudCommand;
 import java.util.Date;
 import net.hasor.dbvisitor.test.contract.api.adapter.RedisQueryFixture;
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcCountQueryCase;
+import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcCrudCommand;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
 import org.junit.After;

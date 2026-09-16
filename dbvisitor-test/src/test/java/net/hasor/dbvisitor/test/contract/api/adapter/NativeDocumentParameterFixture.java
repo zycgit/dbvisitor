@@ -16,11 +16,11 @@ import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 
 /** Named native command material; no parsing or emulation of relational SQL. */
 public final class NativeDocumentParameterFixture implements AutoCloseable {
-    private final String collection = "nxn_params_" + UUID.randomUUID().toString().replace("-", "");
-    private Connection connection;
-    private JdbcTemplate jdbc;
-    private boolean mongo;
-    private boolean created;
+    private final String       collection = "nxn_params_" + UUID.randomUUID().toString().replace("-", "");
+    private       Connection   connection;
+    private       JdbcTemplate jdbc;
+    private       boolean      mongo;
+    private       boolean      created;
 
     public JdbcTemplate open(String environment) throws SQLException {
         OneApiDataSourceManager.assumeCurrentDataSource(environment);
@@ -64,6 +64,15 @@ public final class NativeDocumentParameterFixture implements AutoCloseable {
             default:
                 return this.mongo ? mongoRead(command) : elasticRead(command);
         }
+    }
+
+    /** Parameter-source entrypoints parse the escaped URL marker before passing JDBC its bind markers. */
+    public String commandWithEscapedUrl(JdbcParameterCommand command) {
+        String statement = command(command);
+        if (!this.mongo && command.name().startsWith("INSERT_")) {
+            return statement.replace("/_doc ", "/_doc\\?refresh=true ");
+        }
+        return statement;
     }
 
     private String insert(String id, String name, String age, String email, String createdAt) {

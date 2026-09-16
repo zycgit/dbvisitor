@@ -30,8 +30,7 @@ public class MongoXmlMapperResultMapTest extends XmlMapperResultMapCase {
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open();
         for (int i = 1; i <= 3; i++) {
-            this.jdbcTemplate.executeUpdate(this.fixture.source() + ".insert({id: ?, name: ?, age: ?, email: ?, create_time: ?})",
-                    new Object[] { baseId() + i, "RmCfg" + i, 25 + i, "rmcfg" + i + "@nxn.test", new Date() });
+            this.jdbcTemplate.executeUpdate(this.fixture.source() + ".insert({id: ?, name: ?, age: ?, email: ?, create_time: ?})", new Object[] { baseId() + i, "RmCfg" + i, 25 + i, "rmcfg" + i + "@nxn.test", new Date() });
         }
     }
 

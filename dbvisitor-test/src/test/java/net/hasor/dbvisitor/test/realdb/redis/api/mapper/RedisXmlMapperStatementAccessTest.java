@@ -35,8 +35,7 @@ public class RedisXmlMapperStatementAccessTest extends XmlMapperStatementAccessC
     public void createXmlMapperSession() throws Exception {
         this.session = this.fixture.session(newConfiguration(), "/mapper/redis/CrudAccessMapper.xml");
         for (int i = 1; i <= 5; i++) {
-            this.session.executeStatement("xmltest.CrudMapper.seed", Map.of(
-                    "id", baseId() + i, "name", "XmlCrud" + i, "age", 20 + i, "email", "crud" + i + "@test.com"));
+            this.session.executeStatement("xmltest.CrudMapper.seed", Map.of("id", baseId() + i, "name", "XmlCrud" + i, "age", 20 + i, "email", "crud" + i + "@test.com"));
         }
     }
 

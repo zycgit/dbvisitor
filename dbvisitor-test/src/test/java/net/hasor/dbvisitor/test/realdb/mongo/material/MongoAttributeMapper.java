@@ -8,14 +8,7 @@
 package net.hasor.dbvisitor.test.realdb.mongo.material;
 
 import java.util.List;
-import net.hasor.dbvisitor.mapper.Delete;
-import net.hasor.dbvisitor.mapper.Insert;
-import net.hasor.dbvisitor.mapper.Param;
-import net.hasor.dbvisitor.mapper.Query;
-import net.hasor.dbvisitor.mapper.ResultSetType;
-import net.hasor.dbvisitor.mapper.SimpleMapper;
-import net.hasor.dbvisitor.mapper.StatementType;
-import net.hasor.dbvisitor.mapper.Update;
+import net.hasor.dbvisitor.mapper.*;
 import net.hasor.dbvisitor.test.contract.material.dao.declarative.AnnotationAttributesMapper;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 
@@ -103,10 +96,6 @@ public interface MongoAttributeMapper extends AnnotationAttributesMapper {
     int deleteWithTimeout(@Param("id") Integer id);
 
     @Override
-    @Insert({
-        "@{macro, mongoSource}.insert(",
-        "{id: #{id}, name: #{name}, age: #{age},",
-        " email: #{email}, create_time: #{createTime}})"
-    })
+    @Insert({ "@{macro, mongoSource}.insert(", "{id: #{id}, name: #{name}, age: #{age},", " email: #{email}, create_time: #{createTime}})" })
     int insertMultiLine(UserInfo user);
 }

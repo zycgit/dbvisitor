@@ -21,7 +21,7 @@ import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 /** Shared result assertions use native filtering and distance order over deterministic fixture rows. */
 final class MilvusLambdaResultFixture implements AutoCloseable {
     private final MilvusDatabaseFixture database = new MilvusDatabaseFixture();
-    private Connection connection;
+    private       Connection            connection;
 
     Connection open() throws SQLException {
         this.connection = this.database.open();
@@ -39,9 +39,7 @@ final class MilvusLambdaResultFixture implements AutoCloseable {
     }
 
     void insert(int id, String name, Integer age, String email) throws SQLException {
-        new JdbcTemplate(this.connection).executeUpdate(
-                "INSERT INTO user_info (id, name, age, email, create_time, v) VALUES (?, ?, ?, ?, ?, ?)",
-                new Object[] { id, name, age, email, new Date(), new float[] { id, 0 } });
+        new JdbcTemplate(this.connection).executeUpdate("INSERT INTO user_info (id, name, age, email, create_time, v) VALUES (?, ?, ?, ?, ?, ?)", new Object[] { id, name, age, email, new Date(), new float[] { id, 0 } });
     }
 
     EntityQuery<? extends UserInfo> queryRows(LambdaTemplate lambda, String prefix) throws SQLException {

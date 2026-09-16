@@ -7,9 +7,9 @@
  */
 package net.hasor.dbvisitor.test.realdb.mssql.feature.transaction;
 
-import net.hasor.dbvisitor.test.scenario.WriteConsistencyScenario;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MsSqlProfile;
+import net.hasor.dbvisitor.test.scenario.WriteConsistencyScenario;
 
 public class MsSqlWriteConsistencyTest extends WriteConsistencyScenario {
     @Override

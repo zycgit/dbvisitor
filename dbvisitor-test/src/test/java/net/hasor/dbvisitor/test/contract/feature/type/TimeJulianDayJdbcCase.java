@@ -11,14 +11,11 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 import net.hasor.dbvisitor.types.handler.time.JulianDayTypeHandler;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 @NxnContract
@@ -27,8 +24,9 @@ public abstract class TimeJulianDayJdbcCase extends TimeTypeJdbcSupport {
         return column;
     }
 
+    // 能力归属：类型处理器 / 日期与时间 / 儒略日。
     @Test
-    @Capability(CapabilityId.TYPE_TIME_JULIAN_DAY)
+    @Capability(value = CapabilityId.TYPE_TIME_JULIAN_DAY, column = "types/dates-and-times/values")
     public void timeJulianDay_shouldRoundTripBceDatesWithoutDatabaseCalendarConversion() throws SQLException {
         int bcId = baseId() + 22;
         int ancientId = baseId() + 23;

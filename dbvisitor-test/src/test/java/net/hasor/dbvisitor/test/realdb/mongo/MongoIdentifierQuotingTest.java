@@ -8,16 +8,14 @@
 package net.hasor.dbvisitor.test.realdb.mongo;
 
 import java.sql.SQLException;
-
-import org.junit.After;
-import org.junit.Before;
-
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.test.contract.feature.naming.IdentifierQuotingCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
 import net.hasor.dbvisitor.test.realdb.mongo.material.MongoNamingFixture;
+import org.junit.After;
+import org.junit.Before;
 
 public class MongoIdentifierQuotingTest extends IdentifierQuotingCase {
     private final MongoNamingFixture fixture = new MongoNamingFixture();

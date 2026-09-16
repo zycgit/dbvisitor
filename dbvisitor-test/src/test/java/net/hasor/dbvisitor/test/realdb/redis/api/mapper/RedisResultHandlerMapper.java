@@ -8,6 +8,7 @@
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
 import java.util.List;
+import java.util.Map;
 import net.hasor.dbvisitor.mapper.Param;
 import net.hasor.dbvisitor.mapper.Query;
 import net.hasor.dbvisitor.mapper.ResultSetType;
@@ -28,6 +29,10 @@ public interface RedisResultHandlerMapper extends ResultHandlerMapper {
     @Override
     @Query(value = "@{macro, redisHandlerRows}", resultSetExtractor = RedisUserResultHandlers.Extractor.class)
     List<UserInfo> selectWithExtractor(@Param("pattern") String pattern);
+
+    @Override
+    @Query(value = "@{macro, redisHandlerRows}", resultSetExtractor = RedisUserResultHandlers.MapExtractor.class)
+    Map<Integer, String> selectMapWithExtractor(@Param("pattern") String pattern);
 
     @Override
     @Query(value = "@{macro, redisHandlerRows}", resultSetExtractor = RedisUserResultHandlers.Extractor.class, fetchSize = 1, timeout = 30)

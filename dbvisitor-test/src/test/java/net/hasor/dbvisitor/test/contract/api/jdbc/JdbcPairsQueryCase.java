@@ -9,19 +9,17 @@ package net.hasor.dbvisitor.test.contract.api.jdbc;
 
 import java.sql.SQLException;
 import java.util.Map;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 @NxnContract
 public abstract class JdbcPairsQueryCase extends JdbcQuerySupport {
+    // 能力归属：编程式 API / 查询键值对。
     @Test
-    @Capability(CapabilityId.JDBC_QUERY_PAIRS)
+    @Capability(value = CapabilityId.JDBC_QUERY_PAIRS, column = "jdbc/queries/pairs-queries")
     public void jdbcQueryForPairs_shouldConvertNumericKeysAndStringValues() throws SQLException {
         seedUsers();
 
@@ -36,8 +34,9 @@ public abstract class JdbcPairsQueryCase extends JdbcQuerySupport {
         }
     }
 
+    // 能力归属：编程式 API / 查询键值对。
     @Test
-    @Capability(CapabilityId.JDBC_QUERY_STRING_PAIRS)
+    @Capability(value = CapabilityId.JDBC_QUERY_STRING_PAIRS, column = "jdbc/queries/pairs-queries")
     public void jdbcQueryForPairs_shouldConvertStringKeysAndNumericValues() throws SQLException {
         seedUsers();
         Map<String, Integer> nameToAge = jdbcTemplate.queryForPairs(//

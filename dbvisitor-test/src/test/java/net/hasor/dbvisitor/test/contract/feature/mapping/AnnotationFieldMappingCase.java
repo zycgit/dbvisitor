@@ -10,9 +10,6 @@ package net.hasor.dbvisitor.test.contract.feature.mapping;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.Map;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
@@ -20,18 +17,18 @@ import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.contract.material.model.annotation.ColumnMappedUser;
 import net.hasor.dbvisitor.test.contract.material.model.annotation.ColumnNameUser;
 import net.hasor.dbvisitor.test.contract.material.model.annotation.ColumnValueUser;
+import net.hasor.dbvisitor.test.contract.material.model.annotation.MethodColumnMappedUser;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class AnnotationFieldMappingCase extends AnnotationMappingPolicySupport {
+    // 能力归属：对象映射 / 映射表 / 字段映射。
     @Test
-    @Capability(CapabilityId.MAPPING_ANNOTATION_PRIMARY_KEY_CONDITION_UPDATE)
+    @Capability(value = CapabilityId.MAPPING_ANNOTATION_PRIMARY_KEY_CONDITION_UPDATE, column = "mapping-keys/table-mapping/fields")
     public void annotationMapping_shouldUsePrimaryKeyPropertyInLambdaConditions() throws SQLException {
         int firstId = baseId() + 101;
         int secondId = baseId() + 102;
@@ -51,8 +48,9 @@ public abstract class AnnotationFieldMappingCase extends AnnotationMappingPolicy
         assertEquals("PolicyPkUpdate2", second.getName());
     }
 
+    // 能力归属：对象映射 / 映射表 / 字段映射。
     @Test
-    @Capability(CapabilityId.MAPPING_ANNOTATION_COLUMN_FIELD_CRUD)
+    @Capability(value = CapabilityId.MAPPING_ANNOTATION_COLUMN_FIELD_CRUD, column = "mapping-keys/table-mapping/fields")
     public void annotationMapping_shouldRoundTripFieldLevelColumnMappings() throws SQLException {
         int id = baseId() + 111;
         deleteRaw(id);
@@ -84,10 +82,80 @@ public abstract class AnnotationFieldMappingCase extends AnnotationMappingPolicy
         assertEquals(Integer.valueOf(25), loaded.getAge());
         assertEquals("field-column@nxn.test", loaded.getMailAddr());
         assertNotNull(loaded.getCreateTime());
+
+        assertEquals(1, this.lambdaTemplate.update(ColumnMappedUser.class)//
+                .eq(ColumnMappedUser::getId, id)//
+                .updateTo(ColumnMappedUser::getUserName, "PolicyFieldColumnUpdated")//
+                .updateTo(ColumnMappedUser::getMailAddr, "field-updated@nxn.test")//
+                .doUpdate());
+        UserInfo changed = queryRaw(id);
+        assertEquals("PolicyFieldColumnUpdated", changed.getName());
+        assertEquals("field-updated@nxn.test", changed.getEmail());
+        assertEquals(Integer.valueOf(25), changed.getAge());
+
+        assertEquals(1, this.lambdaTemplate.delete(ColumnMappedUser.class)//
+                .eq(ColumnMappedUser::getId, id)//
+                .eq(ColumnMappedUser::getUserName, "PolicyFieldColumnUpdated")//
+                .doDelete());
+        assertEquals(0, this.lambdaTemplate.query(ColumnMappedUser.class)//
+                .eq(ColumnMappedUser::getId, id)//
+                .queryForCount());
     }
 
+    // 能力归属：对象映射 / 映射表 / getter 与 setter 上的列映射。
     @Test
-    @Capability(CapabilityId.MAPPING_ANNOTATION_COLUMN_NAME_VALUE_EQUIVALENCE)
+    @Capability(value = CapabilityId.MAPPING_ANNOTATION_COLUMN_METHOD_CRUD, column = "mapping-keys/table-mapping/fields")
+    public void annotationMapping_shouldRoundTripMethodLevelColumnMappings() throws SQLException {
+        int id = baseId() + 118;
+        deleteRaw(id);
+
+        MappingRegistry registry = new MappingRegistry();
+        registry.loadEntityToSpace(MethodColumnMappedUser.class);
+        TableMapping<?> mapping = registry.findByEntity(MethodColumnMappedUser.class);
+        assertTrue(mapping.getPropertyByName("id").isPrimaryKey());
+        assertEquals("name", mapping.getPropertyByName("userName").getColumn());
+        assertEquals("email", mapping.getPropertyByName("mailAddr").getColumn());
+
+        MethodColumnMappedUser user = new MethodColumnMappedUser();
+        user.setId(id);
+        user.setUserName("PolicyMethodColumn");
+        user.setMailAddr("method-column@nxn.test");
+        user.setAge(26);
+        user.setCreateTime(new Date());
+        assertEquals(1, this.lambdaTemplate.insert(MethodColumnMappedUser.class).applyEntity(user).executeSumResult());
+
+        MethodColumnMappedUser loaded = this.lambdaTemplate.query(MethodColumnMappedUser.class)//
+                .eq(MethodColumnMappedUser::getId, id)//
+                .queryForObject();
+        assertNotNull(loaded);
+        assertEquals(user.getId(), loaded.getId());
+        assertEquals(user.getUserName(), loaded.getUserName());
+        assertEquals(user.getMailAddr(), loaded.getMailAddr());
+        assertEquals(user.getAge(), loaded.getAge());
+        assertNotNull(loaded.getCreateTime());
+
+        assertEquals(1, this.lambdaTemplate.update(MethodColumnMappedUser.class)//
+                .eq(MethodColumnMappedUser::getId, id)//
+                .updateTo(MethodColumnMappedUser::getUserName, "PolicyMethodUpdated")//
+                .updateTo(MethodColumnMappedUser::getMailAddr, "method-updated@nxn.test")//
+                .doUpdate());
+        UserInfo changed = queryRaw(id);
+        assertEquals("PolicyMethodUpdated", changed.getName());
+        assertEquals("method-updated@nxn.test", changed.getEmail());
+        assertEquals(Integer.valueOf(26), changed.getAge());
+
+        assertEquals(1, this.lambdaTemplate.delete(MethodColumnMappedUser.class)//
+                .eq(MethodColumnMappedUser::getId, id)//
+                .eq(MethodColumnMappedUser::getUserName, "PolicyMethodUpdated")//
+                .doDelete());
+        assertEquals(0, this.lambdaTemplate.query(MethodColumnMappedUser.class)//
+                .eq(MethodColumnMappedUser::getId, id)//
+                .queryForCount());
+    }
+
+    // 能力归属：对象映射 / 映射表 / 字段映射。
+    @Test
+    @Capability(value = CapabilityId.MAPPING_ANNOTATION_COLUMN_NAME_VALUE_EQUIVALENCE, column = "mapping-keys/table-mapping/fields")
     public void annotationMapping_shouldTreatColumnNameAndValueAsEquivalent() throws SQLException {
         int nameId = baseId() + 112;
         int valueId = baseId() + 113;
@@ -125,8 +193,9 @@ public abstract class AnnotationFieldMappingCase extends AnnotationMappingPolicy
         assertEquals("PolicyValueAttr", queryRaw(valueId).getName());
     }
 
+    // 能力归属：对象映射 / 映射表 / 字段映射。
     @Test
-    @Capability(CapabilityId.MAPPING_ANNOTATION_MAP_QUERY_RESULT)
+    @Capability(value = CapabilityId.MAPPING_ANNOTATION_MAP_QUERY_RESULT, column = "mapping-keys/table-mapping/fields")
     public void annotationMapping_shouldExposeMapQueryResults() throws SQLException {
         int id = baseId() + 114;
         insertRaw(id, "PolicyMapResult", 30, "map-result@nxn.test");
@@ -140,8 +209,9 @@ public abstract class AnnotationFieldMappingCase extends AnnotationMappingPolicy
         assertEquals("map-result@nxn.test", value(result, "email"));
     }
 
+    // 能力归属：对象映射 / 映射表 / 字段映射。
     @Test
-    @Capability(CapabilityId.MAPPING_ANNOTATION_BASIC_VALUE_ROUND_TRIP)
+    @Capability(value = CapabilityId.MAPPING_ANNOTATION_BASIC_VALUE_ROUND_TRIP, column = "mapping-keys/table-mapping/fields")
     public void annotationMapping_shouldRoundTripDefaultColumns() throws SQLException {
         int fullId = baseId() + 115;
         deleteRaw(fullId);

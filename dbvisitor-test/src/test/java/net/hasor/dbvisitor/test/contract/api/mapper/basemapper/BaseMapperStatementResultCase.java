@@ -10,17 +10,12 @@ package net.hasor.dbvisitor.test.contract.api.mapper.basemapper;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import org.junit.Test;
-
 import net.hasor.cobble.ref.BeanMap;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class BaseMapperStatementResultCase extends BaseMapperStatementSupport {
@@ -42,8 +37,9 @@ public abstract class BaseMapperStatementResultCase extends BaseMapperStatementS
         return this.mapper.queryStatement(NS + "." + statementId, parameters);
     }
 
+    // 能力归属：Mapper API / 引用文件 Mapper。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_STATEMENT_QUERY_RESULT)
+    @Capability(value = CapabilityId.BASEMAPPER_STATEMENT_QUERY_RESULT, column = "mapper/file-mapper/calls")
     public void baseMapperStatement_shouldQueryResultMapAndResultTypeStatements() throws Exception {
         prepareProjectionData();
 

@@ -13,8 +13,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcNamedParameterCase;
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcParameterCommand;
+import net.hasor.dbvisitor.test.contract.feature.parameter.JdbcNamedParameterCase;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
@@ -23,8 +23,8 @@ import org.junit.Before;
 
 /** Named values select private sorted-set fixtures using native ZCOUNT/ZCARD. */
 public class RedisJdbcNamedParameterTest extends JdbcNamedParameterCase {
-    private final String prefix = "nxn_params_" + UUID.randomUUID() + "_";
-    private Connection connection;
+    private final String     prefix = "nxn_params_" + UUID.randomUUID() + "_";
+    private       Connection connection;
 
     @Override
     protected DataSourceProfile profile() {
@@ -67,9 +67,8 @@ public class RedisJdbcNamedParameterTest extends JdbcNamedParameterCase {
 
     @After
     public void cleanupFixture() throws SQLException {
-        // Only these three private fixture keys can be written by this contract.
-        List<String> keys = Arrays.asList(this.prefix + "NXN-Param-Colon_" + (baseId() + 5),
-                this.prefix + "NXN-Param-Brace_" + (baseId() + 6), this.prefix + "NXN-Param-Ognl_" + (baseId() + 7));
+        // Include conditional-rule fixtures as well as the three named-parameter fixtures.
+        List<String> keys = Arrays.asList(this.prefix + "NXN-Param-Colon_" + (baseId() + 5), this.prefix + "NXN-Param-Brace_" + (baseId() + 6), this.prefix + "NXN-Param-Ognl_" + (baseId() + 7), this.prefix + "NXN-Param-Conditional_" + (baseId() + 8));
         if (this.connection != null) {
             try (Connection closing = this.connection) {
                 for (String key : keys) {

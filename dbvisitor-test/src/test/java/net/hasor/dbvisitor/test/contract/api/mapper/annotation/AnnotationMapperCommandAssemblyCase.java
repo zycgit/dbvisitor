@@ -7,18 +7,17 @@
  */
 package net.hasor.dbvisitor.test.contract.api.mapper.annotation;
 
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 @NxnContract
 public abstract class AnnotationMapperCommandAssemblyCase extends AnnotationMapperCrudSupport {
+    // 能力归属：Mapper API / 方法注解。
     @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_INSERT_NAMED_PARAMS)
+    @Capability(value = CapabilityId.MAPPER_ANNOTATION_INSERT_NAMED_PARAMS, column = "mapper/method-annotations/execution")
     public void annotationMapperInsert_shouldBindNamedParamsAndMultilineSql() throws Exception {
         int first = this.mapper.insertUserWithParams(baseId() + 2, "AnnoParams", 28, "params@test.com");
         int second = this.mapper.insertUserMultiLine(user(baseId() + 3, "AnnoMultiline", 27, "multi@test.com"));

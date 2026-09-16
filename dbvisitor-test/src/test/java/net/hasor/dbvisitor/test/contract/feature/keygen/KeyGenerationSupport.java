@@ -9,13 +9,8 @@ package net.hasor.dbvisitor.test.contract.feature.keygen;
 
 import java.sql.SQLException;
 import java.util.Date;
-
 import net.hasor.dbvisitor.dialect.SqlDialect;
-import net.hasor.dbvisitor.dialect.provider.Db2Dialect;
-import net.hasor.dbvisitor.dialect.provider.H2Dialect;
-import net.hasor.dbvisitor.dialect.provider.OracleDialect;
-import net.hasor.dbvisitor.dialect.provider.PostgreSqlDialect;
-import net.hasor.dbvisitor.dialect.provider.SqlServerDialect;
+import net.hasor.dbvisitor.dialect.provider.*;
 import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyAutoUser;
 import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyNoneUser;
 import net.hasor.dbvisitor.test.contract.material.model.keygen.KeySequenceUser;

@@ -7,7 +7,7 @@
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
 
-import net.hasor.dbvisitor.test.contract.feature.procedure.ProcedureCase;
+import net.hasor.dbvisitor.test.contract.api.jdbc.ProcedureCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
 

@@ -13,7 +13,8 @@ import java.util.stream.Collectors;
 import net.hasor.dbvisitor.test.realdb.redis.scenario.mapper.ShoppingCartMapper;
 import net.hasor.dbvisitor.test.realdb.redis.scenario.model.CartItem;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ShoppingCartScenarioTest extends RedisScenarioSupport {
     @Test
@@ -25,8 +26,7 @@ public class ShoppingCartScenarioTest extends RedisScenarioSupport {
         assertEquals(3L, mapper.add(key, "p1001", 1));
         assertEquals(1L, mapper.add(key, "p1002", 1));
         List<CartItem> items = mapper.items(key);
-        Map<String, Integer> quantities = items.stream()
-                .collect(Collectors.toMap(CartItem::getProductId, CartItem::getQuantity));
+        Map<String, Integer> quantities = items.stream().collect(Collectors.toMap(CartItem::getProductId, CartItem::getQuantity));
         assertEquals(2, items.size());
         assertEquals(Integer.valueOf(3), quantities.get("p1001"));
         assertEquals(Integer.valueOf(1), quantities.get("p1002"));

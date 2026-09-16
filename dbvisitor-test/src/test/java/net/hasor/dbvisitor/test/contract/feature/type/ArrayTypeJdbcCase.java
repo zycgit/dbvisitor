@@ -12,9 +12,6 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.test.contract.material.model.types.ArrayTypesAnnotationModel;
@@ -24,11 +21,8 @@ import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.handler.array.ArrayTypeHandler;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class ArrayTypeJdbcCase extends TypeJdbcCommandSupport {
@@ -36,8 +30,9 @@ public abstract class ArrayTypeJdbcCase extends TypeJdbcCommandSupport {
         return 690000;
     }
 
+    // 能力归属：类型处理器 / 数组处理器 / 数组读写。
     @Test
-    @Capability(CapabilityId.TYPE_ARRAY_JDBC_ARRAY)
+    @Capability(value = CapabilityId.TYPE_ARRAY_JDBC_ARRAY, column = "types/array-handlers/arrays")
     public void arrayJdbcArray_shouldRoundTripIntegerArray() throws SQLException {
         requiresNxnFeature(FeatureId.ARRAY);
         int id = baseId() + 1;
@@ -60,8 +55,9 @@ public abstract class ArrayTypeJdbcCase extends TypeJdbcCommandSupport {
         assertArrayEquals(expected, loaded);
     }
 
+    // 能力归属：类型处理器 / 数组处理器 / 数组读写。
     @Test
-    @Capability(CapabilityId.TYPE_ARRAY_SQLARG)
+    @Capability(value = CapabilityId.TYPE_ARRAY_SQLARG, column = "types/array-handlers/arrays")
     public void arraySqlArg_shouldRoundTripIntegerAndFloatArrays() throws SQLException {
         requiresNxnFeature(FeatureId.ARRAY);
         int id = baseId() + 2;
@@ -82,8 +78,9 @@ public abstract class ArrayTypeJdbcCase extends TypeJdbcCommandSupport {
         }
     }
 
+    // 能力归属：类型处理器 / 数组处理器 / 数组读写。
     @Test
-    @Capability(CapabilityId.TYPE_ARRAY_NAMED_PARAMETER)
+    @Capability(value = CapabilityId.TYPE_ARRAY_NAMED_PARAMETER, column = "types/array-handlers/arrays")
     public void arrayNamedParameter_shouldRoundTripStringArray() throws SQLException {
         requiresNxnFeature(FeatureId.ARRAY);
         int id = baseId() + 3;
@@ -102,8 +99,9 @@ public abstract class ArrayTypeJdbcCase extends TypeJdbcCommandSupport {
         assertArrayEquals(expected, loaded);
     }
 
+    // 能力归属：类型处理器 / 数组处理器 / 数组读写。
     @Test
-    @Capability(CapabilityId.TYPE_ARRAY_UPDATE)
+    @Capability(value = CapabilityId.TYPE_ARRAY_UPDATE, column = "types/array-handlers/arrays")
     public void arrayUpdate_shouldReplaceArrayValues() throws SQLException {
         requiresNxnFeature(FeatureId.ARRAY);
         int id = baseId() + 4;
@@ -125,8 +123,9 @@ public abstract class ArrayTypeJdbcCase extends TypeJdbcCommandSupport {
         assertArrayEquals(updated, loaded);
     }
 
+    // 能力归属：类型处理器 / 数组处理器 / 数组读写。
     @Test
-    @Capability(CapabilityId.TYPE_ARRAY_BATCH)
+    @Capability(value = CapabilityId.TYPE_ARRAY_BATCH, column = "types/array-handlers/arrays")
     public void arrayBatch_shouldInsertMultipleArrayRows() throws SQLException {
         requiresNxnFeature(FeatureId.ARRAY);
         int firstId = baseId() + 5;
@@ -156,8 +155,9 @@ public abstract class ArrayTypeJdbcCase extends TypeJdbcCommandSupport {
         }
     }
 
+    // 能力归属：类型处理器 / 数组处理器 / 数组读写。
     @Test
-    @Capability(CapabilityId.TYPE_ARRAY_NULL)
+    @Capability(value = CapabilityId.TYPE_ARRAY_NULL, column = "types/array-handlers/arrays")
     public void arrayNull_shouldRemainNull() throws SQLException {
         int id = baseId() + 8;
 
@@ -168,8 +168,48 @@ public abstract class ArrayTypeJdbcCase extends TypeJdbcCommandSupport {
         assertNull(loaded);
     }
 
+    // 能力归属：类型处理器 / 数组类型 / 空数组保留零长度且不变成 NULL。
     @Test
-    @Capability(CapabilityId.TYPE_ARRAY_ANNOTATION_MAPPING)
+    @Capability(value = CapabilityId.TYPE_ARRAY_EMPTY, column = "types/array-handlers/arrays")
+    public void arrayEmptyValues_shouldRemainEmptyArrays() throws SQLException {
+        requiresNxnFeature(FeatureId.ARRAY);
+        int id = baseId() + 9;
+        jdbcTemplate.executeUpdate(insertCommand("array_types_test", "id, int_array, string_array"), //
+                new Object[] { id, new SqlArg(new Integer[0], Types.ARRAY, new ArrayTypeHandler()), new SqlArg(new String[0], Types.ARRAY, new ArrayTypeHandler()) });
+
+        // ArrayTypeHandler returns Object[] when the driver cannot identify an empty array's element type.
+        Object[] loadedInts = jdbcTemplate.queryForObject(selectCommand("array_types_test", "int_array"), selectParameters(id), Object[].class);
+        Object[] loadedStrings = jdbcTemplate.queryForObject(selectCommand("array_types_test", "string_array"), selectParameters(id), Object[].class);
+        assertNotNull(loadedInts);
+        assertNotNull(loadedStrings);
+        assertArrayEquals(new Integer[0], loadedInts);
+        assertArrayEquals(new String[0], loadedStrings);
+    }
+
+    // 能力归属：类型处理器 / 数组类型 / NULL 元素位置与数组整体 NULL 的区别。
+    @Test
+    @Capability(value = CapabilityId.TYPE_ARRAY_NULL_ELEMENTS, column = "types/array-handlers/arrays")
+    public void arrayNullElements_shouldPreserveElementPositions() throws SQLException {
+        requiresNxnFeature(FeatureId.ARRAY);
+        int id = baseId() + 10;
+        Integer[] expectedInts = new Integer[] { null, -1, 0, 7, null };
+        String[] expectedStrings = new String[] { null, "", "中文\"\\", null };
+        jdbcTemplate.executeUpdate(insertCommand("array_types_test", "id, int_array, string_array"), //
+                new Object[] { id, new SqlArg(expectedInts, Types.ARRAY, nullableElementArrayHandler()), new SqlArg(expectedStrings, Types.ARRAY, nullableElementArrayHandler()) });
+
+        Integer[] loadedInts = jdbcTemplate.queryForObject(selectCommand("array_types_test", "int_array"), selectParameters(id), Integer[].class);
+        String[] loadedStrings = jdbcTemplate.queryForObject(selectCommand("array_types_test", "string_array"), selectParameters(id), String[].class);
+        assertArrayEquals(expectedInts, loadedInts);
+        assertArrayEquals(expectedStrings, loadedStrings);
+    }
+
+    protected ArrayTypeHandler nullableElementArrayHandler() {
+        return new ArrayTypeHandler();
+    }
+
+    // 能力归属：类型处理器 / 数组处理器 / 数组读写。
+    @Test
+    @Capability(value = CapabilityId.TYPE_ARRAY_ANNOTATION_MAPPING, column = "types/array-handlers/arrays")
     public void arrayAnnotationMapping_shouldHonorAllColumnConfigurationsTogether() throws SQLException {
         requiresNxnFeature(FeatureId.ARRAY);
         int id = baseId() + 20;

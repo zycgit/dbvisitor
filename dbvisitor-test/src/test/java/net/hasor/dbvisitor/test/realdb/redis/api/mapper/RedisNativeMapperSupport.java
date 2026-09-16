@@ -7,9 +7,15 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
-import java.util.*;
-import java.sql.*;
-import net.hasor.dbvisitor.jdbc.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
+import net.hasor.dbvisitor.jdbc.RowCallbackHandler;
+import net.hasor.dbvisitor.jdbc.RowMapper;
 import net.hasor.dbvisitor.mapper.*;
 import net.hasor.dbvisitor.test.realdb.redis.scenario.RedisScenarioSupport;
 

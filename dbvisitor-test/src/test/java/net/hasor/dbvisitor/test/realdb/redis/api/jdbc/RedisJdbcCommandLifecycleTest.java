@@ -8,13 +8,11 @@
 package net.hasor.dbvisitor.test.realdb.redis.api.jdbc;
 
 import java.sql.SQLException;
-
-import org.junit.Before;
-import org.junit.After;
-
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcCommandLifecycleCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import net.hasor.dbvisitor.test.scenario.query.jdbc.JdbcCommandLifecycleCase;
+import org.junit.After;
+import org.junit.Before;
 
 public class RedisJdbcCommandLifecycleTest extends JdbcCommandLifecycleCase {
 

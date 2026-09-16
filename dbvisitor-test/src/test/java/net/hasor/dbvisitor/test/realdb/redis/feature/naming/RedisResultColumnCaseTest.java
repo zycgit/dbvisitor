@@ -8,14 +8,14 @@
 package net.hasor.dbvisitor.test.realdb.redis.feature.naming;
 
 import java.sql.SQLException;
-import org.junit.After;
-import org.junit.Before;
 import net.hasor.dbvisitor.mapping.Column;
 import net.hasor.dbvisitor.mapping.Table;
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcColumnMappingCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
 import net.hasor.dbvisitor.test.realdb.redis.api.jdbc.RedisJdbcFixture;
+import org.junit.After;
+import org.junit.Before;
 
 /** Result-column matching is independent of the command language used to obtain the rows. */
 public class RedisResultColumnCaseTest extends JdbcColumnMappingCase {

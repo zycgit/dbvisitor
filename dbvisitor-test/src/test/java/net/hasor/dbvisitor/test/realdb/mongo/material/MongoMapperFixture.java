@@ -17,8 +17,8 @@ import net.hasor.dbvisitor.test.contract.api.adapter.NativeDocumentParameterFixt
 /** Isolated Mongo collection shared by native Mapper scenario fixtures. */
 public final class MongoMapperFixture implements AutoCloseable {
     private final NativeDocumentParameterFixture collection = new NativeDocumentParameterFixture();
-    private JdbcTemplate jdbc;
-    private Session session;
+    private       JdbcTemplate                   jdbc;
+    private       Session                        session;
 
     public JdbcTemplate open() throws SQLException {
         if (this.jdbc == null) {
@@ -43,8 +43,7 @@ public final class MongoMapperFixture implements AutoCloseable {
 
     public void seed(int baseId, String prefix, String emailPrefix) throws SQLException {
         for (int i = 1; i <= 10; i++) {
-            this.jdbc.executeUpdate(source() + ".insert({id: ?, name: ?, age: ?, email: ?, create_time: ?})",
-                    new Object[] { baseId + i, prefix + i, 20 + i, emailPrefix + i + "@nxn.test", new Date() });
+            this.jdbc.executeUpdate(source() + ".insert({id: ?, name: ?, age: ?, email: ?, create_time: ?})", new Object[] { baseId + i, prefix + i, 20 + i, emailPrefix + i + "@nxn.test", new Date() });
         }
     }
 

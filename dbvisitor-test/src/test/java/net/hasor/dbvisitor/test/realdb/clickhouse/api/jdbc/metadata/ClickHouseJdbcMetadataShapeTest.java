@@ -8,8 +8,8 @@
 package net.hasor.dbvisitor.test.realdb.clickhouse.api.jdbc.metadata;
 
 import net.hasor.dbvisitor.test.contract.api.jdbc.metadata.JdbcMetadataShapeCase;
-import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 
 public class ClickHouseJdbcMetadataShapeTest extends JdbcMetadataShapeCase {
     @Override

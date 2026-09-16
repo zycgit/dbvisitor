@@ -10,9 +10,6 @@ package net.hasor.dbvisitor.test.contract.feature.type;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.junit.Test;
-
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.test.contract.material.model.types.JsonTestBean;
 import net.hasor.dbvisitor.test.contract.material.model.types.JsonTestBean.Address;
@@ -21,14 +18,15 @@ import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 import net.hasor.dbvisitor.types.handler.json.wrap.JsonType;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @NxnContract
 public abstract class JsonMapJdbcCase extends JsonTypeJdbcSupport {
+    // 能力归属：类型处理器 / JSON 序列化处理器 / JSON 转换。
     @Test
-    @Capability(CapabilityId.TYPE_JSON_READ_MAP)
+    @Capability(value = CapabilityId.TYPE_JSON_READ_MAP, column = "types/json-serialization-handlers/conversion")
     public void jsonObject_shouldReadAsMap() throws SQLException {
         requiresNxnFeature(FeatureId.JSON);
         Object id = fixtureKey(baseId() + 4);
@@ -46,5 +44,9 @@ public abstract class JsonMapJdbcCase extends JsonTypeJdbcSupport {
         assertEquals(40, ((Number) loaded.get("age")).intValue());
         assertEquals(Boolean.TRUE, loaded.get("active"));
         assertTrue(loaded.get("address") instanceof Map);
+        Map address = (Map) loaded.get("address");
+        assertEquals("Shenzhen", address.get("city"));
+        assertEquals("Futian Road", address.get("street"));
+        assertEquals("518000", address.get("zipCode"));
     }
 }

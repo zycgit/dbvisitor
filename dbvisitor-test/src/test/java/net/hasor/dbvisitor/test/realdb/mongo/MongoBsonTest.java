@@ -8,27 +8,16 @@
 package net.hasor.dbvisitor.test.realdb.mongo;
 
 import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
+import java.util.*;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.test.contract.api.adapter.AdapterCase;
-import net.hasor.dbvisitor.test.realdb.mongo.material.BsonTypesDto;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
-import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
+import net.hasor.dbvisitor.test.realdb.mongo.material.BsonTypesDto;
 import org.junit.Test;
+import static org.junit.Assert.*;
 
 public class MongoBsonTest extends AdapterCase {
     @Override

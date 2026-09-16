@@ -72,6 +72,7 @@ public class Elastic6GenericTest {
             }
         }
     }
+
     public static void main(String[] args) {
         net.hasor.dbvisitor.test.realdb.RealDbTestRunner.run(Elastic6GenericTest.class);
     }

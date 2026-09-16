@@ -17,7 +17,7 @@ public final class FeatureId {
     public static final String XML_SELECT_KEY_USER_INFO_SEQUENCE  = "xml-select-key-user-info-sequence";
     public static final String PROCEDURE                          = "procedure";
     public static final String PROCEDURE_CURSOR_RESULT            = "procedure-cursor-result";
-    public static final String PROCEDURE_RESULT_SET                = "procedure-result-set";
+    public static final String PROCEDURE_RESULT_SET               = "procedure-result-set";
     public static final String XML_MAPPER_CALLABLE                = "xml-mapper-callable";
     public static final String FUNCTION                           = "function";
     public static final String FUNCTION_CALL_CALLBACK             = "function-call-callback";

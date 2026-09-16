@@ -8,11 +8,11 @@
 package net.hasor.dbvisitor.test.realdb.milvus;
 
 import java.sql.SQLException;
-import org.junit.After;
-import org.junit.Before;
-import net.hasor.dbvisitor.test.contract.jdbc.call.JdbcCallResultCase;
+import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcCallResultCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
+import org.junit.After;
+import org.junit.Before;
 
 public class MilvusJdbcCallResultTest extends JdbcCallResultCase {
     private final MilvusCapabilityFixture fixture = new MilvusCapabilityFixture();
@@ -32,8 +32,7 @@ public class MilvusJdbcCallResultTest extends JdbcCallResultCase {
     protected void createCallFixture() throws SQLException {
         this.jdbcTemplate = this.fixture.open();
         this.fixture.userTable("call_result", "id INT64 PRIMARY KEY");
-        this.jdbcTemplate.executeUpdate("INSERT INTO call_result (id, name, age) VALUES (?, ?, ?)",
-                new Object[] { 918001, "ProcAlice", 25 });
+        this.jdbcTemplate.executeUpdate("INSERT INTO call_result (id, name, age) VALUES (?, ?, ?)", new Object[] { 918001, "ProcAlice", 25 });
     }
 
     @Override

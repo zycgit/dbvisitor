@@ -47,7 +47,14 @@
 
     <!-- resultRowMapper：ColumnMapRowMapper -->
     <select id="selectByColumnMapRowMapper"
-            resultRowMapper="net.hasor.dbvisitor.jdbc.mapper.ColumnMapRowMapper">
+            resultRowMapper="net.hasor.dbvisitor.test.contract.material.handler.ResultHandlerProbe$ColumnMapMapper">
+        SELECT * FROM user_info WHERE name LIKE 'ResHdl%'
+        <if test="minAge != null">AND age &gt; #{minAge}</if>
+        ORDER BY id
+    </select>
+
+    <select id="selectByRowCallback"
+            resultRowCallback="net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperResultHandlerCase$CountingCallback">
         SELECT * FROM user_info WHERE name LIKE 'ResHdl%'
         <if test="minAge != null">AND age &gt; #{minAge}</if>
         ORDER BY id
@@ -55,7 +62,7 @@
 
     <!-- resultSetExtractor：ColumnMapResultSetExtractor -->
     <select id="selectByColumnMapExtractor"
-            resultSetExtractor="net.hasor.dbvisitor.jdbc.extractor.ColumnMapResultSetExtractor">
+            resultSetExtractor="net.hasor.dbvisitor.test.contract.material.handler.ResultHandlerProbe$ColumnMapExtractor">
         SELECT * FROM user_info WHERE name LIKE 'ResHdl%'
         <if test="minAge != null">AND age &gt; #{minAge}</if>
         ORDER BY id

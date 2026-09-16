@@ -7,21 +7,18 @@
  */
 package net.hasor.dbvisitor.test.contract.api.mapper.annotation;
 
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class AnnotationMapperNullValueCase extends AnnotationMapperBoundarySupport {
+    // 能力归属：参数传递与规则 / 名称参数 / 方法注解。
     @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_NULL_VALUE)
+    @Capability(value = CapabilityId.MAPPER_ANNOTATION_NULL_VALUE, column = "parameters/positional-and-named-parameters/named")
     public void annotationMapperInsert_shouldPreserveNullColumnValues() throws Exception {
         int id = baseId() + 1;
 

@@ -22,11 +22,11 @@ import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 
 /** Native command material for JdbcTemplate query-result contracts. */
 public final class NativeDocumentQueryFixture implements AutoCloseable {
-    private final String collection = "nxn_query_" + UUID.randomUUID().toString().replace("-", "");
-    private Connection connection;
-    private JdbcTemplate jdbc;
-    private boolean mongo;
-    private boolean created;
+    private final String       collection = "nxn_query_" + UUID.randomUUID().toString().replace("-", "");
+    private       Connection   connection;
+    private       JdbcTemplate jdbc;
+    private       boolean      mongo;
+    private       boolean      created;
 
     public JdbcTemplate open(String environment) throws SQLException {
         OneApiDataSourceManager.assumeCurrentDataSource(environment);
@@ -55,8 +55,7 @@ public final class NativeDocumentQueryFixture implements AutoCloseable {
 
     private String insertCommand() {
         String fields = "{id: ?, name: ?, age: ?, email: ?, create_time: ?}";
-        return this.mongo ? "test." + this.collection + ".insert(" + fields + ")"
-                : "POST /" + this.collection + "/_doc {\"id\": ?, \"name\": ?, \"age\": ?, \"email\": ?, \"create_time\": ?}";
+        return this.mongo ? "test." + this.collection + ".insert(" + fields + ")" : "POST /" + this.collection + "/_doc {\"id\": ?, \"name\": ?, \"age\": ?, \"email\": ?, \"create_time\": ?}";
     }
 
     public String crudCommand(JdbcCrudCommand command) throws SQLException {
@@ -147,8 +146,7 @@ public final class NativeDocumentQueryFixture implements AutoCloseable {
     }
 
     private String rangeFilter(String lower, String upper) {
-        return this.mongo ? "{id: {$gte: " + lower + ", $lte: " + upper + "}}"
-                : "{\"range\": {\"id\": {\"gte\": " + lower + ", \"lte\": " + upper + "}}}";
+        return this.mongo ? "{id: {$gte: " + lower + ", $lte: " + upper + "}}" : "{\"range\": {\"id\": {\"gte\": " + lower + ", \"lte\": " + upper + "}}}";
     }
 
     private String select(String columns, String filter, boolean ordered) throws SQLException {

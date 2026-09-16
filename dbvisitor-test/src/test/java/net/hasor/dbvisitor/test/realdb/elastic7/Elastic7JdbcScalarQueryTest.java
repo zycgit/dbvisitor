@@ -8,9 +8,9 @@
 package net.hasor.dbvisitor.test.realdb.elastic7;
 
 import java.sql.SQLException;
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcCrudCommand;
 import java.util.Date;
 import net.hasor.dbvisitor.test.contract.api.adapter.NativeDocumentQueryFixture;
+import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcCrudCommand;
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcScalarQueryCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;

@@ -51,4 +51,14 @@ public class MongoLambdaAggregateTest extends LambdaAggregateCase {
         String accumulator = "sum".equalsIgnoreCase(function) ? "$sum" : "$max";
         return "[{$group: {_id: null, value: {" + accumulator + ": '$age'}}}, {$project: {_id: 0, value: 1}}]";
     }
+
+    @Override
+    protected String countSelect() {
+        return "[{$facet: {rows: [{$count: 'value'}]}}," + " {$project: {_id: 0, value: {$ifNull: [{$arrayElemAt: ['$rows.value', 0]}, 0]}}}]";
+    }
+
+    @Override
+    protected String maxAgeSelect() {
+        return "[{$facet: {rows: [{$group: {_id: null, value: {$max: '$age'}}}]}}," + " {$project: {_id: 0, value: {$ifNull: [{$arrayElemAt: ['$rows.value', 0]}, null]}}}]";
+    }
 }

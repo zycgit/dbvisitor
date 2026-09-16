@@ -8,24 +8,14 @@
 package net.hasor.dbvisitor.test.contract.api.lambda;
 
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.Test;
-
+import java.util.*;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class LambdaSecurityValueCase extends AbstractNxnContractTest {
@@ -33,8 +23,9 @@ public abstract class LambdaSecurityValueCase extends AbstractNxnContractTest {
         return 780000;
     }
 
+    // 能力归属：构造器 API / 条件参数。
     @Test
-    @Capability(CapabilityId.LAMBDA_SECURITY_VALUE_EQ)
+    @Capability(value = CapabilityId.LAMBDA_SECURITY_VALUE_EQ, column = "builder/condition-values/parameter-values")
     public void lambdaSecurityValue_shouldParameterizeEqPayloads() throws SQLException {
         insertUser(baseId() + 1, "SecAlice", 25);
         insertUser(baseId() + 2, "SecBob", 30);
@@ -52,8 +43,9 @@ public abstract class LambdaSecurityValueCase extends AbstractNxnContractTest {
         assertEquals("SecBob", loadName(baseId() + 2));
     }
 
+    // 能力归属：构造器 API / 条件参数。
     @Test
-    @Capability(CapabilityId.LAMBDA_SECURITY_VALUE_LIKE)
+    @Capability(value = CapabilityId.LAMBDA_SECURITY_VALUE_LIKE, column = "builder/condition-values/parameter-values")
     public void lambdaSecurityValue_shouldParameterizeLikePayloads() throws SQLException {
         insertUser(baseId() + 11, "SecLikeTarget", 25);
         insertUser(baseId() + 12, "SecOther", 30);
@@ -75,8 +67,9 @@ public abstract class LambdaSecurityValueCase extends AbstractNxnContractTest {
         assertEquals("SecOther", loadName(baseId() + 12));
     }
 
+    // 能力归属：构造器 API / 条件参数。
     @Test
-    @Capability(CapabilityId.LAMBDA_SECURITY_VALUE_IN)
+    @Capability(value = CapabilityId.LAMBDA_SECURITY_VALUE_IN, column = "builder/condition-values/parameter-values")
     public void lambdaSecurityValue_shouldParameterizeInPayloads() throws SQLException {
         insertUser(baseId() + 13, "SecInTarget", 35);
 
@@ -84,7 +77,7 @@ public abstract class LambdaSecurityValueCase extends AbstractNxnContractTest {
                 .in(UserInfo::getName, Arrays.asList("SecInTarget", "Absent"))//
                 .queryForCount());
 
-        List<Object> namePayloads = Arrays.<Object>asList("SecInTarget' OR '1'='1", "x'; DROP TABLE users; --");
+        List<Object> namePayloads = Arrays.asList("SecInTarget' OR '1'='1", "x'; DROP TABLE users; --");
         List<UserInfo> inResult = lambdaTemplate.query(UserInfo.class)//
                 .eq(UserInfo::getId, baseId() + 13)//
                 .in(UserInfo::getName, namePayloads)//
@@ -93,8 +86,9 @@ public abstract class LambdaSecurityValueCase extends AbstractNxnContractTest {
         assertEquals("SecInTarget", loadName(baseId() + 13));
     }
 
+    // 能力归属：构造器 API / 条件参数。
     @Test
-    @Capability(CapabilityId.LAMBDA_SECURITY_VALUE_BETWEEN)
+    @Capability(value = CapabilityId.LAMBDA_SECURITY_VALUE_BETWEEN, column = "builder/condition-values/parameter-values")
     public void lambdaSecurityValue_shouldNotExpandBetweenPayloads() throws SQLException {
         insertUser(baseId() + 21, "SecBetween", 25);
         insertUser(baseId() + 22, "SecBetweenOther", 45);
@@ -112,8 +106,9 @@ public abstract class LambdaSecurityValueCase extends AbstractNxnContractTest {
         assertEquals("SecBetweenOther", loadName(baseId() + 22));
     }
 
+    // 能力归属：构造器 API / 条件参数。
     @Test
-    @Capability(CapabilityId.LAMBDA_SECURITY_APPLY_PARAMETER)
+    @Capability(value = CapabilityId.LAMBDA_SECURITY_APPLY_PARAMETER, column = "builder/condition-values/parameter-values")
     public void lambdaSecurityValue_shouldParameterizeApplyPlaceholders() throws SQLException {
         insertUser(baseId() + 31, "SecApply", 25);
 
@@ -129,8 +124,9 @@ public abstract class LambdaSecurityValueCase extends AbstractNxnContractTest {
         assertEquals(0, injected.size());
     }
 
+    // 能力归属：构造器 API / 条件参数。
     @Test
-    @Capability(CapabilityId.LAMBDA_SECURITY_APPLY_SCOPED_TRUE)
+    @Capability(value = CapabilityId.LAMBDA_SECURITY_APPLY_SCOPED_TRUE, column = "builder/condition-values/parameter-values")
     public void lambdaSecurityValue_shouldKeepApplyTruePredicateInsideExistingScope() throws SQLException {
         insertUser(baseId() + 32, "SecApplyScoped1", 25);
         insertUser(baseId() + 33, "SecApplyScoped2", 30);
@@ -155,8 +151,9 @@ public abstract class LambdaSecurityValueCase extends AbstractNxnContractTest {
         assertEquals("SecApplyScoped3", loadName(baseId() + 34));
     }
 
+    // 能力归属：构造器 API / 条件参数。
     @Test
-    @Capability(CapabilityId.LAMBDA_SECURITY_METHOD_REF)
+    @Capability(value = CapabilityId.LAMBDA_SECURITY_METHOD_REF, column = "builder/condition-values/parameter-values")
     public void lambdaSecurityValue_shouldKeepMethodReferenceColumnsAndValuesSafe() throws SQLException {
         insertUser(baseId() + 41, "SecLambdaSafe", 25);
 
@@ -172,8 +169,9 @@ public abstract class LambdaSecurityValueCase extends AbstractNxnContractTest {
                 .queryForCount());
     }
 
+    // 能力归属：构造器 API / 条件参数。
     @Test
-    @Capability(CapabilityId.LAMBDA_SECURITY_EQ_BY_SAMPLE)
+    @Capability(value = CapabilityId.LAMBDA_SECURITY_EQ_BY_SAMPLE, column = "builder/condition-values/parameter-values")
     public void lambdaSecurityValue_shouldParameterizeEqBySampleValues() throws SQLException {
         insertUser(baseId() + 51, "SecSampleSafe", 25);
 
@@ -187,8 +185,9 @@ public abstract class LambdaSecurityValueCase extends AbstractNxnContractTest {
         assertEquals("SecSampleSafe", loadName(baseId() + 51));
     }
 
+    // 能力归属：构造器 API / 条件参数。
     @Test
-    @Capability(CapabilityId.LAMBDA_SECURITY_SECOND_ORDER)
+    @Capability(value = CapabilityId.LAMBDA_SECURITY_SECOND_ORDER, column = "builder/condition-values/parameter-values")
     public void lambdaSecurityValue_shouldHandleSecondOrderPayloadsAsValues() throws SQLException {
         String payload = "' OR '1'='1";
         insertUser(baseId() + 61, payload, 25);
@@ -207,8 +206,9 @@ public abstract class LambdaSecurityValueCase extends AbstractNxnContractTest {
         assertEquals(Integer.valueOf(baseId() + 61), result.get(0).getId());
     }
 
+    // 能力归属：构造器 API / 条件参数。
     @Test
-    @Capability(CapabilityId.LAMBDA_SECURITY_FREEDOM_VALUE_INSERT)
+    @Capability(value = CapabilityId.LAMBDA_SECURITY_FREEDOM_VALUE_INSERT, column = "builder/condition-values/parameter-values")
     public void lambdaSecurityValue_shouldPreserveFreedomInsertedPayloadAsValue() throws SQLException {
         String payload = "admin'--";
         Map<String, Object> row = new LinkedHashMap<>();

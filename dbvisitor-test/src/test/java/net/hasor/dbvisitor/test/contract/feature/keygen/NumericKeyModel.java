@@ -12,6 +12,5 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /** Entity material for shared assertions over Integer and Long generated keys. */
-public record NumericKeyModel<T>(Class<T> type, BiFunction<String, Integer, T> factory,
-        Function<T, ? extends Number> key, BiConsumer<T, Long> assignKey) {
+public record NumericKeyModel<T>(Class<T> type, BiFunction<String, Integer, T> factory, Function<T, ? extends Number> key, BiConsumer<T, Long> assignKey) {
 }

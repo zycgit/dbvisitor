@@ -8,19 +8,14 @@
 package net.hasor.dbvisitor.test.contract.feature.type;
 
 import java.sql.SQLException;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.types.StatusEnum;
 import net.hasor.dbvisitor.test.contract.material.model.types.StatusEnumOfCode;
 import net.hasor.dbvisitor.test.contract.material.model.types.StatusEnumOfValue;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class EnumTypeJdbcCase extends TypeJdbcCommandSupport {
@@ -28,8 +23,9 @@ public abstract class EnumTypeJdbcCase extends TypeJdbcCommandSupport {
         return 660000;
     }
 
+    // 能力归属：类型处理器 / 枚举处理器 / 枚举映射。
     @Test
-    @Capability(CapabilityId.TYPE_ENUM_NAME)
+    @Capability(value = CapabilityId.TYPE_ENUM_NAME, column = "types/enum-handlers/enums")
     public void enumName_shouldMapFromStringColumn() throws SQLException {
         int id = baseId() + 1;
         executeInsert(insertCommand("enum_types_explicit_test", "id, status_string"), new Object[] { id, StatusEnum.ACTIVE.name() });
@@ -39,8 +35,9 @@ public abstract class EnumTypeJdbcCase extends TypeJdbcCommandSupport {
         assertEquals(StatusEnum.ACTIVE, loaded);
     }
 
+    // 能力归属：类型处理器 / 枚举处理器 / 枚举映射。
     @Test
-    @Capability(CapabilityId.TYPE_ENUM_CODE)
+    @Capability(value = CapabilityId.TYPE_ENUM_CODE, column = "types/enum-handlers/enums")
     public void enumCode_shouldMapFromCustomStringCode() throws SQLException {
         int id = baseId() + 2;
         executeInsert(insertCommand("enum_types_explicit_test", "id, status_string"), new Object[] { id, "inactive" });
@@ -51,8 +48,9 @@ public abstract class EnumTypeJdbcCase extends TypeJdbcCommandSupport {
         assertEquals("inactive", loaded.codeName());
     }
 
+    // 能力归属：类型处理器 / 枚举处理器 / 枚举映射。
     @Test
-    @Capability(CapabilityId.TYPE_ENUM_VALUE)
+    @Capability(value = CapabilityId.TYPE_ENUM_VALUE, column = "types/enum-handlers/enums")
     public void enumValue_shouldMapFromIntegerCode() throws SQLException {
         int id = baseId() + 3;
         executeInsert(insertCommand("enum_types_explicit_test", "id, status_code"), new Object[] { id, -1 });
@@ -63,8 +61,28 @@ public abstract class EnumTypeJdbcCase extends TypeJdbcCommandSupport {
         assertEquals(-1, loaded.codeValue());
     }
 
+    // 能力归属：类型处理器 / 枚举类型 / 枚举参数的 name、字符串 code 与数值 code 写入。
     @Test
-    @Capability(CapabilityId.TYPE_ENUM_NULL)
+    @Capability(value = CapabilityId.TYPE_ENUM_PARAMETER_BINDING, column = "types/enum-handlers/enums")
+    public void enumParameters_shouldWriteDeclaredNameAndCustomCodes() throws SQLException {
+        int nameId = baseId() + 7;
+        int codeId = baseId() + 8;
+        int valueId = baseId() + 9;
+        executeInsert(insertCommand("enum_types_explicit_test", "id, status_string"), new Object[] { nameId, StatusEnum.ACTIVE });
+        executeInsert(insertCommand("enum_types_explicit_test", "id, status_string"), new Object[] { codeId, StatusEnumOfCode.INACTIVE });
+        executeInsert(insertCommand("enum_types_explicit_test", "id, status_code"), new Object[] { valueId, StatusEnumOfValue.DELETED });
+
+        assertEquals("ACTIVE", jdbcTemplate.queryForObject(selectCommand("enum_types_explicit_test", "status_string"), selectParameters(nameId), String.class));
+        assertEquals("inactive", jdbcTemplate.queryForObject(selectCommand("enum_types_explicit_test", "status_string"), selectParameters(codeId), String.class));
+        assertEquals(Integer.valueOf(-1), jdbcTemplate.queryForObject(selectCommand("enum_types_explicit_test", "status_code"), selectParameters(valueId), Integer.class));
+        assertEquals(StatusEnum.ACTIVE, jdbcTemplate.queryForObject(selectCommand("enum_types_explicit_test", "status_string"), selectParameters(nameId), StatusEnum.class));
+        assertEquals(StatusEnumOfCode.INACTIVE, jdbcTemplate.queryForObject(selectCommand("enum_types_explicit_test", "status_string"), selectParameters(codeId), StatusEnumOfCode.class));
+        assertEquals(StatusEnumOfValue.DELETED, jdbcTemplate.queryForObject(selectCommand("enum_types_explicit_test", "status_code"), selectParameters(valueId), StatusEnumOfValue.class));
+    }
+
+    // 能力归属：类型处理器 / 枚举处理器 / 枚举映射。
+    @Test
+    @Capability(value = CapabilityId.TYPE_ENUM_NULL, column = "types/enum-handlers/enums")
     public void enumValues_shouldReturnNullForNullColumns() throws SQLException {
         int id = baseId() + 4;
         executeInsert(insertCommand("enum_types_explicit_test", "id, status_string, status_ordinal, status_code"), //
@@ -76,8 +94,9 @@ public abstract class EnumTypeJdbcCase extends TypeJdbcCommandSupport {
         assertNull(jdbcTemplate.queryForObject(selectCommand("enum_types_explicit_test", "status_ordinal"), new Object[] { id }, StatusEnumOfValue.class));
     }
 
+    // 能力归属：类型处理器 / 枚举处理器 / 枚举映射。
     @Test
-    @Capability(CapabilityId.TYPE_ENUM_INVALID)
+    @Capability(value = CapabilityId.TYPE_ENUM_INVALID, column = "types/enum-handlers/enums")
     public void enumInvalidValues_shouldExposeInvalidMappingBehavior() throws SQLException {
         int invalidNameId = baseId() + 5;
         int invalidValueId = baseId() + 6;

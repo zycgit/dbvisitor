@@ -9,20 +9,18 @@ package net.hasor.dbvisitor.test.contract.api.mapper.xml;
 
 import java.util.List;
 import java.util.Map;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 @NxnContract
 public abstract class XmlRefMapperParameterCase extends XmlRefMapperSupport {
+    // 能力归属：Mapper 文件 / 调用文件 Mapper。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_REF_PARAMETER)
+    @Capability(value = CapabilityId.MAPPER_XML_REF_PARAMETER, column = "mapper-files/external-mapper-references/calls")
     public void refMapper_shouldBindMapAndBeanStyleParameters() throws Exception {
         Map<String, Object> range = rangeParameters();
         UserInfo sample = beanParameters();

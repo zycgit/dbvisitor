@@ -7,7 +7,7 @@
  */
 package net.hasor.dbvisitor.test.realdb.pg.api.lambda;
 
-import net.hasor.dbvisitor.test.contract.api.lambda.LambdaRowCallbackCase;
+import net.hasor.dbvisitor.test.contract.feature.result.LambdaRowCallbackCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.PostgreSqlProfile;
 

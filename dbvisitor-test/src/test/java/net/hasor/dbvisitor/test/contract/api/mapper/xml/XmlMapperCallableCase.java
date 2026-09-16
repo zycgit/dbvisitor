@@ -11,10 +11,6 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
@@ -26,10 +22,9 @@ import net.hasor.dbvisitor.transaction.Propagation;
 import net.hasor.dbvisitor.transaction.TransactionManager;
 import net.hasor.dbvisitor.transaction.TransactionStatus;
 import net.hasor.dbvisitor.transaction.support.TransactionHelper;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class XmlMapperCallableCase extends AbstractNxnContractTest {
@@ -56,8 +51,9 @@ public abstract class XmlMapperCallableCase extends AbstractNxnContractTest {
         throw new UnsupportedOperationException("XML callable mapper must be provided by the concrete data source test.");
     }
 
+    // 能力归属：Mapper 文件 / 存储过程调用。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_CALLABLE_IN)
+    @Capability(value = CapabilityId.MAPPER_XML_CALLABLE_IN, column = "mapper-files/statements/callable")
     public void xmlCallable_shouldExecuteInOnlyProcedureThroughMapper() throws Exception {
         requiresNxnFeature(FeatureId.XML_MAPPER_CALLABLE);
 
@@ -69,8 +65,9 @@ public abstract class XmlMapperCallableCase extends AbstractNxnContractTest {
         assertEquals("XmlCallableIn", name);
     }
 
+    // 能力归属：Mapper 文件 / 存储过程调用。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_CALLABLE_INOUT)
+    @Capability(value = CapabilityId.MAPPER_XML_CALLABLE_INOUT, column = "mapper-files/statements/callable")
     public void xmlCallable_shouldReturnSingleInOutParameterThroughBindOut() throws Exception {
         requiresNxnFeature(FeatureId.XML_MAPPER_CALLABLE);
 
@@ -81,8 +78,9 @@ public abstract class XmlMapperCallableCase extends AbstractNxnContractTest {
         assertEquals(14, ((Number) result.get("p_result")).intValue());
     }
 
+    // 能力归属：Mapper 文件 / 存储过程调用。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_CALLABLE_MULTI_INOUT)
+    @Capability(value = CapabilityId.MAPPER_XML_CALLABLE_MULTI_INOUT, column = "mapper-files/statements/callable")
     public void xmlCallable_shouldReturnMultipleInOutParametersThroughBindOut() throws Exception {
         requiresNxnFeature(FeatureId.XML_MAPPER_CALLABLE);
 
@@ -97,8 +95,9 @@ public abstract class XmlMapperCallableCase extends AbstractNxnContractTest {
         assertEquals(11, ((Number) result.get("p_length")).intValue());
     }
 
+    // 能力归属：Mapper 文件 / 存储过程调用。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_CALLABLE_OUTPUT_STATS)
+    @Capability(value = CapabilityId.MAPPER_XML_CALLABLE_OUTPUT_STATS, column = "mapper-files/statements/callable")
     public void xmlCallable_shouldReturnOutputStatsThroughInOutParameters() throws Exception {
         requiresNxnFeature(FeatureId.XML_MAPPER_CALLABLE);
         insertUser(baseId() + 21, "XmlCallableAlice", 25);
@@ -117,8 +116,9 @@ public abstract class XmlMapperCallableCase extends AbstractNxnContractTest {
         assertEquals("XmlCallableAlice", statsResult.get("p_min_name"));
     }
 
+    // 能力归属：Mapper 文件 / 存储过程调用。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_CALLABLE_REFCURSOR)
+    @Capability(value = CapabilityId.MAPPER_XML_CALLABLE_REFCURSOR, column = "mapper-files/statements/callable")
     public void xmlCallable_shouldReturnSingleAndMultipleRefcursorResultsInTransaction() throws Exception {
         requiresNxnFeature(FeatureId.XML_MAPPER_CALLABLE);
         requiresNxnFeature(FeatureId.PROCEDURE_CURSOR_RESULT);
@@ -152,8 +152,9 @@ public abstract class XmlMapperCallableCase extends AbstractNxnContractTest {
         assertEquals(2, ((List<?>) multi.get("res_unmatched")).size());
     }
 
+    // 能力归属：Mapper 文件 / 存储过程调用。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_CALLABLE_BIND_OUT)
+    @Capability(value = CapabilityId.MAPPER_XML_CALLABLE_BIND_OUT, column = "mapper-files/statements/callable")
     public void xmlCallable_shouldFilterBindOutAndReturnFullResultWhenBindOutIsAbsent() throws Exception {
         requiresNxnFeature(FeatureId.XML_MAPPER_CALLABLE);
         insertUser(baseId() + 41, "XmlCallableFullMap", 25);
@@ -162,6 +163,16 @@ public abstract class XmlMapperCallableCase extends AbstractNxnContractTest {
 
         assertEquals(1, filtered.size());
         assertEquals(10, ((Number) filtered.get("p_result")).intValue());
+
+        Map<String, Object> outputParams = mapOf("p_prefix", "All", "p_suffix", "Outputs", "p_concat", "", "p_length", 0);
+        Map<String, Object> oneOutput = executeForMap("XmlCallableMapper.callMultiInoutFiltered", outputParams);
+        assertEquals(1, oneOutput.size());
+        assertEquals("All-Outputs", oneOutput.get("p_concat"));
+        assertFalse(oneOutput.containsKey("p_length"));
+
+        Map<String, Object> allOutputs = executeForMap("XmlCallableMapper.callMultiInoutNoBind", outputParams);
+        assertEquals("All-Outputs", allOutputs.get("p_concat"));
+        assertEquals(11, ((Number) allOutputs.get("p_length")).intValue());
 
         if (profile().supportsFeature(FeatureId.PROCEDURE_CURSOR_RESULT)) {
             Map<String, Object> full = inTransaction(new TransactionalCall() {
@@ -172,6 +183,9 @@ public abstract class XmlMapperCallableCase extends AbstractNxnContractTest {
                 }
             });
             assertTrue(full.size() > 1);
+            assertEquals("found:XmlCallableFullMap", full.get("p_out"));
+            assertTrue(full.get("res1") instanceof List);
+            assertEquals(1, ((List<?>) full.get("res1")).size());
         }
     }
 

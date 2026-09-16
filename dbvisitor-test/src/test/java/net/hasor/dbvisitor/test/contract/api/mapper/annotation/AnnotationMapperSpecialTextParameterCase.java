@@ -7,19 +7,18 @@
  */
 package net.hasor.dbvisitor.test.contract.api.mapper.annotation;
 
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 @NxnContract
 public abstract class AnnotationMapperSpecialTextParameterCase extends AnnotationMapperParameterBindingSupport {
+    // 能力归属：参数传递与规则 / 名称参数 / 方法注解。
     @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_PARAM_SPECIAL_STRING)
+    @Capability(value = CapabilityId.MAPPER_ANNOTATION_PARAM_SPECIAL_STRING, column = "parameters/positional-and-named-parameters/named")
     public void namedParameters_shouldPreserveQuotesAndBackslashes() throws Exception {
         int specialId = baseId() + 14;
         String specialName = "Anno'Quote\"Double\\Slash";

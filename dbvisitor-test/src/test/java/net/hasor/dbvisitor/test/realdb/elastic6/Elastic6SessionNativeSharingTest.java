@@ -6,9 +6,13 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic6;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.Elastic6Profile;
 import net.hasor.dbvisitor.test.realdb.elastic7.Elastic7SessionNativeSharingTest;
-import net.hasor.dbvisitor.test.nxn.env.*;
+
 public class Elastic6SessionNativeSharingTest extends Elastic7SessionNativeSharingTest {
     @Override
-    protected DataSourceProfile profile() { return Elastic6Profile.INSTANCE; }
+    protected DataSourceProfile profile() {
+        return Elastic6Profile.INSTANCE;
+    }
 }

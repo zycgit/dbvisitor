@@ -7,11 +7,7 @@
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
 
-import java.sql.ResultSet;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Types;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -90,8 +86,7 @@ public class MilvusResourceGroupSqlTest extends MilvusSqlContractSupport {
             assertNotNull(group);
             assertTrue(group.matches("[a-zA-Z_][a-zA-Z0-9_.-]*"));
         }
-        try (Statement statement = this.connection.createStatement();
-                ResultSet result = statement.executeQuery("SHOW RESOURCE GROUP " + group)) {
+        try (Statement statement = this.connection.createStatement(); ResultSet result = statement.executeQuery("SHOW RESOURCE GROUP " + group)) {
             assertTrue(result.next());
             assertEquals(group, result.getString("RESOURCE_GROUP"));
             assertEquals(Types.INTEGER, result.getMetaData().getColumnType(2));

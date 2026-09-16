@@ -12,22 +12,19 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @NxnContract
 public abstract class TimeBoundaryJdbcCase extends TimeTypeJdbcSupport {
+    // 能力归属：类型处理器 / 日期与时间 / 精度与边界。
     @Test
-    @Capability(CapabilityId.TYPE_TIME_BOUNDARY)
+    @Capability(value = CapabilityId.TYPE_TIME_BOUNDARY, column = "types/dates-and-times/values")
     public void timeBoundaryValues_shouldRoundTripLeapDayMillenniumEpochAndDayEdges() throws SQLException {
         requiresNxnFeature(FeatureId.TIME_ZONE_STABLE_ROUND_TRIP);
 
@@ -58,8 +55,9 @@ public abstract class TimeBoundaryJdbcCase extends TimeTypeJdbcSupport {
         assertEquals(endOfDay, jdbcTemplate.queryForObject(selectCommand("time_types_explicit_test", "timestamp_value"), new Object[] { endOfDayId }, LocalDateTime.class));
     }
 
+    // 能力归属：类型处理器 / 日期与时间 / 精度与边界。
     @Test
-    @Capability(CapabilityId.TYPE_TIME_EXTREME_DATE)
+    @Capability(value = CapabilityId.TYPE_TIME_EXTREME_DATE, column = "types/dates-and-times/values")
     public void timeExtremeDates_shouldRoundTripSupportedHistoricalAndFutureDates() throws SQLException {
         requiresNxnFeature(FeatureId.TIME_EXTREME_DATE);
         int earlyId = baseId() + 20;
@@ -74,15 +72,16 @@ public abstract class TimeBoundaryJdbcCase extends TimeTypeJdbcSupport {
         assertEquals(lateDate, jdbcTemplate.queryForObject(selectCommand("time_types_explicit_test", "date_value"), new Object[] { lateId }, java.sql.Date.class).toLocalDate());
     }
 
+    // 能力归属：类型处理器 / 日期与时间 / 精度与边界。
     @Test
-    @Capability(CapabilityId.TYPE_TIME_PRECISION)
+    @Capability(value = CapabilityId.TYPE_TIME_PRECISION, column = "types/dates-and-times/values")
     public void timePrecision_shouldPreserveMillisecondAndTimestampPrecisionWithinDatabaseLimits() throws SQLException {
         requiresNxnFeature(FeatureId.TIME_ZONE_STABLE_ROUND_TRIP);
 
         int localDateTimeId = baseId() + 24;
         int timestampId = baseId() + 25;
         LocalDateTime dateTime = LocalDateTime.of(2024, 3, 15, 14, 30, 45, 123_000_000);
-        Timestamp original = new Timestamp(System.currentTimeMillis());
+        Timestamp original = Timestamp.valueOf("2024-03-15 14:30:45.123456789");
         original.setNanos(123456789);
 
         executeInsert(insertCommand("time_types_explicit_test", "id, timestamp_value"), new Object[] { localDateTimeId, Timestamp.valueOf(dateTime) });
@@ -99,5 +98,8 @@ public abstract class TimeBoundaryJdbcCase extends TimeTypeJdbcSupport {
         assertEquals(dateTime.getSecond(), loadedDateTime.getSecond());
         assertTrue(Math.abs(dateTime.getNano() - loadedDateTime.getNano()) < 1_000_000);
         assertTrue(Math.abs(original.getTime() - loadedTimestamp.getTime()) < 1000);
+        assertEquals("Millisecond-aligned LocalDateTime must not lose its fractional second", dateTime, loadedDateTime);
+        assertEquals("Timestamp milliseconds must survive the configured timestamp column", original.getTime(), loadedTimestamp.getTime());
+        assertTrue("Sub-millisecond rounding or truncation must stay below one millisecond", Math.abs(original.getNanos() - loadedTimestamp.getNanos()) < 1_000_000);
     }
 }

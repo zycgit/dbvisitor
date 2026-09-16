@@ -8,17 +8,12 @@
 package net.hasor.dbvisitor.test.realdb.elastic7;
 
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Date;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.mapper.Delete;
-import net.hasor.dbvisitor.mapper.Insert;
-import net.hasor.dbvisitor.mapper.Param;
-import net.hasor.dbvisitor.mapper.Query;
-import net.hasor.dbvisitor.mapper.RefMapper;
-import net.hasor.dbvisitor.mapper.SimpleMapper;
-import net.hasor.dbvisitor.mapper.Update;
+import net.hasor.dbvisitor.mapper.*;
+import net.hasor.dbvisitor.page.PageObject;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.material.dao.SessionRefUserMapper;
@@ -26,13 +21,12 @@ import net.hasor.dbvisitor.test.contract.material.dao.SessionUserMapper;
 import net.hasor.dbvisitor.test.contract.material.dao.XmlRefMapperDao;
 import net.hasor.dbvisitor.test.contract.material.dao.declarative.AnnotationTestMapper;
 import net.hasor.dbvisitor.test.contract.material.dao.declarative.ResultMappingMapper;
-import net.hasor.dbvisitor.page.PageObject;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.realdb.elastic7.material.ElasticMatrixFixture;
 
 public final class Elastic7SessionMapperFixture implements AutoCloseable {
     private final ElasticMatrixFixture fixture = new ElasticMatrixFixture();
-    private String environment;
+    private       String               environment;
 
     public JdbcTemplate open(String environment) throws SQLException {
         this.environment = environment;
@@ -59,35 +53,21 @@ public final class Elastic7SessionMapperFixture implements AutoCloseable {
         Session session = fixture.session();
         Configuration configuration = session.getConfiguration();
         String path = "POST /" + fixture.index();
-        configuration.addMacro("esSessionInsert", path + "/_doc "
-                + "{\"id\": #{id},\"name\": #{name},\"age\": #{age},\"email\": #{email},"
-                + "\"create_time\": " + System.currentTimeMillis() + "}");
+        configuration.addMacro("esSessionInsert", path + "/_doc " + "{\"id\": #{id},\"name\": #{name},\"age\": #{age},\"email\": #{email}," + "\"create_time\": " + System.currentTimeMillis() + "}");
         configuration.addMacro("esSessionIndex", fixture.index());
         configuration.addMacro("esXmlPath", path);
-        configuration.addMacro("esBulkAction", "es6".equals(environment)
-                ? "{\"index\": {\"_type\": \"_doc\"}}" : "{\"index\": {}}");
+        configuration.addMacro("esBulkAction", "es6".equals(environment) ? "{\"index\": {\"_type\": \"_doc\"}}" : "{\"index\": {}}");
         configuration.addMacro("esSessionOne", path + "/_search {\"query\": {\"term\": {\"id\": #{id}}}}");
         configuration.addMacro("esSessionAll", path + "/_search {\"size\": 100,\"sort\": [{\"id\": \"asc\"}]}");
         configuration.addMacro("esSessionCount", countCommand());
-        configuration.addMacro("esSessionUpdate", path + "/_update_by_query "
-                + "{\"query\": {\"term\": {\"id\": #{id}}},\"script\": {"
-                + "\"source\": \"ctx._source.name=params.name; ctx._source.age=params.age\","
-                + "\"params\": {\"name\": #{name},\"age\": #{age}}}}");
-        configuration.addMacro("esSessionEmail", path + "/_update_by_query "
-                + "{\"query\": {\"term\": {\"id\": #{id}}},\"script\": {"
-                + "\"source\": \"ctx._source.email=params.email\",\"params\": {\"email\": #{email}}}}");
-        configuration.addMacro("esSessionDelete", path + "/_delete_by_query "
-                + "{\"query\": {\"term\": {\"id\": #{id}}}}");
-        configuration.addMacro("esBoundaryInsert", "PUT /" + fixture.index() + "/_doc/${id}\\?op_type=create\\&refresh=true "
-                + "{\"id\": #{id},\"name\": #{name},\"age\": #{age},\"email\": #{email}}");
-        configuration.addMacro("esBoundaryAge", path + "/_update_by_query "
-                + "{\"query\": {\"term\": {\"id\": #{id}}},\"script\": {"
-                + "\"source\": \"ctx._source.age=params.age\",\"params\": {\"age\": #{age}}}}");
+        configuration.addMacro("esSessionUpdate", path + "/_update_by_query " + "{\"query\": {\"term\": {\"id\": #{id}}},\"script\": {" + "\"source\": \"ctx._source.name=params.name; ctx._source.age=params.age\"," + "\"params\": {\"name\": #{name},\"age\": #{age}}}}");
+        configuration.addMacro("esSessionEmail", path + "/_update_by_query " + "{\"query\": {\"term\": {\"id\": #{id}}},\"script\": {" + "\"source\": \"ctx._source.email=params.email\",\"params\": {\"email\": #{email}}}}");
+        configuration.addMacro("esSessionDelete", path + "/_delete_by_query " + "{\"query\": {\"term\": {\"id\": #{id}}}}");
+        configuration.addMacro("esBoundaryInsert", "PUT /" + fixture.index() + "/_doc/${id}\\?op_type=create\\&refresh=true " + "{\"id\": #{id},\"name\": #{name},\"age\": #{age},\"email\": #{email}}");
+        configuration.addMacro("esBoundaryAge", path + "/_update_by_query " + "{\"query\": {\"term\": {\"id\": #{id}}},\"script\": {" + "\"source\": \"ctx._source.age=params.age\",\"params\": {\"age\": #{age}}}}");
         configuration.addMacro("esBoundaryMissing", "POST /" + temporaryIndex() + "/_search");
-        configuration.addMacro("esTempInsert", "POST /" + temporaryIndex()
-                + "/_doc {\"id\": #{id},\"name\": #{name}}");
-        configuration.addMacro("esTempSelect", "POST /" + temporaryIndex()
-                + "/_search {\"_source\": [\"name\"],\"query\": {\"term\": {\"id\": #{id}}}}");
+        configuration.addMacro("esTempInsert", "POST /" + temporaryIndex() + "/_doc {\"id\": #{id},\"name\": #{name}}");
+        configuration.addMacro("esTempSelect", "POST /" + temporaryIndex() + "/_search {\"_source\": [\"name\"],\"query\": {\"term\": {\"id\": #{id}}}}");
         configuration.addMacro("esBoundarySyntax", path + "/_search {\"query\": {\"unknown_query\": {}}}");
         configuration.addMacro("esBoundaryColumn", path + "/_search {\"sort\": [{\"missing_field\": \"asc\"}]}");
         return session;
@@ -195,9 +175,7 @@ public final class Elastic7SessionMapperFixture implements AutoCloseable {
     @SimpleMapper
     public interface NativeBoundary extends AnnotationTestMapper {
         @Override
-        @Insert({"POST /@{macro,esSessionIndex}/_doc",
-                "{\"id\": #{id},\"name\": #{name},",
-                "\"age\": #{age},\"email\": #{email}}"})
+        @Insert({ "POST /@{macro,esSessionIndex}/_doc", "{\"id\": #{id},\"name\": #{name},", "\"age\": #{age},\"email\": #{email}}" })
         int insertUserMultiLine(UserInfo user);
 
         @Override
@@ -219,10 +197,10 @@ public final class Elastic7SessionMapperFixture implements AutoCloseable {
         @Override
         @Insert("@{macro, esTempInsert}")
         void insertTempData(@Param("id") Integer id, @Param("name") String name);
+
         @Override
         @Insert("@{macro, esBoundaryInsert}")
-        int insertUserWithParams(@Param("id") Integer id, @Param("name") String name,
-                @Param("age") Integer age, @Param("email") String email);
+        int insertUserWithParams(@Param("id") Integer id, @Param("name") String name, @Param("age") Integer age, @Param("email") String email);
 
         @Override
         @Query("@{macro, esSessionOne}")

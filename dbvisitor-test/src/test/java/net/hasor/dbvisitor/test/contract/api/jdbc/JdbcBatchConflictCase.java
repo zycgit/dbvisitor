@@ -8,20 +8,18 @@
 package net.hasor.dbvisitor.test.contract.api.jdbc;
 
 import java.sql.SQLException;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 
 @NxnContract
 public abstract class JdbcBatchConflictCase extends JdbcBatchSupport {
+    // 能力归属：编程式 API / 批量化。
     @Test
-    @Capability(CapabilityId.JDBC_BATCH_PARTIAL_FAILURE)
+    @Capability(value = CapabilityId.JDBC_BATCH_PARTIAL_FAILURE, column = "jdbc/batch-operations/batch")
     public void jdbcBatchPartialFailure_shouldPropagateDuplicateKeyError() throws SQLException {
         requiresNxnFeature(FeatureId.BATCH_DUPLICATE_FAILURE_PROPAGATED);
 

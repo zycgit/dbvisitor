@@ -8,7 +8,7 @@
 package net.hasor.dbvisitor.test.realdb.elastic6;
 
 import java.sql.SQLException;
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcRowMapperCase;
+import net.hasor.dbvisitor.test.contract.feature.result.JdbcRowMapperCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic6Profile;
 import net.hasor.dbvisitor.test.realdb.elastic7.material.ElasticMatrixFixture;
@@ -44,4 +44,3 @@ public class Elastic6JdbcRowMapperTest extends JdbcRowMapperCase {
         fixture.close();
     }
 }
-

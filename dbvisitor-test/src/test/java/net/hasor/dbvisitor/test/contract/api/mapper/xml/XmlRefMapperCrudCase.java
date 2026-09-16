@@ -8,21 +8,19 @@
 package net.hasor.dbvisitor.test.contract.api.mapper.xml;
 
 import java.util.List;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 @NxnContract
 public abstract class XmlRefMapperCrudCase extends XmlRefMapperSupport {
+    // 能力归属：Mapper 文件 / 调用文件 Mapper。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_REF_CRUD)
+    @Capability(value = CapabilityId.MAPPER_XML_REF_CRUD, column = "mapper-files/external-mapper-references/calls")
     public void refMapper_shouldBindXmlStatementsToDaoCrudMethods() throws Exception {
         assertEquals(1, this.dao.insertUser(baseId() + 10, "RefMapNew", 33, "new@nxn.test"));
 

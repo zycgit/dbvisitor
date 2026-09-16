@@ -8,10 +8,10 @@
 package net.hasor.dbvisitor.test.realdb.mongo;
 
 import java.sql.SQLException;
-import net.hasor.dbvisitor.test.realdb.mongo.material.MongoEntityFixture;
 import net.hasor.dbvisitor.test.contract.api.lambda.LambdaSpecialValueCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
+import net.hasor.dbvisitor.test.realdb.mongo.material.MongoEntityFixture;
 import org.junit.After;
 import org.junit.Before;
 
@@ -29,7 +29,6 @@ public class MongoLambdaSpecialValueTest extends LambdaSpecialValueCase {
         this.jdbcTemplate = this.fixture.open();
         this.lambdaTemplate = this.fixture.lambda();
     }
-
 
     @After
     public void cleanupFixture() throws SQLException {

@@ -9,8 +9,9 @@ package net.hasor.dbvisitor.test.realdb.mongo;
 
 import java.sql.SQLException;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
-import net.hasor.dbvisitor.test.contract.feature.mapping.AnnotationTypeHandlerCase;
+import net.hasor.dbvisitor.test.contract.feature.type.AnnotationTypeHandlerCase;
 import net.hasor.dbvisitor.test.contract.material.model.annotation.JdbcTypeUser;
+import net.hasor.dbvisitor.test.contract.material.model.annotation.ReadTypeHandlerUser;
 import net.hasor.dbvisitor.test.contract.material.model.annotation.SpecialJavaTypeUser;
 import net.hasor.dbvisitor.test.contract.material.model.annotation.TypeHandlerUser;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
@@ -33,6 +34,7 @@ public class MongoAnnotationTypeHandlerTest extends AnnotationTypeHandlerCase {
         if (this.jdbcTemplate == null) {
             this.jdbcTemplate = this.fixture.open();
             this.fixture.mapEntity(TypeHandlerUser.class);
+            this.fixture.mapEntity(ReadTypeHandlerUser.class);
             this.fixture.mapEntity(JdbcTypeUser.class);
             this.fixture.mapEntity(SpecialJavaTypeUser.class);
         }

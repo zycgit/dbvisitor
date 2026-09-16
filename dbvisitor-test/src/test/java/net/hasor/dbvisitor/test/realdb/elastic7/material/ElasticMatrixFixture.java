@@ -9,27 +9,27 @@ package net.hasor.dbvisitor.test.realdb.elastic7.material;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.Arrays;
-import java.util.stream.Collectors;
+import java.util.Date;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import net.hasor.dbvisitor.dynamic.MacroRegistry;
+import net.hasor.dbvisitor.dynamic.RuleRegistry;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
-import net.hasor.dbvisitor.dynamic.MacroRegistry;
-import net.hasor.dbvisitor.dynamic.RuleRegistry;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 
 /** Native Elasticsearch material with deterministic field types and search visibility. */
 public final class ElasticMatrixFixture implements AutoCloseable {
-    private final String index = "nxn_matrix_" + UUID.randomUUID().toString().replace("-", "");
-    private Connection connection;
-    private JdbcTemplate jdbc;
-    private MappingRegistry registry;
-    private boolean created;
+    private final String          index = "nxn_matrix_" + UUID.randomUUID().toString().replace("-", "");
+    private       Connection      connection;
+    private       JdbcTemplate    jdbc;
+    private       MappingRegistry registry;
+    private       boolean         created;
 
     public JdbcTemplate open(String environment) throws SQLException {
         String properties = """
@@ -105,8 +105,7 @@ public final class ElasticMatrixFixture implements AutoCloseable {
         }
         String fields = "*".equals(columns) ? "id,name,age,email,create_time" : columns;
         String projection = Arrays.stream(fields.split(",")).map(String::trim).map(field -> "\"" + field + "\"").collect(Collectors.joining(","));
-        return "POST /" + index + "/_search {\"size\": 100,\"_source\": [" + projection + "],\"query\": " + query
-                + (ordered ? ",\"sort\": [{\"id\": \"asc\"}]" : "") + "}";
+        return "POST /" + index + "/_search {\"size\": 100,\"_source\": [" + projection + "],\"query\": " + query + (ordered ? ",\"sort\": [{\"id\": \"asc\"}]" : "") + "}";
     }
 
     @Override

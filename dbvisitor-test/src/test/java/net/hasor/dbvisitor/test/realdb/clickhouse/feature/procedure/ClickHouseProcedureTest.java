@@ -7,9 +7,9 @@
  */
 package net.hasor.dbvisitor.test.realdb.clickhouse.feature.procedure;
 
-import net.hasor.dbvisitor.test.contract.feature.procedure.ProcedureCase;
-import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.contract.api.jdbc.ProcedureCase;
 import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 
 public class ClickHouseProcedureTest extends ProcedureCase {
     @Override

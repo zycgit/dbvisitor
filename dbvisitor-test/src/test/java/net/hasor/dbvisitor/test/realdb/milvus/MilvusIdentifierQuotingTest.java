@@ -44,12 +44,8 @@ public class MilvusIdentifierQuotingTest extends IdentifierQuotingCase {
     }
 
     private void createCollection(String name, String fields) throws SQLException {
-        this.jdbcTemplate.executeUpdate("CREATE TABLE " + name + " (" + fields + ", "
-                + "vector_text VARCHAR(128) DEFAULT 'fixture' WITH (enable_analyzer=true), "
-                + "v SPARSE_FLOAT_VECTOR, FUNCTION fixture_vector USING BM25 (vector_text) INTO (v)) "
-                + "WITH (consistency_level=Strong)");
-        this.jdbcTemplate.executeUpdate("CREATE INDEX fixture_v ON " + name
-                + "(v) USING SPARSE_INVERTED_INDEX WITH (metric_type=BM25)");
+        this.jdbcTemplate.executeUpdate("CREATE TABLE " + name + " (" + fields + ", " + "vector_text VARCHAR(128) DEFAULT 'fixture' WITH (enable_analyzer=true), " + "v SPARSE_FLOAT_VECTOR, FUNCTION fixture_vector USING BM25 (vector_text) INTO (v)) " + "WITH (consistency_level=Strong)");
+        this.jdbcTemplate.executeUpdate("CREATE INDEX fixture_v ON " + name + "(v) USING SPARSE_INVERTED_INDEX WITH (metric_type=BM25)");
         this.jdbcTemplate.executeUpdate("LOAD TABLE " + name);
     }
 

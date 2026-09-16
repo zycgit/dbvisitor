@@ -6,18 +6,16 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
-
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class MilvusCmdForTableTest extends AbstractMilvusCmdForTest {
     @Before
@@ -255,7 +253,7 @@ public class MilvusCmdForTableTest extends AbstractMilvusCmdForTest {
                     col_float16_vector float16_vector(128),
                     col_bfloat16_vector bfloat16_vector(128)
                     """ + //
-            // "col_sparse_vector sparse_float_vector(100)" + // Sparse vector support might vary by Milvus version or SDK
+                    // "col_sparse_vector sparse_float_vector(100)" + // Sparse vector support might vary by Milvus version or SDK
                     ")";
             stmt.executeUpdate(sql);
 

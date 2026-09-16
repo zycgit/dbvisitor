@@ -9,18 +9,16 @@ package net.hasor.dbvisitor.test.realdb.elastic7;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import com.zaxxer.hikari.HikariDataSource;
 import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.test.contract.api.session.SessionFactoryCase;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
-import com.zaxxer.hikari.HikariDataSource;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
 import net.hasor.dbvisitor.test.realdb.elastic7.material.ElasticMatrixFixture;
 import org.junit.After;
 import org.junit.Before;
-import static org.junit.Assert.assertEquals;
 
 public class Elastic7SessionFactoryTest extends SessionFactoryCase {
     private final ElasticMatrixFixture fixture = new ElasticMatrixFixture();
@@ -34,7 +32,7 @@ public class Elastic7SessionFactoryTest extends SessionFactoryCase {
     @Before
     public void setup() throws IOException, SQLException {
         this.jdbcTemplate = fixture.open(profile().env());
-        this.dataSource = Elastic7SessionDataSource.open(profile().env());
+        dataSource = Elastic7SessionDataSource.open(profile().env());
     }
 
     @Override

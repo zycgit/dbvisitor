@@ -7,9 +7,9 @@
  */
 package net.hasor.dbvisitor.test.realdb.pg.feature.transaction;
 
-import net.hasor.dbvisitor.test.scenario.WriteConsistencyScenario;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.PostgreSqlProfile;
+import net.hasor.dbvisitor.test.scenario.WriteConsistencyScenario;
 
 public class PostgreSqlWriteConsistencyTest extends WriteConsistencyScenario {
     @Override

@@ -23,7 +23,7 @@ import static org.junit.Assert.assertTrue;
 
 public class MongoAnnotationMapperSelectKeyTest extends AnnotationMapperSelectKeyCase {
     private final MongoKeyFixture fixture = new MongoKeyFixture();
-    private MongoKeyMapper keyMapper;
+    private       MongoKeyMapper  keyMapper;
 
     @Override
     protected DataSourceProfile profile() {

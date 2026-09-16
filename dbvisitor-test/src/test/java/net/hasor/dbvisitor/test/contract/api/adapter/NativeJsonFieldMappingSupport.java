@@ -14,6 +14,7 @@ import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.test.contract.feature.mapping.AnnotationJsonFieldMappingCase;
+import net.hasor.dbvisitor.test.contract.material.model.annotation.BoundJsonFieldEntity;
 import net.hasor.dbvisitor.test.contract.material.model.types.SpecialJsonTypeEntity;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import org.junit.After;
@@ -21,10 +22,10 @@ import org.junit.Before;
 
 /** Entity-field JSON conversion through Lambda and a private mapping registry. */
 public abstract class NativeJsonFieldMappingSupport extends AnnotationJsonFieldMappingCase {
-    private final String collection = "nxn_json_fields_" + UUID.randomUUID().toString().replace("-", "");
-    private Connection connection;
-    private boolean created;
-    private boolean mongo;
+    private final String     collection = "nxn_json_fields_" + UUID.randomUUID().toString().replace("-", "");
+    private       Connection connection;
+    private       boolean    created;
+    private       boolean    mongo;
 
     @Override
     @Before
@@ -42,15 +43,26 @@ public abstract class NativeJsonFieldMappingSupport extends AnnotationJsonFieldM
         this.created = true;
         MappingRegistry registry = new MappingRegistry();
         registry.loadEntityAsTable(SpecialJsonTypeEntity.class, this.collection);
+        registry.loadEntityAsTable(BoundJsonFieldEntity.class, this.collection);
         this.lambdaTemplate = new LambdaTemplate(this.connection, registry, null);
     }
 
     @Override
     protected SpecialJsonTypeEntity queryJson(int id) throws SQLException {
+        refreshJsonFields();
+        return super.queryJson(id);
+    }
+
+    @Override
+    protected BoundJsonFieldEntity queryBoundJson(int id) throws SQLException {
+        refreshJsonFields();
+        return super.queryBoundJson(id);
+    }
+
+    private void refreshJsonFields() throws SQLException {
         if (!this.mongo) {
             this.jdbcTemplate.execute("POST /" + this.collection + "/_refresh");
         }
-        return super.queryJson(id);
     }
 
     @After

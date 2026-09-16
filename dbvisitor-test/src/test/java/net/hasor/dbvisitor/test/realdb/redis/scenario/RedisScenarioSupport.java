@@ -19,10 +19,10 @@ import org.junit.Before;
 import static org.junit.Assert.assertTrue;
 
 public abstract class RedisScenarioSupport {
-    private final String prefix = "nxn:redis:scenario:" + UUID.randomUUID() + ":";
-    private final List<String> keys = new ArrayList<>();
-    protected Session session;
-    private JdbcTemplate jdbc;
+    private final String       prefix = "nxn:redis:scenario:" + UUID.randomUUID() + ":";
+    private final List<String> keys   = new ArrayList<>();
+    protected     Session      session;
+    private       JdbcTemplate jdbc;
 
     @Before
     public void open() throws Exception {
@@ -43,8 +43,7 @@ public abstract class RedisScenarioSupport {
 
     protected void assertTtl(String key, int minimum, int maximum) throws Exception {
         Long ttl = this.jdbc.queryForLong("TTL ?", key);
-        assertTrue("TTL must be greater than " + minimum + " and at most " + maximum + ", got " + ttl,
-                ttl != null && ttl > minimum && ttl <= maximum);
+        assertTrue("TTL must be greater than " + minimum + " and at most " + maximum + ", got " + ttl, ttl != null && ttl > minimum && ttl <= maximum);
     }
 
     @After

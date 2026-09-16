@@ -31,25 +31,18 @@ public class MilvusFunctionSqlTest extends MilvusSqlContractSupport {
         createIndex("sparse", "SPARSE_INVERTED_INDEX", "BM25");
         loadCollection();
         this.jdbcTemplate.executeUpdate("INSERT INTO " + this.collection + " (id,body) VALUES (1,'native function search')");
-        assertEquals(Long.valueOf(1), this.jdbcTemplate.queryForLong("SELECT id FROM " + this.collection
-                + " ORDER BY sparse <?> 'native' LIMIT 1"));
+        assertEquals(Long.valueOf(1), this.jdbcTemplate.queryForLong("SELECT id FROM " + this.collection + " ORDER BY sparse <?> 'native' LIMIT 1"));
     }
 
     @Test
     @Capability(CapabilityId.ADAPTER_MILVUS_SQL_FUNCTION_UNAVAILABLE)
     public void missingOnlineApisShouldPreserveSchemaAndStopFollowingDrop() throws SQLException {
-        createCollection("id INT64 PRIMARY KEY,body VARCHAR(100) WITH (enable_analyzer=true),sparse SPARSE_FLOAT_VECTOR,"
-                + "FUNCTION bm25_fn USING BM25 (body) INTO (sparse)");
+        createCollection("id INT64 PRIMARY KEY,body VARCHAR(100) WITH (enable_analyzer=true),sparse SPARSE_FLOAT_VECTOR," + "FUNCTION bm25_fn USING BM25 (body) INTO (sparse)");
         String original = createScript();
-        String[] changes = {
-                "ADD FUNCTION other USING BM25 (body) INTO (sparse)",
-                "ALTER FUNCTION bm25_fn USING BM25 (body) INTO (sparse) DESCRIPTION 'replacement'",
-                "DROP FUNCTION bm25_fn"
-        };
+        String[] changes = { "ADD FUNCTION other USING BM25 (body) INTO (sparse)", "ALTER FUNCTION bm25_fn USING BM25 (body) INTO (sparse) DESCRIPTION 'replacement'", "DROP FUNCTION bm25_fn" };
         try (Statement statement = this.connection.createStatement()) {
             for (String change : changes) {
-                SQLException failure = assertThrows(SQLException.class, () -> statement.execute(
-                        "ALTER TABLE " + this.collection + " " + change + "; DROP TABLE " + this.collection));
+                SQLException failure = assertThrows(SQLException.class, () -> statement.execute("ALTER TABLE " + this.collection + " " + change + "; DROP TABLE " + this.collection));
                 assertTrue(failure.getMessage(), failure.getMessage().contains("UNIMPLEMENTED"));
                 assertEquals(original, createScript());
             }
@@ -61,7 +54,6 @@ public class MilvusFunctionSqlTest extends MilvusSqlContractSupport {
     }
 
     private String createScript() throws SQLException {
-        return this.jdbcTemplate.queryForObject("SHOW CREATE TABLE " + this.collection,
-                (rows, rowNum) -> rows.getString("CREATE SCRIPT"));
+        return this.jdbcTemplate.queryForObject("SHOW CREATE TABLE " + this.collection, (rows, rowNum) -> rows.getString("CREATE SCRIPT"));
     }
 }

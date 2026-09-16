@@ -53,8 +53,7 @@ public class Elastic7SessionNativeSharingTest extends SessionNativeSharingCase {
 
     @Override
     protected String jdbcGet(Session session, int id) throws Exception {
-        return session.jdbc().queryForString("POST /" + fixture.index()
-                + "/_search {\"_source\": [\"email\"],\"query\": {\"term\": {\"id\": ?}}}", id);
+        return session.jdbc().queryForString("POST /" + fixture.index() + "/_search {\"_source\": [\"email\"],\"query\": {\"term\": {\"id\": ?}}}", id);
     }
 
     @After

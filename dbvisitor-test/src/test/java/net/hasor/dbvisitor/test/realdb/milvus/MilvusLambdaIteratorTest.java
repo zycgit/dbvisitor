@@ -63,8 +63,7 @@ public class MilvusLambdaIteratorTest extends LambdaIteratorCase {
 
     @Override
     protected void insertUser(int id, String name, Integer age) throws SQLException {
-        this.jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, email, create_time, v) VALUES (?, ?, ?, ?, ?, ?)",
-                new Object[] { id, name, age, name.toLowerCase(Locale.ROOT) + "@nxn.test", new Date(), new float[] { id, 0 } });
+        this.jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, email, create_time, v) VALUES (?, ?, ?, ?, ?, ?)", new Object[] { id, name, age, name.toLowerCase(Locale.ROOT) + "@nxn.test", new Date(), new float[] { id, 0 } });
     }
 
     @After

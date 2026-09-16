@@ -19,9 +19,9 @@ import org.junit.Before;
 
 /** Native commands run through the same pool as their propagation scope. */
 public abstract class NativeNonTransactionSupport extends NonTransactionPropagationCase {
-    private final String name = "nxn_no_tx_" + UUID.randomUUID().toString().replace("-", "");
-    private HikariDataSource pool;
-    private boolean created;
+    private final String           name = "nxn_no_tx_" + UUID.randomUUID().toString().replace("-", "");
+    private       HikariDataSource pool;
+    private       boolean          created;
 
     @Override
     @Before
@@ -66,8 +66,7 @@ public abstract class NativeNonTransactionSupport extends NonTransactionPropagat
                 this.created = true;
                 break;
             case "milvus":
-                jdbcTemplate.executeUpdate("CREATE TABLE " + this.name
-                        + " (id INT64 PRIMARY KEY, name VARCHAR(128), v FLOAT_VECTOR(2)) WITH (consistency_level=Strong)");
+                jdbcTemplate.executeUpdate("CREATE TABLE " + this.name + " (id INT64 PRIMARY KEY, name VARCHAR(128), v FLOAT_VECTOR(2)) WITH (consistency_level=Strong)");
                 this.created = true;
                 jdbcTemplate.executeUpdate("CREATE INDEX no_tx_v ON " + this.name + "(v) USING FLAT WITH (metric_type=L2)");
                 jdbcTemplate.executeUpdate("LOAD TABLE " + this.name);
@@ -89,8 +88,7 @@ public abstract class NativeNonTransactionSupport extends NonTransactionPropagat
                 jdbcTemplate.executeUpdate("test." + this.name + ".insert({id: ?, name: ?})", new Object[] { id, value });
                 break;
             case "milvus":
-                jdbcTemplate.executeUpdate("INSERT INTO " + this.name + " (id, name, v) VALUES (?, ?, ?)",
-                        new Object[] { id, value, new float[] { 1F, 0F } });
+                jdbcTemplate.executeUpdate("INSERT INTO " + this.name + " (id, name, v) VALUES (?, ?, ?)", new Object[] { id, value, new float[] { 1F, 0F } });
                 break;
             default:
                 jdbcTemplate.executeUpdate("POST /" + this.name + "/_doc {\"id\": ?, \"name\": ?}", new Object[] { id, value });

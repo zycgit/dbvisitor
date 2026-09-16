@@ -12,7 +12,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.UUID;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcTextParameterCase;
+import net.hasor.dbvisitor.test.contract.feature.parameter.JdbcTextParameterCase;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
@@ -21,8 +21,8 @@ import org.junit.Assume;
 import org.junit.Before;
 
 public class MilvusJdbcTextParameterTest extends JdbcTextParameterCase {
-    private final String table = "dbv_params_" + UUID.randomUUID().toString().replace("-", "");
-    private Connection connection;
+    private final String     table = "dbv_params_" + UUID.randomUUID().toString().replace("-", "");
+    private       Connection connection;
 
     @Override
     protected DataSourceProfile profile() {

@@ -7,9 +7,9 @@
  */
 package net.hasor.dbvisitor.test.realdb.h2.api.mapper.annotation;
 
-import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperJoinQueryCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.H2Profile;
+import net.hasor.dbvisitor.test.scenario.query.annotation.AnnotationMapperJoinQueryCase;
 
 public class H2AnnotationMapperJoinQueryTest extends AnnotationMapperJoinQueryCase {
     @Override

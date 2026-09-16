@@ -8,21 +8,19 @@
 package net.hasor.dbvisitor.test.contract.api.session;
 
 import java.util.List;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @NxnContract
 public abstract class SessionStatementMutationCase extends SessionStatementSupport {
+    // 能力归属：Mapper 文件 / 命令执行。
     @Test
-    @Capability(CapabilityId.SESSION_STATEMENT_EXECUTE_DML)
+    @Capability(value = CapabilityId.SESSION_STATEMENT_EXECUTE_DML, column = "mapper-files/statements/execution")
     public void sessionStatement_shouldExecuteInsertUpdateDeleteAndReturnAffectedRows() throws Exception {
         int id = baseId() + 1;
         assertEquals(1, execute("insertUser", userParams(id, "StmtDml", 25, "stmt-dml@nxn.test")));

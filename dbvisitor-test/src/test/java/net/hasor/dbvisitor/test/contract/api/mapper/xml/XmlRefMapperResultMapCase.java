@@ -9,20 +9,18 @@ package net.hasor.dbvisitor.test.contract.api.mapper.xml;
 
 import java.util.List;
 import java.util.Map;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @NxnContract
 public abstract class XmlRefMapperResultMapCase extends XmlRefMapperSupport {
+    // 能力归属：Mapper 文件 / 调用文件 Mapper。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_REF_RESULT_MAP)
+    @Capability(value = CapabilityId.MAPPER_XML_REF_RESULT_MAP, column = "mapper-files/external-mapper-references/calls")
     public void refMapper_shouldMapRowsWithoutAggregatePrerequisites() throws Exception {
         List<Map<String, Object>> rows = this.dao.selectAsMaps();
         assertEquals(4, rows.size());
@@ -45,8 +43,7 @@ public abstract class XmlRefMapperResultMapCase extends XmlRefMapperSupport {
     protected Map<String, Object> expectedRow(int index) {
         int[] ages = { 22, 28, 35, 28 };
         char suffix = (char) ('A' + index);
-        return Map.of("id", baseId() + index + 1, "name", "RefMap" + suffix, "age", ages[index],
-                "email", "ref" + Character.toLowerCase(suffix) + "@nxn.test");
+        return Map.of("id", baseId() + index + 1, "name", "RefMap" + suffix, "age", ages[index], "email", "ref" + Character.toLowerCase(suffix) + "@nxn.test");
     }
 
     protected List<String> presentColumns() {

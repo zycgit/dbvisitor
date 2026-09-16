@@ -9,15 +9,13 @@ package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
 import java.sql.SQLException;
 import java.util.List;
-
-import org.junit.After;
-import org.junit.Before;
-
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.api.mapper.basemapper.BaseMapperStatementEmptyMutationCase;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import org.junit.After;
+import org.junit.Before;
 
 public class RedisBaseMapperStatementEmptyMutationTest extends BaseMapperStatementEmptyMutationCase {
     private final RedisEntityFixture fixture = new RedisEntityFixture();

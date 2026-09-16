@@ -16,8 +16,7 @@ import net.hasor.dbvisitor.test.realdb.redis.scenario.model.RankEntry;
 @SimpleMapper
 public interface PointsRankingMapper {
     @Query("ZADD #{key} INCR #{points} #{userId}")
-    double addPoints(@Param("key") String key, @Param("userId") String userId,
-                     @Param("points") double points);
+    double addPoints(@Param("key") String key, @Param("userId") String userId, @Param("points") double points);
 
     @Query("ZRANGE #{key} 0 #{lastIndex} REV WITHSCORES")
     List<RankEntry> top(@Param("key") String key, @Param("lastIndex") int lastIndex);

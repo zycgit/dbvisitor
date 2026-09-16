@@ -17,10 +17,10 @@ import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 
 /** JSON text stored through SET/GET; Redis has no stored SQL NULL value. */
 public final class RedisJsonTypeFixture implements AutoCloseable {
-    private final String prefix = "nxn_json_" + UUID.randomUUID() + "_";
-    private final Set<String> keys = new LinkedHashSet<>();
-    private Connection connection;
-    private JdbcTemplate jdbc;
+    private final String       prefix = "nxn_json_" + UUID.randomUUID() + "_";
+    private final Set<String>  keys   = new LinkedHashSet<>();
+    private       Connection   connection;
+    private       JdbcTemplate jdbc;
 
     public JdbcTemplate open() throws SQLException {
         this.connection = OneApiDataSourceManager.getConnection("redis");

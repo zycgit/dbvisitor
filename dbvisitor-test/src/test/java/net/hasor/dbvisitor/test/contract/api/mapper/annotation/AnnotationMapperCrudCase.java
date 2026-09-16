@@ -8,22 +8,18 @@
 package net.hasor.dbvisitor.test.contract.api.mapper.annotation;
 
 import java.util.Date;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class AnnotationMapperCrudCase extends AnnotationMapperCrudSupport {
+    // 能力归属：Mapper API / 方法注解。
     @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_INSERT)
+    @Capability(value = CapabilityId.MAPPER_ANNOTATION_INSERT, column = "mapper/method-annotations/execution")
     public void annotationMapperInsert_shouldBindBeanParam() throws Exception {
         UserInfo user = user(baseId() + 1, "AnnoInsert", 25, "insert@test.com");
         user.setCreateTime(new Date());
@@ -38,8 +34,9 @@ public abstract class AnnotationMapperCrudCase extends AnnotationMapperCrudSuppo
         assertEquals("insert@test.com", loaded.getEmail());
     }
 
+    // 能力归属：Mapper API / 方法注解。
     @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_UPDATE)
+    @Capability(value = CapabilityId.MAPPER_ANNOTATION_UPDATE, column = "mapper/method-annotations/execution")
     public void annotationMapperUpdate_shouldUpdateSingleAndMultipleFields() throws Exception {
         this.mapper.insertUserWithParams(baseId() + 4, "AnnoUpdate", 30, "update@test.com");
 
@@ -52,8 +49,9 @@ public abstract class AnnotationMapperCrudCase extends AnnotationMapperCrudSuppo
         assertEquals(Integer.valueOf(36), loaded.getAge());
     }
 
+    // 能力归属：Mapper API / 方法注解。
     @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_DELETE)
+    @Capability(value = CapabilityId.MAPPER_ANNOTATION_DELETE, column = "mapper/method-annotations/execution")
     public void annotationMapperDelete_shouldDeleteById() throws Exception {
         this.mapper.insertUserWithParams(baseId() + 5, "AnnoDeleteOne", 41, "d1@test.com");
 
@@ -61,8 +59,9 @@ public abstract class AnnotationMapperCrudCase extends AnnotationMapperCrudSuppo
         assertNull(this.mapper.selectById(baseId() + 5));
     }
 
+    // 能力归属：Mapper API / 方法注解。
     @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_CRUD_SELECT)
+    @Capability(value = CapabilityId.MAPPER_ANNOTATION_CRUD_SELECT, column = "mapper/method-annotations/execution")
     public void annotationMapperSelect_shouldReturnStoredEntityAndMissingResult() throws Exception {
         this.mapper.insertUserWithParams(baseId() + 8, "AnnoQueryOne", 51, "q1@test.com");
 

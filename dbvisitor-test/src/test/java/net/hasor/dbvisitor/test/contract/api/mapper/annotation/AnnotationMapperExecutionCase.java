@@ -7,21 +7,18 @@
  */
 package net.hasor.dbvisitor.test.contract.api.mapper.annotation;
 
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class AnnotationMapperExecutionCase extends AnnotationMapperAttributeSupport {
+    // 能力归属：Mapper API / 执行选项。
     @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_STATEMENT_TYPE)
+    @Capability(value = CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_STATEMENT_TYPE, column = "mapper/execution-options/options")
     public void annotationAttributes_shouldSupportPreparedAndStatementTypes() throws Exception {
         UserInfo prepared = this.mapper.selectByIdPrepared(baseId() + 1);
         UserInfo statement = this.mapper.selectByIdStatement(baseId() + 2);
@@ -32,8 +29,9 @@ public abstract class AnnotationMapperExecutionCase extends AnnotationMapperAttr
         assertEquals("AttrNxn2", statement.getName());
     }
 
+    // 能力归属：Mapper API / 执行选项。
     @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_TIMEOUT)
+    @Capability(value = CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_TIMEOUT, column = "mapper/execution-options/options")
     public void annotationAttributes_shouldApplyTimeoutOnQueryAndDml() throws Exception {
         assertEquals("AttrNxn3", this.mapper.selectByIdDefaultTimeout(baseId() + 3).getName());
         assertEquals("AttrNxn4", this.mapper.selectByIdWithTimeout(baseId() + 4).getName());
@@ -49,8 +47,9 @@ public abstract class AnnotationMapperExecutionCase extends AnnotationMapperAttr
         assertEquals("AttrTimeoutInsert", this.mapper.selectByIdPrepared(insertId).getName());
     }
 
+    // 能力归属：Mapper API / 执行选项。
     @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_FETCH_SIZE)
+    @Capability(value = CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_FETCH_SIZE, column = "mapper/execution-options/options")
     public void annotationAttributes_shouldApplyFetchSizeVariantsWithoutChangingResults() throws Exception {
         assertAtLeastSeedRows(this.mapper.selectWithDefaultFetchSize(PATTERN));
         assertAtLeastSeedRows(this.mapper.selectWithSmallFetchSize(PATTERN));
@@ -58,8 +57,9 @@ public abstract class AnnotationMapperExecutionCase extends AnnotationMapperAttr
         assertAtLeastSeedRows(this.mapper.selectWithFetchSizeOne(PATTERN));
     }
 
+    // 能力归属：Mapper API / 方法注解。
     @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_MULTILINE)
+    @Capability(value = CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_MULTILINE, column = "mapper/method-annotations/execution")
     public void annotationAttributes_shouldJoinMultilineSqlValueArray() throws Exception {
         int insertId = explicitId(102);
         assertEquals(1, this.mapper.insertMultiLine(user(insertId, "AttrMultiLine", 27, "multiline@nxn.test")));
@@ -67,8 +67,9 @@ public abstract class AnnotationMapperExecutionCase extends AnnotationMapperAttr
         assertEquals("AttrMultiLine", this.mapper.selectByIdPrepared(insertId).getName());
     }
 
+    // 能力归属：Mapper API / 执行选项。
     @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_COMBINED)
+    @Capability(value = CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_COMBINED, column = "mapper/execution-options/options")
     public void annotationAttributes_shouldSupportCombinedAndDefaultAttributes() throws Exception {
         assertAtLeastSeedRows(this.mapper.selectWithCombinedAttributes(PATTERN));
         assertEquals("AttrNxn1", this.mapper.selectWithAllDefaults(baseId() + 1).getName());

@@ -7,9 +7,9 @@
  */
 package net.hasor.dbvisitor.test.realdb.oracle.api.jdbc;
 
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcCommandLifecycleCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.OracleProfile;
+import net.hasor.dbvisitor.test.scenario.query.jdbc.JdbcCommandLifecycleCase;
 
 public class OracleJdbcCommandLifecycleTest extends JdbcCommandLifecycleCase {
     @Override

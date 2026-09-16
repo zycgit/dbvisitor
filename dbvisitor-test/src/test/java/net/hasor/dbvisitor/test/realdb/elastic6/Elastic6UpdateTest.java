@@ -32,17 +32,17 @@ public class Elastic6UpdateTest {
 
             // Create index with mapping
             String putIndex = "PUT /" + INDEX_NAME + """
-                 {
-                "mappings": {
-                  "_doc": {
-                    "properties": {
-                      "name": { "type": "keyword" },
-                      "age": { "type": "integer" }
+                     {
+                    "mappings": {
+                      "_doc": {
+                        "properties": {
+                          "name": { "type": "keyword" },
+                          "age": { "type": "integer" }
+                        }
+                      }
                     }
-                  }
-                }
-                }
-                """;
+                    }
+                    """;
             stmt.executeUpdate(putIndex);
         }
     }
@@ -96,17 +96,17 @@ public class Elastic6UpdateTest {
 
             // Update by query
             String updateByQuery = "POST /" + INDEX_NAME + """
-                /_update_by_query {
-                "script": {
-                  "source": "ctx._source.age++"
-                },
-                "query": {
-                  "term": {
-                    "age": 30
-                  }
-                }
-                }
-                """;
+                    /_update_by_query {
+                    "script": {
+                      "source": "ctx._source.age++"
+                    },
+                    "query": {
+                      "term": {
+                        "age": 30
+                      }
+                    }
+                    }
+                    """;
 
             int count = stmt.executeUpdate(updateByQuery);
             if (count != 2) {
@@ -125,6 +125,7 @@ public class Elastic6UpdateTest {
             }
         }
     }
+
     public static void main(String[] args) {
         net.hasor.dbvisitor.test.realdb.RealDbTestRunner.run(Elastic6UpdateTest.class);
     }

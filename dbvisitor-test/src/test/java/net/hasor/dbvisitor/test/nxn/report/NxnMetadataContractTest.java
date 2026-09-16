@@ -7,42 +7,32 @@
  */
 package net.hasor.dbvisitor.test.nxn.report;
 
-import java.lang.reflect.Method;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import org.junit.Test;
-import org.junit.Before;
-
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.capability.SupportStatus;
+import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceId;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfileRegistry;
-import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-
-@NxnContract
+@NxnContract(scope = NxnContract.Scope.INFRASTRUCTURE)
 public abstract class NxnMetadataContractTest extends AbstractNxnContractTest {
     @Override
     @Before
@@ -117,8 +107,7 @@ public abstract class NxnMetadataContractTest extends AbstractNxnContractTest {
         boolean transactions = current.supportsFeature(FeatureId.TRANSACTION);
         assertSupportDeclaration(current, CapabilityId.TRANSACTION_REQUIRED_COMMIT, transactions);
         boolean nestedCommit = transactions && current.supportsFeature(FeatureId.TRANSACTION_SAVEPOINT);
-        for (String capability : new String[] { CapabilityId.TRANSACTION_NESTED_COMMIT, CapabilityId.TRANSACTION_NESTED_OUTER_ROLLBACK,
-                CapabilityId.TRANSACTION_ANNOTATION_NESTED, CapabilityId.TRANSACTION_PROXY_REQUIRED_NESTED }) {
+        for (String capability : new String[] { CapabilityId.TRANSACTION_NESTED_COMMIT, CapabilityId.TRANSACTION_NESTED_OUTER_ROLLBACK, CapabilityId.TRANSACTION_ANNOTATION_NESTED, CapabilityId.TRANSACTION_PROXY_REQUIRED_NESTED }) {
             assertSupportDeclaration(current, capability, nestedCommit);
         }
         boolean repeatableRead = transactions && current.supportsFeature(FeatureId.TRANSACTION_REPEATABLE_READ);
@@ -144,10 +133,7 @@ public abstract class NxnMetadataContractTest extends AbstractNxnContractTest {
         if (supported) {
             assertEquals(capability, SupportStatus.SUPPORTED, actual);
         } else {
-            assertTrue(capability + " must identify the unsupported layer: " + actual,
-                    actual == SupportStatus.UNSUPPORTED_BY_DATABASE
-                            || actual == SupportStatus.UNSUPPORTED_BY_DRIVER
-                            || actual == SupportStatus.UNSUPPORTED_BY_DBVISITOR);
+            assertTrue(capability + " must identify the unsupported layer: " + actual, actual == SupportStatus.UNSUPPORTED_BY_DATABASE || actual == SupportStatus.UNSUPPORTED_BY_DRIVER || actual == SupportStatus.UNSUPPORTED_BY_DBVISITOR);
         }
     }
 
@@ -171,9 +157,7 @@ public abstract class NxnMetadataContractTest extends AbstractNxnContractTest {
         assertEquals("Overriding a contract method must not create an additional capability row", 1, profileRows);
         for (String line : text.split("\n")) {
             if (line.startsWith("| `")) {
-                assertTrue("Every reported contract must have a datasource binding: " + line,
-                        line.contains("`SUPPORTED`") || line.contains("`UNSUPPORTED_BY_DATABASE`")
-                                || line.contains("`UNSUPPORTED_BY_DRIVER`"));
+                assertTrue("Every reported contract must have a datasource binding: " + line, line.contains("`SUPPORTED`") || line.contains("`UNSUPPORTED_BY_DATABASE`") || line.contains("`UNSUPPORTED_BY_DRIVER`"));
             }
         }
     }
@@ -284,8 +268,7 @@ public abstract class NxnMetadataContractTest extends AbstractNxnContractTest {
             if (capability == null || !knownCapabilities.contains(capability.value())) {
                 return false;
             }
-            if (capability.value().startsWith("adapter.") && !capability.value().startsWith(ownerPrefix)
-                    && !isSharedCapability(capability.value())) {
+            if (capability.value().startsWith("adapter.") && !capability.value().startsWith(ownerPrefix) && !isSharedCapability(capability.value())) {
                 return false;
             }
         }

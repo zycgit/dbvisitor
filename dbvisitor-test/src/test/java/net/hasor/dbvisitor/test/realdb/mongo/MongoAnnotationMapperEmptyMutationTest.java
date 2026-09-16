@@ -11,8 +11,8 @@ import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperEmptyMutationCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
-import net.hasor.dbvisitor.test.realdb.mongo.material.MongoMapperFixture;
 import net.hasor.dbvisitor.test.realdb.mongo.material.MongoCommandMapper;
+import net.hasor.dbvisitor.test.realdb.mongo.material.MongoMapperFixture;
 import org.junit.After;
 import org.junit.Before;
 

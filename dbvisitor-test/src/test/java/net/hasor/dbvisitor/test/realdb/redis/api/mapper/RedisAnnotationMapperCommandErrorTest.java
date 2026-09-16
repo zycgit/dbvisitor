@@ -8,12 +8,13 @@
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
 import java.sql.SQLException;
-import static org.junit.Assert.*;
 import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperCommandErrorCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
 import org.junit.After;
 import org.junit.Before;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class RedisAnnotationMapperCommandErrorTest extends AnnotationMapperCommandErrorCase {
     private final RedisMapperFixture fixture = new RedisMapperFixture();
@@ -35,15 +36,18 @@ public class RedisAnnotationMapperCommandErrorTest extends AnnotationMapperComma
     }
 
     private RedisCoverageMapper nativeMapper;
+
     @Override
     public void createAnnotationMapper() throws Exception {
         fixture.open();
         nativeMapper = fixture.session().createMapper(RedisCoverageMapper.class);
     }
+
     @Override
     protected void prepareInvalidCommands() throws Exception {
         fixture.session().jdbc().executeUpdate("SET ? ?", new Object[] { fixture.key("wrong-type"), "text" });
     }
+
     @Override
     protected void executeInvalidCommand(int scenario) throws Exception {
         switch (scenario) {
@@ -53,6 +57,7 @@ public class RedisAnnotationMapperCommandErrorTest extends AnnotationMapperComma
             default -> throw new IllegalArgumentException("Unknown failure scenario: " + scenario);
         }
     }
+
     @Override
     protected void verifyCommandFailure(int scenario, Exception error) {
         assertTrue(error instanceof SQLException);
@@ -62,6 +67,7 @@ public class RedisAnnotationMapperCommandErrorTest extends AnnotationMapperComma
             assertTrue(error.getMessage().contains("integer"));
         }
     }
+
     @Override
     protected void verifyAfterCommandFailures() throws Exception {
         assertEquals("text", fixture.session().jdbc().queryForString("GET ?", fixture.key("wrong-type")));

@@ -20,7 +20,7 @@ import org.junit.Before;
 /** JdbcTemplate's existing per-statement fallback, not JDBC addBatch/executeBatch. */
 public class MilvusJdbcBatchEmptyTest extends JdbcBatchEmptyCase {
     private final MilvusDatabaseFixture database = new MilvusDatabaseFixture();
-    private Connection connection;
+    private       Connection            connection;
 
     @Override
     protected DataSourceProfile profile() {

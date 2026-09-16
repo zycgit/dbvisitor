@@ -15,4 +15,11 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface NxnContract {
+    Scope scope() default Scope.COMPATIBILITY;
+
+    enum Scope {
+        COMPATIBILITY,
+        JDBC_METADATA,
+        INFRASTRUCTURE
+    }
 }

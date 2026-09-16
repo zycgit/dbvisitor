@@ -21,26 +21,14 @@
         <result column="email" property="email" javaType="java.lang.String"/>
         <result column="create_time" property="createTime" javaType="java.util.Date"/>
     </resultMap>
-    <resultMap id="autoMappingResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo" autoMapping="true">
-        <id column="id" property="id"/>
-        <result column="name" property="name"/>
-        <result column="age" property="age"/>
-        <result column="email" property="email"/>
-        <result column="create_time" property="createTime"/>
-    </resultMap>
+    <resultMap id="autoMappingResultMap" type="net.hasor.dbvisitor.test.contract.material.model.XmlAutoMappedUser" autoMapping="true"/>
     <resultMap id="caseInsensitiveResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo" caseInsensitive="true">
         <id column="ID" property="id"/>
         <result column="NAME" property="name"/>
         <result column="AGE" property="age"/>
         <result column="EMAIL" property="email"/>
     </resultMap>
-    <resultMap id="camelCaseResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo" mapUnderscoreToCamelCase="true">
-        <id column="id" property="id"/>
-        <result column="name" property="name"/>
-        <result column="age" property="age"/>
-        <result column="email" property="email"/>
-        <result column="create_time" property="createTime"/>
-    </resultMap>
+    <resultMap id="camelCaseResultMap" type="net.hasor.dbvisitor.test.contract.material.model.XmlAutoMappedUser" autoMapping="true" mapUnderscoreToCamelCase="true"/>
     <insert id="insertUser">
         @{macro, mongoSource}.insert({id: #{id}, name: #{name}, age: #{age}, email: #{email}})
     </insert>
@@ -70,4 +58,3 @@
     </select>
 
 </mapper>
-

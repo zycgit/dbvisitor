@@ -7,9 +7,9 @@
  */
 package net.hasor.dbvisitor.test.realdb.clickhouse.feature.mapping;
 
-import net.hasor.dbvisitor.test.contract.feature.mapping.AnnotationTypeHandlerCase;
-import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.contract.feature.type.AnnotationTypeHandlerCase;
 import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 
 public class ClickHouseAnnotationTypeHandlerTest extends AnnotationTypeHandlerCase {
     @Override

@@ -8,22 +8,20 @@
 package net.hasor.dbvisitor.test.contract.api.mapper.annotation;
 
 import java.util.List;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.page.PageObject;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
 @NxnContract
 public abstract class AnnotationMapperPaginationResultCase extends AnnotationMapperResultMappingSupport {
+    // 能力归属：Mapper API / 分页查询。
     @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_RESULT_PAGE)
+    @Capability(value = CapabilityId.MAPPER_ANNOTATION_RESULT_PAGE, column = "mapper/pagination/pagination")
     public void queryResult_shouldApplyPageObjectToListResult() throws Exception {
         List<UserInfo> firstPage = queryPage(new PageObject(0, 5));
         List<UserInfo> secondPage = queryPage(new PageObject(1, 5));

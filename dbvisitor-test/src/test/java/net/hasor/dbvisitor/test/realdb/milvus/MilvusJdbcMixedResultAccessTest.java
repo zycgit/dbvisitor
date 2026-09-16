@@ -23,8 +23,8 @@ import org.junit.Before;
 
 /** Native Milvus fixtures for the unchanged shared result-mapping assertions. */
 public class MilvusJdbcMixedResultAccessTest extends JdbcMixedResultAccessCase {
-    private final String table = "dbv_mapping_" + UUID.randomUUID().toString().replace("-", "");
-    private Connection connection;
+    private final String     table = "dbv_mapping_" + UUID.randomUUID().toString().replace("-", "");
+    private       Connection connection;
 
     @Override
     protected DataSourceProfile profile() {
@@ -62,8 +62,7 @@ public class MilvusJdbcMixedResultAccessTest extends JdbcMixedResultAccessCase {
     @Override
     protected void insertUser(int id, String name, int age, String email) throws SQLException {
         // Distance from [0,0] gives the shared assertions their deterministic fixture order.
-        jdbcTemplate.executeUpdate("INSERT INTO " + this.table + " (id, name, age, email, v) VALUES (?, ?, ?, ?, ?)",
-                new Object[] { id, name, age, email, Arrays.asList((float) (id - baseId()), 0F) });
+        jdbcTemplate.executeUpdate("INSERT INTO " + this.table + " (id, name, age, email, v) VALUES (?, ?, ?, ?, ?)", new Object[] { id, name, age, email, Arrays.asList((float) (id - baseId()), 0F) });
     }
 
     @Override

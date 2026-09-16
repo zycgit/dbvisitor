@@ -96,8 +96,7 @@ public class MilvusPagingSqlTest extends MilvusSqlContractSupport {
         }
         loadCollection();
         for (int fetchSize : new int[] { 1, 10 }) {
-            String sql = "SELECT id, score FROM " + this.collection
-                    + " ORDER BY v <-> ? LIMIT 2 WITH (round_decimal=?, ignore_growing=?)";
+            String sql = "SELECT id, score FROM " + this.collection + " ORDER BY v <-> ? LIMIT 2 WITH (round_decimal=?, ignore_growing=?)";
             try (PreparedStatement query = this.connection.prepareStatement(sql)) {
                 query.setFetchSize(fetchSize);
                 query.setObject(1, new float[] { 0.1234f, 0 });
@@ -196,10 +195,7 @@ public class MilvusPagingSqlTest extends MilvusSqlContractSupport {
     @Capability(CapabilityId.ADAPTER_MILVUS_SQL_LIMIT_ZERO)
     public void zeroLimit_shouldBeRejectedWithoutMutatingRows() throws SQLException {
         // LIMIT 必须为正整数；与 JDBC setMaxRows(0) 表示无限制不同。
-        List<String> commands = List.of(
-                "SELECT id FROM " + this.collection + " WHERE id > 0",
-                "UPDATE " + this.collection + " SET value = 99 WHERE id > 0",
-                "DELETE FROM " + this.collection + " WHERE id > 0");
+        List<String> commands = List.of("SELECT id FROM " + this.collection + " WHERE id > 0", "UPDATE " + this.collection + " SET value = 99 WHERE id > 0", "DELETE FROM " + this.collection + " WHERE id > 0");
         for (String command : commands) {
             try (Statement statement = this.connection.createStatement()) {
                 statement.setFetchSize(2);
@@ -220,9 +216,7 @@ public class MilvusPagingSqlTest extends MilvusSqlContractSupport {
     @Test
     @Capability(CapabilityId.ADAPTER_MILVUS_SQL_MULTIPLE_RESULTS)
     public void multipleStatements_shouldKeepParameterOrderAndJdbcResultSequence() throws SQLException {
-        String sql = "SELECT id FROM " + this.collection + " WHERE id = ?;"
-                + "UPDATE " + this.collection + " SET label = ? WHERE id = ?;"
-                + "SELECT id, label FROM " + this.collection + " WHERE id = ?";
+        String sql = "SELECT id FROM " + this.collection + " WHERE id = ?;" + "UPDATE " + this.collection + " SET label = ? WHERE id = ?;" + "SELECT id, label FROM " + this.collection + " WHERE id = ?";
         try (PreparedStatement statement = this.connection.prepareStatement(sql)) {
             statement.setLong(1, 1);
             statement.setString(2, "updated");

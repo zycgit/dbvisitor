@@ -18,10 +18,10 @@ import static org.junit.Assert.assertEquals;
 
 /** Native single-value reads cover the same values as the common numeric/boolean/character cases. */
 public final class RedisBasicTypeSupport implements AutoCloseable {
-    private final String prefix = "nxn:basic:" + UUID.randomUUID() + ":";
-    private final List<String> keys = new ArrayList<>();
-    private Connection connection;
-    private JdbcTemplate jdbcTemplate;
+    private final String       prefix = "nxn:basic:" + UUID.randomUUID() + ":";
+    private final List<String> keys   = new ArrayList<>();
+    private       Connection   connection;
+    private       JdbcTemplate jdbcTemplate;
 
     public void openFixture() throws SQLException {
         OneApiDataSourceManager.assumeCurrentDataSource("redis");

@@ -13,19 +13,17 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Map;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertNull;
 
 @NxnContract
 public abstract class TimeNullJdbcCase extends TimeTypeJdbcSupport {
+    // 能力归属：类型处理器 / 日期与时间 / 时间空值。
     @Test
-    @Capability(CapabilityId.TYPE_TIME_NULL)
+    @Capability(value = CapabilityId.TYPE_TIME_NULL, column = "types/dates-and-times/values")
     public void timeNulls_shouldRemainNull() throws SQLException {
         int id = baseId() + 26;
 

@@ -8,22 +8,18 @@
 package net.hasor.dbvisitor.test.contract.feature.mapping;
 
 import java.sql.SQLException;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class AnnotationPartialFieldMappingCase extends AnnotationMappingPolicySupport {
+    // 能力归属：对象映射 / 写入策略 / 部分字段。
     @Test
-    @Capability(CapabilityId.MAPPING_ANNOTATION_PARTIAL_INSERT)
+    @Capability(value = CapabilityId.MAPPING_ANNOTATION_PARTIAL_INSERT, column = "mapping-keys/write-policies/fields")
     public void annotationMapping_shouldAllowPartialEntityInsert() throws SQLException {
         UserInfo user = new UserInfo();
         user.setId(baseId() + 52);
@@ -39,8 +35,9 @@ public abstract class AnnotationPartialFieldMappingCase extends AnnotationMappin
         assertNull(loaded.getEmail());
     }
 
+    // 能力归属：对象映射 / 写入策略 / 部分字段。
     @Test
-    @Capability(CapabilityId.MAPPING_ANNOTATION_PARTIAL_UPDATE)
+    @Capability(value = CapabilityId.MAPPING_ANNOTATION_PARTIAL_UPDATE, column = "mapping-keys/write-policies/fields")
     public void annotationMapping_shouldUpdateOnlyExplicitFields() throws SQLException {
         int id = baseId() + 53;
         insertRaw(id, "PolicyPartialUpdate", 25, "partial-update@nxn.test");

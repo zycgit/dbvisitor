@@ -10,16 +10,11 @@ package net.hasor.dbvisitor.test.contract.api.vector_query;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.postgresql.util.PGobject;
-
 import net.hasor.dbvisitor.lambda.core.MetricType;
 import net.hasor.dbvisitor.test.contract.material.model.ProductVectorForPg;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.postgresql.util.PGobject;
+import static org.junit.Assert.*;
 
 public abstract class VecQSupport extends AbstractNxnContractTest {
     protected static final int VECTOR_DIM = 128;

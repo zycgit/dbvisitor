@@ -13,12 +13,12 @@ import net.hasor.dbvisitor.test.contract.material.model.naming.*;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
 import net.hasor.dbvisitor.test.realdb.elastic7.material.ElasticMatrixFixture;
-import org.junit.Before;
 import org.junit.After;
+import org.junit.Before;
 
 public class Elastic7IdentifierQuotingTest extends IdentifierQuotingCase {
     private final ElasticMatrixFixture fixture = new ElasticMatrixFixture();
-    private boolean keywordIndexCreated;
+    private       boolean              keywordIndexCreated;
 
     @Override
     protected DataSourceProfile profile() {
@@ -29,8 +29,7 @@ public class Elastic7IdentifierQuotingTest extends IdentifierQuotingCase {
     @Before
     public void setup() throws SQLException {
         jdbcTemplate = fixture.open(profile().env());
-        for (Class<?> model : new Class<?>[] {AllNamingOptionsUser.class, DelimitedUser.class, CaseTestUpperCI.class,
-                KeywordColumnEntity.class, KeywordColumnNoDelimitedEntity.class}) {
+        for (Class<?> model : new Class<?>[] { AllNamingOptionsUser.class, DelimitedUser.class, CaseTestUpperCI.class, KeywordColumnEntity.class, KeywordColumnNoDelimitedEntity.class }) {
             fixture.registry().loadEntityAsTable(model, fixture.index());
         }
         lambdaTemplate = fixture.lambdaTemplate();

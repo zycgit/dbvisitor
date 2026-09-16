@@ -7,9 +7,9 @@
  */
 package net.hasor.dbvisitor.test.realdb.clickhouse.api.lambda;
 
-import net.hasor.dbvisitor.test.contract.api.lambda.LambdaRowMapperCase;
-import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.contract.feature.result.LambdaRowMapperCase;
 import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 
 public class ClickHouseLambdaRowMapperTest extends LambdaRowMapperCase {
     @Override

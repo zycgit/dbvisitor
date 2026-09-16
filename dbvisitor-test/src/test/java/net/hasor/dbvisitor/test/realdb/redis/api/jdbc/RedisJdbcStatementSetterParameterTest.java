@@ -9,13 +9,11 @@ package net.hasor.dbvisitor.test.realdb.redis.api.jdbc;
 
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcParameterCommand;
-
-import org.junit.Before;
-import org.junit.After;
-
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcStatementSetterParameterCase;
+import net.hasor.dbvisitor.test.contract.feature.parameter.JdbcStatementSetterParameterCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import org.junit.After;
+import org.junit.Before;
 
 public class RedisJdbcStatementSetterParameterTest extends JdbcStatementSetterParameterCase {
 
@@ -42,9 +40,7 @@ public class RedisJdbcStatementSetterParameterTest extends JdbcStatementSetterPa
         String key = "'" + fixture.key("parameters") + "'";
         switch (command) {
             case INSERT_POSITIONAL:
-                return "EVAL 'return redis.call(\"HSET\", KEYS[1], ARGV[1] .. \":name\", ARGV[2], "
-                        + "ARGV[1] .. \":age\", ARGV[3], ARGV[1] .. \":email\", ARGV[4], "
-                        + "ARGV[1] .. \":created\", ARGV[5], ARGV[2] .. \":email\", ARGV[4])' 1 " + key + " ? ? ? ? ?";
+                return "EVAL 'return redis.call(\"HSET\", KEYS[1], ARGV[1] .. \":name\", ARGV[2], " + "ARGV[1] .. \":age\", ARGV[3], ARGV[1] .. \":email\", ARGV[4], " + "ARGV[1] .. \":created\", ARGV[5], ARGV[2] .. \":email\", ARGV[4])' 1 " + key + " ? ? ? ? ?";
             case SELECT_EMAIL_BY_ID:
             case SELECT_EMAIL_BY_NAME:
                 return "EVAL 'return redis.call(\"HGET\", KEYS[1], ARGV[1] .. \":email\")' 1 " + key + " ?";
@@ -52,6 +48,7 @@ public class RedisJdbcStatementSetterParameterTest extends JdbcStatementSetterPa
                 throw new IllegalArgumentException("Unexpected parameter fixture command: " + command);
         }
     }
+
     @Override
     protected boolean parameterWriteReturnsRows() {
         return true;

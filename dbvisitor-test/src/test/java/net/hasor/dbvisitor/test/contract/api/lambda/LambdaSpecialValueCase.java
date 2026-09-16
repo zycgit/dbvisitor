@@ -13,20 +13,14 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class LambdaSpecialValueCase extends AbstractNxnContractTest {
@@ -34,8 +28,9 @@ public abstract class LambdaSpecialValueCase extends AbstractNxnContractTest {
         return 770000;
     }
 
+    // 能力归属：构造器 API / 条件参数。
     @Test
-    @Capability(CapabilityId.LAMBDA_SPECIAL_QUOTED_TEXT)
+    @Capability(value = CapabilityId.LAMBDA_SPECIAL_QUOTED_TEXT, column = "builder/condition-values/parameter-values")
     public void lambdaSpecialValue_shouldBindSingleDoubleQuotesAndBackslashes() throws SQLException {
         insertUser(baseId() + 1, "O'Brien", 30, "quote1@test.com", new Date());
         insertUser(baseId() + 2, "Say \"Hello\"", 31, "quote2@test.com", new Date());
@@ -52,8 +47,9 @@ public abstract class LambdaSpecialValueCase extends AbstractNxnContractTest {
         assertEquals(Integer.valueOf(baseId() + 1), users.get(0).getId());
     }
 
+    // 能力归属：构造器 API / 条件参数。
     @Test
-    @Capability(CapabilityId.LAMBDA_SPECIAL_CONTROL_WHITESPACE)
+    @Capability(value = CapabilityId.LAMBDA_SPECIAL_CONTROL_WHITESPACE, column = "builder/condition-values/parameter-values")
     public void lambdaSpecialValue_shouldBindNewlineTabAndWhitespace() throws SQLException {
         String multiline = "Line1\nLine2\tTab";
         String spaces = "  Leading and Trailing  ";
@@ -66,8 +62,9 @@ public abstract class LambdaSpecialValueCase extends AbstractNxnContractTest {
         assertTrue(loadedSpaces.contains("Leading and Trailing"));
     }
 
+    // 能力归属：构造器 API / 条件参数。
     @Test
-    @Capability(CapabilityId.LAMBDA_SPECIAL_UNICODE_EMOJI)
+    @Capability(value = CapabilityId.LAMBDA_SPECIAL_UNICODE_EMOJI, column = "builder/condition-values/parameter-values")
     public void lambdaSpecialValue_shouldBindUnicodeAndEmojiText() throws SQLException {
         String unicode = "你好世界 こんにちは 안녕하세요";
         String emoji = "emoji 😀😃🎉";
@@ -84,8 +81,9 @@ public abstract class LambdaSpecialValueCase extends AbstractNxnContractTest {
                 .queryForCount());
     }
 
+    // 能力归属：构造器 API / 条件参数。
     @Test
-    @Capability(CapabilityId.LAMBDA_SPECIAL_UNICODE_LIKE)
+    @Capability(value = CapabilityId.LAMBDA_SPECIAL_UNICODE_LIKE, column = "builder/condition-values/parameter-values")
     public void lambdaSpecialValue_shouldBindUnicodeLikePattern() throws SQLException {
         insertUser(baseId() + 21, "你好世界 こんにちは 안녕하세요", 30, "unicode1@test.com", new Date());
         insertUser(baseId() + 22, "Other", 31, "unicode2@test.com", new Date());
@@ -96,8 +94,9 @@ public abstract class LambdaSpecialValueCase extends AbstractNxnContractTest {
                 .queryForCount());
     }
 
+    // 能力归属：构造器 API / 条件参数。
     @Test
-    @Capability(CapabilityId.LAMBDA_SPECIAL_KEYWORD_WILDCARD)
+    @Capability(value = CapabilityId.LAMBDA_SPECIAL_KEYWORD_WILDCARD, column = "builder/condition-values/parameter-values")
     public void lambdaSpecialValue_shouldTreatSqlKeywordsAndWildcardsAsValues() throws SQLException {
         insertUser(baseId() + 31, "SELECT", 25, "keyword1@test.com", new Date());
         insertUser(baseId() + 32, "DELETE", 26, "keyword2@test.com", new Date());
@@ -112,8 +111,7 @@ public abstract class LambdaSpecialValueCase extends AbstractNxnContractTest {
                 .in(UserInfo::getId, Arrays.asList(baseId() + 31, baseId() + 32, baseId() + 33))//
                 .queryForList();
         assertEquals(3, keywordUsers.size());
-        assertEquals(new HashSet<>(Arrays.asList("SELECT", "DELETE", "DROP TABLE")),
-                keywordUsers.stream().map(UserInfo::getName).collect(Collectors.toSet()));
+        assertEquals(new HashSet<>(Arrays.asList("SELECT", "DELETE", "DROP TABLE")), keywordUsers.stream().map(UserInfo::getName).collect(Collectors.toSet()));
         assertEquals(1, lambdaTemplate.query(UserInfo.class)//
                 .eq(UserInfo::getName, "100% Success")//
                 .queryForCount());
@@ -122,8 +120,9 @@ public abstract class LambdaSpecialValueCase extends AbstractNxnContractTest {
                 .queryForCount());
     }
 
+    // 能力归属：构造器 API / 条件参数。
     @Test
-    @Capability(CapabilityId.LAMBDA_SPECIAL_NUMERIC_BOUNDARY)
+    @Capability(value = CapabilityId.LAMBDA_SPECIAL_NUMERIC_BOUNDARY, column = "builder/condition-values/parameter-values")
     public void lambdaSpecialValue_shouldBindIntegerBoundaryValues() throws SQLException {
         insertUser(baseId() + 41, "MaxInt", Integer.MAX_VALUE, "numeric1@test.com", new Date());
         insertUser(baseId() + 42, "MinInt", Integer.MIN_VALUE, "numeric2@test.com", new Date());
@@ -134,8 +133,9 @@ public abstract class LambdaSpecialValueCase extends AbstractNxnContractTest {
         assertEquals(Integer.valueOf(0), loadAge(baseId() + 43));
     }
 
+    // 能力归属：构造器 API / 条件参数。
     @Test
-    @Capability(CapabilityId.LAMBDA_SPECIAL_DATE_BOUNDARY)
+    @Capability(value = CapabilityId.LAMBDA_SPECIAL_DATE_BOUNDARY, column = "builder/condition-values/parameter-values")
     public void lambdaSpecialValue_shouldBindEpochAndFutureDates() throws SQLException {
         Date epoch = new Date(0);
         Date future = new Date(4102444800000L); // 2100-01-01T00:00:00Z
@@ -155,8 +155,9 @@ public abstract class LambdaSpecialValueCase extends AbstractNxnContractTest {
         assertTrue("future timestamp should remain after 2099", loadedFuture.getCreateTime().getTime() > 4070908800000L);
     }
 
+    // 能力归属：构造器 API / 条件参数。
     @Test
-    @Capability(CapabilityId.LAMBDA_SPECIAL_NULL_CHARACTER)
+    @Capability(value = CapabilityId.LAMBDA_SPECIAL_NULL_CHARACTER, column = "builder/condition-values/parameter-values")
     public void lambdaSpecialValue_shouldEitherBindOrRejectNullCharacterClearly() throws SQLException {
         String value = "Before\0After";
         try {
@@ -172,17 +173,23 @@ public abstract class LambdaSpecialValueCase extends AbstractNxnContractTest {
         }
     }
 
+    // 能力归属：构造器 API / 条件参数。
     @Test
-    @Capability(CapabilityId.LAMBDA_SPECIAL_LENGTH_CONSTRAINT)
+    @Capability(value = CapabilityId.LAMBDA_SPECIAL_LENGTH_CONSTRAINT, column = "builder/condition-values/parameter-values")
     public void lambdaSpecialValue_shouldPropagateLengthConstraintForStandardNameColumn() throws SQLException {
-        requiresNxnFeature(FeatureId.LENGTH_LIMIT_ENFORCED);
-
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < 15; i++) {
             builder.append("LongText_");
         }
         String tooLong = builder.toString();
         assertTrue(tooLong.length() > 100);
+
+        if (!profile().supportsFeature(FeatureId.LENGTH_LIMIT_ENFORCED)) {
+            insertUser(baseId() + 71, tooLong, 30, "too-long@test.com", new Date());
+            UserInfo row = lambdaTemplate.query(UserInfo.class).eq(UserInfo::getId, baseId() + 71).queryForObject();
+            assertEquals(tooLong, row.getName());
+            return;
+        }
 
         try {
             insertUser(baseId() + 71, tooLong, 30, "too-long@test.com", new Date());

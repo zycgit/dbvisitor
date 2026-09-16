@@ -9,7 +9,7 @@ package net.hasor.dbvisitor.test.realdb.db2.feature.procedure;
 
 import java.sql.SQLException;
 
-import net.hasor.dbvisitor.test.contract.feature.procedure.ProcedureCase;
+import net.hasor.dbvisitor.test.contract.api.jdbc.ProcedureCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Db2Profile;
 
@@ -30,27 +30,27 @@ public class Db2ProcedureTest extends ProcedureCase {
         jdbcTemplate.execute("CREATE PROCEDURE nxn_sp_add_numbers(IN a INT, IN b INT, INOUT result INT) " + //
                 "LANGUAGE SQL BEGIN ATOMIC SET result = a + b; END");
         jdbcTemplate.execute("""
-            CREATE PROCEDURE nxn_sp_calc_numbers(
-            IN a INT, IN b INT, INOUT sum_result INT, INOUT diff_result INT, INOUT mult_result INT, INOUT div_result DECIMAL(10, 2))
-            LANGUAGE SQL BEGIN ATOMIC
-            SET sum_result = a + b;
-            SET diff_result = a - b;
-            SET mult_result = a * b;
-            SET div_result = ROUND(DECIMAL(a, 10, 2) / DECIMAL(b, 10, 2), 2);
-            END
-            """);
+                CREATE PROCEDURE nxn_sp_calc_numbers(
+                IN a INT, IN b INT, INOUT sum_result INT, INOUT diff_result INT, INOUT mult_result INT, INOUT div_result DECIMAL(10, 2))
+                LANGUAGE SQL BEGIN ATOMIC
+                SET sum_result = a + b;
+                SET diff_result = a - b;
+                SET mult_result = a * b;
+                SET div_result = ROUND(DECIMAL(a, 10, 2) / DECIMAL(b, 10, 2), 2);
+                END
+                """);
         jdbcTemplate.execute("""
-            CREATE PROCEDURE nxn_sp_transform_string(INOUT text_value VARCHAR(255), IN suffix VARCHAR(255))
-            LANGUAGE SQL BEGIN ATOMIC SET text_value = UPPER(text_value) || suffix; END
-            """);
+                CREATE PROCEDURE nxn_sp_transform_string(INOUT text_value VARCHAR(255), IN suffix VARCHAR(255))
+                LANGUAGE SQL BEGIN ATOMIC SET text_value = UPPER(text_value) || suffix; END
+                """);
         jdbcTemplate.execute("""
-            CREATE PROCEDURE nxn_sp_get_user_info(IN user_id INT, INOUT user_name VARCHAR(255), INOUT user_age INT)
-            LANGUAGE SQL BEGIN ATOMIC SELECT name, age INTO user_name, user_age FROM user_info WHERE id = user_id; END
-            """);
+                CREATE PROCEDURE nxn_sp_get_user_info(IN user_id INT, INOUT user_name VARCHAR(255), INOUT user_age INT)
+                LANGUAGE SQL BEGIN ATOMIC SELECT name, age INTO user_name, user_age FROM user_info WHERE id = user_id; END
+                """);
         jdbcTemplate.execute("""
-            CREATE PROCEDURE nxn_sp_update_counter(INOUT counter INT, IN increment INT)
-            LANGUAGE SQL BEGIN ATOMIC SET counter = counter + increment; END
-            """);
+                CREATE PROCEDURE nxn_sp_update_counter(INOUT counter INT, IN increment INT)
+                LANGUAGE SQL BEGIN ATOMIC SET counter = counter + increment; END
+                """);
     }
 
     @Override
@@ -86,9 +86,9 @@ public class Db2ProcedureTest extends ProcedureCase {
     @Override
     protected String addNumbersTypeHandlerHashCallSql() {
         return """
-            CALL nxn_sp_add_numbers(#{a,jdbcType=integer}, #{b,jdbcType=integer},
-            #{result,mode=inout,jdbcType=integer,typeHandler=net.hasor.dbvisitor.types.handler.number.IntegerTypeHandler})
-            """;
+                CALL nxn_sp_add_numbers(#{a,jdbcType=integer}, #{b,jdbcType=integer},
+                #{result,mode=inout,jdbcType=integer,typeHandler=net.hasor.dbvisitor.types.handler.number.IntegerTypeHandler})
+                """;
     }
 
     @Override
@@ -100,7 +100,6 @@ public class Db2ProcedureTest extends ProcedureCase {
     protected String addNumbersInferredHashCallSql() {
         return "CALL nxn_sp_add_numbers(#{a}, #{b}, #{result,mode=inout,jdbcType=integer})";
     }
-
 
     private void dropProcedure(String procedureName) throws SQLException {
         try {

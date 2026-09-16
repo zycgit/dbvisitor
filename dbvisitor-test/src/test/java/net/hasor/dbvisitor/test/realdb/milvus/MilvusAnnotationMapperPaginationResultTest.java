@@ -26,8 +26,8 @@ import org.junit.Before;
 /** Shared PageObject assertions with native vector ordering as the page fixture. */
 public class MilvusAnnotationMapperPaginationResultTest extends AnnotationMapperPaginationResultCase {
     private final MilvusDatabaseFixture fixture = new MilvusDatabaseFixture();
-    private Session session;
-    private NativePageMapper pageMapper;
+    private       Session               session;
+    private       NativePageMapper      pageMapper;
 
     @SimpleMapper
     public interface NativePageMapper {
@@ -35,8 +35,7 @@ public class MilvusAnnotationMapperPaginationResultTest extends AnnotationMapper
                 SELECT id, name, age, email, create_time FROM user_info
                 WHERE id >= #{minId} AND id <= #{maxId} ORDER BY v <-> #{vector}
                 """)
-        List<UserInfo> selectPage(@Param("minId") int minId, @Param("maxId") int maxId,
-                @Param("vector") float[] vector, PageObject page);
+        List<UserInfo> selectPage(@Param("minId") int minId, @Param("maxId") int maxId, @Param("vector") float[] vector, PageObject page);
     }
 
     @Override
@@ -65,8 +64,7 @@ public class MilvusAnnotationMapperPaginationResultTest extends AnnotationMapper
             this.jdbcTemplate.executeUpdate("""
                     INSERT INTO user_info (id, name, age, email, create_time, v)
                     VALUES (?, ?, ?, ?, ?, ?)
-                    """, new Object[] { baseId() + i, "AnnoResult" + i, 20 + i,
-                    "anno-result" + i + "@nxn.test", new Date(), new float[] { i, 0 } });
+                    """, new Object[] { baseId() + i, "AnnoResult" + i, 20 + i, "anno-result" + i + "@nxn.test", new Date(), new float[] { i, 0 } });
         }
     }
 

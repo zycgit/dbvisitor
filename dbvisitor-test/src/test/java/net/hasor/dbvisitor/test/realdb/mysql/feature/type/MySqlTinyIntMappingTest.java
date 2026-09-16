@@ -31,8 +31,7 @@ public class MySqlTinyIntMappingTest {
         if (disableBooleanMapping) {
             url += (url.contains("?") ? "&" : "?") + "tinyInt1isBit=false";
         }
-        try (Connection connection = DriverManager.getConnection(url,
-                OneApiDataSourceManager.getProperty("jdbc.username"), OneApiDataSourceManager.getProperty("jdbc.password"))) {
+        try (Connection connection = DriverManager.getConnection(url, OneApiDataSourceManager.getProperty("jdbc.username"), OneApiDataSourceManager.getProperty("jdbc.password"))) {
             JdbcTemplate jdbc = new JdbcTemplate(connection);
             jdbc.executeUpdate("CREATE TEMPORARY TABLE doc_tinyint_status (status TINYINT(1))");
             jdbc.executeUpdate("INSERT INTO doc_tinyint_status (status) VALUES (2)");

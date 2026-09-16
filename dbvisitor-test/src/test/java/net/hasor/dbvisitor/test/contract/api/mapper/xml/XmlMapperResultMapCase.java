@@ -7,30 +7,19 @@
  */
 package net.hasor.dbvisitor.test.contract.api.mapper.xml;
 
-import java.sql.SQLException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.LinkedHashMap;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
-
-import org.junit.Before;
-import org.junit.Test;
-
+import java.sql.SQLException;
+import java.util.*;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
-import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class XmlMapperResultMapCase extends AbstractNxnContractTest {
@@ -64,8 +53,9 @@ public abstract class XmlMapperResultMapCase extends AbstractNxnContractTest {
         return 952000;
     }
 
+    // 能力归属：Mapper 文件 / 映射结果集。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_RESULTMAP_PARTIAL)
+    @Capability(value = CapabilityId.MAPPER_XML_RESULTMAP_PARTIAL, column = "mapper-files/dynamic-sql-and-result-mapping/resultmap")
     public void resultMap_shouldApplyExplicitPartialColumnMapping() throws Exception {
         List<?> list = this.session.queryStatement("xmltest.ResultMapMapper.selectByIdBase", mapOf("id", baseId() + 1));
 
@@ -73,8 +63,9 @@ public abstract class XmlMapperResultMapCase extends AbstractNxnContractTest {
         assertProperties(list.get(0), expectedPartial(1));
     }
 
+    // 能力归属：Mapper 文件 / 映射结果集。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_RESULTMAP_FULL)
+    @Capability(value = CapabilityId.MAPPER_XML_RESULTMAP_FULL, column = "mapper-files/dynamic-sql-and-result-mapping/resultmap")
     public void resultMap_shouldApplyFullColumnMapping() throws Exception {
         List<?> list = this.session.queryStatement("xmltest.ResultMapMapper.selectByIdExtended", mapOf("id", baseId() + 1));
 
@@ -85,8 +76,9 @@ public abstract class XmlMapperResultMapCase extends AbstractNxnContractTest {
         }
     }
 
+    // 能力归属：Mapper 文件 / 映射结果集。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_RESULTMAP_JAVA_TYPE)
+    @Capability(value = CapabilityId.MAPPER_XML_RESULTMAP_JAVA_TYPE, column = "mapper-files/dynamic-sql-and-result-mapping/resultmap")
     public void resultMap_shouldHonorJavaTypeAttributes() throws Exception {
         List<?> list = this.session.queryStatement("xmltest.ResultMapMapper.selectByIdTyped", mapOf("id", baseId() + 2));
 
@@ -97,8 +89,9 @@ public abstract class XmlMapperResultMapCase extends AbstractNxnContractTest {
         }
     }
 
+    // 能力归属：Mapper 文件 / 映射结果集。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_RESULTMAP_AUTO_MAPPING)
+    @Capability(value = CapabilityId.MAPPER_XML_RESULTMAP_AUTO_MAPPING, column = "mapper-files/dynamic-sql-and-result-mapping/resultmap")
     public void resultMap_shouldSupportAutoMappingFlag() throws Exception {
         List<?> list = this.session.queryStatement("xmltest.ResultMapMapper.selectByIdAutoMapping", mapOf("id", baseId() + 1));
 
@@ -106,8 +99,9 @@ public abstract class XmlMapperResultMapCase extends AbstractNxnContractTest {
         assertProperties(list.get(0), expectedFull(1));
     }
 
+    // 能力归属：Mapper 文件 / 映射结果集。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_RESULTMAP_CASE_INSENSITIVE)
+    @Capability(value = CapabilityId.MAPPER_XML_RESULTMAP_CASE_INSENSITIVE, column = "mapper-files/dynamic-sql-and-result-mapping/resultmap")
     public void resultMap_shouldSupportCaseInsensitiveColumnNames() throws Exception {
         List<?> list = this.session.queryStatement("xmltest.ResultMapMapper.selectByIdCaseInsensitive", mapOf("id", baseId() + 2));
 
@@ -115,18 +109,20 @@ public abstract class XmlMapperResultMapCase extends AbstractNxnContractTest {
         assertProperties(list.get(0), expectedFull(2));
     }
 
+    // 能力归属：Mapper 文件 / 映射结果集。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_RESULTMAP_CAMELCASE)
+    @Capability(value = CapabilityId.MAPPER_XML_RESULTMAP_CAMELCASE, column = "mapper-files/dynamic-sql-and-result-mapping/resultmap")
     public void resultMap_shouldSupportUnderscoreToCamelCaseMapping() throws Exception {
-        List<UserInfo> list = this.session.queryStatement("xmltest.ResultMapMapper.selectByIdCamelCase", mapOf("id", baseId() + 1));
+        List<?> list = this.session.queryStatement("xmltest.ResultMapMapper.selectByIdCamelCase", mapOf("id", baseId() + 1));
 
         assertEquals(1, list.size());
-        assertEquals(Integer.valueOf(baseId() + 1), list.get(0).getId());
-        assertNotNull(list.get(0).getCreateTime());
+        assertProperties(list.get(0), expectedFull(1));
+        assertNotNull(propertyValue(list.get(0), "createTime"));
     }
 
+    // 能力归属：Mapper 文件 / 映射结果集。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_RESULTMAP_RENAMED_MAP)
+    @Capability(value = CapabilityId.MAPPER_XML_RESULTMAP_RENAMED_MAP, column = "mapper-files/dynamic-sql-and-result-mapping/resultmap")
     public void resultTypeMap_shouldUseResultColumnLabelsAsKeys() throws Exception {
         List<Map<String, Object>> list = queryColumnLabelRows();
 
@@ -148,8 +144,9 @@ public abstract class XmlMapperResultMapCase extends AbstractNxnContractTest {
         return this.session.queryStatement("xmltest.ResultMapMapper.selectByIdAsRenamedMap", mapOf("id", baseId() + 3));
     }
 
+    // 能力归属：Mapper 文件 / 映射结果集。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_RESULTMAP_PARTIAL_LIST)
+    @Capability(value = CapabilityId.MAPPER_XML_RESULTMAP_PARTIAL_LIST, column = "mapper-files/dynamic-sql-and-result-mapping/resultmap")
     public void resultMap_shouldApplyPartialMappingToLists() throws Exception {
         Map<String, Object> range = mapOf("firstId", baseId() + 1);
         range.put("lastId", baseId() + 3);
@@ -167,8 +164,7 @@ public abstract class XmlMapperResultMapCase extends AbstractNxnContractTest {
     }
 
     protected Map<String, Object> expectedFull(int offset) {
-        return Map.of("id", baseId() + offset, "name", "RmCfg" + offset,
-                "age", 25 + offset, "email", "rmcfg" + offset + "@nxn.test");
+        return Map.of("id", baseId() + offset, "name", "RmCfg" + offset, "age", 25 + offset, "email", "rmcfg" + offset + "@nxn.test");
     }
 
     protected Map<String, Object> expectedPartial(int offset) {
@@ -199,7 +195,7 @@ public abstract class XmlMapperResultMapCase extends AbstractNxnContractTest {
     }
 
     private void assertProperties(Object bean, Map<String, Object> expected) throws Exception {
-        assertTrue("The material must define mapped properties", !expected.isEmpty());
+        assertFalse("The material must define mapped properties", expected.isEmpty());
         for (Map.Entry<String, Object> entry : expected.entrySet()) {
             assertEquals(entry.getKey(), entry.getValue(), propertyValue(bean, entry.getKey()));
         }

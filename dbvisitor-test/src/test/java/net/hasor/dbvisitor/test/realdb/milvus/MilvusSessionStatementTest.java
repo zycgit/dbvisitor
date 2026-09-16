@@ -9,7 +9,6 @@ package net.hasor.dbvisitor.test.realdb.milvus;
 
 import java.util.List;
 import java.util.Map;
-import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.realdb.milvus.material.user.UserInfoMilvus3;
@@ -32,10 +31,8 @@ public class MilvusSessionStatementTest extends MilvusSessionSqlSupport {
         // Milvus 2.6.2 simple PK deletes count submitted keys, even when the entity is already absent.
         assertEquals(1, ((Number) this.session.executeStatement(NAMESPACE + ".deleteUser", Map.of("uid", "statement"))).intValue());
         assertTrue(this.session.queryStatement(NAMESPACE + ".queryAll", null).isEmpty());
-        IllegalStateException invalidExecute = assertThrows(IllegalStateException.class,
-                () -> this.session.executeStatement(NAMESPACE + ".missing", null));
-        IllegalStateException invalidQuery = assertThrows(IllegalStateException.class,
-                () -> this.session.queryStatement(NAMESPACE + ".missing", null));
+        IllegalStateException invalidExecute = assertThrows(IllegalStateException.class, () -> this.session.executeStatement(NAMESPACE + ".missing", null));
+        IllegalStateException invalidQuery = assertThrows(IllegalStateException.class, () -> this.session.queryStatement(NAMESPACE + ".missing", null));
         assertTrue(invalidExecute.getMessage().contains(NAMESPACE + ".missing"));
         assertTrue(invalidQuery.getMessage().contains(NAMESPACE + ".missing"));
     }

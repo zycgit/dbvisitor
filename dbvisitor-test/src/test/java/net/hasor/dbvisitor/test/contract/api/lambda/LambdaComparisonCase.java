@@ -8,20 +8,18 @@
 package net.hasor.dbvisitor.test.contract.api.lambda;
 
 import java.sql.SQLException;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 @NxnContract
 public abstract class LambdaComparisonCase extends LambdaPredicateSupport {
+    // 能力归属：构造器 API / 条件构造器。
     @Test
-    @Capability(CapabilityId.LAMBDA_PREDICATE_COMPARISON_DYNAMIC)
+    @Capability(value = CapabilityId.LAMBDA_PREDICATE_COMPARISON_DYNAMIC, column = "builder/condition-builders/predicates")
     public void lambdaPredicate_shouldHonorDynamicComparisonFlags() throws SQLException {
         insertAgeSet("NXN-Predicate-Dynamic-", baseId() + 10);
 
@@ -53,8 +51,9 @@ public abstract class LambdaComparisonCase extends LambdaPredicateSupport {
         assertEquals(4, neEnabled);
     }
 
+    // 能力归属：构造器 API / 条件构造器。
     @Test
-    @Capability(CapabilityId.LAMBDA_PREDICATE_COMPARISON_MIXED)
+    @Capability(value = CapabilityId.LAMBDA_PREDICATE_COMPARISON_MIXED, column = "builder/condition-builders/predicates")
     public void lambdaPredicate_shouldCombineComparisonOperators() throws SQLException {
         insertAgeSet("NXN-Predicate-Mixed-", baseId() + 30);
 
@@ -80,8 +79,9 @@ public abstract class LambdaComparisonCase extends LambdaPredicateSupport {
         assertEquals(2, mixed);
     }
 
+    // 能力归属：构造器 API / 条件构造器。
     @Test
-    @Capability(CapabilityId.LAMBDA_QUERY_COMPARE)
+    @Capability(value = CapabilityId.LAMBDA_QUERY_COMPARE, column = "builder/condition-builders/predicates")
     public void lambdaQueryCompare_shouldApplyRangePredicates() throws SQLException {
         insertUsers("Cmp", new int[] { 18, 22, 25, 30, 35 }, baseId() + 10);
 

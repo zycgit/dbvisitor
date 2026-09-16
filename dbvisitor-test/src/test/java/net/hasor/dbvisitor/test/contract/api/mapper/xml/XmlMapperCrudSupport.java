@@ -10,12 +10,10 @@ package net.hasor.dbvisitor.test.contract.api.mapper.xml;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.junit.Before;
-
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
+import org.junit.Before;
 
 public abstract class XmlMapperCrudSupport extends AbstractNxnContractTest {
     protected Session session;

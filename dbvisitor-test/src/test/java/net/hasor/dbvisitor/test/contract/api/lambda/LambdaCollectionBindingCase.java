@@ -7,38 +7,37 @@
  */
 package net.hasor.dbvisitor.test.contract.api.lambda;
 
-import java.util.Set;
-import java.util.stream.Collectors;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
-
-import org.junit.Test;
-
+import java.util.Set;
+import java.util.stream.Collectors;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 @NxnContract
 public abstract class LambdaCollectionBindingCase extends LambdaPredicateSupport {
+    // 能力归属：构造器 API / 条件构造器。
     @Test
-    @Capability(CapabilityId.LAMBDA_PREDICATE_IN_SINGLE)
+    @Capability(value = CapabilityId.LAMBDA_PREDICATE_IN_SINGLE, column = "builder/condition-builders/predicates")
     public void lambdaPredicate_shouldSupportSingleElementInCollection() throws SQLException {
         insert(baseId() + 401, "NXN-Predicate-In-Single-25", 25, "in@nxn.test");
         insert(baseId() + 402, "NXN-Predicate-In-Single-30", 30, "in@nxn.test");
 
         long single = lambdaTemplate.query(UserInfo.class)//
                 .rangeBetween(UserInfo::getId, baseId() + 401, baseId() + 402)//
-                .in(UserInfo::getAge, Arrays.asList(25))//
+                .in(UserInfo::getAge, List.of(25))//
                 .queryForCount();
         assertEquals(1, single);
     }
 
+    // 能力归属：构造器 API / 条件构造器。
     @Test
-    @Capability(CapabilityId.LAMBDA_QUERY_IN)
+    @Capability(value = CapabilityId.LAMBDA_QUERY_IN, column = "builder/condition-builders/predicates")
     public void lambdaQueryIn_shouldExpandCollectionParameter() throws SQLException {
         insertUsers("InQ", new int[] { 20, 25, 30, 35 }, baseId() + 30);
 

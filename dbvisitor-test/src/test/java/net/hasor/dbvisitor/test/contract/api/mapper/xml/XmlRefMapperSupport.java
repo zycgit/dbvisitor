@@ -10,16 +10,13 @@ package net.hasor.dbvisitor.test.contract.api.mapper.xml;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
-
-import org.junit.Before;
-
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.material.dao.XmlRefMapperDao;
 import net.hasor.dbvisitor.test.contract.material.dao.XmlRefMapperOperations;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
-
+import org.junit.Before;
 import static org.junit.Assert.assertTrue;
 
 public abstract class XmlRefMapperSupport extends AbstractNxnContractTest {
@@ -48,8 +45,7 @@ public abstract class XmlRefMapperSupport extends AbstractNxnContractTest {
     }
 
     protected void insertUser(Object[] values) throws SQLException {
-        jdbcTemplate.executeUpdate(
-                "INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, @{macro, currentTimestamp})", values);
+        jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, @{macro, currentTimestamp})", values);
     }
 
     protected String orderExpression(String field) {

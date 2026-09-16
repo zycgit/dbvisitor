@@ -9,22 +9,18 @@ package net.hasor.dbvisitor.test.contract.api.mapper.basemapper;
 
 import java.util.Arrays;
 import java.util.List;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class BaseMapperInsertCase extends BaseMapperCrudSupport {
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_INSERT)
+    @Capability(value = CapabilityId.BASEMAPPER_INSERT, column = "mapper/base-mapper/operations")
     public void baseMapperInsert_shouldInsertSingleEntity() {
         UserInfo user = user(baseId() + 1, "BaseInsert", 30, "insert@basemapper.com");
 
@@ -37,8 +33,9 @@ public abstract class BaseMapperInsertCase extends BaseMapperCrudSupport {
         assertEquals(Integer.valueOf(30), loaded.getAge());
     }
 
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_BATCH_INSERT)
+    @Capability(value = CapabilityId.BASEMAPPER_BATCH_INSERT, column = "mapper/base-mapper/operations")
     public void baseMapperBatchInsert_shouldInsertEntityList() {
         // @formatter:off
         List<UserInfo> users = Arrays.asList(
@@ -55,8 +52,9 @@ public abstract class BaseMapperInsertCase extends BaseMapperCrudSupport {
         assertEquals(3, loaded.size());
     }
 
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_INSERT_BOUNDARY)
+    @Capability(value = CapabilityId.BASEMAPPER_INSERT_BOUNDARY, column = "mapper/base-mapper/operations")
     public void baseMapperInsert_shouldHandleNullsEmptyListsSpecialValuesAndLargeBatches() {
         int nullFieldsId = baseId() + 201;
         int allNullId = baseId() + 202;
@@ -77,7 +75,7 @@ public abstract class BaseMapperInsertCase extends BaseMapperCrudSupport {
         assertNull(loadedAllNull.getAge());
         assertNull(loadedAllNull.getEmail());
 
-        assertEquals(0, this.mapper.insert(Arrays.<UserInfo>asList()));
+        assertEquals(0, this.mapper.insert(List.of()));
 
         assertEquals(1, this.mapper.insert(user(specialId, "O'Brien & Co.", 35, "special@basemapper.com")));
         assertEquals("O'Brien & Co.", this.mapper.selectById(specialId).getName());
@@ -94,8 +92,9 @@ public abstract class BaseMapperInsertCase extends BaseMapperCrudSupport {
         assertNotNull(this.mapper.selectById(baseId() + 245));
     }
 
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_EDGE_INSERT)
+    @Capability(value = CapabilityId.BASEMAPPER_EDGE_INSERT, column = "mapper/base-mapper/operations")
     public void baseMapperInsert_shouldHandleNegativeKeyAndEscapedValues() {
         int negativeId = -baseId();
         assertEquals(1, this.mapper.insert(user(negativeId, "BaseNegativeKey", 25, null)));

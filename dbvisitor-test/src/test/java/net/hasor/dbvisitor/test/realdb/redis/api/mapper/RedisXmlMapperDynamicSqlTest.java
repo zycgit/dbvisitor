@@ -8,8 +8,8 @@
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
 import java.sql.SQLException;
-import java.util.Map;
 import java.util.Locale;
+import java.util.Map;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperDynamicSqlCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
@@ -59,8 +59,7 @@ public class RedisXmlMapperDynamicSqlTest extends XmlMapperDynamicSqlCase {
     }
 
     private void store(String index, int score, Map<String, Object> user) throws SQLException {
-        this.jdbcTemplate.queryForLong("ZADD #{arg0} #{arg1} #{arg2,typeHandler=net.hasor.dbvisitor.types.handler.json.JsonTypeHandler}",
-                new Object[] { this.fixture.key(index), score, user });
+        this.jdbcTemplate.queryForLong("ZADD #{arg0} #{arg1} #{arg2,typeHandler=net.hasor.dbvisitor.types.handler.json.JsonTypeHandler}", new Object[] { this.fixture.key(index), score, user });
     }
 
     @Override

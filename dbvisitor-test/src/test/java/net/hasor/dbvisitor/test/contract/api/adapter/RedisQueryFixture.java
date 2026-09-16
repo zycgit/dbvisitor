@@ -10,22 +10,18 @@ package net.hasor.dbvisitor.test.contract.api.adapter;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.LinkedHashSet;
-import java.util.Locale;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcCrudCommand;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 
 /** Private hashes supply native scalar, list, count and two-column Pairs result shapes. */
 public final class RedisQueryFixture implements AutoCloseable {
-    private final String prefix = "nxn_query_" + UUID.randomUUID() + "_";
-    private final Set<String> keys = new LinkedHashSet<>();
-    private Connection connection;
-    private JdbcTemplate jdbc;
-    private int baseId;
+    private final String       prefix = "nxn_query_" + UUID.randomUUID() + "_";
+    private final Set<String>  keys   = new LinkedHashSet<>();
+    private       Connection   connection;
+    private       JdbcTemplate jdbc;
+    private       int          baseId;
 
     public JdbcTemplate open(int baseId) throws SQLException {
         OneApiDataSourceManager.assumeCurrentDataSource("redis");

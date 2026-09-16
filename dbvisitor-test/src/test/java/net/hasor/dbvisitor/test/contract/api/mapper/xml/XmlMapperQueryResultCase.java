@@ -9,20 +9,18 @@ package net.hasor.dbvisitor.test.contract.api.mapper.xml;
 
 import java.util.List;
 import java.util.Map;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @NxnContract
 public abstract class XmlMapperQueryResultCase extends XmlMapperCrudSupport {
+    // 能力归属：Mapper 文件 / 映射结果集。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_RESULT_MAP)
+    @Capability(value = CapabilityId.MAPPER_XML_RESULT_MAP, column = "mapper-files/dynamic-sql-and-result-mapping/resultmap")
     public void xmlMapperResultTypeMap_shouldReturnColumnMap() throws Exception {
         List<Map<String, Object>> list = this.session.queryStatement("xmltest.CrudMapper.selectAllAsMap", null);
 
@@ -43,8 +41,9 @@ public abstract class XmlMapperQueryResultCase extends XmlMapperCrudSupport {
         return Map.of("id", baseId() + 1, "name", "XmlCrud1");
     }
 
+    // 能力归属：Mapper 文件 / 映射结果集。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_RESULT_SCALAR)
+    @Capability(value = CapabilityId.MAPPER_XML_RESULT_SCALAR, column = "mapper-files/dynamic-sql-and-result-mapping/resultmap")
     public void xmlMapperResultTypeScalar_shouldReturnCountAndNames() throws Exception {
         List<Integer> count = this.session.queryStatement("xmltest.CrudMapper.countAll", null);
         List<String> names = this.session.queryStatement("xmltest.CrudMapper.selectNames", null);

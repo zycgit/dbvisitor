@@ -29,8 +29,7 @@ public class MongoXmlMapperStatementAttributeTest extends XmlMapperStatementAttr
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open();
         for (int i = 1; i <= 5; i++) {
-            this.jdbcTemplate.executeUpdate(this.fixture.source() + ".insert({id: ?, name: ?, age: ?, email: ?})",
-                    new Object[] { baseId() + i, "StmtAttr" + i, 20 + i, "attr" + i + "@nxn.test" });
+            this.jdbcTemplate.executeUpdate(this.fixture.source() + ".insert({id: ?, name: ?, age: ?, email: ?})", new Object[] { baseId() + i, "StmtAttr" + i, 20 + i, "attr" + i + "@nxn.test" });
         }
     }
 

@@ -12,11 +12,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
-
+import java.util.List;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class MilvusCollectionKeysSqlTest extends MilvusSqlContractSupport {
     @Test
@@ -65,7 +66,7 @@ public class MilvusCollectionKeysSqlTest extends MilvusSqlContractSupport {
         this.jdbcTemplate.executeUpdate("INSERT INTO " + this.collection + " (id,tenant,v) VALUES (1,10,[1,0]),(2,20,[0,1]),(3,10,[0.9,0.1])");
         assertEquals(2, this.jdbcTemplate.executeUpdate("UPSERT INTO " + this.collection + " (id,tenant,v) VALUES (1,10,[0.8,0.2]),(2,20,[0.2,0.8])"));
         try (PreparedStatement query = this.connection.prepareStatement("SELECT id FROM " + this.collection + " WHERE tenant IN ? ORDER BY v <-> [1,0] LIMIT 3")) {
-            query.setObject(1, Arrays.asList(10L));
+            query.setObject(1, List.of(10L));
             try (ResultSet result = query.executeQuery()) {
                 assertEquals(Arrays.asList(3L, 1L), readIds(result));
             }

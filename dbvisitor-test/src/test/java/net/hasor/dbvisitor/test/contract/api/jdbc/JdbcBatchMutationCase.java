@@ -10,19 +10,17 @@ package net.hasor.dbvisitor.test.contract.api.jdbc;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 @NxnContract
 public abstract class JdbcBatchMutationCase extends JdbcBatchSupport {
+    // 能力归属：编程式 API / 批量化。
     @Test
-    @Capability(CapabilityId.JDBC_BATCH_POSITIONAL_INSERT)
+    @Capability(value = CapabilityId.JDBC_BATCH_POSITIONAL_INSERT, column = "jdbc/batch-operations/batch")
     public void jdbcBatchPositionalInsert_shouldInsertRows() throws SQLException {
         Object[][] args = new Object[3][];
         for (int i = 0; i < args.length; i++) {
@@ -39,8 +37,9 @@ public abstract class JdbcBatchMutationCase extends JdbcBatchSupport {
         }
     }
 
+    // 能力归属：编程式 API / 批量化。
     @Test
-    @Capability(CapabilityId.JDBC_BATCH_NAMED_INSERT)
+    @Capability(value = CapabilityId.JDBC_BATCH_NAMED_INSERT, column = "jdbc/batch-operations/batch")
     public void jdbcBatchNamedInsert_shouldInsertRows() throws SQLException {
         Map<String, Object>[] args = new Map[3];
         for (int i = 0; i < args.length; i++) {
@@ -60,8 +59,9 @@ public abstract class JdbcBatchMutationCase extends JdbcBatchSupport {
         }
     }
 
+    // 能力归属：编程式 API / 批量化。
     @Test
-    @Capability(CapabilityId.JDBC_BATCH_UPDATE)
+    @Capability(value = CapabilityId.JDBC_BATCH_UPDATE, column = "jdbc/batch-operations/batch")
     public void jdbcBatchUpdate_shouldChangeRows() throws SQLException {
         insertPositionalFixture();
 
@@ -78,8 +78,9 @@ public abstract class JdbcBatchMutationCase extends JdbcBatchSupport {
         assertEquals("NXN-Batch-Pos-2", jdbcTemplate.queryForString(valueCommand(), new Object[] { baseId() + 3 }));
     }
 
+    // 能力归属：编程式 API / 批量化。
     @Test
-    @Capability(CapabilityId.JDBC_BATCH_DELETE)
+    @Capability(value = CapabilityId.JDBC_BATCH_DELETE, column = "jdbc/batch-operations/batch")
     public void jdbcBatchDelete_shouldRemoveRows() throws SQLException {
         insertPositionalFixture();
 
@@ -95,15 +96,13 @@ public abstract class JdbcBatchMutationCase extends JdbcBatchSupport {
         assertEquals("NXN-Batch-Pos-2", jdbcTemplate.queryForString(valueCommand(), new Object[] { baseId() + 3 }));
     }
 
+    // 能力归属：编程式 API / 批量化。
     @Test
-    @Capability(CapabilityId.JDBC_BATCH_STATEMENTS)
+    @Capability(value = CapabilityId.JDBC_BATCH_STATEMENTS, column = "jdbc/batch-operations/batch")
     public void jdbcBatchStatements_shouldReturnCountsForEveryStatement() throws SQLException {
         int firstId = baseId() + 41;
         int secondId = baseId() + 42;
-        int[] rows = jdbcTemplate.executeBatch(new String[] {
-                literalInsertCommand(firstId, "StatementFirst"),
-                literalInsertCommand(secondId, "StatementSecond"),
-                literalUpdateCommand(firstId, "StatementUpdated") });
+        int[] rows = jdbcTemplate.executeBatch(new String[] { literalInsertCommand(firstId, "StatementFirst"), literalInsertCommand(secondId, "StatementSecond"), literalUpdateCommand(firstId, "StatementUpdated") });
 
         assertEquals(3, rows.length);
         assertSuccessfulBatchCounts(new int[] { rows[0], rows[1] });

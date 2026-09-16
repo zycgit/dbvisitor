@@ -8,8 +8,8 @@
 package net.hasor.dbvisitor.test.realdb.redis;
 
 import java.sql.SQLException;
-import net.hasor.dbvisitor.test.contract.material.model.types.BasicTypesModel;
 import net.hasor.dbvisitor.test.contract.feature.type.BasicNumericTypeJdbcCase;
+import net.hasor.dbvisitor.test.contract.material.model.types.BasicTypesModel;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
 import org.junit.After;

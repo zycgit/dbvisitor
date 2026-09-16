@@ -12,16 +12,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -97,8 +94,9 @@ public abstract class JdbcMultipleResultSetCase extends AbstractNxnContractTest 
                 """.formatted(tableName(), baseId() + 1, tableName(), baseId() + 3);
     }
 
+    // 能力归属：编程式 API / 多结果。
     @Test
-    @Capability(CapabilityId.JDBC_MULTIPLE_RESULT_SETS)
+    @Capability(value = CapabilityId.JDBC_MULTIPLE_RESULT_SETS, column = "jdbc/multiple-results/multiple-results")
     public void jdbcMultipleExecute_shouldReturnMultipleResultSets() throws SQLException {
         requiresNxnFeature(FeatureId.MULTIPLE_RESULT_SETS);
         seedUsers();
@@ -112,8 +110,9 @@ public abstract class JdbcMultipleResultSetCase extends AbstractNxnContractTest 
         assertEquals(2, ((List<?>) resultList.get(1)).size());
     }
 
+    // 能力归属：编程式 API / 多结果。
     @Test
-    @Capability(CapabilityId.JDBC_MULTIPLE_POSITIONAL)
+    @Capability(value = CapabilityId.JDBC_MULTIPLE_POSITIONAL, column = "jdbc/multiple-results/multiple-results")
     public void jdbcMultipleExecute_shouldBindPositionalParametersAcrossStatements() throws SQLException {
         requiresNxnFeature(FeatureId.MULTIPLE_RESULT_SETS);
         seedUsers();
@@ -130,8 +129,9 @@ public abstract class JdbcMultipleResultSetCase extends AbstractNxnContractTest 
         assertEquals(expectedPositionalName(), value((Map<?, ?>) namedRows.get(0), resultNameColumn()));
     }
 
+    // 能力归属：编程式 API / 多结果。
     @Test
-    @Capability(CapabilityId.JDBC_MULTIPLE_NAMED)
+    @Capability(value = CapabilityId.JDBC_MULTIPLE_NAMED, column = "jdbc/multiple-results/multiple-results")
     public void jdbcMultipleExecute_shouldBindNamedParametersAcrossStatements() throws SQLException {
         requiresNxnFeature(FeatureId.MULTIPLE_RESULT_SETS);
         seedUsers();
@@ -147,8 +147,9 @@ public abstract class JdbcMultipleResultSetCase extends AbstractNxnContractTest 
         assertEquals(2, ((List<?>) resultList.get(1)).size());
     }
 
+    // 能力归属：编程式 API / 多结果。
     @Test
-    @Capability(CapabilityId.JDBC_MULTIPLE_RESULTSET_RULE)
+    @Capability(value = CapabilityId.JDBC_MULTIPLE_RESULTSET_RULE, column = "jdbc/multiple-results/multiple-results")
     public void jdbcMultipleExecute_shouldNameAndMapResultSetsWithRule() throws SQLException {
         requiresNxnFeature(FeatureId.MULTIPLE_RESULT_SETS);
         seedUsers();

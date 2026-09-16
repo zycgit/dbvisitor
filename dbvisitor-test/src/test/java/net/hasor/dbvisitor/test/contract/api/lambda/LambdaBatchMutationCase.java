@@ -12,15 +12,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -30,8 +27,9 @@ public abstract class LambdaBatchMutationCase extends AbstractNxnContractTest {
         return 760000;
     }
 
+    // 能力归属：构造器 API / 写入操作。
     @Test
-    @Capability(CapabilityId.LAMBDA_BATCH_MUTATION_UPDATE_CONDITION)
+    @Capability(value = CapabilityId.LAMBDA_BATCH_MUTATION_UPDATE_CONDITION, column = "builder/inserts-updates-and-deletes/writes")
     public void lambdaBatchMutation_shouldUpdateManyRowsByCondition() throws SQLException {
         insertUsers("LBUpdCond", ages(16, 35), baseId() + 10);
 
@@ -47,8 +45,9 @@ public abstract class LambdaBatchMutationCase extends AbstractNxnContractTest {
         assertEquals(20, countByIdRange(10, 29));
     }
 
+    // 能力归属：构造器 API / 写入操作。
     @Test
-    @Capability(CapabilityId.LAMBDA_BATCH_MUTATION_UPDATE_MULTI_FIELD)
+    @Capability(value = CapabilityId.LAMBDA_BATCH_MUTATION_UPDATE_MULTI_FIELD, column = "builder/inserts-updates-and-deletes/writes")
     public void lambdaBatchMutation_shouldUpdateMultipleFieldsForIdList() throws SQLException {
         insertUsers("LBUpdFields", new int[] { 20, 25, 30 }, baseId() + 40);
         List<Integer> ids = Arrays.asList(baseId() + 40, baseId() + 41, baseId() + 42);
@@ -70,8 +69,9 @@ public abstract class LambdaBatchMutationCase extends AbstractNxnContractTest {
         }
     }
 
+    // 能力归属：构造器 API / 写入操作。
     @Test
-    @Capability(CapabilityId.LAMBDA_BATCH_MUTATION_UPDATE_LOOP)
+    @Capability(value = CapabilityId.LAMBDA_BATCH_MUTATION_UPDATE_LOOP, column = "builder/inserts-updates-and-deletes/writes")
     public void lambdaBatchMutation_shouldSupportLoopedEntityStyleUpdates() throws SQLException {
         insertUsers("LBUpdLoop", new int[] { 21, 22, 23, 24, 25 }, baseId() + 60);
 
@@ -96,8 +96,9 @@ public abstract class LambdaBatchMutationCase extends AbstractNxnContractTest {
         assertEquals(5, countByIdRangeAndEmail(60, 64, "loop-updated@test.com"));
     }
 
+    // 能力归属：构造器 API / 写入操作。
     @Test
-    @Capability(CapabilityId.LAMBDA_BATCH_MUTATION_DELETE_CONDITION)
+    @Capability(value = CapabilityId.LAMBDA_BATCH_MUTATION_DELETE_CONDITION, column = "builder/inserts-updates-and-deletes/writes")
     public void lambdaBatchMutation_shouldDeleteManyRowsByCondition() throws SQLException {
         insertUsers("LBDelCond", ages(16, 25), baseId() + 80);
 
@@ -114,8 +115,9 @@ public abstract class LambdaBatchMutationCase extends AbstractNxnContractTest {
                 .queryForCount());
     }
 
+    // 能力归属：构造器 API / 写入操作。
     @Test
-    @Capability(CapabilityId.LAMBDA_BATCH_MUTATION_DELETE_IN)
+    @Capability(value = CapabilityId.LAMBDA_BATCH_MUTATION_DELETE_IN, column = "builder/inserts-updates-and-deletes/writes")
     public void lambdaBatchMutation_shouldDeleteRowsByIdList() throws SQLException {
         insertUsers("LBDelIn", ages(25, 34), baseId() + 100);
         List<Integer> ids = Arrays.asList(baseId() + 100, baseId() + 102, baseId() + 104, baseId() + 106);
@@ -131,8 +133,9 @@ public abstract class LambdaBatchMutationCase extends AbstractNxnContractTest {
                 .queryForCount());
     }
 
+    // 能力归属：构造器 API / 写入操作。
     @Test
-    @Capability(CapabilityId.LAMBDA_BATCH_MUTATION_DELETE_MATCHING)
+    @Capability(value = CapabilityId.LAMBDA_BATCH_MUTATION_DELETE_MATCHING, column = "builder/inserts-updates-and-deletes/writes")
     public void lambdaBatchMutation_shouldDeleteAllRowsMatchingPredicate() throws SQLException {
         insertUsers("LBDelAll", ages(30, 49), baseId() + 120);
 
@@ -144,8 +147,9 @@ public abstract class LambdaBatchMutationCase extends AbstractNxnContractTest {
         assertEquals(0, countByIdRange(120, 139));
     }
 
+    // 能力归属：构造器 API / 写入操作。
     @Test
-    @Capability(CapabilityId.LAMBDA_BATCH_MUTATION_DELETE_CHUNKS)
+    @Capability(value = CapabilityId.LAMBDA_BATCH_MUTATION_DELETE_CHUNKS, column = "builder/inserts-updates-and-deletes/writes")
     public void lambdaBatchMutation_shouldDeleteRowsInChunksUsingPagedIdLookup() throws SQLException {
         insertUsers("LBDelChunk", ages(25, 74), baseId() + 160);
 
@@ -153,7 +157,6 @@ public abstract class LambdaBatchMutationCase extends AbstractNxnContractTest {
         while (true) {
             List<UserInfo> batch = lambdaTemplate.query(UserInfo.class)//
                     .rangeBetween(UserInfo::getId, baseId() + 160, baseId() + 209)//
-                    .orderBy("id")//
                     .initPage(10, 0)//
                     .queryForList();
             if (batch.isEmpty()) {
@@ -174,8 +177,9 @@ public abstract class LambdaBatchMutationCase extends AbstractNxnContractTest {
         assertEquals(0, countByIdRange(160, 209));
     }
 
+    // 能力归属：构造器 API / 写入操作。
     @Test
-    @Capability(CapabilityId.LAMBDA_BATCH_MUTATION_UPDATE_DYNAMIC)
+    @Capability(value = CapabilityId.LAMBDA_BATCH_MUTATION_UPDATE_DYNAMIC, column = "builder/inserts-updates-and-deletes/writes")
     public void lambdaBatchMutation_shouldHonorDynamicUpdateFieldFlags() throws SQLException {
         insertByJdbc(baseId() + 230, "LBUpdDynamic", 25, "dynamic-original@test.com");
 
@@ -193,8 +197,9 @@ public abstract class LambdaBatchMutationCase extends AbstractNxnContractTest {
         assertEquals("dynamic-original@test.com", row.getEmail());
     }
 
+    // 能力归属：构造器 API / 写入操作。
     @Test
-    @Capability(CapabilityId.LAMBDA_BATCH_MUTATION_NULL_BOUNDARY)
+    @Capability(value = CapabilityId.LAMBDA_BATCH_MUTATION_NULL_BOUNDARY, column = "builder/inserts-updates-and-deletes/writes")
     public void lambdaBatchMutation_shouldWriteAndDeleteRowsUsingNullPredicates() throws SQLException {
         insertByJdbc(baseId() + 240, "LBNullBoundary1", 30, "null-boundary@test.com");
         insertByJdbc(baseId() + 241, "LBNullBoundary2", null, "null-boundary@test.com");

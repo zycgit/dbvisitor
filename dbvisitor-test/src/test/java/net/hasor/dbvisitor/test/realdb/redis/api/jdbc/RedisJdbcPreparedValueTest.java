@@ -14,7 +14,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcPreparedValueCase;
+import net.hasor.dbvisitor.test.contract.feature.parameter.JdbcPreparedValueCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
 
@@ -31,8 +31,7 @@ public class RedisJdbcPreparedValueTest extends JdbcPreparedValueCase {
 
     @Override
     protected String[] seedNames() {
-        return new String[] { super.seedNames()[0], "ordinary", "", "fourth",
-                "fifth", "sixth", "seventh", "eighth", "ninth", "tenth" };
+        return new String[] { super.seedNames()[0], "ordinary", "", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth" };
     }
 
     @Override
@@ -83,8 +82,7 @@ public class RedisJdbcPreparedValueTest extends JdbcPreparedValueCase {
 
     @Override
     protected String updateSql() {
-        return "EVAL \"local value=redis.call('HGET',KEYS[1],ARGV[2]); if not value then return 0 end; redis.call('HDEL',KEYS[1],ARGV[2]); redis.call('HSET',KEYS[1],ARGV[1],value); return 1\" 1 '"
-                + this.table + "' ? ?";
+        return "EVAL \"local value=redis.call('HGET',KEYS[1],ARGV[2]); if not value then return 0 end; redis.call('HDEL',KEYS[1],ARGV[2]); redis.call('HSET',KEYS[1],ARGV[1],value); return 1\" 1 '" + this.table + "' ? ?";
     }
 
     @Override

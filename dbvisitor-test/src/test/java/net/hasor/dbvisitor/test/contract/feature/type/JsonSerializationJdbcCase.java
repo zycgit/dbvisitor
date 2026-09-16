@@ -9,9 +9,6 @@ package net.hasor.dbvisitor.test.contract.feature.type;
 
 import java.sql.SQLException;
 import java.util.Arrays;
-
-import org.junit.Test;
-
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.test.contract.material.model.types.JsonTestBean;
 import net.hasor.dbvisitor.test.contract.material.model.types.JsonTestBean.Address;
@@ -19,14 +16,15 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 @NxnContract
 public abstract class JsonSerializationJdbcCase extends JsonTypeJdbcSupport {
+    // 能力归属：类型处理器 / JSON 序列化处理器 / JSON 转换。
     @Test
-    @Capability(CapabilityId.TYPE_JSON_WRITE_OBJECT)
+    @Capability(value = CapabilityId.TYPE_JSON_WRITE_OBJECT, column = "types/json-serialization-handlers/conversion")
     public void jsonObject_shouldSerializeToStringColumn() throws SQLException {
         requiresNxnFeature(FeatureId.JSON);
         Object id = fixtureKey(baseId() + 1);
@@ -43,10 +41,12 @@ public abstract class JsonSerializationJdbcCase extends JsonTypeJdbcSupport {
         assertTrue(json.contains("Alice"));
         assertTrue(json.contains("30"));
         assertTrue(json.contains("Shenzhen"));
+        assertStoredJsonEquals(bean, json);
     }
 
+    // 能力归属：类型处理器 / JSON 序列化处理器 / JSON 转换。
     @Test
-    @Capability(CapabilityId.TYPE_JSON_WRITE_SPECIAL)
+    @Capability(value = CapabilityId.TYPE_JSON_WRITE_SPECIAL, column = "types/json-serialization-handlers/conversion")
     public void jsonObject_shouldSerializeNullFieldsSpecialCharactersAndEmptyObject() throws SQLException {
         requiresNxnFeature(FeatureId.JSON);
         Object specialId = fixtureKey(baseId() + 2);
@@ -75,5 +75,7 @@ public abstract class JsonSerializationJdbcCase extends JsonTypeJdbcSupport {
         assertTrue(specialJson.contains("28"));
         assertNotNull(emptyJson);
         assertTrue(emptyJson.contains("{") && emptyJson.contains("}"));
+        assertStoredJsonEquals(special, specialJson);
+        assertStoredJsonEquals(empty, emptyJson);
     }
 }

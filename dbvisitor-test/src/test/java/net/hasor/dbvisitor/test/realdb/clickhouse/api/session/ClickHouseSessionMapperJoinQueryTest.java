@@ -7,9 +7,9 @@
  */
 package net.hasor.dbvisitor.test.realdb.clickhouse.api.session;
 
-import net.hasor.dbvisitor.test.contract.api.session.SessionMapperJoinQueryCase;
-import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.scenario.query.session.SessionMapperJoinQueryCase;
 
 public class ClickHouseSessionMapperJoinQueryTest extends SessionMapperJoinQueryCase {
     @Override

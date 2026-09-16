@@ -28,8 +28,7 @@ public class MilvusImportSqlTest extends MilvusSqlContractSupport {
         createCollection("id INT64 PRIMARY KEY,v FLOAT_VECTOR(2)");
         String missingFile = "/tmp/" + this.collection + "_missing.json";
         String asyncJob;
-        try (PreparedStatement submit = this.connection.prepareStatement(
-                "/*+ sync=false */ IMPORT FROM ? INTO " + this.collection + " RETURNING JOB_ID")) {
+        try (PreparedStatement submit = this.connection.prepareStatement("/*+ sync=false */ IMPORT FROM ? INTO " + this.collection + " RETURNING JOB_ID")) {
             submit.setString(1, missingFile);
             try (ResultSet result = submit.executeQuery()) {
                 assertTrue(result.next());
@@ -41,8 +40,7 @@ public class MilvusImportSqlTest extends MilvusSqlContractSupport {
         awaitFailure(asyncJob, missingFile);
 
         String syncJob;
-        try (PreparedStatement submit = this.connection.prepareStatement(
-                "/*+ timeout=30000 */ IMPORT FROM ? INTO " + this.collection)) {
+        try (PreparedStatement submit = this.connection.prepareStatement("/*+ timeout=30000 */ IMPORT FROM ? INTO " + this.collection)) {
             submit.setString(1, missingFile);
             SQLException failure = assertThrows(SQLException.class, submit::executeUpdate);
             String message = failure.getMessage();
@@ -55,8 +53,7 @@ public class MilvusImportSqlTest extends MilvusSqlContractSupport {
         assertNotEquals(asyncJob, syncJob);
         awaitFailure(syncJob, missingFile);
 
-        try (Statement statement = this.connection.createStatement();
-             ResultSet jobs = statement.executeQuery("SHOW IMPORTS FROM " + this.collection)) {
+        try (Statement statement = this.connection.createStatement(); ResultSet jobs = statement.executeQuery("SHOW IMPORTS FROM " + this.collection)) {
             Set<String> ids = new HashSet<>();
             while (jobs.next()) {
                 assertTrue(ids.add(jobs.getString("JOB_ID")));

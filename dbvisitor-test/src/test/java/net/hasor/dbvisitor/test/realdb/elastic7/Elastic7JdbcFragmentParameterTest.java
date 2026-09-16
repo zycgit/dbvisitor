@@ -10,7 +10,7 @@ package net.hasor.dbvisitor.test.realdb.elastic7;
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.api.adapter.NativeDocumentParameterFixture;
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcParameterCommand;
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcFragmentParameterCase;
+import net.hasor.dbvisitor.test.contract.feature.parameter.JdbcFragmentParameterCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
 import org.junit.After;
@@ -52,7 +52,6 @@ public class Elastic7JdbcFragmentParameterTest extends JdbcFragmentParameterCase
     protected String orderFragment() {
         return this.fixture.orderFragment();
     }
-
 
     @After
     public void cleanupFixture() throws SQLException {

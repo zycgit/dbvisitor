@@ -17,8 +17,8 @@ import net.hasor.dbvisitor.test.contract.material.dao.declarative.AnnotationTest
 /** Native UserInfo schema for the same annotation/XML CRUD assertions as other sources. */
 final class MilvusMapperCrudFixture implements AutoCloseable {
     private final MilvusUserInfoFixture collection = new MilvusUserInfoFixture();
-    private JdbcTemplate jdbc;
-    private Session session;
+    private       JdbcTemplate          jdbc;
+    private       Session               session;
 
     JdbcTemplate open() throws SQLException {
         if (this.jdbc == null) {
@@ -47,8 +47,7 @@ final class MilvusMapperCrudFixture implements AutoCloseable {
 
     void seedXmlUsers(int baseId) throws SQLException {
         for (int i = 1; i <= 5; i++) {
-            this.jdbc.executeUpdate("INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, ?)",
-                    new Object[] { baseId + i, "XmlCrud" + i, 20 + i, "crud" + i + "@test.com", new Date() });
+            this.jdbc.executeUpdate("INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, ?)", new Object[] { baseId + i, "XmlCrud" + i, 20 + i, "crud" + i + "@test.com", new Date() });
         }
     }
 

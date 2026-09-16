@@ -12,27 +12,24 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.sql.DataSource;
-
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TestName;
-
 import net.hasor.dbvisitor.jdbc.core.JdbcQueryContext;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
+import org.junit.Assume;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.TestName;
 
 public abstract class AbstractOneApiTest {
-    protected static DataSource dataSource;
+    protected static DataSource     dataSource;
     @Rule
-    public TestName             testName = new TestName();
-    protected JdbcTemplate      jdbcTemplate;
-    protected LambdaTemplate    lambdaTemplate;
+    public           TestName       testName = new TestName();
+    protected        JdbcTemplate   jdbcTemplate;
+    protected        LambdaTemplate lambdaTemplate;
 
     @Before
     public void setup() throws IOException, SQLException {

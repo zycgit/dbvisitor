@@ -12,20 +12,19 @@ import java.util.Map;
 import java.util.Objects;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.session.Configuration;
-import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
+import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.realdb.redis.dto1.UserInfo1;
 import org.junit.Test;
-import static org.junit.Assert.assertTrue;
 import redis.clients.jedis.Jedis;
+import static org.junit.Assert.*;
 
 public class RedisJdbcTest {
     @org.junit.BeforeClass
     public static void assumeDataSource() {
         OneApiDataSourceManager.assumeCurrentDataSource("redis");
     }
-
 
     @Test
     @Capability(CapabilityId.ADAPTER_REDIS_JDBC_DSL_CRUD)
@@ -38,21 +37,21 @@ public class RedisJdbcTest {
             jdbc.executeUpdate("del myKey1");// 预删除避免 test case 相互污染
 
             // read
-            assertTrue(jdbc.queryForInt("get myKey1") == null);
+            assertNull(jdbc.queryForInt("get myKey1"));
 
             // write
-            assertTrue(jdbc.executeUpdate("set myKey1 123") == 1);
+            assertEquals(1, jdbc.executeUpdate("set myKey1 123"));
 
             // read
-            assertTrue(jdbc.queryForInt("get myKey1") == 123);
+            assertEquals(123, (int) jdbc.queryForInt("get myKey1"));
 
             // update the existing value
-            assertTrue(jdbc.executeUpdate("set myKey1 456") == 1);
-            assertTrue(jdbc.queryForInt("get myKey1") == 456);
+            assertEquals(1, jdbc.executeUpdate("set myKey1 456"));
+            assertEquals(456, (int) jdbc.queryForInt("get myKey1"));
 
             // delete
-            assertTrue(jdbc.executeUpdate("del myKey1") == 1);
-            assertTrue(jdbc.queryForInt("get myKey1") == null);
+            assertEquals(1, jdbc.executeUpdate("del myKey1"));
+            assertNull(jdbc.queryForInt("get myKey1"));
         }
     }
 
@@ -70,16 +69,16 @@ public class RedisJdbcTest {
             assertTrue(jdbc.queryForPairs("mget myKey1 myKey2", String.class, Integer.class).values().stream().noneMatch(Objects::nonNull));
 
             // write
-            assertTrue(jdbc.executeUpdate("mset myKey1 123 myKey2 456") == 2);
+            assertEquals(2, jdbc.executeUpdate("mset myKey1 123 myKey2 456"));
 
             // read
             Map<String, Integer> res = jdbc.queryForPairs("mget myKey1 myKey2", String.class, Integer.class);
-            assertTrue(res.size() == 2);
-            assertTrue(res.get("myKey1") == 123);
-            assertTrue(res.get("myKey2") == 456);
+            assertEquals(2, res.size());
+            assertEquals(123, (int) res.get("myKey1"));
+            assertEquals(456, (int) res.get("myKey2"));
 
             // delete
-            assertTrue(jdbc.executeUpdate("del myKey1 myKey2") == 2);
+            assertEquals(2, jdbc.executeUpdate("del myKey1 myKey2"));
             assertTrue(jdbc.queryForPairs("mget myKey1 myKey2", String.class, Integer.class).values().stream().noneMatch(Objects::nonNull));
         }
     }
@@ -101,20 +100,20 @@ public class RedisJdbcTest {
             user.setLoginPassword("password");
 
             // insert
-            assertTrue(jdbc.executeUpdate("set #{'user_' + arg0.uid} #{arg0}", user) == 1);
+            assertEquals(1, jdbc.executeUpdate("set #{'user_' + arg0.uid} #{arg0}", user));
 
             // load
             UserInfo1 info = jdbc.queryForObject("get #{'user_' + arg0}", "j1111", UserInfo1.class);
-            assertTrue(user != info);
-            assertTrue(info.getUid().equals("j1111"));
-            assertTrue(info.getName().equals("username"));
-            assertTrue(info.getLoginName().equals("login_123"));
-            assertTrue(info.getLoginPassword().equals("password"));
+            assertNotSame(user, info);
+            assertEquals("j1111", info.getUid());
+            assertEquals("username", info.getName());
+            assertEquals("login_123", info.getLoginName());
+            assertEquals("password", info.getLoginPassword());
 
             // delete
-            assertTrue(c.unwrap(Jedis.class).get("user_j1111") != null);
-            assertTrue(jdbc.executeUpdate("del user_j1111") == 1);
-            assertTrue(c.unwrap(Jedis.class).get("user_j1111") == null);
+            assertNotNull(c.unwrap(Jedis.class).get("user_j1111"));
+            assertEquals(1, jdbc.executeUpdate("del user_j1111"));
+            assertNull(c.unwrap(Jedis.class).get("user_j1111"));
         }
     }
 }

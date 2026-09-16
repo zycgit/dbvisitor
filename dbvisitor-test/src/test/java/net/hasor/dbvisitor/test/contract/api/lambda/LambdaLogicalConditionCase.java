@@ -11,15 +11,12 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -29,8 +26,9 @@ public abstract class LambdaLogicalConditionCase extends AbstractNxnContractTest
         return 730000;
     }
 
+    // 能力归属：构造器 API / 条件构造器。
     @Test
-    @Capability(CapabilityId.LAMBDA_LOGIC_NESTED_AND_OR)
+    @Capability(value = CapabilityId.LAMBDA_LOGIC_NESTED_AND_OR, column = "builder/condition-builders/predicates")
     public void lambdaLogic_shouldApplyNestedAndOrGroups() throws SQLException {
         insertUser(baseId() + 1, "NXN-Logic-Nested-A", 10, "group-a@nxn.test");
         insertUser(baseId() + 2, "NXN-Logic-Nested-B", 10, "group-b@nxn.test");
@@ -48,8 +46,9 @@ public abstract class LambdaLogicalConditionCase extends AbstractNxnContractTest
         assertEquals(2, count);
     }
 
+    // 能力归属：构造器 API / 条件构造器。
     @Test
-    @Capability(CapabilityId.LAMBDA_LOGIC_DEEP_NESTED)
+    @Capability(value = CapabilityId.LAMBDA_LOGIC_DEEP_NESTED, column = "builder/condition-builders/predicates")
     public void lambdaLogic_shouldApplyNestedGroupAfterOuterPredicate() throws SQLException {
         insertUser(baseId() + 11, "NXN-Logic-Deep-X", 30, "deep@nxn.test");
         insertUser(baseId() + 12, "NXN-Logic-Deep-X", 50, "deep@nxn.test");
@@ -66,8 +65,9 @@ public abstract class LambdaLogicalConditionCase extends AbstractNxnContractTest
         assertEquals(Integer.valueOf(baseId() + 11), result.getId());
     }
 
+    // 能力归属：构造器 API / 条件构造器。
     @Test
-    @Capability(CapabilityId.LAMBDA_LOGIC_MARKER_AND)
+    @Capability(value = CapabilityId.LAMBDA_LOGIC_MARKER_AND, column = "builder/condition-builders/predicates")
     public void lambdaLogic_shouldApplyNoArgAndMarker() throws SQLException {
         insertUser(baseId() + 21, "NXN-Logic-Marker-And-1", 25, "marker@nxn.test");
         insertUser(baseId() + 22, "NXN-Logic-Marker-And-2", 30, "marker@nxn.test");
@@ -81,8 +81,9 @@ public abstract class LambdaLogicalConditionCase extends AbstractNxnContractTest
         assertEquals(2, explicitAnd);
     }
 
+    // 能力归属：构造器 API / 条件构造器。
     @Test
-    @Capability(CapabilityId.LAMBDA_LOGIC_MARKER_NOT)
+    @Capability(value = CapabilityId.LAMBDA_LOGIC_MARKER_NOT, column = "builder/condition-builders/predicates")
     public void lambdaLogic_shouldApplyNoArgNotMarker() throws SQLException {
         insertUser(baseId() + 24, "NXN-Logic-Marker-Not-1", 25, "marker@nxn.test");
         insertUser(baseId() + 25, "NXN-Logic-Marker-Not-2", 30, "marker@nxn.test");
@@ -97,8 +98,9 @@ public abstract class LambdaLogicalConditionCase extends AbstractNxnContractTest
         assertEquals(2, explicitNot);
     }
 
+    // 能力归属：构造器 API / 条件构造器。
     @Test
-    @Capability(CapabilityId.LAMBDA_LOGIC_DYNAMIC_OR_AND)
+    @Capability(value = CapabilityId.LAMBDA_LOGIC_DYNAMIC_OR_AND, column = "builder/condition-builders/predicates")
     public void lambdaLogic_shouldApplyOrAndConsumerOnlyWhenEnabled() throws SQLException {
         insertUser(baseId() + 31, "NXN-Logic-Dyn-Or-1", 20, "dyn@nxn.test");
         insertUser(baseId() + 32, "NXN-Logic-Dyn-Or-2", 25, "dyn@nxn.test");
@@ -132,8 +134,9 @@ public abstract class LambdaLogicalConditionCase extends AbstractNxnContractTest
         assertEquals(3, andDisabled);
     }
 
+    // 能力归属：构造器 API / 条件构造器。
     @Test
-    @Capability(CapabilityId.LAMBDA_LOGIC_DYNAMIC_NOT)
+    @Capability(value = CapabilityId.LAMBDA_LOGIC_DYNAMIC_NOT, column = "builder/condition-builders/predicates")
     public void lambdaLogic_shouldApplyNotConsumerOnlyWhenEnabled() throws SQLException {
         insertUser(baseId() + 41, "NXN-Logic-Dyn-Not-1", 20, "dyn@nxn.test");
         insertUser(baseId() + 42, "NXN-Logic-Dyn-Not-2", 25, "dyn@nxn.test");
@@ -151,8 +154,9 @@ public abstract class LambdaLogicalConditionCase extends AbstractNxnContractTest
         assertEquals(3, notDisabled);
     }
 
+    // 能力归属：构造器 API / 条件构造器。
     @Test
-    @Capability(CapabilityId.LAMBDA_LOGIC_DYNAMIC_NESTED)
+    @Capability(value = CapabilityId.LAMBDA_LOGIC_DYNAMIC_NESTED, column = "builder/condition-builders/predicates")
     public void lambdaLogic_shouldApplyNestedConsumerOnlyWhenEnabled() throws SQLException {
         insertUser(baseId() + 44, "NXN-Logic-Dyn-Nested-1", 20, "group-a@nxn.test");
         insertUser(baseId() + 45, "NXN-Logic-Dyn-Nested-2", 25, "group-a@nxn.test");
@@ -173,8 +177,9 @@ public abstract class LambdaLogicalConditionCase extends AbstractNxnContractTest
         assertEquals(3, nestedDisabled);
     }
 
+    // 能力归属：构造器 API / 条件构造器。
     @Test
-    @Capability(CapabilityId.LAMBDA_LOGIC_NOT_NESTED)
+    @Capability(value = CapabilityId.LAMBDA_LOGIC_NOT_NESTED, column = "builder/condition-builders/predicates")
     public void lambdaLogic_shouldNegateNestedCompositeCondition() throws SQLException {
         insertUser(baseId() + 51, "NXN-Logic-Not-Test", 25, "not@nxn.test");
         insertUser(baseId() + 52, "NXN-Logic-Not-Admin", 30, "not@nxn.test");
@@ -190,8 +195,9 @@ public abstract class LambdaLogicalConditionCase extends AbstractNxnContractTest
         assertEquals(3, count);
     }
 
+    // 能力归属：构造器 API / 条件构造器。
     @Test
-    @Capability(CapabilityId.LAMBDA_LOGIC_NOT_IN_LIKE)
+    @Capability(value = CapabilityId.LAMBDA_LOGIC_NOT_IN_LIKE, column = "builder/condition-builders/predicates")
     public void lambdaLogic_shouldCombineNotInAndNotLikeGroups() throws SQLException {
         insertUser(baseId() + 61, "NXN-Logic-NotIn-User1", 20, "not@nxn.test");
         insertUser(baseId() + 62, "NXN-Logic-NotIn-User2", 25, "not@nxn.test");
@@ -218,8 +224,9 @@ public abstract class LambdaLogicalConditionCase extends AbstractNxnContractTest
         assertEquals(2, notLikeCount);
     }
 
+    // 能力归属：构造器 API / 条件构造器。
     @Test
-    @Capability(CapabilityId.LAMBDA_LOGIC_NOT_BETWEEN_NULL)
+    @Capability(value = CapabilityId.LAMBDA_LOGIC_NOT_BETWEEN_NULL, column = "builder/condition-builders/predicates")
     public void lambdaLogic_shouldCombineNotBetweenAndNullPredicates() throws SQLException {
         insertUser(baseId() + 71, "NXN-Logic-NotBetween-1", 15, "between@nxn.test");
         insertUser(baseId() + 72, "NXN-Logic-NotBetween-2", 25, "between@nxn.test");
@@ -243,8 +250,9 @@ public abstract class LambdaLogicalConditionCase extends AbstractNxnContractTest
         assertEquals(2, notNull);
     }
 
+    // 能力归属：构造器 API / 条件构造器。
     @Test
-    @Capability(CapabilityId.LAMBDA_LOGIC_DOUBLE_NOT)
+    @Capability(value = CapabilityId.LAMBDA_LOGIC_DOUBLE_NOT, column = "builder/condition-builders/predicates")
     public void lambdaLogic_shouldTreatDoubleNotAsPositivePredicate() throws SQLException {
         insertUser(baseId() + 81, "NXN-Logic-DoubleNot-1", 25, "double@nxn.test");
         insertUser(baseId() + 82, "NXN-Logic-DoubleNot-2", 30, "double@nxn.test");
@@ -258,8 +266,9 @@ public abstract class LambdaLogicalConditionCase extends AbstractNxnContractTest
         assertEquals(Integer.valueOf(baseId() + 81), result.getId());
     }
 
+    // 能力归属：构造器 API / 条件构造器。
     @Test
-    @Capability(CapabilityId.LAMBDA_LOGIC_DYNAMIC_VALUE)
+    @Capability(value = CapabilityId.LAMBDA_LOGIC_DYNAMIC_VALUE, column = "builder/condition-builders/predicates")
     public void lambdaLogic_shouldSkipDisabledValuePredicates() throws SQLException {
         insertUser(baseId() + 91, "NXN-Logic-DynamicValue-1", 25, "dynamic@nxn.test");
         insertUser(baseId() + 92, "NXN-Logic-DynamicValue-2", 30, "dynamic@nxn.test");
@@ -282,8 +291,9 @@ public abstract class LambdaLogicalConditionCase extends AbstractNxnContractTest
         assertEquals(3, skipped);
     }
 
+    // 能力归属：构造器 API / 条件构造器。
     @Test
-    @Capability(CapabilityId.LAMBDA_LOGIC_IF_TRUE)
+    @Capability(value = CapabilityId.LAMBDA_LOGIC_IF_TRUE, column = "builder/condition-builders/predicates")
     public void lambdaLogic_shouldApplyIfTrueConsumerOnlyWhenEnabled() throws SQLException {
         insertUser(baseId() + 101, "NXN-Logic-IfTrue-25", 25, "iftrue@nxn.test");
         insertUser(baseId() + 102, "NXN-Logic-IfTrue-30", 30, "iftrue@nxn.test");
@@ -304,8 +314,9 @@ public abstract class LambdaLogicalConditionCase extends AbstractNxnContractTest
         assertEquals(5, disabled);
     }
 
+    // 能力归属：构造器 API / 条件构造器。
     @Test
-    @Capability(CapabilityId.LAMBDA_LOGIC_APPLY_RAW)
+    @Capability(value = CapabilityId.LAMBDA_LOGIC_APPLY_RAW, column = "builder/condition-builders/predicates")
     public void lambdaLogic_shouldComposeRawApplyConditionsWithOtherPredicates() throws SQLException {
         insertUser(baseId() + 111, "NXN-Logic-Apply-25", 25, "apply@nxn.test");
         insertUser(baseId() + 112, "NXN-Logic-Apply-30", 30, "apply@nxn.test");

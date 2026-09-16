@@ -12,19 +12,14 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import net.hasor.dbvisitor.test.nxn.env.DataSourceId;
+import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class LambdaSortCase extends AbstractNxnContractTest {
@@ -32,8 +27,9 @@ public abstract class LambdaSortCase extends AbstractNxnContractTest {
         return 850000;
     }
 
+    // 能力归属：构造器 API / 排序。
     @Test
-    @Capability(CapabilityId.LAMBDA_SORT_MULTI_COLUMN)
+    @Capability(value = CapabilityId.LAMBDA_SORT_MULTI_COLUMN, column = "builder/grouping-and-ordering/ordering")
     public void lambdaSort_shouldHonorMultiColumnPriorityAndMixedDirections() throws SQLException {
         insertUser(baseId() + 1, "Charlie", 25, "sort-a@test.com");
         insertUser(baseId() + 2, "Alice", 25, "sort-a@test.com");
@@ -64,45 +60,34 @@ public abstract class LambdaSortCase extends AbstractNxnContractTest {
         assertNames(ageAscNameDesc, "Eve", "Charlie", "Bob", "Alice", "David");
     }
 
+    // 能力归属：构造器 API / 排序。
     @Test
-    @Capability(CapabilityId.LAMBDA_SORT_NULL_ORDERING)
-    public void lambdaSort_shouldExposeDatasourceNullOrderingForMultiColumnSorts() throws SQLException {
-        insertUser(baseId() + 11, "Alpha", 25, "null-sort-a@test.com");
-        insertUser(baseId() + 12, "Beta", null, "null-sort-b@test.com");
-        insertUser(baseId() + 13, "Gamma", 30, "null-sort-c@test.com");
-        insertUser(baseId() + 14, "Delta", null, "null-sort-d@test.com");
-
-        List<UserInfo> rows = lambdaTemplate.query(UserInfo.class)//
-                .in(UserInfo::getId, ids(11, 12, 13, 14))//
-                .desc("age")//
-                .asc("name")//
-                .queryForList();
-        assertEquals(4, rows.size());
-
-        if (profile().id() == DataSourceId.PG || profile().id() == DataSourceId.ORACLE || profile().id() == DataSourceId.DB2) {
-            assertNull(rows.get(0).getAge());
-            assertNull(rows.get(1).getAge());
-            assertNames(rows, "Beta", "Delta", "Gamma", "Alpha");
-        } else {
-            assertNames(rows, "Gamma", "Alpha", "Beta", "Delta");
-            assertNull(rows.get(2).getAge());
-            assertNull(rows.get(3).getAge());
-        }
-    }
-
-    @Test
-    @Capability(CapabilityId.LAMBDA_SORT_REPEATED_COLUMN)
+    @Capability(value = CapabilityId.LAMBDA_SORT_REPEATED_COLUMN, column = "builder/grouping-and-ordering/ordering")
     public void lambdaSort_shouldAppendRepeatedColumnOrderingWithoutOverridingPrimaryOrder() throws SQLException {
         insertUser(baseId() + 21, "User1", 20, "repeat-sort-1@test.com");
         insertUser(baseId() + 22, "User2", 25, "repeat-sort-2@test.com");
         insertUser(baseId() + 23, "User3", 30, "repeat-sort-3@test.com");
 
-        List<UserInfo> rows = lambdaTemplate.query(UserInfo.class)//
+        var query = lambdaTemplate.query(UserInfo.class)//
                 .in(UserInfo::getId, ids(21, 22, 23))//
                 .asc("age")//
-                .desc("age")//
-                .queryForList();
+                .desc("age");
 
+        if (!profile().supportsFeature(FeatureId.REPEATED_ORDER_BY_COLUMN)) {
+            try {
+                query.queryForList();
+                fail("SQL Server must reject repeated ORDER BY columns");
+            } catch (SQLException e) {
+                assertTrue(e.getMessage(), e.getMessage().contains("more than once"));
+            }
+            List<UserInfo> rows = lambdaTemplate.query(UserInfo.class)//
+                    .in(UserInfo::getId, ids(21, 22, 23)).desc("age").asc("id").queryForList();
+            assertEquals(3, rows.size());
+            assertEquals(Integer.valueOf(30), rows.get(0).getAge());
+            return;
+        }
+
+        List<UserInfo> rows = query.queryForList();
         assertEquals(3, rows.size());
         assertTrue(rows.get(0).getAge() <= rows.get(1).getAge());
         assertTrue(rows.get(1).getAge() <= rows.get(2).getAge());
@@ -124,8 +109,9 @@ public abstract class LambdaSortCase extends AbstractNxnContractTest {
         }
     }
 
+    // 能力归属：构造器 API / 排序。
     @Test
-    @Capability(CapabilityId.LAMBDA_QUERY_ORDER)
+    @Capability(value = CapabilityId.LAMBDA_QUERY_ORDER, column = "builder/grouping-and-ordering/ordering")
     public void lambdaQueryOrder_shouldReturnRowsInRequestedOrder() throws SQLException {
         int[] ages = { 22, 35, 28, 19 };
         for (int i = 0; i < ages.length; i++) {

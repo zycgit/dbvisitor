@@ -9,24 +9,18 @@ package net.hasor.dbvisitor.test.contract.api.mapper.basemapper;
 
 import java.util.Arrays;
 import java.util.List;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class BaseMapperDeleteCase extends BaseMapperCrudSupport {
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_DELETE)
+    @Capability(value = CapabilityId.BASEMAPPER_DELETE, column = "mapper/base-mapper/operations")
     public void baseMapperDelete_shouldDeleteById() {
         this.mapper.insert(user(baseId() + 101, "BaseDelete", 101, null));
 
@@ -36,8 +30,9 @@ public abstract class BaseMapperDeleteCase extends BaseMapperCrudSupport {
         assertNull(this.mapper.selectById(baseId() + 101));
     }
 
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_DELETE_BY_IDS)
+    @Capability(value = CapabilityId.BASEMAPPER_DELETE_BY_IDS, column = "mapper/base-mapper/operations")
     public void baseMapperDeleteByIds_shouldDeleteOnlyRequestedPrimaryKeys() {
         for (int i = 1; i <= 5; i++) {
             this.mapper.insert(user(baseId() + 290 + i, "BaseDeleteIds" + i, 20 + i, null));
@@ -52,8 +47,9 @@ public abstract class BaseMapperDeleteCase extends BaseMapperCrudSupport {
         assertNotNull(this.mapper.selectById(baseId() + 294));
     }
 
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_DELETE_ENTITY)
+    @Capability(value = CapabilityId.BASEMAPPER_DELETE_ENTITY, column = "mapper/base-mapper/operations")
     public void baseMapperDeleteEntity_shouldDeleteUsingEntityPrimaryKey() {
         int id = baseId() + 301;
         this.mapper.insert(user(id, "BaseDeleteEntity", 28, null));
@@ -66,8 +62,9 @@ public abstract class BaseMapperDeleteCase extends BaseMapperCrudSupport {
         assertNull(this.mapper.selectById(id));
     }
 
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_DELETE_LIST)
+    @Capability(value = CapabilityId.BASEMAPPER_DELETE_LIST, column = "mapper/base-mapper/operations")
     public void baseMapperDeleteList_shouldDeleteEntityList() {
         // @formatter:off
         List<UserInfo> users = Arrays.asList(
@@ -88,16 +85,18 @@ public abstract class BaseMapperDeleteCase extends BaseMapperCrudSupport {
         assertNotNull(this.mapper.selectById(baseId() + 314));
     }
 
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_DELETE_BOUNDARY)
+    @Capability(value = CapabilityId.BASEMAPPER_DELETE_BOUNDARY, column = "mapper/base-mapper/operations")
     public void baseMapperDelete_shouldReturnZeroForMissingPrimaryKey() {
         assertMutationRows(0, this.mapper.deleteById(baseId() + 99902));
     }
 
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_DELETE_EMPTY_AND_NULL_KEYS)
+    @Capability(value = CapabilityId.BASEMAPPER_DELETE_EMPTY_AND_NULL_KEYS, column = "mapper/base-mapper/operations")
     public void baseMapperDelete_shouldHandleEmptyAndNullPrimaryKeys() {
-        assertMutationRows(0, this.mapper.deleteByIds(Arrays.asList()));
+        assertMutationRows(0, this.mapper.deleteByIds(List.of()));
         try {
             this.mapper.deleteById(null);
             fail("Null primary key should be rejected.");
@@ -107,8 +106,9 @@ public abstract class BaseMapperDeleteCase extends BaseMapperCrudSupport {
         }
     }
 
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_DELETE_REINSERT)
+    @Capability(value = CapabilityId.BASEMAPPER_DELETE_REINSERT, column = "mapper/base-mapper/operations")
     public void baseMapperDelete_shouldAllowReinsertingDeletedPrimaryKey() {
         int reinsertId = baseId() + 321;
         this.mapper.insert(user(reinsertId, "BaseReinsertBefore", 30, null));

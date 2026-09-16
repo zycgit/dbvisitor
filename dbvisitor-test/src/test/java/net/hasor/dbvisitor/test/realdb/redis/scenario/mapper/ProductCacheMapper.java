@@ -7,18 +7,13 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.scenario.mapper;
 
-import net.hasor.dbvisitor.mapper.Delete;
-import net.hasor.dbvisitor.mapper.Insert;
-import net.hasor.dbvisitor.mapper.Param;
-import net.hasor.dbvisitor.mapper.Query;
-import net.hasor.dbvisitor.mapper.SimpleMapper;
+import net.hasor.dbvisitor.mapper.*;
 import net.hasor.dbvisitor.test.realdb.redis.scenario.model.ProductCache;
 
 @SimpleMapper
 public interface ProductCacheMapper {
     @Insert("SET #{key} #{product} EX #{ttlSeconds}")
-    int save(@Param("key") String key, @Param("product") ProductCache product,
-             @Param("ttlSeconds") int ttlSeconds);
+    int save(@Param("key") String key, @Param("product") ProductCache product, @Param("ttlSeconds") int ttlSeconds);
 
     @Query("GET #{key}")
     ProductCache load(@Param("key") String key);

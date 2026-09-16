@@ -37,7 +37,7 @@
     </select>
 
     <!-- fetchSize 设置 -->
-    <select id="selectWithFetchSize" resultMap="userResultMap" fetchSize="5">
+    <select id="selectWithFetchSize" resultMap="userResultMap" fetchSize="2">
         SELECT * FROM user_info WHERE name LIKE 'StmtAttr%' ORDER BY id
     </select>
 

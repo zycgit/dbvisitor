@@ -7,10 +7,13 @@
  */
 package net.hasor.dbvisitor.test.realdb.elastic6;
 
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.Elastic6Profile;
 import net.hasor.dbvisitor.test.realdb.elastic7.Elastic7AnnotationMapperGeneratedKeysTest;
-import net.hasor.dbvisitor.test.nxn.env.*;
 
 public class Elastic6AnnotationMapperGeneratedKeysTest extends Elastic7AnnotationMapperGeneratedKeysTest {
     @Override
-    protected DataSourceProfile profile() { return Elastic6Profile.INSTANCE; }
+    protected DataSourceProfile profile() {
+        return Elastic6Profile.INSTANCE;
+    }
 }

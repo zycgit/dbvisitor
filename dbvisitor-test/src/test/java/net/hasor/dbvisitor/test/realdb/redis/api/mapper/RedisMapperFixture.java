@@ -15,7 +15,7 @@ import net.hasor.dbvisitor.test.realdb.redis.api.jdbc.RedisJdbcFixture;
 /** Native command material for shared Mapper cases. */
 public final class RedisMapperFixture implements AutoCloseable {
     private final RedisJdbcFixture keys = new RedisJdbcFixture();
-    private Session session;
+    private       Session          session;
 
     public void open() throws SQLException {
         if (session != null) {

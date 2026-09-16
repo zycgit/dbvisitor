@@ -9,17 +9,7 @@ package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
 import java.sql.SQLException;
 import java.util.List;
-
-import org.junit.After;
-import org.junit.Before;
-
-import net.hasor.dbvisitor.mapper.Delete;
-import net.hasor.dbvisitor.mapper.Insert;
-import net.hasor.dbvisitor.mapper.Param;
-import net.hasor.dbvisitor.mapper.Query;
-import net.hasor.dbvisitor.mapper.ResultSetType;
-import net.hasor.dbvisitor.mapper.SimpleMapper;
-import net.hasor.dbvisitor.mapper.StatementType;
+import net.hasor.dbvisitor.mapper.*;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperExecutionCase;
@@ -28,6 +18,8 @@ import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
 import net.hasor.dbvisitor.types.handler.json.JsonTypeHandler;
+import org.junit.After;
+import org.junit.Before;
 
 public class RedisAnnotationMapperExecutionTest extends AnnotationMapperExecutionCase {
     private final RedisMapperFixture fixture = new RedisMapperFixture();
@@ -61,8 +53,7 @@ public class RedisAnnotationMapperExecutionTest extends AnnotationMapperExecutio
         for (int i = 1; i <= 10; i++) {
             UserInfo user = user(baseId() + i, "AttrNxn" + i, 20 + i, "attr-nxn" + i + "@nxn.test");
             this.mapper.insertUserBasic(user);
-            this.jdbcTemplate.queryForLong("ZADD #{arg0} #{arg1} #{arg2,typeHandler=net.hasor.dbvisitor.types.handler.json.JsonTypeHandler}",
-                    new Object[] { this.fixture.key("attribute-fetch"), user.getId(), user });
+            this.jdbcTemplate.queryForLong("ZADD #{arg0} #{arg1} #{arg2,typeHandler=net.hasor.dbvisitor.types.handler.json.JsonTypeHandler}", new Object[] { this.fixture.key("attribute-fetch"), user.getId(), user });
         }
     }
 
@@ -91,8 +82,8 @@ public class RedisAnnotationMapperExecutionTest extends AnnotationMapperExecutio
 
         String ENTITY = "#{#{'id':id,'name':name,'age':age,'email':email,'createTime':createTime},typeHandler=net.hasor.dbvisitor.types.handler.json.JsonTypeHandler}";
         String INSERT = "HSET @{macro, redisAttributeUsers} #{id} " + ENTITY;
-        String BY_ID = "HGET @{macro, redisAttributeUsers} #{id}";
-        String ALL = "ZRANGE @{macro, redisAttributeFetch} 0 -1";
+        String BY_ID  = "HGET @{macro, redisAttributeUsers} #{id}";
+        String ALL    = "ZRANGE @{macro, redisAttributeFetch} 0 -1";
 
         @Override
         @Insert(INSERT)
@@ -103,8 +94,7 @@ public class RedisAnnotationMapperExecutionTest extends AnnotationMapperExecutio
         UserInfo selectByIdPrepared(@Param("id") Integer id);
 
         @Override
-        @Query(value = "HGET @{macro, redisAttributeUsers} ${id}",
-                statementType = StatementType.Statement, resultTypeHandler = JsonTypeHandler.class)
+        @Query(value = "HGET @{macro, redisAttributeUsers} ${id}", statementType = StatementType.Statement, resultTypeHandler = JsonTypeHandler.class)
         UserInfo selectByIdStatement(@Param("id") Integer id);
 
         @Override
@@ -120,8 +110,7 @@ public class RedisAnnotationMapperExecutionTest extends AnnotationMapperExecutio
         UserInfo selectWithMaxTimeout(@Param("id") Integer id);
 
         @Override
-        @Query(value = "EVAL \"local value=redis.call('HGET',KEYS[1],ARGV[1]); if not value then return 0 end; local user=cjson.decode(value); user.age=tonumber(ARGV[2]); redis.call('HSET',KEYS[1],ARGV[1],cjson.encode(user)); return 1\" 1 @{macro, redisAttributeUsers} #{id} #{age}",
-                timeout = 30)
+        @Query(value = "EVAL \"local value=redis.call('HGET',KEYS[1],ARGV[1]); if not value then return 0 end; local user=cjson.decode(value); user.age=tonumber(ARGV[2]); redis.call('HSET',KEYS[1],ARGV[1],cjson.encode(user)); return 1\" 1 @{macro, redisAttributeUsers} #{id} #{age}", timeout = 30)
         int updateWithTimeout(@Param("id") Integer id, @Param("age") Integer age);
 
         @Override
@@ -153,8 +142,7 @@ public class RedisAnnotationMapperExecutionTest extends AnnotationMapperExecutio
         int insertMultiLine(UserInfo user);
 
         @Override
-        @Query(value = ALL, statementType = StatementType.Prepared, timeout = 60, fetchSize = 100,
-                resultSetType = ResultSetType.FORWARD_ONLY, resultTypeHandler = JsonTypeHandler.class)
+        @Query(value = ALL, statementType = StatementType.Prepared, timeout = 60, fetchSize = 100, resultSetType = ResultSetType.FORWARD_ONLY, resultTypeHandler = JsonTypeHandler.class)
         List<UserInfo> selectWithCombinedAttributes(@Param("pattern") String pattern);
 
         @Override

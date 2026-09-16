@@ -7,9 +7,9 @@
  */
 package net.hasor.dbvisitor.test.realdb.db2.feature.keygen;
 
-import net.hasor.dbvisitor.test.scenario.ReturningScenario;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Db2Profile;
+import net.hasor.dbvisitor.test.scenario.ReturningScenario;
 
 public class Db2ReturningTest extends ReturningScenario {
     @Override

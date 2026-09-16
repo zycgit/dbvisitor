@@ -9,14 +9,12 @@ package net.hasor.dbvisitor.test.realdb.mongo;
 
 import java.sql.SQLException;
 import java.util.Date;
-
-import org.junit.After;
-import org.junit.Before;
-
 import net.hasor.dbvisitor.test.contract.api.adapter.NativeDocumentQueryFixture;
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcRowCallbackCase;
+import net.hasor.dbvisitor.test.contract.feature.result.JdbcRowCallbackCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
+import org.junit.After;
+import org.junit.Before;
 
 public class MongoJdbcRowCallbackTest extends JdbcRowCallbackCase {
     private final NativeDocumentQueryFixture fixture = new NativeDocumentQueryFixture();

@@ -8,21 +8,17 @@
 package net.hasor.dbvisitor.test.contract.api.session;
 
 import java.util.List;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class SessionStatementResultCase extends SessionStatementSupport {
+    // 能力归属：Mapper 文件 / 映射结果集。
     @Test
-    @Capability(CapabilityId.SESSION_STATEMENT_QUERY_RESULT)
+    @Capability(value = CapabilityId.SESSION_STATEMENT_QUERY_RESULT, column = "mapper-files/dynamic-sql-and-result-mapping/resultmap")
     public void sessionStatement_shouldQueryResultMapListScalarAndEmptyList() throws Exception {
         insertUser(baseId() + 10, "StmtQueryOne", 40, "q1@nxn.test");
         insertUser(baseId() + 11, "StmtQueryTwo", 40, "q2@nxn.test");

@@ -9,14 +9,12 @@ package net.hasor.dbvisitor.test.contract.api.mapper.annotation;
 
 import java.sql.SQLException;
 import java.util.Date;
-
-import org.junit.Before;
-
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.material.dao.declarative.ResultHandlerMapper;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
+import org.junit.Before;
 
 public abstract class AnnotationMapperResultHandlerSupport extends AbstractNxnContractTest {
     protected static final String PATTERN = "AnnoHandler%";

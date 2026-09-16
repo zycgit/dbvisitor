@@ -8,31 +8,22 @@
 package net.hasor.dbvisitor.test.contract.api.jdbc;
 
 import java.sql.SQLException;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class JdbcBatchErrorCase extends JdbcBatchSupport {
+    // 能力归属：编程式 API / 批量化。
     @Test
-    @Capability(CapabilityId.JDBC_BATCH_SQL_ERROR)
+    @Capability(value = CapabilityId.JDBC_BATCH_SQL_ERROR, column = "jdbc/batch-operations/batch")
     public void jdbcBatchStatements_shouldPropagateSqlErrorWithoutRequiringUniqueConstraints() throws SQLException {
         int existingId = baseId() + 50;
-        jdbcTemplate.executeUpdate(insertCommand(),
-                new Object[] { existingId, "UnchangedByFailure" });
+        jdbcTemplate.executeUpdate(insertCommand(), new Object[] { existingId, "UnchangedByFailure" });
         try {
-            jdbcTemplate.executeBatch(new String[] {
-                    literalInsertCommand(baseId() + 51, "BeforeError"),
-                    invalidCommand(),
-                    literalInsertCommand(baseId() + 52, "AfterError") });
+            jdbcTemplate.executeBatch(new String[] { literalInsertCommand(baseId() + 51, "BeforeError"), invalidCommand(), literalInsertCommand(baseId() + 52, "AfterError") });
             fail("A failed statement must be reported to the caller");
         } catch (SQLException e) {
             assertNotNull(e.getMessage());

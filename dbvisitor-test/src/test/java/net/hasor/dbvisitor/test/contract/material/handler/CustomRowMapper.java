@@ -20,6 +20,7 @@ public class CustomRowMapper implements RowMapper<UserInfo> {
 
     @Override
     public UserInfo mapRow(ResultSet rs, int rowNum) throws SQLException {
+        ResultHandlerProbe.record(rs);
         UserInfo user = new UserInfo();
         user.setId(rs.getInt("id"));
         user.setName("[Row" + rowNum + "]" + rs.getString("name")); // 添加行号前缀

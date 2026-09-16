@@ -25,13 +25,7 @@
         <result column="create_time" property="createTime" javaType="java.util.Date"/>
     </resultMap>
 
-    <resultMap id="autoMappingResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo" autoMapping="true">
-        <id column="id" property="id"/>
-        <result column="name" property="name"/>
-        <result column="age" property="age"/>
-        <result column="email" property="email"/>
-        <result column="create_time" property="createTime"/>
-    </resultMap>
+    <resultMap id="autoMappingResultMap" type="net.hasor.dbvisitor.test.contract.material.model.XmlAutoMappedUser" autoMapping="true"/>
 
     <resultMap id="caseInsensitiveResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo" caseInsensitive="true">
         <id column="ID" property="id"/>
@@ -40,13 +34,7 @@
         <result column="EMAIL" property="email"/>
     </resultMap>
 
-    <resultMap id="camelCaseResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo" mapUnderscoreToCamelCase="true">
-        <id column="id" property="id"/>
-        <result column="name" property="name"/>
-        <result column="age" property="age"/>
-        <result column="email" property="email"/>
-        <result column="create_time" property="createTime"/>
-    </resultMap>
+    <resultMap id="camelCaseResultMap" type="net.hasor.dbvisitor.test.contract.material.model.XmlAutoMappedUser" autoMapping="true" mapUnderscoreToCamelCase="true"/>
 
     <select id="selectByIdBase" resultMap="baseResultMap">@{macro, esXmlPath}/_search {"query": {"term": {"id": #{id}}}}</select>
     <select id="selectByIdExtended" resultMap="extendedResultMap">@{macro, esXmlPath}/_search {"query": {"term": {"id": #{id}}}}</select>

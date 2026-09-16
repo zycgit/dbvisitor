@@ -8,11 +8,7 @@
 package net.hasor.dbvisitor.test.realdb.redis.scenario.mapper;
 
 import java.util.List;
-import net.hasor.dbvisitor.mapper.Delete;
-import net.hasor.dbvisitor.mapper.Insert;
-import net.hasor.dbvisitor.mapper.Param;
-import net.hasor.dbvisitor.mapper.Query;
-import net.hasor.dbvisitor.mapper.SimpleMapper;
+import net.hasor.dbvisitor.mapper.*;
 
 @SimpleMapper
 public interface ArticleLikeMapper {

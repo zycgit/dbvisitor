@@ -8,9 +8,9 @@
 package net.hasor.dbvisitor.test.realdb.clickhouse.jdbc.call;
 
 import java.sql.SQLException;
-import net.hasor.dbvisitor.test.contract.jdbc.call.JdbcCallResultCase;
-import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcCallResultCase;
 import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 
 public class ClickHouseJdbcCallResultTest extends JdbcCallResultCase {
     @Override

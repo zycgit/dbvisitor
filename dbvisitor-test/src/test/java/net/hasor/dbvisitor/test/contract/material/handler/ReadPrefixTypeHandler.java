@@ -1,0 +1,41 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
+package net.hasor.dbvisitor.test.contract.material.handler;
+
+import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
+
+/** Read-only decoration makes a custom reader distinguishable from the default String handler. */
+public class ReadPrefixTypeHandler extends AbstractTypeHandler<String> {
+    @Override
+    public void setNonNullParameter(PreparedStatement ps, int index, String value, Integer jdbcType) throws SQLException {
+        ps.setString(index, value);
+    }
+
+    @Override
+    public String getNullableResult(ResultSet rs, String columnName) throws SQLException {
+        return decorate(rs.getString(columnName));
+    }
+
+    @Override
+    public String getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
+        return decorate(rs.getString(columnIndex));
+    }
+
+    @Override
+    public String getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
+        return decorate(cs.getString(columnIndex));
+    }
+
+    private String decorate(String value) {
+        return value == null ? null : "read:" + value;
+    }
+}

@@ -20,7 +20,7 @@ import org.junit.Before;
 /** Native scalar storage; DOUBLE is not an arbitrary-precision DECIMAL type. */
 public class MilvusBasicEmptyStringJdbcTest extends BasicEmptyStringJdbcCase {
     private final MilvusDatabaseFixture database = new MilvusDatabaseFixture();
-    private Connection connection;
+    private       Connection            connection;
 
     @Override
     protected DataSourceProfile profile() {

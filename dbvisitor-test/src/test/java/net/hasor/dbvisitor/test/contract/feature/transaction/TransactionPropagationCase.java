@@ -8,46 +8,50 @@
 package net.hasor.dbvisitor.test.contract.feature.transaction;
 
 import java.sql.SQLException;
-
-import org.junit.Test;
-
+import net.hasor.dbvisitor.jdbc.ConnectionCallback;
+import net.hasor.dbvisitor.test.contract.material.service.CallerTransactionService;
+import net.hasor.dbvisitor.test.contract.material.service.UserTransactionService;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-import net.hasor.dbvisitor.test.contract.material.service.CallerTransactionService;
-import net.hasor.dbvisitor.test.contract.material.service.UserTransactionService;
-import net.hasor.dbvisitor.transaction.Propagation;
-import net.hasor.dbvisitor.transaction.TransactionCallback;
-import net.hasor.dbvisitor.transaction.TransactionManager;
-import net.hasor.dbvisitor.transaction.TransactionStatus;
-import net.hasor.dbvisitor.transaction.TransactionTemplate;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import net.hasor.dbvisitor.transaction.*;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class TransactionPropagationCase extends TransactionSupport {
+    // 能力归属：数据库事务 / 事务传播 / 事务传播。
     @Test
-    @Capability(CapabilityId.TRANSACTION_REQUIRES_NEW)
+    @Capability(value = CapabilityId.TRANSACTION_REQUIRES_NEW, column = "transactions/transaction-propagation/propagation", variants = { "REQUIRES_NEW" })
     public void requiresNew_shouldCommitIndependentlyFromOuterRollback() throws SQLException {
         int outerId = baseId() + 11;
         int innerId = baseId() + 12;
+        int resumedOuterId = baseId() + 15;
         TransactionManager tm = txManager();
 
         TransactionStatus outer = tm.begin(Propagation.REQUIRED);
-        insertUser(outerId, "NXN-TX-Outer-RN");
-        TransactionStatus inner = tm.begin(Propagation.REQUIRES_NEW);
-        insertUser(innerId, "NXN-TX-Inner-RN");
-        tm.commit(inner);
-        tm.rollBack(outer);
+        try {
+            insertUser(outerId, "NXN-TX-Outer-RN");
+            TransactionStatus inner = tm.begin(Propagation.REQUIRES_NEW);
+            assertTrue(inner.isNewConnection());
+            assertTrue(inner.isSuspend());
+            insertUser(innerId, "NXN-TX-Inner-RN");
+            tm.commit(inner);
+            assertTrue(inner.isCompleted());
+            assertTrue(tm.isTopTransaction(outer));
+            insertUser(resumedOuterId, "NXN-TX-Outer-RN-Resumed");
+        } finally {
+            tm.rollBack(outer);
+        }
 
         assertEquals(0, countById(outerId));
         assertEquals(1, countById(innerId));
+        assertEquals(0, countById(resumedOuterId));
     }
 
+    // 能力归属：数据库事务 / 事务传播 / 事务传播。
     @Test
-    @Capability(CapabilityId.TRANSACTION_REQUIRES_NEW_INNER_ROLLBACK)
+    @Capability(value = CapabilityId.TRANSACTION_REQUIRES_NEW_INNER_ROLLBACK, column = "transactions/transaction-propagation/propagation", variants = { "REQUIRES_NEW" })
     public void requiresNew_shouldRollbackInnerAndCommitOuterIndependently() throws SQLException {
         int outerId = baseId() + 13;
         int innerId = baseId() + 14;
@@ -64,8 +68,9 @@ public abstract class TransactionPropagationCase extends TransactionSupport {
         assertEquals(0, countById(innerId));
     }
 
+    // 能力归属：数据库事务 / 事务传播 / 事务传播。
     @Test
-    @Capability(CapabilityId.TRANSACTION_SUPPORTS)
+    @Capability(value = CapabilityId.TRANSACTION_SUPPORTS, column = "transactions/transaction-propagation/propagation", variants = { "SUPPORTS" })
     public void supports_shouldJoinExistingTransactionOrRunWithoutTransaction() throws SQLException {
         int joinedOuterId = baseId() + 31;
         int joinedInnerId = baseId() + 32;
@@ -88,28 +93,47 @@ public abstract class TransactionPropagationCase extends TransactionSupport {
         assertEquals(1, countById(noTxId));
     }
 
+    // 能力归属：数据库事务 / 事务传播 / 事务传播。
     @Test
-    @Capability(CapabilityId.TRANSACTION_NOT_SUPPORTED)
+    @Capability(value = CapabilityId.TRANSACTION_NOT_SUPPORTED, column = "transactions/transaction-propagation/propagation", variants = { "NOT_SUPPORTED" })
     public void notSupported_shouldSuspendOuterTransaction() throws SQLException {
         int outerId = baseId() + 41;
         int innerId = baseId() + 42;
+        int resumedOuterId = baseId() + 44;
         TransactionManager tm = txManager();
 
         TransactionStatus outer = tm.begin(Propagation.REQUIRED);
-        insertUser(outerId, "NXN-TX-NotSupported-Outer");
-        TransactionStatus inner = tm.begin(Propagation.NOT_SUPPORTED);
-        insertUser(innerId, "NXN-TX-NotSupported-Inner");
-        tm.commit(inner);
-        tm.rollBack(outer);
+        try {
+            insertUser(outerId, "NXN-TX-NotSupported-Outer");
+            TransactionStatus inner = tm.begin(Propagation.NOT_SUPPORTED);
+            assertTrue(inner.isSuspend());
+            jdbcTemplate.execute((ConnectionCallback<Void>) connection -> {
+                assertTrue(connection.getAutoCommit());
+                return null;
+            });
+            insertUser(innerId, "NXN-TX-NotSupported-Inner");
+            tm.commit(inner);
+            assertTrue(tm.isTopTransaction(outer));
+            jdbcTemplate.execute((ConnectionCallback<Void>) connection -> {
+                assertFalse(connection.getAutoCommit());
+                return null;
+            });
+            insertUser(resumedOuterId, "NXN-TX-NotSupported-Outer-Resumed");
+        } finally {
+            tm.rollBack(outer);
+        }
 
         assertEquals(0, countById(outerId));
         assertEquals(1, countById(innerId));
+        assertEquals(0, countById(resumedOuterId));
     }
 
+    // 能力归属：数据库事务 / 事务传播 / 事务传播。
     @Test
-    @Capability(CapabilityId.TRANSACTION_MANDATORY)
+    @Capability(value = CapabilityId.TRANSACTION_MANDATORY, column = "transactions/transaction-propagation/propagation", variants = { "MANDATORY" })
     public void mandatory_shouldRequireExistingTransaction() throws SQLException {
         int id = baseId() + 51;
+        int rolledBackId = baseId() + 52;
         TransactionManager tm = txManager();
 
         TransactionStatus outer = tm.begin(Propagation.REQUIRED);
@@ -120,18 +144,33 @@ public abstract class TransactionPropagationCase extends TransactionSupport {
 
         assertEquals(1, countById(id));
 
+        TransactionStatus rollbackOuter = tm.begin(Propagation.REQUIRED);
+        try {
+            TransactionStatus rollbackInner = tm.begin(Propagation.MANDATORY);
+            assertFalse(rollbackInner.isNewConnection());
+            insertUser(rolledBackId, "NXN-TX-Mandatory-Joined-Rollback");
+            tm.commit(rollbackInner);
+            assertTrue(tm.isTopTransaction(rollbackOuter));
+        } finally {
+            tm.rollBack(rollbackOuter);
+        }
+        assertEquals(0, countById(rolledBackId));
+
         try {
             tm.begin(Propagation.MANDATORY);
             fail("MANDATORY should require an existing transaction.");
-        } catch (Exception e) {
-            assertNotNull(e.getMessage());
+        } catch (SQLException e) {
+            assertTrue(e.getMessage().contains("no existing transaction"));
         }
+        assertFalse(tm.hasTransaction());
     }
 
+    // 能力归属：数据库事务 / 事务传播 / 事务传播。
     @Test
-    @Capability(CapabilityId.TRANSACTION_NEVER)
+    @Capability(value = CapabilityId.TRANSACTION_NEVER, column = "transactions/transaction-propagation/propagation", variants = { "NEVER" })
     public void never_shouldRejectExistingTransaction() throws SQLException {
         int id = baseId() + 61;
+        int resumedOuterId = baseId() + 63;
         TransactionManager tm = txManager();
 
         TransactionStatus noTx = tm.begin(Propagation.NEVER);
@@ -141,17 +180,24 @@ public abstract class TransactionPropagationCase extends TransactionSupport {
 
         TransactionStatus outer = tm.begin(Propagation.REQUIRED);
         try {
-            tm.begin(Propagation.NEVER);
-            fail("NEVER should reject an existing transaction.");
-        } catch (Exception e) {
-            assertNotNull(e.getMessage());
+            try {
+                tm.begin(Propagation.NEVER);
+                fail("NEVER should reject an existing transaction.");
+            } catch (SQLException e) {
+                assertTrue(e.getMessage().contains("existing transaction"));
+            }
+            assertTrue(tm.isTopTransaction(outer));
+            insertUser(resumedOuterId, "NXN-TX-Never-Outer-Continues");
         } finally {
             tm.rollBack(outer);
         }
+        assertEquals(0, countById(resumedOuterId));
+        assertFalse(tm.hasTransaction());
     }
 
+    // 能力归属：数据库事务 / 事务传播 / 事务传播。
     @Test
-    @Capability(CapabilityId.TRANSACTION_TEMPLATE_REQUIRES_NEW)
+    @Capability(value = CapabilityId.TRANSACTION_TEMPLATE_REQUIRES_NEW, column = "transactions/transaction-propagation/propagation", variants = { "REQUIRES_NEW" })
     public void template_shouldCommitRequiresNewWorkIndependentlyFromOuterRollback() throws Throwable {
         int outerId = baseId() + 91;
         int innerId = baseId() + 92;
@@ -173,8 +219,9 @@ public abstract class TransactionPropagationCase extends TransactionSupport {
         assertEquals(1, countById(innerId));
     }
 
+    // 能力归属：数据库事务 / 事务传播 / 事务传播。
     @Test
-    @Capability(CapabilityId.TRANSACTION_MIXED_REQUIRES_NEW)
+    @Capability(value = CapabilityId.TRANSACTION_MIXED_REQUIRES_NEW, column = "transactions/transaction-propagation/propagation", variants = { "REQUIRES_NEW" })
     public void mixedApis_shouldKeepRequiresNewWorkWhenOuterApiRollsBack() throws SQLException {
         int outerJdbcId = baseId() + 131;
         int innerLambdaId = baseId() + 132;
@@ -191,8 +238,9 @@ public abstract class TransactionPropagationCase extends TransactionSupport {
         assertEquals(1, countById(innerLambdaId));
     }
 
+    // 能力归属：数据库事务 / 事务传播 / 事务传播。
     @Test
-    @Capability(CapabilityId.TRANSACTION_ANNOTATION_REQUIRES_NEW)
+    @Capability(value = CapabilityId.TRANSACTION_ANNOTATION_REQUIRES_NEW, column = "transactions/transaction-propagation/propagation", variants = { "REQUIRES_NEW" })
     public void annotationRequiresNew_shouldCommitIndependentlyAndRollbackOwnFailure() throws Exception {
         UserTransactionService service = userProxy();
         int independentId = baseId() + 171;
@@ -213,8 +261,9 @@ public abstract class TransactionPropagationCase extends TransactionSupport {
         assertEquals(0, countById(failedId));
     }
 
+    // 能力归属：数据库事务 / 事务传播 / 事务传播。
     @Test
-    @Capability(CapabilityId.TRANSACTION_ANNOTATION_OTHER_PROPAGATION)
+    @Capability(value = CapabilityId.TRANSACTION_ANNOTATION_OTHER_PROPAGATION, column = "transactions/transaction-propagation/propagation", variants = { "SUPPORTS", "NOT_SUPPORTED", "MANDATORY", "NEVER" })
     public void annotationOtherPropagationModes_shouldMatchProgrammaticTransactionBoundary() throws Exception {
         UserTransactionService service = userProxy();
         int supportsJoinedId = baseId() + 191;
@@ -267,8 +316,9 @@ public abstract class TransactionPropagationCase extends TransactionSupport {
         assertEquals(0, countById(neverWithTxId));
     }
 
+    // 能力归属：数据库事务 / 事务传播 / 事务传播。
     @Test
-    @Capability(CapabilityId.TRANSACTION_PROXY_REQUIRED_REQUIRED)
+    @Capability(value = CapabilityId.TRANSACTION_PROXY_REQUIRED_REQUIRED, column = "transactions/transaction-propagation/propagation", variants = { "REQUIRED" })
     public void proxyRequiredToRequired_shouldExposeJoinedTransactionSemantics() throws Exception {
         CallerTransactionService caller = callerProxy();
         int base = baseId() + 200;
@@ -291,8 +341,9 @@ public abstract class TransactionPropagationCase extends TransactionSupport {
         assertEquals(1, countById(base + 6));
     }
 
+    // 能力归属：数据库事务 / 事务传播 / 事务传播。
     @Test
-    @Capability(CapabilityId.TRANSACTION_PROXY_REQUIRED_REQUIRES_NEW)
+    @Capability(value = CapabilityId.TRANSACTION_PROXY_REQUIRED_REQUIRES_NEW, column = "transactions/transaction-propagation/propagation", variants = { "REQUIRES_NEW" })
     public void proxyRequiredToRequiresNew_shouldIsolateInnerNewTransaction() throws Exception {
         CallerTransactionService caller = callerProxy();
         int base = baseId() + 210;
@@ -315,8 +366,9 @@ public abstract class TransactionPropagationCase extends TransactionSupport {
         assertEquals(0, countById(base + 6));
     }
 
+    // 能力归属：数据库事务 / 事务传播 / 事务传播。
     @Test
-    @Capability(CapabilityId.TRANSACTION_PROXY_REQUIRED_OTHER_PROPAGATION)
+    @Capability(value = CapabilityId.TRANSACTION_PROXY_REQUIRED_OTHER_PROPAGATION, column = "transactions/transaction-propagation/propagation", variants = { "SUPPORTS", "NOT_SUPPORTED", "MANDATORY", "NEVER" })
     public void proxyRequiredToOtherPropagationModes_shouldMatchDeclaredSemantics() throws Exception {
         CallerTransactionService caller = callerProxy();
         int base = baseId() + 230;
@@ -353,8 +405,9 @@ public abstract class TransactionPropagationCase extends TransactionSupport {
         assertEquals(0, countById(base + 8));
     }
 
+    // 能力归属：数据库事务 / 事务传播 / 事务传播。
     @Test
-    @Capability(CapabilityId.TRANSACTION_PROXY_REQUIRES_NEW_COMBINATIONS)
+    @Capability(value = CapabilityId.TRANSACTION_PROXY_REQUIRES_NEW_COMBINATIONS, column = "transactions/transaction-propagation/propagation", variants = { "REQUIRED", "REQUIRES_NEW" })
     public void proxyRequiresNewOuter_shouldCombineWithRequiredAndRequiresNewInner() throws Exception {
         CallerTransactionService caller = callerProxy();
         int base = baseId() + 240;
@@ -386,8 +439,9 @@ public abstract class TransactionPropagationCase extends TransactionSupport {
         assertEquals(1, countById(base + 8));
     }
 
+    // 能力归属：数据库事务 / 事务传播 / 事务传播。
     @Test
-    @Capability(CapabilityId.TRANSACTION_PROXY_THREE_LEVEL)
+    @Capability(value = CapabilityId.TRANSACTION_PROXY_THREE_LEVEL, column = "transactions/transaction-propagation/propagation", variants = { "REQUIRED", "REQUIRES_NEW" })
     public void proxyThreeLevel_shouldPreserveMiddleRequiresNewAfterProgrammaticOuterRollback() throws Exception {
         int programmaticOuterId = baseId() + 251;
         int proxyMiddleId = baseId() + 252;

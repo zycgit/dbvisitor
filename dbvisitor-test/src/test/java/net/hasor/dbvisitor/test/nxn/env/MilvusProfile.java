@@ -16,21 +16,22 @@ public final class MilvusProfile extends AbstractDataSourceProfile {
 
     private MilvusProfile() {
         // Verified server baseline 2.6.2 requires a string literal on the right of LIKE.
-        super(FeatureId.PARAMETERIZED_LIKE, FeatureId.PARAMETERIZED_NOT_COMPARISON, FeatureId.SCALAR_ORDER_BY,
-                FeatureId.COMPOSITE_PRIMARY_KEY, FeatureId.BIT_CAST_NULL_VALUE, FeatureId.SQL_NOT_IN_NULL_SEMANTICS,
-                FeatureId.TRANSACTION, FeatureId.TRANSACTION_RELEASE_SAVEPOINT, FeatureId.TRANSACTION_REPEATABLE_READ,
-                FeatureId.PROCEDURE, FeatureId.PROCEDURE_CURSOR_RESULT, FeatureId.PROCEDURE_RESULT_SET,
-                FeatureId.XML_MAPPER_CALLABLE, FeatureId.SEQUENCE, FeatureId.XML_SELECT_KEY_USER_INFO_SEQUENCE,
-                FeatureId.BATCH_DUPLICATE_FAILURE_PROPAGATED, FeatureId.DUPLICATE_PRIMARY_KEY_REJECTED,
-                FeatureId.GENERATED_KEY_RESULT_SET, FeatureId.BINARY,
-                FeatureId.FUNCTION, FeatureId.FUNCTION_RECORD_RESULT, FeatureId.FUNCTION_TABLE_RESULT,
-                FeatureId.FUNCTION_CALL_CALLBACK);
+        super(FeatureId.PARAMETERIZED_LIKE, FeatureId.PARAMETERIZED_NOT_COMPARISON, FeatureId.SCALAR_ORDER_BY, FeatureId.COMPOSITE_PRIMARY_KEY, FeatureId.BIT_CAST_NULL_VALUE, FeatureId.SQL_NOT_IN_NULL_SEMANTICS, FeatureId.TRANSACTION, FeatureId.TRANSACTION_RELEASE_SAVEPOINT, FeatureId.TRANSACTION_REPEATABLE_READ, FeatureId.PROCEDURE, FeatureId.PROCEDURE_CURSOR_RESULT, FeatureId.PROCEDURE_RESULT_SET, FeatureId.XML_MAPPER_CALLABLE, FeatureId.SEQUENCE, FeatureId.XML_SELECT_KEY_USER_INFO_SEQUENCE, FeatureId.BATCH_DUPLICATE_FAILURE_PROPAGATED, FeatureId.DUPLICATE_PRIMARY_KEY_REJECTED,
+                FeatureId.GENERATED_KEY_RESULT_SET, FeatureId.BINARY, FeatureId.FUNCTION, FeatureId.FUNCTION_RECORD_RESULT, FeatureId.FUNCTION_TABLE_RESULT, FeatureId.FUNCTION_CALL_CALLBACK);
     }
 
     @Override
     public SupportStatus support(String capabilityId) {
         // This datasource has no separate JDBC namespace at this level.
         if (CapabilityId.JDBC_METADATA_SCHEMAS.equals(capabilityId)) {
+            return SupportStatus.UNSUPPORTED_BY_DATABASE;
+        }
+        // The 2.6.2 test server rejects nullable vector fields during collection creation.
+        if (CapabilityId.VECTOR_NULL_ROUND_TRIP.equals(capabilityId)) {
+            return SupportStatus.UNSUPPORTED_BY_DATABASE;
+        }
+        // ARRAY may be nullable, but its individual elements must be non-null scalars.
+        if (CapabilityId.TYPE_ARRAY_NULL_ELEMENTS.equals(capabilityId)) {
             return SupportStatus.UNSUPPORTED_BY_DATABASE;
         }
         // Server 2.6.2 does not honor collection-level allow_insert_auto_id.
@@ -50,28 +51,19 @@ public final class MilvusProfile extends AbstractDataSourceProfile {
             return SupportStatus.UNSUPPORTED_BY_DRIVER;
         }
         // Scrollable result options are separate from the supported forward-only options.
-        if (CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_SCROLL_INSENSITIVE.equals(capabilityId)
-                || CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_SCROLL_SENSITIVE.equals(capabilityId)) {
+        if (CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_SCROLL_INSENSITIVE.equals(capabilityId) || CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_SCROLL_SENSITIVE.equals(capabilityId)) {
             return SupportStatus.UNSUPPORTED_BY_DRIVER;
         }
         // The driver supports forward-only results; native regression cases verify scroll rejection.
-        if (CapabilityId.MAPPER_ANNOTATION_RESULT_HANDLER_EXTRACTOR_OPTIONS.equals(capabilityId)
-                || CapabilityId.MAPPER_XML_STATEMENT_RESULT_SET_TYPE.equals(capabilityId)) {
+        if (CapabilityId.MAPPER_ANNOTATION_RESULT_HANDLER_EXTRACTOR_OPTIONS.equals(capabilityId) || CapabilityId.MAPPER_XML_STATEMENT_RESULT_SET_TYPE.equals(capabilityId)) {
             return SupportStatus.UNSUPPORTED_BY_DRIVER;
         }
         // Milvus has no atomic insert-if-absent operation; partial upsert only covers Update.
-        if (CapabilityId.LAMBDA_DUPLICATE_STRATEGY_IGNORE_BASIC.equals(capabilityId)
-                || CapabilityId.LAMBDA_DUPLICATE_STRATEGY_IGNORE_MIXED.equals(capabilityId)
-                || CapabilityId.LAMBDA_DUPLICATE_STRATEGY_TRANSITION.equals(capabilityId)) {
+        if (CapabilityId.LAMBDA_DUPLICATE_STRATEGY_IGNORE_BASIC.equals(capabilityId) || CapabilityId.LAMBDA_DUPLICATE_STRATEGY_IGNORE_MIXED.equals(capabilityId) || CapabilityId.LAMBDA_DUPLICATE_STRATEGY_TRANSITION.equals(capabilityId)) {
             return SupportStatus.UNSUPPORTED_BY_DATABASE;
         }
         // The SQL grammar/dialect does not implement quoted identifiers or automatic keyword quoting.
-        if (CapabilityId.NAMING_DELIMITED_SQL.equals(capabilityId)
-                || CapabilityId.NAMING_DELIMITED_CRUD.equals(capabilityId)
-                || CapabilityId.NAMING_KEYWORD_COLUMN_SQL.equals(capabilityId)
-                || CapabilityId.NAMING_KEYWORD_TABLE_SQL.equals(capabilityId)
-                || CapabilityId.NAMING_KEYWORD_COLUMN_CRUD.equals(capabilityId)
-                || CapabilityId.NAMING_KEYWORD_TABLE_CRUD.equals(capabilityId)) {
+        if (CapabilityId.NAMING_DELIMITED_SQL.equals(capabilityId) || CapabilityId.NAMING_DELIMITED_CRUD.equals(capabilityId) || CapabilityId.NAMING_KEYWORD_COLUMN_SQL.equals(capabilityId) || CapabilityId.NAMING_KEYWORD_TABLE_SQL.equals(capabilityId) || CapabilityId.NAMING_KEYWORD_COLUMN_CRUD.equals(capabilityId) || CapabilityId.NAMING_KEYWORD_TABLE_CRUD.equals(capabilityId)) {
             return SupportStatus.UNSUPPORTED_BY_DRIVER;
         }
         // The complete scenario asserts zero for a missing primary-key DELETE as well as UPDATE.
@@ -79,17 +71,11 @@ public final class MilvusProfile extends AbstractDataSourceProfile {
             return SupportStatus.UNSUPPORTED_BY_DATABASE;
         }
         // LIKE-specific cases remain separate from comparisons, ranges and IN expansion.
-        if (CapabilityId.LAMBDA_PREDICATE_LIKE_VARIANTS.equals(capabilityId)
-                || CapabilityId.LAMBDA_PREDICATE_NOT_LIKE_VARIANTS.equals(capabilityId)
-                || CapabilityId.LAMBDA_PREDICATE_LIKE_NULL_AND_MULTI.equals(capabilityId)
-                || CapabilityId.LAMBDA_PREDICATE_STRING_LIKE.equals(capabilityId)) {
+        if (CapabilityId.LAMBDA_PREDICATE_LIKE_VARIANTS.equals(capabilityId) || CapabilityId.LAMBDA_PREDICATE_NOT_LIKE_VARIANTS.equals(capabilityId) || CapabilityId.LAMBDA_PREDICATE_LIKE_NULL_AND_MULTI.equals(capabilityId) || CapabilityId.LAMBDA_PREDICATE_STRING_LIKE.equals(capabilityId)) {
             return SupportStatus.UNSUPPORTED_BY_DATABASE;
         }
         // Computed projections require DISTINCT or aggregates; page fixtures use native vector ordering.
-        if (CapabilityId.MAPPER_ANNOTATION_RESULT_DISTINCT_LIST.equals(capabilityId)
-                || CapabilityId.MAPPER_XML_REF_AGGREGATE_MAP.equals(capabilityId)
-                || CapabilityId.LAMBDA_RESULT_CALCULATED_COLUMN.equals(capabilityId)
-                || CapabilityId.MAPPER_ANNOTATION_RESULT_AGGREGATE.equals(capabilityId)) {
+        if (CapabilityId.MAPPER_ANNOTATION_RESULT_DISTINCT_LIST.equals(capabilityId) || CapabilityId.MAPPER_XML_REF_AGGREGATE_MAP.equals(capabilityId) || CapabilityId.LAMBDA_RESULT_CALCULATED_COLUMN.equals(capabilityId) || CapabilityId.MAPPER_ANNOTATION_RESULT_AGGREGATE.equals(capabilityId)) {
             return SupportStatus.UNSUPPORTED_BY_DATABASE;
         }
         // BLOB/VARBINARY fixtures cannot be replaced by fixed-dimension vector fields, even for NULL tests.
@@ -98,21 +84,11 @@ public final class MilvusProfile extends AbstractDataSourceProfile {
         }
         // Simple primary-key DELETE acknowledges submitted keys even when no entity exists.
         // Do not disable exact counts for UPDATE, which uses a different selection/write path.
-        if (CapabilityId.LAMBDA_EDGE_DELETE_NO_MATCH.equals(capabilityId)
-                || CapabilityId.SESSION_STATEMENT_DELETE_NO_MATCH.equals(capabilityId)
-                || CapabilityId.BASEMAPPER_STATEMENT_DELETE_NO_MATCH.equals(capabilityId)
-                || CapabilityId.BASEMAPPER_DELETE_BOUNDARY.equals(capabilityId)) {
-            return SupportStatus.UNSUPPORTED_BY_DATABASE;
-        }
-        // The multiple-result query requires scalar ORDER BY id.
-        if (CapabilityId.LAMBDA_EDGE_QUERY_MULTI_RESULT.equals(capabilityId)) {
+        if (CapabilityId.LAMBDA_EDGE_DELETE_NO_MATCH.equals(capabilityId) || CapabilityId.SESSION_STATEMENT_DELETE_NO_MATCH.equals(capabilityId) || CapabilityId.BASEMAPPER_STATEMENT_DELETE_NO_MATCH.equals(capabilityId) || CapabilityId.BASEMAPPER_DELETE_BOUNDARY.equals(capabilityId)) {
             return SupportStatus.UNSUPPORTED_BY_DATABASE;
         }
         // These contracts require relational joins or scalar ordering, not vector ranking.
-        if (capabilityId != null && (capabilityId.startsWith("jdbc.join.")
-                || capabilityId.startsWith("mapper.annotation.join.")
-                || capabilityId.startsWith("mapper.xml.join.")
-                || capabilityId.startsWith("lambda.sort."))) {
+        if (capabilityId != null && (capabilityId.startsWith("jdbc.join.") || capabilityId.startsWith("mapper.annotation.join.") || capabilityId.startsWith("mapper.xml.join.") || capabilityId.startsWith("lambda.sort."))) {
             return SupportStatus.UNSUPPORTED_BY_DATABASE;
         }
         // TruncateCollection was introduced in server 2.6.11, after the 2.6.2 test baseline.
@@ -124,36 +100,18 @@ public final class MilvusProfile extends AbstractDataSourceProfile {
         if (CapabilityId.ADAPTER_MILVUS_SQL_FLUSH_ALL.equals(capabilityId)) {
             return SupportStatus.UNSUPPORTED_BY_DATABASE;
         }
-        // 2.6.2 rejects logical AND between a field predicate and a folded constant value.
-        // The unchanged native SDK query/delete both reject "id in {ids} AND 1 == 1".
-        if (CapabilityId.LAMBDA_SECURITY_APPLY_SCOPED_TRUE.equals(capabilityId)) {
-            return SupportStatus.UNSUPPORTED_BY_DATABASE;
-        }
         // Native SDK reproduces a 2.6.2 QueryNode assertion for NOT of a templated integer comparison.
         // Plain !=, literal NOT, and NOT(IS NULL) are not affected by this gate.
-        if (CapabilityId.LAMBDA_LOGIC_MARKER_NOT.equals(capabilityId)
-                || CapabilityId.LAMBDA_LOGIC_DYNAMIC_NOT.equals(capabilityId)
-                || CapabilityId.LAMBDA_LOGIC_DOUBLE_NOT.equals(capabilityId)) {
+        if (CapabilityId.LAMBDA_LOGIC_MARKER_NOT.equals(capabilityId) || CapabilityId.LAMBDA_LOGIC_DYNAMIC_NOT.equals(capabilityId) || CapabilityId.LAMBDA_LOGIC_DOUBLE_NOT.equals(capabilityId)) {
             return SupportStatus.UNSUPPORTED_BY_DATABASE;
         }
         // These shared Lambda scenarios contain LIKE with bound values, unsupported on 2.6.2.
-        if (CapabilityId.LAMBDA_LOGIC_NOT_NESTED.equals(capabilityId)
-                || CapabilityId.LAMBDA_LOGIC_NOT_IN_LIKE.equals(capabilityId)
-                || CapabilityId.LAMBDA_EMPTY_LIKE_EMPTY_STRING.equals(capabilityId)
-                || CapabilityId.LAMBDA_SECURITY_VALUE_LIKE.equals(capabilityId)) {
+        if (CapabilityId.LAMBDA_LOGIC_NOT_NESTED.equals(capabilityId) || CapabilityId.LAMBDA_LOGIC_NOT_IN_LIKE.equals(capabilityId) || CapabilityId.LAMBDA_EMPTY_LIKE_EMPTY_STRING.equals(capabilityId) || CapabilityId.LAMBDA_SECURITY_VALUE_LIKE.equals(capabilityId)) {
             return SupportStatus.UNSUPPORTED_BY_DATABASE;
         }
         // Scalar DISTINCT, grouped aggregation and SUM/MAX are not 2.6.2 query capabilities.
         // Vector grouping is a different operation and cannot implement these contracts.
-        if (CapabilityId.LAMBDA_SELECT_DISTINCT.equals(capabilityId)
-                || CapabilityId.LAMBDA_RESULT_AGGREGATE_SCALAR.equals(capabilityId)
-                || CapabilityId.LAMBDA_RESULT_AGGREGATE_ROW_MAPPER.equals(capabilityId)
-                || CapabilityId.LAMBDA_SELECT_DISTINCT_COUNT.equals(capabilityId)
-                || CapabilityId.LAMBDA_SELECT_GROUP_BY.equals(capabilityId)
-                || CapabilityId.LAMBDA_SELECT_AGGREGATE.equals(capabilityId)
-                || CapabilityId.LAMBDA_EMPTY_GROUP_BY.equals(capabilityId)
-                || CapabilityId.LAMBDA_EMPTY_AGGREGATE.equals(capabilityId)
-                || CapabilityId.LAMBDA_EMPTY_DISTINCT.equals(capabilityId)) {
+        if (CapabilityId.LAMBDA_SELECT_DISTINCT.equals(capabilityId) || CapabilityId.LAMBDA_RESULT_AGGREGATE_SCALAR.equals(capabilityId) || CapabilityId.LAMBDA_RESULT_AGGREGATE_ROW_MAPPER.equals(capabilityId) || CapabilityId.LAMBDA_SELECT_DISTINCT_COUNT.equals(capabilityId) || CapabilityId.LAMBDA_SELECT_GROUP_BY.equals(capabilityId) || CapabilityId.LAMBDA_SELECT_AGGREGATE.equals(capabilityId) || CapabilityId.LAMBDA_EMPTY_GROUP_BY.equals(capabilityId) || CapabilityId.LAMBDA_EMPTY_AGGREGATE.equals(capabilityId) || CapabilityId.LAMBDA_EMPTY_DISTINCT.equals(capabilityId)) {
             return SupportStatus.UNSUPPORTED_BY_DATABASE;
         }
         return super.support(capabilityId);

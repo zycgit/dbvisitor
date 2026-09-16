@@ -32,11 +32,9 @@ public class ConnectionAwareHolder implements GeneratedKeyHandlerFactory {
             public Object beforeApply(Connection conn, Object entity, ColumnMapping mapping) throws SQLException {
                 boolean elastic = "Elastic".equalsIgnoreCase(conn.getMetaData().getDatabaseProductName());
                 boolean mongo = "Mongo".equalsIgnoreCase(conn.getMetaData().getDatabaseProductName());
-                String command = mongo ? "db." + context.getTable() + ".find({}, {_id: 0, id: 1}).sort({id: -1}).limit(1)" : elastic
-                        ? "POST /" + context.getTable() + "/_search " + """
-                          {"size": 1, "_source": ["id"], "sort": [{"id": "desc"}]}
-                          """
-                        : "SELECT MAX(id) FROM user_info";
+                String command = mongo ? "db." + context.getTable() + ".find({}, {_id: 0, id: 1}).sort({id: -1}).limit(1)" : elastic ? "POST /" + context.getTable() + "/_search " + """
+                        {"size": 1, "_source": ["id"], "sort": [{"id": "desc"}]}
+                        """ : "SELECT MAX(id) FROM user_info";
                 Integer maxId = 0;
                 try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(command)) {
                     if (rs.next()) {

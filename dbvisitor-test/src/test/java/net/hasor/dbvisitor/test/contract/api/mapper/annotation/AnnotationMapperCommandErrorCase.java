@@ -7,19 +7,18 @@
  */
 package net.hasor.dbvisitor.test.contract.api.mapper.annotation;
 
+import net.hasor.dbvisitor.test.nxn.capability.Capability;
+import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
+import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 import org.junit.Test;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-
 @NxnContract
 public abstract class AnnotationMapperCommandErrorCase extends AnnotationMapperBoundarySupport {
+    // 能力归属：Mapper API / 方法注解。
     @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_SQL_ERROR)
+    @Capability(value = CapabilityId.MAPPER_ANNOTATION_SQL_ERROR, column = "mapper/method-annotations/execution")
     public void annotationMapperSqlErrors_shouldPropagateFromSyntaxTableAndColumnFailures() throws Exception {
         prepareInvalidCommands();
         for (int index = 0; index < 3; index++) {

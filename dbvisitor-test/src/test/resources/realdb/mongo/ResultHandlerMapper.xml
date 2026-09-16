@@ -33,13 +33,20 @@
         @{macro, mongoSource}.find({name: {$regex: '^ResHdl'}}, {_id: 0}).sort({id: 1})
     </select>
     <select id="selectByColumnMapRowMapper"
-            resultRowMapper="net.hasor.dbvisitor.jdbc.mapper.ColumnMapRowMapper">
+            resultRowMapper="net.hasor.dbvisitor.test.contract.material.handler.ResultHandlerProbe$ColumnMapMapper">
+        @{macro, mongoSource}.find({name: {$regex: '^ResHdl'}
+            <if test="minAge != null">, age: {$gt: #{minAge}}</if>
+        }, {_id: 0}).sort({id: 1})
+    </select>
+
+    <select id="selectByRowCallback"
+            resultRowCallback="net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperResultHandlerCase$CountingCallback">
         @{macro, mongoSource}.find({name: {$regex: '^ResHdl'}
             <if test="minAge != null">, age: {$gt: #{minAge}}</if>
         }, {_id: 0}).sort({id: 1})
     </select>
     <select id="selectByColumnMapExtractor"
-            resultSetExtractor="net.hasor.dbvisitor.jdbc.extractor.ColumnMapResultSetExtractor">
+            resultSetExtractor="net.hasor.dbvisitor.test.contract.material.handler.ResultHandlerProbe$ColumnMapExtractor">
         @{macro, mongoSource}.find({name: {$regex: '^ResHdl'}
             <if test="minAge != null">, age: {$gt: #{minAge}}</if>
         }, {_id: 0}).sort({id: 1})

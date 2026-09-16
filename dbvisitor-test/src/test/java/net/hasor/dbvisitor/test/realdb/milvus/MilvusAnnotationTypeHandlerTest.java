@@ -10,7 +10,7 @@ package net.hasor.dbvisitor.test.realdb.milvus;
 import java.sql.SQLException;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
-import net.hasor.dbvisitor.test.contract.feature.mapping.AnnotationTypeHandlerCase;
+import net.hasor.dbvisitor.test.contract.feature.type.AnnotationTypeHandlerCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
 import org.junit.After;

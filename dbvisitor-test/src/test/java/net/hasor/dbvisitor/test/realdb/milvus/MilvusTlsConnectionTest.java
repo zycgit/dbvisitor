@@ -7,8 +7,6 @@
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
 
-import static org.junit.Assert.*;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -18,11 +16,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
 import java.util.UUID;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /** Milvus connection tests: missing or misconfigured plaintext/TLS/mTLS services fail, never skip. */
 public class MilvusTlsConnectionTest {

@@ -27,7 +27,7 @@ import static org.junit.Assert.assertEquals;
 /** Keeps the shared enum SQL and assertions; native BM25 supplies the required vector field. */
 public class MilvusEnumTypeJdbcTest extends EnumTypeJdbcCase {
     private final MilvusDatabaseFixture database = new MilvusDatabaseFixture();
-    private Connection connection;
+    private       Connection            connection;
 
     @Override
     protected DataSourceProfile profile() {
@@ -80,11 +80,8 @@ public class MilvusEnumTypeJdbcTest extends EnumTypeJdbcCase {
         assertEquals("inactive", this.jdbcTemplate.queryForString("SELECT status_string FROM enum_types_explicit_test WHERE id=2"));
         assertEquals(Integer.valueOf(0), this.jdbcTemplate.queryForInt("SELECT status_code FROM enum_types_explicit_test WHERE id=2"));
 
-        assertEquals(1, this.jdbcTemplate.executeUpdate("UPDATE enum_types_explicit_test SET status_string=?,status_code=? WHERE id=?",
-                new Object[] { StatusEnumOfCode.DELETED, StatusEnumOfValue.DELETED, 2 }));
-        assertEquals(StatusEnumOfCode.DELETED, this.jdbcTemplate.queryForObject(
-                "SELECT status_string FROM enum_types_explicit_test WHERE id=2", StatusEnumOfCode.class));
-        assertEquals(StatusEnumOfValue.DELETED, this.jdbcTemplate.queryForObject(
-                "SELECT status_code FROM enum_types_explicit_test WHERE id=2", StatusEnumOfValue.class));
+        assertEquals(1, this.jdbcTemplate.executeUpdate("UPDATE enum_types_explicit_test SET status_string=?,status_code=? WHERE id=?", new Object[] { StatusEnumOfCode.DELETED, StatusEnumOfValue.DELETED, 2 }));
+        assertEquals(StatusEnumOfCode.DELETED, this.jdbcTemplate.queryForObject("SELECT status_string FROM enum_types_explicit_test WHERE id=2", StatusEnumOfCode.class));
+        assertEquals(StatusEnumOfValue.DELETED, this.jdbcTemplate.queryForObject("SELECT status_code FROM enum_types_explicit_test WHERE id=2", StatusEnumOfValue.class));
     }
 }

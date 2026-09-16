@@ -7,25 +7,25 @@
  */
 package net.hasor.dbvisitor.test.contract.api.session;
 
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @NxnContract
 public abstract class SessionStatementEmptyMutationCase extends SessionStatementSupport {
+    // 能力归属：Mapper 文件 / 命令执行。
     @Test
-    @Capability(CapabilityId.SESSION_STATEMENT_UPDATE_NO_MATCH)
+    @Capability(value = CapabilityId.SESSION_STATEMENT_UPDATE_NO_MATCH, column = "mapper-files/statements/execution")
     public void sessionStatement_shouldReportNoRowsForMissingUpdate() throws Exception {
         assertMutationRows(0, execute("updateUserEmail", mapOf("id", baseId() + 999, "email", "none@nxn.test")));
     }
 
+    // 能力归属：Mapper 文件 / 命令执行。
     @Test
-    @Capability(CapabilityId.SESSION_STATEMENT_DELETE_NO_MATCH)
+    @Capability(value = CapabilityId.SESSION_STATEMENT_DELETE_NO_MATCH, column = "mapper-files/statements/execution")
     public void sessionStatement_shouldReportNoRowsForRepeatedDelete() throws Exception {
         int id = baseId() + 1;
         insertUser(id, "StmtDeleted", 25, "stmt-deleted@nxn.test");

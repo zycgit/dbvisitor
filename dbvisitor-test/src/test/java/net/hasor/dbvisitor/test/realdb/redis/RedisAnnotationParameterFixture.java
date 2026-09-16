@@ -18,9 +18,9 @@ import net.hasor.dbvisitor.test.realdb.redis.dto1.RedisParameterBindingMapper;
 
 /** JSON fields may contain null; this fixture does not claim Redis stores a root SQL NULL. */
 public final class RedisAnnotationParameterFixture implements AutoCloseable {
-    private final String keyPrefix = "nxn_anno_params_" + UUID.randomUUID().toString().replace("-", "") + ":";
-    private JdbcTemplate jdbc;
-    private Session session;
+    private final String       keyPrefix = "nxn_anno_params_" + UUID.randomUUID().toString().replace("-", "") + ":";
+    private       JdbcTemplate jdbc;
+    private       Session      session;
 
     public JdbcTemplate open() throws SQLException {
         if (this.jdbc == null) {
@@ -40,12 +40,9 @@ public final class RedisAnnotationParameterFixture implements AutoCloseable {
         configuration.addMacro("nxnInsertMixed", insert("user.id", "'id': user.id, 'name': user.name, 'age': user.age, 'email': email"));
         configuration.addMacro("nxnInsertReuse", insert("id", "'id': id, 'name': name, 'age': 25, 'email': name"));
         configuration.addMacro("nxnSelectId", "GET #{'" + this.keyPrefix + "' + id}");
-        configuration.addMacro("nxnInsertPosition", "EVAL \"redis.call('SET','" + this.keyPrefix
-                + "'..ARGV[1],cjson.encode({id=tonumber(ARGV[1]),name=ARGV[2],age=tonumber(ARGV[3])})); return 1\" 0 ? ? ?");
-        configuration.addMacro("nxnUpdatePosition", "EVAL \"local key='" + this.keyPrefix
-                + "'..ARGV[2]; local value=redis.call('GET',key); if not value then return 0 end; local user=cjson.decode(value); user.age=tonumber(ARGV[1]); redis.call('SET',key,cjson.encode(user)); return 1\" 0 ? ?");
-        configuration.addMacro("nxnRangeInsert", "ZADD '" + this.keyPrefix + "ages' #{age} "
-                + "#{#{'id':id,'name':name,'age':age,'email':email}, typeHandler=net.hasor.dbvisitor.types.handler.json.JsonTypeHandler}");
+        configuration.addMacro("nxnInsertPosition", "EVAL \"redis.call('SET','" + this.keyPrefix + "'..ARGV[1],cjson.encode({id=tonumber(ARGV[1]),name=ARGV[2],age=tonumber(ARGV[3])})); return 1\" 0 ? ? ?");
+        configuration.addMacro("nxnUpdatePosition", "EVAL \"local key='" + this.keyPrefix + "'..ARGV[2]; local value=redis.call('GET',key); if not value then return 0 end; local user=cjson.decode(value); user.age=tonumber(ARGV[1]); redis.call('SET',key,cjson.encode(user)); return 1\" 0 ? ?");
+        configuration.addMacro("nxnRangeInsert", "ZADD '" + this.keyPrefix + "ages' #{age} " + "#{#{'id':id,'name':name,'age':age,'email':email}, typeHandler=net.hasor.dbvisitor.types.handler.json.JsonTypeHandler}");
         configuration.addMacro("nxnSelectRange", "ZRANGEBYSCORE '" + this.keyPrefix + "ages' #{minAge} #{maxAge}");
         this.session = configuration.newSession(this.jdbc.getConnection());
         return this.session.createMapper(mapperType);
@@ -53,8 +50,7 @@ public final class RedisAnnotationParameterFixture implements AutoCloseable {
 
     private String insert(String idExpression, String entries) {
         // The real expression engine reads @Param / Bean / Map properties; the built-in handler serializes values.
-        return "SET #{'" + this.keyPrefix + "' + " + idExpression + "} "
-                + "#{#{" + entries + "}, typeHandler=net.hasor.dbvisitor.types.handler.json.JsonTypeHandler}";
+        return "SET #{'" + this.keyPrefix + "' + " + idExpression + "} " + "#{#{" + entries + "}, typeHandler=net.hasor.dbvisitor.types.handler.json.JsonTypeHandler}";
     }
 
     @Override

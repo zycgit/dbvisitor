@@ -8,20 +8,18 @@
 package net.hasor.dbvisitor.test.contract.api.lambda;
 
 import java.sql.SQLException;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 @NxnContract
 public abstract class LambdaCountCase extends LambdaQuerySupport {
+    // 能力归属：构造器 API / 查询操作。
     @Test
-    @Capability(CapabilityId.LAMBDA_QUERY_COUNT)
+    @Capability(value = CapabilityId.LAMBDA_QUERY_COUNT, column = "builder/queries/query")
     public void lambdaQueryCount_shouldReturnMatchingRowCount() throws SQLException {
         insertUsers("Cnt", new int[] { 31, 31, 32, 33, 31 }, baseId() + 80);
 
@@ -31,5 +29,16 @@ public abstract class LambdaCountCase extends LambdaQuerySupport {
                 .queryForCount();
 
         assertEquals(3, count);
+    }
+
+    // 能力归属：构造器 API / 查询操作。
+    @Test
+    @Capability(value = CapabilityId.LAMBDA_EMPTY_COUNT, column = "builder/queries/query")
+    public void lambdaQueryForCount_shouldReturnZeroWhenNoRowsMatch() throws SQLException {
+        long count = lambdaTemplate.query(UserInfo.class)//
+                .eq(UserInfo::getId, baseId() + 3)//
+                .queryForCount();
+
+        assertEquals(0, count);
     }
 }

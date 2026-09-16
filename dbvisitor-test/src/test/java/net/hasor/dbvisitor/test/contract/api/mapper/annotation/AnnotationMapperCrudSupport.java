@@ -8,14 +8,12 @@
 package net.hasor.dbvisitor.test.contract.api.mapper.annotation;
 
 import java.util.Date;
-
-import org.junit.Before;
-
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.material.dao.declarative.AnnotationTestMapper;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
+import org.junit.Before;
 
 public abstract class AnnotationMapperCrudSupport extends AbstractNxnContractTest {
     protected AnnotationTestMapper mapper;

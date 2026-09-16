@@ -12,17 +12,16 @@ import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 public class MilvusXmlScrollableResultTest extends MilvusXmlResultSqlSupport {
     @Test
     @Capability(CapabilityId.ADAPTER_MILVUS_XML_SCROLL_RESULT)
     public void xmlShouldRejectUnsupportedScrollableResults() throws Exception {
         try (Session session = prepareSession()) {
-            assertEquals(List.of("name-1", "name-2", "name-3"),
-                    session.queryStatement("milvus.ResultHandlers.forwardOnlyAttribute", parameters(1)));
-            assertThrows(java.sql.SQLFeatureNotSupportedException.class,
-                    () -> session.queryStatement("milvus.ResultHandlers.scrollAttributes", parameters(1)));
+            assertEquals(List.of("name-1", "name-2", "name-3"), session.queryStatement("milvus.ResultHandlers.forwardOnlyAttribute", parameters(1)));
+            assertThrows(java.sql.SQLFeatureNotSupportedException.class, () -> session.queryStatement("milvus.ResultHandlers.scrollAttributes", parameters(1)));
         }
     }
 }

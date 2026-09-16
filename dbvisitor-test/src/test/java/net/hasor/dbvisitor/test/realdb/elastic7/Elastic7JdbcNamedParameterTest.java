@@ -10,7 +10,7 @@ package net.hasor.dbvisitor.test.realdb.elastic7;
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.api.adapter.NativeDocumentParameterFixture;
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcParameterCommand;
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcNamedParameterCase;
+import net.hasor.dbvisitor.test.contract.feature.parameter.JdbcNamedParameterCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
 import org.junit.After;
@@ -35,7 +35,7 @@ public class Elastic7JdbcNamedParameterTest extends JdbcNamedParameterCase {
         if (!command.name().startsWith("INSERT_")) {
             this.fixture.refresh();
         }
-        return this.fixture.command(command);
+        return this.fixture.commandWithEscapedUrl(command);
     }
 
     @After

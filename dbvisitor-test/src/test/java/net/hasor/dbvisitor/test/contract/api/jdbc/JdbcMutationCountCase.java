@@ -16,15 +16,17 @@ import static org.junit.Assert.assertEquals;
 
 @NxnContract
 public abstract class JdbcMutationCountCase extends JdbcCrudSupport {
+    // 能力归属：编程式 API / 更新。
     @Test
-    @Capability(CapabilityId.JDBC_CRUD_INSERT_COUNT)
+    @Capability(value = CapabilityId.JDBC_CRUD_INSERT_COUNT, column = "jdbc/updates/updates")
     public void insertResult_shouldReportOneAffectedRow() throws SQLException {
         int rows = insertUser(baseId() + 1, "NXN-JDBC-Insert", 31, "nxn-insert@test.com");
         assertEquals(1, rows);
     }
 
+    // 能力归属：编程式 API / 更新。
     @Test
-    @Capability(CapabilityId.JDBC_CRUD_UPDATE_COUNT)
+    @Capability(value = CapabilityId.JDBC_CRUD_UPDATE_COUNT, column = "jdbc/updates/updates")
     public void updateResult_shouldReportOneAffectedRow() throws SQLException {
         int id = baseId() + 3;
         insertUser(id, "NXN-JDBC-Update", 33, "nxn-update@test.com");
@@ -32,8 +34,9 @@ public abstract class JdbcMutationCountCase extends JdbcCrudSupport {
         assertEquals(1, rows);
     }
 
+    // 能力归属：编程式 API / 更新。
     @Test
-    @Capability(CapabilityId.JDBC_CRUD_DELETE_COUNT)
+    @Capability(value = CapabilityId.JDBC_CRUD_DELETE_COUNT, column = "jdbc/updates/updates")
     public void deleteResult_shouldReportOneAffectedRow() throws SQLException {
         int id = baseId() + 4;
         insertUser(id, "NXN-JDBC-Delete", 35, "nxn-delete@test.com");

@@ -10,7 +10,7 @@ package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 /** Bean mapped directly from the FIELD and VALUE columns returned by HGETALL. */
 public class RedisMappedEntry {
     private Integer field;
-    private String value;
+    private String  value;
 
     public Integer getField() {
         return this.field;

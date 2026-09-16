@@ -9,9 +9,9 @@ package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperCommandExecutionCase;
-import net.hasor.dbvisitor.test.realdb.redis.RedisAnnotationCrudFixture;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import net.hasor.dbvisitor.test.realdb.redis.RedisAnnotationCrudFixture;
 import org.junit.After;
 import org.junit.Before;
 
@@ -40,6 +40,7 @@ public class RedisAnnotationMapperCommandExecutionTest extends AnnotationMapperC
     public void closeFixture() throws Exception {
         fixture.close();
     }
+
     @Override
     protected void prepareCommandResource() {
         // Each fixture owns fresh private Redis keys; no schema creation is required.

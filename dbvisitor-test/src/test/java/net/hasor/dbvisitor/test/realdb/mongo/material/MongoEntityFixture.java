@@ -18,10 +18,10 @@ import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 
 public final class MongoEntityFixture implements AutoCloseable {
-    private final String collection = "nxn_entity_" + UUID.randomUUID().toString().replace("-", "");
+    private final String        collection    = "nxn_entity_" + UUID.randomUUID().toString().replace("-", "");
     private final Configuration configuration = new Configuration();
-    private Connection connection;
-    private JdbcTemplate jdbc;
+    private       Connection    connection;
+    private       JdbcTemplate  jdbc;
 
     public JdbcTemplate open() throws SQLException {
         return open(UserInfo.class, "{id: 1}");
@@ -33,8 +33,7 @@ public final class MongoEntityFixture implements AutoCloseable {
         this.configuration.getMappingRegistry().loadEntityAsTable(entity, this.collection);
         this.jdbc = this.configuration.newJdbc(this.connection);
         this.jdbc.execute("use test");
-        this.jdbc.execute("db.createCollection('" + this.collection + "', {validator: {$jsonSchema: {bsonType: 'object', "
-                + "properties: {name: {bsonType: ['string', 'null'], maxLength: 100}}}}})");
+        this.jdbc.execute("db.createCollection('" + this.collection + "', {validator: {$jsonSchema: {bsonType: 'object', " + "properties: {name: {bsonType: ['string', 'null'], maxLength: 100}}}}})");
         this.jdbc.execute(command("createIndex(" + uniqueFields + ", {unique: true})"));
         return this.jdbc;
     }

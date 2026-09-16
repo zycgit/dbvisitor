@@ -8,7 +8,7 @@
 package net.hasor.dbvisitor.test.realdb.elastic7;
 
 import java.sql.SQLException;
-import net.hasor.dbvisitor.test.contract.api.map_query.FreedomMapCrudCase;
+import net.hasor.dbvisitor.test.contract.api.lambda.map_query.FreedomMapCrudCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
 import net.hasor.dbvisitor.test.realdb.elastic7.material.ElasticMatrixFixture;
@@ -55,4 +55,3 @@ public class Elastic7FreedomMapCrudTest extends FreedomMapCrudCase {
         fixture.close();
     }
 }
-

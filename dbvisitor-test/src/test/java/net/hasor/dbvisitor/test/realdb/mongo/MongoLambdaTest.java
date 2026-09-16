@@ -16,17 +16,17 @@ import net.hasor.dbvisitor.page.PageObject;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.api.adapter.AdapterCase;
-import net.hasor.dbvisitor.test.realdb.mongo.material.user.UserInfo1;
-import net.hasor.dbvisitor.test.realdb.mongo.material.user.UserInfo1BaseMapper;
+import net.hasor.dbvisitor.test.nxn.capability.Capability;
+import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
 import net.hasor.dbvisitor.test.realdb.mongo.material.complex.Address;
 import net.hasor.dbvisitor.test.realdb.mongo.material.complex.ComplexOrder;
 import net.hasor.dbvisitor.test.realdb.mongo.material.complex.OrderItem;
-import static org.junit.Assert.*;
-import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
-import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
+import net.hasor.dbvisitor.test.realdb.mongo.material.user.UserInfo1;
+import net.hasor.dbvisitor.test.realdb.mongo.material.user.UserInfo1BaseMapper;
 import org.junit.Test;
+import static org.junit.Assert.*;
 
 public class MongoLambdaTest extends AdapterCase {
     @Override

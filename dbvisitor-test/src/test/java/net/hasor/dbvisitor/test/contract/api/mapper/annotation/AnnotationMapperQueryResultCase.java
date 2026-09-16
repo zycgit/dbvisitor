@@ -8,19 +8,17 @@
 package net.hasor.dbvisitor.test.contract.api.mapper.annotation;
 
 import java.util.List;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 @NxnContract
 public abstract class AnnotationMapperQueryResultCase extends AnnotationMapperCrudSupport {
+    // 能力归属：Mapper API / 方法注解。
     @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_QUERY)
+    @Capability(value = CapabilityId.MAPPER_ANNOTATION_QUERY, column = "mapper/method-annotations/execution")
     public void annotationMapperQuery_shouldReturnObjectListAndScalar() throws Exception {
         prepareQueryRows();
         assertEquals(2, queryObjectRows().size());

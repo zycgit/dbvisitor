@@ -8,9 +8,8 @@
 package net.hasor.dbvisitor.test.contract.feature.type;
 
 import java.sql.SQLException;
-import java.util.Map;
 import java.util.Collections;
-
+import java.util.Map;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 
 public abstract class BasicTypeJdbcSupport extends AbstractNxnContractTest {

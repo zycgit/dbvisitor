@@ -8,8 +8,8 @@
 package net.hasor.dbvisitor.test.realdb.clickhouse.feature.naming;
 
 import net.hasor.dbvisitor.test.contract.feature.naming.NamingConversionCase;
-import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 
 public class ClickHouseNamingConversionTest extends NamingConversionCase {
     @Override

@@ -8,12 +8,7 @@
 package net.hasor.dbvisitor.test.realdb.milvus;
 
 import java.util.List;
-import net.hasor.dbvisitor.mapper.Param;
-import net.hasor.dbvisitor.mapper.Query;
-import net.hasor.dbvisitor.mapper.Insert;
-import net.hasor.dbvisitor.mapper.SimpleMapper;
-import net.hasor.dbvisitor.mapper.ResultSetType;
-import net.hasor.dbvisitor.mapper.StatementType;
+import net.hasor.dbvisitor.mapper.*;
 import net.hasor.dbvisitor.test.contract.material.dao.declarative.AnnotationAttributesMapper;
 import net.hasor.dbvisitor.test.contract.material.dao.declarative.AnnotationTestMapper;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
@@ -26,12 +21,10 @@ final class MilvusCapabilityMappers {
 
     @SimpleMapper
     public interface GeneratedKeys {
-        @Insert(value = "INSERT INTO user_info (name, age, create_time) VALUES (#{name}, #{age}, #{createTime})",
-                useGeneratedKeys = true, keyProperty = "id")
+        @Insert(value = "INSERT INTO user_info (name, age, create_time) VALUES (#{name}, #{age}, #{createTime})", useGeneratedKeys = true, keyProperty = "id")
         int generated(KeyAutoLongUser user);
 
-        @Insert(value = "INSERT INTO user_manual (id, name, age, create_time) VALUES (#{id}, #{name}, #{age}, #{createTime})",
-                useGeneratedKeys = false)
+        @Insert(value = "INSERT INTO user_manual (id, name, age, create_time) VALUES (#{id}, #{name}, #{age}, #{createTime})", useGeneratedKeys = false)
         int explicit(KeyAutoLongUser user);
 
         @Query("SELECT id, name, age, create_time FROM user_info WHERE id = #{id}")
@@ -64,8 +57,7 @@ final class MilvusCapabilityMappers {
         List<UserInfo> selectWithForwardOnly(@Param("pattern") String pattern);
 
         @Override
-        @Query(value = "SELECT * FROM user_info", statementType = StatementType.Prepared,
-                timeout = 60, fetchSize = 100, resultSetType = ResultSetType.FORWARD_ONLY)
+        @Query(value = "SELECT * FROM user_info", statementType = StatementType.Prepared, timeout = 60, fetchSize = 100, resultSetType = ResultSetType.FORWARD_ONLY)
         List<UserInfo> selectWithCombinedAttributes(@Param("pattern") String pattern);
 
         @Override

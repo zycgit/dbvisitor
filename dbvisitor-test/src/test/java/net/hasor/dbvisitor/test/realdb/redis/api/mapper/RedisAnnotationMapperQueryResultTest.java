@@ -9,13 +9,13 @@ package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
 import java.sql.SQLException;
 import java.util.List;
-import net.hasor.dbvisitor.test.realdb.redis.dto1.RedisParameterUser;
-import static org.junit.Assert.assertEquals;
 import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperQueryResultCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import net.hasor.dbvisitor.test.realdb.redis.dto1.RedisParameterUser;
 import org.junit.After;
 import org.junit.Before;
+import static org.junit.Assert.assertEquals;
 
 public class RedisAnnotationMapperQueryResultTest extends AnnotationMapperQueryResultCase {
     private final RedisMapperFixture fixture = new RedisMapperFixture();
@@ -37,22 +37,26 @@ public class RedisAnnotationMapperQueryResultTest extends AnnotationMapperQueryR
     }
 
     private RedisCoverageMapper nativeMapper;
+
     @Override
     public void createAnnotationMapper() throws Exception {
         fixture.open();
         nativeMapper = fixture.session().createMapper(RedisCoverageMapper.class);
     }
+
     private RedisParameterUser user(int id, String name) {
         RedisParameterUser user = new RedisParameterUser();
         user.setId(id);
         user.setName(name);
         return user;
     }
+
     @Override
     protected void prepareQueryRows() throws Exception {
         assertEquals(1, nativeMapper.appendBean(fixture.key("users"), user(1, "first")));
         assertEquals(2, nativeMapper.appendBean(fixture.key("users"), user(2, "second")));
     }
+
     @Override
     protected List<?> queryObjectRows() throws Exception {
         List<RedisParameterUser> rows = nativeMapper.beans(fixture.key("users"));
@@ -62,10 +66,12 @@ public class RedisAnnotationMapperQueryResultTest extends AnnotationMapperQueryR
         assertEquals("second", rows.get(1).getName());
         return rows;
     }
+
     @Override
     protected List<?> queryOtherObjectRows() throws Exception {
         return nativeMapper.beans(fixture.key("users"));
     }
+
     @Override
     protected int queryScalarCount() throws Exception {
         return nativeMapper.count(fixture.key("users"));

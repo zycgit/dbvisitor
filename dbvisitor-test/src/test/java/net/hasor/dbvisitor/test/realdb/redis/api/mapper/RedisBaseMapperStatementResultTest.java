@@ -10,16 +10,14 @@ package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
-
-import org.junit.After;
-import org.junit.Before;
-
 import net.hasor.dbvisitor.mapping.Column;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.api.mapper.basemapper.BaseMapperStatementResultCase;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import org.junit.After;
+import org.junit.Before;
 
 public class RedisBaseMapperStatementResultTest extends BaseMapperStatementResultCase {
     private final RedisEntityFixture fixture = new RedisEntityFixture();
@@ -71,7 +69,7 @@ public class RedisBaseMapperStatementResultTest extends BaseMapperStatementResul
         @Column("SCORE")
         private Integer id;
         @Column("ELEMENT")
-        private String name;
+        private String  name;
 
         public Integer getId() {
             return this.id;

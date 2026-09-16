@@ -10,15 +10,15 @@ package net.hasor.dbvisitor.test.realdb.milvus;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.UUID;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcParameterSupport;
-import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
+import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
 import org.junit.After;
@@ -28,8 +28,8 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 public class MilvusIdentifierParameterTest extends JdbcParameterSupport {
-    private final String table = "dbv_params_" + UUID.randomUUID().toString().replace("-", "");
-    private Connection connection;
+    private final String     table = "dbv_params_" + UUID.randomUUID().toString().replace("-", "");
+    private       Connection connection;
 
     @Override
     protected DataSourceProfile profile() {
@@ -85,8 +85,7 @@ public class MilvusIdentifierParameterTest extends JdbcParameterSupport {
         params.put("tableName", this.table);
         params.put("column", "name");
         params.put("name", name);
-        List<Map<String, Object>> rows = this.jdbcTemplate.queryForList(
-                "SELECT ${column}, age FROM ${tableName} WHERE ${column} = #{name}", params);
+        List<Map<String, Object>> rows = this.jdbcTemplate.queryForList("SELECT ${column}, age FROM ${tableName} WHERE ${column} = #{name}", params);
         assertEquals(1, rows.size());
         assertEquals(name, rows.get(0).get("name"));
         assertEquals(34, ((Number) rows.get(0).get("age")).intValue());

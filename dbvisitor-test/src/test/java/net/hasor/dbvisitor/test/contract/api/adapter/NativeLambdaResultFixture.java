@@ -9,11 +9,7 @@ package net.hasor.dbvisitor.test.contract.api.adapter;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import net.hasor.dbvisitor.lambda.EntityQuery;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
@@ -22,7 +18,7 @@ import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 /** Owns document-store row material and a private entity mapping, never the global registry. */
 public final class NativeLambdaResultFixture {
     private final Map<Integer, String> labels = new LinkedHashMap<>();
-    private LambdaTemplate lambda;
+    private       LambdaTemplate       lambda;
 
     public LambdaTemplate initialize(Connection connection, String collection) throws SQLException {
         MappingRegistry registry = new MappingRegistry();

@@ -13,7 +13,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.test.contract.api.adapter.NativeNamedFieldTypeCase;
+import net.hasor.dbvisitor.test.contract.feature.type.NativeNamedFieldTypeCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
@@ -24,7 +24,7 @@ import static org.junit.Assert.assertEquals;
 
 public class MilvusNamedFieldTypeTest extends NativeNamedFieldTypeCase {
     private final MilvusDatabaseFixture database = new MilvusDatabaseFixture();
-    private Connection connection;
+    private       Connection            connection;
 
     @Override
     protected DataSourceProfile profile() {
@@ -63,8 +63,7 @@ public class MilvusNamedFieldTypeTest extends NativeNamedFieldTypeCase {
         int id = Boolean.FALSE.equals(expected) ? 2 : 1;
         Object storedValue = expected instanceof State ? ((State) expected).name() : expected;
         this.jdbcTemplate.executeUpdate("INSERT INTO named_types (id, " + column + ") VALUES (?, ?)", new Object[] { id, storedValue });
-        Object actual = this.jdbcTemplate.queryForObject("SELECT " + column + " FROM named_types WHERE id = ?", new Object[] { id },
-                (rs, row) -> TypeHandlerRegistry.DEFAULT.getTypeHandler(type).getResult(rs, column));
+        Object actual = this.jdbcTemplate.queryForObject("SELECT " + column + " FROM named_types WHERE id = ?", new Object[] { id }, (rs, row) -> TypeHandlerRegistry.DEFAULT.getTypeHandler(type).getResult(rs, column));
         assertEquals(expected, actual);
     }
 

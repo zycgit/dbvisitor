@@ -15,15 +15,16 @@ import net.hasor.dbvisitor.test.contract.material.model.ProductVectorForPg;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
+import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 
 @NxnContract
 public abstract class VectorKnnOrderingCase extends VectorQuerySupport {
+    // 能力归属：向量操作 / KNN 近邻排序。
     @Test
-    @Capability(CapabilityId.VECTOR_KNN_ORDER_L2)
+    @Capability(value = CapabilityId.VECTOR_KNN_ORDER_L2, column = "vectors/vectors/knn-ordering")
     public void knn_shouldOrderByL2Distance() throws SQLException {
         requiresNxnFeature(FeatureId.KNN);
         int startId = baseId() + 100;
@@ -40,6 +41,7 @@ public abstract class VectorKnnOrderingCase extends VectorQuerySupport {
                     .queryForList();
 
             assertEquals(5, rows.size());
+            assertVectorIds(rows, startId, startId + 1, startId + 2, startId + 3, startId + 4);
             assertEquals(Integer.valueOf(startId + 2), rows.get(0).getId());
             assertDistanceOrder(target, rows, MetricType.L2);
         } finally {
@@ -47,8 +49,9 @@ public abstract class VectorKnnOrderingCase extends VectorQuerySupport {
         }
     }
 
+    // 能力归属：向量操作 / KNN 近邻排序。
     @Test
-    @Capability(CapabilityId.VECTOR_KNN_ORDER_COSINE_IP)
+    @Capability(value = CapabilityId.VECTOR_KNN_ORDER_COSINE_IP, column = "vectors/vectors/knn-ordering")
     public void knn_shouldOrderByCosineAndInnerProductDistance() throws SQLException {
         requiresNxnFeature(FeatureId.KNN);
         int cosineId = baseId() + 200;
@@ -64,7 +67,9 @@ public abstract class VectorKnnOrderingCase extends VectorQuerySupport {
                     .orderByCosine(ProductVectorForPg::getEmbedding, queryVector(sparseVector(0.1f, 1, 0.99f)))//
                     .queryForList();
             assertEquals(3, cosineRows.size());
+            assertVectorIds(cosineRows, cosineId, cosineId + 1, cosineId + 2);
             assertEquals(Integer.valueOf(cosineId + 1), cosineRows.get(0).getId());
+            assertDistanceOrder(sparseVector(0.1f, 1, 0.99f), cosineRows, MetricType.COSINE);
 
             insertVector(ipId, "IP-small", constantVector(0.1f));
             insertVector(ipId + 1, "IP-mid", constantVector(0.5f));
@@ -77,14 +82,17 @@ public abstract class VectorKnnOrderingCase extends VectorQuerySupport {
                     .queryForList();
             assertEquals(3, ipRows.size());
             assertEquals(Integer.valueOf(ipId + 2), ipRows.get(0).getId());
+            assertOrderedVectorIds(ipRows, ipId + 2, ipId + 1, ipId);
+            assertDistanceOrder(constantVector(1.0f), ipRows, MetricType.IP);
         } finally {
             cleanupRange(cosineId, 3);
             cleanupRange(ipId, 3);
         }
     }
 
+    // 能力归属：向量操作 / KNN 近邻排序。
     @Test
-    @Capability(CapabilityId.VECTOR_KNN_ORDER_BY_METRIC)
+    @Capability(value = CapabilityId.VECTOR_KNN_ORDER_BY_METRIC, column = "vectors/vectors/knn-ordering")
     public void knn_shouldSupportMetricDrivenOrderingForMainPgVectorMetrics() throws SQLException {
         requiresNxnFeature(FeatureId.KNN);
         int startId = baseId() + 300;
@@ -93,7 +101,8 @@ public abstract class VectorKnnOrderingCase extends VectorQuerySupport {
             insertVector(startId + 1, "Metric-1", fixedVector(0.5f, 0.01f));
             insertVector(startId + 2, "Metric-2", fixedVector(0.9f, 0.01f));
 
-            Object target = queryVector(fixedVector(0.5f, 0.01f));
+            List<Float> targetVector = fixedVector(0.5f, 0.01f);
+            Object target = queryVector(targetVector);
             for (MetricType metric : Arrays.asList(MetricType.L2, MetricType.COSINE, MetricType.IP)) {
                 prepareMetric(metric);
                 List<ProductVectorForPg> rows = lambdaTemplate.query(ProductVectorForPg.class)//
@@ -102,14 +111,19 @@ public abstract class VectorKnnOrderingCase extends VectorQuerySupport {
                         .orderByMetric(metric, ProductVectorForPg::getEmbedding, target)//
                         .queryForList();
                 assertEquals("Metric " + metric + " should return all rows", 3, rows.size());
+                assertVectorIds(rows, startId, startId + 1, startId + 2);
+                assertDistanceOrder(targetVector, rows, metric);
+                int nearestId = metric == MetricType.IP ? startId + 2 : startId + 1;
+                assertEquals("Nearest row for " + metric, Integer.valueOf(nearestId), rows.get(0).getId());
             }
         } finally {
             cleanupRange(startId, 3);
         }
     }
 
+    // 能力归属：向量操作 / KNN 近邻排序。
     @Test
-    @Capability(CapabilityId.VECTOR_KNN_TOP_K)
+    @Capability(value = CapabilityId.VECTOR_KNN_TOP_K, column = "vectors/vectors/knn-ordering")
     public void knn_shouldLimitNearestNeighborResultsWithPageSize() throws SQLException {
         requiresNxnFeature(FeatureId.KNN);
         int startId = baseId() + 340;
@@ -120,23 +134,28 @@ public abstract class VectorKnnOrderingCase extends VectorQuerySupport {
                 insertVector(startId + i, "TopK-" + i, fixedVector(i * 0.1f, 0.005f));
             }
 
+            // Avoid tied distances so all Top-K positions have one deterministic answer.
+            List<Float> target = fixedVector(0.36f, 0.005f);
             List<ProductVectorForPg> rows = lambdaTemplate.query(ProductVectorForPg.class)//
                     .ge(ProductVectorForPg::getId, startId)//
                     .le(ProductVectorForPg::getId, startId + total - 1)//
-                    .orderByL2(ProductVectorForPg::getEmbedding, queryVector(fixedVector(0.35f, 0.005f)))//
+                    .orderByL2(ProductVectorForPg::getEmbedding, queryVector(target))//
                     .initPage(topK, 0)//
                     .queryForList();
 
             assertEquals(topK, rows.size());
             int firstId = rows.get(0).getId();
             assertTrue(firstId == startId + 3 || firstId == startId + 4);
+            assertOrderedVectorIds(rows, startId + 4, startId + 3, startId + 5);
+            assertDistanceOrder(target, rows, MetricType.L2);
         } finally {
             cleanupRange(startId, total);
         }
     }
 
+    // 能力归属：向量操作 / KNN 近邻排序。
     @Test
-    @Capability(CapabilityId.VECTOR_KNN_MATH_ORDERING)
+    @Capability(value = CapabilityId.VECTOR_KNN_MATH_ORDERING, column = "vectors/vectors/knn-ordering")
     public void knn_shouldMatchKnownL2CosineAndInnerProductOrdering() throws SQLException {
         requiresNxnFeature(FeatureId.KNN);
         int l2Id = baseId() + 360;
@@ -151,6 +170,7 @@ public abstract class VectorKnnOrderingCase extends VectorQuerySupport {
                     .le(ProductVectorForPg::getId, l2Id + 2)//
                     .orderByL2(ProductVectorForPg::getEmbedding, queryVector(constantVector(1.0f)))//
                     .queryForList();
+            assertOrderedVectorIds(l2Rows, l2Id + 1, l2Id, l2Id + 2);
             assertEquals(Integer.valueOf(l2Id + 1), l2Rows.get(0).getId());
             assertEquals(Integer.valueOf(l2Id), l2Rows.get(1).getId());
             assertEquals(Integer.valueOf(l2Id + 2), l2Rows.get(2).getId());
@@ -165,6 +185,7 @@ public abstract class VectorKnnOrderingCase extends VectorQuerySupport {
                     .le(ProductVectorForPg::getId, cosineId + 2)//
                     .orderByCosine(ProductVectorForPg::getEmbedding, queryVector(cosineTarget))//
                     .queryForList();
+            assertOrderedVectorIds(cosineRows, cosineId, cosineId + 1, cosineId + 2);
             assertEquals(Integer.valueOf(cosineId), cosineRows.get(0).getId());
             assertEquals(Integer.valueOf(cosineId + 2), cosineRows.get(2).getId());
             assertDistanceOrder(cosineTarget, cosineRows, MetricType.COSINE);
@@ -178,6 +199,7 @@ public abstract class VectorKnnOrderingCase extends VectorQuerySupport {
                     .le(ProductVectorForPg::getId, ipId + 2)//
                     .orderByIP(ProductVectorForPg::getEmbedding, queryVector(constantVector(1.0f)))//
                     .queryForList();
+            assertOrderedVectorIds(ipRows, ipId + 2, ipId + 1, ipId);
             assertEquals(Integer.valueOf(ipId + 2), ipRows.get(0).getId());
             assertEquals(Integer.valueOf(ipId), ipRows.get(2).getId());
             assertDistanceOrder(constantVector(1.0f), ipRows, MetricType.IP);

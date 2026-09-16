@@ -17,9 +17,9 @@ import net.hasor.dbvisitor.test.contract.material.dao.declarative.ParameterBindi
 /** Isolated collection and native command material for the common annotated-parameter assertions. */
 public final class NativeAnnotationParameterFixture implements AutoCloseable {
     private final NativeDocumentParameterFixture collection = new NativeDocumentParameterFixture();
-    private JdbcTemplate jdbc;
-    private Session session;
-    private boolean mongo;
+    private       JdbcTemplate                   jdbc;
+    private       Session                        session;
+    private       boolean                        mongo;
 
     public JdbcTemplate open(String environment) throws SQLException {
         if (this.jdbc == null) {

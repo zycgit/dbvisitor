@@ -23,7 +23,7 @@ import org.junit.Before;
 
 public class RedisSessionFactoryTest extends SessionFactoryCase {
     private final RedisMapperFixture fixture = new RedisMapperFixture();
-    private HikariDataSource sessionSource;
+    private       HikariDataSource   sessionSource;
 
     @Override
     protected DataSourceProfile profile() {
@@ -59,17 +59,34 @@ public class RedisSessionFactoryTest extends SessionFactoryCase {
     }
 
     @Override
-    protected String jdbcInsertCommand() { return "SET ? ?"; }
+    protected String jdbcInsertCommand() {
+        return "SET ? ?";
+    }
+
     @Override
-    protected Object[] jdbcInsertParameters() { return new Object[] { fixture.key("factory"), "ConfigJdbc" }; }
+    protected Object[] jdbcInsertParameters() {
+        return new Object[] { fixture.key("factory"), "ConfigJdbc" };
+    }
+
     @Override
-    protected String jdbcCountCommand() { return "EXISTS ?"; }
+    protected String jdbcCountCommand() {
+        return "EXISTS ?";
+    }
+
     @Override
-    protected Object[] jdbcCountParameters() { return new Object[] { fixture.key("factory") }; }
+    protected Object[] jdbcCountParameters() {
+        return new Object[] { fixture.key("factory") };
+    }
+
     @Override
-    protected String jdbcNameCommand() { return "GET ?"; }
+    protected String jdbcNameCommand() {
+        return "GET ?";
+    }
+
     @Override
-    protected Object[] jdbcNameParameters() { return new Object[] { fixture.key("factory") }; }
+    protected Object[] jdbcNameParameters() {
+        return new Object[] { fixture.key("factory") };
+    }
 
     @Override
     protected int insertFactoryEntity(Session local, int id, String name, int age) throws Exception {

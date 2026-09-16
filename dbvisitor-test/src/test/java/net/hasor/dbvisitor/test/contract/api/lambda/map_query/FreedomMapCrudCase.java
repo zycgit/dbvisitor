@@ -1,0 +1,132 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0.
+ * See the LICENSE.txt file for the full license.
+ * https://www.apache.org/licenses/LICENSE-2.0
+ */
+package net.hasor.dbvisitor.test.contract.api.lambda.map_query;
+
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import net.hasor.dbvisitor.test.nxn.capability.Capability;
+import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
+import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
+import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+@NxnContract
+public abstract class FreedomMapCrudCase extends AbstractNxnContractTest {
+    protected int baseId() {
+        return 620000;
+    }
+
+    // 能力归属：构造器 API / Map 查询模式。
+    @Test
+    @Capability(value = CapabilityId.MAP_QUERY_FREEDOM_CRUD_INSERT, column = "builder/map-query/modes")
+    public void lambdaFreedomInsert_shouldPersistOneUser() throws SQLException {
+        int id = baseId() + 11;
+        int rows = lambdaTemplate.insertFreedom(tableName())//
+                .applyMap(userMap(id, "NXN-Lambda-Freedom-Insert", 51, "nxn-lambda-freedom-insert@test.com"))//
+                .executeSumResult();
+
+        assertEquals(1, rows);
+        assertEquals("NXN-Lambda-Freedom-Insert", jdbcTemplate.queryForString(selectColumnCommand("name"), new Object[] { id }));
+    }
+
+    // 能力归属：构造器 API / Map 查询模式。
+    @Test
+    @Capability(value = CapabilityId.MAP_QUERY_FREEDOM_CRUD_QUERY, column = "builder/map-query/modes")
+    public void lambdaFreedomQuery_shouldReadUserById() throws SQLException {
+        int id = baseId() + 12;
+        insertByJdbc(id, "NXN-Lambda-Freedom-Query", 52, "nxn-lambda-freedom-query@test.com");
+
+        Map<String, Object> loaded = lambdaTemplate.queryFreedom(tableName())//
+                .eq("id", id)//
+                .queryForObject();
+
+        assertNotNull(loaded);
+        assertEquals("NXN-Lambda-Freedom-Query", value(loaded, "name"));
+        assertEquals(52, ((Number) value(loaded, "age")).intValue());
+    }
+
+    // 能力归属：构造器 API / Map 查询模式。
+    @Test
+    @Capability(value = CapabilityId.MAP_QUERY_FREEDOM_CRUD_UPDATE, column = "builder/map-query/modes")
+    public void lambdaFreedomUpdate_shouldChangeUser() throws SQLException {
+        int id = baseId() + 13;
+        insertByJdbc(id, "NXN-Lambda-Freedom-Update", 53, "nxn-lambda-freedom-update@test.com");
+
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("email", "nxn-lambda-freedom-updated@test.com");
+
+        int rows = lambdaTemplate.updateFreedom(tableName())//
+                .eq("id", id)//
+                .updateToSample(updates)//
+                .doUpdate();
+
+        assertEquals(1, rows);
+        assertEquals("nxn-lambda-freedom-updated@test.com", jdbcTemplate.queryForString(selectColumnCommand("email"), new Object[] { id }));
+    }
+
+    // 能力归属：构造器 API / Map 查询模式。
+    @Test
+    @Capability(value = CapabilityId.MAP_QUERY_FREEDOM_CRUD_DELETE, column = "builder/map-query/modes")
+    public void lambdaFreedomDelete_shouldRemoveUser() throws SQLException {
+        int id = baseId() + 14;
+        insertByJdbc(id, "NXN-Lambda-Freedom-Delete", 55, "nxn-lambda-freedom-delete@test.com");
+
+        int rows = lambdaTemplate.deleteFreedom(tableName())//
+                .eq("id", id)//
+                .doDelete();
+
+        assertEquals(1, rows);
+        assertEquals(Integer.valueOf(0), jdbcTemplate.queryForObject(countCommand(), new Object[] { id }, Integer.class));
+    }
+
+    protected String tableName() {
+        return "user_info";
+    }
+
+    protected String insertCommand() {
+        return "INSERT INTO " + tableName() + " (id, name, age, email, create_time) VALUES (?, ?, ?, ?, ?)";
+    }
+
+    protected String selectColumnCommand(String column) {
+        return "SELECT " + column + " FROM " + tableName() + " WHERE id = ?";
+    }
+
+    protected String countCommand() {
+        return "SELECT COUNT(*) FROM " + tableName() + " WHERE id = ?";
+    }
+
+    protected void insertByJdbc(int id, String name, int age, String email) throws SQLException {
+        jdbcTemplate.executeUpdate(//
+                insertCommand(), //
+                new Object[] { id, name, age, email, new Date() });
+    }
+
+    private Map<String, Object> userMap(int id, String name, int age, String email) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", id);
+        map.put("name", name);
+        map.put("age", age);
+        map.put("email", email);
+        map.put("create_time", new Date());
+        return map;
+    }
+
+    private Object value(Map<String, Object> map, String key) {
+        if (map.containsKey(key)) {
+            return map.get(key);
+        }
+        if (map.containsKey(key.toUpperCase())) {
+            return map.get(key.toUpperCase());
+        }
+        return map.get(key.toLowerCase());
+    }
+}

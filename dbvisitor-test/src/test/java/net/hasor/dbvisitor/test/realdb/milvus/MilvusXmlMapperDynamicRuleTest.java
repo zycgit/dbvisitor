@@ -8,7 +8,7 @@
 package net.hasor.dbvisitor.test.realdb.milvus;
 
 import java.sql.SQLException;
-import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperDynamicRuleCase;
+import net.hasor.dbvisitor.test.contract.feature.rule.XmlMapperDynamicRuleCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
 import org.junit.After;

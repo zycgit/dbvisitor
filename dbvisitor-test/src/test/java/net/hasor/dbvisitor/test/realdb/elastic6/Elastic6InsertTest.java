@@ -236,6 +236,7 @@ public class Elastic6InsertTest {
             }
         }
     }
+
     public static void main(String[] args) {
         net.hasor.dbvisitor.test.realdb.RealDbTestRunner.run(Elastic6InsertTest.class);
     }

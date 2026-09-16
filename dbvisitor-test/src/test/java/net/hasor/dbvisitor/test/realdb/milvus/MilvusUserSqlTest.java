@@ -7,11 +7,7 @@
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
 
-import java.sql.PreparedStatement;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.Properties;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
@@ -32,9 +28,7 @@ public class MilvusUserSqlTest extends MilvusSqlContractSupport {
         String description = "描述 '\" ; DROP ROLE admin; --";
         boolean userCreated = false;
         boolean roleCreated = false;
-        try (PreparedStatement createUser = this.connection.prepareStatement("CREATE USER IF NOT EXISTS " + user + " PASSWORD ? WITH (description=?)");
-                PreparedStatement createRole = this.connection.prepareStatement("CREATE ROLE IF NOT EXISTS " + role + " WITH (description=?)");
-                Statement statement = this.connection.createStatement()) {
+        try (PreparedStatement createUser = this.connection.prepareStatement("CREATE USER IF NOT EXISTS " + user + " PASSWORD ? WITH (description=?)"); PreparedStatement createRole = this.connection.prepareStatement("CREATE ROLE IF NOT EXISTS " + role + " WITH (description=?)"); Statement statement = this.connection.createStatement()) {
             createUser.setString(1, "Dbv_initial_123!");
             createUser.setString(2, description);
             assertEquals(0, createUser.executeUpdate());
@@ -159,8 +153,7 @@ public class MilvusUserSqlTest extends MilvusSqlContractSupport {
                     assertFalse(result.next());
                 }
                 // Exercise the extra-properties connection path as well as the ordinary fixture connection.
-                try (Connection grantConnection = OneApiDataSourceManager.getConnection("milvus", new Properties());
-                        Statement grant = grantConnection.createStatement()) {
+                try (Connection grantConnection = OneApiDataSourceManager.getConnection("milvus", new Properties()); Statement grant = grantConnection.createStatement()) {
                     assertEquals(0, grant.executeUpdate("GRANT Search ON Collection " + this.collection + " TO ROLE " + role));
                     privilegeGranted = true;
                 }

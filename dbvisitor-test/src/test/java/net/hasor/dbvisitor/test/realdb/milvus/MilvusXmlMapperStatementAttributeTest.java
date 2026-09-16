@@ -43,9 +43,7 @@ public class MilvusXmlMapperStatementAttributeTest extends XmlMapperStatementAtt
     @Override
     protected void initData() throws SQLException {
         for (int i = 1; i <= 5; i++) {
-            this.jdbcTemplate.executeUpdate(
-                    "INSERT INTO user_info (id, name, age, email, create_time, v) VALUES (?, ?, ?, ?, ?, ?)",
-                    new Object[] { baseId() + i, "StmtAttr" + i, 20 + i, "attr" + i + "@nxn.test", new Date(1700000000123L), new float[] { i, 0 } });
+            this.jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, email, create_time, v) VALUES (?, ?, ?, ?, ?, ?)", new Object[] { baseId() + i, "StmtAttr" + i, 20 + i, "attr" + i + "@nxn.test", new Date(1700000000123L), new float[] { i, 0 } });
         }
     }
 

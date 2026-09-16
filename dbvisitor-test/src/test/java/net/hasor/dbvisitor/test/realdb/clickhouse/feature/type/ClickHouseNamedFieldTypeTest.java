@@ -24,11 +24,11 @@ public class ClickHouseNamedFieldTypeTest extends SqlNamedFieldTypeSupport {
     @Override
     public void setup() throws SQLException {
         try {
-            this.dataSource = OneApiDataSourceManager.createDataSource();
+            dataSource = OneApiDataSourceManager.createDataSource();
         } catch (IOException e) {
             throw new SQLException("Cannot load ClickHouse test connection", e);
         }
-        this.jdbcTemplate = new JdbcTemplate(this.dataSource);
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
         cleanTestData();
     }
 }

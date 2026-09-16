@@ -14,20 +14,16 @@ import net.hasor.dbvisitor.mapper.SimpleMapper;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperGeneratedKeysCase;
 import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyAutoLongUser;
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
 
 /** Same key backfill and explicit-ID assertions, using the native Int64 entity field. */
 public class MilvusAnnotationMapperGeneratedKeysTest extends AnnotationMapperGeneratedKeysCase {
     private final MilvusCapabilityFixture fixture = new MilvusCapabilityFixture();
-    private Session session;
-    private NativeGeneratedKeys keys;
+    private       Session                 session;
+    private       NativeGeneratedKeys     keys;
 
     @Override
     protected DataSourceProfile profile() {
@@ -92,8 +88,7 @@ public class MilvusAnnotationMapperGeneratedKeysTest extends AnnotationMapperGen
 
     @SimpleMapper
     public interface NativeGeneratedKeys extends MilvusCapabilityMappers.GeneratedKeys {
-        @Insert(value = "INSERT INTO user_info (name, age, create_time) VALUES (#{name}, #{age}, #{createTime})",
-                useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
+        @Insert(value = "INSERT INTO user_info (name, age, create_time) VALUES (#{name}, #{age}, #{createTime})", useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
         int generatedWithColumn(KeyAutoLongUser user);
     }
 

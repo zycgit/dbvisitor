@@ -18,7 +18,7 @@ import org.junit.Before;
 
 public class MongoSessionStatementParameterTest extends SessionStatementParameterCase {
     private final MongoMapperFixture fixture = new MongoMapperFixture();
-    private final MongoMapperFixture orders = new MongoMapperFixture();
+    private final MongoMapperFixture orders  = new MongoMapperFixture();
 
     @Override
     protected DataSourceProfile profile() {

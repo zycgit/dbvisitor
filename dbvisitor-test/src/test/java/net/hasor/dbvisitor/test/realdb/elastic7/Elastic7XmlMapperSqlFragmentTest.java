@@ -30,9 +30,7 @@ public class Elastic7XmlMapperSqlFragmentTest extends XmlMapperSqlFragmentCase {
     public void setup() throws SQLException {
         this.jdbcTemplate = fixture.open(profile().env());
         for (int i = 1; i <= 5; i++) {
-            jdbcTemplate.executeUpdate("PUT /" + fixture.index() + "/_doc/" + (baseId() + i)
-                    + " {\"id\": ?,\"name\": ?,\"age\": ?,\"email\": ?,\"create_time\": ?}",
-                    new Object[] { baseId() + i, "SqlFrag" + i, 20 + i * 5, "frag" + i + "@nxn.test", new Date(timestamp()) });
+            jdbcTemplate.executeUpdate("PUT /" + fixture.index() + "/_doc/" + (baseId() + i) + " {\"id\": ?,\"name\": ?,\"age\": ?,\"email\": ?,\"create_time\": ?}", new Object[] { baseId() + i, "SqlFrag" + i, 20 + i * 5, "frag" + i + "@nxn.test", new Date(timestamp()) });
         }
     }
 

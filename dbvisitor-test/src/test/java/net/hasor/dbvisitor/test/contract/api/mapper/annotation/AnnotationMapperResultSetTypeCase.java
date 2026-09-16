@@ -7,16 +7,16 @@
  */
 package net.hasor.dbvisitor.test.contract.api.mapper.annotation;
 
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
+import org.junit.Test;
 
 @NxnContract
 public abstract class AnnotationMapperResultSetTypeCase extends AnnotationMapperAttributeSupport {
+    // 能力归属：Mapper API / 执行选项。
     @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_RESULT_SET_TYPE)
+    @Capability(value = CapabilityId.MAPPER_ANNOTATION_ATTRIBUTE_RESULT_SET_TYPE, column = "mapper/execution-options/options")
     public void annotationAttributes_shouldApplyDefaultAndForwardOnlyResults() throws Exception {
         assertAtLeastSeedRows(this.mapper.selectWithDefaultResultSetType(PATTERN));
         assertAtLeastSeedRows(this.mapper.selectWithForwardOnly(PATTERN));

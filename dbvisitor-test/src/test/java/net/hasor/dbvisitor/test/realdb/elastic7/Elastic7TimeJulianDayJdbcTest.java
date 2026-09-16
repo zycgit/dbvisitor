@@ -8,13 +8,13 @@
 package net.hasor.dbvisitor.test.realdb.elastic7;
 
 import java.sql.SQLException;
-import net.hasor.dbvisitor.test.contract.feature.type.TimeJulianDayJdbcCase;
 import net.hasor.dbvisitor.test.contract.api.adapter.NativeBasicTypeFixture;
+import net.hasor.dbvisitor.test.contract.feature.type.TimeJulianDayJdbcCase;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
-import org.junit.Before;
 import org.junit.After;
+import org.junit.Before;
 
 public class Elastic7TimeJulianDayJdbcTest extends TimeJulianDayJdbcCase {
     private final NativeBasicTypeFixture fixture = new NativeBasicTypeFixture();

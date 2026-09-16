@@ -8,21 +8,19 @@
 package net.hasor.dbvisitor.test.contract.feature.mapping;
 
 import java.sql.SQLException;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 @NxnContract
 public abstract class AnnotationNullFieldMappingCase extends AnnotationMappingPolicySupport {
+    // 能力归属：对象映射 / 写入策略 / NULL 字段。
     @Test
-    @Capability(CapabilityId.MAPPING_ANNOTATION_NULL_VALUE_ROUND_TRIP)
+    @Capability(value = CapabilityId.MAPPING_ANNOTATION_NULL_VALUE_ROUND_TRIP, column = "mapping-keys/write-policies/fields")
     public void annotationMapping_shouldRoundTripNullColumns() throws SQLException {
         int nullId = baseId() + 116;
         deleteRaw(nullId);
@@ -40,8 +38,9 @@ public abstract class AnnotationNullFieldMappingCase extends AnnotationMappingPo
         assertNull(loadedNull.getEmail());
     }
 
+    // 能力归属：对象映射 / 写入策略 / NULL 字段。
     @Test
-    @Capability(CapabilityId.MAPPING_ANNOTATION_UPDATE_NULL_VALUE)
+    @Capability(value = CapabilityId.MAPPING_ANNOTATION_UPDATE_NULL_VALUE, column = "mapping-keys/write-policies/fields")
     public void annotationMapping_shouldUpdateExplicitNullValues() throws SQLException {
         int id = baseId() + 51;
         insertRaw(id, "PolicyUpdateNull", 30, "update-null@nxn.test");

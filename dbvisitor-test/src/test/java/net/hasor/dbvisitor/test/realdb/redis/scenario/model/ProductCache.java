@@ -14,7 +14,7 @@ import net.hasor.dbvisitor.types.handler.json.JsonTypeHandler;
 public class ProductCache {
     private String productId;
     private String name;
-    private Long priceCents;
+    private Long   priceCents;
 
     public String getProductId() {
         return this.productId;

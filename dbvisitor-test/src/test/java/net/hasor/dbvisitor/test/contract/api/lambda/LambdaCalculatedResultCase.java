@@ -8,14 +8,11 @@
 package net.hasor.dbvisitor.test.contract.api.lambda;
 
 import java.sql.SQLException;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 @NxnContract
@@ -25,8 +22,9 @@ public abstract class LambdaCalculatedResultCase extends LambdaResultHandlingSup
         return "age * 2 as doubled_age";
     }
 
+    // 能力归属：构造器 API / 查询操作。
     @Test
-    @Capability(CapabilityId.LAMBDA_RESULT_CALCULATED_COLUMN)
+    @Capability(value = CapabilityId.LAMBDA_RESULT_CALCULATED_COLUMN, column = "builder/queries/query")
     public void lambdaResult_shouldReadCalculatedColumnThroughRowMapper() throws SQLException {
         insertByJdbc(baseId() + 182, "LRCalc", 30, "lr-calc@test.com");
         Integer doubled = lambdaTemplate.query(UserInfo.class)//

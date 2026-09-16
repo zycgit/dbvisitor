@@ -8,14 +8,10 @@
 package net.hasor.dbvisitor.test.contract.api.mapper.xml;
 
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Date;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
@@ -23,10 +19,9 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class XmlMapperSqlFragmentCase extends AbstractNxnContractTest {
@@ -60,8 +55,9 @@ public abstract class XmlMapperSqlFragmentCase extends AbstractNxnContractTest {
         return 1700000000000L;
     }
 
+    // 能力归属：Mapper 文件 / sql 标签。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_FRAGMENT_COLUMNS)
+    @Capability(value = CapabilityId.MAPPER_XML_FRAGMENT_COLUMNS, column = "mapper-files/statements/fragments")
     public void sqlFragment_shouldIncludeReusableColumnListInSelect() throws Exception {
         List<UserInfo> list = this.session.queryStatement("xmltest.SqlFragmentMapper.selectWithColumnFragment", mapOf("id", baseId() + 1));
 
@@ -75,8 +71,9 @@ public abstract class XmlMapperSqlFragmentCase extends AbstractNxnContractTest {
         assertEquals(timestamp(), user.getCreateTime().getTime());
     }
 
+    // 能力归属：Mapper 文件 / sql 标签。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_FRAGMENT_DYNAMIC_CONDITION)
+    @Capability(value = CapabilityId.MAPPER_XML_FRAGMENT_DYNAMIC_CONDITION, column = "mapper-files/statements/fragments")
     public void sqlFragment_shouldIncludeDynamicConditionFragment() throws Exception {
         List<UserInfo> allRows = this.session.queryStatement("xmltest.SqlFragmentMapper.selectWithConditionFragment", new HashMap<String, Object>());
         List<UserInfo> byName = this.session.queryStatement("xmltest.SqlFragmentMapper.selectWithConditionFragment", mapOf("name", "SqlFrag1"));
@@ -108,8 +105,9 @@ public abstract class XmlMapperSqlFragmentCase extends AbstractNxnContractTest {
         return "SqlFrag%";
     }
 
+    // 能力归属：Mapper 文件 / sql 标签。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_FRAGMENT_MULTIPLE)
+    @Capability(value = CapabilityId.MAPPER_XML_FRAGMENT_MULTIPLE, column = "mapper-files/statements/fragments")
     public void sqlFragment_shouldCombineColumnAndOrderFragments() throws Exception {
         List<UserInfo> list = this.session.queryStatement("xmltest.SqlFragmentMapper.selectWithMultipleFragments", null);
 
@@ -124,8 +122,9 @@ public abstract class XmlMapperSqlFragmentCase extends AbstractNxnContractTest {
         }
     }
 
+    // 能力归属：Mapper 文件 / sql 标签。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_FRAGMENT_ORDER)
+    @Capability(value = CapabilityId.MAPPER_XML_FRAGMENT_ORDER, column = "mapper-files/statements/fragments")
     public void sqlFragment_shouldIncludeOrderFragmentOnly() throws Exception {
         List<UserInfo> list = this.session.queryStatement("xmltest.SqlFragmentMapper.selectAllOrdered", null);
 

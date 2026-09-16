@@ -10,7 +10,7 @@ package net.hasor.dbvisitor.test.realdb.mongo;
 import java.sql.SQLException;
 import java.util.Date;
 import net.hasor.dbvisitor.test.contract.api.adapter.NativeDocumentQueryFixture;
-import net.hasor.dbvisitor.test.contract.api.lambda.LambdaResultExtractorCase;
+import net.hasor.dbvisitor.test.contract.feature.result.LambdaResultExtractorCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
 import org.junit.After;

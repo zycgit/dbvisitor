@@ -8,8 +8,8 @@
 package net.hasor.dbvisitor.test.realdb.clickhouse.api.jdbc;
 
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcMixedResultAccessCase;
-import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 
 public class ClickHouseJdbcMixedResultAccessTest extends JdbcMixedResultAccessCase {
     @Override

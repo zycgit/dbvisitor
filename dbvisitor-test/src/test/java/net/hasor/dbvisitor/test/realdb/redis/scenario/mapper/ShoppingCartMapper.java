@@ -17,8 +17,7 @@ import net.hasor.dbvisitor.test.realdb.redis.scenario.model.CartItem;
 @SimpleMapper
 public interface ShoppingCartMapper {
     @Query("HINCRBY #{key} #{productId} #{quantity}")
-    long add(@Param("key") String key, @Param("productId") String productId,
-             @Param("quantity") int quantity);
+    long add(@Param("key") String key, @Param("productId") String productId, @Param("quantity") int quantity);
 
     @Query("HGETALL #{key}")
     List<CartItem> items(@Param("key") String key);

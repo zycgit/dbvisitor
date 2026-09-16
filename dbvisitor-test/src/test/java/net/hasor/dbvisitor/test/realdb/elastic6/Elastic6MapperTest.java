@@ -18,25 +18,13 @@ import net.hasor.dbvisitor.page.PageResult;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.api.adapter.AdapterCase;
-import net.hasor.dbvisitor.test.realdb.elastic6.material.user.UserInfo1BaseMapper;
-import net.hasor.dbvisitor.test.realdb.elastic6.material.user.UserInfo1Mapper;
-import net.hasor.dbvisitor.test.realdb.elastic6.material.user.UserInfo1a;
-import net.hasor.dbvisitor.test.realdb.elastic6.material.user.UserInfo1b;
-import net.hasor.dbvisitor.test.realdb.elastic6.material.user.UserInfo2;
-import net.hasor.dbvisitor.test.realdb.elastic6.material.user.UserInfo2Mapper;
-import net.hasor.dbvisitor.test.realdb.elastic6.material.user.UserInfo3;
-import net.hasor.dbvisitor.test.realdb.elastic6.material.user.UserInfo3Mapper;
-import net.hasor.dbvisitor.test.realdb.elastic6.material.user.UserInfo4Mapper;
-import net.hasor.dbvisitor.test.realdb.elastic6.material.user.UserInfo5;
-import net.hasor.dbvisitor.test.realdb.elastic6.material.user.UserInfo5Mapper;
-import net.hasor.dbvisitor.test.realdb.elastic6.material.user.UserInfo6;
-import net.hasor.dbvisitor.test.realdb.elastic6.material.user.UserInfo6Mapper;
-import static org.junit.Assert.*;
-import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
-import net.hasor.dbvisitor.test.nxn.env.Elastic6Profile;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.Elastic6Profile;
+import net.hasor.dbvisitor.test.realdb.elastic6.material.user.*;
 import org.junit.Test;
+import static org.junit.Assert.*;
 
 public class Elastic6MapperTest extends AdapterCase {
     @Override

@@ -8,7 +8,7 @@
 package net.hasor.dbvisitor.test.realdb.elastic7;
 
 import java.sql.SQLException;
-import net.hasor.dbvisitor.test.contract.feature.function.FunctionCase;
+import net.hasor.dbvisitor.test.contract.api.jdbc.FunctionCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
 import net.hasor.dbvisitor.test.realdb.elastic7.material.ElasticMatrixFixture;
@@ -44,10 +44,7 @@ public class Elastic7FunctionTest extends FunctionCase {
     }
 
     private String scripted(String alias, String script, String parameters, String predicate) {
-        return "POST /" + fixture.index() + "/_search {\"size\": 1,\"_source\": [\"" + alias
-                + "\"],\"query\": " + predicate + ",\"script_fields\": {\"" + alias
-                + "\": {\"script\": {\"lang\": \"painless\",\"source\": \"" + script
-                + "\",\"params\": " + parameters + "}}}}";
+        return "POST /" + fixture.index() + "/_search {\"size\": 1,\"_source\": [\"" + alias + "\"],\"query\": " + predicate + ",\"script_fields\": {\"" + alias + "\": {\"script\": {\"lang\": \"painless\",\"source\": \"" + script + "\",\"params\": " + parameters + "}}}}";
     }
 
     @Override

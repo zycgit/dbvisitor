@@ -20,7 +20,7 @@ import org.junit.Before;
 /** Shared parameter assertions against native storage, without database-function prerequisites. */
 public class MilvusAnnotationMapperStructuredParameterTest extends AnnotationMapperStructuredParameterCase {
     private final MilvusUserInfoFixture fixture = new MilvusUserInfoFixture();
-    private Session session;
+    private       Session               session;
 
     @Override
     protected DataSourceProfile profile() {

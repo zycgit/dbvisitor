@@ -121,6 +121,7 @@ public class Elastic6CatTest {
             }
         }
     }
+
     public static void main(String[] args) {
         net.hasor.dbvisitor.test.realdb.RealDbTestRunner.run(Elastic6CatTest.class);
     }

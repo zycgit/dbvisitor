@@ -10,15 +10,12 @@ package net.hasor.dbvisitor.test.contract.api.mapper.annotation;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
-
-import org.junit.Before;
-
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.material.dao.declarative.AnnotationAttributesMapper;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
-
+import org.junit.Before;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -67,7 +64,13 @@ public abstract class AnnotationMapperAttributeSupport extends AbstractNxnContra
     }
 
     protected enum KeyWrite {
-        GENERATED, COLUMN, RESULT_SET, EXPLICIT, BEFORE, AFTER, OPTIONS
+        GENERATED,
+        COLUMN,
+        RESULT_SET,
+        EXPLICIT,
+        BEFORE,
+        AFTER,
+        OPTIONS
     }
 
     protected boolean numericGeneratedKeys() {

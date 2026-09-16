@@ -33,8 +33,7 @@ public class MilvusAnalyzerSqlTest extends AdapterCase {
     @Test
     @Capability(CapabilityId.ADAPTER_MILVUS_SQL_ANALYZER)
     public void analyze_shouldBindTextsAndPreserveTokensDetailsAndEmptyResults() throws SQLException {
-        try (Connection connection = newAdapterConnection(); PreparedStatement statement = connection.prepareStatement(
-                "ANALYZE ? WITH (analyzer_params=?, with_detail=?, with_hash=?)")) {
+        try (Connection connection = newAdapterConnection(); PreparedStatement statement = connection.prepareStatement("ANALYZE ? WITH (analyzer_params=?, with_detail=?, with_hash=?)")) {
             statement.setObject(1, Arrays.asList("hello world", "", "milvus"));
             statement.setObject(2, Collections.singletonMap("tokenizer", "standard"));
             statement.setBoolean(3, true);

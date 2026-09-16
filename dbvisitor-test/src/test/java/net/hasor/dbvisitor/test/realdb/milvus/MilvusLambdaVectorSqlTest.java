@@ -28,13 +28,11 @@ public class MilvusLambdaVectorSqlTest extends MilvusSqlContractSupport {
     public void cosineShouldFilterAboveThresholdAndOrderBySimilarity() throws SQLException {
         prepareVectors("COSINE");
         LambdaTemplate lambda = new LambdaTemplate(this.connection);
-        List<Map<String, Object>> rows = lambda.queryFreedom(this.collection).eq("category", "keep")
-                .vectorByCosine("v", new float[] { 1, 0 }, 0.8).queryForMapList();
+        List<Map<String, Object>> rows = lambda.queryFreedom(this.collection).eq("category", "keep").vectorByCosine("v", new float[] { 1, 0 }, 0.8).queryForMapList();
         assertEquals(List.of(1L), ids(rows));
         assertEquals(1.0, ((Number) rows.get(0).get("score")).doubleValue(), 0.0001);
         assertOrdering(lambda, MetricType.COSINE);
-        assertEquals(3, lambda.queryFreedom(this.collection).eq("category", "keep")
-                .vectorByCosine(false, "v", new float[] { 1, 0 }, 0.8).queryForMapList().size());
+        assertEquals(3, lambda.queryFreedom(this.collection).eq("category", "keep").vectorByCosine(false, "v", new float[] { 1, 0 }, 0.8).queryForMapList().size());
     }
 
     @Test
@@ -42,8 +40,7 @@ public class MilvusLambdaVectorSqlTest extends MilvusSqlContractSupport {
     public void innerProductShouldFilterAboveThresholdAndOrderBySimilarity() throws SQLException {
         prepareVectors("IP");
         LambdaTemplate lambda = new LambdaTemplate(this.connection);
-        List<Map<String, Object>> rows = lambda.queryFreedom(this.collection).eq("category", "keep")
-                .vectorByIP("v", new float[] { 1, 0 }, 0.5).queryForMapList();
+        List<Map<String, Object>> rows = lambda.queryFreedom(this.collection).eq("category", "keep").vectorByIP("v", new float[] { 1, 0 }, 0.5).queryForMapList();
         assertEquals(List.of(1L), ids(rows));
         assertEquals(1.0, ((Number) rows.get(0).get("score")).doubleValue(), 0.0001);
         assertOrdering(lambda, MetricType.IP);
@@ -54,36 +51,28 @@ public class MilvusLambdaVectorSqlTest extends MilvusSqlContractSupport {
     public void l2ShouldFilterBelowSquaredDistanceAndHonorTopK() throws SQLException {
         prepareVectors("L2");
         LambdaTemplate lambda = new LambdaTemplate(this.connection);
-        List<Map<String, Object>> rows = lambda.queryFreedom(this.collection).eq("category", "keep")
-                .vectorByL2("v", new float[] { 1, 0 }, 0.5).queryForMapList();
+        List<Map<String, Object>> rows = lambda.queryFreedom(this.collection).eq("category", "keep").vectorByL2("v", new float[] { 1, 0 }, 0.5).queryForMapList();
         assertEquals(List.of(1L), ids(rows));
         assertEquals(0.0, ((Number) rows.get(0).get("score")).doubleValue(), 0.0001);
         assertOrdering(lambda, MetricType.L2);
-        assertEquals(3, lambda.queryFreedom(this.collection).eq("category", "keep")
-                .vectorByL2(false, "v", new float[] { 1, 0 }, 0.5).queryForMapList().size());
-        assertEquals(List.of(), lambda.queryFreedom(this.collection).eq("category", "keep")
-                .vectorByL2("v", new float[] { 10, 10 }, 0.01).queryForMapList());
+        assertEquals(3, lambda.queryFreedom(this.collection).eq("category", "keep").vectorByL2(false, "v", new float[] { 1, 0 }, 0.5).queryForMapList().size());
+        assertEquals(List.of(), lambda.queryFreedom(this.collection).eq("category", "keep").vectorByL2("v", new float[] { 10, 10 }, 0.01).queryForMapList());
     }
 
     private void assertOrdering(LambdaTemplate lambda, MetricType metric) throws SQLException {
-        List<Map<String, Object>> all = lambda.queryFreedom(this.collection).eq("category", "keep")
-                .orderByMetric(metric, "v", new float[] { 1, 0 }).queryForMapList();
+        List<Map<String, Object>> all = lambda.queryFreedom(this.collection).eq("category", "keep").orderByMetric(metric, "v", new float[] { 1, 0 }).queryForMapList();
         assertEquals(List.of(1L, 2L, 3L), ids(all));
         // Verify the metric-specific entry points as well as orderByMetric.
         List<Map<String, Object>> specialized;
         if (metric == MetricType.L2) {
-            specialized = lambda.queryFreedom(this.collection).eq("category", "keep")
-                    .orderByL2("v", new float[] { 1, 0 }).queryForMapList();
+            specialized = lambda.queryFreedom(this.collection).eq("category", "keep").orderByL2("v", new float[] { 1, 0 }).queryForMapList();
         } else if (metric == MetricType.COSINE) {
-            specialized = lambda.queryFreedom(this.collection).eq("category", "keep")
-                    .orderByCosine("v", new float[] { 1, 0 }).queryForMapList();
+            specialized = lambda.queryFreedom(this.collection).eq("category", "keep").orderByCosine("v", new float[] { 1, 0 }).queryForMapList();
         } else {
-            specialized = lambda.queryFreedom(this.collection).eq("category", "keep")
-                    .orderByIP("v", new float[] { 1, 0 }).queryForMapList();
+            specialized = lambda.queryFreedom(this.collection).eq("category", "keep").orderByIP("v", new float[] { 1, 0 }).queryForMapList();
         }
         assertEquals(List.of(1L, 2L, 3L), ids(specialized));
-        List<Map<String, Object>> top = lambda.queryFreedom(this.collection).eq("category", "keep")
-                .orderByMetric(metric, "v", new float[] { 1, 0 }).initPage(2, 0).queryForMapList();
+        List<Map<String, Object>> top = lambda.queryFreedom(this.collection).eq("category", "keep").orderByMetric(metric, "v", new float[] { 1, 0 }).initPage(2, 0).queryForMapList();
         assertEquals(List.of(1L, 2L), ids(top));
     }
 

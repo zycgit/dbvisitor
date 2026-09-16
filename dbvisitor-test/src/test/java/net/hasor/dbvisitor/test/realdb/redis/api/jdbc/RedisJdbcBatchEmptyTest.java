@@ -8,15 +8,11 @@
 package net.hasor.dbvisitor.test.realdb.redis.api.jdbc;
 
 import java.sql.SQLException;
-
-import org.junit.Before;
-import org.junit.After;
-
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcBatchEmptyCase;
-
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
-import static org.junit.Assert.*;
+import org.junit.After;
+import org.junit.Before;
 
 public class RedisJdbcBatchEmptyTest extends JdbcBatchEmptyCase {
 

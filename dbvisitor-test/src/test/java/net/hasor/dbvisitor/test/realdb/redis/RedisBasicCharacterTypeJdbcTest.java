@@ -9,7 +9,6 @@ package net.hasor.dbvisitor.test.realdb.redis;
 
 import java.sql.SQLException;
 import java.util.Map;
-import static org.junit.Assert.assertEquals;
 import net.hasor.dbvisitor.test.contract.feature.type.BasicCharacterTypeJdbcCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
@@ -38,9 +37,7 @@ public class RedisBasicCharacterTypeJdbcTest extends BasicCharacterTypeJdbcCase 
     @Override
     protected Map<String, Object> roundTripCharacterValues() throws SQLException {
         Character character = fixture.roundTrip("char", 'A', Character.class);
-        return Map.of("char_value", character,
-                "varchar_value", fixture.roundTrip("text", "Hello World!", String.class),
-                "nvarchar_value", fixture.roundTrip("unicode", "你好世界！🌍", String.class));
+        return Map.of("char_value", character, "varchar_value", fixture.roundTrip("text", "Hello World!", String.class), "nvarchar_value", fixture.roundTrip("unicode", "你好世界！🌍", String.class));
     }
 
     @Override

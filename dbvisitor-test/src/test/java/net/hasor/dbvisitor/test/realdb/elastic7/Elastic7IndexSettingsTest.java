@@ -105,6 +105,7 @@ public class Elastic7IndexSettingsTest {
             }
         }
     }
+
     public static void main(String[] args) {
         net.hasor.dbvisitor.test.realdb.RealDbTestRunner.run(Elastic7IndexSettingsTest.class);
     }

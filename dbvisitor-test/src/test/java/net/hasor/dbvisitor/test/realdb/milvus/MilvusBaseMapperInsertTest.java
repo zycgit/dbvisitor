@@ -9,20 +9,18 @@ package net.hasor.dbvisitor.test.realdb.milvus;
 
 import java.io.IOException;
 import java.sql.SQLException;
-
-import org.junit.After;
-import org.junit.Before;
-
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.api.mapper.basemapper.BaseMapperInsertCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
+import org.junit.After;
+import org.junit.Before;
 
 public class MilvusBaseMapperInsertTest extends BaseMapperInsertCase {
     private final MilvusUserInfoFixture fixture = new MilvusUserInfoFixture();
-    private Session session;
+    private       Session               session;
 
     @Override
     protected DataSourceProfile profile() {

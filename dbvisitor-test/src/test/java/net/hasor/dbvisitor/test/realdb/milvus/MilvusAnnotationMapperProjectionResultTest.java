@@ -20,7 +20,7 @@ import org.junit.Before;
 /** Shared result assertions and mapper SQL against isolated native storage. */
 public class MilvusAnnotationMapperProjectionResultTest extends AnnotationMapperProjectionResultCase {
     private final MilvusUserInfoFixture fixture = new MilvusUserInfoFixture();
-    private Session session;
+    private       Session               session;
 
     @Override
     protected DataSourceProfile profile() {

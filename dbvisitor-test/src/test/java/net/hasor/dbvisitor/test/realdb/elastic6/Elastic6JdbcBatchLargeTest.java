@@ -7,9 +7,9 @@
  */
 package net.hasor.dbvisitor.test.realdb.elastic6;
 
-import net.hasor.dbvisitor.test.realdb.elastic7.Elastic7JdbcBatchLargeTest;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic6Profile;
+import net.hasor.dbvisitor.test.realdb.elastic7.Elastic7JdbcBatchLargeTest;
 
 public class Elastic6JdbcBatchLargeTest extends Elastic7JdbcBatchLargeTest {
     @Override

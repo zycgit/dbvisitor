@@ -7,11 +7,7 @@
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Types;
+import java.sql.*;
 import java.util.Set;
 import com.google.gson.JsonParser;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
@@ -29,8 +25,7 @@ public class MilvusCompactionSqlTest extends MilvusSqlContractSupport {
         this.jdbcTemplate.executeUpdate("INSERT INTO " + this.collection + " (id, v) VALUES (1, [1, 0]), (2, [0, 1])");
         this.jdbcTemplate.execute("FLUSH " + this.collection);
         long taskId;
-        try (Statement statement = this.connection.createStatement();
-                ResultSet result = statement.executeQuery("COMPACT TABLE " + this.collection)) {
+        try (Statement statement = this.connection.createStatement(); ResultSet result = statement.executeQuery("COMPACT TABLE " + this.collection)) {
             assertEquals(Types.BIGINT, result.getMetaData().getColumnType(1));
             assertTrue(result.next());
             taskId = result.getLong("COMPACTION_ID");

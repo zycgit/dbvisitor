@@ -7,16 +7,14 @@
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import java.sql.*;
 import java.util.HashSet;
 import java.util.Set;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class MilvusCmdForDBTest extends AbstractMilvusCmdForTest {
     @Before

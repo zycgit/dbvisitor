@@ -10,11 +10,7 @@ package net.hasor.dbvisitor.test.contract.material.dao.declarative;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import net.hasor.dbvisitor.mapper.Insert;
-import net.hasor.dbvisitor.mapper.Param;
-import net.hasor.dbvisitor.mapper.Query;
-import net.hasor.dbvisitor.mapper.SimpleMapper;
-import net.hasor.dbvisitor.mapper.Update;
+import net.hasor.dbvisitor.mapper.*;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 
 /** Native templates are configured per session; parameter binding still uses the actual Mapper proxy. */

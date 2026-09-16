@@ -8,9 +8,9 @@
 package net.hasor.dbvisitor.test.realdb.milvus;
 
 import java.sql.SQLException;
-import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlRefMapperAggregateCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
+import net.hasor.dbvisitor.test.scenario.query.xml.XmlRefMapperAggregateCase;
 import org.junit.After;
 import org.junit.Before;
 

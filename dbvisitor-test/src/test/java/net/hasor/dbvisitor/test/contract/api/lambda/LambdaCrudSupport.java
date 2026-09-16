@@ -9,9 +9,8 @@ package net.hasor.dbvisitor.test.contract.api.lambda;
 
 import java.sql.SQLException;
 import java.util.Date;
-
-import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcCrudSupport;
+import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 
 public abstract class LambdaCrudSupport extends JdbcCrudSupport {
     protected int baseId() {

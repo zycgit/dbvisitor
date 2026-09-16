@@ -7,19 +7,18 @@
  */
 package net.hasor.dbvisitor.test.contract.api.mapper.annotation;
 
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 @NxnContract
 public abstract class AnnotationMapperEmptyMutationCase extends AnnotationMapperBoundarySupport {
+    // 能力归属：Mapper API / 方法注解。
     @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_NO_MATCH_AFFECTED_ROWS)
+    @Capability(value = CapabilityId.MAPPER_ANNOTATION_NO_MATCH_AFFECTED_ROWS, column = "mapper/method-annotations/execution")
     public void annotationMapperDml_shouldReturnZeroWhenNoRowsMatch() throws Exception {
         requiresNxnFeature(FeatureId.EXACT_MUTATION_AFFECTED_ROWS);
 

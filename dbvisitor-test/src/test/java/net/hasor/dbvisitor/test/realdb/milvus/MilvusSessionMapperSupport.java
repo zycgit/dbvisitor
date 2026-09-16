@@ -23,7 +23,7 @@ import net.hasor.dbvisitor.test.contract.material.model.UserOrderDTO;
 /** Native schema and commands only; assertions belong to the shared Session cases. */
 public final class MilvusSessionMapperSupport implements AutoCloseable {
     private final MilvusUserInfoFixture fixture = new MilvusUserInfoFixture();
-    private Session session;
+    private       Session               session;
 
     void open() throws SQLException {
         this.fixture.open();

@@ -23,9 +23,9 @@ import org.junit.Before;
 
 /** Single-key SET/DEL replies provide the same one-item update-count assertions. */
 public class RedisJdbcMutationCountTest extends JdbcMutationCountCase {
-    private final String prefix = "nxn:mutation:" + UUID.randomUUID() + ":";
-    private final Set<String> keys = new LinkedHashSet<>();
-    private Connection connection;
+    private final String      prefix = "nxn:mutation:" + UUID.randomUUID() + ":";
+    private final Set<String> keys   = new LinkedHashSet<>();
+    private       Connection  connection;
 
     @Override
     protected DataSourceProfile profile() {

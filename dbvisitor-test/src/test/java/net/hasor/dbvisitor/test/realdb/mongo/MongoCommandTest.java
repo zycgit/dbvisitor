@@ -10,15 +10,13 @@ package net.hasor.dbvisitor.test.realdb.mongo;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
-
 import net.hasor.dbvisitor.test.contract.api.adapter.AdapterCase;
-
-import static org.junit.Assert.assertTrue;
-import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
-import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
 import org.junit.Test;
+import static org.junit.Assert.assertTrue;
 
 public class MongoCommandTest extends AdapterCase {
     @Override

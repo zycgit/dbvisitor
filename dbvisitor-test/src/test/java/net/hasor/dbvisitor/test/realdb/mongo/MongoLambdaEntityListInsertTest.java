@@ -30,7 +30,6 @@ public class MongoLambdaEntityListInsertTest extends LambdaEntityListInsertCase 
         this.lambdaTemplate = this.fixture.lambdaTemplate();
     }
 
-
     @After
     public void cleanupFixture() throws SQLException {
         this.fixture.close();

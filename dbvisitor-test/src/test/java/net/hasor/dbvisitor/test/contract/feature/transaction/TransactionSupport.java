@@ -11,26 +11,19 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.junit.After;
-import org.junit.Before;
-
+import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
-import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
-import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
-import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.contract.material.service.CallerTransactionService;
 import net.hasor.dbvisitor.test.contract.material.service.UserTransactionService;
-import net.hasor.dbvisitor.transaction.Isolation;
-import net.hasor.dbvisitor.transaction.Propagation;
-import net.hasor.dbvisitor.transaction.TransactionManager;
-import net.hasor.dbvisitor.transaction.TransactionStatus;
-import net.hasor.dbvisitor.transaction.TransactionTemplate;
-import net.hasor.dbvisitor.transaction.TransactionTemplateManager;
+import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
+import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
+import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
+import net.hasor.dbvisitor.transaction.*;
 import net.hasor.dbvisitor.transaction.support.TransactionHelper;
-
+import org.junit.After;
+import org.junit.Before;
 import static org.junit.Assert.assertEquals;
 
 public abstract class TransactionSupport extends AbstractNxnContractTest {
@@ -104,10 +97,24 @@ public abstract class TransactionSupport extends AbstractNxnContractTest {
     protected void assertIsolationCommit(int id, Isolation isolation, String name) throws SQLException {
         TransactionManager tm = txManager();
         TransactionStatus status = tm.begin(Propagation.REQUIRED, isolation);
-        assertEquals(isolation, status.getIsolationLevel());
-        jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, create_time) VALUES (?, ?, ?, @{macro, currentTimestamp})", new Object[] { id, name, 25 });
-        tm.commit(status);
+        try {
+            assertEquals(isolation, status.getIsolationLevel());
+            assertConnectionIsolation(isolation);
+            jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, create_time) VALUES (?, ?, ?, @{macro, currentTimestamp})", new Object[] { id, name, 25 });
+            tm.commit(status);
+        } finally {
+            if (!status.isCompleted()) {
+                tm.rollBack(status);
+            }
+        }
         assertEquals(1, countById(id));
+    }
+
+    protected void assertConnectionIsolation(Isolation isolation) throws SQLException {
+        jdbcTemplate.execute((ConnectionCallback<Void>) connection -> {
+            assertEquals(isolation.getValue(), connection.getTransactionIsolation());
+            return null;
+        });
     }
 
     protected UserTransactionService userProxy() {

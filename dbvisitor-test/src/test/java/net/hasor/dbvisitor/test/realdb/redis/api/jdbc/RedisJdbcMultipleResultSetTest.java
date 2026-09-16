@@ -9,13 +9,11 @@ package net.hasor.dbvisitor.test.realdb.redis.api.jdbc;
 
 import java.sql.SQLException;
 import java.util.Map;
-
-import org.junit.After;
-import org.junit.Before;
-
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcMultipleResultSetCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import org.junit.After;
+import org.junit.Before;
 
 public class RedisJdbcMultipleResultSetTest extends JdbcMultipleResultSetCase {
     private final RedisJdbcFixture fixture = new RedisJdbcFixture();
@@ -82,8 +80,7 @@ public class RedisJdbcMultipleResultSetTest extends JdbcMultipleResultSetCase {
     protected String ruleMultipleCommand() {
         String key = this.fixture.key("scores");
         String type = mappedResultType().getName();
-        return "ZRANGE '" + key + "' 0 0 WITHSCORES @{resultSet,name=youngUsers,javaType=" + type + "}\n"
-                + "ZRANGE '" + key + "' 2 2 WITHSCORES @{resultSet,name=seniorUsers,javaType=" + type + "}";
+        return "ZRANGE '" + key + "' 0 0 WITHSCORES @{resultSet,name=youngUsers,javaType=" + type + "}\n" + "ZRANGE '" + key + "' 2 2 WITHSCORES @{resultSet,name=seniorUsers,javaType=" + type + "}";
     }
 
     @Override

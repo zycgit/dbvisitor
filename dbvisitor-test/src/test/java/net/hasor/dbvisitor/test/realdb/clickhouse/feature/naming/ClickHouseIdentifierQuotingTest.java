@@ -8,8 +8,8 @@
 package net.hasor.dbvisitor.test.realdb.clickhouse.feature.naming;
 
 import net.hasor.dbvisitor.test.contract.feature.naming.IdentifierQuotingCase;
-import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 
 public class ClickHouseIdentifierQuotingTest extends IdentifierQuotingCase {
     @Override

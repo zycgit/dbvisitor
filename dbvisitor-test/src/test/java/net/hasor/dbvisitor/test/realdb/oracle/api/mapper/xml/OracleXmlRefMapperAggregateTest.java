@@ -7,9 +7,9 @@
  */
 package net.hasor.dbvisitor.test.realdb.oracle.api.mapper.xml;
 
-import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlRefMapperAggregateCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.OracleProfile;
+import net.hasor.dbvisitor.test.scenario.query.xml.XmlRefMapperAggregateCase;
 
 public class OracleXmlRefMapperAggregateTest extends XmlRefMapperAggregateCase {
     @Override

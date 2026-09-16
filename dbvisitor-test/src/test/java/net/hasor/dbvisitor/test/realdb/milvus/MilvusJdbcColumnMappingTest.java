@@ -32,8 +32,7 @@ public class MilvusJdbcColumnMappingTest extends JdbcColumnMappingCase {
 
     @Override
     protected void seedColumnValue() throws SQLException {
-        this.jdbcTemplate.executeUpdate("INSERT INTO column_case (id, NXN_VALUE) VALUES (?, ?)",
-                new Object[] { 932001, "NXN-Column" });
+        this.jdbcTemplate.executeUpdate("INSERT INTO column_case (id, NXN_VALUE) VALUES (?, ?)", new Object[] { 932001, "NXN-Column" });
     }
 
     @Override

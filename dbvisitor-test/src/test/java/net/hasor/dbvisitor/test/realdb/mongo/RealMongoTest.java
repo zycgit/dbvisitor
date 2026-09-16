@@ -58,6 +58,7 @@ public class RealMongoTest {
             }
         }
     }
+
     public static void main(String[] args) {
         net.hasor.dbvisitor.test.realdb.RealDbTestRunner.run(RealMongoTest.class);
     }

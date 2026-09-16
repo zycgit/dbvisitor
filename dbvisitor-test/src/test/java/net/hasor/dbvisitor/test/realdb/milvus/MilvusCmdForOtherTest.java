@@ -7,17 +7,15 @@
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
 
-import static org.junit.Assert.assertTrue;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
-
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.assertTrue;
 
 public class MilvusCmdForOtherTest extends AbstractMilvusCmdForTest {
     @Before

@@ -23,10 +23,10 @@ import org.junit.Before;
 
 public class RedisAnnotationMapperProjectionResultTest extends AnnotationMapperProjectionResultCase {
     private final RedisMapperFixture fixture = new RedisMapperFixture();
-    private AggregateMapper aggregates;
-    private String members;
-    private String first;
-    private String second;
+    private       AggregateMapper    aggregates;
+    private       String             members;
+    private       String             first;
+    private       String             second;
 
     @Override
     protected DataSourceProfile profile() {
@@ -59,7 +59,9 @@ public class RedisAnnotationMapperProjectionResultTest extends AnnotationMapperP
     }
 
     @Override
-    protected List<Integer> expectedDistinctValues() { return Arrays.asList(23, 28); }
+    protected List<Integer> expectedDistinctValues() {
+        return Arrays.asList(23, 28);
+    }
 
     @Override
     protected void prepareAggregateRows() throws Exception {
@@ -72,29 +74,48 @@ public class RedisAnnotationMapperProjectionResultTest extends AnnotationMapperP
     }
 
     @Override
-    protected Number aggregateScalar() { return aggregates.count(members); }
+    protected Number aggregateScalar() {
+        return aggregates.count(members);
+    }
+
     @Override
-    protected double minimumAggregateScalar() { return 2; }
+    protected double minimumAggregateScalar() {
+        return 2;
+    }
+
     @Override
-    protected Number expectedAggregateScalar() { return 2; }
+    protected Number expectedAggregateScalar() {
+        return 2;
+    }
+
     @Override
-    protected Map<String, Object> aggregateMap() { return aggregates.countRow(members); }
+    protected Map<String, Object> aggregateMap() {
+        return aggregates.countRow(members);
+    }
+
     @Override
-    protected List<String> aggregateMapColumns() { return List.of("RESULT"); }
+    protected List<String> aggregateMapColumns() {
+        return List.of("RESULT");
+    }
+
     @Override
-    protected Map<String, Object> expectedAggregateMap() { return Map.of("RESULT", 2); }
+    protected Map<String, Object> expectedAggregateMap() {
+        return Map.of("RESULT", 2);
+    }
+
     @Override
     protected List<List<Map<String, Object>>> aggregateGroups() {
         return List.of(aggregates.sum(first, second), aggregates.min(first, second), aggregates.max(first, second));
     }
+
     @Override
-    protected List<String> aggregateGroupColumns() { return List.of("ELEMENT", "SCORE"); }
+    protected List<String> aggregateGroupColumns() {
+        return List.of("ELEMENT", "SCORE");
+    }
+
     @Override
     protected List<List<Map<String, Object>>> expectedAggregateGroups() {
-        return List.of(
-                List.of(Map.of("ELEMENT", "alice", "SCORE", 13.0), Map.of("ELEMENT", "bob", "SCORE", 60.0)),
-                List.of(Map.of("ELEMENT", "alice", "SCORE", 3.0), Map.of("ELEMENT", "bob", "SCORE", 20.0)),
-                List.of(Map.of("ELEMENT", "alice", "SCORE", 10.0), Map.of("ELEMENT", "bob", "SCORE", 40.0)));
+        return List.of(List.of(Map.of("ELEMENT", "alice", "SCORE", 13.0), Map.of("ELEMENT", "bob", "SCORE", 60.0)), List.of(Map.of("ELEMENT", "alice", "SCORE", 3.0), Map.of("ELEMENT", "bob", "SCORE", 20.0)), List.of(Map.of("ELEMENT", "alice", "SCORE", 10.0), Map.of("ELEMENT", "bob", "SCORE", 40.0)));
     }
 
     @SimpleMapper

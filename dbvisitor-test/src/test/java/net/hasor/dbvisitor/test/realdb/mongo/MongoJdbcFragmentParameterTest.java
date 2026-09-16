@@ -10,7 +10,7 @@ package net.hasor.dbvisitor.test.realdb.mongo;
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.api.adapter.NativeDocumentParameterFixture;
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcParameterCommand;
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcFragmentParameterCase;
+import net.hasor.dbvisitor.test.contract.feature.parameter.JdbcFragmentParameterCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
 import org.junit.After;

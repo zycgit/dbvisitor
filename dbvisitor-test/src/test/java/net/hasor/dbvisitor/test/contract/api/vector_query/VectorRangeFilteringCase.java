@@ -9,23 +9,21 @@ package net.hasor.dbvisitor.test.contract.api.vector_query;
 
 import java.sql.SQLException;
 import java.util.List;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.lambda.core.MetricType;
 import net.hasor.dbvisitor.test.contract.material.model.ProductVectorForPg;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
-
+import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 
 @NxnContract
 public abstract class VectorRangeFilteringCase extends VectorQuerySupport {
+    // 能力归属：向量操作 / 距离范围过滤。
     @Test
-    @Capability(CapabilityId.VECTOR_RANGE_FILTER)
+    @Capability(value = CapabilityId.VECTOR_RANGE_FILTER, column = "vectors/vectors/range-filters")
     public void knn_shouldFilterByVectorRangeAndHonorDisabledPredicate() throws SQLException {
         requiresNxnFeature(FeatureId.KNN);
         int startId = baseId() + 400;
@@ -41,6 +39,7 @@ public abstract class VectorRangeFilteringCase extends VectorQuerySupport {
                     .vectorByL2(ProductVectorForPg::getEmbedding, zero, rangeBound(MetricType.L2, 7.0))//
                     .queryForList();
             assertTrue("L2 range should keep a strict subset", nearRows.size() >= 1 && nearRows.size() < 5);
+            assertVectorIds(nearRows, startId, startId + 1);
             for (ProductVectorForPg row : nearRows) {
                 assertTrue(l2Distance(zero, row.getEmbedding()) < 7.0);
             }
@@ -51,13 +50,27 @@ public abstract class VectorRangeFilteringCase extends VectorQuerySupport {
                     .vectorByL2(false, ProductVectorForPg::getEmbedding, zero, rangeBound(MetricType.L2, 0.001))//
                     .queryForList();
             assertEquals(5, disabledRows.size());
+            assertVectorIds(disabledRows, startId, startId + 1, startId + 2, startId + 3, startId + 4);
+
+            List<ProductVectorForPg> absentVectorRows = lambdaTemplate.query(ProductVectorForPg.class)//
+                    .ge(ProductVectorForPg::getId, startId)//
+                    .le(ProductVectorForPg::getId, startId + 4)//
+                    .vectorByL2(false, ProductVectorForPg::getEmbedding, null, null)//
+                    .vectorByCosine(false, ProductVectorForPg::getEmbedding, null, null)//
+                    .vectorByIP(false, ProductVectorForPg::getEmbedding, null, null)//
+                    .vectorByHamming(false, ProductVectorForPg::getEmbedding, null, null)//
+                    .vectorByJaccard(false, ProductVectorForPg::getEmbedding, null, null)//
+                    .vectorByBM25(false, ProductVectorForPg::getEmbedding, null, null)//
+                    .queryForList();
+            assertVectorIds(absentVectorRows, startId, startId + 1, startId + 2, startId + 3, startId + 4);
         } finally {
             cleanupRange(startId, 5);
         }
     }
 
+    // 能力归属：向量操作 / 距离范围过滤。
     @Test
-    @Capability(CapabilityId.VECTOR_RANGE_METRIC_VARIANTS)
+    @Capability(value = CapabilityId.VECTOR_RANGE_METRIC_VARIANTS, column = "vectors/vectors/range-filters")
     public void knn_shouldFilterVectorRangesForCosineAndInnerProductMetrics() throws SQLException {
         requiresNxnFeature(FeatureId.KNN);
         int cosineId = baseId() + 430;
@@ -74,6 +87,7 @@ public abstract class VectorRangeFilteringCase extends VectorQuerySupport {
                     .vectorByCosine(ProductVectorForPg::getEmbedding, cosineTarget, rangeBound(MetricType.COSINE, 0.1))//
                     .queryForList();
             assertTrue(cosineRows.size() >= 1);
+            assertVectorIds(cosineRows, cosineId);
             for (ProductVectorForPg row : cosineRows) {
                 assertTrue(cosineDistance(cosineTarget, row.getEmbedding()) < 0.1);
             }
@@ -88,6 +102,7 @@ public abstract class VectorRangeFilteringCase extends VectorQuerySupport {
                     .vectorByIP(ProductVectorForPg::getEmbedding, constantVector(1.0f), rangeBound(MetricType.IP, -50.0))//
                     .queryForList();
             assertTrue(ipRows.size() >= 1);
+            assertVectorIds(ipRows, ipId + 1, ipId + 2);
             for (ProductVectorForPg row : ipRows) {
                 assertTrue(ipDistance(constantVector(1.0f), row.getEmbedding()) < -50.0);
             }
@@ -97,8 +112,9 @@ public abstract class VectorRangeFilteringCase extends VectorQuerySupport {
         }
     }
 
+    // 能力归属：向量操作 / 距离范围过滤。
     @Test
-    @Capability(CapabilityId.VECTOR_RANGE_EMPTY_RESULT)
+    @Capability(value = CapabilityId.VECTOR_RANGE_EMPTY_RESULT, column = "vectors/vectors/range-filters")
     public void knn_shouldReturnEmptyListWhenVectorRangeHasNoMatches() throws SQLException {
         requiresNxnFeature(FeatureId.KNN);
         int startId = baseId() + 480;
@@ -115,6 +131,32 @@ public abstract class VectorRangeFilteringCase extends VectorQuerySupport {
             assertEquals(0, rows.size());
         } finally {
             cleanupRange(startId, 2);
+        }
+    }
+
+    // 能力归属：向量操作 / 距离范围过滤。
+    @Test
+    @Capability(value = CapabilityId.VECTOR_RANGE_STRICT_BOUNDARY, column = "vectors/vectors/range-filters")
+    public void knn_shouldExcludeVectorsExactlyOnTheL2RangeThreshold() throws SQLException {
+        requiresNxnFeature(FeatureId.KNN);
+        int startId = baseId() + 650;
+        try {
+            // One nonzero component gives exact distances 0.5, 1.0 and 1.5.
+            insertVector(startId, "RangeInside", sparseVector(0.0f, 0, 0.5f));
+            insertVector(startId + 1, "RangeBoundary", sparseVector(0.0f, 0, 1.0f));
+            insertVector(startId + 2, "RangeOutside", sparseVector(0.0f, 0, 1.5f));
+
+            List<Float> target = constantVector(0.0f);
+            List<ProductVectorForPg> rows = lambdaTemplate.query(ProductVectorForPg.class)//
+                    .ge(ProductVectorForPg::getId, startId)//
+                    .le(ProductVectorForPg::getId, startId + 2)//
+                    .vectorByL2(ProductVectorForPg::getEmbedding, target, rangeBound(MetricType.L2, 1.0))//
+                    .queryForList();
+
+            assertVectorIds(rows, startId);
+            assertVectorEquals(sparseVector(0.0f, 0, 0.5f), rows.get(0).getEmbedding());
+        } finally {
+            cleanupRange(startId, 3);
         }
     }
 

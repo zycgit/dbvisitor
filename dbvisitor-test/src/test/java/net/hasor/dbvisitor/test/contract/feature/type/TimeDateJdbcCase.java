@@ -9,22 +9,19 @@ package net.hasor.dbvisitor.test.contract.feature.type;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.Date;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @NxnContract
 public abstract class TimeDateJdbcCase extends TimeTypeJdbcSupport {
+    // 能力归属：类型处理器 / 日期与时间 / 日期。
     @Test
-    @Capability(CapabilityId.TYPE_TIME_SQL_DATE)
+    @Capability(value = CapabilityId.TYPE_TIME_SQL_DATE, column = "types/dates-and-times/values")
     public void timeSqlDate_shouldRoundTripDateColumn() throws SQLException {
         int id = baseId() + 1;
         LocalDate date = LocalDate.of(2024, 3, 15);
@@ -39,8 +36,9 @@ public abstract class TimeDateJdbcCase extends TimeTypeJdbcSupport {
         assertEquals(date, loadedSql.toLocalDate());
     }
 
+    // 能力归属：类型处理器 / 日期与时间 / 日期。
     @Test
-    @Capability(CapabilityId.TYPE_TIME_LOCAL_DATE)
+    @Capability(value = CapabilityId.TYPE_TIME_LOCAL_DATE, column = "types/dates-and-times/values")
     public void timeLocalDate_shouldRoundTripDateColumn() throws SQLException {
         requiresNxnFeature(FeatureId.TIME_LOCAL_DATE);
         int id = baseId() + 4;

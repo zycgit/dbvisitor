@@ -7,9 +7,9 @@
  */
 package net.hasor.dbvisitor.test.realdb.oracle.api.jdbc;
 
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcJoinQueryCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.OracleProfile;
+import net.hasor.dbvisitor.test.scenario.query.jdbc.JdbcJoinQueryCase;
 
 public class OracleJdbcJoinQueryTest extends JdbcJoinQueryCase {
     @Override

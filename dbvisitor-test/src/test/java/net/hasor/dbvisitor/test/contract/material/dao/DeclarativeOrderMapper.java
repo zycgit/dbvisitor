@@ -30,11 +30,11 @@ public interface DeclarativeOrderMapper {
     List<UserOrder> selectByUserId(@Param("userId") Integer userId);
 
     @Query("""
-        SELECT o.id as orderId, o.order_no as orderNo, o.amount, o.create_time as createTime,
-               u.id as userId, u.name as userName, u.email as userEmail
-        FROM user_order o LEFT JOIN user_info u ON o.user_id = u.id
-        WHERE o.id = #{orderId}
-        """)
+            SELECT o.id as orderId, o.order_no as orderNo, o.amount, o.create_time as createTime,
+                   u.id as userId, u.name as userName, u.email as userEmail
+            FROM user_order o LEFT JOIN user_info u ON o.user_id = u.id
+            WHERE o.id = #{orderId}
+            """)
     UserOrderDTO selectOrderWithUser(@Param("orderId") Integer orderId);
 
     @Update("UPDATE user_order SET amount = #{amount} WHERE id = #{id}")

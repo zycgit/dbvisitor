@@ -7,9 +7,9 @@
  */
 package net.hasor.dbvisitor.test.realdb.pg.api.jdbc;
 
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcJoinQueryCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.PostgreSqlProfile;
+import net.hasor.dbvisitor.test.scenario.query.jdbc.JdbcJoinQueryCase;
 
 public class PostgreSqlJdbcJoinQueryTest extends JdbcJoinQueryCase {
     @Override

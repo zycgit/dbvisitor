@@ -10,13 +10,10 @@ package net.hasor.dbvisitor.test.contract.api.jdbc;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 @NxnContract
@@ -44,8 +41,9 @@ public abstract class JdbcMapQueryCase extends JdbcQuerySupport {
         }
     }
 
+    // 能力归属：编程式 API / 查询。
     @Test
-    @Capability(CapabilityId.JDBC_QUERY_MAP)
+    @Capability(value = CapabilityId.JDBC_QUERY_MAP, column = "jdbc/queries/queries")
     public void jdbcQueryForMap_shouldReturnOneRowAsMap() throws SQLException {
         seedUsers();
 
@@ -54,8 +52,9 @@ public abstract class JdbcMapQueryCase extends JdbcQuerySupport {
         assertMapRow(1, row);
     }
 
+    // 能力归属：编程式 API / 查询。
     @Test
-    @Capability(CapabilityId.JDBC_QUERY_LIST)
+    @Capability(value = CapabilityId.JDBC_QUERY_LIST, column = "jdbc/queries/queries")
     public void jdbcQueryForList_shouldReturnRowsAsMaps() throws SQLException {
         seedUsers();
 

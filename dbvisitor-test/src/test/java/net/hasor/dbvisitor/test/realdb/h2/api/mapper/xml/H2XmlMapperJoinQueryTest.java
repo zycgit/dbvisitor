@@ -7,9 +7,9 @@
  */
 package net.hasor.dbvisitor.test.realdb.h2.api.mapper.xml;
 
-import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperJoinQueryCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.H2Profile;
+import net.hasor.dbvisitor.test.scenario.query.xml.XmlMapperJoinQueryCase;
 
 public class H2XmlMapperJoinQueryTest extends XmlMapperJoinQueryCase {
     @Override

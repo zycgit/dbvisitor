@@ -7,9 +7,9 @@
  */
 package net.hasor.dbvisitor.test.realdb.pg.feature.keygen;
 
-import net.hasor.dbvisitor.test.scenario.ReturningScenario;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.PostgreSqlProfile;
+import net.hasor.dbvisitor.test.scenario.ReturningScenario;
 
 public class PostgreSqlReturningTest extends ReturningScenario {
     @Override

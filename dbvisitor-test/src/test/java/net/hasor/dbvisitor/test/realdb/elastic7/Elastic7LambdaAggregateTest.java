@@ -47,6 +47,16 @@ public class Elastic7LambdaAggregateTest extends LambdaAggregateCase {
     }
 
     @Override
+    protected String countSelect() {
+        return "{\"aggs\": {\"count\": {\"filter\": {\"match_all\": {}}}}}";
+    }
+
+    @Override
+    protected String maxAgeSelect() {
+        return "{\"aggs\": {\"value\": {\"max\": {\"field\": \"age\"}}}}";
+    }
+
+    @Override
     protected void insertByJdbc(int id, String name, Integer age, String email) throws SQLException {
         fixture.insert(id, name, age, email);
     }

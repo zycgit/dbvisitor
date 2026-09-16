@@ -11,11 +11,11 @@ import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
+import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import org.junit.Test;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 public class RedisCommandTest {
     @org.junit.BeforeClass
@@ -32,8 +32,8 @@ public class RedisCommandTest {
             jdbc.execute("set abc Hello");
 
             List<Map<String, Object>> list = jdbc.queryForList("get abc");
-            assertTrue(list.size() == 1);
-            assertTrue(list.get(0).get("VALUE").equals("Hello"));
+            assertEquals(1, list.size());
+            assertEquals("Hello", list.get(0).get("VALUE"));
         }
     }
 }

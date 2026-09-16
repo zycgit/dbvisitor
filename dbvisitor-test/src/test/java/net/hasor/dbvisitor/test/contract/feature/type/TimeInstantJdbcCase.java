@@ -14,22 +14,18 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.util.Date;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class TimeInstantJdbcCase extends TimeTypeJdbcSupport {
+    // 能力归属：类型处理器 / 日期与时间 / 等价时刻。
     @Test
-    @Capability(CapabilityId.TYPE_TIME_LOCAL_DATETIME)
+    @Capability(value = CapabilityId.TYPE_TIME_LOCAL_DATETIME, column = "types/dates-and-times/values")
     public void timeLocalDateTimeAndTimestamp_shouldRoundTripTimestampColumn() throws SQLException {
         requiresNxnFeature(FeatureId.TIME_ZONE_STABLE_ROUND_TRIP);
 
@@ -56,8 +52,9 @@ public abstract class TimeInstantJdbcCase extends TimeTypeJdbcSupport {
         assertTrue(Math.abs(timestamp.getTime() - loadedTimestamp.getTime()) < 1000);
     }
 
+    // 能力归属：类型处理器 / 日期与时间 / 等价时刻。
     @Test
-    @Capability(CapabilityId.TYPE_TIME_INSTANT)
+    @Capability(value = CapabilityId.TYPE_TIME_INSTANT, column = "types/dates-and-times/values")
     public void timeInstantAndUtilDate_shouldRoundTripTimestampColumn() throws SQLException {
         requiresNxnFeature(FeatureId.TIME_ZONE_STABLE_ROUND_TRIP);
 
@@ -78,8 +75,28 @@ public abstract class TimeInstantJdbcCase extends TimeTypeJdbcSupport {
         assertTrue(Math.abs(instant.toEpochMilli() - loadedDate.getTime()) < 1000);
     }
 
+    // 能力归属：类型处理器 / 时间类型 / 原生 Java 时间对象参数，不预先转换成 JDBC 时间类型。
     @Test
-    @Capability(CapabilityId.TYPE_TIME_ZONE_INSTANT)
+    @Capability(value = CapabilityId.TYPE_TIME_JAVA_TIME_PARAMETERS, column = "types/dates-and-times/values")
+    public void timeJavaTimeParameters_shouldRoundTripWithoutCallerSideJdbcConversion() throws SQLException {
+        requiresNxnFeature(FeatureId.TIME_ZONE_STABLE_ROUND_TRIP);
+        int localId = baseId() + 26;
+        int instantId = baseId() + 27;
+        LocalDateTime local = LocalDateTime.of(2024, 3, 15, 14, 30, 45, 123_000_000);
+        Instant instant = Instant.parse("2024-03-15T14:30:45.123Z");
+
+        executeInsert(insertCommand("time_types_explicit_test", "id, timestamp_value"), new Object[] { localId, local });
+        executeInsert(insertCommand("time_types_explicit_test", "id, timestamp_value"), new Object[] { instantId, instant });
+
+        LocalDateTime loadedLocal = jdbcTemplate.queryForObject(selectCommand("time_types_explicit_test", "timestamp_value"), selectParameters(localId), LocalDateTime.class);
+        Instant loadedInstant = jdbcTemplate.queryForObject(selectCommand("time_types_explicit_test", "timestamp_value"), selectParameters(instantId), Instant.class);
+        assertEquals(local, loadedLocal);
+        assertEquals(instant, loadedInstant);
+    }
+
+    // 能力归属：类型处理器 / 日期与时间 / 等价时刻。
+    @Test
+    @Capability(value = CapabilityId.TYPE_TIME_ZONE_INSTANT, column = "types/dates-and-times/values")
     public void timeZoneValues_shouldRoundTripAsEquivalentInstants() throws SQLException {
         requiresNxnFeature(FeatureId.TIME_ZONE_STABLE_ROUND_TRIP);
 

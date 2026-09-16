@@ -7,9 +7,9 @@
  */
 package net.hasor.dbvisitor.test.realdb.h2.feature.transaction;
 
-import net.hasor.dbvisitor.test.scenario.WriteConsistencyScenario;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.H2Profile;
+import net.hasor.dbvisitor.test.scenario.WriteConsistencyScenario;
 
 public class H2WriteConsistencyTest extends WriteConsistencyScenario {
     @Override

@@ -7,9 +7,9 @@
  */
 package net.hasor.dbvisitor.test.realdb.mysql.api.mapper.annotation;
 
-import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperJoinQueryCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MySqlProfile;
+import net.hasor.dbvisitor.test.scenario.query.annotation.AnnotationMapperJoinQueryCase;
 
 public class MySqlAnnotationMapperJoinQueryTest extends AnnotationMapperJoinQueryCase {
     @Override

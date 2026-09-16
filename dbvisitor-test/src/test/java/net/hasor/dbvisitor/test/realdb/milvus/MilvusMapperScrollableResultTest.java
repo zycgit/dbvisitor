@@ -10,7 +10,7 @@ package net.hasor.dbvisitor.test.realdb.milvus;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThrows;
 
 public class MilvusMapperScrollableResultTest extends MilvusMapperResultSqlSupport {
     @Test

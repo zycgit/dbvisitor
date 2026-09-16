@@ -19,7 +19,7 @@ import net.hasor.dbvisitor.test.realdb.milvus.MilvusLambdaResultFixture.ResultUs
 /** Deterministic distance order for the shared pagination assertions. */
 final class MilvusLambdaPageFixture implements AutoCloseable {
     private final MilvusLambdaResultFixture fixture = new MilvusLambdaResultFixture();
-    private Connection connection;
+    private       Connection                connection;
 
     Connection open() throws SQLException {
         this.connection = this.fixture.open();
@@ -27,9 +27,7 @@ final class MilvusLambdaPageFixture implements AutoCloseable {
     }
 
     void insert(int id, String name, Integer age) throws SQLException {
-        new JdbcTemplate(this.connection).executeUpdate(
-                "INSERT INTO user_info (id, name, age, email, create_time, v) VALUES (?, ?, ?, ?, ?, ?)",
-                new Object[] { id, name, age, name + "@nxn.test", new Date(), new float[] { (id - 720000) / 1000F, 0 } });
+        new JdbcTemplate(this.connection).executeUpdate("INSERT INTO user_info (id, name, age, email, create_time, v) VALUES (?, ?, ?, ?, ?, ?)", new Object[] { id, name, age, name + "@nxn.test", new Date(), new float[] { (id - 720000) / 1000F, 0 } });
     }
 
     EntityQuery<? extends UserInfo> query(LambdaTemplate lambda) throws SQLException {

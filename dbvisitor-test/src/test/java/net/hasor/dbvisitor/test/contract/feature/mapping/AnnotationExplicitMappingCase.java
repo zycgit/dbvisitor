@@ -9,9 +9,6 @@ package net.hasor.dbvisitor.test.contract.feature.mapping;
 
 import java.sql.SQLException;
 import java.util.Date;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
@@ -19,15 +16,14 @@ import net.hasor.dbvisitor.test.contract.material.model.annotation.ExplicitMappi
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class AnnotationExplicitMappingCase extends AnnotationMappingPolicySupport {
+    // 能力归属：对象映射 / 映射表 / 字段映射。
     @Test
-    @Capability(CapabilityId.MAPPING_ANNOTATION_AUTO_MAPPING_FALSE)
+    @Capability(value = CapabilityId.MAPPING_ANNOTATION_AUTO_MAPPING_FALSE, column = "mapping-keys/table-mapping/fields")
     public void annotationMapping_shouldMapOnlyAnnotatedColumnsWhenAutoMappingFalse() throws SQLException {
         MappingRegistry registry = new MappingRegistry();
         registry.loadEntityToSpace(ExplicitMappingUser.class, "", "explicit");

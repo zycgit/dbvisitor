@@ -7,8 +7,8 @@
  */
 package net.hasor.dbvisitor.test.nxn.env;
 
-import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
+import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.capability.SupportStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,6 +19,10 @@ public final class OracleProfile extends AbstractDataSourceProfile {
     public SupportStatus support(String capabilityId) {
         // Oracle JDBC exposes schemas, not database catalogs.
         if (CapabilityId.JDBC_METADATA_CATALOGS.equals(capabilityId)) {
+            return SupportStatus.UNSUPPORTED_BY_DRIVER;
+        }
+        // Oracle JDBC setBytes binds a zero-length byte[] as SQL NULL, even for a BLOB column.
+        if (CapabilityId.TYPE_BINARY_EMPTY.equals(capabilityId)) {
             return SupportStatus.UNSUPPORTED_BY_DRIVER;
         }
         return super.support(capabilityId);

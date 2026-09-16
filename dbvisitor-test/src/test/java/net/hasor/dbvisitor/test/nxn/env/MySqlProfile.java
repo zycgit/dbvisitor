@@ -7,11 +7,10 @@
  */
 package net.hasor.dbvisitor.test.nxn.env;
 
-import org.jetbrains.annotations.NotNull;
-
-import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
+import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.capability.SupportStatus;
+import org.jetbrains.annotations.NotNull;
 
 public final class MySqlProfile extends AbstractDataSourceProfile {
     public static final MySqlProfile INSTANCE = new MySqlProfile();

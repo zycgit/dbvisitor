@@ -16,8 +16,8 @@ import net.hasor.dbvisitor.session.Session;
 /** Native statement material for the shared Session and BaseMapper API assertions. */
 final class MilvusStatementFixture implements AutoCloseable {
     private final MilvusDatabaseFixture database = new MilvusDatabaseFixture();
-    private Connection connection;
-    private Session session;
+    private       Connection            connection;
+    private       Session               session;
 
     void open() throws SQLException {
         this.connection = this.database.open();

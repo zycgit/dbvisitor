@@ -8,20 +8,18 @@
 package net.hasor.dbvisitor.test.contract.api.mapper.annotation;
 
 import java.util.Date;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 @NxnContract
 public abstract class AnnotationMapperNamedParameterCase extends AnnotationMapperParameterBindingSupport {
+    // 能力归属：参数传递与规则 / 名称参数 / 方法注解。
     @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_PARAM_NAMED)
+    @Capability(value = CapabilityId.MAPPER_ANNOTATION_PARAM_NAMED, column = "parameters/positional-and-named-parameters/named")
     public void namedParameters_shouldBindByParamAnnotation() throws Exception {
         int fullId = baseId() + 11;
 
@@ -33,8 +31,9 @@ public abstract class AnnotationMapperNamedParameterCase extends AnnotationMappe
         assertEquals("named@nxn.test", full.getEmail());
     }
 
+    // 能力归属：参数传递与规则 / 名称参数 / 方法注解。
     @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_PARAM_REUSE)
+    @Capability(value = CapabilityId.MAPPER_ANNOTATION_PARAM_REUSE, column = "parameters/positional-and-named-parameters/named")
     public void reusedParameter_shouldBindSameValueInMultiplePlaces() throws Exception {
         int id = baseId() + 51;
 
@@ -45,8 +44,9 @@ public abstract class AnnotationMapperNamedParameterCase extends AnnotationMappe
         assertEquals("AnnoReuse", loaded.getEmail());
     }
 
+    // 能力归属：参数传递与规则 / 名称参数 / 方法注解。
     @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_PARAM_MANY)
+    @Capability(value = CapabilityId.MAPPER_ANNOTATION_PARAM_MANY, column = "parameters/positional-and-named-parameters/named")
     public void manyParameters_shouldBindReferencedParamsAndIgnoreExtraParams() throws Exception {
         int id = baseId() + 61;
 

@@ -8,8 +8,8 @@
 package net.hasor.dbvisitor.test.realdb.clickhouse.api.mapper.basemapper;
 
 import net.hasor.dbvisitor.test.contract.api.mapper.basemapper.BaseMapperStatementResultCase;
-import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 
 public class ClickHouseBaseMapperStatementResultTest extends BaseMapperStatementResultCase {
     @Override

@@ -20,9 +20,9 @@ import org.junit.Before;
 
 /** Document stores use isolated collections and the same public result-conversion assertions. */
 public abstract class NativeLambdaResultValueSupport extends LambdaResultValueCase {
-    protected final String collection = "nxn_result_" + UUID.randomUUID().toString().replace("-", "");
-    private final NativeLambdaResultFixture fixture = new NativeLambdaResultFixture();
-    private Connection connection;
+    protected final String                    collection = "nxn_result_" + UUID.randomUUID().toString().replace("-", "");
+    private final   NativeLambdaResultFixture fixture    = new NativeLambdaResultFixture();
+    private         Connection                connection;
 
     @Override
     @Before

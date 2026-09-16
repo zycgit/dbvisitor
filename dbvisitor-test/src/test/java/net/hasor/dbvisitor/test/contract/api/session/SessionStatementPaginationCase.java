@@ -8,23 +8,21 @@
 package net.hasor.dbvisitor.test.contract.api.session;
 
 import java.util.List;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.page.PageObject;
 import net.hasor.dbvisitor.page.PageResult;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @NxnContract
 public abstract class SessionStatementPaginationCase extends SessionStatementSupport {
+    // 能力归属：Mapper 文件 / 分页查询。
     @Test
-    @Capability(CapabilityId.SESSION_STATEMENT_QUERY_PAGE)
+    @Capability(value = CapabilityId.SESSION_STATEMENT_QUERY_PAGE, column = "mapper-files/pagination/file-pagination")
     public void sessionStatement_shouldApplyPageObjectToQueryStatement() throws Exception {
         for (int i = 1; i <= 10; i++) {
             insertUser(baseId() + 100 + i, "StmtPage" + i, 20 + i, "page" + i + "@nxn.test");
@@ -45,8 +43,9 @@ public abstract class SessionStatementPaginationCase extends SessionStatementSup
         assertTrue(beyondPage.isEmpty());
     }
 
+    // 能力归属：Mapper 文件 / 分页查询。
     @Test
-    @Capability(CapabilityId.SESSION_STATEMENT_PAGE_RESULT)
+    @Capability(value = CapabilityId.SESSION_STATEMENT_PAGE_RESULT, column = "mapper-files/pagination/file-pagination")
     public void sessionStatement_shouldReturnPageResultWithTotalCount() throws Exception {
         for (int i = 1; i <= 6; i++) {
             insertUser(baseId() + 200 + i, "StmtPageResult" + i, 35, "pageres" + i + "@nxn.test");

@@ -7,7 +7,7 @@
  */
 package net.hasor.dbvisitor.test.realdb.pg.api.jdbc;
 
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcArgumentSourceParameterCase;
+import net.hasor.dbvisitor.test.contract.feature.parameter.JdbcArgumentSourceParameterCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.PostgreSqlProfile;
 

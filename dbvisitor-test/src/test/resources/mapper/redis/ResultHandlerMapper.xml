@@ -10,8 +10,10 @@
     <select id="selectByResultType" resultType="net.hasor.dbvisitor.test.realdb.redis.api.jdbc.RedisJdbcFixture$ScoredMember"><include refid="members"/></select>
     <select id="selectByResultTypeMap" resultType="java.util.Map"><include refid="members"/></select>
     <select id="selectByResultMap" resultMap="member"><include refid="members"/></select>
-    <select id="selectByColumnMapRowMapper" resultRowMapper="net.hasor.dbvisitor.jdbc.mapper.ColumnMapRowMapper"><include refid="members"/></select>
-    <select id="selectByColumnMapExtractor" resultSetExtractor="net.hasor.dbvisitor.jdbc.extractor.ColumnMapResultSetExtractor"><include refid="members"/></select>
+    <select id="selectByColumnMapRowMapper" resultRowMapper="net.hasor.dbvisitor.test.contract.material.handler.ResultHandlerProbe$ColumnMapMapper"><include refid="members"/></select>
+
+    <select id="selectByRowCallback" resultRowCallback="net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperResultHandlerCase$CountingCallback"><include refid="members"/></select>
+    <select id="selectByColumnMapExtractor" resultSetExtractor="net.hasor.dbvisitor.test.contract.material.handler.ResultHandlerProbe$ColumnMapExtractor"><include refid="members"/></select>
     <select id="selectIdNamePairs" resultSetExtractor="net.hasor.dbvisitor.jdbc.extractor.PairsResultSetExtractor"><include refid="members"/></select>
     <select id="countByResultType" resultType="java.lang.Integer">ZCARD @{macro, redisAges}</select>
     <select id="countByResultTypeLong" resultType="java.lang.Long">ZCARD @{macro, redisAges}</select>

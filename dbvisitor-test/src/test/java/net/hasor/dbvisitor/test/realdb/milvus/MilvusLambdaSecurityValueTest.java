@@ -25,6 +25,12 @@ public class MilvusLambdaSecurityValueTest extends LambdaSecurityValueCase {
     }
 
     @Override
+    protected String rawTruePredicate() {
+        // Every entity has a primary key; use a native field predicate, not SQL's 1=1.
+        return "id IS NOT NULL";
+    }
+
+    @Override
     @Before
     public void setup() throws SQLException {
         this.jdbcTemplate = new JdbcTemplate(this.fixture.open());

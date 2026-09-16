@@ -9,24 +9,20 @@ package net.hasor.dbvisitor.test.contract.feature.keygen;
 
 import java.sql.SQLException;
 import java.util.Date;
-
-import org.junit.Test;
-
-import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyNoneUser;
 import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyNoneStrictUser;
+import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyNoneUser;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class AssignedKeyCase extends KeyGenerationSupport {
+    // 能力归属：对象映射 / 主键策略 / 手工主键。
     @Test
-    @Capability(CapabilityId.KEYGEN_NONE_MANUAL)
+    @Capability(value = CapabilityId.KEYGEN_NONE_MANUAL, column = "mapping-keys/key-generators/strategies")
     public void keygenNone_shouldUseManuallyAssignedPrimaryKey() throws SQLException {
         ensureStrictNoneTable();
 
@@ -44,8 +40,9 @@ public abstract class AssignedKeyCase extends KeyGenerationSupport {
         assertEquals(Integer.valueOf(1), count);
     }
 
+    // 能力归属：对象映射 / 主键策略 / 手工主键。
     @Test
-    @Capability(CapabilityId.KEYGEN_NONE_MISSING)
+    @Capability(value = CapabilityId.KEYGEN_NONE_MISSING, column = "mapping-keys/key-generators/strategies")
     public void keygenNone_shouldRejectMissingPrimaryKeyOnStrictTable() throws SQLException {
         requiresNxnFeature(FeatureId.NON_NULL_PRIMARY_KEY_REJECTED);
 
@@ -64,8 +61,9 @@ public abstract class AssignedKeyCase extends KeyGenerationSupport {
         }
     }
 
+    // 能力归属：对象映射 / 主键策略 / 手工主键。
     @Test
-    @Capability(CapabilityId.KEYGEN_DUPLICATE_KEY)
+    @Capability(value = CapabilityId.KEYGEN_DUPLICATE_KEY, column = "mapping-keys/key-generators/strategies")
     public void keygenNone_shouldPropagateDuplicatePrimaryKeyError() throws SQLException {
         requiresNxnFeature(FeatureId.DUPLICATE_PRIMARY_KEY_REJECTED);
 
@@ -80,7 +78,14 @@ public abstract class AssignedKeyCase extends KeyGenerationSupport {
         } catch (Exception e) {
             assertTrue(e.getMessage(), isDuplicateKeyMessage(e));
         }
+        KeyNoneUser stored = lambdaTemplate.query(KeyNoneUser.class)//
+                .eq(KeyNoneUser::getId, 66666)//
+                .queryForObject();
+        assertNotNull(stored);
+        assertEquals("Duplicate User 1", stored.getName());
+        assertEquals(Integer.valueOf(30), stored.getAge());
     }
+
     protected Integer countStrictKey(int id) throws SQLException {
         return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM user_strict_none WHERE id = ?", new Object[] { id }, Integer.class);
     }

@@ -9,6 +9,7 @@ package net.hasor.dbvisitor.test.realdb.milvus;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapper.Param;
 import net.hasor.dbvisitor.mapper.Query;
@@ -20,6 +21,7 @@ import net.hasor.dbvisitor.test.contract.material.dao.declarative.ResultHandlerM
 import net.hasor.dbvisitor.test.contract.material.handler.CustomResultSetExtractor;
 import net.hasor.dbvisitor.test.contract.material.handler.CustomRowMapper;
 import net.hasor.dbvisitor.test.contract.material.handler.RecordingRowCallbackHandler;
+import net.hasor.dbvisitor.test.contract.material.handler.UserNameMapExtractor;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
@@ -28,7 +30,7 @@ import org.junit.Before;
 
 public class MilvusAnnotationMapperResultHandlerTest extends AnnotationMapperResultHandlerCase {
     private final MilvusUserInfoFixture fixture = new MilvusUserInfoFixture();
-    private Session session;
+    private       Session               session;
 
     @Override
     protected DataSourceProfile profile() {
@@ -76,6 +78,10 @@ public class MilvusAnnotationMapperResultHandlerTest extends AnnotationMapperRes
         @Override
         @Query(value = "SELECT * FROM user_info WHERE name >= #{pattern} AND name < 'AnnoHandles'", resultSetExtractor = CustomResultSetExtractor.class)
         List<UserInfo> selectWithExtractor(@Param("pattern") String pattern);
+
+        @Override
+        @Query(value = "SELECT * FROM user_info WHERE name >= #{pattern} AND name < 'AnnoHandles'", resultSetExtractor = UserNameMapExtractor.class)
+        Map<Integer, String> selectMapWithExtractor(@Param("pattern") String pattern);
 
         @Override
         @Query(value = "SELECT * FROM user_info WHERE name >= #{pattern} AND name < 'AnnoHandles'", resultSetExtractor = CustomResultSetExtractor.class, fetchSize = 1, timeout = 30)

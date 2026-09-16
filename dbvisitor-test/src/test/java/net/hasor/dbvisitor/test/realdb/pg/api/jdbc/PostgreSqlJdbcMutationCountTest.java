@@ -9,15 +9,14 @@ package net.hasor.dbvisitor.test.realdb.pg.api.jdbc;
 
 import java.sql.SQLException;
 import java.util.Date;
-import org.junit.Test;
+import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcMutationCountCase;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
-import static org.junit.Assert.assertEquals;
-
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcMutationCountCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.PostgreSqlProfile;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 public class PostgreSqlJdbcMutationCountTest extends JdbcMutationCountCase {
     @Test
@@ -28,9 +27,9 @@ public class PostgreSqlJdbcMutationCountTest extends JdbcMutationCountCase {
         int firstId = baseId() + 20;
         int secondId = baseId() + 21;
         String upsertSql = """
-            INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, ?)
-            ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, age = EXCLUDED.age, email = EXCLUDED.email
-            """;
+                INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, ?)
+                ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, age = EXCLUDED.age, email = EXCLUDED.email
+                """;
         jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, ?)", //
                 new Object[] { firstId, "NXN-JDBC-Upsert-Original", 25, "nxn-upsert-original@test.com", new Date() });
 

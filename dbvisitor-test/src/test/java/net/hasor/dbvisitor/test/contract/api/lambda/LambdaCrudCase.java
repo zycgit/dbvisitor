@@ -8,22 +8,20 @@
 package net.hasor.dbvisitor.test.contract.api.lambda;
 
 import java.sql.SQLException;
-
-import org.junit.Test;
-
-import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcCrudCommand;
+import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @NxnContract
 public abstract class LambdaCrudCase extends LambdaCrudSupport {
+    // 能力归属：构造器 API / 写入操作。
     @Test
-    @Capability(CapabilityId.LAMBDA_ENTITY_CRUD_INSERT)
+    @Capability(value = CapabilityId.LAMBDA_ENTITY_CRUD_INSERT, column = "builder/inserts-updates-and-deletes/writes")
     public void lambdaEntityInsert_shouldPersistOneUser() throws SQLException {
         int id = baseId() + 1;
         int rows = lambdaTemplate.insert(UserInfo.class)//
@@ -35,8 +33,9 @@ public abstract class LambdaCrudCase extends LambdaCrudSupport {
 
     }
 
+    // 能力归属：构造器 API / 查询操作。
     @Test
-    @Capability(CapabilityId.LAMBDA_ENTITY_CRUD_QUERY)
+    @Capability(value = CapabilityId.LAMBDA_ENTITY_CRUD_QUERY, column = "builder/queries/query")
     public void lambdaEntityQuery_shouldReadUserById() throws SQLException {
         int id = baseId() + 2;
         insertByJdbc(id, "NXN-Lambda-Entity-Query", 42, "nxn-lambda-entity-query@test.com");
@@ -51,8 +50,9 @@ public abstract class LambdaCrudCase extends LambdaCrudSupport {
         assertEquals(Integer.valueOf(42), loaded.getAge());
     }
 
+    // 能力归属：构造器 API / 写入操作。
     @Test
-    @Capability(CapabilityId.LAMBDA_ENTITY_CRUD_UPDATE)
+    @Capability(value = CapabilityId.LAMBDA_ENTITY_CRUD_UPDATE, column = "builder/inserts-updates-and-deletes/writes")
     public void lambdaEntityUpdate_shouldChangeUser() throws SQLException {
         int id = baseId() + 3;
         insertByJdbc(id, "NXN-Lambda-Entity-Update", 43, "nxn-lambda-entity-update@test.com");
@@ -66,8 +66,9 @@ public abstract class LambdaCrudCase extends LambdaCrudSupport {
         assertEquals("44", storedValue(JdbcCrudCommand.SELECT_AGE, "age", id));
     }
 
+    // 能力归属：构造器 API / 写入操作。
     @Test
-    @Capability(CapabilityId.LAMBDA_ENTITY_CRUD_DELETE)
+    @Capability(value = CapabilityId.LAMBDA_ENTITY_CRUD_DELETE, column = "builder/inserts-updates-and-deletes/writes")
     public void lambdaEntityDelete_shouldRemoveUser() throws SQLException {
         int id = baseId() + 4;
         insertByJdbc(id, "NXN-Lambda-Entity-Delete", 45, "nxn-lambda-entity-delete@test.com");

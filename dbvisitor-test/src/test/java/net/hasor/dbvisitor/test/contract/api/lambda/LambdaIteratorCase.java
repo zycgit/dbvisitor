@@ -12,21 +12,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.lambda.EntityQuery;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class LambdaIteratorCase extends AbstractNxnContractTest {
@@ -34,8 +27,9 @@ public abstract class LambdaIteratorCase extends AbstractNxnContractTest {
         return 700000;
     }
 
+    // 能力归属：构造器 API / 分页查询。
     @Test
-    @Capability(CapabilityId.LAMBDA_ITERATOR_LIMIT_BATCH)
+    @Capability(value = CapabilityId.LAMBDA_ITERATOR_LIMIT_BATCH, column = "builder/pagination-and-iteration/pagination")
     public void lambdaIteratorForLimit_shouldIterateLimitedRowsByBatch() throws SQLException {
         seedUsers(baseId() + 1, "NXN-Iter-Limit-", 100, 20);
 
@@ -49,8 +43,9 @@ public abstract class LambdaIteratorCase extends AbstractNxnContractTest {
         assertEquals(Integer.valueOf(baseId() + 50), ids.get(49));
     }
 
+    // 能力归属：构造器 API / 分页查询。
     @Test
-    @Capability(CapabilityId.LAMBDA_ITERATOR_ALL)
+    @Capability(value = CapabilityId.LAMBDA_ITERATOR_ALL, column = "builder/pagination-and-iteration/pagination")
     public void lambdaIteratorForLimit_shouldIterateAllRowsWhenLimitIsNegative() throws SQLException {
         seedUsers(baseId() + 201, "NXN-Iter-All-", 30, 25);
 
@@ -60,8 +55,9 @@ public abstract class LambdaIteratorCase extends AbstractNxnContractTest {
         assertEquals(30, count(iterator));
     }
 
+    // 能力归属：构造器 API / 分页查询。
     @Test
-    @Capability(CapabilityId.LAMBDA_ITERATOR_BATCH)
+    @Capability(value = CapabilityId.LAMBDA_ITERATOR_BATCH, column = "builder/pagination-and-iteration/pagination")
     public void lambdaIteratorByBatch_shouldIterateAllRowsUsingBatchSize() throws SQLException {
         seedUsers(baseId() + 301, "NXN-Iter-Batch-", 20, 30);
 
@@ -71,8 +67,9 @@ public abstract class LambdaIteratorCase extends AbstractNxnContractTest {
         assertEquals(20, count(iterator));
     }
 
+    // 能力归属：构造器 API / 分页查询。
     @Test
-    @Capability(CapabilityId.LAMBDA_ITERATOR_CONDITION)
+    @Capability(value = CapabilityId.LAMBDA_ITERATOR_CONDITION, column = "builder/pagination-and-iteration/pagination")
     public void lambdaIterator_shouldRespectQueryConditions() throws SQLException {
         for (int i = 1; i <= 50; i++) {
             insertUser(baseId() + 400 + i, "NXN-Iter-Cond-" + i, 20 + (i % 5));
@@ -91,8 +88,9 @@ public abstract class LambdaIteratorCase extends AbstractNxnContractTest {
         assertEquals(20, count);
     }
 
+    // 能力归属：构造器 API / 分页查询。
     @Test
-    @Capability(CapabilityId.LAMBDA_ITERATOR_TRANSFORM)
+    @Capability(value = CapabilityId.LAMBDA_ITERATOR_TRANSFORM, column = "builder/pagination-and-iteration/pagination")
     public void lambdaIterator_shouldTransformRows() throws SQLException {
         seedUsers(baseId() + 501, "NXN-Iter-Transform-", 20, 35);
 
@@ -110,8 +108,9 @@ public abstract class LambdaIteratorCase extends AbstractNxnContractTest {
         assertEquals(20, count);
     }
 
+    // 能力归属：构造器 API / 分页查询。
     @Test
-    @Capability(CapabilityId.LAMBDA_ITERATOR_EMPTY)
+    @Capability(value = CapabilityId.LAMBDA_ITERATOR_EMPTY, column = "builder/pagination-and-iteration/pagination")
     public void lambdaIterator_shouldHandleEmptyResults() throws SQLException {
         Iterator<? extends UserInfo> iterator = queryUsers("NXN-Iter-None-%")//
                 .iteratorForLimit(-1, 10);
@@ -126,8 +125,9 @@ public abstract class LambdaIteratorCase extends AbstractNxnContractTest {
         }
     }
 
+    // 能力归属：构造器 API / 分页查询。
     @Test
-    @Capability(CapabilityId.LAMBDA_ITERATOR_EARLY_BREAK)
+    @Capability(value = CapabilityId.LAMBDA_ITERATOR_EARLY_BREAK, column = "builder/pagination-and-iteration/pagination")
     public void lambdaIterator_shouldAllowConsumersToStopBeforeExhaustion() throws SQLException {
         seedUsers(baseId() + 701, "NXN-Iter-Break-", 50, 25);
 
@@ -144,8 +144,9 @@ public abstract class LambdaIteratorCase extends AbstractNxnContractTest {
         assertTrue(iterator.hasNext());
     }
 
+    // 能力归属：构造器 API / 分页查询。
     @Test
-    @Capability(CapabilityId.LAMBDA_ITERATOR_LARGE_BATCH)
+    @Capability(value = CapabilityId.LAMBDA_ITERATOR_LARGE_BATCH, column = "builder/pagination-and-iteration/pagination")
     public void lambdaIterator_shouldTraverseLargeBatchResultSets() throws SQLException {
         seedUsers(baseId() + 801, "NXN-Iter-Large-", 500, 25);
 

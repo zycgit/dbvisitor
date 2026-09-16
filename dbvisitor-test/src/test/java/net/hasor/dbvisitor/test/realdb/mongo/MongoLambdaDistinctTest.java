@@ -46,13 +46,16 @@ public class MongoLambdaDistinctTest extends LambdaDistinctCase {
         if ("age".equals(columns)) {
             return "[{$group: {_id: '$age'}}, {$project: {_id: 0, age: '$_id'}}]";
         }
-        return "[{$group: {_id: {age: '$age', email: '$email'}}},"
-                + " {$project: {_id: 0, age: '$_id.age', email: '$_id.email'}}]";
+        return "[{$group: {_id: {age: '$age', email: '$email'}}}," + " {$project: {_id: 0, age: '$_id.age', email: '$_id.email'}}]";
     }
 
     @Override
     protected String distinctCountSelect() {
-        return "[{$group: {_id: '$age'}}, {$group: {_id: null, distinct_count: {$sum: 1}}},"
-                + " {$project: {_id: 0, distinct_count: 1}}]";
+        return "[{$group: {_id: '$age'}}, {$group: {_id: null, distinct_count: {$sum: 1}}}," + " {$project: {_id: 0, distinct_count: 1}}]";
+    }
+
+    @Override
+    protected String distinctSelect() {
+        return "[{$group: {_id: '$id'}}, {$project: {_id: 0, id: '$_id'}}]";
     }
 }

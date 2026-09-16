@@ -7,9 +7,9 @@
  */
 package net.hasor.dbvisitor.test.realdb.h2.api.session;
 
-import net.hasor.dbvisitor.test.contract.api.session.SessionMapperJoinQueryCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.H2Profile;
+import net.hasor.dbvisitor.test.scenario.query.session.SessionMapperJoinQueryCase;
 
 public class H2SessionMapperJoinQueryTest extends SessionMapperJoinQueryCase {
     @Override

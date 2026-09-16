@@ -79,8 +79,7 @@ public class MilvusSchemaChangesSqlTest extends MilvusSqlContractSupport {
     public void addedField_shouldPreserveOldEntityAndApplyDefault() throws SQLException {
         prepareRow();
         this.jdbcTemplate.execute("ALTER TABLE " + this.collection + " ADD COLUMN priority INT64 NULL DEFAULT 7");
-        try (Statement statement = this.connection.createStatement();
-             ResultSet result = statement.executeQuery("SELECT id, name, priority FROM " + this.collection + " WHERE id = 1")) {
+        try (Statement statement = this.connection.createStatement(); ResultSet result = statement.executeQuery("SELECT id, name, priority FROM " + this.collection + " WHERE id = 1")) {
             assertTrue(result.next());
             assertEquals("before", result.getString("name"));
             assertEquals(7L, result.getLong("priority"));

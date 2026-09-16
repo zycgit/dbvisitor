@@ -9,25 +9,28 @@ package net.hasor.dbvisitor.test.realdb.elastic7;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import com.zaxxer.hikari.HikariDataSource;
 import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.test.contract.api.session.SessionCoreCase;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.contract.material.model.UserOrder;
 import net.hasor.dbvisitor.test.contract.material.model.UserRole;
-import com.zaxxer.hikari.HikariDataSource;
-import net.hasor.dbvisitor.test.nxn.env.*;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
 import net.hasor.dbvisitor.test.realdb.elastic7.material.ElasticMatrixFixture;
 import org.junit.After;
 import org.junit.Before;
 
 public class Elastic7SessionCoreTest extends SessionCoreCase {
-    private final ElasticMatrixFixture users = new ElasticMatrixFixture();
+    private final ElasticMatrixFixture users  = new ElasticMatrixFixture();
     private final ElasticMatrixFixture orders = new ElasticMatrixFixture();
-    private final ElasticMatrixFixture roles = new ElasticMatrixFixture();
+    private final ElasticMatrixFixture roles  = new ElasticMatrixFixture();
 
     @Override
-    protected DataSourceProfile profile() { return Elastic7Profile.INSTANCE; }
+    protected DataSourceProfile profile() {
+        return Elastic7Profile.INSTANCE;
+    }
 
     @Override
     @Before
@@ -35,7 +38,7 @@ public class Elastic7SessionCoreTest extends SessionCoreCase {
         this.jdbcTemplate = users.open(profile().env());
         orders.open(profile().env());
         roles.open(profile().env());
-        this.dataSource = Elastic7SessionDataSource.open(profile().env());
+        dataSource = Elastic7SessionDataSource.open(profile().env());
     }
 
     @Override

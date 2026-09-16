@@ -10,22 +10,18 @@ package net.hasor.dbvisitor.test.contract.api.mapper.xml;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class XmlMapperCrudCase extends XmlMapperCrudSupport {
+    // 能力归属：Mapper 文件 / 命令执行。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_CRUD_INSERT)
+    @Capability(value = CapabilityId.MAPPER_XML_CRUD_INSERT, column = "mapper-files/statements/execution")
     public void xmlMapperInsert_shouldInsertAndReadStoredEntity() throws Exception {
         Map<String, Object> params = new HashMap<>();
         params.put("id", baseId() + 10);
@@ -41,8 +37,9 @@ public abstract class XmlMapperCrudCase extends XmlMapperCrudSupport {
         assertEquals("XmlCrudInsert", list.get(0).getName());
     }
 
+    // 能力归属：Mapper 文件 / 命令执行。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_CRUD_SELECT)
+    @Capability(value = CapabilityId.MAPPER_XML_CRUD_SELECT, column = "mapper-files/statements/execution")
     public void xmlMapperSelect_shouldReturnStoredEntityAndMissingResult() throws Exception {
         List<UserInfo> list = this.session.queryStatement("xmltest.CrudMapper.selectById", mapOf("id", baseId() + 1));
         List<UserInfo> missing = this.session.queryStatement("xmltest.CrudMapper.selectById", mapOf("id", baseId() + 999));
@@ -57,8 +54,9 @@ public abstract class XmlMapperCrudCase extends XmlMapperCrudSupport {
         assertTrue(missing.isEmpty());
     }
 
+    // 能力归属：Mapper 文件 / 命令执行。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_CRUD_UPDATE)
+    @Capability(value = CapabilityId.MAPPER_XML_CRUD_UPDATE, column = "mapper-files/statements/execution")
     public void xmlMapperUpdate_shouldUpdateSelectedRow() throws Exception {
         Map<String, Object> params = mapOf("id", baseId() + 2);
         params.put("email", "updated@test.com");
@@ -70,8 +68,9 @@ public abstract class XmlMapperCrudCase extends XmlMapperCrudSupport {
         assertEquals("updated@test.com", list.get(0).getEmail());
     }
 
+    // 能力归属：Mapper 文件 / 命令执行。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_CRUD_DELETE)
+    @Capability(value = CapabilityId.MAPPER_XML_CRUD_DELETE, column = "mapper-files/statements/execution")
     public void xmlMapperDelete_shouldRemoveSelectedRow() throws Exception {
         Object result = this.session.executeStatement("xmltest.CrudMapper.deleteById", mapOf("id", baseId() + 3));
         assertEquals(1, ((Number) result).intValue());

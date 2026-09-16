@@ -9,9 +9,6 @@ package net.hasor.dbvisitor.test.contract.feature.mapping;
 
 import java.sql.SQLException;
 import java.util.Date;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.contract.material.model.annotation.IgnoreOnMethodUser;
 import net.hasor.dbvisitor.test.contract.material.model.annotation.IgnoreWithColumnUser;
@@ -20,15 +17,14 @@ import net.hasor.dbvisitor.test.contract.material.model.annotation.MultipleIgnor
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class AnnotationIgnoredFieldCase extends AnnotationMappingPolicySupport {
+    // 能力归属：对象映射 / 映射表 / 忽略字段。
     @Test
-    @Capability(CapabilityId.MAPPING_ANNOTATION_IGNORE_LIFECYCLE)
+    @Capability(value = CapabilityId.MAPPING_ANNOTATION_IGNORE_LIFECYCLE, column = "mapping-keys/table-mapping/fields")
     public void annotationMapping_shouldExcludeIgnoredFieldFromInsertSelectAndUpdate() throws SQLException {
         IgnoredEmailUser user = new IgnoredEmailUser();
         user.setId(baseId() + 31);
@@ -57,8 +53,9 @@ public abstract class AnnotationIgnoredFieldCase extends AnnotationMappingPolicy
         assertEquals("db-ignore@nxn.test", raw.getEmail());
     }
 
+    // 能力归属：对象映射 / 映射表 / 忽略字段。
     @Test
-    @Capability(CapabilityId.MAPPING_ANNOTATION_IGNORE_MULTIPLE_FIELDS)
+    @Capability(value = CapabilityId.MAPPING_ANNOTATION_IGNORE_MULTIPLE_FIELDS, column = "mapping-keys/table-mapping/fields")
     public void annotationMapping_shouldExcludeMultipleIgnoredFields() throws SQLException {
         MultipleIgnoreUser user = new MultipleIgnoreUser();
         user.setId(baseId() + 32);
@@ -75,8 +72,9 @@ public abstract class AnnotationIgnoredFieldCase extends AnnotationMappingPolicy
         assertNull(raw.getEmail());
     }
 
+    // 能力归属：对象映射 / 映射表 / 忽略字段。
     @Test
-    @Capability(CapabilityId.MAPPING_ANNOTATION_IGNORE_OVERRIDES_COLUMN)
+    @Capability(value = CapabilityId.MAPPING_ANNOTATION_IGNORE_OVERRIDES_COLUMN, column = "mapping-keys/table-mapping/fields")
     public void annotationMapping_shouldLetIgnoreOverrideColumnAnnotation() throws SQLException {
         IgnoreWithColumnUser user = new IgnoreWithColumnUser();
         user.setId(baseId() + 33);
@@ -92,8 +90,9 @@ public abstract class AnnotationIgnoredFieldCase extends AnnotationMappingPolicy
         assertNull(raw.getEmail());
     }
 
+    // 能力归属：对象映射 / 映射表 / 忽略字段。
     @Test
-    @Capability(CapabilityId.MAPPING_ANNOTATION_IGNORE_ON_METHOD)
+    @Capability(value = CapabilityId.MAPPING_ANNOTATION_IGNORE_ON_METHOD, column = "mapping-keys/table-mapping/fields")
     public void annotationMapping_shouldHonorIgnoreOnGetterMethod() throws SQLException {
         IgnoreOnMethodUser user = new IgnoreOnMethodUser();
         user.setId(baseId() + 34);

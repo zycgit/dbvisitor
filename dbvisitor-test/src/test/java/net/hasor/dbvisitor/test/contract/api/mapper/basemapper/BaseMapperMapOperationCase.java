@@ -8,26 +8,16 @@
 package net.hasor.dbvisitor.test.contract.api.mapper.basemapper;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.Before;
-import org.junit.Test;
-
+import java.util.*;
 import net.hasor.dbvisitor.mapper.BaseMapper;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class BaseMapperMapOperationCase extends AbstractNxnContractTest {
@@ -42,8 +32,9 @@ public abstract class BaseMapperMapOperationCase extends AbstractNxnContractTest
         return 917000;
     }
 
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_UPDATE_BY_MAP)
+    @Capability(value = CapabilityId.BASEMAPPER_UPDATE_BY_MAP, column = "mapper/base-mapper/operations")
     public void baseMapperUpdateByMap_shouldUpdateMapFields() {
         this.mapper.insert(user(baseId() + 91, "BaseMapUpdate", 91, "map@basemapper.com"));
 
@@ -61,8 +52,9 @@ public abstract class BaseMapperMapOperationCase extends AbstractNxnContractTest
         assertEquals("map@basemapper.com", loaded.getEmail());
     }
 
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_UPDATE_BY_MAP_IGNORE_NULLS)
+    @Capability(value = CapabilityId.BASEMAPPER_UPDATE_BY_MAP_IGNORE_NULLS, column = "mapper/base-mapper/operations")
     public void updateByMap_shouldIgnoreNullFieldsAndUpdateNonNullValues() {
         this.mapper.insert(user(baseId() + 1, "MapUpdate", 25, "before-map-update@test.com"));
 
@@ -77,8 +69,9 @@ public abstract class BaseMapperMapOperationCase extends AbstractNxnContractTest
         assertEquals("before-map-update@test.com", loaded.getEmail());
     }
 
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_REPLACE_BY_MAP)
+    @Capability(value = CapabilityId.BASEMAPPER_REPLACE_BY_MAP, column = "mapper/base-mapper/operations")
     public void replaceByMap_shouldWriteNullFields() {
         this.mapper.insert(user(baseId() + 11, "MapReplace", 28, "before-map-replace@test.com"));
 
@@ -93,8 +86,9 @@ public abstract class BaseMapperMapOperationCase extends AbstractNxnContractTest
         assertNull(loaded.getEmail());
     }
 
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_UPSERT_BY_MAP_INSERT)
+    @Capability(value = CapabilityId.BASEMAPPER_UPSERT_BY_MAP_INSERT, column = "mapper/base-mapper/operations")
     public void upsertByMap_shouldInsertWhenPrimaryKeyDoesNotExist() {
         Map<String, Object> upsert = mapOf("id", baseId() + 21, "name", "MapUpsertInsert", "age", 32, "email", "upsert-insert@test.com");
 
@@ -108,8 +102,9 @@ public abstract class BaseMapperMapOperationCase extends AbstractNxnContractTest
         assertEquals("upsert-insert@test.com", loaded.getEmail());
     }
 
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_UPSERT_BY_MAP_UPDATE)
+    @Capability(value = CapabilityId.BASEMAPPER_UPSERT_BY_MAP_UPDATE, column = "mapper/base-mapper/operations")
     public void upsertByMap_shouldUpdateWhenPrimaryKeyExists() {
         this.mapper.insert(user(baseId() + 31, "MapUpsertBefore", 35, "before-upsert@test.com"));
 
@@ -124,8 +119,9 @@ public abstract class BaseMapperMapOperationCase extends AbstractNxnContractTest
         assertEquals("after-upsert@test.com", loaded.getEmail());
     }
 
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_DELETE_BY_MAP)
+    @Capability(value = CapabilityId.BASEMAPPER_DELETE_BY_MAP, column = "mapper/base-mapper/operations")
     public void deleteByMap_shouldDeleteByPrimaryKey() {
         this.mapper.insert(user(baseId() + 41, "MapDelete", 41, null));
 
@@ -135,8 +131,9 @@ public abstract class BaseMapperMapOperationCase extends AbstractNxnContractTest
         assertNull(this.mapper.selectById(baseId() + 41));
     }
 
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_DELETE_LIST_BY_MAP)
+    @Capability(value = CapabilityId.BASEMAPPER_DELETE_LIST_BY_MAP, column = "mapper/base-mapper/operations")
     public void deleteListByMap_shouldDeleteEachPrimaryKeyMap() {
         for (int i = 1; i <= 5; i++) {
             this.mapper.insert(user(baseId() + 50 + i, "MapBatchDelete" + i, 50 + i, null));
@@ -156,8 +153,9 @@ public abstract class BaseMapperMapOperationCase extends AbstractNxnContractTest
         assertNotNull(this.mapper.selectById(baseId() + 55));
     }
 
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_MAP_MISSING_PRIMARY_KEY)
+    @Capability(value = CapabilityId.BASEMAPPER_MAP_MISSING_PRIMARY_KEY, column = "mapper/base-mapper/operations")
     public void mapWithoutPrimaryKey_shouldExposeUpdateAndDeleteSemantics() {
         this.mapper.insert(user(baseId() + 61, "MapNoPkTarget", 61, "no-pk-target@test.com"));
 

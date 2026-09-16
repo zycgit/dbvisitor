@@ -7,9 +7,9 @@
  */
 package net.hasor.dbvisitor.test.realdb.elastic7.material;
 
+import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.sql.SQLException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
@@ -32,8 +32,7 @@ public final class ElasticTypeMappings {
     }
 
     public static Map<String, Object> arrays() {
-        Map<String, Object> properties = fields("integer", "int_array", "array_no_annotation", "array_jdbc_type", "array_type_handler",
-                "array_number_special", "array_full_annotated");
+        Map<String, Object> properties = fields("integer", "int_array", "array_no_annotation", "array_jdbc_type", "array_type_handler", "array_number_special", "array_full_annotated");
         properties.put("float_array", Map.of("type", "float"));
         properties.put("string_array", Map.of("type", "keyword"));
         return properties;
@@ -42,8 +41,7 @@ public final class ElasticTypeMappings {
     public static void addArrays(JdbcTemplate jdbc, String environment, String index) throws SQLException {
         String endpoint = "/" + index + "/_mapping" + ("es6".equals(environment) ? "/_doc" : "");
         try {
-            String schema = new ObjectMapper().writerWithDefaultPrettyPrinter()
-                    .writeValueAsString(Map.of("properties", arrays()));
+            String schema = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(Map.of("properties", arrays()));
             jdbc.execute("PUT " + endpoint + " " + schema);
         } catch (JsonProcessingException error) {
             throw new SQLException("Cannot serialize Elasticsearch array mapping", error);

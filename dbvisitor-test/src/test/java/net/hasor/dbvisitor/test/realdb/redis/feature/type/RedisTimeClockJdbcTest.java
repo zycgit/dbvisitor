@@ -8,13 +8,11 @@
 package net.hasor.dbvisitor.test.realdb.redis.feature.type;
 
 import java.sql.SQLException;
-
-import org.junit.After;
-import org.junit.Before;
-
 import net.hasor.dbvisitor.test.contract.feature.type.TimeClockJdbcCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import org.junit.After;
+import org.junit.Before;
 
 public class RedisTimeClockJdbcTest extends TimeClockJdbcCase {
     private final RedisTypeCommandFixture fixture = new RedisTypeCommandFixture();

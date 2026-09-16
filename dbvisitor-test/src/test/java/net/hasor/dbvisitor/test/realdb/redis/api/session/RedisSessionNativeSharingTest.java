@@ -10,10 +10,6 @@ package net.hasor.dbvisitor.test.realdb.redis.api.session;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
-
-import org.junit.After;
-import org.junit.Before;
-
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.api.session.SessionNativeSharingCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
@@ -21,6 +17,8 @@ import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
 import net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisMapperFixture;
 import net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisNativeMapperSupport.NativeMapper;
 import net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisNativeMapperSupport.RefNativeMapper;
+import org.junit.After;
+import org.junit.Before;
 
 public class RedisSessionNativeSharingTest extends SessionNativeSharingCase {
     private final RedisMapperFixture fixture = new RedisMapperFixture();

@@ -8,11 +8,11 @@
 package net.hasor.dbvisitor.test.realdb.mongo;
 
 import java.sql.SQLException;
-import net.hasor.dbvisitor.test.contract.api.map_query.FreedomMapIdentifierSecurityCase;
+import java.util.Date;
+import net.hasor.dbvisitor.test.contract.api.lambda.map_query.FreedomMapIdentifierSecurityCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
 import net.hasor.dbvisitor.test.realdb.mongo.material.MongoEntityFixture;
-import java.util.Date;
 import org.junit.After;
 import org.junit.Before;
 
@@ -31,7 +31,6 @@ public class MongoFreedomMapIdentifierSecurityTest extends FreedomMapIdentifierS
         this.lambdaTemplate = this.fixture.lambda();
     }
 
-
     @Override
     protected String tableName() {
         return fixture.table();
@@ -39,8 +38,7 @@ public class MongoFreedomMapIdentifierSecurityTest extends FreedomMapIdentifierS
 
     @Override
     protected void insertUser(int id, String name, Integer age) throws SQLException {
-        jdbcTemplate.executeUpdate(fixture.command("insert({id: ?, name: ?, age: ?, create_time: ?})"),
-                new Object[] { id, name, age, new Date() });
+        jdbcTemplate.executeUpdate(fixture.command("insert({id: ?, name: ?, age: ?, create_time: ?})"), new Object[] { id, name, age, new Date() });
     }
 
     @Override

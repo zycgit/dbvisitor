@@ -9,9 +9,6 @@ package net.hasor.dbvisitor.test.contract.api.lambda;
 
 import java.sql.SQLException;
 import java.util.List;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.lambda.EntityQuery;
 import net.hasor.dbvisitor.page.Page;
 import net.hasor.dbvisitor.page.PageObject;
@@ -19,13 +16,14 @@ import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class LambdaPageResultCase extends LambdaPaginationSupport {
+    // 能力归属：构造器 API / 分页查询。
     @Test
-    @Capability(CapabilityId.LAMBDA_PAGE_MULTI_PAGE)
+    @Capability(value = CapabilityId.LAMBDA_PAGE_MULTI_PAGE, column = "builder/pagination-and-iteration/pagination")
     public void lambdaPagination_shouldTraverseMultiplePagesWithPageInfo() throws SQLException {
         insertBatch("NXN-Page-Multi-", 25, baseId() + 100);
 
@@ -60,8 +58,9 @@ public abstract class LambdaPageResultCase extends LambdaPaginationSupport {
         assertPageRows(thirdPage, "NXN-Page-Multi-", 20, 5);
     }
 
+    // 能力归属：构造器 API / 分页查询。
     @Test
-    @Capability(CapabilityId.LAMBDA_PAGE_EXACT_DIVISION)
+    @Capability(value = CapabilityId.LAMBDA_PAGE_EXACT_DIVISION, column = "builder/pagination-and-iteration/pagination")
     public void lambdaPagination_shouldCalculateExactDivisionPages() throws SQLException {
         insertBatch("NXN-Page-Exact-", 20, baseId() + 200);
 
@@ -80,8 +79,9 @@ public abstract class LambdaPageResultCase extends LambdaPaginationSupport {
         assertPageRows(secondPage, "NXN-Page-Exact-", 10, 10);
     }
 
+    // 能力归属：构造器 API / 分页查询。
     @Test
-    @Capability(CapabilityId.LAMBDA_PAGE_SINGLE_PAGE)
+    @Capability(value = CapabilityId.LAMBDA_PAGE_SINGLE_PAGE, column = "builder/pagination-and-iteration/pagination")
     public void lambdaPagination_shouldRepresentSinglePageWhenTotalIsBelowPageSize() throws SQLException {
         insertBatch("NXN-Page-Single-", 5, baseId() + 300);
 
@@ -97,8 +97,9 @@ public abstract class LambdaPageResultCase extends LambdaPaginationSupport {
         assertPageRows(rows, "NXN-Page-Single-", 0, 5);
     }
 
+    // 能力归属：构造器 API / 分页查询。
     @Test
-    @Capability(CapabilityId.LAMBDA_PAGE_SIZE_ONE)
+    @Capability(value = CapabilityId.LAMBDA_PAGE_SIZE_ONE, column = "builder/pagination-and-iteration/pagination")
     public void lambdaPagination_shouldSupportPageSizeOne() throws SQLException {
         insertBatch("NXN-Page-One-", 3, baseId() + 400);
 
@@ -120,8 +121,9 @@ public abstract class LambdaPageResultCase extends LambdaPaginationSupport {
         assertPageRows(thirdPage, "NXN-Page-One-", 2, 1);
     }
 
+    // 能力归属：构造器 API / 分页查询。
     @Test
-    @Capability(CapabilityId.LAMBDA_PAGE_BEYOND_LAST)
+    @Capability(value = CapabilityId.LAMBDA_PAGE_BEYOND_LAST, column = "builder/pagination-and-iteration/pagination")
     public void lambdaPagination_shouldReturnEmptyRowsWhenRequestedPageIsBeyondLast() throws SQLException {
         insertBatch("NXN-Page-Beyond-", 5, baseId() + 500);
 
@@ -135,8 +137,9 @@ public abstract class LambdaPageResultCase extends LambdaPaginationSupport {
         assertEquals(1, page.getTotalPage());
     }
 
+    // 能力归属：构造器 API / 分页查询。
     @Test
-    @Capability(CapabilityId.LAMBDA_PAGE_FACTORY)
+    @Capability(value = CapabilityId.LAMBDA_PAGE_FACTORY, column = "builder/pagination-and-iteration/pagination")
     public void lambdaPagination_shouldUsePageObjectFactoryMethods() throws SQLException {
         insertBatch("NXN-Page-FactoryA-", 10, baseId() + 650);
         insertBatch("NXN-Page-FactoryB-", 8, baseId() + 670);
@@ -162,8 +165,9 @@ public abstract class LambdaPageResultCase extends LambdaPaginationSupport {
         assertPageRows(offsetRows, "NXN-Page-FactoryB-", 0, 3);
     }
 
+    // 能力归属：构造器 API / 分页查询。
     @Test
-    @Capability(CapabilityId.LAMBDA_PAGE_NUMBER_OFFSET)
+    @Capability(value = CapabilityId.LAMBDA_PAGE_NUMBER_OFFSET, column = "builder/pagination-and-iteration/pagination")
     public void lambdaPagination_shouldHonorPageNumberOffset() throws SQLException {
         insertBatch("NXN-Page-Offset-", 15, baseId() + 700);
 
@@ -192,8 +196,9 @@ public abstract class LambdaPageResultCase extends LambdaPaginationSupport {
         assertPageRows(thirdPage, "NXN-Page-Offset-", 10, 5);
     }
 
+    // 能力归属：构造器 API / 分页查询。
     @Test
-    @Capability(CapabilityId.LAMBDA_PAGE_COUNT_CONSISTENCY)
+    @Capability(value = CapabilityId.LAMBDA_PAGE_COUNT_CONSISTENCY, column = "builder/pagination-and-iteration/pagination")
     public void lambdaPagination_shouldKeepPageTotalCountConsistentWithQueryForCount() throws SQLException {
         insertBatch("NXN-Page-Count-", 17, baseId() + 800);
 
@@ -207,8 +212,9 @@ public abstract class LambdaPageResultCase extends LambdaPaginationSupport {
         assertEquals(17, page.getTotalCount());
     }
 
+    // 能力归属：构造器 API / 分页查询。
     @Test
-    @Capability(CapabilityId.LAMBDA_PAGE_FILTER)
+    @Capability(value = CapabilityId.LAMBDA_PAGE_FILTER, column = "builder/pagination-and-iteration/pagination")
     public void lambdaPagination_shouldCountOnlyFilteredRows() throws SQLException {
         for (int i = 0; i < 10; i++) {
             insert(baseId() + 900 + i, "NXN-Page-Filter-A-" + i, 40);
@@ -228,5 +234,40 @@ public abstract class LambdaPageResultCase extends LambdaPaginationSupport {
         for (UserInfo row : rows) {
             assertEquals(Integer.valueOf(40), row.getAge());
         }
+    }
+
+    // 能力归属：构造器 API / 分页查询。
+    @Test
+    @Capability(value = CapabilityId.LAMBDA_EMPTY_PAGE, column = "builder/pagination-and-iteration/pagination")
+    public void lambdaPageQuery_shouldReturnEmptyPageWhenNoRowsMatch() throws SQLException {
+        Page pageInfo = PageObject.of(1, 10);
+        EntityQuery<UserInfo> query = lambdaTemplate.query(UserInfo.class)//
+                .eq(UserInfo::getId, baseId() + 4)//
+                .usePage(pageInfo);
+
+        List<UserInfo> pageData = query.queryForList();
+        Page page = query.pageInfo();
+
+        assertNotNull(pageData);
+        assertTrue(pageData.isEmpty());
+        assertNotNull(page);
+        assertEquals(0, page.getTotalCount());
+        assertEquals(0, page.getTotalPage());
+    }
+
+    // 能力归属：构造器 API / 分页查询。
+    @Test
+    @Capability(value = CapabilityId.LAMBDA_EMPTY_LIMIT_ZERO, column = "builder/pagination-and-iteration/pagination")
+    public void lambdaInitPageZero_shouldMeanNoPaging() throws SQLException {
+        insert(baseId() + 61, "NXN-Lambda-Empty-Limit0", 25);
+
+        List<UserInfo> result = lambdaTemplate.query(UserInfo.class)//
+                .eq(UserInfo::getName, "NXN-Lambda-Empty-Limit0")//
+                .initPage(0, 0)//
+                .queryForList();
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(Integer.valueOf(baseId() + 61), result.get(0).getId());
     }
 }

@@ -9,27 +9,24 @@ package net.hasor.dbvisitor.test.contract.api.mapper.annotation;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import org.junit.Test;
-
-import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.contract.material.handler.RecordingRowCallbackHandler;
+import net.hasor.dbvisitor.test.contract.material.handler.ResultHandlerProbe;
+import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class AnnotationMapperResultHandlerCase extends AnnotationMapperResultHandlerSupport {
+    // 能力归属：Mapper API / 方法注解。
     @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_RESULT_HANDLER_DEFAULT)
+    @Capability(value = CapabilityId.MAPPER_ANNOTATION_RESULT_HANDLER_DEFAULT, column = "mapper/method-annotations/execution")
     public void annotationResultHandler_shouldUseDefaultMappingWithoutCustomHandler() throws SQLException {
         List<UserInfo> users = this.mapper.selectDefault(PATTERN);
 
@@ -37,10 +34,11 @@ public abstract class AnnotationMapperResultHandlerCase extends AnnotationMapper
         assertMappedRows(users, false);
     }
 
+    // 能力归属：结果接收 / resultsetextractor / mapper。
     @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_RESULT_HANDLER_EXTRACTOR)
+    @Capability(value = CapabilityId.MAPPER_ANNOTATION_RESULT_HANDLER_EXTRACTOR, column = "results/resultsetextractor/extraction", variants = { "mapper" })
     public void annotationResultHandler_shouldUseResultSetExtractor() throws SQLException {
-        List<UserInfo> users = this.mapper.selectWithExtractor(PATTERN);
+        List<UserInfo> users = ResultHandlerProbe.verify(1, () -> this.mapper.selectWithExtractor(PATTERN));
 
         assertEquals(10, users.size());
         for (UserInfo user : users) {
@@ -49,26 +47,34 @@ public abstract class AnnotationMapperResultHandlerCase extends AnnotationMapper
             assertNotNull(user.getCreateTime());
         }
         assertMappedRows(users, false);
-        assertMappedRows(this.mapper.selectWithExtractorAndFetchSize(PATTERN), false);
-        assertTrue(this.mapper.selectWithExtractorAndFetchSize("NoAnnoHandlerMatch%").isEmpty());
+        assertMappedRows(ResultHandlerProbe.verify(1, () -> this.mapper.selectWithExtractorAndFetchSize(PATTERN)), false);
+        assertTrue(ResultHandlerProbe.verify(1, () -> this.mapper.selectWithExtractorAndFetchSize("NoAnnoHandlerMatch%")).isEmpty());
+        ResultHandlerProbe.verifyFailure(() -> this.mapper.selectWithExtractor(PATTERN));
+        Map<Integer, String> expectedNames = IntStream.rangeClosed(1, 10).boxed().collect(Collectors.toMap(this::id, index -> "AnnoHandler" + index));
+        assertEquals(expectedNames, ResultHandlerProbe.verify(1, () -> this.mapper.selectMapWithExtractor(PATTERN)));
+        assertTrue(ResultHandlerProbe.verify(1, () -> this.mapper.selectMapWithExtractor("NoAnnoHandlerMatch%")).isEmpty());
     }
 
+    // 能力归属：结果接收 / rowmapper / mapper。
     @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_RESULT_HANDLER_ROW_MAPPER)
+    @Capability(value = CapabilityId.MAPPER_ANNOTATION_RESULT_HANDLER_ROW_MAPPER, column = "results/rowmapper/mapping", variants = { "mapper" })
     public void annotationResultHandler_shouldUseRowMapperForListResults() throws SQLException {
-        List<UserInfo> users = this.mapper.selectWithRowMapper(PATTERN);
+        List<UserInfo> users = ResultHandlerProbe.verify(10, () -> this.mapper.selectWithRowMapper(PATTERN));
 
         assertEquals(10, users.size());
         for (int i = 0; i < users.size(); i++) {
             assertTrue(users.get(i).getName().contains("[Row" + i + "]"));
         }
         assertMappedRows(users, true);
+        assertTrue(ResultHandlerProbe.verify(0, () -> this.mapper.selectWithRowMapper("NoAnnoHandlerMatch%")).isEmpty());
+        ResultHandlerProbe.verifyFailure(() -> this.mapper.selectWithRowMapper(PATTERN));
     }
 
+    // 能力归属：结果接收 / rowmapper / mapper。
     @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_RESULT_HANDLER_ROW_MAPPER_SINGLE)
+    @Capability(value = CapabilityId.MAPPER_ANNOTATION_RESULT_HANDLER_ROW_MAPPER_SINGLE, column = "results/rowmapper/mapping", variants = { "mapper" })
     public void annotationResultHandler_shouldUseRowMapperForSingleResult() throws SQLException {
-        UserInfo user = this.mapper.selectSingleWithRowMapper(id(1));
+        UserInfo user = ResultHandlerProbe.verify(1, () -> this.mapper.selectSingleWithRowMapper(id(1)));
 
         assertNotNull(user);
         assertTrue(user.getName().contains("[Row0]"));
@@ -77,42 +83,59 @@ public abstract class AnnotationMapperResultHandlerCase extends AnnotationMapper
         assertEquals(Integer.valueOf(21), user.getAge());
         assertEquals(timestamp(), user.getCreateTime().getTime());
         assertEquals("AnnoHandler1", this.mapper.selectById(id(1)).getName());
+        assertNull(ResultHandlerProbe.verify(0, () -> this.mapper.selectSingleWithRowMapper(99999)));
     }
 
+    // 能力归属：结果接收 / rowmapper / mapper。
     @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_RESULT_HANDLER_ROW_MAPPER_OPTIONS)
+    @Capability(value = CapabilityId.MAPPER_ANNOTATION_RESULT_HANDLER_ROW_MAPPER_OPTIONS, column = "results/rowmapper/mapping", variants = { "mapper" })
     public void annotationResultHandler_shouldKeepRowMapperWhenOptionsArePresent() throws SQLException {
         List<UserInfo> defaultResult = this.mapper.selectDefault(PATTERN);
-        List<UserInfo> mappedResult = this.mapper.selectWithRowMapperAndOptions(PATTERN);
+        List<UserInfo> mappedResult = ResultHandlerProbe.verify(10, () -> this.mapper.selectWithRowMapperAndOptions(PATTERN));
 
         assertEquals(defaultResult.size(), mappedResult.size());
         for (UserInfo user : mappedResult) {
             assertTrue(user.getName().contains("[Row"));
         }
         assertMappedRows(mappedResult, true);
-        assertTrue(this.mapper.selectWithRowMapperAndOptions("NoAnnoHandlerMatch%").isEmpty());
+        assertTrue(ResultHandlerProbe.verify(0, () -> this.mapper.selectWithRowMapperAndOptions("NoAnnoHandlerMatch%")).isEmpty());
     }
 
+    // 能力归属：结果接收 / rowcallbackhandler / mapper。
     @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_RESULT_HANDLER_ROW_CALLBACK)
+    @Capability(value = CapabilityId.MAPPER_ANNOTATION_RESULT_HANDLER_ROW_CALLBACK, column = "results/rowcallbackhandler/callback", variants = { "mapper" })
     public void annotationResultHandler_shouldExecuteRowCallbackQueries() throws SQLException {
         try {
             RecordingRowCallbackHandler.clear();
-            this.mapper.selectWithRowCallback(PATTERN);
+            ResultHandlerProbe.verify(10, () -> {
+                this.mapper.selectWithRowCallback(PATTERN);
+                return null;
+            });
             assertCallbackIds();
             RecordingRowCallbackHandler.clear();
-            this.mapper.selectWithRowCallbackAndTimeout(PATTERN);
+            ResultHandlerProbe.verify(10, () -> {
+                this.mapper.selectWithRowCallbackAndTimeout(PATTERN);
+                return null;
+            });
             assertCallbackIds();
             RecordingRowCallbackHandler.clear();
-            this.mapper.selectWithRowCallback("NoAnnoHandlerMatch%");
+            ResultHandlerProbe.verify(0, () -> {
+                this.mapper.selectWithRowCallback("NoAnnoHandlerMatch%");
+                return null;
+            });
             assertTrue(RecordingRowCallbackHandler.ids().isEmpty());
+            ResultHandlerProbe.verifyFailure(() -> {
+                this.mapper.selectWithRowCallback(PATTERN);
+                return null;
+            });
         } finally {
             RecordingRowCallbackHandler.clear();
         }
     }
 
+    // 能力归属：Mapper API / 方法注解。
     @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_RESULT_HANDLER_EMPTY)
+    @Capability(value = CapabilityId.MAPPER_ANNOTATION_RESULT_HANDLER_EMPTY, column = "mapper/method-annotations/execution")
     public void annotationResultHandler_shouldHandleEmptyAndNullResults() throws SQLException {
         assertEquals(0, this.mapper.selectWithExtractor("NoAnnoHandlerMatch%").size());
         assertEquals(0, this.mapper.selectWithRowMapper("NoAnnoHandlerMatch%").size());

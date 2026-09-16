@@ -11,7 +11,7 @@ import net.hasor.dbvisitor.mapping.Column;
 
 public class CartItem {
     @Column("FIELD")
-    private String productId;
+    private String  productId;
     @Column("VALUE")
     private Integer quantity;
 

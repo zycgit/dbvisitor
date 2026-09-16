@@ -7,17 +7,15 @@
  */
 package net.hasor.dbvisitor.test.contract.api.lambda;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class LambdaDistinctCase extends LambdaSelectSupport {
@@ -30,8 +28,9 @@ public abstract class LambdaDistinctCase extends LambdaSelectSupport {
         return "count(distinct age) as distinct_count";
     }
 
+    // 能力归属：构造器 API / 查询操作。
     @Test
-    @Capability(CapabilityId.LAMBDA_SELECT_DISTINCT)
+    @Capability(value = CapabilityId.LAMBDA_SELECT_DISTINCT, column = "builder/queries/query")
     public void lambdaSelect_shouldApplyDistinctToSingleAndMultipleColumns() throws Exception {
         insert(baseId() + 20, "DistinctOne", 20, "same@nxn.test");
         insert(baseId() + 21, "DistinctTwo", 20, "same@nxn.test");
@@ -57,8 +56,9 @@ public abstract class LambdaDistinctCase extends LambdaSelectSupport {
         assertEquals(4, ageEmail.size());
     }
 
+    // 能力归属：构造器 API / 查询操作。
     @Test
-    @Capability(CapabilityId.LAMBDA_SELECT_DISTINCT_COUNT)
+    @Capability(value = CapabilityId.LAMBDA_SELECT_DISTINCT_COUNT, column = "builder/queries/query")
     public void lambdaSelect_shouldCountDistinctValues() throws Exception {
         insert(baseId() + 30, "DistinctCountOne", 20, "dc1@nxn.test");
         insert(baseId() + 31, "DistinctCountTwo", 20, "dc2@nxn.test");
@@ -72,5 +72,22 @@ public abstract class LambdaDistinctCase extends LambdaSelectSupport {
 
         assertEquals(1, result.size());
         assertEquals(3, ((Number) getVal(result.get(0), "distinct_count")).intValue());
+    }
+
+    // 能力归属：构造器 API / 查询操作。
+    @Test
+    @Capability(value = CapabilityId.LAMBDA_EMPTY_DISTINCT, column = "builder/queries/query")
+    public void lambdaDistinct_shouldReturnEmptyListWhenNoRowsMatch() throws SQLException {
+        List<Integer> result = lambdaTemplate.query(UserInfo.class)//
+                .eq(UserInfo::getId, baseId() + 51)//
+                .applySelect(distinctSelect())//
+                .queryForList(Integer.class);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+    protected String distinctSelect() {
+        return "distinct id";
     }
 }

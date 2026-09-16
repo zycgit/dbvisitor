@@ -12,17 +12,18 @@ import java.sql.ResultSet;
 import java.sql.Types;
 import java.util.Set;
 import java.util.UUID;
-import org.junit.Before;
-import org.junit.Test;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.SupportStatus;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-@NxnContract
+@NxnContract(scope = NxnContract.Scope.JDBC_METADATA)
 public abstract class JdbcMetadataShapeCase extends AbstractNxnContractTest {
     @Override
     @Before
@@ -57,8 +58,7 @@ public abstract class JdbcMetadataShapeCase extends AbstractNxnContractTest {
                 assertTrue(columns.findColumn("TYPE_NAME") > 0);
                 // Vendors represent this numeric descriptor as SMALLINT, INTEGER or NUMBER.
                 int type = columns.getMetaData().getColumnType(columns.findColumn("DATA_TYPE"));
-                assertTrue("Expected numeric DATA_TYPE descriptor: " + type,
-                        Set.of(Types.SMALLINT, Types.INTEGER, Types.BIGINT, Types.NUMERIC, Types.DECIMAL).contains(type));
+                assertTrue("Expected numeric DATA_TYPE descriptor: " + type, Set.of(Types.SMALLINT, Types.INTEGER, Types.BIGINT, Types.NUMERIC, Types.DECIMAL).contains(type));
                 assertFalse(columns.next());
             }
         }

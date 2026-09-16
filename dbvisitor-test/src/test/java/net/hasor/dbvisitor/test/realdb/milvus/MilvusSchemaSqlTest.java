@@ -7,20 +7,12 @@
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
 
-import java.sql.Array;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Types;
+import java.sql.*;
 import java.util.Arrays;
 import java.util.List;
-
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import org.junit.Test;
-
 import static org.junit.Assert.*;
 
 public class MilvusSchemaSqlTest extends MilvusSqlContractSupport {
@@ -45,8 +37,7 @@ public class MilvusSchemaSqlTest extends MilvusSqlContractSupport {
         createCollection("id INT64 PRIMARY KEY, note VARCHAR(64) NULL, priority INT64 DEFAULT 7, enabled BOOL DEFAULT true, v FLOAT_VECTOR(2)");
         indexAndLoad();
         this.jdbcTemplate.executeUpdate("INSERT INTO " + this.collection + " (id, v) VALUES (1, [1, 0])");
-        try (Statement statement = this.connection.createStatement();
-             ResultSet result = statement.executeQuery("SELECT id, note, priority, enabled FROM " + this.collection + " WHERE id = 1")) {
+        try (Statement statement = this.connection.createStatement(); ResultSet result = statement.executeQuery("SELECT id, note, priority, enabled FROM " + this.collection + " WHERE id = 1")) {
             assertTrue(result.next());
             assertNull(result.getString("note"));
             assertTrue(result.wasNull());
@@ -75,8 +66,7 @@ public class MilvusSchemaSqlTest extends MilvusSqlContractSupport {
             insert.setObject(2, new short[] { -32768, 0, 32767 });
             assertEquals(1, insert.executeUpdate());
         }
-        try (Statement statement = this.connection.createStatement();
-             ResultSet result = statement.executeQuery("SELECT tags, nums FROM " + this.collection + " WHERE id = 1")) {
+        try (Statement statement = this.connection.createStatement(); ResultSet result = statement.executeQuery("SELECT tags, nums FROM " + this.collection + " WHERE id = 1")) {
             assertTrue(result.next());
             Array tags = result.getArray("tags");
             Array nums = result.getArray("nums");
@@ -110,16 +100,14 @@ public class MilvusSchemaSqlTest extends MilvusSqlContractSupport {
             insert.setObject(2, List.of());
             assertEquals(1, insert.executeUpdate());
         }
-        try (Statement statement = this.connection.createStatement();
-             ResultSet result = statement.executeQuery("SELECT id, tags FROM " + this.collection + " WHERE tags IS NULL")) {
+        try (Statement statement = this.connection.createStatement(); ResultSet result = statement.executeQuery("SELECT id, tags FROM " + this.collection + " WHERE tags IS NULL")) {
             assertTrue(result.next());
             assertEquals(1, result.getLong("id"));
             assertNull(result.getArray("tags"));
             assertTrue(result.wasNull());
             assertFalse(result.next());
         }
-        try (Statement statement = this.connection.createStatement();
-             ResultSet result = statement.executeQuery("SELECT id, tags FROM " + this.collection + " WHERE tags IS NOT NULL")) {
+        try (Statement statement = this.connection.createStatement(); ResultSet result = statement.executeQuery("SELECT id, tags FROM " + this.collection + " WHERE tags IS NOT NULL")) {
             assertTrue(result.next());
             assertEquals(2, result.getLong("id"));
             Array tags = result.getArray("tags");
@@ -152,8 +140,7 @@ public class MilvusSchemaSqlTest extends MilvusSqlContractSupport {
     public void showTable_shouldExposeArrayAndNullableDefinition() throws SQLException {
         createCollection("id INT64 PRIMARY KEY, tags ARRAY<VARCHAR(16)>(3) NULL, v FLOAT_VECTOR(2)");
         boolean found = false;
-        try (Statement statement = this.connection.createStatement();
-             ResultSet result = statement.executeQuery("SHOW TABLE " + this.collection)) {
+        try (Statement statement = this.connection.createStatement(); ResultSet result = statement.executeQuery("SHOW TABLE " + this.collection)) {
             while (result.next()) {
                 if ("tags".equals(result.getString("FIELD"))) {
                     found = true;

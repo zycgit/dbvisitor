@@ -21,7 +21,7 @@
 
     <select id="selectWithTimeout" resultMap="userResultMap" timeout="30">@{macro, esSessionAll}</select>
 
-    <select id="selectWithFetchSize" resultMap="userResultMap" fetchSize="5">@{macro, esSessionAll}</select>
+    <select id="selectWithFetchSize" resultMap="userResultMap" fetchSize="2">@{macro, esSessionAll}</select>
 
     <select id="selectForwardOnly" resultMap="userResultMap" resultSetType="FORWARD_ONLY">@{macro, esSessionAll}</select>
 

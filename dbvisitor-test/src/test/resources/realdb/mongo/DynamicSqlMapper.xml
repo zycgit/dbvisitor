@@ -21,8 +21,8 @@
     <select id="selectWithChoose" resultMap="userResultMap">
         @{macro, mongoSource}.find({name: {$regex: '^DynSql'}}, {_id: 0}).sort({
             <choose>
-                <when test="orderBy == 'name'">name: 1</when>
-                <when test="orderBy == 'age'">age: -1</when>
+                <when test="orderBy == 'name' || orderBy == 'both'">name: 1</when>
+                <when test="orderBy == 'age' || orderBy == 'both'">age: -1</when>
                 <otherwise>id: 1</otherwise>
             </choose>
         })
@@ -93,4 +93,3 @@
         }}, {_id: 0}).sort({id: 1})
     </select>
 </mapper>
-

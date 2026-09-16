@@ -12,12 +12,7 @@ import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.Options;
-import net.hasor.dbvisitor.test.contract.material.model.naming.CamelCaseColumnOverrideUser;
-import net.hasor.dbvisitor.test.contract.material.model.naming.CamelCaseDisabledUser;
-import net.hasor.dbvisitor.test.contract.material.model.naming.CamelCaseEnabledUser;
-import net.hasor.dbvisitor.test.contract.material.model.naming.PlainUser;
-import net.hasor.dbvisitor.test.contract.material.model.naming.UpperCaseColumnStrictUser;
-import net.hasor.dbvisitor.test.contract.material.model.naming.UpperCaseColumnUser;
+import net.hasor.dbvisitor.test.contract.material.model.naming.*;
 
 /** The naming contracts vary entity mappings over the same native document fields. */
 public final class ElasticNamingFixture implements AutoCloseable {

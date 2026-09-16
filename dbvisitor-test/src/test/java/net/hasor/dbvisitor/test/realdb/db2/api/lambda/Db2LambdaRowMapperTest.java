@@ -7,7 +7,7 @@
  */
 package net.hasor.dbvisitor.test.realdb.db2.api.lambda;
 
-import net.hasor.dbvisitor.test.contract.api.lambda.LambdaRowMapperCase;
+import net.hasor.dbvisitor.test.contract.feature.result.LambdaRowMapperCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Db2Profile;
 

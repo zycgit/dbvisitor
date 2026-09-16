@@ -8,42 +8,42 @@
 package net.hasor.dbvisitor.test.realdb.milvus;
 
 import java.util.function.Function;
-import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
-import org.junit.Before;
 import io.milvus.client.MilvusServiceClient;
 import io.milvus.common.clientenum.ConsistencyLevelEnum;
 import io.milvus.exception.ServerException;
 import io.milvus.grpc.DataType;
-import io.milvus.grpc.ErrorCode;
 import io.milvus.grpc.DescribeIndexResponse;
+import io.milvus.grpc.ErrorCode;
 import io.milvus.param.ConnectParam;
 import io.milvus.param.IndexType;
 import io.milvus.param.MetricType;
 import io.milvus.param.R;
+import io.milvus.param.alias.CreateAliasParam;
+import io.milvus.param.alias.DropAliasParam;
 import io.milvus.param.collection.*;
+import io.milvus.param.credential.ListCredUsersParam;
 import io.milvus.param.index.CreateIndexParam;
 import io.milvus.param.index.DescribeIndexParam;
 import io.milvus.param.index.DropIndexParam;
 import io.milvus.param.partition.HasPartitionParam;
-import io.milvus.param.alias.CreateAliasParam;
-import io.milvus.param.alias.DropAliasParam;
-import io.milvus.param.credential.ListCredUsersParam;
-import io.milvus.param.role.SelectRoleParam;
 import io.milvus.param.role.SelectGrantForRoleParam;
+import io.milvus.param.role.SelectRoleParam;
 import io.milvus.v2.client.ConnectConfig;
 import io.milvus.v2.client.MilvusClientV2;
+import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
+import org.junit.Before;
 
 public class AbstractMilvusCmdForTest {
-    protected static final String MILVUS_HOST = "127.0.0.1";
-    protected static final int MILVUS_PORT = 2953;
-    protected static final String MILVUS_URL = "jdbc:dbvisitor:milvus://" + MILVUS_HOST + ":" + MILVUS_PORT + "?consistencylevel=strong";
-    protected static final String TEST_COLLECTION = "dbv_table_col";
-    protected static final String TEST_COLLECTION_NEW = "dbv_table_col_renamed";
-    protected static final String TEST_DATABASE = "dbv_test_db";
+    protected static final String  MILVUS_HOST         = "127.0.0.1";
+    protected static final int     MILVUS_PORT         = 2953;
+    protected static final String  MILVUS_URL          = "jdbc:dbvisitor:milvus://" + MILVUS_HOST + ":" + MILVUS_PORT + "?consistencylevel=strong";
+    protected static final String  TEST_COLLECTION     = "dbv_table_col";
+    protected static final String  TEST_COLLECTION_NEW = "dbv_table_col_renamed";
+    protected static final String  TEST_DATABASE       = "dbv_test_db";
     // Server error identifiers: milvus/pkg/util/merr/errors.go.
-    private static final int INDEX_NOT_FOUND = 700;
-    private static final int ALIAS_NOT_FOUND = 1600;
-    protected boolean milvusSelected;
+    private static final   int     INDEX_NOT_FOUND     = 700;
+    private static final   int     ALIAS_NOT_FOUND     = 1600;
+    protected              boolean milvusSelected;
 
     @Before
     public void before() {
@@ -78,20 +78,17 @@ public class AbstractMilvusCmdForTest {
 
     private boolean missingIndex(R<?> response) {
         if (response.getException() instanceof ServerException server) {
-            return Integer.valueOf(INDEX_NOT_FOUND).equals(server.getStatus())
-                    || server.getCompatibleCode() == ErrorCode.IndexNotExist;
+            return Integer.valueOf(INDEX_NOT_FOUND).equals(server.getStatus()) || server.getCompatibleCode() == ErrorCode.IndexNotExist;
         }
         return Integer.valueOf(R.Status.IndexNotExist.getCode()).equals(response.getStatus());
     }
 
     protected boolean hasCollection(String collectionName) {
-        return withClient(client -> requireSuccess(client.hasCollection(
-                HasCollectionParam.newBuilder().withCollectionName(collectionName).build())));
+        return withClient(client -> requireSuccess(client.hasCollection(HasCollectionParam.newBuilder().withCollectionName(collectionName).build())));
     }
 
     protected boolean hasPartition(String collectionName, String partitionName) {
-        return withClient(client -> requireSuccess(client.hasPartition(HasPartitionParam.newBuilder()
-                .withCollectionName(collectionName).withPartitionName(partitionName).build())));
+        return withClient(client -> requireSuccess(client.hasPartition(HasPartitionParam.newBuilder().withCollectionName(collectionName).withPartitionName(partitionName).build())));
     }
 
     protected void dropCollection(String collectionName) {
@@ -113,9 +110,7 @@ public class AbstractMilvusCmdForTest {
             FieldType id = FieldType.newBuilder().withName("book_id").withDataType(DataType.Int64).withPrimaryKey(true).withAutoID(false).build();
             FieldType count = FieldType.newBuilder().withName("word_count").withDataType(DataType.Int64).build();
             FieldType vector = FieldType.newBuilder().withName("book_intro").withDataType(DataType.FloatVector).withDimension(2).build();
-            return requireSuccess(client.createCollection(CreateCollectionParam.newBuilder().withCollectionName(collectionName)
-                    .withDescription("Test Collection").withConsistencyLevel(ConsistencyLevelEnum.STRONG)
-                    .addFieldType(id).addFieldType(count).addFieldType(vector).build()));
+            return requireSuccess(client.createCollection(CreateCollectionParam.newBuilder().withCollectionName(collectionName).withDescription("Test Collection").withConsistencyLevel(ConsistencyLevelEnum.STRONG).addFieldType(id).addFieldType(count).addFieldType(vector).build()));
         });
     }
 
@@ -138,8 +133,7 @@ public class AbstractMilvusCmdForTest {
 
     protected boolean hasIndex(String collectionName, String indexName) {
         return withClient(client -> {
-            R<DescribeIndexResponse> response = client.describeIndex(DescribeIndexParam.newBuilder()
-                    .withCollectionName(collectionName).withIndexName(indexName).build());
+            R<DescribeIndexResponse> response = client.describeIndex(DescribeIndexParam.newBuilder().withCollectionName(collectionName).withIndexName(indexName).build());
             if (missingIndex(response)) {
                 return false;
             }
@@ -148,19 +142,15 @@ public class AbstractMilvusCmdForTest {
     }
 
     protected void createIndex(String collectionName, String indexName) {
-        withClient(client -> requireSuccess(client.createIndex(CreateIndexParam.newBuilder().withCollectionName(collectionName)
-                .withFieldName("book_intro").withIndexName(indexName).withIndexType(IndexType.IVF_FLAT)
-                .withMetricType(MetricType.L2).withExtraParam("{\"nlist\":1024}").build())));
+        withClient(client -> requireSuccess(client.createIndex(CreateIndexParam.newBuilder().withCollectionName(collectionName).withFieldName("book_intro").withIndexName(indexName).withIndexType(IndexType.IVF_FLAT).withMetricType(MetricType.L2).withExtraParam("{\"nlist\":1024}").build())));
     }
 
     protected void dropIndex(String collectionName, String indexName) {
-        withClient(client -> requireSuccess(client.dropIndex(DropIndexParam.newBuilder()
-                .withCollectionName(collectionName).withIndexName(indexName).build())));
+        withClient(client -> requireSuccess(client.dropIndex(DropIndexParam.newBuilder().withCollectionName(collectionName).withIndexName(indexName).build())));
     }
 
     protected void createAlias(String alias, String collectionName) {
-        withClient(client -> requireSuccess(client.createAlias(CreateAliasParam.newBuilder()
-                .withAlias(alias).withCollectionName(collectionName).build())));
+        withClient(client -> requireSuccess(client.createAlias(CreateAliasParam.newBuilder().withAlias(alias).withCollectionName(collectionName).build())));
     }
 
     protected void dropAlias(String alias) {
@@ -174,8 +164,7 @@ public class AbstractMilvusCmdForTest {
     }
 
     protected boolean hasUserSdk(String username) {
-        return withClient(client -> requireSuccess(client.listCredUsers(ListCredUsersParam.newBuilder().build()))
-                .getUsernamesList().contains(username));
+        return withClient(client -> requireSuccess(client.listCredUsers(ListCredUsersParam.newBuilder().build())).getUsernamesList().contains(username));
     }
 
     protected boolean hasRoleSdk(String roleName) {
@@ -188,16 +177,10 @@ public class AbstractMilvusCmdForTest {
     }
 
     protected boolean userHasRoleSdk(String username, String roleName) {
-        return withClient(client -> requireSuccess(client.selectRole(SelectRoleParam.newBuilder()
-                .withRoleName(roleName).withIncludeUserInfo(true).build())).getResultsList().stream()
-                .filter(role -> role.getRole().getName().equals(roleName)).flatMap(role -> role.getUsersList().stream())
-                .anyMatch(user -> user.getName().equals(username)));
+        return withClient(client -> requireSuccess(client.selectRole(SelectRoleParam.newBuilder().withRoleName(roleName).withIncludeUserInfo(true).build())).getResultsList().stream().filter(role -> role.getRole().getName().equals(roleName)).flatMap(role -> role.getUsersList().stream()).anyMatch(user -> user.getName().equals(username)));
     }
 
     protected boolean roleHasPrivilegeSdk(String roleName, String objectType, String objectName, String privilege) {
-        return withClient(client -> requireSuccess(client.selectGrantForRole(SelectGrantForRoleParam.newBuilder()
-                .withRoleName(roleName).build())).getEntitiesList().stream().anyMatch(grant ->
-                        grant.getObject().getName().equals(objectType) && grant.getObjectName().equals(objectName)
-                                && grant.getGrantor().getPrivilege().getName().equals(privilege)));
+        return withClient(client -> requireSuccess(client.selectGrantForRole(SelectGrantForRoleParam.newBuilder().withRoleName(roleName).build())).getEntitiesList().stream().anyMatch(grant -> grant.getObject().getName().equals(objectType) && grant.getObjectName().equals(objectName) && grant.getGrantor().getPrivilege().getName().equals(privilege)));
     }
 }

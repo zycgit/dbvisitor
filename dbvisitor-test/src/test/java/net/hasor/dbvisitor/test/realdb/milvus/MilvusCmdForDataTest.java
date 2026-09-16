@@ -6,15 +6,9 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-import static org.junit.Assert.*;
-
 import java.sql.*;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
-
-import org.junit.Test;
-
 import io.milvus.client.MilvusServiceClient;
 import io.milvus.common.clientenum.ConsistencyLevelEnum;
 import io.milvus.grpc.GetLoadStateResponse;
@@ -31,6 +25,8 @@ import io.milvus.param.index.CreateIndexParam;
 import io.milvus.response.QueryResultsWrapper;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
     private static final String STRONG_CONSISTENCY_HINT = "/*+ consistency_level=Strong */ ";
@@ -745,8 +741,7 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
             assertNotNull("Configure test.import.file and prepare import_data.json on the server", file);
             try (Connection conn = OneApiDataSourceManager.getConnection(env); Statement stmt = conn.createStatement()) {
                 String jobId;
-                try (PreparedStatement submit = conn.prepareStatement(
-                        "/*+ timeout=60000 */ IMPORT FROM ? INTO " + TEST_COLLECTION + " RETURNING JOB_ID")) {
+                try (PreparedStatement submit = conn.prepareStatement("/*+ timeout=60000 */ IMPORT FROM ? INTO " + TEST_COLLECTION + " RETURNING JOB_ID")) {
                     submit.setString(1, file);
                     try (ResultSet result = submit.executeQuery()) {
                         assertTrue(result.next());
@@ -769,8 +764,7 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
                     }
                 }
 
-                stmt.executeUpdate("CREATE INDEX import_vector ON " + TEST_COLLECTION
-                        + " (book_intro) USING FLAT WITH (metric_type=L2)");
+                stmt.executeUpdate("CREATE INDEX import_vector ON " + TEST_COLLECTION + " (book_intro) USING FLAT WITH (metric_type=L2)");
                 stmt.executeUpdate("LOAD TABLE " + TEST_COLLECTION);
                 java.util.Map<Long, Long> imported = new java.util.HashMap<>();
                 try (ResultSet rows = stmt.executeQuery("SELECT book_id, word_count FROM " + TEST_COLLECTION)) {

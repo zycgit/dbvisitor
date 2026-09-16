@@ -19,9 +19,9 @@ import net.hasor.dbvisitor.test.contract.material.dao.declarative.NativeCrudMapp
 /** Private native collection shared by the annotation and XML CRUD fixtures. */
 public final class NativeMapperCrudFixture implements AutoCloseable {
     private final NativeDocumentParameterFixture collection = new NativeDocumentParameterFixture();
-    private JdbcTemplate jdbc;
-    private Session session;
-    private boolean mongo;
+    private       JdbcTemplate                   jdbc;
+    private       Session                        session;
+    private       boolean                        mongo;
 
     public JdbcTemplate open(String environment) throws SQLException {
         if (this.jdbc == null) {
@@ -46,8 +46,7 @@ public final class NativeMapperCrudFixture implements AutoCloseable {
 
     public void seedXmlUsers(int baseId) throws SQLException {
         for (int i = 1; i <= 5; i++) {
-            this.jdbc.executeUpdate(this.collection.command(JdbcParameterCommand.INSERT_POSITIONAL),
-                    new Object[] { baseId + i, "XmlCrud" + i, 20 + i, "crud" + i + "@test.com", new Date() });
+            this.jdbc.executeUpdate(this.collection.command(JdbcParameterCommand.INSERT_POSITIONAL), new Object[] { baseId + i, "XmlCrud" + i, 20 + i, "crud" + i + "@test.com", new Date() });
         }
     }
 
@@ -66,8 +65,7 @@ public final class NativeMapperCrudFixture implements AutoCloseable {
 
     private String insert(String fields) {
         String document = "{" + fields + "}";
-        return this.mongo ? "test." + this.collection.table() + ".insert(" + document + ")"
-                : "POST /" + this.collection.table() + "/_doc " + document;
+        return this.mongo ? "test." + this.collection.table() + ".insert(" + document + ")" : "POST /" + this.collection.table() + "/_doc " + document;
     }
 
     private void configureMongo(Configuration configuration) {
@@ -84,8 +82,7 @@ public final class NativeMapperCrudFixture implements AutoCloseable {
         configuration.addMacro("nxnCrudSelect", source + "/_search {\"query\": {\"term\": {\"id\": #{id}}}}");
         configuration.addMacro("nxnCrudDelete", source + "/_delete_by_query {\"query\": {\"term\": {\"id\": #{id}}}}");
         configuration.addMacro("nxnCrudUpdateAge", updateElastic("ctx._source.age = params.age", "\"age\": #{age}"));
-        configuration.addMacro("nxnCrudUpdateInfo", updateElastic("ctx._source.name = params.name; ctx._source.age = params.age",
-                "\"name\": #{name}, \"age\": #{age}"));
+        configuration.addMacro("nxnCrudUpdateInfo", updateElastic("ctx._source.name = params.name; ctx._source.age = params.age", "\"name\": #{name}, \"age\": #{age}"));
         configuration.addMacro("nxnCrudUpdateEmail", updateElastic("ctx._source.email = params.email", "\"email\": #{email}"));
     }
 

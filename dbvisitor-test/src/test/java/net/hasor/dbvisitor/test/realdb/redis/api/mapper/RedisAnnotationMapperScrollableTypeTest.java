@@ -8,17 +8,15 @@
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
 import java.sql.SQLException;
-
-import org.junit.After;
-import org.junit.Before;
-
-import net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisAnnotationMapperExecutionTest.NativeAttributesMapper;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperScrollableTypeCase;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisAnnotationMapperExecutionTest.NativeAttributesMapper;
+import org.junit.After;
+import org.junit.Before;
 
 public class RedisAnnotationMapperScrollableTypeTest extends AnnotationMapperScrollableTypeCase {
     private final RedisMapperFixture fixture = new RedisMapperFixture();
@@ -52,8 +50,7 @@ public class RedisAnnotationMapperScrollableTypeTest extends AnnotationMapperScr
         for (int i = 1; i <= 10; i++) {
             UserInfo user = user(baseId() + i, "AttrNxn" + i, 20 + i, "attr-nxn" + i + "@nxn.test");
             this.mapper.insertUserBasic(user);
-            this.jdbcTemplate.queryForLong("ZADD #{arg0} #{arg1} #{arg2,typeHandler=net.hasor.dbvisitor.types.handler.json.JsonTypeHandler}",
-                    new Object[] { this.fixture.key("attribute-fetch"), user.getId(), user });
+            this.jdbcTemplate.queryForLong("ZADD #{arg0} #{arg1} #{arg2,typeHandler=net.hasor.dbvisitor.types.handler.json.JsonTypeHandler}", new Object[] { this.fixture.key("attribute-fetch"), user.getId(), user });
         }
     }
 

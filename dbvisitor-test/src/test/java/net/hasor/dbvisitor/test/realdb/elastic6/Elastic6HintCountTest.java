@@ -67,6 +67,7 @@ public class Elastic6HintCountTest {
             }
         }
     }
+
     public static void main(String[] args) {
         net.hasor.dbvisitor.test.realdb.RealDbTestRunner.run(Elastic6HintCountTest.class);
     }

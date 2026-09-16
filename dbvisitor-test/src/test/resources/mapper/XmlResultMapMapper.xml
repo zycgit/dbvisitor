@@ -28,14 +28,8 @@
         <result column="create_time" property="createTime" javaType="java.util.Date"/>
     </resultMap>
 
-    <!-- autoMapping=true 的 resultMap：显式映射所有列 + autoMapping 属性 -->
-    <resultMap id="autoMappingResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo" autoMapping="true">
-        <id column="id" property="id"/>
-        <result column="name" property="name"/>
-        <result column="age" property="age"/>
-        <result column="email" property="email"/>
-        <result column="create_time" property="createTime"/>
-    </resultMap>
+    <!-- Pure automatic mapping: explicit children would disable autoMapping. -->
+    <resultMap id="autoMappingResultMap" type="net.hasor.dbvisitor.test.contract.material.model.XmlAutoMappedUser" autoMapping="true"/>
 
     <!-- caseInsensitive=true：忽略列名大小写 -->
     <resultMap id="caseInsensitiveResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo" caseInsensitive="true">
@@ -45,14 +39,8 @@
         <result column="EMAIL" property="email"/>
     </resultMap>
 
-    <!-- mapUnderscoreToCamelCase=true：下划线自动转驼峰 + 显式映射基本列 -->
-    <resultMap id="camelCaseResultMap" type="net.hasor.dbvisitor.test.contract.material.model.UserInfo" mapUnderscoreToCamelCase="true">
-        <id column="id" property="id"/>
-        <result column="name" property="name"/>
-        <result column="age" property="age"/>
-        <result column="email" property="email"/>
-        <result column="create_time" property="createTime"/>
-    </resultMap>
+    <!-- createTime must be mapped from create_time by this flag alone. -->
+    <resultMap id="camelCaseResultMap" type="net.hasor.dbvisitor.test.contract.material.model.XmlAutoMappedUser" autoMapping="true" mapUnderscoreToCamelCase="true"/>
 
     <!-- Map 类型：直接使用 resultType="map"，列别名即 key -->
     <!-- 注意：resultMap 的 type 不支持 Map 类型（property 验证会失败） -->

@@ -12,18 +12,16 @@ import java.sql.SQLException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
-
-import org.junit.Assume;
-
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
+import org.junit.Assume;
 
 /** Stores each logical column in a private Redis hash, keyed by the test row ID. */
 final class RedisTypeCommandFixture implements AutoCloseable {
-    private final String prefix = "nxn:redis:type-case:" + UUID.randomUUID() + ":";
-    private final Set<String> keys = new LinkedHashSet<>();
-    private Connection connection;
-    private JdbcTemplate template;
+    private final String       prefix = "nxn:redis:type-case:" + UUID.randomUUID() + ":";
+    private final Set<String>  keys   = new LinkedHashSet<>();
+    private       Connection   connection;
+    private       JdbcTemplate template;
 
     JdbcTemplate open() throws SQLException {
         Assume.assumeTrue("Redis type contract", "redis".equals(OneApiDataSourceManager.getDbDialect()));
@@ -41,8 +39,7 @@ final class RedisTypeCommandFixture implements AutoCloseable {
         }
         StringBuilder script = new StringBuilder();
         for (int i = 1; i < fields.length; i++) {
-            script.append("redis.call(\"HSET\",\"").append(key(table, fields[i].trim()))
-                    .append("\",ARGV[1],ARGV[").append(i + 1).append("]); ");
+            script.append("redis.call(\"HSET\",\"").append(key(table, fields[i].trim())).append("\",ARGV[1],ARGV[").append(i + 1).append("]); ");
         }
         script.append("return 1");
         return "EVAL '" + script + "' 0 " + String.join(" ", parameters);

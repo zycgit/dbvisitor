@@ -32,15 +32,15 @@ public class Elastic7UpdateTest {
 
             // Create index with mapping
             String putIndex = "PUT /" + INDEX_NAME + """
-                 {
-                "mappings": {
-                    "properties": {
-                      "name": { "type": "keyword" },
-                      "age": { "type": "integer" }
+                     {
+                    "mappings": {
+                        "properties": {
+                          "name": { "type": "keyword" },
+                          "age": { "type": "integer" }
+                        }
                     }
-                }
-                }
-                """;
+                    }
+                    """;
             stmt.executeUpdate(putIndex);
         }
     }
@@ -93,17 +93,17 @@ public class Elastic7UpdateTest {
 
             // Update by query
             String updateByQuery = "POST /" + INDEX_NAME + """
-                /_update_by_query {
-                "script": {
-                  "source": "ctx._source.age++"
-                },
-                "query": {
-                  "term": {
-                    "age": 30
-                  }
-                }
-                }
-                """;
+                    /_update_by_query {
+                    "script": {
+                      "source": "ctx._source.age++"
+                    },
+                    "query": {
+                      "term": {
+                        "age": 30
+                      }
+                    }
+                    }
+                    """;
 
             int count = stmt.executeUpdate(updateByQuery);
             assertEquals(2, count); // John and Bob should be updated
@@ -119,6 +119,7 @@ public class Elastic7UpdateTest {
             }
         }
     }
+
     public static void main(String[] args) {
         net.hasor.dbvisitor.test.realdb.RealDbTestRunner.run(Elastic7UpdateTest.class);
     }

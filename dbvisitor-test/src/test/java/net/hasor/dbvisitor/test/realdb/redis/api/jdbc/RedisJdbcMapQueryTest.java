@@ -10,12 +10,11 @@ package net.hasor.dbvisitor.test.realdb.redis.api.jdbc;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.Map;
-import org.junit.Before;
-import org.junit.After;
-
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcMapQueryCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import org.junit.After;
+import org.junit.Before;
 
 public class RedisJdbcMapQueryTest extends JdbcMapQueryCase {
 

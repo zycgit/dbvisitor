@@ -15,13 +15,13 @@ import net.hasor.dbvisitor.types.handler.json.JsonTypeHandler;
 @Table("tb_complex_order_milvus")
 public class ComplexOrderMilvus {
     @Column(value = "id", primary = true)
-    private String          id;
+    private String      id;
     @Column(value = "address", typeHandler = JsonTypeHandler.class)
-    private Address         address;
+    private Address     address;
     @Column(value = "items", typeHandler = JsonTypeHandler.class)
-    private OrderItems      items;
+    private OrderItems  items;
     @Column("v")
-    private List<Float>     v;
+    private List<Float> v;
 
     public String getId() {
         return id;

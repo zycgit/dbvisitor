@@ -25,6 +25,16 @@ public class RedisXmlMapperStatementAttributeTest extends XmlMapperStatementAttr
     }
 
     @Override
+    protected int expectedQueryTimeout() {
+        return 5;
+    }
+
+    @Override
+    protected int expectedCombinedFetchSize() {
+        return 2;
+    }
+
+    @Override
     @Before
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open();
@@ -35,8 +45,7 @@ public class RedisXmlMapperStatementAttributeTest extends XmlMapperStatementAttr
     public void createXmlMapperSession() throws Exception {
         Session material = this.fixture.session(newConfiguration(), "/session/RedisUserSessionMapper.xml");
         for (int i = 1; i <= 5; i++) {
-            material.executeStatement("session.UserSessionMapper.insertUser", Map.of(
-                    "id", baseId() + i, "name", "StmtAttr" + i, "age", 20 + i, "email", "attr" + i + "@nxn.test"));
+            material.executeStatement("session.UserSessionMapper.insertUser", Map.of("id", baseId() + i, "name", "StmtAttr" + i, "age", 20 + i, "email", "attr" + i + "@nxn.test"));
         }
         this.session = this.fixture.session(newConfiguration(), "/mapper/redis/StatementAttrMapper.xml");
     }

@@ -7,13 +7,46 @@
  */
 package net.hasor.dbvisitor.test.realdb.elastic6;
 
-import net.hasor.dbvisitor.test.realdb.elastic7.Elastic7AnnotationTypeHandlerTest;
+import java.sql.SQLException;
+import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.test.contract.feature.type.AnnotationTypeHandlerCase;
+import net.hasor.dbvisitor.test.contract.material.model.annotation.JdbcTypeUser;
+import net.hasor.dbvisitor.test.contract.material.model.annotation.ReadTypeHandlerUser;
+import net.hasor.dbvisitor.test.contract.material.model.annotation.SpecialJavaTypeUser;
+import net.hasor.dbvisitor.test.contract.material.model.annotation.TypeHandlerUser;
+import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic6Profile;
+import net.hasor.dbvisitor.test.realdb.elastic7.material.ElasticMatrixFixture;
+import org.junit.After;
+import org.junit.Before;
 
-public class Elastic6AnnotationTypeHandlerTest extends Elastic7AnnotationTypeHandlerTest {
+public class Elastic6AnnotationTypeHandlerTest extends AnnotationTypeHandlerCase {
+    private final ElasticMatrixFixture fixture = new ElasticMatrixFixture();
+
     @Override
     protected DataSourceProfile profile() {
         return Elastic6Profile.INSTANCE;
+    }
+
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        OneApiDataSourceManager.assumeCurrentDataSource(profile().env());
+    }
+
+    @Override
+    protected LambdaTemplate mappingLambdaTemplate() throws SQLException {
+        jdbcTemplate = fixture.open(profile().env());
+        fixture.registry().loadEntityAsTable(TypeHandlerUser.class, fixture.index());
+        fixture.registry().loadEntityAsTable(ReadTypeHandlerUser.class, fixture.index());
+        fixture.registry().loadEntityAsTable(JdbcTypeUser.class, fixture.index());
+        fixture.registry().loadEntityAsTable(SpecialJavaTypeUser.class, fixture.index());
+        return fixture.lambdaTemplate();
+    }
+
+    @After
+    public void closeFixture() throws SQLException {
+        fixture.close();
     }
 }

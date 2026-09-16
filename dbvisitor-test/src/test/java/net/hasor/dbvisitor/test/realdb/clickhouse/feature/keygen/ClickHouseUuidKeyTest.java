@@ -8,8 +8,8 @@
 package net.hasor.dbvisitor.test.realdb.clickhouse.feature.keygen;
 
 import net.hasor.dbvisitor.test.contract.feature.keygen.UuidKeyCase;
-import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 
 public class ClickHouseUuidKeyTest extends UuidKeyCase {
     @Override

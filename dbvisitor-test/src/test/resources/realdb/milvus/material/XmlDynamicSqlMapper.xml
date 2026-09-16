@@ -37,10 +37,10 @@
         WHERE name LIKE 'DynSql%'
         ORDER BY
         <choose>
-            <when test="orderBy == 'name'">
+            <when test="orderBy == 'name' || orderBy == 'both'">
                 v &lt;-&gt; [0, 0]
             </when>
-            <when test="orderBy == 'age'">
+            <when test="orderBy == 'age' || orderBy == 'both'">
                 v &lt;-&gt; [1000000, 0]
             </when>
             <otherwise>

@@ -7,24 +7,23 @@
  */
 package net.hasor.dbvisitor.test.contract.api.lambda;
 
+import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.sql.SQLException;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 @NxnContract
 public abstract class LambdaLikeCase extends LambdaPredicateSupport {
+    // 能力归属：构造器 API / 条件构造器。
     @Test
-    @Capability(CapabilityId.LAMBDA_PREDICATE_LIKE_VARIANTS)
+    @Capability(value = CapabilityId.LAMBDA_PREDICATE_LIKE_VARIANTS, column = "builder/condition-builders/predicates")
     public void lambdaPredicate_shouldApplyLikeLeftRightAndContains() throws SQLException {
         insert(baseId() + 701, "NXN-Predicate-Like-TestUser", 25, "like@nxn.test");
         insert(baseId() + 702, "NXN-Predicate-Like-UserAccount", 30, "like@nxn.test");
@@ -49,8 +48,9 @@ public abstract class LambdaLikeCase extends LambdaPredicateSupport {
         assertEquals(2, left);
     }
 
+    // 能力归属：构造器 API / 条件构造器。
     @Test
-    @Capability(CapabilityId.LAMBDA_PREDICATE_NOT_LIKE_VARIANTS)
+    @Capability(value = CapabilityId.LAMBDA_PREDICATE_NOT_LIKE_VARIANTS, column = "builder/condition-builders/predicates")
     public void lambdaPredicate_shouldApplyNotLikeLeftRightAndContains() throws SQLException {
         insert(baseId() + 801, "NXN-Predicate-NotLike-TestUser", 25, "like@nxn.test");
         insert(baseId() + 802, "NXN-Predicate-NotLike-MyTest", 30, "like@nxn.test");
@@ -75,8 +75,9 @@ public abstract class LambdaLikeCase extends LambdaPredicateSupport {
         assertEquals(2, notLeft);
     }
 
+    // 能力归属：构造器 API / 条件构造器。
     @Test
-    @Capability(CapabilityId.LAMBDA_PREDICATE_LIKE_NULL_AND_MULTI)
+    @Capability(value = CapabilityId.LAMBDA_PREDICATE_LIKE_NULL_AND_MULTI, column = "builder/condition-builders/predicates")
     public void lambdaPredicate_shouldHandleLikeNullsAndMultipleLikePredicates() throws SQLException {
         insert(baseId() + 901, "NXN-Predicate-LikeNull-Test", 25, "ln@test.com");
         insert(baseId() + 902, null, 30, "ln@test.com");
@@ -98,8 +99,9 @@ public abstract class LambdaLikeCase extends LambdaPredicateSupport {
         assertEquals(1, multi);
     }
 
+    // 能力归属：构造器 API / 条件构造器。
     @Test
-    @Capability(CapabilityId.LAMBDA_PREDICATE_STRING_LIKE)
+    @Capability(value = CapabilityId.LAMBDA_PREDICATE_STRING_LIKE, column = "builder/condition-builders/predicates")
     public void lambdaPredicate_shouldSupportStringPropertyLikeVariants() throws SQLException {
         insert(baseId() + 1201, "NXN-Predicate-String-Name-Alice", 18, "string-like@nxn.test");
         insert(baseId() + 1202, "NXN-Predicate-String-Name-Bob", 22, "string-like@nxn.test");
@@ -140,8 +142,9 @@ public abstract class LambdaLikeCase extends LambdaPredicateSupport {
         assertEquals(2, notLeft);
     }
 
+    // 能力归属：构造器 API / 条件构造器。
     @Test
-    @Capability(CapabilityId.LAMBDA_QUERY_LIKE)
+    @Capability(value = CapabilityId.LAMBDA_QUERY_LIKE, column = "builder/condition-builders/predicates")
     public void lambdaQueryLike_shouldMatchStringPrefix() throws SQLException {
         insert(baseId() + 21, "LikeAlpha", 21, "like1@test.com");
         insert(baseId() + 22, "LikeBeta", 22, "like2@test.com");
@@ -153,5 +156,20 @@ public abstract class LambdaLikeCase extends LambdaPredicateSupport {
 
         assertEquals(2, users.size());
         assertEquals(Set.of("LikeAlpha", "LikeBeta"), users.stream().map(UserInfo::getName).collect(Collectors.toSet()));
+    }
+
+    // 能力归属：构造器 API / 条件构造器。
+    @Test
+    @Capability(value = CapabilityId.LAMBDA_EMPTY_LIKE_EMPTY_STRING, column = "builder/condition-builders/predicates")
+    public void lambdaLike_shouldApplyEmptyStringPatternConsistently() throws SQLException {
+        insert(baseId() + 21, "LikeEmptyOne", 25, "like-empty-1@nxn.test");
+        insert(baseId() + 22, "LikeEmptyTwo", 26, "like-empty-2@nxn.test");
+
+        List<UserInfo> result = lambdaTemplate.query(UserInfo.class)//
+                .in(UserInfo::getId, Arrays.asList(baseId() + 21, baseId() + 22))//
+                .like(UserInfo::getName, "")//
+                .queryForList();
+
+        assertEquals(2, result.size());
     }
 }

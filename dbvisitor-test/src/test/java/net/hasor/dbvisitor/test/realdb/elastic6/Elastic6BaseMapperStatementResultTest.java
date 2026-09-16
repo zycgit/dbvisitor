@@ -7,9 +7,9 @@
  */
 package net.hasor.dbvisitor.test.realdb.elastic6;
 
-import net.hasor.dbvisitor.test.realdb.elastic7.Elastic7BaseMapperStatementResultTest;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic6Profile;
+import net.hasor.dbvisitor.test.realdb.elastic7.Elastic7BaseMapperStatementResultTest;
 
 public class Elastic6BaseMapperStatementResultTest extends Elastic7BaseMapperStatementResultTest {
     @Override

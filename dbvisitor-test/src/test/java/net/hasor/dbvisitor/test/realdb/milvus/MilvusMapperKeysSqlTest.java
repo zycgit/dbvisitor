@@ -7,9 +7,9 @@
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
-import java.sql.SQLException;
 import net.hasor.dbvisitor.mapper.Insert;
 import net.hasor.dbvisitor.mapper.SimpleMapper;
 import net.hasor.dbvisitor.session.Configuration;
@@ -22,12 +22,10 @@ import static org.junit.Assert.*;
 public class MilvusMapperKeysSqlTest extends MilvusSqlContractSupport {
     @SimpleMapper
     public interface KeysMapper {
-        @Insert(value = "INSERT INTO ${collection} (name, v) VALUES (#{name}, #{vector})",
-                useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
+        @Insert(value = "INSERT INTO ${collection} (name, v) VALUES (#{name}, #{vector})", useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
         int namedColumn(Map<String, Object> values) throws SQLException;
 
-        @Insert(value = "INSERT INTO ${collection} (name, v) VALUES (#{name}, #{vector})",
-                useGeneratedKeys = true, keyProperty = "id")
+        @Insert(value = "INSERT INTO ${collection} (name, v) VALUES (#{name}, #{vector})", useGeneratedKeys = true, keyProperty = "id")
         int defaultColumn(Map<String, Object> values);
     }
 

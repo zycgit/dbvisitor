@@ -8,8 +8,8 @@
 package net.hasor.dbvisitor.test.realdb.clickhouse.feature.keygen;
 
 import net.hasor.dbvisitor.test.contract.feature.keygen.AssignedKeyCase;
-import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 
 public class ClickHouseAssignedKeyTest extends AssignedKeyCase {
     @Override

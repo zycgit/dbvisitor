@@ -8,40 +8,25 @@
 package net.hasor.dbvisitor.test.contract.feature.mapping;
 
 import java.sql.SQLException;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import org.junit.Before;
-import org.junit.Test;
-
+import java.util.*;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
-import net.hasor.dbvisitor.test.contract.material.model.annotation.AbstractMd5User;
-import net.hasor.dbvisitor.test.contract.material.model.annotation.CombinedTemplateUser;
-import net.hasor.dbvisitor.test.contract.material.model.annotation.InsertTemplateUser;
-import net.hasor.dbvisitor.test.contract.material.model.annotation.Md5User;
-import net.hasor.dbvisitor.test.contract.material.model.annotation.SelectTemplateUser;
-import net.hasor.dbvisitor.test.contract.material.model.annotation.TemplateUser;
-import net.hasor.dbvisitor.test.contract.material.model.annotation.UpdateTemplateUser;
-import net.hasor.dbvisitor.test.contract.material.model.annotation.WhereColTemplateUser;
-import net.hasor.dbvisitor.test.contract.material.model.annotation.WhereValueTemplateUser;
+import net.hasor.dbvisitor.test.contract.material.model.annotation.*;
+import net.hasor.dbvisitor.test.contract.material.model.tabledef.OrderByTemplateUser;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 import net.hasor.dbvisitor.types.SqlArg;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class AnnotationSqlTemplateCase extends AbstractNxnContractTest {
-    private static final Set<String> INITIALIZED_ENVS = new HashSet<>();
-    private LambdaTemplate lambdaTemplate;
+    private static final Set<String>    INITIALIZED_ENVS = new HashSet<>();
+    private              LambdaTemplate lambdaTemplate;
 
     @Before
     public void createLambdaTemplate() throws SQLException {
@@ -67,8 +52,9 @@ public abstract class AnnotationSqlTemplateCase extends AbstractNxnContractTest 
         return Md5User.class;
     }
 
+    // 能力归属：对象映射 / 字段类型与语句模板 / 语句模板。
     @Test
-    @Capability(CapabilityId.MAPPING_ANNOTATION_SQL_TEMPLATE_MD5)
+    @Capability(value = CapabilityId.MAPPING_ANNOTATION_SQL_TEMPLATE_MD5, column = "mapping-keys/field-types-and-statement-templates/statement-templates")
     public void annotationSqlTemplate_shouldApplyMd5InsertTemplateWhenSupported() throws Exception {
         AbstractMd5User user = md5UserType().getDeclaredConstructor().newInstance();
         user.setId("nxn-md5-1");
@@ -81,8 +67,9 @@ public abstract class AnnotationSqlTemplateCase extends AbstractNxnContractTest 
         assertEquals("e10adc3949ba59abbe56e057f20f883e", value(row, "password"));
     }
 
+    // 能力归属：对象映射 / 字段类型与语句模板 / 语句模板。
     @Test
-    @Capability(CapabilityId.MAPPING_ANNOTATION_SQL_TEMPLATE_INSERT_SET)
+    @Capability(value = CapabilityId.MAPPING_ANNOTATION_SQL_TEMPLATE_INSERT_SET, column = "mapping-keys/field-types-and-statement-templates/statement-templates")
     public void annotationSqlTemplate_shouldApplyInsertAndSetValueTemplates() throws SQLException {
         TemplateUser user = new TemplateUser();
         user.setId(910001);
@@ -114,8 +101,9 @@ public abstract class AnnotationSqlTemplateCase extends AbstractNxnContractTest 
         assertEquals("test_val_updated", updated.getData());
     }
 
+    // 能力归属：对象映射 / 字段类型与语句模板 / 语句模板。
     @Test
-    @Capability(CapabilityId.MAPPING_ANNOTATION_SQL_TEMPLATE_SELECT)
+    @Capability(value = CapabilityId.MAPPING_ANNOTATION_SQL_TEMPLATE_SELECT, column = "mapping-keys/field-types-and-statement-templates/statement-templates")
     public void annotationSqlTemplate_shouldApplySelectTemplate() throws SQLException {
         insertRawUser(910101, "hello", 25);
 
@@ -127,8 +115,45 @@ public abstract class AnnotationSqlTemplateCase extends AbstractNxnContractTest 
         assertEquals("HELLO", result.getName());
     }
 
+    // 能力归属：对象映射 / 字段类型与语句模板 / 排序列模板。
     @Test
-    @Capability(CapabilityId.MAPPING_ANNOTATION_SQL_TEMPLATE_INSERT)
+    @Capability(value = CapabilityId.MAPPING_ANNOTATION_SQL_TEMPLATE_ORDER_BY, column = "mapping-keys/field-types-and-statement-templates/statement-templates")
+    public void annotationSqlTemplate_shouldApplyOrderByColumnTemplate() throws SQLException {
+        insertRawUser(910108, "OrderMiddle", 20);
+        insertRawUser(910109, "OrderSmall", 10);
+        insertRawUser(910110, "OrderLarge", 30);
+
+        BoundSql boundSql = lambdaTemplate.query(OrderByTemplateUser.class)//
+                .ge(OrderByTemplateUser::getId, 910108)//
+                .le(OrderByTemplateUser::getId, 910110)//
+                .asc(OrderByTemplateUser::getAge)//
+                .getBoundSql();
+        assertTrue(boundSql.getSqlString(), boundSql.getSqlString().contains("age * -1"));
+
+        List<OrderByTemplateUser> ascending = lambdaTemplate.query(OrderByTemplateUser.class)//
+                .ge(OrderByTemplateUser::getId, 910108)//
+                .le(OrderByTemplateUser::getId, 910110)//
+                .asc(OrderByTemplateUser::getAge)//
+                .queryForList();
+        assertEquals(3, ascending.size());
+        assertEquals(Integer.valueOf(910110), ascending.get(0).getId());
+        assertEquals(Integer.valueOf(910108), ascending.get(1).getId());
+        assertEquals(Integer.valueOf(910109), ascending.get(2).getId());
+
+        List<OrderByTemplateUser> descending = lambdaTemplate.query(OrderByTemplateUser.class)//
+                .ge(OrderByTemplateUser::getId, 910108)//
+                .le(OrderByTemplateUser::getId, 910110)//
+                .desc(OrderByTemplateUser::getAge)//
+                .queryForList();
+        assertEquals(3, descending.size());
+        assertEquals(Integer.valueOf(910109), descending.get(0).getId());
+        assertEquals(Integer.valueOf(910108), descending.get(1).getId());
+        assertEquals(Integer.valueOf(910110), descending.get(2).getId());
+    }
+
+    // 能力归属：对象映射 / 字段类型与语句模板 / 语句模板。
+    @Test
+    @Capability(value = CapabilityId.MAPPING_ANNOTATION_SQL_TEMPLATE_INSERT, column = "mapping-keys/field-types-and-statement-templates/statement-templates")
     public void annotationSqlTemplate_shouldApplyInsertTemplate() throws SQLException {
         deleteRawUser(910102);
         InsertTemplateUser user = new InsertTemplateUser();
@@ -146,8 +171,9 @@ public abstract class AnnotationSqlTemplateCase extends AbstractNxnContractTest 
         assertEquals("hello world", raw.getName());
     }
 
+    // 能力归属：对象映射 / 字段类型与语句模板 / 语句模板。
     @Test
-    @Capability(CapabilityId.MAPPING_ANNOTATION_SQL_TEMPLATE_SET_VALUE)
+    @Capability(value = CapabilityId.MAPPING_ANNOTATION_SQL_TEMPLATE_SET_VALUE, column = "mapping-keys/field-types-and-statement-templates/statement-templates")
     public void annotationSqlTemplate_shouldApplySetValueTemplate() throws SQLException {
         insertRawUser(910103, "initial", 25);
 
@@ -162,8 +188,9 @@ public abstract class AnnotationSqlTemplateCase extends AbstractNxnContractTest 
         assertEquals("HELLO WORLD", raw.getName());
     }
 
+    // 能力归属：对象映射 / 字段类型与语句模板 / 语句模板。
     @Test
-    @Capability(CapabilityId.MAPPING_ANNOTATION_SQL_TEMPLATE_WHERE_COLUMN)
+    @Capability(value = CapabilityId.MAPPING_ANNOTATION_SQL_TEMPLATE_WHERE_COLUMN, column = "mapping-keys/field-types-and-statement-templates/statement-templates")
     public void annotationSqlTemplate_shouldApplyWhereColumnTemplate() throws SQLException {
         insertRawUser(910104, "Hello", 25);
 
@@ -181,8 +208,9 @@ public abstract class AnnotationSqlTemplateCase extends AbstractNxnContractTest 
         assertEquals(Integer.valueOf(910104), result.getId());
     }
 
+    // 能力归属：对象映射 / 字段类型与语句模板 / 语句模板。
     @Test
-    @Capability(CapabilityId.MAPPING_ANNOTATION_SQL_TEMPLATE_WHERE_VALUE)
+    @Capability(value = CapabilityId.MAPPING_ANNOTATION_SQL_TEMPLATE_WHERE_VALUE, column = "mapping-keys/field-types-and-statement-templates/statement-templates")
     public void annotationSqlTemplate_shouldApplyWhereValueTemplate() throws SQLException {
         insertRawUser(910105, "HELLO", 25);
 
@@ -200,8 +228,9 @@ public abstract class AnnotationSqlTemplateCase extends AbstractNxnContractTest 
         assertEquals(Integer.valueOf(910105), result.getId());
     }
 
+    // 能力归属：对象映射 / 字段类型与语句模板 / 语句模板。
     @Test
-    @Capability(CapabilityId.MAPPING_ANNOTATION_SQL_TEMPLATE_COMBINED_INSERT_SELECT)
+    @Capability(value = CapabilityId.MAPPING_ANNOTATION_SQL_TEMPLATE_COMBINED_INSERT_SELECT, column = "mapping-keys/field-types-and-statement-templates/statement-templates")
     public void annotationSqlTemplate_shouldApplyCombinedInsertAndSelectTemplates() throws SQLException {
         deleteRawUser(910106);
         CombinedTemplateUser user = new CombinedTemplateUser();
@@ -234,8 +263,9 @@ public abstract class AnnotationSqlTemplateCase extends AbstractNxnContractTest 
         assertEquals("HELLO WORLD", result.getName());
     }
 
+    // 能力归属：对象映射 / 字段类型与语句模板 / 语句模板。
     @Test
-    @Capability(CapabilityId.MAPPING_ANNOTATION_SQL_TEMPLATE_COMBINED_UPDATE)
+    @Capability(value = CapabilityId.MAPPING_ANNOTATION_SQL_TEMPLATE_COMBINED_UPDATE, column = "mapping-keys/field-types-and-statement-templates/statement-templates")
     public void annotationSqlTemplate_shouldApplyCombinedUpdateTemplate() throws SQLException {
         insertRawUser(910107, "initial", 25);
 

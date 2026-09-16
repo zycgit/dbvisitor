@@ -7,19 +7,18 @@
  */
 package net.hasor.dbvisitor.test.contract.api.mapper.basemapper;
 
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 @NxnContract
 public abstract class BaseMapperDefaultKeyCase extends BaseMapperCrudSupport {
+    // 能力归属：Mapper API / 主键策略。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_INSERT_DEFAULT_KEY)
+    @Capability(value = CapabilityId.BASEMAPPER_INSERT_DEFAULT_KEY, column = "mapper/key-strategies/strategies")
     public void baseMapperInsert_shouldAcceptUnspecifiedPrimaryKeyWhenSchemaSuppliesDefault() {
         UserInfo autoKey = user(null, "BaseAutoKey", 25, null);
         assertEquals(1, this.mapper.insert(autoKey));

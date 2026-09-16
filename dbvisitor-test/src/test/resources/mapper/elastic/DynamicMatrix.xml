@@ -28,8 +28,8 @@
         POST /@{macro,esSessionIndex}/_search {
             "query": {"prefix": {"name": "DynSql"}},
             "sort": [<choose>
-                <when test="orderBy == 'name'">{"name": "asc"}</when>
-                <when test="orderBy == 'age'">{"age": "desc"}</when>
+                <when test="orderBy == 'name' || orderBy == 'both'">{"name": "asc"}</when>
+                <when test="orderBy == 'age' || orderBy == 'both'">{"age": "desc"}</when>
                 <otherwise>{"id": "asc"}</otherwise>
             </choose>]
         }

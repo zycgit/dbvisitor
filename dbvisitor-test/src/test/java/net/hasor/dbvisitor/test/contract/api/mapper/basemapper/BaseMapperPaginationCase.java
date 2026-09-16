@@ -8,23 +8,21 @@
 package net.hasor.dbvisitor.test.contract.api.mapper.basemapper;
 
 import java.util.List;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.page.Page;
 import net.hasor.dbvisitor.page.PageObject;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @NxnContract
 public abstract class BaseMapperPaginationCase extends BaseMapperCrudSupport {
+    // 能力归属：Mapper API / 分页查询。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_PAGE_BY_SAMPLE)
+    @Capability(value = CapabilityId.BASEMAPPER_PAGE_BY_SAMPLE, column = "mapper/pagination/pagination")
     public void baseMapperPageBySample_shouldReturnPagedRows() {
         for (int i = 1; i <= 8; i++) {
             this.mapper.insert(user(baseId() + 60 + i, "BasePage" + i, 71, null));
@@ -40,8 +38,9 @@ public abstract class BaseMapperPaginationCase extends BaseMapperCrudSupport {
         assertEquals(3, loaded.size());
     }
 
+    // 能力归属：Mapper API / 分页查询。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_PAGE_BOUNDARY)
+    @Capability(value = CapabilityId.BASEMAPPER_PAGE_BOUNDARY, column = "mapper/pagination/pagination")
     public void baseMapperPageBySample_shouldHandleZeroLargeSizeAndEmptySamplePages() {
         for (int i = 1; i <= 10; i++) {
             this.mapper.insert(user(baseId() + 420 + i, "BasePageBoundary" + i, 40, null));

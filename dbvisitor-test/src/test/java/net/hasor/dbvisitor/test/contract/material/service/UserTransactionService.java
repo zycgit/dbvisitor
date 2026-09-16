@@ -9,6 +9,7 @@ package net.hasor.dbvisitor.test.contract.material.service;
 
 import java.sql.SQLException;
 import java.util.Date;
+import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.transaction.Isolation;
@@ -23,6 +24,7 @@ import net.hasor.dbvisitor.transaction.Transactional;
 public class UserTransactionService {
 
     private final LambdaTemplate lambdaTemplate;
+    private       int            lastIsolationLevel;
 
     /** 无参构造器 — Cobble ASM 动态代理创建子类时需要 */
     public UserTransactionService() {
@@ -120,18 +122,42 @@ public class UserTransactionService {
         throw new RuntimeException("Real error — SHOULD rollback");
     }
 
+    /** 按完整类名匹配的异常继续抛出，但事务应提交。 */
+    @Transactional(noRollbackForClassName = "java.lang.IllegalArgumentException")
+    public void createUserNoRollbackForClassName(int id, String name) throws SQLException {
+        doInsert(id, name);
+        throw new IllegalArgumentException("Named exception should commit");
+    }
+
+    /** 类名规则只匹配完整名称，不应把子类也当作同名异常。 */
+    @Transactional(noRollbackForClassName = "java.lang.IllegalArgumentException")
+    public void createUserRollbackForDifferentClassName(int id, String name) throws SQLException {
+        doInsert(id, name);
+        throw new NumberFormatException("Different exception class should rollback");
+    }
+
     // ==================== 隔离级别方法 ====================
 
     /** SERIALIZABLE 隔离级别 */
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public int createUserSerializable(int id, String name) throws SQLException {
+        recordConnectionIsolation();
         return doInsert(id, name);
     }
 
     /** READ_COMMITTED 隔离级别 */
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public int createUserReadCommitted(int id, String name) throws SQLException {
+        recordConnectionIsolation();
         return doInsert(id, name);
+    }
+
+    public int getLastIsolationLevel() {
+        return this.lastIsolationLevel;
+    }
+
+    private void recordConnectionIsolation() throws SQLException {
+        this.lastIsolationLevel = this.lambdaTemplate.jdbc().execute((ConnectionCallback<Integer>) connection -> connection.getTransactionIsolation());
     }
 
     // ==================== 无注解方法 ====================

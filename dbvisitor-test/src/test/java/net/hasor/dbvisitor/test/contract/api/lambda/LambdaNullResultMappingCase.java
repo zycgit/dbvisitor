@@ -10,22 +10,20 @@ package net.hasor.dbvisitor.test.contract.api.lambda;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.jdbc.RowMapper;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 @NxnContract
 public abstract class LambdaNullResultMappingCase extends LambdaResultHandlingSupport {
+    // 能力归属：构造器 API / 查询操作。
     @Test
-    @Capability(CapabilityId.LAMBDA_RESULT_NULL_AND_CALCULATED)
+    @Capability(value = CapabilityId.LAMBDA_RESULT_NULL_AND_CALCULATED, column = "builder/queries/query")
     public void lambdaResult_shouldMapNullsAndMapToBean() throws SQLException {
         insertByJdbc(baseId() + 181, "LRNull", null, null);
         insertByJdbc(baseId() + 182, "LRCalc", 30, "lr-calc@test.com");

@@ -7,11 +7,7 @@
  */
 package net.hasor.dbvisitor.test.realdb.h2.material;
 
-import net.hasor.dbvisitor.mapper.Insert;
-import net.hasor.dbvisitor.mapper.GeneratedKeySource;
-import net.hasor.dbvisitor.mapper.Order;
-import net.hasor.dbvisitor.mapper.SelectKeySql;
-import net.hasor.dbvisitor.mapper.SimpleMapper;
+import net.hasor.dbvisitor.mapper.*;
 import net.hasor.dbvisitor.test.contract.material.dao.declarative.AnnotationAttributesMapper;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 

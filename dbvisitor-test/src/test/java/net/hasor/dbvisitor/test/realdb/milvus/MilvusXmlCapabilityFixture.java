@@ -16,7 +16,7 @@ import net.hasor.dbvisitor.session.Session;
 /** Same ordered XML result assertions, with native KNN order instead of scalar ORDER BY. */
 final class MilvusXmlCapabilityFixture implements AutoCloseable {
     private final MilvusDatabaseFixture database = new MilvusDatabaseFixture();
-    private JdbcTemplate jdbc;
+    private       JdbcTemplate          jdbc;
 
     JdbcTemplate open(int baseId) throws SQLException {
         if (this.jdbc != null) {
@@ -31,8 +31,7 @@ final class MilvusXmlCapabilityFixture implements AutoCloseable {
         this.jdbc.execute("CREATE INDEX page_v ON user_info(v) USING FLAT WITH (metric_type=L2)");
         this.jdbc.execute("LOAD TABLE user_info");
         for (int i = 1; i <= 5; i++) {
-            this.jdbc.executeUpdate("INSERT INTO user_info (id, name, age, email, create_time, v) VALUES (?, ?, ?, ?, ?, ?)",
-                    new Object[] { baseId + i, "XmlCrud" + i, 20 + i, "crud" + i + "@test.com", new Date(), new float[] { i, 0 } });
+            this.jdbc.executeUpdate("INSERT INTO user_info (id, name, age, email, create_time, v) VALUES (?, ?, ?, ?, ?, ?)", new Object[] { baseId + i, "XmlCrud" + i, 20 + i, "crud" + i + "@test.com", new Date(), new float[] { i, 0 } });
         }
         return this.jdbc;
     }

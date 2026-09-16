@@ -11,11 +11,10 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
-import org.h2.tools.SimpleResultSet;
-import net.hasor.dbvisitor.test.contract.feature.function.FunctionCase;
+import net.hasor.dbvisitor.test.contract.api.jdbc.FunctionCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.H2Profile;
+import org.h2.tools.SimpleResultSet;
 
 public class H2FunctionTest extends FunctionCase {
     @Override
@@ -130,14 +129,12 @@ public class H2FunctionTest extends FunctionCase {
 
     public static ResultSet allFunctionRows(Connection conn) throws SQLException {
         SimpleResultSet rs = userRowsResultSet();
-        try (Statement stat = conn.createStatement();
-                ResultSet users = stat.executeQuery("SELECT id, name, age, email FROM user_info WHERE id IN (918101, 918102, 918103) ORDER BY id")) {
+        try (Statement stat = conn.createStatement(); ResultSet users = stat.executeQuery("SELECT id, name, age, email FROM user_info WHERE id IN (918101, 918102, 918103) ORDER BY id")) {
             while (users.next()) {
                 rs.addRow(users.getInt("id"), users.getString("name"), users.getInt("age"), users.getString("email"));
             }
         }
-        try (Statement stat = conn.createStatement();
-                ResultSet basics = stat.executeQuery("SELECT id, string_value, int_value FROM basic_types_test WHERE id IN (918101, 918102) ORDER BY id")) {
+        try (Statement stat = conn.createStatement(); ResultSet basics = stat.executeQuery("SELECT id, string_value, int_value FROM basic_types_test WHERE id IN (918101, 918102) ORDER BY id")) {
             while (basics.next()) {
                 rs.addRow(basics.getInt("id"), basics.getString("string_value"), basics.getInt("int_value"), null);
             }
@@ -150,8 +147,7 @@ public class H2FunctionTest extends FunctionCase {
         if (minAge == null) {
             return rs;
         }
-        try (Statement stat = conn.createStatement();
-                ResultSet users = stat.executeQuery("SELECT id, name, age, email FROM user_info WHERE id IN (918101, 918102, 918103) AND age >= " + minAge + " ORDER BY age")) {
+        try (Statement stat = conn.createStatement(); ResultSet users = stat.executeQuery("SELECT id, name, age, email FROM user_info WHERE id IN (918101, 918102, 918103) AND age >= " + minAge + " ORDER BY age")) {
             while (users.next()) {
                 rs.addRow(users.getInt("id"), users.getString("name"), users.getInt("age"), users.getString("email"));
             }

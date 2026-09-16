@@ -8,15 +8,7 @@
 package net.hasor.dbvisitor.test.contract.api.mapper.xml;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.Before;
-import org.junit.Test;
-
+import java.util.*;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
@@ -25,7 +17,8 @@ import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Before;
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -54,16 +47,16 @@ public abstract class XmlMapperDynamicSqlCase extends AbstractNxnContractTest {
     }
 
     protected void insertUser(Object[] values) throws SQLException {
-        jdbcTemplate.executeUpdate(
-                "INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, @{macro, currentTimestamp})", values);
+        jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, @{macro, currentTimestamp})", values);
     }
 
     protected int baseId() {
         return 940000;
     }
 
+    // 能力归属：Mapper 文件 / 动态 SQL。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_DYNAMIC_IF)
+    @Capability(value = CapabilityId.MAPPER_XML_DYNAMIC_IF, column = "mapper-files/dynamic-sql-and-result-mapping/dynamic-commands")
     public void dynamicIf_shouldAppendOnlyMatchedConditions() throws Exception {
         List<UserInfo> all = this.session.queryStatement("xmltest.DynamicSqlMapper.selectWithIf", new HashMap<String, Object>());
         List<UserInfo> minAge = this.session.queryStatement("xmltest.DynamicSqlMapper.selectWithIf", mapOf("minAge", 30));
@@ -80,35 +73,46 @@ public abstract class XmlMapperDynamicSqlCase extends AbstractNxnContractTest {
         assertEquals("DynSqlDave", exact.get(0).getName());
     }
 
+    // 能力归属：Mapper 文件 / 动态 SQL。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_DYNAMIC_CHOOSE)
+    @Capability(value = CapabilityId.MAPPER_XML_DYNAMIC_CHOOSE, column = "mapper-files/dynamic-sql-and-result-mapping/dynamic-commands")
     public void dynamicChoose_shouldSelectExpectedOrderBranch() throws Exception {
         List<UserInfo> byAge = this.session.queryStatement("xmltest.DynamicSqlMapper.selectWithChoose", mapOf("orderBy", "age"));
+        List<UserInfo> firstMatch = this.session.queryStatement("xmltest.DynamicSqlMapper.selectWithChoose", mapOf("orderBy", "both"));
         List<UserInfo> fallback = this.session.queryStatement("xmltest.DynamicSqlMapper.selectWithChoose", mapOf("orderBy", "unknown"));
 
         assertEquals(5, byAge.size());
         assertEquals("DynSqlEve", byAge.get(0).getName());
         assertEquals("DynSqlAlice", byAge.get(4).getName());
+        assertEquals(Arrays.asList("DynSqlAlice", "DynSqlBob", "DynSqlCarol", "DynSqlDave", "DynSqlEve"), firstMatch.stream().map(UserInfo::getName).toList());
         assertEquals(Integer.valueOf(baseId() + 1), fallback.get(0).getId());
         assertEquals(Integer.valueOf(baseId() + 5), fallback.get(4).getId());
     }
 
+    // 能力归属：Mapper 文件 / 动态 SQL。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_DYNAMIC_WHERE)
+    @Capability(value = CapabilityId.MAPPER_XML_DYNAMIC_WHERE, column = "mapper-files/dynamic-sql-and-result-mapping/dynamic-commands")
     public void dynamicWhereAndTrim_shouldRemoveLeadingConditionOperators() throws Exception {
         List<UserInfo> whereSingle = this.session.queryStatement("xmltest.DynamicSqlMapper.selectWithWhere", mapOf("name", "DynSqlAlice"));
         Map<String, Object> trimParams = mapOf("name", "DynSqlCarol");
         trimParams.put("age", 35);
         List<UserInfo> trimSingle = this.session.queryStatement("xmltest.DynamicSqlMapper.selectWithTrim", trimParams);
+        List<UserInfo> whereEmpty = this.session.queryStatement("xmltest.DynamicSqlMapper.selectWithWhere", new HashMap<String, Object>());
+        List<UserInfo> trimEmpty = this.session.queryStatement("xmltest.DynamicSqlMapper.selectWithTrim", new HashMap<String, Object>());
+        List<UserInfo> laterCondition = this.session.queryStatement("xmltest.DynamicSqlMapper.selectWithWhere", mapOf("age", 42));
 
         assertEquals(1, whereSingle.size());
         assertEquals("DynSqlAlice", whereSingle.get(0).getName());
         assertEquals(1, trimSingle.size());
         assertEquals("DynSqlCarol", trimSingle.get(0).getName());
+        assertEquals(5, whereEmpty.size());
+        assertEquals(5, trimEmpty.size());
+        assertEquals(List.of("DynSqlDave"), laterCondition.stream().map(UserInfo::getName).toList());
     }
 
+    // 能力归属：Mapper 文件 / 动态 SQL。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_DYNAMIC_SET)
+    @Capability(value = CapabilityId.MAPPER_XML_DYNAMIC_SET, column = "mapper-files/dynamic-sql-and-result-mapping/dynamic-commands")
     public void dynamicSet_shouldUpdateOnlyNonNullFields() throws Exception {
         Map<String, Object> update = mapOf("id", baseId() + 1);
         update.put("age", 99);
@@ -121,20 +125,37 @@ public abstract class XmlMapperDynamicSqlCase extends AbstractNxnContractTest {
         assertEquals(1, ((Number) result).intValue());
         assertEquals(1, loaded.size());
         assertEquals("dynsqlalice@test.com", loaded.get(0).getEmail());
+
+        Map<String, Object> multipleFields = mapOf("id", baseId() + 1);
+        multipleFields.put("name", "DynSqlRenamed");
+        multipleFields.put("age", null);
+        multipleFields.put("email", "renamed@test.com");
+        assertEquals(1, ((Number) this.session.executeStatement("xmltest.DynamicSqlMapper.updateWithSet", multipleFields)).intValue());
+        List<UserInfo> renamed = this.session.queryStatement("xmltest.DynamicSqlMapper.selectWithWhere", mapOf("name", "DynSqlRenamed"));
+        assertEquals(1, renamed.size());
+        assertEquals(Integer.valueOf(99), renamed.get(0).getAge());
+        assertEquals("renamed@test.com", renamed.get(0).getEmail());
     }
 
+    // 能力归属：Mapper 文件 / 动态 SQL。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_DYNAMIC_FOREACH)
+    @Capability(value = CapabilityId.MAPPER_XML_DYNAMIC_FOREACH, column = "mapper-files/dynamic-sql-and-result-mapping/dynamic-commands")
     public void dynamicForeach_shouldExpandQueryParameters() throws Exception {
-        List<UserInfo> selected = this.session.queryStatement("xmltest.DynamicSqlMapper.selectByIdList", mapOf("ids", Arrays.asList(baseId() + 1, baseId() + 3, baseId() + 5)));
+        List<UserInfo> selected = this.session.queryStatement("xmltest.DynamicSqlMapper.selectByIdList", idParameters(Arrays.asList(baseId() + 1, baseId() + 3, baseId() + 5), 3));
         assertEquals(3, selected.size());
         assertEquals("DynSqlAlice", selected.get(0).getName());
         assertEquals("DynSqlCarol", selected.get(1).getName());
         assertEquals("DynSqlEve", selected.get(2).getName());
+
+        List<UserInfo> primitiveArray = this.session.queryStatement("xmltest.DynamicSqlMapper.selectByIdList", idParameters(new int[] { baseId() + 2, baseId() + 4 }, 2));
+        List<UserInfo> boxedArray = this.session.queryStatement("xmltest.DynamicSqlMapper.selectByIdList", idParameters(new Integer[] { baseId() + 3 }, 1));
+        assertEquals(Arrays.asList("DynSqlBob", "DynSqlDave"), primitiveArray.stream().map(UserInfo::getName).toList());
+        assertEquals(List.of("DynSqlCarol"), boxedArray.stream().map(UserInfo::getName).toList());
     }
 
+    // 能力归属：Mapper 文件 / 动态 SQL。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_DYNAMIC_FOREACH_WRITE)
+    @Capability(value = CapabilityId.MAPPER_XML_DYNAMIC_FOREACH_WRITE, column = "mapper-files/dynamic-sql-and-result-mapping/dynamic-commands")
     public void dynamicForeach_shouldExpandWriteParameters() throws Exception {
         requiresNxnFeature(FeatureId.XML_FOREACH_BATCH_INSERT_COMMAND);
         List<Map<String, Object>> users = new ArrayList<>();
@@ -148,7 +169,7 @@ public abstract class XmlMapperDynamicSqlCase extends AbstractNxnContractTest {
         }
 
         Object result = this.session.executeStatement("xmltest.DynamicSqlMapper.batchInsert", mapOf("users", users));
-        List<UserInfo> inserted = this.session.queryStatement("xmltest.DynamicSqlMapper.selectByIdList", mapOf("ids", Arrays.asList(baseId() + 21, baseId() + 22, baseId() + 23)));
+        List<UserInfo> inserted = this.session.queryStatement("xmltest.DynamicSqlMapper.selectByIdList", idParameters(Arrays.asList(baseId() + 21, baseId() + 22, baseId() + 23), 3));
 
         assertEquals(3, ((Number) result).intValue());
         assertEquals(3, inserted.size());
@@ -162,8 +183,9 @@ public abstract class XmlMapperDynamicSqlCase extends AbstractNxnContractTest {
         }
     }
 
+    // 能力归属：Mapper 文件 / 动态 SQL。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_DYNAMIC_BIND)
+    @Capability(value = CapabilityId.MAPPER_XML_DYNAMIC_BIND, column = "mapper-files/dynamic-sql-and-result-mapping/dynamic-commands")
     public void dynamicBind_shouldUseBoundVariableInLikePattern() throws Exception {
         List<UserInfo> all = this.session.queryStatement("xmltest.DynamicSqlMapper.selectWithBind", mapOf("name", "DynSql"));
         List<UserInfo> alice = this.session.queryStatement("xmltest.DynamicSqlMapper.selectWithBind", mapOf("name", boundNameParameter()));
@@ -184,8 +206,9 @@ public abstract class XmlMapperDynamicSqlCase extends AbstractNxnContractTest {
         return "Alice";
     }
 
+    // 能力归属：Mapper 文件 / 动态 SQL。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_DYNAMIC_COMPLEX)
+    @Capability(value = CapabilityId.MAPPER_XML_DYNAMIC_COMPLEX, column = "mapper-files/dynamic-sql-and-result-mapping/dynamic-commands")
     public void dynamicComplex_shouldCombineWhereIfForeachAndChoose() throws Exception {
         Map<String, Object> params = mapOf("name", "DynSql%");
         params.put("ids", Arrays.asList(baseId() + 1, baseId() + 2));
@@ -208,5 +231,11 @@ public abstract class XmlMapperDynamicSqlCase extends AbstractNxnContractTest {
         Map<String, Object> params = new HashMap<>();
         params.put(key, value);
         return params;
+    }
+
+    private Map<String, Object> idParameters(Object ids, int count) {
+        Map<String, Object> parameters = mapOf("ids", ids);
+        parameters.put("idCount", count);
+        return parameters;
     }
 }

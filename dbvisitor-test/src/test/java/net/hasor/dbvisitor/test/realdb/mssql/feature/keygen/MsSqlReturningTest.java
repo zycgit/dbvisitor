@@ -7,9 +7,9 @@
  */
 package net.hasor.dbvisitor.test.realdb.mssql.feature.keygen;
 
-import net.hasor.dbvisitor.test.scenario.ReturningScenario;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MsSqlProfile;
+import net.hasor.dbvisitor.test.scenario.ReturningScenario;
 
 public class MsSqlReturningTest extends ReturningScenario {
     @Override

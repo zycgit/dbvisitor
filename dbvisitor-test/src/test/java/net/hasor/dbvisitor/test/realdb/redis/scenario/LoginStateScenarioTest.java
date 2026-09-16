@@ -10,7 +10,8 @@ package net.hasor.dbvisitor.test.realdb.redis.scenario;
 import net.hasor.dbvisitor.test.realdb.redis.scenario.mapper.LoginStateMapper;
 import net.hasor.dbvisitor.test.realdb.redis.scenario.model.LoginState;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class LoginStateScenarioTest extends RedisScenarioSupport {
     @Test

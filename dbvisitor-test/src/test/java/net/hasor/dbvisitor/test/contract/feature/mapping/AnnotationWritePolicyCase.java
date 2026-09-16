@@ -9,9 +9,6 @@ package net.hasor.dbvisitor.test.contract.feature.mapping;
 
 import java.sql.SQLException;
 import java.util.Date;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.contract.material.model.annotation.InsertExcludedUser;
 import net.hasor.dbvisitor.test.contract.material.model.annotation.ReadOnlyEmailUser;
@@ -19,14 +16,15 @@ import net.hasor.dbvisitor.test.contract.material.model.annotation.UpdateExclude
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 @NxnContract
 public abstract class AnnotationWritePolicyCase extends AnnotationMappingPolicySupport {
+    // 能力归属：对象映射 / 写入策略 / 只读字段。
     @Test
-    @Capability(CapabilityId.MAPPING_ANNOTATION_INSERT_FALSE)
+    @Capability(value = CapabilityId.MAPPING_ANNOTATION_INSERT_FALSE, column = "mapping-keys/write-policies/fields")
     public void annotationMapping_shouldExcludeInsertFalseColumnFromInsert() throws SQLException {
         InsertExcludedUser user = new InsertExcludedUser();
         user.setId(baseId() + 1);
@@ -41,10 +39,21 @@ public abstract class AnnotationWritePolicyCase extends AnnotationMappingPolicyS
         assertEquals("PolicyInsertFalse", raw.getName());
         assertEquals(Integer.valueOf(25), raw.getAge());
         assertNull(raw.getEmail());
+
+        assertEquals(1, this.lambdaTemplate.update(InsertExcludedUser.class)//
+                .eq(InsertExcludedUser::getId, baseId() + 1)//
+                .updateTo(InsertExcludedUser::getEmail, "allowed-update@nxn.test")//
+                .doUpdate());
+        InsertExcludedUser loaded = this.lambdaTemplate.query(InsertExcludedUser.class)//
+                .eq(InsertExcludedUser::getId, baseId() + 1)//
+                .queryForObject();
+        assertEquals("allowed-update@nxn.test", loaded.getEmail());
+        assertEquals("allowed-update@nxn.test", queryRaw(baseId() + 1).getEmail());
     }
 
+    // 能力归属：对象映射 / 写入策略 / 只读字段。
     @Test
-    @Capability(CapabilityId.MAPPING_ANNOTATION_UPDATE_FALSE)
+    @Capability(value = CapabilityId.MAPPING_ANNOTATION_UPDATE_FALSE, column = "mapping-keys/write-policies/fields")
     public void annotationMapping_shouldExcludeUpdateFalseColumnFromUpdate() throws SQLException {
         insertRaw(baseId() + 11, "PolicyUpdateFalse", 30, "before-update-false@nxn.test");
 
@@ -60,10 +69,24 @@ public abstract class AnnotationWritePolicyCase extends AnnotationMappingPolicyS
         assertEquals(1, rows);
         assertEquals("PolicyUpdateFalseChanged", raw.getName());
         assertEquals("before-update-false@nxn.test", raw.getEmail());
+
+        UpdateExcludedUser insert = new UpdateExcludedUser();
+        insert.setId(baseId() + 12);
+        insert.setName("PolicyUpdateFalseInsert");
+        insert.setAge(31);
+        insert.setEmail("allowed-insert@nxn.test");
+        insert.setCreateTime(new Date());
+        assertEquals(1, this.lambdaTemplate.insert(UpdateExcludedUser.class).applyEntity(insert).executeSumResult());
+        assertEquals("allowed-insert@nxn.test", queryRaw(baseId() + 12).getEmail());
+        UpdateExcludedUser loaded = this.lambdaTemplate.query(UpdateExcludedUser.class)//
+                .eq(UpdateExcludedUser::getId, baseId() + 12)//
+                .queryForObject();
+        assertEquals("allowed-insert@nxn.test", loaded.getEmail());
     }
 
+    // 能力归属：对象映射 / 写入策略 / 只读字段。
     @Test
-    @Capability(CapabilityId.MAPPING_ANNOTATION_READ_ONLY_FIELD)
+    @Capability(value = CapabilityId.MAPPING_ANNOTATION_READ_ONLY_FIELD, column = "mapping-keys/write-policies/fields")
     public void annotationMapping_shouldTreatInsertFalseAndUpdateFalseAsReadOnly() throws SQLException {
         ReadOnlyEmailUser user = new ReadOnlyEmailUser();
         user.setId(baseId() + 21);

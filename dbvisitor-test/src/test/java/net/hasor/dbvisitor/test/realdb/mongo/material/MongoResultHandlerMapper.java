@@ -8,15 +8,13 @@
 package net.hasor.dbvisitor.test.realdb.mongo.material;
 
 import java.util.List;
-import net.hasor.dbvisitor.mapper.Insert;
-import net.hasor.dbvisitor.mapper.Param;
-import net.hasor.dbvisitor.mapper.Query;
-import net.hasor.dbvisitor.mapper.ResultSetType;
-import net.hasor.dbvisitor.mapper.SimpleMapper;
+import java.util.Map;
+import net.hasor.dbvisitor.mapper.*;
 import net.hasor.dbvisitor.test.contract.material.dao.declarative.ResultHandlerMapper;
 import net.hasor.dbvisitor.test.contract.material.handler.CustomResultSetExtractor;
-import net.hasor.dbvisitor.test.contract.material.handler.RecordingRowCallbackHandler;
 import net.hasor.dbvisitor.test.contract.material.handler.CustomRowMapper;
+import net.hasor.dbvisitor.test.contract.material.handler.RecordingRowCallbackHandler;
+import net.hasor.dbvisitor.test.contract.material.handler.UserNameMapExtractor;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 
 @SimpleMapper
@@ -32,6 +30,10 @@ public interface MongoResultHandlerMapper extends ResultHandlerMapper {
     @Override
     @Query(value = "@{macro, mongoSource}.find({$expr: {$regexMatch: {input: '$name', regex: {$replaceAll: {input: #{pattern}, find: '%', replacement: '.*'}}}}}, {_id: 0}).sort({id: 1})", resultSetExtractor = CustomResultSetExtractor.class)
     List<UserInfo> selectWithExtractor(@Param("pattern") String pattern);
+
+    @Override
+    @Query(value = "@{macro, mongoSource}.find({$expr: {$regexMatch: {input: '$name', regex: {$replaceAll: {input: #{pattern}, find: '%', replacement: '.*'}}}}}, {_id: 0}).sort({id: 1})", resultSetExtractor = UserNameMapExtractor.class)
+    Map<Integer, String> selectMapWithExtractor(@Param("pattern") String pattern);
 
     @Override
     @Query(value = "@{macro, mongoSource}.find({$expr: {$regexMatch: {input: '$name', regex: {$replaceAll: {input: #{pattern}, find: '%', replacement: '.*'}}}}}, {_id: 0}).sort({id: 1})", resultSetExtractor = CustomResultSetExtractor.class, fetchSize = 1, timeout = 30)

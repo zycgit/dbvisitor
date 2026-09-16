@@ -7,12 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.mysql.api.mapper.annotation;
 
-import net.hasor.dbvisitor.test.contract.material.dao.declarative.AnnotationAttributesMapper;
-import net.hasor.dbvisitor.test.realdb.mysql.material.MySqlSelectKeyMapper;
-
 import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperSelectKeyCase;
+import net.hasor.dbvisitor.test.contract.material.dao.declarative.AnnotationAttributesMapper;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MySqlProfile;
+import net.hasor.dbvisitor.test.realdb.mysql.material.MySqlSelectKeyMapper;
 
 public class MySqlAnnotationMapperSelectKeyTest extends AnnotationMapperSelectKeyCase {
     @Override

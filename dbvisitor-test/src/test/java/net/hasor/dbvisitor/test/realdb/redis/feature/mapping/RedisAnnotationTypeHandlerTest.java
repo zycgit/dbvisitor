@@ -7,7 +7,7 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.feature.mapping;
 
-import net.hasor.dbvisitor.test.contract.feature.mapping.AnnotationTypeHandlerCase;
+import net.hasor.dbvisitor.test.contract.feature.type.AnnotationTypeHandlerCase;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
@@ -28,7 +28,7 @@ public class RedisAnnotationTypeHandlerTest extends AnnotationTypeHandlerCase {
     @Override
     @Before
     public void createLambdaTemplate() {
-        // Metadata checks do not need an SQL-generating LambdaTemplate.
+        // Redis skips the entity-write contracts before they need a LambdaTemplate.
     }
 
 }

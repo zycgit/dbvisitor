@@ -53,13 +53,6 @@ public abstract class LambdaResultHandlingSupport extends AbstractNxnContractTes
         return null;
     }
 
-    protected static class AgeGroup {
-        protected final Integer age;
-        protected final Long    count;
-
-        protected AgeGroup(Integer age, Long count) {
-            this.age = age;
-            this.count = count;
-        }
+    protected record AgeGroup(Integer age, Long count) {
     }
 }

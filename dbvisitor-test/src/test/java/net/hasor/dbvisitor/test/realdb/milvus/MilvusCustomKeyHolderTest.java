@@ -12,18 +12,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Date;
-import net.hasor.dbvisitor.test.contract.feature.keygen.NumericKeyModel;
-import net.hasor.dbvisitor.test.contract.material.handler.keygen.AfterInsertKeyHolder;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
-import net.hasor.dbvisitor.mapping.Column;
-import net.hasor.dbvisitor.mapping.GeneratedKeyHandler;
-import net.hasor.dbvisitor.mapping.GeneratedKeyHandlerContext;
-import net.hasor.dbvisitor.mapping.GeneratedKeyHandlerFactory;
-import net.hasor.dbvisitor.mapping.KeyHolder;
-import net.hasor.dbvisitor.mapping.KeyType;
-import net.hasor.dbvisitor.mapping.Table;
+import net.hasor.dbvisitor.mapping.*;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.test.contract.feature.keygen.CustomKeyHolderCase;
+import net.hasor.dbvisitor.test.contract.feature.keygen.NumericKeyModel;
+import net.hasor.dbvisitor.test.contract.material.handler.keygen.AfterInsertKeyHolder;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
 import org.junit.After;
@@ -84,11 +78,11 @@ public class MilvusCustomKeyHolderTest extends CustomKeyHolderCase {
     public static class AfterKeyUser {
         @Column(primary = true, keyType = KeyType.Holder)
         @KeyHolder(AfterInsertKeyHolder.class)
-        private Long id;
-        private String name;
+        private Long    id;
+        private String  name;
         private Integer age;
         @Column(name = "create_time")
-        private Date createTime;
+        private Date    createTime;
 
         public Long getId() {
             return this.id;
@@ -127,11 +121,11 @@ public class MilvusCustomKeyHolderTest extends CustomKeyHolderCase {
     public static class ConnectionKeyUser {
         @Column(primary = true, keyType = KeyType.Holder)
         @KeyHolder(CountKeyHolder.class)
-        private Long id;
-        private String name;
+        private Long    id;
+        private String  name;
         private Integer age;
         @Column(name = "create_time")
-        private Date createTime;
+        private Date    createTime;
 
         public Long getId() {
             return this.id;

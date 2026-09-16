@@ -117,6 +117,7 @@ public class Elastic6RefreshAndReindexTest {
             }
         }
     }
+
     public static void main(String[] args) {
         net.hasor.dbvisitor.test.realdb.RealDbTestRunner.run(Elastic6RefreshAndReindexTest.class);
     }

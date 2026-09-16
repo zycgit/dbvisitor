@@ -26,7 +26,7 @@
     <select id="selectWithTimeout" resultMap="userResultMap" timeout="30">
         @{macro, mongoSource}.find({name: {$regex: '^StmtAttr'}}, {_id: 0}).sort({id: 1})
     </select>
-    <select id="selectWithFetchSize" resultMap="userResultMap" fetchSize="5">
+    <select id="selectWithFetchSize" resultMap="userResultMap" fetchSize="2">
         @{macro, mongoSource}.find({name: {$regex: '^StmtAttr'}}, {_id: 0}).sort({id: 1})
     </select>
     <select id="selectForwardOnly" resultMap="userResultMap" resultSetType="FORWARD_ONLY">
@@ -45,4 +45,3 @@
     </insert>
 
 </mapper>
-

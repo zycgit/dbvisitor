@@ -9,20 +9,18 @@ package net.hasor.dbvisitor.test.contract.api.lambda;
 
 import java.sql.SQLException;
 import java.util.List;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 @NxnContract
 public abstract class LambdaScalarResultCase extends LambdaResultHandlingSupport {
+    // 能力归属：构造器 API / 查询操作。
     @Test
-    @Capability(CapabilityId.LAMBDA_RESULT_TYPE_CONVERSION)
+    @Capability(value = CapabilityId.LAMBDA_RESULT_TYPE_CONVERSION, column = "builder/queries/query")
     public void lambdaResult_shouldConvertScalarObjectsAndLists() throws SQLException {
         insertUsers("LRConvert", new int[] { 10, 20, 30 }, baseId() + 60);
 

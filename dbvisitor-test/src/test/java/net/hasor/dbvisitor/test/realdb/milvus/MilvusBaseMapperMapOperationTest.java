@@ -28,7 +28,7 @@ import static org.junit.Assert.*;
 
 public class MilvusBaseMapperMapOperationTest extends BaseMapperMapOperationCase {
     private final MilvusUserInfoFixture fixture = new MilvusUserInfoFixture();
-    private Session session;
+    private       Session               session;
 
     @Override
     protected DataSourceProfile profile() {

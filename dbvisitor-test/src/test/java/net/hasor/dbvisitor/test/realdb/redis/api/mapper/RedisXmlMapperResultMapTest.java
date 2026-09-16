@@ -38,10 +38,8 @@ public class RedisXmlMapperResultMapTest extends XmlMapperResultMapCase {
     public void createXmlMapperSession() throws Exception {
         this.fixture.open();
         for (int offset = 1; offset <= 3; offset++) {
-            this.fixture.session().jdbc().executeUpdate("HSET ? ? ?", new Object[] {
-                    this.fixture.key("entry-" + (baseId() + offset)), baseId() + offset, "RmCfg" + offset });
-            this.fixture.session().jdbc().executeUpdate("HSET ? ? ?", new Object[] {
-                    this.fixture.key("all"), baseId() + offset, "RmCfg" + offset });
+            this.fixture.session().jdbc().executeUpdate("HSET ? ? ?", new Object[] { this.fixture.key("entry-" + (baseId() + offset)), baseId() + offset, "RmCfg" + offset });
+            this.fixture.session().jdbc().executeUpdate("HSET ? ? ?", new Object[] { this.fixture.key("all"), baseId() + offset, "RmCfg" + offset });
         }
         Configuration configuration = newConfiguration();
         configuration.addMacro("redisEntryKey", "#{'" + this.fixture.key("entry-") + "' + id}");

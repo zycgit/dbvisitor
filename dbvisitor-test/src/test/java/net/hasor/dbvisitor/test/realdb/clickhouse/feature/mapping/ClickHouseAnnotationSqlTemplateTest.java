@@ -10,8 +10,8 @@ package net.hasor.dbvisitor.test.realdb.clickhouse.feature.mapping;
 import net.hasor.dbvisitor.test.contract.feature.mapping.AnnotationSqlTemplateCase;
 import net.hasor.dbvisitor.test.contract.material.model.annotation.AbstractMd5User;
 import net.hasor.dbvisitor.test.contract.material.model.annotation.ClickHouseMd5User;
-import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 
 public class ClickHouseAnnotationSqlTemplateTest extends AnnotationSqlTemplateCase {
     @Override

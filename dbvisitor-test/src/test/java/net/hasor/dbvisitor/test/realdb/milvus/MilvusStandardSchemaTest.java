@@ -11,17 +11,17 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
-import org.junit.Before;
-import org.junit.After;
-import net.hasor.dbvisitor.test.contract.feature.schema.StandardSchemaCase;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.test.contract.api.jdbc.metadata.StandardSchemaCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
-import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import org.junit.After;
+import org.junit.Before;
 
 /** Binds the common scenarios to the explicitly declared Milvus boundary. */
 public class MilvusStandardSchemaTest extends StandardSchemaCase {
     private final MilvusDatabaseFixture database = new MilvusDatabaseFixture();
-    private boolean created;
+    private       boolean               created;
 
     @Override
     @Before

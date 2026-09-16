@@ -8,20 +8,24 @@
 package net.hasor.dbvisitor.test.contract.feature.type;
 
 import java.sql.SQLException;
-
-import org.junit.Test;
-
+import java.util.Arrays;
+import java.util.LinkedHashMap;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.test.contract.material.model.types.JsonAnnotatedBean;
+import net.hasor.dbvisitor.test.contract.material.model.types.JsonTestBean;
+import net.hasor.dbvisitor.test.contract.material.model.types.JsonTypedCollections;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class JsonAnnotatedBeanJdbcCase extends JsonTypeJdbcSupport {
+    // 能力归属：类型处理器 / JSON 序列化处理器 / JSON 转换。
     @Test
-    @Capability(CapabilityId.TYPE_JSON_BIND_ANNOTATION)
+    @Capability(value = CapabilityId.TYPE_JSON_BIND_ANNOTATION, column = "types/json-serialization-handlers/conversion")
     public void jsonAnnotatedBean_shouldUseBoundTypeHandlerForPositionalNamedAndPartialValues() throws SQLException {
         requiresNxnFeature(FeatureId.JSON);
         Object positionalId = fixtureKey(baseId() + 8);
@@ -44,5 +48,35 @@ public abstract class JsonAnnotatedBeanJdbcCase extends JsonTypeJdbcSupport {
         assertJsonAnnotatedBean(loadedLaptop, "Laptop", 5999.99, 10, "Electronics");
         assertJsonAnnotatedBean(loadedSmartphone, "Smartphone", 3999.0, 20, "Mobile");
         assertJsonAnnotatedBean(loadedPartial, "Tablet", 2999.0, null, null);
+    }
+
+    // 能力归属：类型处理器 / JSON 序列化 / 标量 JSON 对象内的嵌套泛型集合。
+    @Test
+    @Capability(value = CapabilityId.TYPE_JSON_TYPED_COLLECTIONS, column = "types/json-serialization-handlers/conversion")
+    public void jsonAnnotatedValue_shouldRetainNestedGenericBeanTypes() throws SQLException {
+        requiresNxnFeature(FeatureId.JSON);
+        Object id = fixtureKey(baseId() + 14);
+        JsonTestBean first = new JsonTestBean("中文\"name", 0, false);
+        first.setTags(Arrays.asList("emoji😀", "backslash\\path", "line\nbreak"));
+        first.setAddress(new JsonTestBean.Address("上海", "南京路", "200000"));
+        JsonTestBean last = new JsonTestBean("last", null, null);
+        JsonTypedCollections expected = new JsonTypedCollections();
+        expected.setEntries(Arrays.asList(first, null, last));
+        expected.setGroups(new LinkedHashMap<>());
+        expected.getGroups().put("nested", Arrays.asList(last, first));
+        expected.getGroups().put("missing", null);
+
+        jdbcTemplate.executeUpdate(insertCommand("id, json_varchar", "?", "?"), new Object[] { id, expected });
+        JsonTypedCollections loaded = jdbcTemplate.queryForObject(selectCommand("json_varchar"), new Object[] { id }, JsonTypedCollections.class);
+
+        assertNotNull(loaded);
+        assertNotNull(loaded.getEntries());
+        assertEquals(3, loaded.getEntries().size());
+        assertEquals(JsonTestBean.class, loaded.getEntries().get(0).getClass());
+        assertNull(loaded.getEntries().get(1));
+        assertEquals(expected.getEntries(), loaded.getEntries());
+        assertNotNull(loaded.getGroups());
+        assertEquals(JsonTestBean.class, loaded.getGroups().get("nested").get(1).getClass());
+        assertEquals(expected.getGroups(), loaded.getGroups());
     }
 }

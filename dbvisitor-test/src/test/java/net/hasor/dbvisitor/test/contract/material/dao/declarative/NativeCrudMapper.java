@@ -7,12 +7,7 @@
  */
 package net.hasor.dbvisitor.test.contract.material.dao.declarative;
 
-import net.hasor.dbvisitor.mapper.Delete;
-import net.hasor.dbvisitor.mapper.Insert;
-import net.hasor.dbvisitor.mapper.Param;
-import net.hasor.dbvisitor.mapper.Query;
-import net.hasor.dbvisitor.mapper.SimpleMapper;
-import net.hasor.dbvisitor.mapper.Update;
+import net.hasor.dbvisitor.mapper.*;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 
 /** Native command templates for the shared CRUD assertions; binding uses the real Mapper proxy. */

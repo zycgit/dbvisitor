@@ -8,15 +8,13 @@
 package net.hasor.dbvisitor.test.realdb.mongo;
 
 import java.sql.SQLException;
-
-import org.junit.After;
-import org.junit.Before;
-
 import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.test.contract.feature.keygen.AssignedKeyCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
 import net.hasor.dbvisitor.test.realdb.mongo.material.MongoNamingFixture;
+import org.junit.After;
+import org.junit.Before;
 
 public class MongoAssignedKeyTest extends AssignedKeyCase {
     private final MongoNamingFixture fixture = new MongoNamingFixture();

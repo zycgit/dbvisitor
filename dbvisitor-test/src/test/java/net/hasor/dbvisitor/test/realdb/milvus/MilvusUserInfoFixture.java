@@ -14,8 +14,8 @@ import java.sql.Statement;
 /** Isolated native schema for shared UserInfo contracts; SQL and entity mappings remain unchanged. */
 final class MilvusUserInfoFixture implements AutoCloseable {
     private final MilvusDatabaseFixture database = new MilvusDatabaseFixture();
-    private final boolean autoId;
-    private Connection connection;
+    private final boolean               autoId;
+    private       Connection            connection;
 
     MilvusUserInfoFixture() {
         this(false);

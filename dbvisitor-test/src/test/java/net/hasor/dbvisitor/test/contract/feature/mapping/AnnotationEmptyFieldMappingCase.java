@@ -8,22 +8,20 @@
 package net.hasor.dbvisitor.test.contract.feature.mapping;
 
 import java.sql.SQLException;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @NxnContract
 public abstract class AnnotationEmptyFieldMappingCase extends AnnotationMappingPolicySupport {
+    // 能力归属：类型处理器 / 基础类型 / 实体空字符串往返。
     @Test
-    @Capability(CapabilityId.MAPPING_ANNOTATION_EMPTY_STRING_ROUND_TRIP)
+    @Capability(value = CapabilityId.MAPPING_ANNOTATION_EMPTY_STRING_ROUND_TRIP, column = "types/basic-types/values")
     public void annotationMapping_shouldPreserveEmptyStrings() throws SQLException {
         requiresNxnFeature(FeatureId.DISTINCT_EMPTY_STRING);
         int emptyId = baseId() + 117;
@@ -37,6 +35,7 @@ public abstract class AnnotationEmptyFieldMappingCase extends AnnotationMappingP
 
         UserInfo loadedEmpty = queryRaw(emptyId);
         assertNotNull(loadedEmpty);
+        assertEquals(Integer.valueOf(emptyId), loadedEmpty.getId());
         assertNotNull(loadedEmpty.getName());
         assertEquals("", loadedEmpty.getName());
         assertEquals(Integer.valueOf(25), loadedEmpty.getAge());

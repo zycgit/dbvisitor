@@ -10,17 +10,12 @@ package net.hasor.dbvisitor.test.realdb.mssql.feature.keygen;
 import java.sql.SQLException;
 import java.util.Arrays;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
-import net.hasor.dbvisitor.mapping.Column;
-import net.hasor.dbvisitor.mapping.KeySeq;
-import net.hasor.dbvisitor.mapping.KeyType;
-import net.hasor.dbvisitor.mapping.Options;
-import net.hasor.dbvisitor.mapping.Table;
+import net.hasor.dbvisitor.mapping.*;
 import net.hasor.dbvisitor.test.contract.feature.keygen.SequenceKeyCase;
 import net.hasor.dbvisitor.test.contract.material.model.keygen.KeySequenceUser;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MsSqlProfile;
 import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 
 public class MsSqlSequenceKeyTest extends SequenceKeyCase {
@@ -91,7 +86,7 @@ public class MsSqlSequenceKeyTest extends SequenceKeyCase {
     public static class QuotedSequenceUser {
         @Column(primary = true, keyType = KeyType.Sequence)
         @KeySeq("User Sequence")
-        private Long id;
+        private Long   id;
         private String name;
 
         public Long getId() {

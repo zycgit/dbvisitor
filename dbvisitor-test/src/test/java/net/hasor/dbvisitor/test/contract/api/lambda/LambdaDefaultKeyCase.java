@@ -8,14 +8,11 @@
 package net.hasor.dbvisitor.test.contract.api.lambda;
 
 import java.sql.SQLException;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -37,8 +34,9 @@ public abstract class LambdaDefaultKeyCase extends LambdaCrudSupport {
         return lambdaTemplate.insert(type).applyEntity(type.cast(entity)).executeSumResult();
     }
 
+    // 能力归属：构造器 API / 写入操作。
     @Test
-    @Capability(CapabilityId.LAMBDA_ENTITY_CRUD_DEFAULT_KEY)
+    @Capability(value = CapabilityId.LAMBDA_ENTITY_CRUD_DEFAULT_KEY, column = "builder/inserts-updates-and-deletes/writes")
     public void lambdaEntityInsert_shouldUseDefaultPrimaryKey() throws SQLException {
         Object autoIdUser = newDefaultKeyEntity();
         int autoRows = insertDefaultKeyEntity(defaultKeyEntityType(), autoIdUser);

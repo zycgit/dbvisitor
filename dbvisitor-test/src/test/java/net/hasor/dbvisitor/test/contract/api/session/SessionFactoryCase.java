@@ -8,9 +8,6 @@
 package net.hasor.dbvisitor.test.contract.api.session;
 
 import javax.sql.DataSource;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.mapper.BaseMapper;
@@ -22,10 +19,8 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class SessionFactoryCase extends AbstractNxnContractTest {
@@ -46,8 +41,9 @@ public abstract class SessionFactoryCase extends AbstractNxnContractTest {
         return user;
     }
 
+    // 能力归属：Mapper API / Session 管理。
     @Test
-    @Capability(CapabilityId.SESSION_CONFIGURATION_FACTORY)
+    @Capability(value = CapabilityId.SESSION_CONFIGURATION_FACTORY, column = "mapper/session/management")
     public void configurationFactories_shouldCreateUsableJdbcLambdaAndSession() throws Exception {
         Configuration configuration = newConfiguration(Options.of());
         JdbcTemplate jdbc = configuration.newJdbc(sessionDataSource());
@@ -67,12 +63,29 @@ public abstract class SessionFactoryCase extends AbstractNxnContractTest {
         assertEquals("ConfigSession", jdbc.queryForString(jdbcNameCommand(), jdbcNameParameters()));
     }
 
-    protected String jdbcInsertCommand() { return "INSERT INTO user_info (id, name, age) VALUES (?, ?, ?)"; }
-    protected Object[] jdbcInsertParameters() { return new Object[] { baseId() + 70, "ConfigJdbc", 28 }; }
-    protected String jdbcCountCommand() { return "SELECT COUNT(*) FROM user_info WHERE id = ?"; }
-    protected Object[] jdbcCountParameters() { return new Object[] { baseId() + 70 }; }
-    protected String jdbcNameCommand() { return "SELECT name FROM user_info WHERE id = ?"; }
-    protected Object[] jdbcNameParameters() { return new Object[] { baseId() + 71 }; }
+    protected String jdbcInsertCommand() {
+        return "INSERT INTO user_info (id, name, age) VALUES (?, ?, ?)";
+    }
+
+    protected Object[] jdbcInsertParameters() {
+        return new Object[] { baseId() + 70, "ConfigJdbc", 28 };
+    }
+
+    protected String jdbcCountCommand() {
+        return "SELECT COUNT(*) FROM user_info WHERE id = ?";
+    }
+
+    protected Object[] jdbcCountParameters() {
+        return new Object[] { baseId() + 70 };
+    }
+
+    protected String jdbcNameCommand() {
+        return "SELECT name FROM user_info WHERE id = ?";
+    }
+
+    protected Object[] jdbcNameParameters() {
+        return new Object[] { baseId() + 71 };
+    }
 
     protected int insertFactoryEntity(Session session, int id, String name, int age) throws Exception {
         BaseMapper<UserInfo> mapper = session.createBaseMapper(UserInfo.class);

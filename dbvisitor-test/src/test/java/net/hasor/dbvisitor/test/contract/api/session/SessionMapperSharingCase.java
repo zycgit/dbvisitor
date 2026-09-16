@@ -7,8 +7,6 @@
  */
 package net.hasor.dbvisitor.test.contract.api.session;
 
-import org.junit.Test;
-
 import net.hasor.dbvisitor.mapper.BaseMapper;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.material.dao.SessionRefCrudMapper;
@@ -17,16 +15,14 @@ import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertThrows;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class SessionMapperSharingCase extends SessionMapperSupport {
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.SESSION_MAPPER_DECLARATIVE)
+    @Capability(value = CapabilityId.SESSION_MAPPER_DECLARATIVE, column = "mapper/base-mapper/operations")
     public void sessionCreateMapper_shouldShareDataBetweenDeclarativeMapperAndSession() throws Exception {
         Session session = createSession();
         BaseMapper<UserInfo> userMapper = session.createBaseMapper(UserInfo.class);
@@ -41,8 +37,9 @@ public abstract class SessionMapperSharingCase extends SessionMapperSupport {
         assertEquals(2, mapper.countAll());
     }
 
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.SESSION_MAPPER_MIXED)
+    @Capability(value = CapabilityId.SESSION_MAPPER_MIXED, column = "mapper/base-mapper/operations")
     public void sessionCreateMapper_shouldAllowMapperTypesAndBaseMapperToShareOneSession() throws Exception {
         Session session = createSession();
         BaseMapper<UserInfo> baseMapper = session.createBaseMapper(UserInfo.class);

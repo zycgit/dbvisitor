@@ -8,10 +8,10 @@
 package net.hasor.dbvisitor.test.realdb.redis.api.jdbc;
 
 import java.sql.SQLException;
-import java.util.Map;
-import java.util.List;
 import java.util.LinkedHashMap;
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcRowMapperCase;
+import java.util.List;
+import java.util.Map;
+import net.hasor.dbvisitor.test.contract.feature.result.JdbcRowMapperCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
 import org.junit.After;
@@ -62,6 +62,11 @@ public class RedisJdbcRowMapperTest extends JdbcRowMapperCase {
             return new Object[] { this.fixture.key("scores"), 0, ((Number) values[1]).intValue() - baseId() - 1 };
         }
         return new Object[] { this.fixture.key("scores"), 0, 0 };
+    }
+
+    @Override
+    protected Object[] emptyResultArguments() {
+        return new Object[] { this.fixture.key("missingScores"), 0, -1 };
     }
 
     @Override

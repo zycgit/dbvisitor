@@ -8,11 +8,11 @@
 package net.hasor.dbvisitor.test.realdb.mongo;
 
 import java.sql.SQLException;
-import net.hasor.dbvisitor.test.contract.api.map_query.MappedMapCrudCase;
+import java.util.Date;
+import net.hasor.dbvisitor.test.contract.api.lambda.map_query.MappedMapCrudCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
 import net.hasor.dbvisitor.test.realdb.mongo.material.MongoEntityFixture;
-import java.util.Date;
 import org.junit.After;
 import org.junit.Before;
 
@@ -30,7 +30,6 @@ public class MongoMappedMapCrudTest extends MappedMapCrudCase {
         this.jdbcTemplate = this.fixture.open();
         this.lambdaTemplate = this.fixture.lambda();
     }
-
 
     @Override
     protected String insertCommand() {

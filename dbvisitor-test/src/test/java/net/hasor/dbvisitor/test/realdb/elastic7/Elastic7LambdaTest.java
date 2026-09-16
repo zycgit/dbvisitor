@@ -16,19 +16,19 @@ import net.hasor.dbvisitor.page.PageObject;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.api.adapter.AdapterCase;
-import net.hasor.dbvisitor.test.realdb.elastic7.material.user.UserInfo1BaseMapper;
-import net.hasor.dbvisitor.test.realdb.elastic7.material.user.UserInfo1a;
+import net.hasor.dbvisitor.test.nxn.capability.Capability;
+import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
 import net.hasor.dbvisitor.test.realdb.elastic7.material.complex.Address;
 import net.hasor.dbvisitor.test.realdb.elastic7.material.complex.ComplexOrder;
 import net.hasor.dbvisitor.test.realdb.elastic7.material.complex.OrderItem;
+import net.hasor.dbvisitor.test.realdb.elastic7.material.user.UserInfo1BaseMapper;
+import net.hasor.dbvisitor.test.realdb.elastic7.material.user.UserInfo1a;
 import org.junit.After;
 import org.junit.Before;
-import static org.junit.Assert.*;
-import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
-import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
-import net.hasor.dbvisitor.test.nxn.capability.Capability;
-import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import org.junit.Test;
+import static org.junit.Assert.*;
 
 public class Elastic7LambdaTest extends AdapterCase {
     @Override

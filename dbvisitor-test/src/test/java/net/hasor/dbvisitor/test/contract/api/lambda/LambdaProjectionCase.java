@@ -9,23 +9,19 @@ package net.hasor.dbvisitor.test.contract.api.lambda;
 
 import java.util.List;
 import java.util.Map;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserBasicDTO;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class LambdaProjectionCase extends LambdaSelectSupport {
+    // 能力归属：构造器 API / 查询操作。
     @Test
-    @Capability(CapabilityId.LAMBDA_SELECT_SINGLE_COLUMN)
+    @Capability(value = CapabilityId.LAMBDA_SELECT_SINGLE_COLUMN, column = "builder/queries/query")
     public void lambdaSelect_shouldReturnSingleProjectedColumnAsScalarList() throws Exception {
         insert(baseId() + 1, "SelectNameOne", 25, "select-name@nxn.test");
 
@@ -38,8 +34,9 @@ public abstract class LambdaProjectionCase extends LambdaSelectSupport {
         assertEquals("SelectNameOne", names.get(0));
     }
 
+    // 能力归属：构造器 API / 查询操作。
     @Test
-    @Capability(CapabilityId.LAMBDA_SELECT_MAP_DTO)
+    @Capability(value = CapabilityId.LAMBDA_SELECT_MAP_DTO, column = "builder/queries/query")
     public void lambdaSelect_shouldProjectMultipleColumnsToMapAndDto() throws Exception {
         insert(baseId() + 10, "SelectMapDto", 30, "map-dto@nxn.test");
 

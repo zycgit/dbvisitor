@@ -8,8 +8,8 @@
 package net.hasor.dbvisitor.test.realdb.clickhouse.api.mapper.xml;
 
 import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperStatementAttributeCase;
-import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 
 public class ClickHouseXmlMapperStatementAttributeTest extends XmlMapperStatementAttributeCase {
     @Override

@@ -7,9 +7,9 @@
  */
 package net.hasor.dbvisitor.test.realdb.mysql.feature.transaction;
 
-import net.hasor.dbvisitor.test.scenario.WriteConsistencyScenario;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MySqlProfile;
+import net.hasor.dbvisitor.test.scenario.WriteConsistencyScenario;
 
 public class MySqlWriteConsistencyTest extends WriteConsistencyScenario {
     @Override

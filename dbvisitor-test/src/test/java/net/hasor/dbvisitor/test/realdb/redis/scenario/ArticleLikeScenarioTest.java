@@ -12,7 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import net.hasor.dbvisitor.test.realdb.redis.scenario.mapper.ArticleLikeMapper;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class ArticleLikeScenarioTest extends RedisScenarioSupport {
     @Test

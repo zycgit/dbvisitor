@@ -8,20 +8,18 @@
 package net.hasor.dbvisitor.test.contract.api.lambda;
 
 import java.sql.SQLException;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 @NxnContract
 public abstract class LambdaNullConditionCase extends LambdaQuerySupport {
+    // 能力归属：构造器 API / 条件构造器。
     @Test
-    @Capability(CapabilityId.LAMBDA_QUERY_NULL)
+    @Capability(value = CapabilityId.LAMBDA_QUERY_NULL, column = "builder/condition-builders/predicates")
     public void lambdaQueryNull_shouldMatchNullAndNotNullColumns() throws SQLException {
         insertByJdbc(baseId() + 41, "NullAge", null, "null-age@test.com");
         insertByJdbc(baseId() + 42, "NullEmail", 42, null);

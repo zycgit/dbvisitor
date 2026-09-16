@@ -9,13 +9,8 @@ package net.hasor.dbvisitor.test.realdb.redis.api.session;
 
 import java.sql.SQLException;
 import java.util.Properties;
-
-import org.junit.After;
-import org.junit.Before;
-
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.api.session.SessionCoreCase;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
@@ -24,10 +19,12 @@ import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
 import net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisMapperFixture;
 import net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisNativeMapperSupport.NativeMapper;
+import org.junit.After;
+import org.junit.Before;
 
 public class RedisSessionCoreTest extends SessionCoreCase {
     private final RedisMapperFixture fixture = new RedisMapperFixture();
-    private HikariDataSource sessionSource;
+    private       HikariDataSource   sessionSource;
 
     @Override
     protected DataSourceProfile profile() {
@@ -49,7 +46,7 @@ public class RedisSessionCoreTest extends SessionCoreCase {
         config.setMaximumPoolSize(2);
         config.setMinimumIdle(0);
         this.sessionSource = new HikariDataSource(config);
-        this.dataSource = this.sessionSource;
+        dataSource = this.sessionSource;
     }
 
     @After

@@ -12,17 +12,17 @@ import java.sql.SQLException;
 import java.util.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.test.contract.feature.schema.StandardSchemaCase;
+import net.hasor.dbvisitor.test.contract.api.jdbc.metadata.StandardSchemaCase;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
-import org.junit.Before;
 import org.junit.After;
+import org.junit.Before;
 
 public class Elastic7StandardSchemaTest extends StandardSchemaCase {
     private final Map<String, List<String>> physicalSchema = new LinkedHashMap<>();
-    private final List<String> created = new ArrayList<>();
-    private Connection fixtureConnection;
+    private final List<String>              created        = new ArrayList<>();
+    private       Connection                fixtureConnection;
 
     @Override
     protected DataSourceProfile profile() {

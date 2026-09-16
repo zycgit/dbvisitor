@@ -11,16 +11,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import java.util.*;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import org.junit.Test;
-
 import static org.junit.Assert.*;
 
 public class MilvusGeneratedKeysSqlTest extends MilvusSqlContractSupport {
@@ -46,8 +40,7 @@ public class MilvusGeneratedKeysSqlTest extends MilvusSqlContractSupport {
             }
         }
         assertEquals(5, keys.size());
-        try (Statement statement = this.connection.createStatement();
-             ResultSet result = statement.executeQuery("SELECT id FROM " + this.collection)) {
+        try (Statement statement = this.connection.createStatement(); ResultSet result = statement.executeQuery("SELECT id FROM " + this.collection)) {
             assertEquals(keys, new HashSet<>(readIds(result)));
         }
     }
@@ -85,10 +78,7 @@ public class MilvusGeneratedKeysSqlTest extends MilvusSqlContractSupport {
         try (PreparedStatement insert = this.connection.prepareStatement("INSERT INTO " + this.collection + " (id, name, v) VALUES ?")) {
             insert.setFetchSize(2);
             insert.setMaxRows(1);
-            insert.setObject(1, List.of(
-                    new Object[] { 1L, "a", new float[] { 1, 0 } },
-                    new Object[] { 2L, "b", new float[] { 2, 0 } },
-                    new Object[] { 3L, "c", new float[] { 3, 0 } }));
+            insert.setObject(1, List.of(new Object[] { 1L, "a", new float[] { 1, 0 } }, new Object[] { 2L, "b", new float[] { 2, 0 } }, new Object[] { 3L, "c", new float[] { 3, 0 } }));
             assertEquals(3, insert.executeLargeUpdate());
             try (ResultSet keys = insert.getGeneratedKeys()) {
                 assertFalse(keys.next());

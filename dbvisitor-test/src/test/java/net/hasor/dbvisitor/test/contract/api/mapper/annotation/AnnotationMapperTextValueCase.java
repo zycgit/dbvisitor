@@ -7,18 +7,17 @@
  */
 package net.hasor.dbvisitor.test.contract.api.mapper.annotation;
 
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 @NxnContract
 public abstract class AnnotationMapperTextValueCase extends AnnotationMapperBoundarySupport {
+    // 能力归属：参数传递与规则 / 名称参数 / 方法注解。
     @Test
-    @Capability(CapabilityId.MAPPER_ANNOTATION_SPECIAL_TEXT)
+    @Capability(value = CapabilityId.MAPPER_ANNOTATION_SPECIAL_TEXT, column = "parameters/positional-and-named-parameters/named")
     public void annotationMapperInsert_shouldBindQuotesAndUnicodeAsValues() throws Exception {
         int quotedId = baseId() + 2;
         int unicodeId = baseId() + 3;

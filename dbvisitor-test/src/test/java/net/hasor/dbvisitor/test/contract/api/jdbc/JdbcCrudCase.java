@@ -8,36 +8,36 @@
 package net.hasor.dbvisitor.test.contract.api.jdbc;
 
 import java.sql.SQLException;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 @NxnContract
 public abstract class JdbcCrudCase extends JdbcCrudSupport {
 
+    // 能力归属：编程式 API / 更新。
     @Test
-    @Capability(CapabilityId.JDBC_CRUD_INSERT)
+    @Capability(value = CapabilityId.JDBC_CRUD_INSERT, column = "jdbc/updates/updates")
     public void jdbcInsert_shouldPersistOneUser() throws SQLException {
         int id = baseId() + 1;
         insertUser(id, "NXN-JDBC-Insert", 31, "nxn-insert@test.com");
         assertEquals("NXN-JDBC-Insert", storedValue(JdbcCrudCommand.SELECT_NAME, "name", id));
     }
 
+    // 能力归属：编程式 API / 查询。
     @Test
-    @Capability(CapabilityId.JDBC_CRUD_QUERY)
+    @Capability(value = CapabilityId.JDBC_CRUD_QUERY, column = "jdbc/queries/queries")
     public void jdbcQuery_shouldReadUserById() throws SQLException {
         int id = baseId() + 2;
         insertUser(id, "NXN-JDBC-Query", 32, "nxn-query@test.com");
         assertEquals("32", storedValue(JdbcCrudCommand.SELECT_AGE, "age", id));
     }
 
+    // 能力归属：编程式 API / 更新。
     @Test
-    @Capability(CapabilityId.JDBC_CRUD_UPDATE)
+    @Capability(value = CapabilityId.JDBC_CRUD_UPDATE, column = "jdbc/updates/updates")
     public void jdbcUpdate_shouldChangeUser() throws SQLException {
         int id = baseId() + 3;
         insertUser(id, "NXN-JDBC-Update", 33, "nxn-update@test.com");
@@ -45,8 +45,9 @@ public abstract class JdbcCrudCase extends JdbcCrudSupport {
         assertEquals("34", storedValue(JdbcCrudCommand.SELECT_AGE, "age", id));
     }
 
+    // 能力归属：编程式 API / 更新。
     @Test
-    @Capability(CapabilityId.JDBC_CRUD_DELETE)
+    @Capability(value = CapabilityId.JDBC_CRUD_DELETE, column = "jdbc/updates/updates")
     public void jdbcDelete_shouldRemoveUser() throws SQLException {
         int id = baseId() + 4;
         insertUser(id, "NXN-JDBC-Delete", 35, "nxn-delete@test.com");

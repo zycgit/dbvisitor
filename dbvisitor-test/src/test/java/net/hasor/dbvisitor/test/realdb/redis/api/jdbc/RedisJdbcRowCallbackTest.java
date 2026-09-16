@@ -8,12 +8,11 @@
 package net.hasor.dbvisitor.test.realdb.redis.api.jdbc;
 
 import java.sql.SQLException;
-import org.junit.Before;
-import org.junit.After;
-
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcRowCallbackCase;
+import net.hasor.dbvisitor.test.contract.feature.result.JdbcRowCallbackCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import org.junit.After;
+import org.junit.Before;
 
 public class RedisJdbcRowCallbackTest extends JdbcRowCallbackCase {
 
@@ -58,5 +57,10 @@ public class RedisJdbcRowCallbackTest extends JdbcRowCallbackCase {
     @Override
     protected Object[] callbackArguments() {
         return new Object[] { 0, 4 };
+    }
+
+    @Override
+    protected Object[] emptyResultArguments() {
+        return new Object[] { 20, 30 };
     }
 }

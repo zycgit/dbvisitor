@@ -17,16 +17,13 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.SupportStatus;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceId;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfileRegistry;
-import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
+import org.junit.Test;
 
 public final class CapabilityMatrixReport {
     private CapabilityMatrixReport() {
@@ -143,18 +140,21 @@ public final class CapabilityMatrixReport {
         return "`" + profile.support(row.capabilityId) + "`<br>`" + realdbClass.getSimpleName() + "`";
     }
 
-    private static Map<Class<?>, Class<?>> realdbBindings(DataSourceProfile profile) throws Exception {
+    static Map<Class<?>, Class<?>> realdbBindings(DataSourceProfile profile) throws Exception {
         Map<Class<?>, Class<?>> bindings = new LinkedHashMap<>();
         for (Class<?> realdbClass : realdbClasses(profile)) {
             Class<?> contractClass = nearestContractSuperclass(realdbClass);
             if (contractClass != null) {
-                bindings.put(contractClass, realdbClass);
+                Class<?> previous = bindings.put(contractClass, realdbClass);
+                if (previous != null) {
+                    throw new IllegalStateException("Duplicate contract binding: " + previous.getName() + " / " + realdbClass.getName());
+                }
             }
         }
         return bindings;
     }
 
-    private static List<Class<?>> contractClasses() throws Exception {
+    static List<Class<?>> contractClasses() throws Exception {
         List<Class<?>> contracts = classNamesUnder("net/hasor/dbvisitor/test/contract", "", ".java").stream()//
                 .map(CapabilityMatrixReport::loadClass)//
                 .filter(CapabilityMatrixReport::isNxnContractClass)//
@@ -270,21 +270,10 @@ public final class CapabilityMatrixReport {
         return loadClass("net.hasor.dbvisitor.test.nxn.report.metadata." + className);
     }
 
-    static final class CapabilityRow {
-        final String   capabilityId;
-        final Class<?> contractClass;
-        final String   contractMethod;
-        final DataSourceId ownerDataSourceId;
-
+    record CapabilityRow(String capabilityId, Class<?> contractClass, String contractMethod, DataSourceId ownerDataSourceId) {
         CapabilityRow(String capabilityId, Class<?> contractClass, String contractMethod) {
             this(capabilityId, contractClass, contractMethod, null);
         }
 
-        CapabilityRow(String capabilityId, Class<?> contractClass, String contractMethod, DataSourceId ownerDataSourceId) {
-            this.capabilityId = capabilityId;
-            this.contractClass = contractClass;
-            this.contractMethod = contractMethod;
-            this.ownerDataSourceId = ownerDataSourceId;
-        }
     }
 }

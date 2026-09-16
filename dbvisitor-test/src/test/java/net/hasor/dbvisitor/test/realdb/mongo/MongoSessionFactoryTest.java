@@ -23,10 +23,9 @@ import net.hasor.dbvisitor.test.realdb.mongo.material.MongoMapperFixture;
 import org.junit.After;
 import org.junit.Before;
 
-
 public class MongoSessionFactoryTest extends SessionFactoryCase {
     private final MongoMapperFixture fixture = new MongoMapperFixture();
-    private HikariDataSource sessionSource;
+    private       HikariDataSource   sessionSource;
 
     @Override
     protected DataSourceProfile profile() {

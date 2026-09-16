@@ -30,10 +30,10 @@ import static org.junit.Assert.*;
 
 /** Entity vector mapping scenarios, using Milvus fields instead of pgvector-specific material. */
 public class MilvusVectorMappingTest extends AdapterCase {
-    private static final int VECTOR_DIM = 128;
-    private final MilvusDatabaseFixture database = new MilvusDatabaseFixture();
-    private Connection connection;
-    private LambdaTemplate lambda;
+    private static final int                   VECTOR_DIM = 128;
+    private final        MilvusDatabaseFixture database   = new MilvusDatabaseFixture();
+    private              Connection            connection;
+    private              LambdaTemplate        lambda;
 
     @Override
     protected DataSourceProfile profile() {
@@ -61,8 +61,7 @@ public class MilvusVectorMappingTest extends AdapterCase {
         assertVector(original, loaded.getEmbedding());
 
         List<Float> updated = vector(0.9f, -0.005f);
-        assertEquals(1, this.lambda.update(VectorRow.class).eq(VectorRow::getId, 1L)
-                .updateTo(VectorRow::getEmbedding, updated).doUpdate());
+        assertEquals(1, this.lambda.update(VectorRow.class).eq(VectorRow::getId, 1L).updateTo(VectorRow::getEmbedding, updated).doUpdate());
         assertVector(updated, load(1).getEmbedding());
     }
 
@@ -72,8 +71,7 @@ public class MilvusVectorMappingTest extends AdapterCase {
         for (int i = 0; i < 6; i++) {
             insert(i + 1, "row-" + i, vector(i * 0.1f, 0.005f));
         }
-        List<VectorRow> rows = this.lambda.query(VectorRow.class).ge(VectorRow::getId, 1L)
-                .le(VectorRow::getId, 6L).queryForList();
+        List<VectorRow> rows = this.lambda.query(VectorRow.class).ge(VectorRow::getId, 1L).le(VectorRow::getId, 6L).queryForList();
         assertEquals(6, rows.size());
         Set<Long> ids = new HashSet<>();
         for (VectorRow row : rows) {
@@ -91,8 +89,7 @@ public class MilvusVectorMappingTest extends AdapterCase {
         List<Float> original = vector(0.2f, 0.01f);
         insert(1, "before", original);
         insert(2, "delete", vector(0.3f, 0.01f));
-        assertEquals(1, this.lambda.update(VectorRow.class).eq(VectorRow::getId, 1L)
-                .updateTo(VectorRow::getName, "after").doUpdate());
+        assertEquals(1, this.lambda.update(VectorRow.class).eq(VectorRow::getId, 1L).updateTo(VectorRow::getName, "after").doUpdate());
         assertEquals("after", load(1).getName());
         assertVector(original, load(1).getEmbedding());
         assertEquals(1, this.lambda.delete(VectorRow.class).eq(VectorRow::getId, 2L).doDelete());
@@ -157,8 +154,8 @@ public class MilvusVectorMappingTest extends AdapterCase {
     @Table("vector_mapping")
     public static class VectorRow {
         @Column(primary = true)
-        private Long id;
-        private String name;
+        private Long        id;
+        private String      name;
         private List<Float> embedding;
 
         public Long getId() {

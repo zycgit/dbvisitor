@@ -17,7 +17,7 @@ import org.junit.Before;
 
 public class MilvusAnnotationMapperQueryResultTest extends AnnotationMapperQueryResultCase {
     private final MilvusCapabilityFixture fixture = new MilvusCapabilityFixture();
-    private Session session;
+    private       Session                 session;
 
     @Override
     protected DataSourceProfile profile() {

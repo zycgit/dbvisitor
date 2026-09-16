@@ -17,8 +17,8 @@ import net.hasor.dbvisitor.session.Session;
 /** Native row and ordering material for XML template contracts. */
 final class MilvusXmlDynamicFixture implements AutoCloseable {
     private final MilvusDatabaseFixture database = new MilvusDatabaseFixture();
-    private Connection connection;
-    private Session session;
+    private       Connection            connection;
+    private       Session               session;
 
     JdbcTemplate open() throws SQLException {
         if (this.connection != null) {
@@ -40,8 +40,7 @@ final class MilvusXmlDynamicFixture implements AutoCloseable {
 
     void insert(JdbcTemplate jdbc, Object[] values) throws SQLException {
         int id = ((Number) values[0]).intValue();
-        jdbc.executeUpdate("INSERT INTO user_info (id, name, age, email, create_time, v) VALUES (?, ?, ?, ?, ?, ?)",
-                new Object[] { values[0], values[1], values[2], values[3], "2026-09-11 12:00:00", new float[] { id, 0F } });
+        jdbc.executeUpdate("INSERT INTO user_info (id, name, age, email, create_time, v) VALUES (?, ?, ?, ?, ?, ?)", new Object[] { values[0], values[1], values[2], values[3], "2026-09-11 12:00:00", new float[] { id, 0F } });
     }
 
     Session session(String resource) throws Exception {

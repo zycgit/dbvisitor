@@ -31,7 +31,6 @@ public class MilvusLambdaDefaultKeyTest extends LambdaDefaultKeyCase {
         this.lambdaTemplate = new LambdaTemplate(this.jdbcTemplate);
     }
 
-
     @After
     public void cleanupFixture() throws SQLException {
         this.fixture.close();

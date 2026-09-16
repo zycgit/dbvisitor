@@ -15,9 +15,9 @@ import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 
 /** Owns the native collection material used by the remaining shared capability contracts. */
 final class MilvusCapabilityFixture implements AutoCloseable {
-    private final MilvusDatabaseFixture database = new MilvusDatabaseFixture();
-    private final List<String> collections = new ArrayList<>();
-    private JdbcTemplate jdbc;
+    private final MilvusDatabaseFixture database    = new MilvusDatabaseFixture();
+    private final List<String>          collections = new ArrayList<>();
+    private       JdbcTemplate          jdbc;
 
     JdbcTemplate open() throws SQLException {
         if (this.jdbc == null) {
@@ -47,14 +47,12 @@ final class MilvusCapabilityFixture implements AutoCloseable {
 
     String executableSchema(String table, String fields) {
         this.collections.add(table);
-        return schema(table, fields) + "; CREATE INDEX fixture_v ON " + table
-                + "(v) USING SPARSE_INVERTED_INDEX WITH (metric_type=BM25); LOAD TABLE " + table;
+        return schema(table, fields) + "; CREATE INDEX fixture_v ON " + table + "(v) USING SPARSE_INVERTED_INDEX WITH (metric_type=BM25); LOAD TABLE " + table;
     }
 
     void seedUsers(int baseId, int count, String prefix) throws SQLException {
         for (int i = 1; i <= count; i++) {
-            this.jdbc.executeUpdate("INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, ?)",
-                    new Object[] { baseId + i, prefix + i, 20 + i, "fixture" + i + "@test.com", new Date() });
+            this.jdbc.executeUpdate("INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, ?)", new Object[] { baseId + i, prefix + i, 20 + i, "fixture" + i + "@test.com", new Date() });
         }
     }
 

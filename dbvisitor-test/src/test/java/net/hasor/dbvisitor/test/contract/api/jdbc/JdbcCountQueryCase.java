@@ -9,19 +9,17 @@ package net.hasor.dbvisitor.test.contract.api.jdbc;
 
 import java.sql.SQLException;
 import java.util.Date;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 @NxnContract
 public abstract class JdbcCountQueryCase extends JdbcQuerySupport {
+    // 能力归属：编程式 API / 查询。
     @Test
-    @Capability(CapabilityId.JDBC_QUERY_COUNT_VALUE)
+    @Capability(value = CapabilityId.JDBC_QUERY_COUNT_VALUE, column = "jdbc/queries/queries")
     public void jdbcCountResult_shouldSupportIntAndLongShortcuts() throws SQLException {
         seedUsers();
         int count = jdbcTemplate.queryForInt(countRange("?", "?"), new Object[] { baseId() + 1, baseId() + 3 });
@@ -31,8 +29,9 @@ public abstract class JdbcCountQueryCase extends JdbcQuerySupport {
         assertEquals(Long.valueOf(3), longCount);
     }
 
+    // 能力归属：编程式 API / 查询。
     @Test
-    @Capability(CapabilityId.JDBC_CRUD_DELETE_REMAINING_COUNT)
+    @Capability(value = CapabilityId.JDBC_CRUD_DELETE_REMAINING_COUNT, column = "jdbc/queries/queries")
     public void countReadback_shouldReturnZeroAfterDeletingMatchingRow() throws SQLException {
         int id = baseId() + 4;
         insertUser(id, "NXN-JDBC-Delete", 35, "nxn-delete@test.com", new Date());

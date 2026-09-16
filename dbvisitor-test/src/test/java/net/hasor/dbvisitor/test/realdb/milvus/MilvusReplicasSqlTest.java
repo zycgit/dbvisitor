@@ -26,8 +26,7 @@ public class MilvusReplicasSqlTest extends MilvusSqlContractSupport {
         createIndex("v", "FLAT", "L2");
         loadCollection();
         int count = 0;
-        try (Statement statement = this.connection.createStatement();
-                ResultSet rows = statement.executeQuery("SHOW REPLICAS FROM TABLE " + this.collection)) {
+        try (Statement statement = this.connection.createStatement(); ResultSet rows = statement.executeQuery("SHOW REPLICAS FROM TABLE " + this.collection)) {
             assertEquals(7, rows.getMetaData().getColumnCount());
             assertEquals(Types.BIGINT, rows.getMetaData().getColumnType(1));
             while (rows.next()) {

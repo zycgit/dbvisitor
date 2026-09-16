@@ -9,19 +9,17 @@ package net.hasor.dbvisitor.test.contract.api.jdbc;
 
 import java.sql.SQLException;
 import java.util.Date;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 @NxnContract
 public abstract class JdbcScalarQueryCase extends JdbcQuerySupport {
+    // 能力归属：编程式 API / 查询。
     @Test
-    @Capability(CapabilityId.JDBC_QUERY_SCALAR)
+    @Capability(value = CapabilityId.JDBC_QUERY_SCALAR, column = "jdbc/queries/queries")
     public void jdbcQueryForObject_shouldReturnScalarValue() throws SQLException {
         seedUsers();
 
@@ -30,8 +28,9 @@ public abstract class JdbcScalarQueryCase extends JdbcQuerySupport {
         assertEquals(Integer.valueOf(63), age);
     }
 
+    // 能力归属：编程式 API / 查询。
     @Test
-    @Capability(CapabilityId.JDBC_QUERY_SCALAR_SHORTCUTS)
+    @Capability(value = CapabilityId.JDBC_QUERY_SCALAR_SHORTCUTS, column = "jdbc/queries/queries")
     public void jdbcScalarShortcuts_shouldSupportLongIntAndStringQueries() throws SQLException {
         seedUsers();
 
@@ -52,16 +51,18 @@ public abstract class JdbcScalarQueryCase extends JdbcQuerySupport {
         assertEquals("NXN-JDBC-Query-3", lastName);
     }
 
+    // 能力归属：编程式 API / 查询。
     @Test
-    @Capability(CapabilityId.JDBC_CRUD_INSERT_SCALAR)
+    @Capability(value = CapabilityId.JDBC_CRUD_INSERT_SCALAR, column = "jdbc/queries/queries")
     public void scalarReadback_shouldReadInsertedNameAsString() throws SQLException {
         int id = baseId() + 1;
         insertUser(id, "NXN-JDBC-Insert", 31, "nxn-insert@test.com", new Date());
         assertEquals("NXN-JDBC-Insert", jdbcTemplate.queryForString(command(JdbcCrudCommand.SELECT_NAME), new Object[] { id }));
     }
 
+    // 能力归属：编程式 API / 查询。
     @Test
-    @Capability(CapabilityId.JDBC_CRUD_QUERY_SCALAR)
+    @Capability(value = CapabilityId.JDBC_CRUD_QUERY_SCALAR, column = "jdbc/queries/queries")
     public void scalarReadback_shouldReadStoredAgeAsInteger() throws SQLException {
         int id = baseId() + 2;
         insertUser(id, "NXN-JDBC-Query", 32, "nxn-query@test.com", new Date());
@@ -69,8 +70,9 @@ public abstract class JdbcScalarQueryCase extends JdbcQuerySupport {
         assertEquals(Integer.valueOf(32), age);
     }
 
+    // 能力归属：编程式 API / 查询。
     @Test
-    @Capability(CapabilityId.JDBC_CRUD_UPDATE_SCALAR)
+    @Capability(value = CapabilityId.JDBC_CRUD_UPDATE_SCALAR, column = "jdbc/queries/queries")
     public void scalarReadback_shouldReadUpdatedAgeAsInteger() throws SQLException {
         int id = baseId() + 3;
         insertUser(id, "NXN-JDBC-Update", 33, "nxn-update@test.com", new Date());

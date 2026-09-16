@@ -8,28 +8,26 @@
 package net.hasor.dbvisitor.test.contract.api.jdbc;
 
 import java.sql.SQLException;
-import java.util.Map;
 import java.util.Locale;
-import org.junit.Test;
+import java.util.Map;
 import net.hasor.dbvisitor.mapping.Column;
 import net.hasor.dbvisitor.mapping.Table;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
+import org.junit.Test;
 import static org.junit.Assert.*;
 
 /** JDBC result-column matching, independent of Lambda field generation. */
 @NxnContract
 public abstract class JdbcColumnMappingCase extends AbstractNxnContractTest {
     protected void seedColumnValue() throws SQLException {
-        jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age) VALUES (?, ?, ?)",
-                new Object[] { 932001, "NXN-Column", 21 });
+        jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age) VALUES (?, ?, ?)", new Object[] { 932001, "NXN-Column", 21 });
     }
 
     protected String columnQuery() {
-        return "SELECT name AS " + profile().leftQualifier() + "NXN_VALUE" + profile().rightQualifier()
-                + " FROM user_info WHERE id = 932001";
+        return "SELECT name AS " + profile().leftQualifier() + "NXN_VALUE" + profile().rightQualifier() + " FROM user_info WHERE id = 932001";
     }
 
     protected String resultColumn() {
@@ -44,8 +42,9 @@ public abstract class JdbcColumnMappingCase extends AbstractNxnContractTest {
         return InsensitiveValue.class;
     }
 
+    // 能力归属：编程式 API / 查询。
     @Test
-    @Capability(CapabilityId.JDBC_COLUMN_STRICT_BEAN)
+    @Capability(value = CapabilityId.JDBC_COLUMN_STRICT_BEAN, column = "jdbc/queries/queries")
     public void strictBean_shouldRequireMatchingColumnCase() throws SQLException {
         seedColumnValue();
         ColumnValue strict = jdbcTemplate.queryForObject(columnQuery(), strictType());
@@ -56,8 +55,9 @@ public abstract class JdbcColumnMappingCase extends AbstractNxnContractTest {
         assertEquals("NXN-Column", insensitive.getValue());
     }
 
+    // 能力归属：编程式 API / 查询。
     @Test
-    @Capability(CapabilityId.JDBC_COLUMN_INSENSITIVE_MAP)
+    @Capability(value = CapabilityId.JDBC_COLUMN_INSENSITIVE_MAP, column = "jdbc/queries/queries")
     public void insensitiveMap_shouldAcceptDifferentColumnCase() throws SQLException {
         seedColumnValue();
         jdbcTemplate.setResultsCaseInsensitive(true);
@@ -68,8 +68,9 @@ public abstract class JdbcColumnMappingCase extends AbstractNxnContractTest {
         assertEquals("NXN-Column", row.get(Character.toUpperCase(lower.charAt(0)) + lower.substring(1)));
     }
 
+    // 能力归属：编程式 API / 查询。
     @Test
-    @Capability(CapabilityId.JDBC_COLUMN_SENSITIVE_MAP)
+    @Capability(value = CapabilityId.JDBC_COLUMN_SENSITIVE_MAP, column = "jdbc/queries/queries")
     public void sensitiveMap_shouldRequireExactColumnCase() throws SQLException {
         seedColumnValue();
         jdbcTemplate.setResultsCaseInsensitive(false);

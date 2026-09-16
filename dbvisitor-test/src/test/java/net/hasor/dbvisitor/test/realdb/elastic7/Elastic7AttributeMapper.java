@@ -8,14 +8,7 @@
 package net.hasor.dbvisitor.test.realdb.elastic7;
 
 import java.util.List;
-import net.hasor.dbvisitor.mapper.Delete;
-import net.hasor.dbvisitor.mapper.Insert;
-import net.hasor.dbvisitor.mapper.Param;
-import net.hasor.dbvisitor.mapper.Query;
-import net.hasor.dbvisitor.mapper.ResultSetType;
-import net.hasor.dbvisitor.mapper.SimpleMapper;
-import net.hasor.dbvisitor.mapper.StatementType;
-import net.hasor.dbvisitor.mapper.Update;
+import net.hasor.dbvisitor.mapper.*;
 import net.hasor.dbvisitor.test.contract.material.dao.declarative.AnnotationAttributesMapper;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 
@@ -54,8 +47,7 @@ public interface Elastic7AttributeMapper extends AnnotationAttributesMapper {
     int insertWithTimeout(UserInfo user);
 
     @Override
-    @Insert({ "POST /@{macro,esSessionIndex}/_doc", "{\"id\": #{id},\"name\": #{name},",
-            "\"age\": #{age},\"email\": #{email},\"create_time\": #{createTime}}" })
+    @Insert({ "POST /@{macro,esSessionIndex}/_doc", "{\"id\": #{id},\"name\": #{name},", "\"age\": #{age},\"email\": #{email},\"create_time\": #{createTime}}" })
     int insertMultiLine(UserInfo user);
 
     @Override

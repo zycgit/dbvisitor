@@ -43,16 +43,19 @@ public class Elastic7LambdaDistinctTest extends LambdaDistinctCase {
             if (sources.length() > 0) {
                 sources.append(",");
             }
-            sources.append("{\"").append(field).append("\": {\"terms\": {\"field\": \"")
-                    .append(field).append("\",\"missing_bucket\": true}}}");
+            sources.append("{\"").append(field).append("\": {\"terms\": {\"field\": \"").append(field).append("\",\"missing_bucket\": true}}}");
         }
         return "{\"aggs\": {\"rows\": {\"composite\": {\"size\": 2,\"sources\": [" + sources + "]}}}}";
     }
 
     @Override
     protected String distinctCountSelect() {
-        return "{\"aggs\": {\"rows\": {\"composite\": {\"size\": 2,\"sources\": [{\"age\": {\"terms\": {\"field\": \"age\"}}}]},"
-                + "\"meta\": {\"dbvisitor\": {\"mode\": \"count\",\"column\": \"distinct_count\"}}}}}";
+        return "{\"aggs\": {\"rows\": {\"composite\": {\"size\": 2,\"sources\": [{\"age\": {\"terms\": {\"field\": \"age\"}}}]}," + "\"meta\": {\"dbvisitor\": {\"mode\": \"count\",\"column\": \"distinct_count\"}}}}}";
+    }
+
+    @Override
+    protected String distinctSelect() {
+        return "{\"aggs\": {\"rows\": {\"composite\": {\"sources\": [{\"id\": {\"terms\": {\"field\": \"id\",\"missing_bucket\": true}}}]}}}}";
     }
 
     @After

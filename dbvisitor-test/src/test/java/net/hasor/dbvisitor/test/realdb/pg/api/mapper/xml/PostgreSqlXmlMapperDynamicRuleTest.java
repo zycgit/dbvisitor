@@ -7,7 +7,7 @@
  */
 package net.hasor.dbvisitor.test.realdb.pg.api.mapper.xml;
 
-import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperDynamicRuleCase;
+import net.hasor.dbvisitor.test.contract.feature.rule.XmlMapperDynamicRuleCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.PostgreSqlProfile;
 

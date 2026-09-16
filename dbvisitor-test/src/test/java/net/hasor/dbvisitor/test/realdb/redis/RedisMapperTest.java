@@ -11,9 +11,9 @@ import java.util.Properties;
 import net.hasor.dbvisitor.adapter.redis.JedisKeys;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
-import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
+import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.realdb.redis.dto1.UserInfo1;
 import net.hasor.dbvisitor.test.realdb.redis.dto1.UserInfo1Mapper;
 import net.hasor.dbvisitor.test.realdb.redis.dto2.UserInfo2;
@@ -22,10 +22,8 @@ import net.hasor.dbvisitor.test.realdb.redis.dto3.UserInfo3;
 import net.hasor.dbvisitor.test.realdb.redis.dto3.UserInfo3Mapper;
 import net.hasor.dbvisitor.test.realdb.redis.dto3.UserInfo4Mapper;
 import org.junit.Test;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import redis.clients.jedis.Jedis;
+import static org.junit.Assert.*;
 
 public class RedisMapperTest {
     @org.junit.BeforeClass
@@ -50,18 +48,18 @@ public class RedisMapperTest {
 
             // insert
             int saveStatus = infoMapper.saveUser(user);
-            assertTrue(saveStatus == 1);
+            assertEquals(1, saveStatus);
 
             // load
             UserInfo1 info = infoMapper.loadUser("1111");
-            assertTrue(user != info);
-            assertTrue(info.getUid().equals("1111"));
-            assertTrue(info.getName().equals("username"));
-            assertTrue(info.getLoginName().equals("login_123"));
-            assertTrue(info.getLoginPassword().equals("password"));
+            assertNotSame(user, info);
+            assertEquals("1111", info.getUid());
+            assertEquals("username", info.getName());
+            assertEquals("login_123", info.getLoginName());
+            assertEquals("password", info.getLoginPassword());
 
             // delete
-            assertTrue(s.getConnection().unwrap(Jedis.class).get("user_1111") != null);
+            assertNotNull(s.getConnection().unwrap(Jedis.class).get("user_1111"));
             assertNull(infoMapper.loadUser("missing-user"));
 
             // SET overwrites the same key; no SQL UPDATE syntax is required.
@@ -77,8 +75,8 @@ public class RedisMapperTest {
             assertEquals("password", infoMapper.loadUser("1111").getLoginPassword());
 
             int delStatus = infoMapper.deleteUser("1111");
-            assertTrue(delStatus == 1);
-            assertTrue(s.getConnection().unwrap(Jedis.class).get("user_1111") == null);
+            assertEquals(1, delStatus);
+            assertNull(s.getConnection().unwrap(Jedis.class).get("user_1111"));
             assertNull(infoMapper.loadUser("1111"));
         }
     }
@@ -100,21 +98,21 @@ public class RedisMapperTest {
 
             // insert
             int saveStatus = infoMapper.saveUser(user);
-            assertTrue(saveStatus == 1);
+            assertEquals(1, saveStatus);
 
             // load
             UserInfo2 info = infoMapper.loadUser("2222");
-            assertTrue(user != info);
-            assertTrue(info.getUid().equals("2222"));
-            assertTrue(info.getName().equals("username"));
-            assertTrue(info.getLoginName().equals("login_123"));
-            assertTrue(info.getLoginPassword().equals("password"));
+            assertNotSame(user, info);
+            assertEquals("2222", info.getUid());
+            assertEquals("username", info.getName());
+            assertEquals("login_123", info.getLoginName());
+            assertEquals("password", info.getLoginPassword());
 
             // delete
-            assertTrue(s.getConnection().unwrap(Jedis.class).get("user_2222") != null);
+            assertNotNull(s.getConnection().unwrap(Jedis.class).get("user_2222"));
             int delStatus = infoMapper.deleteUser("2222");
-            assertTrue(delStatus == 1);
-            assertTrue(s.getConnection().unwrap(Jedis.class).get("user_2222") == null);
+            assertEquals(1, delStatus);
+            assertNull(s.getConnection().unwrap(Jedis.class).get("user_2222"));
         }
     }
 
@@ -137,27 +135,27 @@ public class RedisMapperTest {
 
             // insert
             int saveStatus = infoMapper.saveUser(user);
-            assertTrue(saveStatus == 1);
+            assertEquals(1, saveStatus);
 
             // load1
             UserInfo3 info1 = infoMapper.loadUser1("3333");
-            assertTrue(info1.getUid().equals("3333"));
-            assertTrue(info1.getName().equals("username"));
-            assertTrue(info1.getLoginName().equals("login_123"));
-            assertTrue(info1.getLoginPassword().equals("password"));
+            assertEquals("3333", info1.getUid());
+            assertEquals("username", info1.getName());
+            assertEquals("login_123", info1.getLoginName());
+            assertEquals("password", info1.getLoginPassword());
 
             // load2
             UserInfo1 info2 = infoMapper.loadUser2("3333");
-            assertTrue(info2.getUid().equals("3333"));
-            assertTrue(info2.getName().equals("username"));
-            assertTrue(info2.getLoginName().equals("login_123"));
-            assertTrue(info2.getLoginPassword().equals("password"));
+            assertEquals("3333", info2.getUid());
+            assertEquals("username", info2.getName());
+            assertEquals("login_123", info2.getLoginName());
+            assertEquals("password", info2.getLoginPassword());
 
             // delete
-            assertTrue(s.getConnection().unwrap(Jedis.class).get("user_3333") != null);
+            assertNotNull(s.getConnection().unwrap(Jedis.class).get("user_3333"));
             int delStatus = infoMapper.deleteUser("3333");
-            assertTrue(delStatus == 1);
-            assertTrue(s.getConnection().unwrap(Jedis.class).get("user_3333") == null);
+            assertEquals(1, delStatus);
+            assertNull(s.getConnection().unwrap(Jedis.class).get("user_3333"));
         }
     }
 
@@ -180,17 +178,17 @@ public class RedisMapperTest {
 
             // insert
             int saveStatus = infoMapper.saveUser(user);
-            assertTrue(saveStatus == 1);
+            assertEquals(1, saveStatus);
 
             // load1
             UserInfo1 info1 = infoMapper.loadUser("4444");
-            assertTrue(info1.getUid().equals("4444"));
-            assertTrue(info1.getName().equals("username"));
-            assertTrue(info1.getLoginName().equals("login_123"));
-            assertTrue(info1.getLoginPassword().equals("password"));
+            assertEquals("4444", info1.getUid());
+            assertEquals("username", info1.getName());
+            assertEquals("login_123", info1.getLoginName());
+            assertEquals("password", info1.getLoginPassword());
 
             // delete
-            assertTrue(s.getConnection().unwrap(Jedis.class).get("user_4444") != null);
+            assertNotNull(s.getConnection().unwrap(Jedis.class).get("user_4444"));
             assertNull(infoMapper.loadUser("missing-user"));
 
             // The XML update uses the same native overwrite operation.
@@ -200,8 +198,8 @@ public class RedisMapperTest {
             assertEquals("login_123", infoMapper.loadUser("4444").getLoginName());
 
             int delStatus = infoMapper.deleteUser("4444");
-            assertTrue(delStatus == 1);
-            assertTrue(s.getConnection().unwrap(Jedis.class).get("user_4444") == null);
+            assertEquals(1, delStatus);
+            assertNull(s.getConnection().unwrap(Jedis.class).get("user_4444"));
             assertNull(infoMapper.loadUser("4444"));
         }
     }

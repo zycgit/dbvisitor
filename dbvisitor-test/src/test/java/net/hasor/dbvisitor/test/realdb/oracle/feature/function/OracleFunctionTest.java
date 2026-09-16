@@ -9,7 +9,7 @@ package net.hasor.dbvisitor.test.realdb.oracle.feature.function;
 
 import java.sql.SQLException;
 
-import net.hasor.dbvisitor.test.contract.feature.function.FunctionCase;
+import net.hasor.dbvisitor.test.contract.api.jdbc.FunctionCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.OracleProfile;
 
@@ -48,44 +48,42 @@ public class OracleFunctionTest extends FunctionCase {
         jdbcTemplate.execute("CREATE TYPE nxn_fn_complex_row AS OBJECT (counter NUMBER(10), user_name VARCHAR2(255), user_age NUMBER(10))");
         jdbcTemplate.execute("CREATE TYPE nxn_fn_complex_table AS TABLE OF nxn_fn_complex_row");
 
-        jdbcTemplate.execute("CREATE OR REPLACE FUNCTION nxn_fn_add_numbers(a IN NUMBER, b IN NUMBER) RETURN NUMBER AS "
-                + "BEGIN RETURN a + b; END;");
-        jdbcTemplate.execute("CREATE OR REPLACE FUNCTION nxn_fn_multiply(x IN NUMBER, y IN NUMBER) RETURN NUMBER AS "
-                + "BEGIN RETURN x * y; END;");
+        jdbcTemplate.execute("CREATE OR REPLACE FUNCTION nxn_fn_add_numbers(a IN NUMBER, b IN NUMBER) RETURN NUMBER AS " + "BEGIN RETURN a + b; END;");
+        jdbcTemplate.execute("CREATE OR REPLACE FUNCTION nxn_fn_multiply(x IN NUMBER, y IN NUMBER) RETURN NUMBER AS " + "BEGIN RETURN x * y; END;");
         jdbcTemplate.execute("""
-            CREATE OR REPLACE FUNCTION nxn_fn_get_username(user_id IN NUMBER) RETURN VARCHAR2 AS
-            username VARCHAR2(255); BEGIN SELECT name INTO username FROM user_info WHERE id = user_id; RETURN username; END;
-            """);
+                CREATE OR REPLACE FUNCTION nxn_fn_get_username(user_id IN NUMBER) RETURN VARCHAR2 AS
+                username VARCHAR2(255); BEGIN SELECT name INTO username FROM user_info WHERE id = user_id; RETURN username; END;
+                """);
         jdbcTemplate.execute("""
-            CREATE OR REPLACE FUNCTION nxn_fn_transform_string(text_value IN VARCHAR2, suffix IN VARCHAR2) RETURN VARCHAR2 AS
-            BEGIN RETURN UPPER(text_value) || suffix; END;
-            """);
+                CREATE OR REPLACE FUNCTION nxn_fn_transform_string(text_value IN VARCHAR2, suffix IN VARCHAR2) RETURN VARCHAR2 AS
+                BEGIN RETURN UPPER(text_value) || suffix; END;
+                """);
         jdbcTemplate.execute("""
-            CREATE OR REPLACE FUNCTION nxn_fn_calc_numbers(a IN NUMBER, b IN NUMBER) RETURN nxn_fn_calc_table AS
-            BEGIN RETURN nxn_fn_calc_table(nxn_fn_calc_row(a + b, a - b, a * b, a / b)); END;
-            """);
+                CREATE OR REPLACE FUNCTION nxn_fn_calc_numbers(a IN NUMBER, b IN NUMBER) RETURN nxn_fn_calc_table AS
+                BEGIN RETURN nxn_fn_calc_table(nxn_fn_calc_row(a + b, a - b, a * b, a / b)); END;
+                """);
         jdbcTemplate.execute("""
-            CREATE OR REPLACE FUNCTION nxn_fn_multi_resultsets RETURN nxn_fn_multi_table AS
-            rows nxn_fn_multi_table; BEGIN
-            SELECT nxn_fn_multi_row(result_set, name, value) BULK COLLECT INTO rows FROM (
-            SELECT 1 AS result_set, CAST(name AS VARCHAR2(255)) AS name, age AS value FROM user_info WHERE id BETWEEN 918101 AND 918103
-            UNION ALL SELECT 2 AS result_set, CAST(string_value AS VARCHAR2(255)) AS name, int_value AS value FROM basic_types_test WHERE id BETWEEN 918101 AND 918102
-            ); RETURN rows; END;
-            """);
+                CREATE OR REPLACE FUNCTION nxn_fn_multi_resultsets RETURN nxn_fn_multi_table AS
+                rows nxn_fn_multi_table; BEGIN
+                SELECT nxn_fn_multi_row(result_set, name, value) BULK COLLECT INTO rows FROM (
+                SELECT 1 AS result_set, CAST(name AS VARCHAR2(255)) AS name, age AS value FROM user_info WHERE id BETWEEN 918101 AND 918103
+                UNION ALL SELECT 2 AS result_set, CAST(string_value AS VARCHAR2(255)) AS name, int_value AS value FROM basic_types_test WHERE id BETWEEN 918101 AND 918102
+                ); RETURN rows; END;
+                """);
         jdbcTemplate.execute("""
-            CREATE OR REPLACE FUNCTION nxn_fn_filter_users(min_age IN NUMBER) RETURN nxn_fn_user_table AS
-            rows nxn_fn_user_table; BEGIN
-            SELECT nxn_fn_user_row(id, CAST(name AS VARCHAR2(255)), age) BULK COLLECT INTO rows
-            FROM user_info WHERE id BETWEEN 918101 AND 918103 AND age >= min_age ORDER BY age, id;
-            RETURN rows; END;
-            """);
+                CREATE OR REPLACE FUNCTION nxn_fn_filter_users(min_age IN NUMBER) RETURN nxn_fn_user_table AS
+                rows nxn_fn_user_table; BEGIN
+                SELECT nxn_fn_user_row(id, CAST(name AS VARCHAR2(255)), age) BULK COLLECT INTO rows
+                FROM user_info WHERE id BETWEEN 918101 AND 918103 AND age >= min_age ORDER BY age, id;
+                RETURN rows; END;
+                """);
         jdbcTemplate.execute("""
-            CREATE OR REPLACE FUNCTION nxn_fn_complex_params(input_id IN NUMBER, counter IN NUMBER) RETURN nxn_fn_complex_table AS
-            user_name VARCHAR2(255); user_age NUMBER(10); BEGIN
-            BEGIN SELECT name, age INTO user_name, user_age FROM user_info WHERE id = input_id;
-            EXCEPTION WHEN NO_DATA_FOUND THEN user_name := 'Unknown'; user_age := 0; END;
-            RETURN nxn_fn_complex_table(nxn_fn_complex_row(counter + 1, user_name, user_age)); END;
-            """);
+                CREATE OR REPLACE FUNCTION nxn_fn_complex_params(input_id IN NUMBER, counter IN NUMBER) RETURN nxn_fn_complex_table AS
+                user_name VARCHAR2(255); user_age NUMBER(10); BEGIN
+                BEGIN SELECT name, age INTO user_name, user_age FROM user_info WHERE id = input_id;
+                EXCEPTION WHEN NO_DATA_FOUND THEN user_name := 'Unknown'; user_age := 0; END;
+                RETURN nxn_fn_complex_table(nxn_fn_complex_row(counter + 1, user_name, user_age)); END;
+                """);
     }
 
     @Override

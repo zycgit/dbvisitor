@@ -9,9 +9,9 @@ package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
 
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperPositionalParameterCase;
-import net.hasor.dbvisitor.test.realdb.redis.RedisAnnotationParameterFixture;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import net.hasor.dbvisitor.test.realdb.redis.RedisAnnotationParameterFixture;
 import org.junit.After;
 import org.junit.Before;
 

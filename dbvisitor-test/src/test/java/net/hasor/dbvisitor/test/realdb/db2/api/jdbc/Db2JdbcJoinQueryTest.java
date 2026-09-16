@@ -7,9 +7,9 @@
  */
 package net.hasor.dbvisitor.test.realdb.db2.api.jdbc;
 
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcJoinQueryCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Db2Profile;
+import net.hasor.dbvisitor.test.scenario.query.jdbc.JdbcJoinQueryCase;
 
 public class Db2JdbcJoinQueryTest extends JdbcJoinQueryCase {
     @Override

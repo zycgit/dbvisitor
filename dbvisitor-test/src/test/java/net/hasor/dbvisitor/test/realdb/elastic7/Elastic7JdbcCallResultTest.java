@@ -8,7 +8,7 @@
 package net.hasor.dbvisitor.test.realdb.elastic7;
 
 import java.sql.SQLException;
-import net.hasor.dbvisitor.test.contract.jdbc.call.JdbcCallResultCase;
+import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcCallResultCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
 import net.hasor.dbvisitor.test.realdb.elastic7.material.ElasticMatrixFixture;
@@ -37,8 +37,7 @@ public class Elastic7JdbcCallResultTest extends JdbcCallResultCase {
 
     @Override
     protected String callCommand() {
-        return "POST /" + this.fixture.index()
-                + "/_search {\"_source\": [\"name\",\"age\"],\"query\": {\"term\": {\"id\": #{p_id}}}}";
+        return "POST /" + this.fixture.index() + "/_search {\"_source\": [\"name\",\"age\"],\"query\": {\"term\": {\"id\": #{p_id}}}}";
     }
 
     @After

@@ -12,23 +12,18 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class BaseMapperQueryCase extends BaseMapperCrudSupport {
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_SELECT_BY_ID)
+    @Capability(value = CapabilityId.BASEMAPPER_SELECT_BY_ID, column = "mapper/base-mapper/operations")
     public void baseMapperSelectById_shouldReturnSingleEntity() {
         this.mapper.insert(user(baseId() + 21, "BaseSelect", 31, "select@basemapper.com"));
 
@@ -40,8 +35,9 @@ public abstract class BaseMapperQueryCase extends BaseMapperCrudSupport {
         assertEquals("select@basemapper.com", loaded.getEmail());
     }
 
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_SELECT_BY_IDS)
+    @Capability(value = CapabilityId.BASEMAPPER_SELECT_BY_IDS, column = "mapper/base-mapper/operations")
     public void baseMapperSelectByIds_shouldReturnMatchingEntities() {
         this.mapper.insert(user(baseId() + 31, "BaseIds1", 41, null));
         this.mapper.insert(user(baseId() + 32, "BaseIds2", 42, null));
@@ -55,8 +51,9 @@ public abstract class BaseMapperQueryCase extends BaseMapperCrudSupport {
         assertEquals("BaseIds3", loaded.get(1).getName());
     }
 
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_QUERY_EMPTY)
+    @Capability(value = CapabilityId.BASEMAPPER_QUERY_EMPTY, column = "mapper/base-mapper/operations")
     public void baseMapperQuery_shouldReturnNullOrEmptyForMissingRows() {
         assertNull(this.mapper.selectById(baseId() + 99999));
 
@@ -71,8 +68,9 @@ public abstract class BaseMapperQueryCase extends BaseMapperCrudSupport {
         assertEquals(0, emptySample.size());
     }
 
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_RESULT_MAPPING)
+    @Capability(value = CapabilityId.BASEMAPPER_RESULT_MAPPING, column = "mapper/base-mapper/operations")
     public void baseMapperResults_shouldMapEntityFieldsAndCountsConsistently() {
         for (int i = 1; i <= 10; i++) {
             this.mapper.insert(user(baseId() + 380 + i, "BaseResult" + i, 20 + i, "result" + i + "@basemapper.com"));
@@ -103,8 +101,9 @@ public abstract class BaseMapperQueryCase extends BaseMapperCrudSupport {
         assertEquals(1, this.mapper.countBySample(mapSample));
     }
 
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_QUERY_ALL)
+    @Capability(value = CapabilityId.BASEMAPPER_QUERY_ALL, column = "mapper/base-mapper/operations")
     public void baseMapperQueryAll_shouldCountAllAndAllowLambdaFiltering() throws SQLException {
         for (int i = 1; i <= 5; i++) {
             this.mapper.insert(user(baseId() + 250 + i, "BaseAll" + i, 28, null));
@@ -116,8 +115,9 @@ public abstract class BaseMapperQueryCase extends BaseMapperCrudSupport {
         assertEquals(5, loaded.size());
     }
 
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_LOAD_BY)
+    @Capability(value = CapabilityId.BASEMAPPER_LOAD_BY, column = "mapper/base-mapper/operations")
     public void baseMapperLoadBy_shouldLoadEntityUsingReferenceObject() {
         this.mapper.insert(user(baseId() + 121, "BaseLoadBy", 121, "load-by@basemapper.com"));
 
@@ -130,8 +130,9 @@ public abstract class BaseMapperQueryCase extends BaseMapperCrudSupport {
         assertEquals(Integer.valueOf(121), loaded.getAge());
     }
 
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_LOAD_LIST_BY)
+    @Capability(value = CapabilityId.BASEMAPPER_LOAD_LIST_BY, column = "mapper/base-mapper/operations")
     public void baseMapperLoadListBy_shouldLoadEntitiesUsingReferenceList() {
         this.mapper.insert(user(baseId() + 131, "BaseLoadList1", 131, null));
         this.mapper.insert(user(baseId() + 132, "BaseLoadList2", 132, null));

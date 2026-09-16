@@ -8,7 +8,7 @@
 package net.hasor.dbvisitor.test.realdb.elastic6;
 
 import java.sql.SQLException;
-import net.hasor.dbvisitor.test.contract.api.lambda.LambdaRowCallbackCase;
+import net.hasor.dbvisitor.test.contract.feature.result.LambdaRowCallbackCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic6Profile;
 import net.hasor.dbvisitor.test.realdb.elastic7.material.ElasticMatrixFixture;
@@ -40,4 +40,3 @@ public class Elastic6LambdaRowCallbackTest extends LambdaRowCallbackCase {
         fixture.close();
     }
 }
-

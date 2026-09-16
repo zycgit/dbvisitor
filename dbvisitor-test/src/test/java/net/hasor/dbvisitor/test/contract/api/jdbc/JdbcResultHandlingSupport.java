@@ -10,10 +10,8 @@ package net.hasor.dbvisitor.test.contract.api.jdbc;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.Map;
-
-import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
-
+import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import static org.junit.Assert.assertNotNull;
 
 public abstract class JdbcResultHandlingSupport extends AbstractNxnContractTest {
@@ -30,6 +28,14 @@ public abstract class JdbcResultHandlingSupport extends AbstractNxnContractTest 
         return values;
     }
 
+    protected String emptyResultSql() throws SQLException {
+        return selectSql("*", "id = ?", false);
+    }
+
+    protected Object[] emptyResultArguments() {
+        return selectArguments("*", "id = ?", baseId() + 999);
+    }
+
     protected Class<?> resultBeanType() {
         return UserInfo.class;
     }
@@ -44,8 +50,7 @@ public abstract class JdbcResultHandlingSupport extends AbstractNxnContractTest 
     }
 
     protected void insertUser(int id, String name, int age, String email) throws SQLException {
-        jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, ?)",
-                new Object[] { id, name, age, email, new Date() });
+        jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, email, create_time) VALUES (?, ?, ?, ?, ?)", new Object[] { id, name, age, email, new Date() });
     }
 
     protected void seedUsers() throws SQLException {
@@ -65,11 +70,4 @@ public abstract class JdbcResultHandlingSupport extends AbstractNxnContractTest 
         return row.get(key.toLowerCase());
     }
 
-    protected static class UserNameAge {
-        protected final String nameAge;
-
-        protected UserNameAge(String nameAge) {
-            this.nameAge = nameAge;
-        }
-    }
 }

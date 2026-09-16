@@ -19,10 +19,10 @@ import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 
 /** Hash fields store native fixture data; no relational row-count semantics are inferred. */
 public final class RedisJdbcCrudFixture implements AutoCloseable {
-    private final String prefix = "nxn:crud:" + UUID.randomUUID() + ":";
-    private final Set<String> keys = new LinkedHashSet<>();
-    private Connection connection;
-    private JdbcTemplate jdbc;
+    private final String       prefix = "nxn:crud:" + UUID.randomUUID() + ":";
+    private final Set<String>  keys   = new LinkedHashSet<>();
+    private       Connection   connection;
+    private       JdbcTemplate jdbc;
 
     public JdbcTemplate open() throws SQLException {
         OneApiDataSourceManager.assumeCurrentDataSource("redis");

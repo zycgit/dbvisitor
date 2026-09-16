@@ -17,6 +17,7 @@ import static org.junit.Assert.fail;
 
 public abstract class WriteConsistencyScenario extends AbstractNxnContractTest {
     private String table;
+
     @Test
     public void duplicateWrite_withoutTransactionKeepsFirstRow() throws Exception {
         prepareTable("doc_write_auto");
@@ -53,8 +54,7 @@ public abstract class WriteConsistencyScenario extends AbstractNxnContractTest {
     private void prepareTable(String table) throws Exception {
         this.table = table;
         dropTableIfExists(table);
-        jdbcTemplate.executeUpdate("CREATE TABLE " + table + " (id INTEGER NOT NULL PRIMARY KEY, name VARCHAR(100))"
-                + (profile().env().equals("mysql") ? " ENGINE=InnoDB" : ""));
+        jdbcTemplate.executeUpdate("CREATE TABLE " + table + " (id INTEGER NOT NULL PRIMARY KEY, name VARCHAR(100))" + (profile().env().equals("mysql") ? " ENGINE=InnoDB" : ""));
     }
 
     private void insertPair() throws java.sql.SQLException {

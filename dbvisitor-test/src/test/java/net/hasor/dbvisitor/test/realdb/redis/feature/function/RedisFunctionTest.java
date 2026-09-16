@@ -8,17 +8,14 @@
 package net.hasor.dbvisitor.test.realdb.redis.feature.function;
 
 import java.sql.SQLException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import net.hasor.dbvisitor.test.contract.feature.function.FunctionCase;
+import net.hasor.dbvisitor.test.contract.api.jdbc.FunctionCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
 import net.hasor.dbvisitor.test.realdb.redis.api.jdbc.RedisJdbcFixture;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertArrayEquals;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /** Lua functions execute on Redis; the adapter preserves their native reply in VALUE. */
 public class RedisFunctionTest extends FunctionCase {

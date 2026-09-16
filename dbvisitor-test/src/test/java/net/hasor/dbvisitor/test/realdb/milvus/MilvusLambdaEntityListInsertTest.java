@@ -40,8 +40,7 @@ public class MilvusLambdaEntityListInsertTest extends LambdaEntityListInsertCase
         for (UserInfo user : users) {
             ids.add(user.getId());
         }
-        return this.lambdaTemplate.query(UserInfo.class)
-                .in(UserInfo::getId, ids).queryForCount();
+        return this.lambdaTemplate.query(UserInfo.class).in(UserInfo::getId, ids).queryForCount();
     }
 
     @After

@@ -163,6 +163,7 @@ public class Elastic6CrudPlaceholderTest {
             }
         }
     }
+
     public static void main(String[] args) {
         net.hasor.dbvisitor.test.realdb.RealDbTestRunner.run(Elastic6CrudPlaceholderTest.class);
     }

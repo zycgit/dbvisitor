@@ -17,8 +17,8 @@ import net.hasor.dbvisitor.mapping.MappingRegistry;
 /** Shared 128-dimensional data and native metric indexes for the common vector contracts. */
 final class MilvusVectorQueryFixture implements AutoCloseable {
     private final MilvusDatabaseFixture database = new MilvusDatabaseFixture();
-    private JdbcTemplate jdbc;
-    private MetricType metric;
+    private       JdbcTemplate          jdbc;
+    private       MetricType            metric;
 
     LambdaTemplate open() throws IOException, SQLException {
         this.jdbc = new JdbcTemplate(this.database.open());

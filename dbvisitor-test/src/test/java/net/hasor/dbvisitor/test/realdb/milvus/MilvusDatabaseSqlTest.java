@@ -7,13 +7,8 @@
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.UUID;
-
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.hasor.dbvisitor.test.contract.api.adapter.AdapterCase;
@@ -22,7 +17,6 @@ import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
 import org.junit.Test;
-
 import static org.junit.Assert.*;
 
 public class MilvusDatabaseSqlTest extends AdapterCase {

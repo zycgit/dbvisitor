@@ -17,8 +17,8 @@ import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 public interface PostgreSqlGeneratedKeysMapper extends AnnotationAttributesMapper {
     @Override
     @Insert(value = """
-        INSERT INTO user_info (name, age, email, create_time)
-        VALUES (#{name}, #{age}, #{email}, #{createTime}) RETURNING id
-        """, useGeneratedKeys = true, keyProperty = "id", keyColumn = "id", generatedKeySource = GeneratedKeySource.ResultSet)
+            INSERT INTO user_info (name, age, email, create_time)
+            VALUES (#{name}, #{age}, #{email}, #{createTime}) RETURNING id
+            """, useGeneratedKeys = true, keyProperty = "id", keyColumn = "id", generatedKeySource = GeneratedKeySource.ResultSet)
     int insertWithGeneratedKeyResultSet(UserInfo user);
 }

@@ -43,8 +43,8 @@ public class ClickHouseTableEngineTest extends AbstractNxnContractTest {
         // @formatter:on
     }
 
-    private final String table;
-    private final String engine;
+    private final String  table;
+    private final String  engine;
     private final boolean mutations;
 
     public ClickHouseTableEngineTest(String name, String engine, boolean mutations) {

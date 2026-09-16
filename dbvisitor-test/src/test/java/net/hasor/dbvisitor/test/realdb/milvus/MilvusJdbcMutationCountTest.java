@@ -9,8 +9,8 @@ package net.hasor.dbvisitor.test.realdb.milvus;
 
 import java.sql.SQLException;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcMutationCountCase;
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcCrudCommand;
+import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcMutationCountCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
 import org.junit.After;

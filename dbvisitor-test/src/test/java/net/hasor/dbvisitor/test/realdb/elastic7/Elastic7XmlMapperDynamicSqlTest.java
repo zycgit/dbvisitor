@@ -9,26 +9,36 @@ package net.hasor.dbvisitor.test.realdb.elastic7;
 
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperDynamicSqlCase;
-import net.hasor.dbvisitor.test.nxn.env.*;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
 import org.junit.After;
 import org.junit.Before;
 
 public class Elastic7XmlMapperDynamicSqlTest extends XmlMapperDynamicSqlCase {
     private final Elastic7SessionMapperFixture fixture = new Elastic7SessionMapperFixture();
+
     @Override
-    protected DataSourceProfile profile() { return Elastic7Profile.INSTANCE; }
+    protected DataSourceProfile profile() {
+        return Elastic7Profile.INSTANCE;
+    }
+
     @Override
     @Before
     public void setup() throws SQLException {
         this.jdbcTemplate = fixture.open(profile().env());
         initData();
     }
+
     @Override
     protected void insertUser(Object[] values) throws SQLException {
         fixture.insert((Integer) values[0], (String) values[1], (Integer) values[2], (String) values[3]);
     }
+
     @Override
-    protected String mapperResource() { return "/mapper/elastic/DynamicMatrix.xml"; }
+    protected String mapperResource() {
+        return "/mapper/elastic/DynamicMatrix.xml";
+    }
+
     @Override
     @Before
     public void createXmlMapperSession() throws Exception {
@@ -36,6 +46,9 @@ public class Elastic7XmlMapperDynamicSqlTest extends XmlMapperDynamicSqlCase {
         this.session = fixture.session();
         session.getConfiguration().loadMapper(mapperResource());
     }
+
     @After
-    public void closeDynamicFixture() throws Exception { fixture.close(); }
+    public void closeDynamicFixture() throws Exception {
+        fixture.close();
+    }
 }

@@ -7,11 +7,11 @@
  */
 package net.hasor.dbvisitor.test.realdb.elastic6;
 
-import net.hasor.dbvisitor.test.realdb.elastic7.Elastic7AnnotationMapperResultHandlerTest;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic6Profile;
+import net.hasor.dbvisitor.test.realdb.elastic7.material.ElasticAnnotationResultHandlerSupport;
 
-public class Elastic6AnnotationMapperResultHandlerTest extends Elastic7AnnotationMapperResultHandlerTest {
+public class Elastic6AnnotationMapperResultHandlerTest extends ElasticAnnotationResultHandlerSupport {
     @Override
     protected DataSourceProfile profile() {
         return Elastic6Profile.INSTANCE;

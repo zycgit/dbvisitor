@@ -11,16 +11,16 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.test.contract.feature.type.BasicBitValueJdbcCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
+import net.hasor.dbvisitor.test.scenario.type.BasicBitValueJdbcCase;
 import org.junit.After;
 import org.junit.Before;
 
 /** Native scalar storage; DOUBLE is not an arbitrary-precision DECIMAL type. */
 public class MilvusBasicBitValueJdbcTest extends BasicBitValueJdbcCase {
     private final MilvusDatabaseFixture database = new MilvusDatabaseFixture();
-    private Connection connection;
+    private       Connection            connection;
 
     @Override
     protected DataSourceProfile profile() {

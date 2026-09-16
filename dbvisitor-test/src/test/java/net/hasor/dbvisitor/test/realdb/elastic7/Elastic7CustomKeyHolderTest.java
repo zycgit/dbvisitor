@@ -9,12 +9,7 @@ package net.hasor.dbvisitor.test.realdb.elastic7;
 
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.feature.keygen.CustomKeyHolderCase;
-import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyHolderUser;
-import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyHolderBothUser;
-import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyHolderContextUser;
-import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyHolderConnectionUser;
-import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyHolderFailingUser;
-import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyHolderSqlExceptionUser;
+import net.hasor.dbvisitor.test.contract.material.model.keygen.*;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
 import net.hasor.dbvisitor.test.realdb.elastic7.material.ElasticMatrixFixture;

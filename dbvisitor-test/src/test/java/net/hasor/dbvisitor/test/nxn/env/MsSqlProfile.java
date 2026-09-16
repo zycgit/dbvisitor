@@ -27,6 +27,7 @@ public final class MsSqlProfile extends AbstractDataSourceProfile {
             FeatureId.VECTOR,
             FeatureId.POSTGRES_ON_CONFLICT,
             FeatureId.TRANSACTION_RELEASE_SAVEPOINT,
+            FeatureId.REPEATED_ORDER_BY_COLUMN,
             FeatureId.CASE_SENSITIVE_IDENTIFIERS
         };
         // @formatter:on

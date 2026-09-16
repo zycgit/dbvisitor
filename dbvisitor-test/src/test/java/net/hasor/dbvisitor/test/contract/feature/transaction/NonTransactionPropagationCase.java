@@ -8,6 +8,7 @@
 package net.hasor.dbvisitor.test.contract.feature.transaction;
 
 import java.sql.SQLException;
+import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
@@ -16,22 +17,48 @@ import net.hasor.dbvisitor.transaction.Propagation;
 import net.hasor.dbvisitor.transaction.TransactionStatus;
 import net.hasor.dbvisitor.transaction.support.LocalTransactionManager;
 import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 
 /** Propagation scopes that never start a database transaction. */
 @NxnContract
 public abstract class NonTransactionPropagationCase extends AbstractNxnContractTest {
+    // 能力归属：数据库事务 / 事务传播 / 事务传播。
     @Test
-    @Capability(CapabilityId.TRANSACTION_SUPPORTS_NO_TX)
+    @Capability(value = CapabilityId.TRANSACTION_SUPPORTS_NO_TX, column = "transactions/transaction-propagation/propagation", variants = { "SUPPORTS" })
     public void supports_shouldCommitImmediatelyWhenNoTransactionExists() throws Exception {
         assertAutocommitScope(Propagation.SUPPORTS, 910034, "NXN-TX-Supports-NoTx-Only");
     }
 
+    // 能力归属：数据库事务 / 事务传播 / 事务传播。
     @Test
-    @Capability(CapabilityId.TRANSACTION_NEVER_NO_TX)
+    @Capability(value = CapabilityId.TRANSACTION_NEVER_NO_TX, column = "transactions/transaction-propagation/propagation", variants = { "NEVER" })
     public void never_shouldRunWithoutTransactionWhenNoTransactionExists() throws Exception {
         assertAutocommitScope(Propagation.NEVER, 910062, "NXN-TX-Never-NoTx-Only");
+    }
+
+    // 能力归属：数据库事务 / 事务传播 / 事务传播。
+    @Test
+    @Capability(value = CapabilityId.TRANSACTION_NOT_SUPPORTED_NO_TX, column = "transactions/transaction-propagation/propagation", variants = { "NOT_SUPPORTED" })
+    public void notSupported_shouldKeepAutocommittedWorkWhenScopeIsRolledBack() throws Exception {
+        int id = 910043;
+        try (LocalTransactionManager manager = new LocalTransactionManager(jdbcTemplate.getDataSource())) {
+            assertFalse(manager.hasTransaction());
+            TransactionStatus status = manager.begin(Propagation.NOT_SUPPORTED);
+            try {
+                assertEquals(Propagation.NOT_SUPPORTED, status.getPropagation());
+                jdbcTemplate.execute((ConnectionCallback<Void>) connection -> {
+                    assertTrue(connection.getAutoCommit());
+                    return null;
+                });
+                insertUser(id, "NXN-TX-NotSupported-NoTx-Only");
+                assertEquals(1, countById(id));
+            } finally {
+                manager.rollBack(status);
+            }
+            assertTrue(status.isCompleted());
+            assertFalse(manager.hasTransaction());
+            assertEquals(1, countById(id));
+        }
     }
 
     private void assertAutocommitScope(Propagation propagation, int id, String name) throws Exception {
@@ -39,6 +66,11 @@ public abstract class NonTransactionPropagationCase extends AbstractNxnContractT
         try (LocalTransactionManager manager = new LocalTransactionManager(jdbcTemplate.getDataSource())) {
             assertFalse(manager.hasTransaction());
             TransactionStatus status = manager.begin(propagation);
+            assertEquals(propagation, status.getPropagation());
+            jdbcTemplate.execute((ConnectionCallback<Void>) connection -> {
+                assertTrue(connection.getAutoCommit());
+                return null;
+            });
             insertUser(id, name);
             assertEquals(1, countById(id));
             manager.commit(status);
@@ -48,8 +80,7 @@ public abstract class NonTransactionPropagationCase extends AbstractNxnContractT
     }
 
     protected void insertUser(int id, String name) throws SQLException {
-        jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, create_time) VALUES (?, ?, ?, @{macro, currentTimestamp})",
-                new Object[] { id, name, 30 });
+        jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, create_time) VALUES (?, ?, ?, @{macro, currentTimestamp})", new Object[] { id, name, 30 });
     }
 
     protected long countById(int id) throws SQLException {

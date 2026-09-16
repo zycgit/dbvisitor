@@ -8,17 +8,17 @@
 package net.hasor.dbvisitor.test.realdb.redis.feature.write;
 
 import java.sql.SQLException;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.test.realdb.redis.api.jdbc.RedisJdbcFixture;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.test.realdb.redis.api.jdbc.RedisJdbcFixture;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class RedisLongExpirationTest {
     private final RedisJdbcFixture fixture = new RedisJdbcFixture();
-    private JdbcTemplate jdbc;
+    private       JdbcTemplate     jdbc;
 
     @Before
     public void openFixture() throws SQLException {

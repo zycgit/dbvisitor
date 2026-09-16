@@ -9,23 +9,19 @@ package net.hasor.dbvisitor.test.contract.api.mapper.basemapper;
 
 import java.util.Arrays;
 import java.util.List;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class BaseMapperWriteValidationCase extends BaseMapperCrudSupport {
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_INSERT_DUPLICATE_KEY)
+    @Capability(value = CapabilityId.BASEMAPPER_INSERT_DUPLICATE_KEY, column = "mapper/base-mapper/operations")
     public void baseMapperInsert_shouldRejectDuplicatePrimaryKey() {
         requiresNxnFeature(FeatureId.DUPLICATE_PRIMARY_KEY_REJECTED);
         int duplicateId = baseId() + 203;
@@ -38,8 +34,9 @@ public abstract class BaseMapperWriteValidationCase extends BaseMapperCrudSuppor
         }
     }
 
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_INSERT_LENGTH_ERROR)
+    @Capability(value = CapabilityId.BASEMAPPER_INSERT_LENGTH_ERROR, column = "mapper/base-mapper/operations")
     public void baseMapperInsert_shouldRejectValueExceedingColumnLength() {
         requiresNxnFeature(FeatureId.LENGTH_LIMIT_ENFORCED);
         char[] chars = new char[1000];
@@ -52,8 +49,9 @@ public abstract class BaseMapperWriteValidationCase extends BaseMapperCrudSuppor
         }
     }
 
+    // 能力归属：Mapper API / Mapper 读写。
     @Test
-    @Capability(CapabilityId.BASEMAPPER_EDGE_BATCH_FAILURE)
+    @Capability(value = CapabilityId.BASEMAPPER_EDGE_BATCH_FAILURE, column = "mapper/base-mapper/operations")
     public void baseMapperBatchInsert_shouldRejectBatchContainingDuplicatePrimaryKey() {
         requiresNxnFeature(FeatureId.BATCH_DUPLICATE_FAILURE_PROPAGATED);
 

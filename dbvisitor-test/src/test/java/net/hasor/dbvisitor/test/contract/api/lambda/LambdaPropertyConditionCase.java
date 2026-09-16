@@ -11,20 +11,18 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 @NxnContract
 public abstract class LambdaPropertyConditionCase extends LambdaPredicateSupport {
+    // 能力归属：构造器 API / 条件构造器。
     @Test
-    @Capability(CapabilityId.LAMBDA_PREDICATE_STRING_COMPARISON)
+    @Capability(value = CapabilityId.LAMBDA_PREDICATE_STRING_COMPARISON, column = "builder/condition-builders/predicates")
     public void lambdaPredicate_shouldSupportStringPropertyComparisonOperators() throws SQLException {
         insertAgeSet("NXN-Predicate-String-Compare-", baseId() + 1000);
 
@@ -60,8 +58,9 @@ public abstract class LambdaPropertyConditionCase extends LambdaPredicateSupport
         assertEquals(3, le);
     }
 
+    // 能力归属：构造器 API / 条件构造器。
     @Test
-    @Capability(CapabilityId.LAMBDA_PREDICATE_STRING_DYNAMIC)
+    @Capability(value = CapabilityId.LAMBDA_PREDICATE_STRING_DYNAMIC, column = "builder/condition-builders/predicates")
     public void lambdaPredicate_shouldHonorStringPropertyDynamicFlags() throws SQLException {
         insertAgeSet("NXN-Predicate-String-Dynamic-", baseId() + 1100);
 
@@ -86,8 +85,9 @@ public abstract class LambdaPropertyConditionCase extends LambdaPredicateSupport
         assertEquals(5, nullSkipped);
     }
 
+    // 能力归属：构造器 API / 条件构造器。
     @Test
-    @Capability(CapabilityId.LAMBDA_PREDICATE_STRING_COLLECTION_NULL_RANGE)
+    @Capability(value = CapabilityId.LAMBDA_PREDICATE_STRING_COLLECTION_NULL_RANGE, column = "builder/condition-builders/predicates")
     public void lambdaPredicate_shouldSupportStringPropertyCollectionNullRangeAndSampleMap() throws SQLException {
         insert(baseId() + 1301, "NXN-Predicate-String-Mixed-A", 18, "mixed-a@nxn.test");
         insert(baseId() + 1302, "NXN-Predicate-String-Mixed-B", 22, "mixed-b@nxn.test");

@@ -10,13 +10,11 @@ package net.hasor.dbvisitor.test.realdb.redis.api.jdbc;
 import java.sql.SQLException;
 import net.hasor.dbvisitor.mapping.Column;
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcParameterCommand;
-
-import org.junit.Before;
-import org.junit.After;
-
-import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcPositionalParameterCase;
+import net.hasor.dbvisitor.test.contract.feature.parameter.JdbcPositionalParameterCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import org.junit.After;
+import org.junit.Before;
 
 public class RedisJdbcPositionalParameterTest extends JdbcPositionalParameterCase {
 
@@ -46,10 +44,19 @@ public class RedisJdbcPositionalParameterTest extends JdbcPositionalParameterCas
 
     @Override
     protected String command(JdbcParameterCommand command) {
-        if (command != JdbcParameterCommand.SELECT_USER) {
-            throw new IllegalArgumentException("Unexpected positional fixture command: " + command);
+        switch (command) {
+            case SELECT_USER:
+                return "ZRANGEBYSCORE ? ? +inf WITHSCORES";
+            case SELECT_EMAIL_BY_ID:
+                return "HGET '" + fixture.key("emails") + "' ?";
+            default:
+                throw new IllegalArgumentException("Unexpected positional fixture command: " + command);
         }
-        return "ZRANGEBYSCORE ? ? +inf WITHSCORES";
+    }
+
+    @Override
+    protected String positionalEmailColumn() {
+        return "VALUE";
     }
 
     @Override

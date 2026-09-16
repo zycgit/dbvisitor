@@ -21,7 +21,7 @@ import org.junit.Before;
 /** Native scalar arrays; shared SQL, type handlers and assertions remain unchanged. */
 public class MilvusArrayTypeJdbcTest extends ArrayTypeJdbcCase {
     private final MilvusDatabaseFixture database = new MilvusDatabaseFixture();
-    private Connection connection;
+    private       Connection            connection;
 
     @Override
     protected DataSourceProfile profile() {

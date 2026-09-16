@@ -9,19 +9,17 @@ package net.hasor.dbvisitor.test.contract.feature.type;
 
 import java.sql.SQLException;
 import java.util.Map;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
+import org.junit.Test;
 import static org.junit.Assert.assertNull;
 
 @NxnContract
 public abstract class JsonNullRowJdbcCase extends JsonTypeJdbcSupport {
+    // 能力归属：类型处理器 / JSON 序列化处理器 / JSON 转换。
     @Test
-    @Capability(CapabilityId.TYPE_JSON_NULL_ROW)
+    @Capability(value = CapabilityId.TYPE_JSON_NULL_ROW, column = "types/json-serialization-handlers/conversion")
     public void jsonNullColumns_shouldRemainNullInRowMap() throws SQLException {
         Object id = fixtureKey(baseId() + 13);
         jdbcTemplate.executeUpdate(insertCommand("id, json_varchar, json_mysql, nested_json", "?", "?", "?", "?"), //

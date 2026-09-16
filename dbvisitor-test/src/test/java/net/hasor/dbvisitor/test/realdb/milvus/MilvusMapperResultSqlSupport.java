@@ -7,16 +7,16 @@
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
 
-import java.sql.SQLException;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import net.hasor.dbvisitor.jdbc.RowCallbackHandler;
 import net.hasor.dbvisitor.mapper.Param;
 import net.hasor.dbvisitor.mapper.Query;
-import net.hasor.dbvisitor.mapper.SimpleMapper;
 import net.hasor.dbvisitor.mapper.ResultSetType;
-import net.hasor.dbvisitor.jdbc.RowCallbackHandler;
+import net.hasor.dbvisitor.mapper.SimpleMapper;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.api.adapter.AdapterCase;
@@ -28,12 +28,12 @@ import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
 import org.junit.After;
 import org.junit.Before;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public abstract class MilvusMapperResultSqlSupport extends AdapterCase {
-    protected final MilvusUserInfoFixture fixture = new MilvusUserInfoFixture();
-    protected Session session;
-    protected ResultHandlerMapper shared;
+    protected final        MilvusUserInfoFixture      fixture      = new MilvusUserInfoFixture();
+    protected              Session                    session;
+    protected              ResultHandlerMapper        shared;
     protected static final ThreadLocal<List<Integer>> CALLBACK_IDS = ThreadLocal.withInitial(ArrayList::new);
 
     /** Captures the callback output on the invoking test thread. */
@@ -69,8 +69,7 @@ public abstract class MilvusMapperResultSqlSupport extends AdapterCase {
         @Query(value = "SELECT * FROM user_info WHERE id >= #{min}", resultRowCallback = RecordingRowCallback.class, timeout = 30)
         void callbackWithTimeout(@Param("min") int min) throws SQLException;
 
-        @Query(value = "SELECT * FROM user_info WHERE id >= #{min}", resultSetExtractor = CustomResultSetExtractor.class,
-                fetchSize = 1, resultSetType = ResultSetType.SCROLL_INSENSITIVE)
+        @Query(value = "SELECT * FROM user_info WHERE id >= #{min}", resultSetExtractor = CustomResultSetExtractor.class, fetchSize = 1, resultSetType = ResultSetType.SCROLL_INSENSITIVE)
         List<UserInfo> scrollExtracted(@Param("min") int min) throws SQLException;
     }
 

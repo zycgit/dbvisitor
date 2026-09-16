@@ -9,9 +9,6 @@ package net.hasor.dbvisitor.test.contract.api.lambda;
 
 import java.sql.SQLException;
 import java.util.Date;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
@@ -19,10 +16,8 @@ import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class LambdaDuplicateStrategyCase extends AbstractNxnContractTest {
@@ -30,8 +25,9 @@ public abstract class LambdaDuplicateStrategyCase extends AbstractNxnContractTes
         return 840000;
     }
 
+    // 能力归属：构造器 API / 写入冲突。
     @Test
-    @Capability(CapabilityId.LAMBDA_DUPLICATE_STRATEGY_INTO)
+    @Capability(value = CapabilityId.LAMBDA_DUPLICATE_STRATEGY_INTO, column = "builder/inserts-updates-and-deletes/insert-conflicts")
     public void duplicateStrategyInto_shouldInsertNewRowsAndRejectDuplicatePrimaryKeys() throws SQLException {
         requiresNxnFeature(FeatureId.DUPLICATE_PRIMARY_KEY_REJECTED);
 
@@ -55,8 +51,9 @@ public abstract class LambdaDuplicateStrategyCase extends AbstractNxnContractTes
         assertUser(id, "IntoNormal", 25);
     }
 
+    // 能力归属：构造器 API / 写入冲突。
     @Test
-    @Capability(CapabilityId.LAMBDA_DUPLICATE_STRATEGY_DEFAULT)
+    @Capability(value = CapabilityId.LAMBDA_DUPLICATE_STRATEGY_DEFAULT, column = "builder/inserts-updates-and-deletes/insert-conflicts")
     public void duplicateStrategyDefault_shouldBehaveLikeInto() throws SQLException {
         requiresNxnFeature(FeatureId.DUPLICATE_PRIMARY_KEY_REJECTED);
 
@@ -77,8 +74,9 @@ public abstract class LambdaDuplicateStrategyCase extends AbstractNxnContractTes
         assertUser(id, "DefaultOrig", 20);
     }
 
+    // 能力归属：构造器 API / 写入冲突。
     @Test
-    @Capability(CapabilityId.LAMBDA_DUPLICATE_STRATEGY_IGNORE_BASIC)
+    @Capability(value = CapabilityId.LAMBDA_DUPLICATE_STRATEGY_IGNORE_BASIC, column = "builder/inserts-updates-and-deletes/insert-conflicts")
     public void duplicateStrategyIgnore_shouldInsertNewRowsAndKeepOriginalOnDuplicate() throws SQLException {
         requiresNxnFeature(FeatureId.DUPLICATE_KEY_STRATEGY);
         int newId = baseId() + 21;
@@ -102,8 +100,9 @@ public abstract class LambdaDuplicateStrategyCase extends AbstractNxnContractTes
         assertUser(duplicateId, "IgnoreOriginal", 26);
     }
 
+    // 能力归属：构造器 API / 写入冲突。
     @Test
-    @Capability(CapabilityId.LAMBDA_DUPLICATE_STRATEGY_IGNORE_MIXED)
+    @Capability(value = CapabilityId.LAMBDA_DUPLICATE_STRATEGY_IGNORE_MIXED, column = "builder/inserts-updates-and-deletes/insert-conflicts")
     public void duplicateStrategyIgnore_shouldHandleRepeatedAndMixedDuplicateRows() throws SQLException {
         requiresNxnFeature(FeatureId.DUPLICATE_KEY_STRATEGY);
         int repeatedId = baseId() + 31;
@@ -135,8 +134,9 @@ public abstract class LambdaDuplicateStrategyCase extends AbstractNxnContractTes
         assertUser(id4, "IgnoreNew4", 44);
     }
 
+    // 能力归属：构造器 API / 写入冲突。
     @Test
-    @Capability(CapabilityId.LAMBDA_DUPLICATE_STRATEGY_UPDATE_BASIC)
+    @Capability(value = CapabilityId.LAMBDA_DUPLICATE_STRATEGY_UPDATE_BASIC, column = "builder/inserts-updates-and-deletes/insert-conflicts")
     public void duplicateStrategyUpdate_shouldInsertNewRowsAndUpdateDuplicateRows() throws SQLException {
         requiresNxnFeature(FeatureId.DUPLICATE_KEY_STRATEGY);
         int newId = baseId() + 51;
@@ -164,8 +164,9 @@ public abstract class LambdaDuplicateStrategyCase extends AbstractNxnContractTes
         assertEquals("updated-basic@strategy.test", loaded.getEmail());
     }
 
+    // 能力归属：构造器 API / 写入冲突。
     @Test
-    @Capability(CapabilityId.LAMBDA_DUPLICATE_STRATEGY_UPDATE_MIXED)
+    @Capability(value = CapabilityId.LAMBDA_DUPLICATE_STRATEGY_UPDATE_MIXED, column = "builder/inserts-updates-and-deletes/insert-conflicts")
     public void duplicateStrategyUpdate_shouldHandleRepeatedMixedAndNullFieldUpdates() throws SQLException {
         requiresNxnFeature(FeatureId.DUPLICATE_KEY_STRATEGY);
         int repeatedId = baseId() + 61;
@@ -210,8 +211,9 @@ public abstract class LambdaDuplicateStrategyCase extends AbstractNxnContractTes
         assertEquals("withemail@strategy.test", loaded.getEmail());
     }
 
+    // 能力归属：构造器 API / 写入冲突。
     @Test
-    @Capability(CapabilityId.LAMBDA_DUPLICATE_STRATEGY_TRANSITION)
+    @Capability(value = CapabilityId.LAMBDA_DUPLICATE_STRATEGY_TRANSITION, column = "builder/inserts-updates-and-deletes/insert-conflicts")
     public void duplicateStrategy_shouldKeepIgnoredRowUntilUpdateStrategyOverridesIt() throws SQLException {
         requiresNxnFeature(FeatureId.DUPLICATE_KEY_STRATEGY);
         int id = baseId() + 91;

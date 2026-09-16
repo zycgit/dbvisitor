@@ -8,16 +8,15 @@
 package net.hasor.dbvisitor.test.realdb.redis.api.jdbc;
 
 import java.sql.SQLException;
-import java.util.Map;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
-import org.junit.Before;
-import org.junit.After;
-
+import java.util.Map;
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcBeanQueryCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
+import org.junit.After;
+import org.junit.Before;
 
 public class RedisJdbcBeanQueryTest extends JdbcBeanQueryCase {
 

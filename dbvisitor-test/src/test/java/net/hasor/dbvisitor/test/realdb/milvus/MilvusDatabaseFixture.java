@@ -15,15 +15,16 @@ import java.sql.Statement;
 import java.util.Properties;
 import java.util.UUID;
 import net.hasor.dbvisitor.driver.JdbcDriver;
+import net.hasor.dbvisitor.test.contract.material.handler.ResultHandlerProbe;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
 
 /** Owns one isolated database on the configured endpoint; callers own their collection schemas. */
 final class MilvusDatabaseFixture implements AutoCloseable {
-    private final String database = "dbv_contract_" + UUID.randomUUID().toString().replace("-", "");
-    private Connection admin;
-    private Connection connection;
-    private boolean databaseCreated;
+    private final String     database = "dbv_contract_" + UUID.randomUUID().toString().replace("-", "");
+    private       Connection admin;
+    private       Connection connection;
+    private       boolean    databaseCreated;
 
     Connection open() throws SQLException {
         if (this.connection != null) {
@@ -64,7 +65,7 @@ final class MilvusDatabaseFixture implements AutoCloseable {
                 properties.setProperty(key.substring(5), fixture.getProperty(key));
             }
         }
-        return DriverManager.getConnection(url, properties);
+        return ResultHandlerProbe.observe(DriverManager.getConnection(url, properties));
     }
 
     @Override

@@ -8,8 +8,8 @@
 package net.hasor.dbvisitor.test.realdb.clickhouse.feature.type;
 
 import net.hasor.dbvisitor.test.contract.feature.type.TimeClockJdbcCase;
-import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 
 public class ClickHouseTimeClockJdbcTest extends TimeClockJdbcCase {
     @Override

@@ -8,25 +8,20 @@
 package net.hasor.dbvisitor.test.contract.api.mapper.xml;
 
 import java.util.HashSet;
-import java.util.Set;
 import java.util.Map;
-
-import org.junit.Test;
-
+import java.util.Set;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertNotEquals;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class XmlMapperGeneratedKeysCase extends XmlMapperKeyGenerationSupport {
+    // 能力归属：Mapper 文件 / 主键策略。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_KEYGEN_GENERATED_KEYS)
+    @Capability(value = CapabilityId.MAPPER_XML_KEYGEN_GENERATED_KEYS, column = "mapper-files/statements/key-strategies")
     public void xmlKeygen_shouldPopulateGeneratedKeyProperty() throws Exception {
         if (numericGeneratedKeys()) {
             requiresNxnFeature(FeatureId.GENERATED_KEYS_NUMERIC);
@@ -41,8 +36,9 @@ public abstract class XmlMapperGeneratedKeysCase extends XmlMapperKeyGenerationS
         assertEquals("XmlKeyGenUser1", readKeyName(generatedId));
     }
 
+    // 能力归属：Mapper 文件 / 主键策略。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_KEYGEN_DISTINCT_GENERATED_KEYS)
+    @Capability(value = CapabilityId.MAPPER_XML_KEYGEN_DISTINCT_GENERATED_KEYS, column = "mapper-files/statements/key-strategies")
     public void xmlKeygen_shouldGenerateDistinctKeysForMultipleInserts() throws Exception {
         if (numericGeneratedKeys()) {
             requiresNxnFeature(FeatureId.GENERATED_KEYS_NUMERIC);
@@ -63,8 +59,9 @@ public abstract class XmlMapperGeneratedKeysCase extends XmlMapperKeyGenerationS
         }
     }
 
+    // 能力归属：Mapper 文件 / 主键策略。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_KEYGEN_KEY_COLUMN)
+    @Capability(value = CapabilityId.MAPPER_XML_KEYGEN_KEY_COLUMN, column = "mapper-files/statements/key-strategies")
     public void xmlKeygen_shouldPopulateGeneratedKeyWithExplicitKeyColumnWhenSupported() throws Exception {
         requiresNxnFeature(FeatureId.GENERATED_KEY_COLUMN);
         Map<String, Object> params = keygenParams("XmlKeyGenColumn", 35, "xml-key-column@nxn.test");
@@ -76,8 +73,9 @@ public abstract class XmlMapperGeneratedKeysCase extends XmlMapperKeyGenerationS
         assertEquals("XmlKeyGenColumn", readKeyName(generatedId));
     }
 
+    // 能力归属：Mapper 文件 / 主键策略。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_KEYGEN_RESULT_SET_SOURCE)
+    @Capability(value = CapabilityId.MAPPER_XML_KEYGEN_RESULT_SET_SOURCE, column = "mapper-files/statements/key-strategies")
     public void xmlKeygen_shouldPopulateGeneratedKeyFromCurrentResultSetWhenSupported() throws Exception {
         requiresNxnFeature(FeatureId.GENERATED_KEY_RESULT_SET);
         Map<String, Object> params = keygenParams("XmlKeyGenResultSet", 36, "xml-key-result-set@nxn.test");

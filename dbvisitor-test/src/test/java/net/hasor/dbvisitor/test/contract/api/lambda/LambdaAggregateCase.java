@@ -7,20 +7,16 @@
  */
 package net.hasor.dbvisitor.test.contract.api.lambda;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
-
-import java.sql.SQLException;
 import net.hasor.dbvisitor.jdbc.RowMapper;
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class LambdaAggregateCase extends LambdaSelectSupport {
@@ -33,8 +29,9 @@ public abstract class LambdaAggregateCase extends LambdaSelectSupport {
         return function + "(age)";
     }
 
+    // 能力归属：构造器 API / 分组。
     @Test
-    @Capability(CapabilityId.LAMBDA_SELECT_GROUP_BY)
+    @Capability(value = CapabilityId.LAMBDA_SELECT_GROUP_BY, column = "builder/grouping-and-ordering/grouping")
     public void lambdaSelect_shouldGroupRowsAndReturnAggregateMapResults() throws Exception {
         insert(baseId() + 40, "GroupOne", 10, "group1@nxn.test");
         insert(baseId() + 41, "GroupTwo", 20, "group2@nxn.test");
@@ -54,8 +51,9 @@ public abstract class LambdaAggregateCase extends LambdaSelectSupport {
         assertEquals(2, ((Number) getVal(group20, "cnt")).intValue());
     }
 
+    // 能力归属：构造器 API / 分组。
     @Test
-    @Capability(CapabilityId.LAMBDA_SELECT_AGGREGATE)
+    @Capability(value = CapabilityId.LAMBDA_SELECT_AGGREGATE, column = "builder/grouping-and-ordering/grouping")
     public void lambdaSelect_shouldReturnAggregateScalarValues() throws Exception {
         insert(baseId() + 50, "AggregateOne", 10, "agg1@nxn.test");
         insert(baseId() + 51, "AggregateTwo", 20, "agg2@nxn.test");
@@ -73,8 +71,9 @@ public abstract class LambdaAggregateCase extends LambdaSelectSupport {
         assertEquals(20, maxAge.intValue());
     }
 
+    // 能力归属：构造器 API / 分组。
     @Test
-    @Capability(CapabilityId.LAMBDA_RESULT_AGGREGATE_SCALAR)
+    @Capability(value = CapabilityId.LAMBDA_RESULT_AGGREGATE_SCALAR, column = "builder/grouping-and-ordering/grouping")
     public void lambdaResult_shouldMapAggregateScalarValue() throws SQLException {
         insertUsers("LRMap", new int[] { 21, 22, 23, 24, 25 }, baseId() + 10);
         Integer maxAge = queryRows("LRMap")//
@@ -83,8 +82,9 @@ public abstract class LambdaAggregateCase extends LambdaSelectSupport {
         assertEquals(Integer.valueOf(25), maxAge);
     }
 
+    // 能力归属：构造器 API / 分组。
     @Test
-    @Capability(CapabilityId.LAMBDA_RESULT_AGGREGATE_ROW_MAPPER)
+    @Capability(value = CapabilityId.LAMBDA_RESULT_AGGREGATE_ROW_MAPPER, column = "builder/grouping-and-ordering/grouping")
     public void lambdaResult_shouldMapServerAggregateRows() throws SQLException {
         insertByJdbc(baseId() + 161, "LRGroup1", 30, "lr-group1@test.com");
         insertByJdbc(baseId() + 162, "LRGroup2", 30, "lr-group2@test.com");
@@ -95,7 +95,47 @@ public abstract class LambdaAggregateCase extends LambdaSelectSupport {
                 .groupBy("age"), "age")//
                 .queryForList(groupMapper);
         assertEquals(2, groups.size());
-        assertEquals(Integer.valueOf(30), groups.get(0).age);
-        assertEquals(Long.valueOf(2), groups.get(0).count);
+        assertEquals(Integer.valueOf(30), groups.get(0).age());
+        assertEquals(Long.valueOf(2), groups.get(0).count());
+    }
+
+    // 能力归属：构造器 API / 分组。
+    @Test
+    @Capability(value = CapabilityId.LAMBDA_EMPTY_GROUP_BY, column = "builder/grouping-and-ordering/grouping")
+    public void lambdaGroupBy_shouldReturnEmptyListWhenNoRowsMatch() throws SQLException {
+        List<Map<String, Object>> result = lambdaTemplate.query(UserInfo.class)//
+                .eq(UserInfo::getId, baseId() + 31)//
+                .applySelect(groupCountSelect())//
+                .groupBy("age")//
+                .queryForMapList();
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+    // 能力归属：构造器 API / 分组。
+    @Test
+    @Capability(value = CapabilityId.LAMBDA_EMPTY_AGGREGATE, column = "builder/grouping-and-ordering/grouping")
+    public void lambdaAggregate_shouldReturnCountZeroAndNullMaxWhenNoRowsMatch() throws SQLException {
+        Long countResult = lambdaTemplate.query(UserInfo.class)//
+                .eq(UserInfo::getId, baseId() + 41)//
+                .applySelect(countSelect())//
+                .queryForObject(Long.class);
+        Integer maxResult = lambdaTemplate.query(UserInfo.class)//
+                .eq(UserInfo::getId, baseId() + 41)//
+                .applySelect(maxAgeSelect())//
+                .queryForObject(Integer.class);
+
+        assertNotNull(countResult);
+        assertEquals(Long.valueOf(0), countResult);
+        assertNull(maxResult);
+    }
+
+    protected String countSelect() {
+        return "count(*)";
+    }
+
+    protected String maxAgeSelect() {
+        return "max(age)";
     }
 }

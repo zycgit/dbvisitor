@@ -7,23 +7,20 @@
  */
 package net.hasor.dbvisitor.test.contract.api.session;
 
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.dao.SessionRefCrudMapper;
 import net.hasor.dbvisitor.test.contract.material.dao.SessionUserMapper;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class SessionMapperInvocationCase extends SessionMapperSupport {
+    // 能力归属：Mapper API / Session 管理。
     @Test
-    @Capability(CapabilityId.SESSION_MAPPER_SIMPLE)
+    @Capability(value = CapabilityId.SESSION_MAPPER_SIMPLE, column = "mapper/session/management")
     public void sessionCreateMapper_shouldCreateSimpleMapperProxyForCrudListAndScalarResults() throws Exception {
         SessionUserMapper mapper = simpleMapper(createSession());
         int firstId = baseId() + 1;
@@ -45,8 +42,9 @@ public abstract class SessionMapperInvocationCase extends SessionMapperSupport {
         assertNull(mapper.selectById(secondId));
     }
 
+    // 能力归属：Mapper API / Session 管理。
     @Test
-    @Capability(CapabilityId.SESSION_MAPPER_REF)
+    @Capability(value = CapabilityId.SESSION_MAPPER_REF, column = "mapper/session/management")
     public void sessionCreateMapper_shouldCreateRefMapperProxyForXmlCrudListAndScalarResults() throws Exception {
         SessionRefCrudMapper mapper = refMapper(createSession());
         int firstId = baseId() + 10;

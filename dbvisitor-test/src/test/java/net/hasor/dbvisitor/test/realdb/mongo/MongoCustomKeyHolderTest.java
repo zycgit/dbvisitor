@@ -9,12 +9,7 @@ package net.hasor.dbvisitor.test.realdb.mongo;
 
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.feature.keygen.CustomKeyHolderCase;
-import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyHolderBothUser;
-import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyHolderConnectionUser;
-import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyHolderContextUser;
-import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyHolderFailingUser;
-import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyHolderSqlExceptionUser;
-import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyHolderUser;
+import net.hasor.dbvisitor.test.contract.material.model.keygen.*;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
 import net.hasor.dbvisitor.test.realdb.mongo.material.MongoAfterKeyEntity;
@@ -25,7 +20,7 @@ import org.junit.Before;
 import static org.junit.Assert.assertTrue;
 
 public class MongoCustomKeyHolderTest extends CustomKeyHolderCase {
-    private final MongoEntityFixture fixture = new MongoEntityFixture();
+    private final MongoEntityFixture fixture      = new MongoEntityFixture();
     private final MongoEntityFixture afterFixture = new MongoEntityFixture();
 
     @Override
@@ -37,8 +32,7 @@ public class MongoCustomKeyHolderTest extends CustomKeyHolderCase {
     @Before
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open(KeyHolderUser.class, "{id: 1}");
-        for (Class<?> type : new Class<?>[] { KeyHolderBothUser.class, KeyHolderContextUser.class, KeyHolderConnectionUser.class,
-                KeyHolderFailingUser.class, KeyHolderSqlExceptionUser.class }) {
+        for (Class<?> type : new Class<?>[] { KeyHolderBothUser.class, KeyHolderContextUser.class, KeyHolderConnectionUser.class, KeyHolderFailingUser.class, KeyHolderSqlExceptionUser.class }) {
             this.fixture.mapEntity(type);
         }
         this.lambdaTemplate = this.fixture.lambda();

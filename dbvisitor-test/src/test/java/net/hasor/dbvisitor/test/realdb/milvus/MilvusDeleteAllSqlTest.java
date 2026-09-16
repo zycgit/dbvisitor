@@ -83,8 +83,7 @@ public class MilvusDeleteAllSqlTest extends MilvusSqlContractSupport {
     }
 
     private void insertKeys(List<?> keys, String partition) throws SQLException {
-        try (PreparedStatement statement = this.connection.prepareStatement(
-                "INSERT INTO " + this.collection + partition + " (record_key, note, v) VALUES (?, ?, ?)")) {
+        try (PreparedStatement statement = this.connection.prepareStatement("INSERT INTO " + this.collection + partition + " (record_key, note, v) VALUES (?, ?, ?)")) {
             for (Object key : keys) {
                 statement.setObject(1, key);
                 statement.setString(2, null);

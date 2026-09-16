@@ -7,13 +7,41 @@
  */
 package net.hasor.dbvisitor.test.realdb.elastic6;
 
-import net.hasor.dbvisitor.test.realdb.elastic7.Elastic7XmlMapperQueryResultTest;
+import java.sql.SQLException;
+import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperQueryResultCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic6Profile;
+import net.hasor.dbvisitor.test.realdb.elastic7.Elastic7SessionMapperFixture;
+import org.junit.After;
+import org.junit.Before;
 
-public class Elastic6XmlMapperQueryResultTest extends Elastic7XmlMapperQueryResultTest {
+public class Elastic6XmlMapperQueryResultTest extends XmlMapperQueryResultCase {
+    private final Elastic7SessionMapperFixture fixture = new Elastic7SessionMapperFixture();
+
     @Override
     protected DataSourceProfile profile() {
         return Elastic6Profile.INSTANCE;
+    }
+
+    @Override
+    @Before
+    public void setup() throws SQLException {
+        this.jdbcTemplate = fixture.open(profile().env());
+        for (int i = 1; i <= 5; i++) {
+            fixture.insert(baseId() + i, "XmlCrud" + i, 20 + i, "crud" + i + "@test.com");
+        }
+    }
+
+    @Override
+    @Before
+    public void createXmlMapperSession() throws Exception {
+        this.jdbcTemplate = fixture.open(profile().env());
+        this.session = fixture.session();
+        this.session.getConfiguration().loadMapper("/mapper/elastic/CrudMatrix.xml");
+    }
+
+    @After
+    public void closeXmlFixture() throws Exception {
+        fixture.close();
     }
 }

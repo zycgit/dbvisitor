@@ -9,25 +9,14 @@ package net.hasor.dbvisitor.test.contract.feature.naming;
 
 import java.sql.SQLException;
 import java.util.Date;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlDialect;
-import net.hasor.dbvisitor.test.contract.material.model.naming.AllNamingOptionsUser;
-import net.hasor.dbvisitor.test.contract.material.model.naming.CaseTestUpperCI;
-import net.hasor.dbvisitor.test.contract.material.model.naming.DelimitedUser;
-import net.hasor.dbvisitor.test.contract.material.model.naming.KeywordColumnEntity;
-import net.hasor.dbvisitor.test.contract.material.model.naming.KeywordColumnNoDelimitedEntity;
-import net.hasor.dbvisitor.test.contract.material.model.naming.KeywordTableEntity;
-import net.hasor.dbvisitor.test.contract.material.model.naming.KeywordTableNoDelimitedEntity;
+import net.hasor.dbvisitor.test.contract.material.model.naming.*;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class IdentifierQuotingCase extends NamingMappingSupport {
@@ -47,8 +36,9 @@ public abstract class IdentifierQuotingCase extends NamingMappingSupport {
         ensureKeywordTable();
     }
 
+    // 能力归属：对象映射 / 命名与名称敏感性 / 名称引用。
     @Test
-    @Capability(CapabilityId.NAMING_DELIMITED_SQL)
+    @Capability(value = CapabilityId.NAMING_DELIMITED_SQL, column = "mapping-keys/naming-and-case-sensitivity/identifiers")
     public void delimitedSql_shouldQuoteIdentifiersWithDialectQualifiers() throws SQLException {
         SqlDialect dialect = detectDialect();
         String left = dialect.leftQualifier();
@@ -71,8 +61,9 @@ public abstract class IdentifierQuotingCase extends NamingMappingSupport {
         assertTrue(caseSql.getSqlString(), caseSql.getSqlString().contains(left + "Id" + right));
     }
 
+    // 能力归属：对象映射 / 命名与名称敏感性 / 名称引用。
     @Test
-    @Capability(CapabilityId.NAMING_DELIMITED_CRUD)
+    @Capability(value = CapabilityId.NAMING_DELIMITED_CRUD, column = "mapping-keys/naming-and-case-sensitivity/identifiers")
     public void delimitedCrud_shouldRoundTripAgainstStandardUserInfo() throws SQLException {
         prepareDelimitedFixture();
         int id = baseId() + 7;
@@ -106,8 +97,9 @@ public abstract class IdentifierQuotingCase extends NamingMappingSupport {
         assertEquals(0, count);
     }
 
+    // 能力归属：对象映射 / 命名与名称敏感性 / 名称引用。
     @Test
-    @Capability(CapabilityId.NAMING_KEYWORD_COLUMN_SQL)
+    @Capability(value = CapabilityId.NAMING_KEYWORD_COLUMN_SQL, column = "mapping-keys/naming-and-case-sensitivity/identifiers")
     public void keywordColumnSql_shouldQuoteOnlyKeywordColumnsWhenAutoDetected() throws SQLException {
         prepareAutoKeywordColumnFixture();
         SqlDialect dialect = detectDialect();
@@ -121,21 +113,21 @@ public abstract class IdentifierQuotingCase extends NamingMappingSupport {
         assertTrue(sql, sql.contains(left + "order" + right));
         assertTrue(sql, sql.contains(left + "select" + right));
         if (!left.isEmpty() || !right.isEmpty()) {
-            assertTrue(sql, !sql.contains(left + "id" + right));
-            assertTrue(sql, !sql.contains(left + "name" + right));
+            assertFalse(sql, sql.contains(left + "id" + right));
+            assertFalse(sql, sql.contains(left + "name" + right));
         }
 
         assertEquals(1, lambdaTemplate.insert(KeywordColumnNoDelimitedEntity.class).applyEntity(autoEntity).executeSumResult());
-        KeywordColumnNoDelimitedEntity loaded = lambdaTemplate.query(KeywordColumnNoDelimitedEntity.class)
-                .eq(KeywordColumnNoDelimitedEntity::getId, 1).queryForObject();
+        KeywordColumnNoDelimitedEntity loaded = lambdaTemplate.query(KeywordColumnNoDelimitedEntity.class).eq(KeywordColumnNoDelimitedEntity::getId, 1).queryForObject();
         assertNotNull(loaded);
         assertEquals("ORDER-A", loaded.getOrderValue());
         assertEquals("SELECT-A", loaded.getSelectValue());
         assertEquals("AutoKeyword", loaded.getName());
     }
 
+    // 能力归属：对象映射 / 命名与名称敏感性 / 名称引用。
     @Test
-    @Capability(CapabilityId.NAMING_KEYWORD_TABLE_SQL)
+    @Capability(value = CapabilityId.NAMING_KEYWORD_TABLE_SQL, column = "mapping-keys/naming-and-case-sensitivity/identifiers")
     public void keywordTableSql_shouldQuoteKeywordTableWhenAutoDetected() throws SQLException {
         prepareAutoKeywordTableFixture();
         SqlDialect dialect = detectDialect();
@@ -147,19 +139,19 @@ public abstract class IdentifierQuotingCase extends NamingMappingSupport {
 
         assertTrue(sql.getSqlString(), sql.getSqlString().contains(left + mappedTableName("order") + right));
         if (!left.isEmpty() || !right.isEmpty()) {
-            assertTrue(sql.getSqlString(), !sql.getSqlString().contains(left + "id" + right));
-            assertTrue(sql.getSqlString(), !sql.getSqlString().contains(left + "name" + right));
+            assertFalse(sql.getSqlString(), sql.getSqlString().contains(left + "id" + right));
+            assertFalse(sql.getSqlString(), sql.getSqlString().contains(left + "name" + right));
         }
 
         assertEquals(1, lambdaTemplate.insert(KeywordTableNoDelimitedEntity.class).applyEntity(entity).executeSumResult());
-        KeywordTableNoDelimitedEntity loaded = lambdaTemplate.query(KeywordTableNoDelimitedEntity.class)
-                .eq(KeywordTableNoDelimitedEntity::getId, 1).queryForObject();
+        KeywordTableNoDelimitedEntity loaded = lambdaTemplate.query(KeywordTableNoDelimitedEntity.class).eq(KeywordTableNoDelimitedEntity::getId, 1).queryForObject();
         assertNotNull(loaded);
         assertEquals("AutoKeywordTable", loaded.getName());
     }
 
+    // 能力归属：对象映射 / 命名与名称敏感性 / 名称引用。
     @Test
-    @Capability(CapabilityId.NAMING_KEYWORD_COLUMN_CRUD)
+    @Capability(value = CapabilityId.NAMING_KEYWORD_COLUMN_CRUD, column = "mapping-keys/naming-and-case-sensitivity/identifiers")
     public void keywordColumnCrud_shouldRoundTripWithDelimitedKeywordColumns() throws SQLException {
         ensureKeywordColumnTable();
 
@@ -179,10 +171,18 @@ public abstract class IdentifierQuotingCase extends NamingMappingSupport {
                 .updateTo(KeywordColumnEntity::getSelectValue, "SELECT-002")//
                 .doUpdate();
         assertEquals(1, updated);
+        KeywordColumnEntity changed = lambdaTemplate.query(KeywordColumnEntity.class)//
+                .eq(KeywordColumnEntity::getId, 940001)//
+                .queryForObject();
+        assertNotNull(changed);
+        assertEquals("ORDER-002", changed.getOrderValue());
+        assertEquals("SELECT-002", changed.getSelectValue());
+        assertEquals("KeywordCol", changed.getName());
     }
 
+    // 能力归属：对象映射 / 命名与名称敏感性 / 名称引用。
     @Test
-    @Capability(CapabilityId.NAMING_KEYWORD_TABLE_CRUD)
+    @Capability(value = CapabilityId.NAMING_KEYWORD_TABLE_CRUD, column = "mapping-keys/naming-and-case-sensitivity/identifiers")
     public void keywordTableCrud_shouldRoundTripWithDelimitedKeywordTable() throws SQLException {
         ensureKeywordTable();
 
@@ -199,5 +199,8 @@ public abstract class IdentifierQuotingCase extends NamingMappingSupport {
                 .eq(KeywordTableEntity::getId, 940002)//
                 .doDelete();
         assertEquals(1, deleted);
+        assertEquals(0, lambdaTemplate.query(KeywordTableEntity.class)//
+                .eq(KeywordTableEntity::getId, 940002)//
+                .queryForCount());
     }
 }

@@ -7,28 +7,28 @@
  */
 package net.hasor.dbvisitor.test.contract.api.mapper.xml;
 
+import java.sql.ResultSet;
 import java.util.List;
 import java.util.Map;
-
-import org.junit.Test;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 @NxnContract
 public abstract class XmlMapperStatementAttributeCase extends XmlMapperStatementAttributeSupport {
+    // 能力归属：Mapper 文件 / 执行选项。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_STATEMENT_TYPE)
+    @Capability(value = CapabilityId.MAPPER_XML_STATEMENT_TYPE, column = "mapper-files/statements/options")
     public void statementAttributes_shouldSupportPreparedAndStatementTypes() throws Exception {
-        List<UserInfo> defaultPrepared = this.session.queryStatement("xmltest.StatementAttrMapper.selectPrepared", mapOf("id", baseId() + 1));
-        List<UserInfo> explicitPrepared = this.session.queryStatement("xmltest.StatementAttrMapper.selectExplicitPrepared", mapOf("id", baseId() + 2));
-        List<UserInfo> statement = this.session.queryStatement("xmltest.StatementAttrMapper.selectStatement", null);
+        List<UserInfo> defaultPrepared = queryWithObservedOptions("xmltest.StatementAttrMapper.selectPrepared", mapOf("id", baseId() + 1));
+        assertStatementFactory("prepareStatement");
+        List<UserInfo> explicitPrepared = queryWithObservedOptions("xmltest.StatementAttrMapper.selectExplicitPrepared", mapOf("id", baseId() + 2));
+        assertStatementFactory("prepareStatement");
+        List<UserInfo> statement = queryWithObservedOptions("xmltest.StatementAttrMapper.selectStatement", null);
+        assertStatementFactory("createStatement");
 
         assertEquals(1, defaultPrepared.size());
         assertEquals("StmtAttr1", defaultPrepared.get(0).getName());
@@ -39,36 +39,48 @@ public abstract class XmlMapperStatementAttributeCase extends XmlMapperStatement
         assertTrue(this.session.queryStatement("xmltest.StatementAttrMapper.selectExplicitPrepared", mapOf("id", baseId() + 99)).isEmpty());
     }
 
+    // 能力归属：Mapper 文件 / 执行选项。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_STATEMENT_TIMEOUT)
+    @Capability(value = CapabilityId.MAPPER_XML_STATEMENT_TIMEOUT, column = "mapper-files/statements/options")
     public void statementAttributes_shouldApplyTimeoutAttributeWithoutChangingResults() throws Exception {
-        List<UserInfo> list = this.session.queryStatement("xmltest.StatementAttrMapper.selectWithTimeout", null);
+        List<UserInfo> list = queryWithObservedOptions("xmltest.StatementAttrMapper.selectWithTimeout", null);
 
+        assertQueryTimeout(expectedQueryTimeout());
         assertEquals(5, list.size());
         assertAscendingById(list);
     }
 
+    // 能力归属：Mapper 文件 / 执行选项。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_STATEMENT_FETCH_SIZE)
+    @Capability(value = CapabilityId.MAPPER_XML_STATEMENT_FETCH_SIZE, column = "mapper-files/statements/options")
     public void statementAttributes_shouldApplyFetchSizeWithoutChangingResults() throws Exception {
-        List<UserInfo> list = this.session.queryStatement("xmltest.StatementAttrMapper.selectWithFetchSize", null);
+        List<UserInfo> list = queryWithObservedOptions("xmltest.StatementAttrMapper.selectWithFetchSize", null);
 
+        assertFetchSize(expectedFetchSize());
         assertEquals(5, list.size());
+        assertTrue("fetchSize is a read hint, not a row limit", list.size() > expectedFetchSize());
         assertAscendingById(list);
     }
 
+    // 能力归属：Mapper 文件 / 执行选项。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_STATEMENT_FORWARD_ONLY)
+    @Capability(value = CapabilityId.MAPPER_XML_STATEMENT_FORWARD_ONLY, column = "mapper-files/statements/options")
     public void statementAttributes_shouldSupportForwardOnlyResults() throws Exception {
-        List<UserInfo> forwardOnly = this.session.queryStatement("xmltest.StatementAttrMapper.selectForwardOnly", null);
+        List<UserInfo> forwardOnly = queryWithObservedOptions("xmltest.StatementAttrMapper.selectForwardOnly", null);
+        assertResultSetType(ResultSet.TYPE_FORWARD_ONLY);
         assertEquals(5, forwardOnly.size());
         assertAscendingById(forwardOnly);
     }
 
+    // 能力归属：Mapper 文件 / 执行选项。
     @Test
-    @Capability(CapabilityId.MAPPER_XML_STATEMENT_COMBINED)
+    @Capability(value = CapabilityId.MAPPER_XML_STATEMENT_COMBINED, column = "mapper-files/statements/options")
     public void statementAttributes_shouldSupportCombinedAttributesAndDml() throws Exception {
-        List<UserInfo> combined = this.session.queryStatement("xmltest.StatementAttrMapper.selectCombined", null);
+        List<UserInfo> combined = queryWithObservedOptions("xmltest.StatementAttrMapper.selectCombined", null);
+        assertStatementFactory("prepareStatement");
+        assertQueryTimeout(expectedQueryTimeout());
+        assertFetchSize(expectedCombinedFetchSize());
+        assertResultSetType(ResultSet.TYPE_FORWARD_ONLY);
         assertEquals(5, combined.size());
         for (UserInfo user : combined) {
             assertNotNull(user.getId());
@@ -80,7 +92,8 @@ public abstract class XmlMapperStatementAttributeCase extends XmlMapperStatement
         params.put("age", 30);
         params.put("email", "stmt@nxn.test");
 
-        Object result = this.session.executeStatement("xmltest.StatementAttrMapper.insertWithStatement", params);
+        Object result = executeWithObservedOptions("xmltest.StatementAttrMapper.insertWithStatement", params);
+        assertStatementFactory("prepareStatement");
         assertEquals(1, ((Number) result).intValue());
         List<UserInfo> inserted = this.session.queryStatement("xmltest.StatementAttrMapper.selectPrepared", mapOf("id", baseId() + 10));
         assertEquals(1, inserted.size());

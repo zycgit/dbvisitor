@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.sql.Date;
 import java.sql.SQLException;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.test.contract.feature.type.NativeNamedFieldTypeCase;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import org.junit.Assume;
@@ -22,11 +23,11 @@ public abstract class SqlNamedFieldTypeSupport extends NativeNamedFieldTypeCase 
     public void setup() throws SQLException {
         Assume.assumeTrue(profile().env().equals(OneApiDataSourceManager.getDbDialect()));
         try {
-            this.dataSource = OneApiDataSourceManager.createDataSource();
+            dataSource = OneApiDataSourceManager.createDataSource();
         } catch (IOException e) {
             throw new SQLException("Cannot load test connection", e);
         }
-        this.jdbcTemplate = new JdbcTemplate(this.dataSource);
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
         ensureSchemaExists();
         this.jdbcTemplate.executeUpdate("DELETE FROM time_types_explicit_test");
         this.jdbcTemplate.executeUpdate("DELETE FROM enum_types_explicit_test");
@@ -52,8 +53,7 @@ public abstract class SqlNamedFieldTypeSupport extends NativeNamedFieldTypeCase 
         int id = Boolean.FALSE.equals(expected) ? 2 : 1;
         Object storedValue = expected instanceof State ? ((State) expected).name() : expected;
         this.jdbcTemplate.executeUpdate("INSERT INTO " + table + " (id, " + column + ") VALUES (?, ?)", new Object[] { id, storedValue });
-        Object actual = this.jdbcTemplate.queryForObject("SELECT " + column + " AS typed_value FROM " + table + " WHERE id = ?", new Object[] { id },
-                (rs, row) -> TypeHandlerRegistry.DEFAULT.getTypeHandler(type).getResult(rs, "typed_value"));
+        Object actual = this.jdbcTemplate.queryForObject("SELECT " + column + " AS typed_value FROM " + table + " WHERE id = ?", new Object[] { id }, (rs, row) -> TypeHandlerRegistry.DEFAULT.getTypeHandler(type).getResult(rs, "typed_value"));
         assertEquals(expected, actual);
     }
 }

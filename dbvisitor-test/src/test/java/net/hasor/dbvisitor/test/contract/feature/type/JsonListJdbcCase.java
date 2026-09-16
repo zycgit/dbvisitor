@@ -12,9 +12,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import org.junit.Test;
-
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.test.contract.material.model.types.JsonTestBean;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
@@ -22,14 +19,15 @@ import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 import net.hasor.dbvisitor.types.handler.json.wrap.JsonType;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @NxnContract
 public abstract class JsonListJdbcCase extends JsonTypeJdbcSupport {
+    // 能力归属：类型处理器 / JSON 序列化处理器 / JSON 转换。
     @Test
-    @Capability(CapabilityId.TYPE_JSON_READ_LIST)
+    @Capability(value = CapabilityId.TYPE_JSON_READ_LIST, column = "types/json-serialization-handlers/conversion")
     public void jsonArray_shouldReadAsList() throws SQLException {
         requiresNxnFeature(FeatureId.JSON);
         Object id = fixtureKey(baseId() + 5);
@@ -47,10 +45,12 @@ public abstract class JsonListJdbcCase extends JsonTypeJdbcSupport {
         assertEquals(2, loaded.size());
         assertTrue(loaded.get(0) instanceof Map);
         assertEquals("Alice", ((Map) loaded.get(0)).get("name"));
+        assertEquals(list, loaded);
     }
 
+    // 能力归属：类型处理器 / JSON 序列化处理器 / JSON 转换。
     @Test
-    @Capability(CapabilityId.TYPE_JSON_READ_BEAN_LIST)
+    @Capability(value = CapabilityId.TYPE_JSON_READ_BEAN_LIST, column = "types/json-serialization-handlers/conversion")
     public void jsonBeanArray_shouldReadAsList() throws SQLException {
         requiresNxnFeature(FeatureId.JSON);
         Object beanListId = fixtureKey(baseId() + 7);
@@ -69,5 +69,13 @@ public abstract class JsonListJdbcCase extends JsonTypeJdbcSupport {
         assertTrue(loadedList instanceof ArrayList);
         assertEquals(3, loadedList.size());
         assertJsonElementName(loadedList.get(0), "George");
+        for (int i = 0; i < beanList.size(); i++) {
+            assertTrue("Untyped JsonType.jsonList() represents JSON objects as maps", loadedList.get(i) instanceof Map);
+            Map element = (Map) loadedList.get(i);
+            JsonTestBean expected = beanList.get(i);
+            assertEquals(expected.getName(), element.get("name"));
+            assertEquals(expected.getAge().intValue(), ((Number) element.get("age")).intValue());
+            assertEquals(expected.getActive(), element.get("active"));
+        }
     }
 }

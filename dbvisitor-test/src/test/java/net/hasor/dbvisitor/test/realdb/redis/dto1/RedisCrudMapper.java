@@ -7,13 +7,9 @@
  */
 package net.hasor.dbvisitor.test.realdb.redis.dto1;
 
-import net.hasor.dbvisitor.mapper.Param;
-import net.hasor.dbvisitor.mapper.Query;
-import net.hasor.dbvisitor.mapper.SimpleMapper;
-import net.hasor.dbvisitor.mapper.Insert;
-import net.hasor.dbvisitor.mapper.Execute;
-import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
+import net.hasor.dbvisitor.mapper.*;
 import net.hasor.dbvisitor.test.contract.material.dao.declarative.NativeCrudMapper;
+import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 
 @SimpleMapper
 public interface RedisCrudMapper extends NativeCrudMapper {

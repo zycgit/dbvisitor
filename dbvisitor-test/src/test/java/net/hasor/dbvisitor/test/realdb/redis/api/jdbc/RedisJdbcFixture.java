@@ -17,10 +17,10 @@ import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 
 /** Owns only private keys; Redis commands remain native throughout the tests. */
 public final class RedisJdbcFixture implements AutoCloseable {
-    private final String prefix = "nxn:jdbc:" + UUID.randomUUID() + ":";
-    private final Set<String> keys = new LinkedHashSet<>();
-    private Connection connection;
-    private JdbcTemplate jdbc;
+    private final String       prefix = "nxn:jdbc:" + UUID.randomUUID() + ":";
+    private final Set<String>  keys   = new LinkedHashSet<>();
+    private       Connection   connection;
+    private       JdbcTemplate jdbc;
 
     public JdbcTemplate open() throws SQLException {
         OneApiDataSourceManager.assumeCurrentDataSource("redis");
@@ -61,15 +61,19 @@ public final class RedisJdbcFixture implements AutoCloseable {
     public static class ScoredMember {
         private String element;
         private Double score;
+
         public String getElement() {
             return this.element;
         }
+
         public void setElement(String element) {
             this.element = element;
         }
+
         public Double getScore() {
             return this.score;
         }
+
         public void setScore(Double score) {
             this.score = score;
         }
@@ -79,15 +83,19 @@ public final class RedisJdbcFixture implements AutoCloseable {
         private String element;
         @net.hasor.dbvisitor.mapping.Ignore
         private Double score;
+
         public String getElement() {
             return this.element;
         }
+
         public void setElement(String element) {
             this.element = element;
         }
+
         public Double getScore() {
             return this.score;
         }
+
         public void setScore(Double score) {
             this.score = score;
         }

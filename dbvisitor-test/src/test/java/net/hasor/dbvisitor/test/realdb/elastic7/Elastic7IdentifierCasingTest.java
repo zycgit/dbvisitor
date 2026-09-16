@@ -16,8 +16,8 @@ import net.hasor.dbvisitor.test.contract.material.model.naming.CaseTestUpperCI;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
 import net.hasor.dbvisitor.test.realdb.elastic7.material.ElasticMatrixFixture;
-import org.junit.Before;
 import org.junit.After;
+import org.junit.Before;
 
 public class Elastic7IdentifierCasingTest extends IdentifierCasingCase {
     private final ElasticMatrixFixture fixture = new ElasticMatrixFixture();
@@ -30,8 +30,7 @@ public class Elastic7IdentifierCasingTest extends IdentifierCasingCase {
     @Override
     @Before
     public void setup() throws SQLException {
-        jdbcTemplate = fixture.open(profile().env(), CaseTestUpperCI.class,
-                "{\"properties\": {\"Id\": {\"type\": \"integer\"}, \"Name\": {\"type\": \"keyword\"}, \"Age\": {\"type\": \"integer\"}, \"Memo\": {\"type\": \"keyword\"}}}");
+        jdbcTemplate = fixture.open(profile().env(), CaseTestUpperCI.class, "{\"properties\": {\"Id\": {\"type\": \"integer\"}, \"Name\": {\"type\": \"keyword\"}, \"Age\": {\"type\": \"integer\"}, \"Memo\": {\"type\": \"keyword\"}}}");
         lambdaTemplate = fixture.lambdaTemplate();
     }
 

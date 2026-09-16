@@ -8,18 +8,12 @@
 package net.hasor.dbvisitor.test.contract.api.vector_query;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.postgresql.util.PGobject;
-
+import java.util.*;
 import net.hasor.dbvisitor.lambda.core.MetricType;
 import net.hasor.dbvisitor.test.contract.material.model.ProductVectorForPg;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.postgresql.util.PGobject;
+import static org.junit.Assert.*;
 
 public abstract class VectorQuerySupport extends AbstractNxnContractTest {
     protected static final int VECTOR_DIM = 128;
@@ -114,6 +108,25 @@ public abstract class VectorQuerySupport extends AbstractNxnContractTest {
         for (int i = 0; i < expected.size(); i++) {
             assertEquals("Vector component " + i, expected.get(i), actual.get(i), 0.0001f);
         }
+    }
+
+    protected void assertVectorIds(List<ProductVectorForPg> rows, Integer... expectedIds) {
+        assertEquals("Vector result count", expectedIds.length, rows.size());
+        Set<Integer> actualIds = new HashSet<>();
+        for (ProductVectorForPg row : rows) {
+            assertNotNull(row);
+            assertTrue("Duplicate vector result: " + row.getId(), actualIds.add(row.getId()));
+        }
+        assertEquals(new HashSet<>(Arrays.asList(expectedIds)), actualIds);
+    }
+
+    protected void assertOrderedVectorIds(List<ProductVectorForPg> rows, Integer... expectedIds) {
+        List<Integer> actualIds = new ArrayList<>(rows.size());
+        for (ProductVectorForPg row : rows) {
+            assertNotNull(row);
+            actualIds.add(row.getId());
+        }
+        assertEquals(Arrays.asList(expectedIds), actualIds);
     }
 
     protected void assertDistanceOrder(List<Float> target, List<ProductVectorForPg> rows, MetricType metricType) {

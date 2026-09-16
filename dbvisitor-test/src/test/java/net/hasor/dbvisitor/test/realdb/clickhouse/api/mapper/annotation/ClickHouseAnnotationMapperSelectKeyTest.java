@@ -7,12 +7,12 @@
  */
 package net.hasor.dbvisitor.test.realdb.clickhouse.api.mapper.annotation;
 
-import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperSelectKeyCase;
-import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
-import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
 import net.hasor.dbvisitor.mapper.*;
+import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperSelectKeyCase;
 import net.hasor.dbvisitor.test.contract.material.dao.declarative.AnnotationAttributesMapper;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
+import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
+import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 
 public class ClickHouseAnnotationMapperSelectKeyTest extends AnnotationMapperSelectKeyCase {
     @Override
@@ -38,8 +38,7 @@ public class ClickHouseAnnotationMapperSelectKeyTest extends AnnotationMapperSel
         int insertWithSelectKeyAfter(UserInfo user);
 
         @Override
-        @SelectKeySql(value = "SELECT toInt32(cityHash64(generateUUIDv4()))", keyProperty = "id", order = Order.Before,
-                statementType = StatementType.Prepared, timeout = 30, fetchSize = 1, resultSetType = ResultSetType.DEFAULT)
+        @SelectKeySql(value = "SELECT toInt32(cityHash64(generateUUIDv4()))", keyProperty = "id", order = Order.Before, statementType = StatementType.Prepared, timeout = 30, fetchSize = 1, resultSetType = ResultSetType.DEFAULT)
         @Insert("INSERT INTO user_info (id, name, age, email) VALUES (#{id}, #{name}, #{age}, #{email})")
         int insertWithSelectKeyFullAttrs(UserInfo user);
     }

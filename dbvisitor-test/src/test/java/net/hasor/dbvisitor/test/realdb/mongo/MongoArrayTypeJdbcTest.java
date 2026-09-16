@@ -10,10 +10,6 @@ package net.hasor.dbvisitor.test.realdb.mongo;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.UUID;
-
-import org.junit.After;
-import org.junit.Before;
-
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
@@ -22,11 +18,13 @@ import net.hasor.dbvisitor.test.contract.material.model.types.ArrayTypesAnnotati
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
+import org.junit.After;
+import org.junit.Before;
 
 public class MongoArrayTypeJdbcTest extends ArrayTypeJdbcCase {
-    private final String collection = "nxn_arrays_" + UUID.randomUUID().toString().replace("-", "");
-    private Connection connection;
-    private boolean created;
+    private final String     collection = "nxn_arrays_" + UUID.randomUUID().toString().replace("-", "");
+    private       Connection connection;
+    private       boolean    created;
 
     @Override
     protected DataSourceProfile profile() {

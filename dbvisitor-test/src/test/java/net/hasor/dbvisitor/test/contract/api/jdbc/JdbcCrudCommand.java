@@ -9,5 +9,10 @@ package net.hasor.dbvisitor.test.contract.api.jdbc;
 
 /** Native command material for the common CRUD scenarios. */
 public enum JdbcCrudCommand {
-    INSERT, UPDATE_AGE, DELETE, SELECT_NAME, SELECT_AGE, COUNT_BY_ID
+    INSERT,
+    UPDATE_AGE,
+    DELETE,
+    SELECT_NAME,
+    SELECT_AGE,
+    COUNT_BY_ID
 }

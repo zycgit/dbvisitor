@@ -21,7 +21,7 @@ import org.junit.Before;
 /** Shared specialJavaType contracts backed by native JSON and ARRAY fields. */
 public class MilvusAnnotationArrayFieldMappingTest extends AnnotationArrayFieldMappingCase {
     private final MilvusDatabaseFixture database = new MilvusDatabaseFixture();
-    private Connection connection;
+    private       Connection            connection;
 
     @Override
     protected DataSourceProfile profile() {
