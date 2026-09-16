@@ -1,9 +1,7 @@
 plugins {
     id 'java-library'
-    id 'maven-publish'
 }
 
-ext.pomName = 'dbVisitor Test Framework'
 description = 'TCK for dbVisitor.'
 
 dependencies {
