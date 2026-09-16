@@ -27,6 +27,7 @@ import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.cobble.reflect.Annotation;
 import net.hasor.cobble.reflect.Annotations;
 import net.hasor.cobble.reflect.resolvable.ResolvableType;
+import net.hasor.dbvisitor.page.PageResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -145,7 +146,7 @@ public class MappingHelper {
     public static Class<?> resolveReturnType(Method dalMethod) {
         // resolve required Type
         Class<?> requiredClass = dalMethod.getReturnType();
-        if (Collection.class.isAssignableFrom(requiredClass)) {
+        if (Collection.class.isAssignableFrom(requiredClass) || requiredClass == PageResult.class) {
             Type requiredType = dalMethod.getGenericReturnType();
             ResolvableType type = ResolvableType.forType(requiredType);
             requiredClass = type.getGeneric(0).resolve();
