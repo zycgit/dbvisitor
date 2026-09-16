@@ -1,6 +1,6 @@
 ---
 id: conflict
-sidebar_position: 3
+sidebar_position: 35
 title: Insert Conflicts
 description: H2 insert-conflict strategies, dbVisitor usage, and limitations.
 ---
@@ -9,7 +9,7 @@ description: H2 insert-conflict strategies, dbVisitor usage, and limitations.
 
 Conflict handling decides whether an insert matching an existing row should fail, be ignored, or update that row. Typical scenarios include replayed jobs, data synchronization, repeated imports, and insert-or-update operations. It is an INSERT execution strategy, not a separate ordinary UPDATE.
 
-## Strategies
+## Strategies {#strategies}
 
 | Strategy | H2 statement | Result |
 |----------|--------------|--------|
@@ -53,6 +53,5 @@ Use `Ignore` to preserve matched rows. Omitting the strategy or selecting `Into`
 ## Notes
 
 - Ignore and Update require an entity primary-key mapping; dbVisitor does not select another business field.
-- Primary-key mapping selects generated match columns; it does not create database constraints.
 - Ignore does not suppress every error. Validation and connection failures still fail.
 - The result follows H2 MERGE update-count semantics.

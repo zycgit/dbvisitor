@@ -1,6 +1,6 @@
 ---
 id: generated-keys
-sidebar_position: 4
+sidebar_position: 62
 toc_min_heading_level: 2
 toc_max_heading_level: 2
 title: 主键生成
@@ -22,7 +22,17 @@ Oracle 支持 `IDENTITY` 列，也长期使用 sequence 生成主键。两种方
 通用配置见[主键生成与回填](../../guides/core/mapper/annotation_insert#generated-keys)。
 :::
 
-## 使用 IDENTITY
+## 主键策略 {#key-strategies}
+
+| 策略 | 本数据源的用法 |
+| --- | --- |
+| 手工赋值 | 插入前由应用提供主键。 |
+| 自增 | 由数据库生成数值主键。 |
+| UUID | 字符主键使用 UUID32 或 UUID36。 |
+| 序列 | 插入前取得序列值。 |
+| 自定义 | 使用自定义生成器，在插入前或后处理主键。 |
+
+## 使用 IDENTITY {#identity}
 
 Oracle 12c+ 可以使用 `IDENTITY` 列：
 
@@ -106,7 +116,7 @@ int insertUser(UserInfo user);
 </TabItem>
 </Tabs>
 
-## 使用序列
+## 使用序列 {#sequence}
 
 下面使用普通主键列和序列，与上面的 IDENTITY 示例独立：
 
@@ -184,3 +194,9 @@ int insertUser(UserInfo user);
 
 </TabItem>
 </Tabs>
+
+## 选择回填来源 {#key-source}
+
+方法注解和 Mapper 文件均使用 `useGeneratedKeys`，保持默认回填来源。生成键和命令本身的结果集不是同一个结果；这里的插入不要设置 `generatedKeySource="resultSet"`。
+
+`RETURNING ... INTO` 返回的字段使用 OUT 参数接收，见[数据回填](backfill.mdx#插入后返回字段)。

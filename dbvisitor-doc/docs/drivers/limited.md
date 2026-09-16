@@ -2,7 +2,7 @@
 id: limited
 sidebar_position: 1
 hide_table_of_contents: true
-title: 适配器限制
+title: 3. 适配器限制
 description: 基于 dbvisitor-driver 的 JDBC 适配器在 JDBC 接口支持上的使用限制。
 ---
 
@@ -25,17 +25,8 @@ description: 基于 dbvisitor-driver 的 JDBC 适配器在 JDBC 接口支持上�
 - 不支持 savepoint 操作
 - Array、Blob、Clob、NClob 类型的数据会预先读进内存，请注意数据大小
 
-## 库、表与字段信息
+## 元信息接口约定
 
-通过 `connection.getMetaData()` 获取，下表中的“空结果”仍保留标准 JDBC 列结构。
-
-| 驱动 | `getCatalogs()` 库 | `getTables()` 表 | `getColumns()` 字段 |
-| --- | --- | --- | --- |
-| Milvus | 当前连接的数据库 | 当前库的 Collection | Collection schema 中的字段 |
-| MongoDB | 当前用户可列出的数据库 | Collection 和 View | 空结果，不扫描文档推断字段 |
-| Elasticsearch | 空结果，无独立的库层级 | Index | Mapping 中声明的字段 |
-| Redis | 当前选中的数据库编号，如 `0` | 空结果，不把 key 当表 | 空结果 |
-
-这四个驱动不提供独立的 schema 层级，`getSchemas()` 返回空结果。`getTableTypes()` 返回驱动支持列出的表类型；Redis 返回空结果。
+支持查询哪些对象，由具体驱动决定，详见各驱动的介绍页。空结果仍保留标准 JDBC 列结构。
 
 `catalog` 按名称匹配；名称模式中的 `%` 匹配任意字符串，`_` 匹配一个字符，`\` 用于转义。传入 `null` 不限制该项，空字符串表示没有该库或 schema 层级。字段精度等信息未知时不填推测值；权限或连接错误会抛出异常，不作为空结果处理。

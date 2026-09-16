@@ -20,7 +20,7 @@ dbVisitor's APIs can be chosen by asking three questions:
 |---|---|---|
 | You already have SQL and just want lightweight execution | [Programmatic API](./jdbc) | Uses `JdbcTemplate` to execute SQL directly — closest to JDBC |
 | You want DAO code as Java interfaces | [Mapper API](./mapper) | Organize methods with interfaces; SQL can come from Method Annotations, BaseMapper, or Mapper files |
-| You don't want to hand-write SQL and prefer chainable conditions | [Fluent API](./lambda) | Builds SQL with `LambdaTemplate`, adapting to database dialects |
+| You don't want to hand-write SQL and prefer chainable conditions | [Builder API](./lambda) | Builds SQL with `LambdaTemplate`, adapting to database dialects |
 | Data is Map-based but you still want object mapping | [Mapped Map Mode](../core/map_query/mapped) | Reuses mapping metadata while using Map as the query and write carrier |
 | Data is Map-based and no entity mapping is maintained | [Free Map Mode](../core/map_query/freedom) | Directly uses table names, column names, and Map operations |
 | You need vector similarity search | [Vector Query](../core/vector_query/about) | Uses `orderBy*` for KNN and `vectorBy*` for range filtering |
@@ -80,10 +80,10 @@ Once you have the entry object, choose the specific API based on your scenario: 
 ## Common Confusions
 
 - Mapper API is not just Method Annotations; it is the interface-based access style. Method Annotations, BaseMapper, and Mapper files can all work with Mapper interfaces.
-- BaseMapper is part of Mapper API, providing common CRUD capabilities. When complex queries are not a good fit, switch to Fluent API; complex SQL can go into annotations or Mapper files.
+- BaseMapper is part of Mapper API, providing common CRUD capabilities. When complex queries are not a good fit, switch to Builder API; complex SQL can go into annotations or Mapper files.
 - LambdaTemplate's core value is building SQL and abstracting dialect differences — it does not replace every hand-written SQL use case. Complex JOINs, window functions, and database-specific syntax can still use JdbcTemplate or Mapper files.
 - Map Query Mode includes two entry points: Mapped Map reuses object mapping, and Free Map directly uses table names, column names, and Map.
-- Vector Query is a specialized capability built on top of Fluent API; availability depends on whether the database dialect and driver support vectors/KNN.
+- Vector Query is a specialized capability built on top of Builder API; availability depends on whether the database dialect and driver support vectors/KNN.
 - Object mapping is a prerequisite for BaseMapper and LambdaTemplate Entity mode; if you only use JdbcTemplate to execute native SQL, object mapping is not required.
 
 ## Next Step

@@ -2,7 +2,7 @@
 id: array-handler
 sidebar_position: 8
 title: 8.8 数组类型处理器
-description: dbVisitor 处理数组类型及 PostgreSQL pgvector 的类型处理器。
+description: dbVisitor 处理 SQL 数组的类型处理器。
 ---
 
 <span id="数组类型处理器" />
@@ -15,21 +15,11 @@ description: dbVisitor 处理数组类型及 PostgreSQL pgvector 的类型处理
 |---|---|---|
 | `ArrayTypeHandler` | 输入 `java.sql.Array` 或对象数组，输出 Java 数组 | 通过 getArray/setArray 读写，读取后释放 SQL Array |
 | `PgArrayTypeHandler` | 输入 `java.sql.Array` 或对象数组，输出 `Object[]` | 显式指定 PostgreSQL 元素类型 |
-| `PgVectorTypeHandler` | `List<Float>` | PostgreSQL [pgvector](https://github.com/pgvector/pgvector) 向量类型处理 |
 
-## PgVectorTypeHandler
-
-`PgVectorTypeHandler` 用于处理 PostgreSQL pgvector 扩展的 `vector` 类型，将 `List<Float>` 与 pgvector 的文本格式 `[1.0,2.0,3.0]` 互转。
-
-```java title='使用示例'
-public class EmbeddingEntity {
-    @Column(typeHandler = PgVectorTypeHandler.class)
-    private List<Float> embedding;
-}
-```
+向量字段配置见[向量类型处理器](./vector-handler)。
 
 :::caution
-这两个 SQL ARRAY 处理器接收 Java 数组时使用 `Object[]`，应传 `Integer[]` 等对象数组，不能直接传 `int[]` 等基础类型数组。Milvus JDBC 驱动对向量参数的基础类型数组支持是另一条处理路径，见 [Milvus 参数绑定](../../drivers/milvus/parameters.mdx#typed-values)。
+`ArrayTypeHandler` 接受对象数组和 `int[]` 等基础类型数组，基础类型元素会自动装箱。`PgArrayTypeHandler` 接受 `Integer[]` 等对象数组，不接受基础类型数组。向量参数的绑定见 [Milvus 参数绑定](../../drivers/milvus/parameters.mdx#typed-values)。
 
 通用 ArrayTypeHandler 读取非空的 Double 元素数组时会转成 Float 数组；需要保留双精度时，请直接使用 JDBC `getArray()` 并自行转换，或配置专用处理器。调用者提供的 SQL Array 由调用者负责 `free()`。
 :::

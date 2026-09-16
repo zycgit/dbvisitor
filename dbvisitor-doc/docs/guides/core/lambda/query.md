@@ -67,7 +67,7 @@ result = lambda.query(User.class)
 
 ## 查询单个对象 {#object}
 
-执行查询并结果将被映射到一个对象，如果查询结果存在多个匹配那么会引发异常。
+执行查询并返回第一个匹配对象；没有匹配记录时返回 `null`。如果需要特定顺序下的第一条记录，须在数据源支持时显式指定排序。
 
 ```java title='结果集映射到：实体类型'
 LambdaTemplate lambda = ...
@@ -184,8 +184,10 @@ result = lambda.query(User.class)
 
 ## 分页查询 {#page}
 
+按页获取数据使用下面的分页方法；需要逐批遍历时，使用[分页迭代](#iterator)。
+
 :::info[提示]
-分页查询需要依赖数据库方言的支持，在 **[数据库支持性](../../../features/support#dialect)** 中已列出 dbVisitor 所支持的数据库。
+分页查询需要依赖数据库方言的支持，在 **[数据库支持性](../../../features/differences/builder)** 中已列出 dbVisitor 所支持的数据库。
 :::
 
 dbVisitor 内置了分页查询机制，使用方便且无需任何配置。具体工作方式为：
@@ -219,3 +221,18 @@ result = lambda.query(User.class)
 
 - 分页对象提供了诸多方法可用，详细请参考 [分页对象](../../result/page_object) 了解更多内容。
 - [查询列表](./query#list) 和 [处理查询结果](./query#process) 中的结果集获取方式，可以和分页相互配合使用。
+
+## 分页迭代 {#iterator}
+
+不希望一次将全部结果放入 List 时，可以逐页迭代。下面每次最多读取 100 条：
+
+```java
+Iterator<? extends UserInfo> users = lambda.query(UserInfo.class)
+        .asc("id").iteratorByBatch(100);
+while (users.hasNext()) {
+    UserInfo user = users.next();
+    // 处理当前记录
+}
+```
+
+`iteratorForLimit(500, 100)` 表示最多处理 500 条、每页 100 条；总条数为负数时不限制总量。数据源支持排序时，应使用稳定的排序条件。这是分页遍历，不保证使用 JDBC 服务端流式游标；并发修改可能影响翻页结果。

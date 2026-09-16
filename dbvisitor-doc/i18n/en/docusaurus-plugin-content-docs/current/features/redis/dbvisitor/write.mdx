@@ -1,0 +1,109 @@
+---
+id: write
+slug: /features/redis/write
+sidebar_position: 32
+title: Data Writes
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+Execute Redis write commands through dbVisitor. `SET` and `DEL` return update counts, while commands such as `INCR` return query results; choose the API by the reply form. See [Query Operations](query.mdx) for reading stored data.
+
+## Writing and Deleting Keys {#exec-command}
+
+```java
+JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+jdbc.executeUpdate("SET ? ?", new Object[] { "user:1001:name", "mali" });
+jdbc.executeUpdate("DEL ?", "user:1001:name");
+```
+
+`SET` replaces the existing value; `DEL` removes the key. Both commands return update counts through `executeUpdate`. Use `HSET` to write a Hash field:
+
+```java
+jdbc.executeUpdate("HSET ? ? ?", new Object[] { "user:1001", "name", "mali" });
+```
+
+See [Query Operations](query.mdx#result-map) for reading and mapping `HGETALL` results.
+
+## Writing Through Mappers {#write-apis}
+
+<Tabs>
+<TabItem value="annotation" label="Method Annotations" default>
+
+```java
+@SimpleMapper
+public interface NameWriteMapper {
+    @Insert("SET #{key} #{name}")
+    int save(@Param("key") String key, @Param("name") String name);
+
+    @Delete("DEL #{key}")
+    int remove(@Param("key") String key);
+}
+```
+
+</TabItem>
+<TabItem value="xml" label="Mapper File">
+
+```xml
+<mapper namespace="com.example.NameWriteMapper">
+    <insert id="save">SET #{key} #{name}</insert>
+    <delete id="remove">DEL #{key}</delete>
+</mapper>
+```
+
+```java
+@RefMapper("/mapper/redis-write.xml")
+public interface NameWriteMapper {
+    int save(@Param("key") String key, @Param("name") String name);
+    int remove(@Param("key") String key);
+}
+```
+
+Save the XML at /mapper/redis-write.xml; NameWriteMapper belongs to com.example.
+
+</TabItem>
+</Tabs>
+
+```java
+Session session = new Configuration().newSession(dataSource);
+NameWriteMapper mapper = session.createMapper(NameWriteMapper.class);
+mapper.save("user:1001:name", "mali");
+```
+
+## File-Based Writes with BaseMapper {#base-mapper}
+
+BaseMapper's [statement execution methods](../../../guides/core/mapper/file_statement.md) can call the `save` and `remove` commands above. It does not generate Redis write commands from an entity; configure those commands explicitly in the Mapper file.
+
+## Reading Values Returned by Writes {#write-results}
+
+INCR changes a value but returns the new number. Use a query method to retrieve it:
+
+```java
+Long value = jdbc.queryForLong("INCR ?", "order:sequence");
+```
+
+In a Mapper, this command uses @Query, not @Update. Choose the API by the adapter's return form, not whether the command changes data. The same applies to ZADD and LPOP; see [Command Syntax](../about.md).
+
+## Sharing Data Across Sessions and APIs {#session-sharing}
+
+Method annotations, Mapper files, and `session.jdbc()` can access the same Redis keys. Sessions connected to the same Redis database can also read each other's writes:
+
+```java
+Configuration configuration = new Configuration();
+try (Session writer = configuration.newSession(dataSource);
+        Session reader = configuration.newSession(dataSource)) {
+    writer.createMapper(NameWriteMapper.class).save("user:1001:name", "mali");
+    String name = reader.jdbc().queryForString("GET ?", "user:1001:name");
+}
+```
+
+These calls still execute explicit Redis commands. `session.lambda()` and entity-generated BaseMapper CRUD are unavailable; BaseMapper's [Mapper-file command methods](query.mdx#base-mapper) remain usable.
+
+## Overwrite Behavior and Errors {#command-errors}
+
+Invalid commands report errors, but `SET` overwrites an existing key rather than reporting a duplicate-key error. Reading a missing key is not an error either; see [Query Errors](query.mdx#command-errors).
+
+## Multi-Key Writes and Transactions {#transactions}
+
+Use `MSET` for multi-key writes. It is one Redis command, not a JDBC batch. Separate `SET` calls do not automatically form a transaction; see [Transaction Support](transactions.md).

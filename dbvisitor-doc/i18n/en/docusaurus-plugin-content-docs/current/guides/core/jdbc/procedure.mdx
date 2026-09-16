@@ -72,6 +72,10 @@ begin
 end;
 ```
 
+- `userName` is the input argument.
+- `outName` is the output argument.
+- The SELECT statement produces a separate result set.
+
 ```text title='2. Compose the call'
 {
  call proc_select_table(#{userName,jdbcType=varchar},
@@ -105,6 +109,9 @@ begin
 end;
 ```
 
+- `userName` is the input argument.
+- `tableCursor` returns the result set through an OUT cursor.
+
 ```text title='2. Compose the call'
 {
  call proc_out_cursor(#{userName,jdbcType=varchar},
@@ -128,3 +135,13 @@ List<UserDTO> result = (List<UserDTO>)res.get("tableCursor");
 :::info
 Some databases require an active transaction to fetch cursor OUT arguments. Consult your database documentation.
 :::
+
+## Calling functions {#functions}
+
+When a function value is returned as a query column, use a JdbcTemplate query method. For example, with MySQL:
+
+```java
+Integer value = jdbc.queryForObject("SELECT ABS(?)", new Object[] { -5 }, Integer.class);
+```
+
+Use list or object queries for row results. JDBC function return parameters instead require a callable statement and an OUT declaration. The accepted function syntax and return shape depend on the data source; see [Programmatic API differences](../../../features/differences/jdbc.md).

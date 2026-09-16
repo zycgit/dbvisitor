@@ -8,7 +8,7 @@ description: DM usage with dbVisitor.
 
 # DM
 
-Use JdbcTemplate, method annotations, Mapper files, or the Fluent API with DM. The following pages cover database-specific configuration and usage.
+Use JdbcTemplate, method annotations, Mapper files, or the Builder API with DM. The following pages cover database-specific configuration and usage.
 
 | Scenario | Usage |
 | --- | --- |
@@ -16,8 +16,8 @@ Use JdbcTemplate, method annotations, Mapper files, or the Fluent API with DM. T
 | Pagination | LIMIT pagination |
 | Insert conflicts | Duplicate-key ignore and MERGE update |
 
-- [Type Support](./types.md): Choose Java property types.
 - [Pagination](./pagination.mdx): Page queries and total counts.
 - [Insert Conflicts](./conflict.mdx): Handle existing records during insertion.
 - [Key Generation](./generated-keys.mdx): Configure and retrieve IDs.
-- [Multiple-Write Consistency](./write.mdx): Roll back multiple writes on failure.
+- [Type Support](./types.md): Choose Java property types.
+- [Transaction Support](./transactions.mdx): Roll back multiple writes on failure.

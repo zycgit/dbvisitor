@@ -98,7 +98,7 @@ public void writeAuditLog(long orderId, String action) throws java.sql.SQLExcept
 | T6 | insert data3 | | |
 | T7 | commit/rollback | | 提交/回滚事务 A |
 
-## 嵌套事务 (NESTED)
+## 嵌套事务 (NESTED) {#nested}
 
 在当前事务中通过 `Savepoint` 方式开启一个子事务。子事务回滚不影响外层事务，但外层事务回滚会连带子事务。
 - 常量 `Propagation.NESTED`
@@ -200,4 +200,4 @@ public void insertOrderItem(long orderId, long skuId) {
 
 - [注解式事务](./annotation)：在 `@Transactional` 上指定传播行为。
 - [模板事务](./template)：在 `execute` 的第二个参数中指定传播行为。
-- [事务管理器](./manager)：理解 `REQUIRES_NEW` 的连接挂起和 `NESTED` 的保存点。
+- [跨 API 事务](./manager)：了解不同 API 调用如何复用或切换事务连接。

@@ -1,0 +1,148 @@
+---
+id: write
+slug: /features/milvus/write
+sidebar_position: 32
+title: Data Writes
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+Use dbVisitor to insert, update, and delete data with Milvus SQL. See [Query Operations](query.mdx) for queries and entity mapping.
+
+## Preparing the Collection {#prepare-collection}
+
+Before running the examples, create the collection and index in an empty environment:
+
+```sql
+CREATE TABLE book_vectors (
+    book_id INT64 PRIMARY KEY,
+    title VARCHAR(256),
+    word_count INT32,
+    book_intro FLOAT_VECTOR(2)
+) WITH (consistency_level='Strong');
+CREATE INDEX idx_intro ON book_vectors (book_intro)
+USING "AUTOINDEX" WITH (metric_type="L2");
+LOAD TABLE book_vectors;
+```
+
+Load the collection before querying. Strong consistency helps read-after-write; iterator queries require this setting on the collection, not just the connection.
+
+## Executing Write Commands {#exec-command}
+
+```java
+JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+
+jdbc.executeUpdate(
+        "INSERT INTO book_vectors (book_id, title, word_count, book_intro) VALUES (?, ?, ?, ?)",
+        new Object[] { 1001L, "mali", 100, List.of(0.1f, 0.2f) });
+
+jdbc.executeUpdate(
+        "UPDATE book_vectors SET title = ? WHERE book_id = ?",
+        new Object[] { "new title", 1001L });
+
+jdbc.executeUpdate(
+        "DELETE FROM book_vectors WHERE book_id = ?",
+        new Object[] { 1001L });
+```
+
+## Updating Through Different APIs {#write-apis}
+
+These examples reuse the [entity mapping from Query Operations](query.mdx#entity-mapping) and change the selected record's `title` to `new name`. Choose one of the three equivalent approaches rather than executing them in sequence.
+
+<Tabs>
+<TabItem value="fluent" label="Builder API" default>
+
+```java
+LambdaTemplate lambda = new LambdaTemplate(dataSource);
+int changed = lambda.update(BookVector.class)
+        .eq(BookVector::getBookId, 1001L)
+        .updateTo(BookVector::getTitle, "new name")
+        .doUpdate();
+```
+
+</TabItem>
+<TabItem value="annotation" label="Method Annotations">
+
+```java
+@SimpleMapper
+public interface BookVectorWriteMapper {
+    @Update("UPDATE book_vectors SET title = #{name} WHERE book_id = #{id}")
+    int rename(@Param("id") Long id, @Param("name") String name);
+}
+```
+
+</TabItem>
+<TabItem value="xml" label="Mapper File">
+
+```xml
+<mapper namespace="com.example.BookVectorWriteMapper">
+    <update id="rename">
+        UPDATE book_vectors SET title = #{name} WHERE book_id = #{id}
+    </update>
+</mapper>
+```
+
+```java
+@RefMapper("/mapper/milvus-write.xml")
+public interface BookVectorWriteMapper {
+    int rename(@Param("id") Long id, @Param("name") String name);
+}
+```
+
+Save the XML at `/mapper/milvus-write.xml`; the interface belongs to `com.example`.
+
+</TabItem>
+</Tabs>
+
+```java
+Session session = new Configuration().newSession(dataSource);
+BookVectorWriteMapper mapper = session.createMapper(BookVectorWriteMapper.class);
+int changed = mapper.rename(1001L, "new name");
+```
+
+## Data Writes {#write-behavior}
+
+| Operation | Database action |
+| --- | --- |
+| Update selected properties | Page primary keys, then submit changed fields with Partial Upsert |
+| Delete matching records | Native Delete for scalar filters without LIMIT; page selected records otherwise |
+
+BaseMapper updates and deletes use the same operations.
+
+- Delete counts: deleting a missing primary key may still return a nonzero count. It does not prove that the record existed; see [Checking Whether a Delete Matched](#delete-count).
+- Chunked deletes: do not copy a workflow that orders by ID before fetching and deleting a page; Milvus does not support scalar ordering. Fetch the first page of matching primary keys each time, delete them, and do not advance OFFSET. See [Pagination](pagination.mdx).
+
+## Map Writes {#map-writes}
+
+`insert().asMap()` uses Java property names; `insertFreedom` uses Milvus field names. BaseMapper Map writes use the registered entity's property names.
+
+updateByMap ignores NULL and omitted properties. replaceByMap replaces all updatable mapped properties: omitted values can become NULL. Supply values that must be retained and ensure cleared fields allow NULL.
+
+BaseMapper upsertByMap queries before inserting or replacing; it is not the SQL UPSERT operation and is not atomic. JdbcTemplate.executeBatch executes statements individually with this driver; it does not use JDBC Batch.
+
+## Choosing an insert conflict strategy {#insert-conflict}
+
+`Update` performs partial Upsert and requires the primary key. It inserts a new ID or updates the supplied fields of an existing ID. `Ignore` is not supported.
+
+The default INSERT does not guarantee an error for a repeated primary key. Do not use a failed INSERT to detect existing data. Use `Update` when the operation means “save by ID”; otherwise, define duplicate handling in the application.
+
+## Updates without conditions {#empty-conditions}
+
+The Builder API rejects UPDATE/DELETE without conditions unless allowEmptyWhere() is explicitly enabled. Plain SQL has no such protection. Do not prepend WHERE 1=1 when combining conditions on Milvus 2.6.2; use conditional API branches instead. Parameterized LIKE and NOT restrictions are described under [Operators](../basics/operators.md).
+
+## Checking whether a delete matched {#delete-count}
+
+Deleting a missing primary key may return the number of submitted IDs rather than zero. This also affects `BaseMapper.deleteById`; do not treat its return value as proof that a record existed.
+
+If the business action is “ensure the ID is absent”, a successful DELETE is sufficient. If it needs the previous record, query first; a separate query and delete are not atomic.
+
+## Failure During Multiple Updates {#multiple-writes}
+
+UPDATE without LIMIT does not stop at a fixed record count, but runs in pages. Successful pages are not rolled back after a failure; errors include confirmed progress. See [UPDATE and DELETE](../write/update.md) for recovery and retry scope.
+
+See [Transaction Support](transactions.md) for transaction API behavior.
+
+## Command errors {#command-errors}
+
+Invalid commands and missing collections report errors, but repeated primary keys do not guarantee a unique-constraint error. Neither ordinary nor batch inserts can rely on duplicate-key errors for deduplication; see [Insert Conflict Strategies](#insert-conflict).

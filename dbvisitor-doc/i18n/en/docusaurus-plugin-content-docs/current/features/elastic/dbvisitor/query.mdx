@@ -1,0 +1,126 @@
+---
+id: query
+slug: /features/elastic/query
+sidebar_position: 31
+title: Query Operations
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+dbVisitor treats `HTTP method + path + JSON` as an executable statement. `@Query` accepts REST commands, not just SELECT. These examples use Elasticsearch 7 typeless requests. Connection setup: [JDBC Elasticsearch](../../../drivers/elastic/connection.mdx).
+
+## Entity Mapping {#entity-mapping}
+
+```java
+@Table("user_info")
+public class UserInfo {
+    @Column(primary = true)
+    private String uid;
+    private String name;
+    // Getters and setters omitted
+}
+```
+
+Index and field name rules are covered under [Name Sensitivity](name-sensitivity.md#database-names).
+
+## Exact Matching {#exact-match}
+
+Map `uid` and `name` as `keyword` in the example index:
+
+```text
+PUT /user_info {"mappings":{"properties":{"uid":{"type":"keyword"},"name":{"type":"keyword"}}}}
+```
+
+Fluent `eq` generates a match query. On text fields it may match analyzed terms; use keyword fields and the term request below for exact matching.
+
+## Executing Query Commands {#exec-command}
+
+```java
+JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+
+List<UserInfo> rows = jdbc.queryForList(
+        "POST /user_info/_search {\"query\":{\"term\":{\"uid\": ?}}}",
+        new Object[] { "1001" }, UserInfo.class);
+```
+
+## Querying Through Different APIs {#query-apis}
+
+<Tabs>
+<TabItem value="fluent" label="Builder API" default>
+
+```java
+LambdaTemplate lambda = new LambdaTemplate(dataSource);
+UserInfo item = lambda.query(UserInfo.class)
+        .eq(UserInfo::getUid, "1001")
+        .queryForObject();
+```
+
+Builder queries generate `_search` requests.
+
+</TabItem>
+<TabItem value="annotation" label="Method Annotations">
+
+```java
+@SimpleMapper
+public interface UserInfoMapper {
+    @Query("POST /user_info/_search {\"query\":{\"term\":{\"uid\": #{uid}}}}")
+    UserInfo findById(@Param("uid") String uid);
+}
+```
+
+```java
+Session session = new Configuration().newSession(dataSource);
+UserInfoMapper mapper = session.createMapper(UserInfoMapper.class);
+UserInfo item = mapper.findById("1001");
+```
+
+</TabItem>
+<TabItem value="xml" label="Mapper File">
+
+```xml
+<mapper namespace="com.example.UserInfoMapper">
+    <select id="findById" resultType="com.example.UserInfo">
+        POST /user_info/_search {"query":{"term":{"uid": #{uid}}}}
+    </select>
+</mapper>
+```
+
+```java
+@RefMapper("/mapper/elastic-user.xml")
+public interface UserInfoMapper {
+    UserInfo findById(@Param("uid") String uid);
+}
+```
+
+Save the XML as the resource named in @RefMapper; the example classes use package com.example. Create the Mapper through Session as in the annotation example.
+
+</TabItem>
+</Tabs>
+
+## Reading a script calculation {#functions}
+
+In ES 6/7, use Painless script_fields in a search request, not a stored-function call. With at least one document in calculation:
+
+```java
+String command = """
+        POST /calculation/_search
+        {"size": 1, "_source": false, "query": {"match_all": {}},
+         "script_fields": {"value": {"script": {
+           "lang": "painless", "source": "params.x + params.y",
+           "params": {"x": ?, "y": ?}
+         }}}}
+        """;
+Integer sum = jdbc.queryForObject(command, new Object[] { 10, 5 }, Integer.class);
+```
+
+The calculation runs per search hit. No hit means no calculation row. Positional and named arguments and scalar conversion are supported; JDBC CallableStatement callbacks, OUT-parameter records, and SQL table-function syntax are not. Keep the script fixed and bind values through params.
+
+
+See [Where Builder](builder.md#predicates) for collection predicates and explicit null filtering.
+
+## Query Execution Options {#execution-options}
+
+Mapper files accept `statementType`, `timeout`, and `fetchSize`; their effect follows the driver settings. For `resultSetType`, keep `DEFAULT` or use `FORWARD_ONLY`. Scrollable result sets (`SCROLL_INSENSITIVE` and `SCROLL_SENSITIVE`) are not supported. See [Execution Options](../../../guides/core/file/statements.mdx#execution-options) for XML configuration.
+
+See [Result Reading](results.mdx) for result columns.

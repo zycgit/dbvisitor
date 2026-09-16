@@ -1,6 +1,6 @@
 ---
 id: types
-sidebar_position: 1
+sidebar_position: 80
 title: Type Support
 description: DB2 type support
 ---
@@ -29,3 +29,9 @@ The table recommends Java property types for common columns. Use wrapper types f
 | TIME | java.sql.Time | Time only; text storage requires a parseable time format. |
 | TIMESTAMP | java.sql.Timestamp | Preserves date and time, subject to column precision. |
 | CLOB | Map / List / Bean | When storing JSON text, see [JSON Field Mapping](../../guides/core/mapping/json-field.md). |
+
+## Array Types {#array-values}
+
+NULL can be read as a Java null, but non-null arrays cannot be bound, read, or updated through the generic JDBC ARRAY mapping. For example, binding `Integer[]` with `Types.ARRAY` is not supported.
+
+To store a list in one field, use a suitable text or JSON column and [JSON field mapping](../../guides/core/mapping/json-field.md). Do not configure that column as JDBC ARRAY. This is separate from expanding a list into an IN condition.

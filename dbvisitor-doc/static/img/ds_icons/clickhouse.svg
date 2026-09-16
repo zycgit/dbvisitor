@@ -1,1 +1,10 @@
-<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg t="1677296406838" class="icon" viewBox="0 0 1160 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="33280" xmlns:xlink="http://www.w3.org/1999/xlink" width="226.5625" height="200"><path d="M0 0h122.802644v901.197356H0zM259.142587 0H381.945231v1024H259.142587zM518.76865 0h122.802644v1024h-122.802644zM777.911237 0h122.802644v1024h-122.802644zM1037.537299 409.503305H1160.339943v204.99339h-122.802644z" fill="#FFCB14" p-id="33281"></path><path d="M0 901.197356h122.802644v122.802644H0z" fill="#FF0000" p-id="33282"></path></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+  <g fill="none" fill-rule="evenodd">
+    <polygon fill="#FC0" points="1 15 3 15 3 1 1 1"/>
+    <polygon fill="#FC0" points="4 15 6 15 6 1 4 1"/>
+    <polygon fill="#FC0" points="7 15 9 15 9 1 7 1"/>
+    <polygon fill="#FC0" points="10 15 12 15 12 1 10 1"/>
+    <polygon fill="#FC0" points="13 9 15 9 15 6 13 6"/>
+    <polygon fill="red" points="1 15 3 15 3 12 1 12"/>
+  </g>
+</svg>

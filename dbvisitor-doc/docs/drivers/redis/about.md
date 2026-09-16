@@ -13,6 +13,20 @@ description: Redis JDBC 驱动的接入、连接和使用。
 - 通过 PreparedStatement 绑定命令参数，使用结果集或更新计数读取响应。
 - 支持单机和 Redis Cluster 连接，可配置认证、超时和集群连接池。
 
+## 元信息查询
+
+通过 `connection.getMetaData()` 查询：
+
+| JDBC 方法 | 返回内容 |
+| --- | --- |
+| `getCatalogs()` | 当前选中的数据库编号，如 `0` |
+| `getTables()` | 空结果，不把 key 当表 |
+| `getColumns()` | 空结果 |
+| `getSchemas()` | 空结果 |
+| `getTableTypes()` | 空结果 |
+
+成功切库后，`getCatalogs()` 返回新的数据库编号，不枚举服务器配置的全部数据库。
+
 ## 开始使用
 
 1. [引入依赖](dependencies.mdx)：Maven 或 Gradle 配置。
@@ -27,4 +41,4 @@ description: Redis JDBC 驱动的接入、连接和使用。
 - 不支持 JDBC Batch 和事务。使用连接池、ORM 或其他 JDBC 工具前，请核对[驱动适配器限制](../limited.md)。
 - JDBC URL 前缀为 `jdbc:dbvisitor:jedis://`，不是 `redis://`。
 
-[命令参考](../../features/redis/about.md) · [dbVisitor API 用法](../../features/redis/dbvisitor/usage.mdx)
+[命令参考](../../features/redis/about.md) · [查询操作](../../features/redis/dbvisitor/query.mdx) · [数据写入](../../features/redis/dbvisitor/write.mdx)

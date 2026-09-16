@@ -26,7 +26,9 @@ public interface UserMapper {
 }
 ```
 
-## Pagination Query {#page}
+## Pagination Query {#pagination}
+
+<span id="page" />
 
 Add a `Page` parameter to the method arguments for pagination:
 
@@ -40,7 +42,7 @@ List<User> listUsers(@Param("id") long searchId, Page page);
 PageResult<User> pageUsers(@Param("id") long searchId, Page page);
 ```
 
-## Properties
+## Properties {#options}
 
 | Property | Description |
 |---|---|

@@ -1,6 +1,6 @@
 ---
 id: generated-keys
-sidebar_position: 4
+sidebar_position: 62
 toc_min_heading_level: 2
 toc_max_heading_level: 2
 title: 主键生成
@@ -18,6 +18,20 @@ import TabItem from '@theme/TabItem';
 :::info[说明]
 通用配置见[主键生成与回填](../../guides/core/mapper/annotation_insert#generated-keys)。
 :::
+
+## 主键策略 {#key-strategies}
+
+| 策略 | 本数据源的用法 |
+| --- | --- |
+| 手工赋值 | 可手工赋值，但 MergeTree 不校验唯一性；省略 ID 时使用列默认值。 |
+| 自增 | 不提供自增生成键。 |
+| UUID | 字符主键使用 UUID32 或 UUID36。 |
+| 序列 | 不提供序列主键策略。 |
+| 自定义 | 可在插入前生成 ID；插入后回调不能读取自增生成键。 |
+
+## Mapper 文件的主键策略 {#mapper-file-keys}
+
+INSERT 可直接绑定应用提供的 ID；`selectKey` 可在插入前或后执行额外查询，把查询值回填到参数属性。ClickHouse 不返回 JDBC 生成键，不能通过 `useGeneratedKeys` 取得自增 ID。
 
 ## 使用应用侧 ID
 
@@ -92,3 +106,23 @@ Mapper SQL 应明确写入应用侧生成的 ID：
 </Tabs>
 
 一次写入多条事件见[批量插入](./batch-insert.mdx)。
+
+## 手工指定 ID {#assigned-key}
+
+实体采用 `KeyType.None` 时，dbVisitor 使用已赋值的 ID。对于 MergeTree 表，排序键不会检查 ID 是否重复；省略 ID 列时使用该列的默认值：
+
+```sql
+CREATE TABLE manual_keys (id Int32, name String)
+ENGINE = MergeTree ORDER BY id;
+
+INSERT INTO manual_keys (id, name) VALUES (1001, 'first'), (1001, 'second');
+INSERT INTO manual_keys (name) VALUES ('without ID');
+```
+
+前两条记录的 ID 均为 `1001`，第三条为 `0`。如果业务要求 ID 非空且唯一，应在写入前生成并检查，不能依赖主键冲突异常。
+
+## 自定义主键生成器 {#custom-key}
+
+例如，订单号由 `beforeApply` 在插入前生成并赋给实体，再随 INSERT 写入；处理器可以访问当前连接及映射信息。`afterApply` 可以执行后置逻辑，但 ClickHouse 不返回自增生成键，不能依赖它回读数据库生成的编号。
+
+生成器的配置见[主键生成器](../../guides/core/mapping/key_generator.md)。

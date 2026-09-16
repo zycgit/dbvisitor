@@ -20,8 +20,12 @@ Keep spaces around arithmetic operators so a hyphen is not absorbed into an iden
 
 Vector ranges are not ordinary scalar expressions. See [SELECT and Vector Search](../query/select.md) for distance operators and AND/OR/NOT restrictions. Arbitrary JSON paths and every native expression syntax are not automatically passed through.
 
-### Milvus 2.6.2 Parameter Restrictions
+### Milvus 2.6.2 Parameter Restrictions {#parameter-limits}
 
 Milvus 2.6.2 rejects template parameters on the right of LIKE. `LIKE ?` can be parsed and bound through the SDK but is rejected by the server. A fixed SQL pattern literal can be used; do not work around the restriction by concatenating untrusted input.
 
 Integer template comparisons such as `NOT (age = ?)` and double NOT can trigger a QueryNode assertion in this version. Ordinary `age != ?`, literal NOT and `NOT (field IS NULL)` are not affected by that issue. The driver does not interpolate parameters or remove NOT to simulate support.
+
+For Builder API conditions, AND/OR grouping and comparisons remain usable. `not()` around a bound integer comparison, repeated NOT, and groups containing bound LIKE are affected. Where equivalent for your condition, use a direct `ne(field, value)` comparison instead of `not().eq(field, value)`; do not replace a general compound NOT blindly.
+
+Ordinary open/closed ranges and `rangeNotBetween` are supported. `rangeNotOpenClosed` and `rangeNotClosedOpen` wrap comparisons in NOT and are affected by the integer-template NOT restriction. Express the two outside intervals with OR comparisons, preserving the intended inclusive or exclusive endpoints.

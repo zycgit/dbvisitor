@@ -1,0 +1,156 @@
+---
+id: query
+slug: /features/mongo/query
+sidebar_position: 31
+title: Query Operations
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+dbVisitor treats MongoDB commands as executable statements: `queryForList` reads results, and `?` and `#{...}` bind parameters. No SQL translation is required. Connection setup: [JDBC MongoDB](../../../drivers/mongo/connection.mdx).
+
+## Entity Mapping {#entity-mapping}
+
+```java
+@Table(value = "user_info", catalog = "test")
+public class UserInfo {
+    @Column(primary = true)
+    private String uid;
+    private String name;
+    // Getters and setters omitted
+}
+```
+
+`uid` is a business field. `primary=true` does not create a unique index; updates and deletes by uid affect all matches. For MongoDB `_id`, see [Key Generation](generated-keys.mdx).
+
+## Executing Query Commands {#exec-command}
+
+```java
+JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+
+List<UserInfo> rows = jdbc.queryForList(
+        "test.user_info.find({uid: ?})",
+        new Object[] { "1001" }, UserInfo.class);
+```
+
+## Querying Through Different APIs {#query-apis}
+
+<Tabs>
+<TabItem value="fluent" label="Builder API" default>
+
+```java
+LambdaTemplate lambda = new LambdaTemplate(dataSource);
+UserInfo item = lambda.query(UserInfo.class)
+        .eq(UserInfo::getUid, "1001")
+        .queryForObject();
+```
+
+Ordinary filter queries generate MongoDB `find` commands.
+
+</TabItem>
+<TabItem value="annotation" label="Method Annotations">
+
+```java
+@SimpleMapper
+public interface UserInfoMapper {
+    @Query("test.user_info.find({uid: #{uid}})")
+    UserInfo findById(@Param("uid") String uid);
+}
+```
+
+```java
+Session session = new Configuration().newSession(dataSource);
+UserInfoMapper mapper = session.createMapper(UserInfoMapper.class);
+UserInfo item = mapper.findById("1001");
+```
+
+</TabItem>
+<TabItem value="xml" label="Mapper File">
+
+```xml
+<mapper namespace="com.example.UserInfoMapper">
+    <select id="findById" resultType="com.example.UserInfo">
+        test.user_info.find({uid: #{uid}})
+    </select>
+</mapper>
+```
+
+```java
+@RefMapper("/mapper/mongo-user.xml")
+public interface UserInfoMapper {
+    UserInfo findById(@Param("uid") String uid);
+}
+```
+
+Save the XML as the resource named in @RefMapper; the example classes use package com.example. Create the Mapper through Session as in the annotation example.
+
+</TabItem>
+</Tabs>
+
+## Use Commands for Complex Filters
+
+Bind values in a MongoDB filter directly:
+
+```java
+List<Map<String, Object>> rows = jdbc.queryForList(
+        "test.user_info.find({$or: [{name: ?}, {uid: ?}]})",
+        new Object[] { "mali", "1001" });
+```
+
+## Aggregation and Projections {#aggregation}
+
+`applySelect` accepts MongoDB expressions, not SQL such as `SUM(age)`. With `groupBy`, supply an accumulator document:
+
+```java
+List<Map<String, Object>> groups = lambda.query(UserInfo.class)
+        .applySelect("{cnt: {$sum: 1}}")
+        .groupBy("age")
+        .orderBy("age")
+        .queryForMapList();
+```
+
+This groups documents by `age` and returns `age` and `cnt`. The driver generates `$group` and expands the grouping fields into result columns.
+
+Without `groupBy`, an expression document defines `$project`; an array defines an aggregation pipeline:
+
+```java
+Long total = lambda.query(UserInfo.class)
+        .applySelect("[{$group: {_id: null, value: {$sum: '$age'}}}, {$project: {_id: 0, value: 1}}]")
+        .eq("name", name)
+        .queryForObject(Long.class);
+```
+
+Bound conditions become a preceding `$match`; `orderBy` adds a final `$sort`. Do not combine a pipeline array with `groupBy` or ordinary field projections.
+
+:::caution
+`applySelect` contains command expressions. Use expressions defined by your application. Pass user input through condition parameters such as `eq`, never concatenate it into expressions.
+:::
+
+For more native commands, see [Command Syntax](../about.md).
+
+## Computing values in an aggregation {#functions}
+
+MongoDB calculates values with aggregation expressions such as $add, rather than JDBC stored functions. This example assumes the collection contains one document:
+
+```java
+Integer sum = jdbc.queryForObject(
+        "test.calculation.aggregate([{$project: {_id: 0, value: "
+                + "{$add: [{$literal: ?}, {$literal: ?}]}}}])",
+        new Object[] { 10, 5 }, Integer.class);
+```
+
+Positional and named arguments and scalar conversion are supported. An aggregation returns one computed result per matching document; an empty collection does not produce a standalone calculation row. Use query methods, not CallableStatement callbacks or OUT-parameter records. SQL table-function syntax is not supported.
+
+
+See [Where Builder](builder.md#predicates) for collection predicates and explicit null filtering.
+
+## Query Errors {#command-errors}
+
+Invalid commands report errors. Querying a missing collection normally returns an empty result rather than a missing-table error, so a query that does not throw cannot establish that the collection exists.
+
+## Query Execution Options {#execution-options}
+
+Mapper files accept `statementType`, `timeout`, and `fetchSize`; their effect follows the driver settings. For `resultSetType`, keep `DEFAULT` or use `FORWARD_ONLY`. Scrollable result sets (`SCROLL_INSENSITIVE` and `SCROLL_SENSITIVE`) are not supported. See [Execution Options](../../../guides/core/file/statements.mdx#execution-options) for XML configuration.
+
+See [Result Reading](results.mdx) for result columns.

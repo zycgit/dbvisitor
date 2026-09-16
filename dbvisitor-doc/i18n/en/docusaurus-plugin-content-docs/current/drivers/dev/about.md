@@ -1,206 +1,87 @@
 ---
 id: about
-sidebar_label: Architecture
 sidebar_position: 0
-title: Architecture
-description: Core architecture, component responsibilities and execution flow of dbvisitor-driver adapters.
+title: 1. Architecture
+sidebar_label: 1. Architecture
+description: Driver adapter layers, component responsibilities and execution flow.
 ---
 
-The protocol adapter layer (dbvisitor-driver) lets applications access non-relational databases through JDBC, reusing command execution and result mapping in JdbcTemplate, annotated Mappers and Mapper files. Command generation in LambdaTemplate and BaseMapper also requires a matching database dialect.
+A driver adapter exposes native database commands and SDK results through JDBC. Applications continue to use Connection, Statement and ResultSet; the adapter interprets commands and calls the target database.
 
-This page describes the core components and execution model. For implementation steps, see the [implementation guide](./guide).
+## Layers
+
+| Layer | Responsibility |
+| --- | --- |
+| Application access | Submit commands and read results through JDBC, JdbcTemplate, method annotations or Mapper files |
+| Shared JDBC layer | Manage connection and statement state, bind parameters and expose standard result sets |
+| Data source adapter | Parse native commands, assemble SDK requests and provide result cursors |
+| Official SDK and database | Execute queries and writes and provide native database capabilities |
+
+SQL, Redis commands and MongoDB commands are all command text at this boundary. The shared JDBC layer does not translate them into a universal SQL language or add database capabilities such as transactions or joins.
+
+The Builder API and BaseMapper first need to generate commands. A dbVisitor database dialect handles generation, then passes the commands to the JDBC driver. **Dialects generate commands; adapters execute them.** A driver adapter can also be used independently of dbVisitor.
 
 ## Core Components
 
-The main adapter interfaces and abstract classes are in the `net.hasor.dbvisitor.driver` package:
+The core interfaces reside in `net.hasor.dbvisitor.driver`. The following components cooperate within a connection and its requests:
 
-| Component | Type | Responsibility |
-| ------ | ------ | ------ |
-| **AdapterFactory** | Interface | Parse JDBC URLs, create connections and provide type support |
-| **AdapterConnection** | Abstract class | Manage connection lifecycle and dispatch requests |
-| **MetadataSupport** | Interface | Query native metadata using typed paths |
-| **AdapterRequest** | Abstract class | Encapsulate a query/operation request (similar to a Statement) |
-| **AdapterReceive** | Interface | Receive results through callbacks (result sets, update counts, errors) |
+| Component | Responsibility | Lifetime |
+| --- | --- | --- |
+| `AdapterFactory` | Create connections and type support for an adapter name | Data source entry point registered through SPI |
+| `AdapterConnection` | Own the underlying client; create, execute and cancel requests; release resources | One JDBC connection |
+| `AdapterRequest` | Carry the command, bound parameters, timeout, fetch size and generated-key options | One execution request |
+| `AdapterReceive` | Deliver result sets, update counts, generated keys or errors to JDBC | Receive execution results |
+| `AdapterCursor` | Provide column information and rows | Read and close with the result set |
 
-## AdapterFactory
+A request describes what to execute; the connection determines how to execute it. `AdapterReceive` delivers results, while `AdapterCursor` reads their data.
 
-The adapter entry point. Each data source has a Factory implementation registered with `AdapterManager` through SPI.
+## Opening a Connection
 
-```java
-public interface AdapterFactory {
-    /** Adapter name: adapterName in the JDBC URL */
-    String getAdapterName();
+1. The JDBC driver identifies the adapter name in the URL and merges connection parameters.
+2. It locates the registered `AdapterFactory` and creates `TypeSupport` and `AdapterConnection`.
+3. The factory initializes the SDK client and places it under the adapter connection's ownership.
+4. The JDBC connection detects transaction and metadata capabilities for use through standard JDBC methods.
 
-    /** Supported configuration property names */
-    String[] getPropertyNames();
+Closing the JDBC connection releases underlying resources through the adapter connection. Statements and requests reuse that connection instead of opening a new database connection for each command.
 
-    /** Create type conversion support */
-    TypeSupport createTypeSupport(Properties properties);
+## Executing Commands and Reading Results
 
-    /** Parse the URL and properties and create a connection */
-    AdapterConnection createConnection(
-        Connection owner, String jdbcUrl, Properties properties
-    ) throws SQLException;
-}
-```
+| Stage | Action |
+| --- | --- |
+| Create the request | Statement passes the command to `newRequest`, creating an `AdapterRequest` |
+| Bind parameters | The JDBC layer places parameters and statement options into the request |
+| Execute the command | `doRequest` parses the command and assembles and invokes SDK requests |
+| Deliver results | `AdapterReceive` receives cursors, update counts or errors, followed by request completion |
+| Read data | ResultSet reads rows from `AdapterCursor` and selects a converter when a target Java type is requested |
+| Map objects | When using dbVisitor, mapping rules and TypeHandlers populate properties or objects |
 
-The JDBC URL format is `jdbc:dbvisitor:<adapterName>://<server>?param=value`. The legacy form omitting the colon after the adapter name is also accepted.
+The adapter chooses how to parse commands. Existing adapters use ANTLR, but the shared JDBC layer does not require it.
 
-## AdapterConnection
+One execution may produce multiple JDBC results. A cursor can buffer a small result set or fetch SDK pages on demand. **Request completion does not mean all rows have been read.** Closing the result set must also release the cursor's fetching resources.
 
-Each adapter connection manages an underlying data-source client. The following lists key API signatures, omitting existing method bodies; extend this class when implementing an adapter rather than copying this declaration:
+## Extension Capabilities
 
-```java
-public abstract class AdapterConnection implements Closeable {
+These interfaces extend the connection or type service rather than introducing another execution framework:
 
-    public AdapterConnection(String jdbcUrl, String userName) { ... }
+| Interface | Responsibility | Collaboration |
+| --- | --- | --- |
+| `TransactionSupport` | Auto-commit, isolation, commit and rollback | Provided by the connection; JDBC transaction methods delegate to it |
+| `TypeSupport` | Describe adapter, JDBC and Java types and select converters | Provided by the factory for parameter identification and result access |
+| `TypeConvert` | Convert one result value to a target Java type | Selected by TypeSupport, not registered separately on the connection |
+| `MetadataSupport` | Query catalogs, schemas, tables, views and columns by path | The connection supplies native nodes; JDBC builds standard metadata result sets |
 
-    /** Connection information (URL, user name, versions, etc.) */
-    public AdapterInfo getInfo();
+### Transaction Boundary
 
-    /** Feature switches */
-    public AdapterFeatures getFeatures();
+Provide `TransactionSupport` only when the underlying client can execute multiple commands in the same transaction. The shared JDBC layer forwards transaction operations; it does not simulate transactions. This interface does not include savepoints.
 
-    /** Catalog/schema management */
-    public abstract void setCatalog(String catalog) throws SQLException;
-    public abstract String getCatalog() throws SQLException;
-    public abstract void setSchema(String schema) throws SQLException;
-    public abstract String getSchema() throws SQLException;
+### Types and Conversion
 
-    /** Expose the native client */
-    protected <T> T unwrap(Class<T> iface) throws SQLException;
+`TypeSupport` describes a type and selects a converter; `TypeConvert` performs the conversion. These are driver-level services, separate from dbVisitor entity-field TypeHandlers. They do not automatically serialize SDK write parameters.
 
-    /** Create a request */
-    public abstract AdapterRequest newRequest(String sql);
+### Metadata Boundary
 
-    /** Execute a request and return results through receive */
-    public abstract void doRequest(
-        AdapterRequest request, AdapterReceive receive
-    ) throws SQLException;
+`MetadataSupport` returns objects and fields that actually exist in the database. The adapter queries native structures; the shared JDBC layer handles name-pattern filtering, sorting and standard result columns. It should not invent tables for Redis keys or infer field structures that the database does not declare.
 
-    /** Cancel the active request */
-    public abstract void cancelRequest();
+## Implementing an Adapter
 
-    /** Cancel a specific request; override for concurrent statements */
-    public void cancelRequest(AdapterRequest request);
-
-    /** Close the connection and release underlying resources */
-    protected abstract void doClose() throws IOException;
-}
-```
-
-## MetadataSupport
-
-Implement `MetadataSupport` on the adapter connection. `JdbcConnection` detects and retains it, following the same approach as `TransactionSupport`. Applications obtain it through `unwrap(MetadataSupport.class)`. The connection may delegate queries to a reusable metadata object.
-
-A path consists of a target `MetadataType` and typed parent levels. For example, querying `COLUMN` beneath `CATALOG("app")` and `TABLE("users")` lists the columns of that table. Parent names are literal: do not split them on slashes or interpret them as JDBC patterns.
-
-`supportedTypes()` declares supported object kinds independently of whether objects exist. `query(path)` returns named `MetadataNode` objects. Column attributes describe the native type, JDBC type number, nullability and other available properties using the constants in `MetadataNode`.
-
-`JdbcDatabaseMetaData` handles JDBC name patterns, sorting, standard result columns and empty results. Providers do not construct JDBC result sets. Unsupported queries return an empty list; connection and permission errors must propagate as exceptions.
-
-An adapter without metadata support does not need to implement `MetadataSupport`. Its JDBC metadata methods return standard empty results. A provider's `query` method must never return `null`.
-
-## AdapterRequest
-
-Encapsulates the parameters and metadata of an operation:
-
-```java
-public abstract class AdapterRequest {
-    private final String traceId;   // Automatically generated unique trace ID
-    protected boolean generatedKeys;
-    protected long    maxRows;
-    protected int     fetchSize;
-    protected int     timeoutSec;
-
-    // Parameter mapping (named parameter -> JdbcArg)
-    public Map<String, JdbcArg> getArgMap();
-    public void setArgMap(Map<String, JdbcArg> argMap);
-}
-```
-
-An adapter typically defines its own Request subclass (such as `JedisRequest`), instantiated by `newRequest()`.
-
-## AdapterReceive
-
-Execution results are delivered through callbacks. The JDBC layer of dbvisitor-driver exposes cursors as standard ResultSets:
-
-```java
-public interface AdapterReceive {
-    /** Execution failure */
-    boolean responseFailed(AdapterRequest request, Throwable e);
-
-    /** Query result (cursor) */
-    boolean responseResult(AdapterRequest request, AdapterCursor cursor);
-
-    /** Query result + generated keys */
-    boolean responseResult(
-        AdapterRequest request, AdapterCursor cursor, AdapterCursor generatedKeys
-    );
-
-    /** Update count */
-    boolean responseUpdateCount(AdapterRequest request, long updateCount);
-
-    /** Update count + generated keys */
-    boolean responseUpdateCount(
-        AdapterRequest request, long updateCount, AdapterCursor generatedKeys
-    );
-
-    /** Output parameter */
-    boolean responseParameter(
-        AdapterRequest request, String paramName, String paramType, Object value
-    );
-
-    /** Execution complete */
-    boolean responseFinish(AdapterRequest request);
-}
-```
-
-## Execution Flow
-
-The call chain from the JDBC API to the underlying SDK:
-
-```text
-Application code → JdbcTemplate.queryForList(sql)
-         → JDBC Driver (JdbcDriver)
-         → AdapterConnection.newRequest(sql)  // Create a Request
-         → AdapterConnection.doRequest(req, receive)
-             ├─ Parser: SQL/command → AST (ANTLR4)
-             ├─ Visitor: Traverse the AST and extract parameters and commands
-             ├─ Execute: Call the underlying SDK (Jedis/MongoClient/RestClient...)
-             └─ Receive: Result callbacks → responseResult / responseUpdateCount
-         → JDBC ResultSet ← AdapterCursor
-         → dbVisitor TypeHandler mapping
-         → List<Map<String, Object>>
-```
-
-## Existing Adapters
-
-Existing adapters follow the same pattern:
-
-| Adapter | Underlying SDK | URL prefix | Parsing style |
-| -------- | --------- | --------- | --------- |
-| **jdbc-redis** | Jedis | `jdbc:dbvisitor:jedis://` | Command-line style (ANTLR4) |
-| **jdbc-mongo** | MongoDB Java Driver | `jdbc:dbvisitor:mongo://` | JS Shell style (ANTLR4) |
-| **jdbc-elastic** | Elasticsearch RestClient | `jdbc:dbvisitor:elastic://` | JSON style (ANTLR4) |
-| **jdbc-milvus** | Milvus Java SDK | `jdbc:dbvisitor:milvus://` | SQL-like style (ANTLR4) |
-
-Typical adapter module layout:
-
-```text
-jdbc-xxx/
-├── src/main/antlr/           # .g4 grammar files
-├── src/main/java/.../
-│   ├── XxxConnFactory.java    # AdapterFactory implementation
-│   ├── XxxConn.java           # AdapterConnection implementation
-│   ├── XxxCmd.java            # Underlying SDK command delegate
-│   ├── XxxRequest.java        # AdapterRequest subclass
-│   ├── XxxKeys.java           # Configuration key constants
-│   ├── XxxCommands*.java      # Command-family implementations
-│   ├── XxxDistributeCall.java # AST traversal -> command dispatch
-│   ├── CustomXxx.java         # Custom extension point
-│   └── parser/                # ANTLR4-generated Lexer/Parser/Visitor
-└── src/main/resources/
-    └── META-INF/services/
-        └── net.hasor.dbvisitor.driver.AdapterFactory  # SPI registration
-```
+[Custom Driver](./guide) provides examples for creating a module, implementing connections and requests, returning results and registering the driver, followed by optional capability integration.

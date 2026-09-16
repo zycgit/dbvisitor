@@ -175,6 +175,6 @@ public class OrderService {
 
 ## Further Reading
 
-- [Transaction Manager](./manager): Understand how the stack affects commit and rollback order.
+- [Cross-API Transactions](./manager): Let different APIs join a transaction opened programmatically.
 - [Propagation](./propagation): Understand each Propagation value's effect on connections, savepoints, and suspension.
 - [Isolation](./isolation): Understand how Isolation maps to JDBC connection isolation.

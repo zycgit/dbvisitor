@@ -1,0 +1,113 @@
+---
+id: write
+slug: /features/elastic/write
+sidebar_position: 32
+title: 数据写入
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+通过 dbVisitor 执行 Elasticsearch REST 命令完成新增、修改和删除。查询方法及实体映射见[查询操作](query.mdx)。
+
+## 执行写入命令 {#exec-command}
+
+```java
+JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+
+jdbc.executeUpdate(
+        "POST /user_info/_doc\\?refresh=wait_for {\"uid\": ?, \"name\": ?}",
+        new Object[] { "1001", "mali" });
+
+jdbc.executeUpdate(
+        "POST /user_info/_update_by_query\\?refresh=true {\"query\":{\"term\":{\"uid\": ?}},\"script\":{\"source\":\"ctx._source.name = params.name\",\"params\":{\"name\": ?}}}",
+        new Object[] { "1001", "new name" });
+
+jdbc.executeUpdate(
+        "POST /user_info/_delete_by_query\\?refresh=true {\"query\":{\"term\":{\"uid\": ?}}}",
+        new Object[] { "1001" });
+```
+
+:::note
+URL 中的 `?` 不是绑定参数，需要转义：Java 字符串写 `\\?`，Mapper 文件写 `\?`。详见[参数标记转义](../../../guides/args/escape.md)。
+:::
+
+## 文档 ID 与更新条件 {#document-id}
+
+使用构造器 API 或 BaseMapper 插入时，已赋值的单个映射主键同时作为文档 `_id`。直接执行 REST 命令时，文档 ID 由请求路径决定。见[主键生成](generated-keys.mdx)。
+
+多个属性标记为 `primary=true` 时，BaseMapper 使用全部主键字段定位记录，但不会将它们合成为 `_id` 或创建复合唯一约束。业务需保证这些字段的组合唯一，否则修改、删除可能影响多条文档。
+
+## 通过不同 API 修改数据 {#write-apis}
+
+以下示例复用[查询操作中的实体映射](query.mdx#entity-mapping)，将指定记录的名称改为 `new name`。
+
+<Tabs>
+<TabItem value="fluent" label="构造器 API" default>
+
+```java
+LambdaTemplate lambda = new LambdaTemplate(dataSource);
+int changed = lambda.update(UserInfo.class)
+        .eq(UserInfo::getUid, "1001")
+        .updateTo(UserInfo::getName, "new name")
+        .doUpdate();
+```
+
+</TabItem>
+<TabItem value="annotation" label="方法注解">
+
+```java
+@SimpleMapper
+public interface UserInfoWriteMapper {
+    @Update("POST /user_info/_update_by_query\\?refresh=true {\"query\":{\"term\":{\"uid\": #{uid}}},\"script\":{\"source\":\"ctx._source.name = params.name\",\"params\":{\"name\": #{name}}}}")
+    int rename(@Param("uid") String uid, @Param("name") String name);
+}
+```
+
+</TabItem>
+<TabItem value="xml" label="Mapper 文件">
+
+```xml
+<mapper namespace="com.example.UserInfoWriteMapper">
+    <update id="rename">
+        POST /user_info/_update_by_query\?refresh=true {"query":{"term":{"uid": #{uid}}},"script":{"source":"ctx._source.name = params.name","params":{"name": #{name}}}}
+    </update>
+</mapper>
+```
+
+```java
+@RefMapper("/mapper/elastic-write.xml")
+public interface UserInfoWriteMapper {
+    int rename(@Param("uid") String uid, @Param("name") String name);
+}
+```
+
+XML 保存到 `/mapper/elastic-write.xml`，接口位于 `com.example` 包。
+
+</TabItem>
+</Tabs>
+
+```java
+Session session = new Configuration().newSession(dataSource);
+UserInfoWriteMapper mapper = session.createMapper(UserInfoWriteMapper.class);
+int changed = mapper.rename("1001", "new name");
+```
+
+## 实际写入动作 {#write-behavior}
+
+| 操作 | 数据库动作 |
+| --- | --- |
+| 修改指定属性 | _update_by_query |
+| 删除匹配记录 | _delete_by_query |
+
+BaseMapper 的修改和删除复用相同操作。
+
+## 写入后立即查询 {#refresh}
+
+写入后立即搜索时，单文档请求使用 `refresh=wait_for`。构造器连续写后查询可在连接中配置 `indexRefresh=true`，代价是更频繁地刷新索引。
+
+条件与结果读取见[查询操作](query.mdx)。
+
+## 多条写入与事务 {#transactions}
+
+多条命令不会自动构成事务，失败前成功的写入不保证回滚。事务调用方式、传播及隔离级别见[事务支持](transactions.md)。

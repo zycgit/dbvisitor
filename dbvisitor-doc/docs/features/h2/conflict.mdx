@@ -1,6 +1,6 @@
 ---
 id: conflict
-sidebar_position: 3
+sidebar_position: 35
 title: 插入冲突
 description: H2 插入冲突的处理方式、dbVisitor 用法和注意事项。
 ---
@@ -9,7 +9,7 @@ description: H2 插入冲突的处理方式、dbVisitor 用法和注意事项。
 
 冲突处理用于决定插入数据与已有记录匹配时应当报错、忽略还是更新，常见于任务重放、数据同步、重复导入和“存在则更新”场景。它属于 INSERT 的执行策略，不等同于单独执行普通 UPDATE。
 
-## 处理方式
+## 处理方式 {#strategies}
 
 | 策略 | H2 语句 | 结果 |
 |------|---------|------|

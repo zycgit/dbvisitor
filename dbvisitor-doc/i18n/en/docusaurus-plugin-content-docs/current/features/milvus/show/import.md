@@ -7,8 +7,8 @@ title: SHOW IMPORT / IMPORTS
 :::info[Note]
 Uses the official Import REST API, not a Java SDK method.
 
-- `SHOW IMPORT` / `SHOW PROGRESS OF IMPORT`：`POST /v2/vectordb/jobs/import/describe`
-- `SHOW IMPORTS`：`POST /v2/vectordb/jobs/import/list`
+- `SHOW IMPORT` / `SHOW PROGRESS OF IMPORT`:`POST /v2/vectordb/jobs/import/describe`
+- `SHOW IMPORTS`:`POST /v2/vectordb/jobs/import/list`
 :::
 
 ```text

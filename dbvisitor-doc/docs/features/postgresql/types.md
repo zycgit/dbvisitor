@@ -1,6 +1,6 @@
 ---
 id: types
-sidebar_position: 1
+sidebar_position: 80
 title: 类型支持
 description: PostgreSQL 类型支持
 ---
@@ -33,9 +33,9 @@ description: PostgreSQL 类型支持
 | INTEGER[] | Integer[] | 数组元素与数据库元素类型一致，按需显式配置处理器。 |
 | VARCHAR[] | String[] | 数组元素与数据库元素类型一致，按需显式配置处理器。 |
 | REAL[] | Float[] | 数组元素与数据库元素类型一致，按需显式配置处理器。 |
-| vector(n) | List&lt;Float> | pgvector 字段；配置方式见[向量数据操作](./vectors.mdx)，向量长度与字段维度一致。 |
+| vector(n) | List&lt;Float> | pgvector 字段；配置方式见[向量操作](./vectors.mdx)，向量长度与字段维度一致。 |
 
-## 示例：原生数组
+## 数组类型 {#array-values}
 
 ```sql
 CREATE TABLE array_example (id INTEGER PRIMARY KEY, values_col INTEGER[]);

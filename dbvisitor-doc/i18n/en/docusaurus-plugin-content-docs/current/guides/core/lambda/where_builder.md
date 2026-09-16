@@ -23,7 +23,20 @@ List<User> result = lambda.query(User.class)
 SELECT * FROM users WHERE age = ?
 ```
 
-Available methods:
+## Predicate Values {#parameter-values}
+
+Methods such as `eq`, `in`, `like`, range predicates, and sample predicates bind the supplied values. Do not concatenate or manually escape strings.
+
+```java
+String name = "O'Reilly";
+List<User> users = lambda.query(User.class)
+        .eq(User::getName, name)
+        .queryForList();
+```
+
+With `apply`, keep the command fragment fixed and pass values through placeholders, for example `apply("name = ?", name)`. The fragment must follow the target data source's syntax; do not concatenate external input into it. Binding does not change pattern-matching rules or field length constraints.
+
+## Comparisons and collections {#comparisons}
 
 | Method                     | SQL                                 | Description                                                                 |
 |:---------------------------|:------------------------------------|:----------------------------------------------------------------------------|
@@ -61,7 +74,7 @@ Available methods:
 
 ## Sample {#sample}
 
-Non-null properties of the sample are joined with `and` and treated as one group, e.g. `('col1 = ?' and 'col2 = ?' and col3 = ?)`.
+Non-null properties of the sample are joined with `and` and treated as one group, e.g. `(col1 = ? and col2 = ? and col3 = ?)`.
 
 For multiple equality checks, repeated `eq` calls work but samples simplify it. Example requirement: set name, mail, uid as conditions only when values exist. The two approaches are equivalent:
 
@@ -104,7 +117,7 @@ result = lambda.query(User.class)
 - `eqBySample` and `eqBySampleMap` only use non-null sample properties:
   - To match null, explicitly call `isNull`.
   - Avoid primitive properties (boolean, byte, short, int, long, float, double, char) in samples.
-- Each eqBySample/eqBySampleMap call appends a condition group; it does not replace earlier conditions.
+- Each eqBySample/eqBySampleMap call appends a condition group; it does not replace earlier conditions. Different values for the same property can produce conditions that cannot all be satisfied.
 :::
 
 ## Nested {#nested}

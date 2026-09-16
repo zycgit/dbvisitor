@@ -1,6 +1,6 @@
 ---
 id: conflict
-sidebar_position: 3
+sidebar_position: 35
 title: Insert Conflicts
 description: MySQL insert-conflict strategies, dbVisitor usage, and limitations.
 ---
@@ -9,7 +9,7 @@ description: MySQL insert-conflict strategies, dbVisitor usage, and limitations.
 
 Conflict handling decides whether an INSERT encountering a primary-key or unique-key conflict should fail, be ignored, or update the existing row. Typical scenarios include replayed jobs, data synchronization, repeated imports, and insert-or-update operations. MySQL performs detection and writing in one statement; a preliminary query is unnecessary.
 
-## Strategies
+## Strategies {#strategies}
 
 | Strategy | MySQL statement | Result |
 |----------|-----------------|--------|

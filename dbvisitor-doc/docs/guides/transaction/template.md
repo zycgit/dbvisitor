@@ -146,6 +146,6 @@ public class OrderService {
 
 ## 深入阅读
 
-- [事务管理器](./manager)：模板内部如何调用 `TransactionManager`。
+- [跨 API 事务](./manager)：在同一个事务模板中调用不同 API。
 - [传播行为](./propagation)：模板的第二个参数应该怎么选。
 - [隔离级别](./isolation)：模板的第三个参数应该怎么选。

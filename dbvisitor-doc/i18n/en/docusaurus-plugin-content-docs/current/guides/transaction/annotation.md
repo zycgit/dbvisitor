@@ -143,4 +143,4 @@ public void reserveStock(long skuId, int quantity) throws java.sql.SQLException 
 
 - [Propagation](./propagation): Choose between `REQUIRED`, `REQUIRES_NEW`, and `NESTED`.
 - [Isolation](./isolation): Decide when to set an explicit isolation level.
-- [Transaction Manager](./manager): Understand how annotations begin, commit, and roll back transactions.
+- [Cross-API Transactions](./manager): Mix JdbcTemplate, Mapper, and the builder API within an annotated transaction.

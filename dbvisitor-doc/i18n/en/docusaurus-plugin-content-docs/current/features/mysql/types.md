@@ -1,6 +1,6 @@
 ---
 id: types
-sidebar_position: 1
+sidebar_position: 80
 title: Type Support
 description: MySQL type support
 ---
@@ -43,3 +43,9 @@ jdbc:mysql://localhost:3306/appdb?tinyInt1isBit=false
 ```
 
 For example, when a signed `TINYINT(1)` stores `2`, the default `getObject()` read returns `true`; with this setting, it returns the number `2`. Explicit integer reads are unaffected.
+
+## Array Types {#array-values}
+
+NULL can be read as a Java null, but non-null arrays cannot be bound, read, or updated through the generic JDBC ARRAY mapping. For example, binding `Integer[]` with `Types.ARRAY` is not supported.
+
+To store a list in one field, use a suitable text or JSON column and [JSON field mapping](../../guides/core/mapping/json-field.md). Do not configure that column as JDBC ARRAY. This is separate from expanding a list into an IN condition.

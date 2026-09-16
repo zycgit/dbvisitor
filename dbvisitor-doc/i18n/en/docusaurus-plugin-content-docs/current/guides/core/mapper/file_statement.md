@@ -19,7 +19,7 @@ File Mapper keeps SQL in XML files for maintenance. Mapper API maps interface me
 
 - Short SQL – use [method annotations](./about#method-annotations) for clarity.
 - Simple single-table CRUD – prefer [BaseMapper](./about#base-mapper).
-- Conditions composed in code – prefer [Fluent API](./lambda_builder).
+- Conditions composed in code – prefer [Builder API](./lambda_builder).
 
 ## Interface Call (Recommended)
 
@@ -75,7 +75,18 @@ Interface calls are better for business code: the method signature is the contra
 
 ## Pagination Query {#page}
 
-Pass a `Page` parameter for paginated queries. Both BaseMapper and Session support `queryStatement` with pagination.
+An interface method can accept a `Page` parameter and return either `List<User>` or `PageResult<User>` with totals. Reuse the XML above and change the method signature to:
+
+```java
+@RefMapper("/mapper/userMapper.xml")
+public interface UserMapper {
+    PageResult<User> listUsers(@Param("name") String name, Page page);
+}
+```
+
+Call `mapper.listUsers("alice", PageObject.of(0, 20))` to retrieve the first page and the total number of matching records.
+
+For direct statement calls, both BaseMapper and Session support `queryStatement` with pagination:
 
 ```java title='Pagination query (returns List)'
 Page page = PageObject.of(0, 20);
@@ -87,7 +98,7 @@ List<User> users = mapper.queryStatement(
         page);
 ```
 
-```java title='Pagination query (returns PageResult, Session only)'
+```java title='Session pagination query (returns PageResult)'
 Page page = PageObject.of(0, 20);
 PageResult<User> users = session.pageStatement(
         "net.example.mapper.UserMapper.listUsers",

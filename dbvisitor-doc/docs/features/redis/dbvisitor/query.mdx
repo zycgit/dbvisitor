@@ -1,0 +1,133 @@
+---
+id: query
+slug: /features/redis/query
+sidebar_position: 31
+title: 查询操作
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+Redis 命令与 SQL 使用同一套执行 API，直接传入 `GET`、`HGETALL` 等命令即可。支持 JdbcTemplate、方法注解和 Mapper 文件。连接方式见 [JDBC Redis](../../../drivers/redis/connection.mdx)。
+
+
+Redis 适配器没有构造器方言。支持范围及替代用法见[构造器 API](builder.md#support)。
+
+## 执行查询命令 {#exec-command}
+
+直接把 Redis 命令传给查询方法；键不存在时，下面的 `name` 为 `null`。
+
+```java
+JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+String name = jdbc.queryForString("GET ?", "user:1001:name");
+```
+
+## 通过 Mapper 查询 {#query-apis}
+
+<Tabs>
+<TabItem value="annotation" label="方法注解" default>
+
+```java
+@SimpleMapper
+public interface NameMapper {
+    @Query("GET #{key}")
+    String load(@Param("key") String key);
+}
+```
+
+</TabItem>
+<TabItem value="xml" label="Mapper 文件">
+
+```xml
+<mapper namespace="com.example.NameMapper">
+    <select id="load" resultType="java.lang.String">GET #{key}</select>
+</mapper>
+```
+
+```java
+@RefMapper("/mapper/redis-name.xml")
+public interface NameMapper {
+    String load(@Param("key") String key);
+}
+```
+
+XML 保存为 /mapper/redis-name.xml，NameMapper 位于 com.example 包。
+
+</TabItem>
+</Tabs>
+
+```java
+Session session = new Configuration().newSession(dataSource);
+NameMapper mapper = session.createMapper(NameMapper.class);
+String name = mapper.load("user:1001:name");
+```
+
+## 将 Hash 读取为 Map
+
+```java
+Map<String, String> fields = jdbc.queryForPairs(
+        "HGETALL ?", String.class, String.class, "user:1001");
+```
+
+HGETALL 返回 FIELD、VALUE 两列，适合 queryForPairs。整个对象保存成 JSON 时，见[JSON 字段映射](../../../guides/core/mapping/json-field.md)；SET/GET 存取的是该 JSON 字符串。
+
+## 映射结果集 {#result-map}
+
+HGETALL 的每条记录对应一个 Hash 字段，列名是 `FIELD`、`VALUE`，不会把 Hash 字段名展开成列。例如 `create_time` 是 FIELD 列的值，开启驼峰映射也不会将它变成 `createTime` 属性。
+
+应映射实际返回的两列。下面的 Entry 类提供可写的 `String field` 和 `String value` 属性：
+
+```xml
+<resultMap id="entry" type="com.example.Entry" autoMapping="false">
+    <result column="FIELD" property="field"/>
+    <result column="VALUE" property="value"/>
+</resultMap>
+<select id="entries" resultMap="entry">HGETALL #{key}</select>
+```
+
+显式映射、FIELD/VALUE 自动匹配、列名大小写匹配和 Map 结果均可使用。需要将整个对象存入一个键时，使用[JSON 字段映射](../../../guides/core/mapping/json-field.md)。
+
+## 动态 SQL {#dynamic-commands}
+
+可以用 `<if>`、`<choose>`、`<foreach>`、`<bind>` 选择或展开 Redis 参数。例如按需指定最低分数：
+
+```xml
+<select id="members" resultType="java.lang.String">
+    ZRANGEBYSCORE #{key}
+    <if test="minScore != null">#{minScore}</if>
+    <if test="minScore == null">-inf</if>
+    +inf
+</select>
+```
+
+最终执行 `ZRANGEBYSCORE key 最低分数 +inf`。不支持 SQL 专用的 `<where>`、`<set>` 及其组合更新模板；这些标签生成的是 SQL 子句，不是 Redis 参数。
+
+## BaseMapper 执行 Mapper 文件命令 {#base-mapper}
+
+BaseMapper 的[文件语句执行方法](../../../guides/core/mapper/file_statement.md)可以调用上面的命令。这不代表支持按实体生成 `insert`、`update`、`delete` 或自动分页；这些操作需要明确编写 Redis 命令。
+
+## 执行 Lua 计算 {#functions}
+
+Redis 使用 EVAL 执行 Lua，不是 SQL 存储函数。输入值通过 ARGV 绑定，返回值从 VALUE 列读取：
+
+```java
+Long sum = jdbc.queryForLong(
+        "EVAL 'return tonumber(ARGV[1]) + tonumber(ARGV[2])' 0 ? ?",
+        new Object[] { 10, 5 });
+```
+
+支持标量查询、命名参数、类型转换及 CallableStatement 回调。不提供 JDBC OUT 参数记录或 SQL 表函数结果。Lua 返回 nil 时得到 null，不会生成带默认字段的 OUT 记录。
+
+## 查询异常 {#command-errors}
+
+错误命令会报告异常，但读取不存在的键通常返回空结果，而不是“目标不存在”异常。应通过查询返回值判断是否命中。
+
+## 调用文件 Mapper {#file-mapper}
+
+`@RefMapper` 可以复用文件命令、参数和结果映射，示例见[通过 Mapper 查询](#query-apis)。新增、修改和删除的文件命令见[通过 Mapper 写入](write.mdx#write-apis)。
+
+## 查询执行选项 {#execution-options}
+
+Mapper 文件可配置 `statementType`、`timeout` 和 `fetchSize`，具体效果遵循驱动配置。`resultSetType` 保持 `DEFAULT` 或使用 `FORWARD_ONLY`，不支持 `SCROLL_INSENSITIVE`、`SCROLL_SENSITIVE` 滚动结果集。XML 配置见[执行选项](../../../guides/core/file/statements.mdx#execution-options)。
+
+各命令的结果列见[结果读取](results.mdx)，结果处理接口的 API 差异见[结果接收](result-handling.md)。

@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "id": "results",
+  "groups": [
+    {
+      "id": "rowmapper",
+      "title": {
+        "zh-cn": "RowMapper",
+        "en": "RowMapper"
+      },
+      "anchor": {
+        "zh-cn": "rowmapper",
+        "en": "rowmapper"
+      },
+      "columns": [
+        {
+          "id": "mapping",
+          "title": {
+            "zh-cn": "结果映射",
+            "en": "Row mapping"
+          },
+          "href": "/docs/guides/result/for_mapper",
+          "variants": [
+            "jdbc",
+            "mapper",
+            "builder",
+            "mapper-file"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rowcallbackhandler",
+      "title": {
+        "zh-cn": "RowCallbackHandler",
+        "en": "RowCallbackHandler"
+      },
+      "anchor": {
+        "zh-cn": "rowcallbackhandler",
+        "en": "rowcallbackhandler"
+      },
+      "columns": [
+        {
+          "id": "callback",
+          "title": {
+            "zh-cn": "逐行处理",
+            "en": "Row callbacks"
+          },
+          "href": "/docs/guides/result/row_callback",
+          "variants": [
+            "jdbc",
+            "mapper",
+            "builder",
+            "mapper-file"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "resultsetextractor",
+      "title": {
+        "zh-cn": "ResultSetExtractor",
+        "en": "ResultSetExtractor"
+      },
+      "anchor": {
+        "zh-cn": "resultsetextractor",
+        "en": "resultsetextractor"
+      },
+      "columns": [
+        {
+          "id": "extraction",
+          "title": {
+            "zh-cn": "结果集提取",
+            "en": "Result extraction"
+          },
+          "href": "/docs/guides/result/for_extractor",
+          "variants": [
+            "jdbc",
+            "mapper",
+            "builder",
+            "mapper-file"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 ---
 id: types
-sidebar_position: 1
+sidebar_position: 80
 title: 类型支持
 description: 达梦数据库的数据类型与 Java 属性类型建议
 ---

@@ -1,6 +1,6 @@
 ---
 id: conflict
-sidebar_position: 3
+sidebar_position: 35
 title: 插入冲突
 description: PostgreSQL 插入冲突的处理方式、dbVisitor 用法和注意事项。
 ---
@@ -9,7 +9,7 @@ description: PostgreSQL 插入冲突的处理方式、dbVisitor 用法和注意�
 
 冲突处理用于决定 INSERT 遇到主键或唯一约束冲突时应当报错、忽略还是更新，常见于任务重放、数据同步、重复导入和“存在则更新”场景。判断和写入由 PostgreSQL 在一条语句中完成，不需要先查询再决定 INSERT 或 UPDATE。
 
-## 处理方式
+## 处理方式 {#strategies}
 
 | 策略 | PostgreSQL 语句 | 结果 |
 |------|-----------------|------|

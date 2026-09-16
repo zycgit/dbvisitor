@@ -1,6 +1,6 @@
 ---
 id: pagination
-sidebar_position: 2
+sidebar_position: 34
 title: Pagination
 description: SQL Server pagination principles, dbVisitor usage and notes.
 ---
@@ -51,3 +51,6 @@ List<UserInfo> rows = lambda.query(UserInfo.class)
 - The original `ORDER BY` is used by `ROW_NUMBER()`; include a unique tie-breaker.
 - Without business ordering, the dialect uses `CURRENT_TIMESTAMP`, which does not produce stable pages.
 - The result includes `__row_number__`; counting and fetching are also separate queries.
+
+
+For changing sort direction and combining fields, see [Order By](builder.md#ordering).

@@ -1,7 +1,7 @@
 ---
 id: pagination
 slug: /features/mongo/pagination
-sidebar_position: 2
+sidebar_position: 34
 title: Pagination
 ---
 
@@ -15,7 +15,7 @@ test.user_info.count({name: 'mali'})
 
 ## dbVisitor Usage
 
-Add a Page argument to a Mapper method. The entity mapping is shown in [Data Reads and Writes](usage.mdx).
+Add a Page argument to a Mapper method. The entity mapping is shown in [Entity Mapping](query.mdx#entity-mapping).
 
 ```java
 @Query("test.user_info.find({name: #{name}}).sort({_id: 1})")
@@ -34,3 +34,7 @@ Page numbering starts at zero. Page overrides skip/limit on find; a requested to
 Sort by a unique field to avoid ambiguous page order. `fetchSize` is not a page size, and `preRead=false` does not turn a query into pagination.
 
 Counts and page reads are separate requests; concurrent writes can change their results. See [9.5 Pagination](../../../guides/result/page_object.mdx) for the common API.
+
+## NULL ordering {#null-ordering}
+
+The Builder API's `OrderNullsStrategy.FIRST` and `LAST` currently have no effect; `DEFAULT` uses MongoDB's default order. Do not rely on the two explicit options to move nulls to the beginning or end of paginated results.

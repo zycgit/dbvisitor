@@ -1,0 +1,119 @@
+---
+id: write
+slug: /features/mongo/write
+sidebar_position: 32
+title: Data Writes
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+Use dbVisitor to insert, update, and delete data with MongoDB commands. See [Query Operations](query.mdx) for queries and entity mapping.
+
+## Executing Write Commands {#exec-command}
+
+```java
+JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+
+jdbc.executeUpdate(
+        "test.user_info.insertOne({uid: ?, name: ?})",
+        new Object[] { "1001", "mali" });
+
+jdbc.executeUpdate(
+        "test.user_info.updateMany({uid: ?}, {$set: {name: ?}})",
+        new Object[] { "1001", "new name" });
+
+jdbc.executeUpdate(
+        "test.user_info.deleteMany({uid: ?})",
+        new Object[] { "1001" });
+```
+
+## Updating Through Different APIs {#write-apis}
+
+These examples reuse the [entity mapping from Query Operations](query.mdx#entity-mapping) and change the selected record's name to `new name`.
+
+<Tabs>
+<TabItem value="fluent" label="Builder API" default>
+
+```java
+LambdaTemplate lambda = new LambdaTemplate(dataSource);
+int changed = lambda.update(UserInfo.class)
+        .eq(UserInfo::getUid, "1001")
+        .updateTo(UserInfo::getName, "new name")
+        .doUpdate();
+```
+
+</TabItem>
+<TabItem value="annotation" label="Method Annotations">
+
+```java
+@SimpleMapper
+public interface UserInfoWriteMapper {
+    @Update("test.user_info.updateMany({uid: #{uid}}, {$set: {name: #{name}}})")
+    int rename(@Param("uid") String uid, @Param("name") String name);
+}
+```
+
+</TabItem>
+<TabItem value="xml" label="Mapper File">
+
+```xml
+<mapper namespace="com.example.UserInfoWriteMapper">
+    <update id="rename">
+        test.user_info.updateMany({uid: #{uid}}, {$set: {name: #{name}}})
+    </update>
+</mapper>
+```
+
+```java
+@RefMapper("/mapper/mongo-write.xml")
+public interface UserInfoWriteMapper {
+    int rename(@Param("uid") String uid, @Param("name") String name);
+}
+```
+
+Save the XML at `/mapper/mongo-write.xml`; the interface belongs to `com.example`.
+
+</TabItem>
+</Tabs>
+
+```java
+Session session = new Configuration().newSession(dataSource);
+UserInfoWriteMapper mapper = session.createMapper(UserInfoWriteMapper.class);
+int changed = mapper.rename("1001", "new name");
+```
+
+## Database Write Operations {#write-behavior}
+
+| Operation | Database action |
+| --- | --- |
+| Update selected properties | updateMany + $set |
+| Delete matching records | deleteMany |
+
+BaseMapper updates and deletes use the same operations.
+
+## Insert Conflicts {#insert-conflict}
+
+```java
+LambdaTemplate lambda = new LambdaTemplate(dataSource);
+lambda.insert(UserInfo.class)
+        .onDuplicateStrategy(DuplicateKeyStrategy.Update)
+        .applyEntity(user)
+        .executeSumResult();
+```
+
+`Ignore` matches mapped primary keys and keeps an existing document or inserts a new one. `Update` changes only the supplied non-key fields of an existing document or inserts a new one. Both use native MongoDB upsert, without a preliminary query.
+
+Supply every mapped primary key and create a unique index for those fields; `primary=true` does not create it. Conflicts on other unique fields still fail. Generated keys are returned only for newly inserted documents.
+
+## Update Counts and Errors {#command-errors}
+
+:::note Update counts
+Updates return the number of documents actually changed. If 3 documents match and 1 already has the requested value, the returned count is `2`, not `3`. An upsert that inserts a document returns `1`.
+:::
+
+Invalid commands and duplicate `_id` values report errors. Updates or deletes by business fields may affect all matches. See [Query Errors](query.mdx#command-errors) for queries on missing collections.
+
+## Multiple Writes and Transactions {#transactions}
+
+Multiple commands do not automatically form a transaction; completed writes are not guaranteed to roll back after a failure. See [Transaction Support](transactions.md) for transaction APIs, propagation, and isolation.

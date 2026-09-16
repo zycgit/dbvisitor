@@ -1,6 +1,6 @@
 ---
 id: write
-sidebar_position: 6
+sidebar_position: 32
 title: Waiting for Data Changes
 description: Wait for ClickHouse mutations and inspect their progress and failures.
 ---
@@ -26,7 +26,7 @@ jdbcTemplate.executeUpdate(
 
 This explicitly submits an asynchronous mutation. A successful return means the command was accepted, not that all matching data has already changed.
 
-## Wait Before Reading
+## Wait Before Reading {#wait-for-writes}
 
 If the next step needs the new value on this server, submit the change with `mutations_sync = 1`:
 
@@ -41,6 +41,12 @@ String name = jdbcTemplate.queryForObject(
 ```
 
 After successful completion, `name` is `archived`. This example uses a single-server MergeTree table. See [mutation synchronization](https://clickhouse.com/docs/sql-reference/statements/alter/update) for replica waiting options.
+
+## Update and Delete Return Values {#affected-rows}
+
+A successful update or delete does not mean the JDBC return value is the number of matching rows. For example, changing the condition above to `WHERE event_name = 'login'` may match several records; `executeUpdate()` does not reliably report that count or distinguish an unmatched condition.
+
+The Builder API and BaseMapper also use the driver's return value. To verify a change, wait for completion and query the target records; do not use `return value == 1` as a business check that exactly one record changed.
 
 ## Inspect Progress and Failures
 
@@ -60,3 +66,11 @@ Check `is_done` for completion, `parts_to_do` for remaining parts, and `latest_f
 :::caution[Note]
 Waiting for completion does not make several mutations one transaction. If a request times out, inspect its status before resubmitting.
 :::
+
+## Command errors {#command-errors}
+
+Invalid commands report errors to the caller, but MergeTree sorting and primary keys do not enforce uniqueness. Repeated IDs therefore do not cause duplicate-key errors. Batch calls cannot rely on such errors to detect duplicates; see [Duplicate Records](./conflict.mdx).
+
+## Transaction support {#transaction-propagation}
+
+See [Transaction Support](transactions.md) for transaction APIs, propagation, and isolation limits.

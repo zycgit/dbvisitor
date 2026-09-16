@@ -98,7 +98,7 @@ public void writeAuditLog(long orderId, String action) throws java.sql.SQLExcept
 | T6 | insert data3 | | |
 | T7 | commit/rollback | | Commit/rollback Transaction A |
 
-## Nested Transaction (NESTED)
+## Nested Transaction (NESTED) {#nested}
 
 Create a nested scope using a Savepoint on the current transaction. Nested rollback does not end the outer transaction; outer rollback also undoes nested work.
 - Constant `Propagation.NESTED`
@@ -200,4 +200,4 @@ public void insertOrderItem(long orderId, long skuId) {
 
 - [Annotation-Based Transactions](./annotation): Set propagation on @Transactional.
 - [Transaction Templates](./template): Set propagation in the second execute argument.
-- [Transaction Manager](./manager): Understand REQUIRES_NEW connection suspension and NESTED savepoints.
+- [Cross-API Transactions](./manager): Learn how calls across APIs reuse or switch transaction connections.

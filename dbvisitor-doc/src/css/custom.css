@@ -31,6 +31,22 @@
     --docusaurus-highlighted-code-line-bg: rgb(218 218 218) !important;
 }
 
+.navbar__brand {
+    margin-right: 0.25rem;
+}
+
+.navbar__logo {
+    width: 2.65rem;
+    height: 2.65rem;
+    margin-right: 0;
+}
+
+.navbar__logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
 .padding--lg {
     padding: 0.5rem !important;
 }
@@ -67,4 +83,120 @@ h2 {
 
 h3 {
     font-size: 16px;
+}
+
+/* Documentation tables: compact spacing, quiet dividers and scrollable wide content. */
+.theme-doc-markdown table {
+    --doc-table-border: #e1e6ed;
+    --doc-table-header: #f1f5fa;
+    --doc-table-stripe: #f8fafc;
+    --doc-table-hover: #eef4fc;
+    --ifm-table-cell-padding: 0.6rem 0.85rem;
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+    overflow-x: auto;
+    border: 1px solid var(--doc-table-border);
+    border-radius: 6px;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 1rem 0 1.5rem;
+    background: var(--ifm-background-color);
+}
+
+[data-theme='dark'] .theme-doc-markdown table {
+    --doc-table-border: #39414d;
+    --doc-table-header: #282f39;
+    --doc-table-stripe: #242830;
+    --doc-table-hover: #2c3543;
+}
+
+.theme-doc-markdown table tr {
+    border: 0;
+    background: transparent;
+}
+
+.theme-doc-markdown table th,
+.theme-doc-markdown table td {
+    border: 0;
+    border-bottom: 1px solid var(--doc-table-border);
+    padding: var(--ifm-table-cell-padding);
+    vertical-align: top;
+    line-height: 1.6;
+}
+
+.theme-doc-markdown table th {
+    background: var(--doc-table-header);
+    font-weight: 600;
+}
+
+.theme-doc-markdown table th:not([align]) {
+    text-align: left;
+}
+
+.theme-doc-markdown table tbody tr:nth-child(even) {
+    background: var(--doc-table-stripe);
+}
+
+.theme-doc-markdown table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.support-status {
+    display: inline-block;
+    white-space: nowrap;
+    font-weight: 500;
+    border-radius: 3px;
+}
+
+.support-status--yes {
+    color: #18703d;
+}
+
+.support-status--no {
+    color: #aa3434;
+}
+
+.support-status--partial {
+    color: #925b08;
+}
+
+.theme-doc-markdown a .support-status {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+}
+
+.theme-doc-markdown a:hover .support-status,
+.theme-doc-markdown a:focus-visible .support-status {
+    background: var(--ifm-hover-overlay);
+}
+
+.theme-doc-markdown a:focus-visible .support-status {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+}
+
+[data-theme='dark'] .support-status--yes {
+    color: #79d99d;
+}
+
+[data-theme='dark'] .support-status--no {
+    color: #ff9999;
+}
+
+[data-theme='dark'] .support-status--partial {
+    color: #f0c36a;
+}
+
+@media (hover: hover) {
+    .theme-doc-markdown table tbody tr:hover {
+        background: var(--doc-table-hover);
+    }
+}
+
+@media screen and (max-width: 640px) {
+    .theme-doc-markdown table {
+        --ifm-table-cell-padding: 0.5rem 0.65rem;
+    }
 }

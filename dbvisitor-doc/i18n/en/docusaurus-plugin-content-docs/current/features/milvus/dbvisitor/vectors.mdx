@@ -1,0 +1,69 @@
+---
+id: vectors
+slug: /features/milvus/vectors
+sidebar_position: 50
+title: Vector Operations
+---
+
+## Vector Type Mapping {#vector-mapping}
+
+The JDBC driver converts vector parameters using the collection schema. `FLOAT_VECTOR(n)` accepts numeric lists or one-dimensional primitive numeric arrays and returns `List<Float>`. Values must have n dimensions. For binary and half-precision encodings, see [Vector Types](../types/vectors.md).
+
+Vector fields cannot be NULL in Milvus 2.6.2.
+
+## KNN Ordering {#knn-ordering}
+
+Create an index and LOAD TABLE before searching. The query metric must match the index metric_type; an L2 index cannot serve a COSINE request.
+
+```java
+LambdaTemplate lambda = new LambdaTemplate(dataSource);
+List<Float> target = List.of(0.1f, 0.2f);
+List<BookVector> rows = lambda.query(BookVector.class)
+        .gt(BookVector::getWordCount, 500)
+        .orderByL2(BookVector::getBookIntro, target)
+        .initPage(5, 0)
+        .queryForList();
+```
+
+This sends a Search request with a scalar filter and takes five nearest candidates. Each ORDER BY accepts one query vector, not a list of multiple query vectors.
+
+For BM25, configure a [BM25 function and index](../ddl/functions.md), then pass search text with `orderByBM25("sparse", "hybrid search")`. Results are ordered from highest score to lowest.
+
+When writing a parameterized BM25 command for JdbcTemplate, [escape](../../../guides/args/escape.md) the question mark inside `<?>`:
+
+```java
+List<Map<String, Object>> rows = jdbc.queryForList(
+        "SELECT id FROM docs ORDER BY sparse <\\?> ? LIMIT 10",
+        new Object[] { "hybrid search" });
+```
+
+The driver still receives `<?>`; only the following `?` binds the text. The builder API handles this escaping automatically. Direct JDBC calls do not need the backslash either.
+
+## Distance Range Filtering {#range-filters}
+
+Milvus COSINE and IP return similarity scores: larger is better. `vectorByCosine` and `vectorByIP` take a lower score bound. For example, to require similarity above 0.8:
+
+```java
+List<BookVector> rows = lambda.query(BookVector.class)
+        .vectorByCosine(BookVector::getBookIntro, target, 0.8)
+        .initPage(10, 0)
+        .queryForList();
+```
+
+This requires a COSINE index and generates `book_intro <=> ? > ?`, with 0.8 passed directly as the threshold. `vectorByL2` takes an upper distance bound and generates a less-than comparison.
+
+`vectorByBM25` also takes a lower score bound. Hamming and Jaccard use upper distance bounds for binary vectors.
+
+## Combined Queries {#vector-scalar}
+
+Only one vector range may be combined with scalar filters through AND. Do not combine it with OR, NOT, another vector range, or vector ORDER BY.
+
+## Multiple Search Paths
+
+A scalar filter plus one vector search is not hybrid search. To merge multiple candidate lists, use HYBRID and choose the reranker in the command:
+
+- [HYBRID and reranking](../query/hybrid.md)
+- [BM25 and functions](../ddl/functions.md)
+- [Search limits and returned columns](../query/select.md)
+
+Common Builder API usage is described in [Vector Query](../../../guides/core/vector_query/about.md).

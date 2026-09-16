@@ -8,7 +8,7 @@ description: ClickHouse usage with dbVisitor.
 
 # ClickHouse
 
-Use JdbcTemplate, Mapper, or the Fluent API to query and insert ClickHouse data. For changes to MergeTree tables, see the mutation example below.
+Use JdbcTemplate, Mapper, or the Builder API to query and insert ClickHouse data. For changes to MergeTree tables, see the mutation example below.
 
 | Scenario | Usage |
 | --- | --- |
@@ -17,9 +17,14 @@ Use JdbcTemplate, Mapper, or the Fluent API to query and insert ClickHouse data.
 | Insert conflicts | Duplicate records in MergeTree |
 | Data changes | Submit, wait for, and inspect mutations |
 
-- [Type Support](./types.md): Choose Java property types.
+- [Programmatic API](/docs/features/clickhouse/programmatic): queries, writes, multiple results, and stored routine differences.
+- [Mapper API](mapper.md): annotations, Mapper reads and writes, and execution differences.
+- [Builder API](builder.md): Supported operations, datasource-specific behavior, and usage.
+- [Waiting for Data Changes](./write.mdx): Wait for changes and inspect failures.
+- [Batch Inserts](./batch-insert.mdx): Submit multiple events together.
 - [Pagination](./pagination.mdx): Page queries and total counts.
 - [Duplicate Records](./conflict.mdx): Read the latest version of a repeated ID.
+- [Vector Operations](./vectors.md): Field mapping, search metrics, and supported queries.
 - [Key Generation](./generated-keys.mdx): Configure and retrieve IDs.
-- [Batch Inserts](./batch-insert.mdx): Submit multiple events together.
-- [Waiting for Data Changes](./write.mdx): Wait for changes and inspect failures.
+- [Type Support](./types.md): Choose Java property types.
+- [Transaction Support](transactions.md) — transaction API behavior and isolation settings.

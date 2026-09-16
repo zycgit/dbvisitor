@@ -7,7 +7,7 @@ description: Map 查询模式使用 Map 作为数据载体，包含依赖对象�
 
 # 5.5 Map 查询模式
 
-Map 查询模式使用 `Map<String, Object>` 作为数据载体。它包含两个同级入口：**映射 Map 模式** 复用实体对象映射，**自由 Map 模式** 直接使用表名和列名。
+Map 查询模式是[构造器 API](../lambda/about) 的一种用法，使用 `Map<String, Object>` 作为数据载体。**映射 Map 模式** 复用实体对象映射，**自由 Map 模式** 直接使用表名和列名。
 
 ## 适合场景
 
@@ -22,7 +22,7 @@ Map 查询模式使用 `Map<String, Object>` 作为数据载体。它包含两�
 - 只是按主键操作单行数据；优先看 [BaseMapper](../mapper/about#base-mapper) 的通用 CRUD。
 - SQL 结构很复杂，包含大量 JOIN、子查询或数据库专有语法；直接写 [编程式 API](../jdbc/about) 或 [Mapper 文件](../file/about) 通常更清楚。
 
-## 两种 Map 模式
+## 两种 Map 模式 {#map-modes}
 
 | 模式 | 入口 | 是否需要对象映射 | 字段名如何解释 | 详细说明 |
 | --- | --- | --- | --- | --- |

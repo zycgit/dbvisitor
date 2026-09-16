@@ -54,7 +54,7 @@ public interface UserMapper {
 }
 ```
 
-```java title='Example: Fluent API'
+```java title='Example: Builder API'
 UserRowCallbackHandler handler = new UserRowCallbackHandler();
 // query() returns void
 lambda.query(User.class)

@@ -1,0 +1,505 @@
+{
+  "schemaVersion": 1,
+  "id": "redis",
+  "capabilities": {
+    "builder/inserts-updates-and-deletes/writes": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 23,
+      "href": "/docs/features/redis/builder#support"
+    },
+    "builder/inserts-updates-and-deletes/insert-conflicts": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 7,
+      "href": "/docs/features/redis/builder#support"
+    },
+    "builder/queries/query": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 16,
+      "href": "/docs/features/redis/builder#support"
+    },
+    "builder/map-query/modes": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 16,
+      "href": "/docs/features/redis/builder#support"
+    },
+    "builder/pagination-and-iteration/pagination": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 22,
+      "href": "/docs/features/redis/builder#support"
+    },
+    "builder/condition-builders/predicates": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 37,
+      "href": "/docs/features/redis/builder#support"
+    },
+    "builder/condition-values/parameter-values": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 19,
+      "href": "/docs/features/redis/builder#support"
+    },
+    "builder/grouping-and-ordering/grouping": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 6,
+      "href": "/docs/features/redis/builder#support"
+    },
+    "builder/grouping-and-ordering/ordering": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 9,
+      "href": "/docs/features/redis/builder#support"
+    },
+    "jdbc/updates/updates": {
+      "status": "supported",
+      "passed": 6,
+      "total": 6,
+      "href": "/docs/features/redis/programmatic#updates"
+    },
+    "jdbc/queries/queries": {
+      "status": "supported",
+      "passed": 16,
+      "total": 16,
+      "href": "/docs/features/redis/programmatic#queries"
+    },
+    "jdbc/queries/pairs-queries": {
+      "status": "supported",
+      "passed": 3,
+      "total": 3
+    },
+    "jdbc/batch-operations/batch": {
+      "status": "partial",
+      "passed": 8,
+      "total": 9,
+      "href": "/docs/features/redis/programmatic#batch"
+    },
+    "jdbc/multiple-results/multiple-results": {
+      "status": "supported",
+      "passed": 5,
+      "total": 5
+    },
+    "jdbc/stored-routines/routines": {
+      "status": "partial",
+      "passed": 4,
+      "total": 14,
+      "href": "/docs/features/redis/programmatic#routines"
+    },
+    "mapper-files/statements/execution": {
+      "status": "supported",
+      "passed": 11,
+      "total": 11,
+      "href": "/docs/features/redis/write#write-apis"
+    },
+    "mapper-files/statements/options": {
+      "status": "partial",
+      "passed": 5,
+      "total": 6,
+      "href": "/docs/features/redis/query#execution-options"
+    },
+    "mapper-files/statements/key-strategies": {
+      "status": "partial",
+      "passed": 4,
+      "total": 7,
+      "href": "/docs/features/redis/generated-keys#mapper-file-keys"
+    },
+    "mapper-files/statements/callable": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 6
+    },
+    "mapper-files/statements/fragments": {
+      "status": "supported",
+      "passed": 4,
+      "total": 4
+    },
+    "mapper-files/dynamic-sql-and-result-mapping/dynamic-commands": {
+      "status": "partial",
+      "passed": 5,
+      "total": 8,
+      "href": "/docs/features/redis/query#dynamic-commands"
+    },
+    "mapper-files/dynamic-sql-and-result-mapping/resultmap": {
+      "status": "partial",
+      "passed": 12,
+      "total": 13,
+      "href": "/docs/features/redis/query#result-map"
+    },
+    "mapper-files/pagination/file-pagination": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 7,
+      "href": {
+        "zh-cn": "/docs/features/redis/pagination#dbvisitor-用法",
+        "en": "/docs/features/redis/pagination#dbvisitor-usage"
+      }
+    },
+    "mapper-files/external-mapper-references/calls": {
+      "status": "partial",
+      "passed": 5,
+      "total": 6,
+      "href": "/docs/features/redis/query#file-mapper"
+    },
+    "mapper/method-annotations/execution": {
+      "status": "partial",
+      "passed": 20,
+      "total": 22,
+      "href": "/docs/features/redis/mapper#annotations"
+    },
+    "mapper/base-mapper/operations": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 45,
+      "href": "/docs/features/redis/mapper#operations"
+    },
+    "mapper/key-strategies/strategies": {
+      "status": "partial",
+      "passed": 2,
+      "total": 18,
+      "href": "/docs/features/redis/mapper#keys"
+    },
+    "mapper/pagination/pagination": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 4,
+      "href": "/docs/features/redis/mapper#pagination"
+    },
+    "mapper/execution-options/options": {
+      "status": "partial",
+      "passed": 5,
+      "total": 8,
+      "href": "/docs/features/redis/mapper#options"
+    },
+    "mapper/builder/calls": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 2,
+      "href": "/docs/features/redis/mapper#builder"
+    },
+    "mapper/file-mapper/calls": {
+      "status": "supported",
+      "passed": 5,
+      "total": 5,
+      "href": "/docs/features/redis/mapper#file-mapper"
+    },
+    "mapper/session/management": {
+      "status": "supported",
+      "passed": 8,
+      "total": 8,
+      "href": "/docs/features/redis/mapper#session"
+    },
+    "parameters/positional-and-named-parameters/positional": {
+      "status": "partial",
+      "passed": 4,
+      "total": 5,
+      "href": "/docs/features/redis/parameters#null-values"
+    },
+    "parameters/positional-and-named-parameters/named": {
+      "status": "supported",
+      "passed": 17,
+      "total": 17
+    },
+    "parameters/sql-text-substitution/text-replacement": {
+      "status": "supported",
+      "passed": 2,
+      "total": 2
+    },
+    "parameters/parameter-interfaces-and-options/statement-setter": {
+      "status": "supported",
+      "passed": 1,
+      "total": 1
+    },
+    "parameters/parameter-interfaces-and-options/mixed-sources": {
+      "status": "supported",
+      "passed": 1,
+      "total": 1
+    },
+    "parameters/parameter-interfaces-and-options/explicit-types": {
+      "status": "supported",
+      "passed": 3,
+      "total": 3
+    },
+    "parameters/native-jdbc-parameters/binding-and-reuse": {
+      "status": "partial",
+      "passed": 6,
+      "total": 7,
+      "href": "/docs/features/redis/parameters#parameter-reuse"
+    },
+    "results/rowmapper/mapping": {
+      "status": "partial",
+      "passed": 3,
+      "total": 4,
+      "href": "/docs/features/redis/result-handling#api-support",
+      "variants": {
+        "jdbc": {
+          "status": "supported",
+          "passed": 3,
+          "total": 3
+        },
+        "mapper": {
+          "status": "supported",
+          "passed": 3,
+          "total": 3
+        },
+        "builder": {
+          "status": "unsupported",
+          "passed": 0,
+          "total": 2
+        },
+        "mapper-file": {
+          "status": "supported",
+          "passed": 1,
+          "total": 1
+        }
+      }
+    },
+    "results/rowcallbackhandler/callback": {
+      "status": "partial",
+      "passed": 3,
+      "total": 4,
+      "href": "/docs/features/redis/result-handling#api-support",
+      "variants": {
+        "jdbc": {
+          "status": "supported",
+          "passed": 1,
+          "total": 1
+        },
+        "mapper": {
+          "status": "supported",
+          "passed": 1,
+          "total": 1
+        },
+        "builder": {
+          "status": "unsupported",
+          "passed": 0,
+          "total": 1
+        },
+        "mapper-file": {
+          "status": "supported",
+          "passed": 1,
+          "total": 1
+        }
+      }
+    },
+    "results/resultsetextractor/extraction": {
+      "status": "partial",
+      "passed": 3,
+      "total": 4,
+      "href": "/docs/features/redis/result-handling#api-support",
+      "variants": {
+        "jdbc": {
+          "status": "supported",
+          "passed": 4,
+          "total": 4
+        },
+        "mapper": {
+          "status": "supported",
+          "passed": 1,
+          "total": 1
+        },
+        "builder": {
+          "status": "unsupported",
+          "passed": 0,
+          "total": 4
+        },
+        "mapper-file": {
+          "status": "supported",
+          "passed": 1,
+          "total": 1
+        }
+      }
+    },
+    "transactions/transaction-apis/annotations": {
+      "status": "limited",
+      "passed": 0,
+      "total": 5,
+      "href": "/docs/features/redis/transactions#annotations"
+    },
+    "transactions/transaction-apis/templates": {
+      "status": "limited",
+      "passed": 0,
+      "total": 4,
+      "href": "/docs/features/redis/transactions#templates"
+    },
+    "transactions/transaction-apis/programmatic": {
+      "status": "limited",
+      "passed": 0,
+      "total": 3,
+      "href": "/docs/features/redis/transactions#programmatic"
+    },
+    "transactions/transaction-apis/shared-transactions": {
+      "status": "limited",
+      "passed": 0,
+      "total": 4,
+      "href": "/docs/features/redis/transactions#shared-transactions"
+    },
+    "transactions/transaction-propagation/propagation": {
+      "status": "limited",
+      "passed": 0,
+      "total": 7,
+      "href": "/docs/features/redis/transactions#propagation",
+      "variants": {
+        "REQUIRED": {
+          "status": "unsupported",
+          "passed": 0,
+          "total": 3
+        },
+        "REQUIRES_NEW": {
+          "status": "unsupported",
+          "passed": 0,
+          "total": 8
+        },
+        "NESTED": {
+          "status": "unsupported",
+          "passed": 0,
+          "total": 7
+        },
+        "SUPPORTS": {
+          "status": "partial",
+          "passed": 1,
+          "total": 4
+        },
+        "NOT_SUPPORTED": {
+          "status": "partial",
+          "passed": 1,
+          "total": 4
+        },
+        "MANDATORY": {
+          "status": "unsupported",
+          "passed": 0,
+          "total": 3
+        },
+        "NEVER": {
+          "status": "partial",
+          "passed": 1,
+          "total": 4
+        }
+      }
+    },
+    "transactions/isolation-levels/isolation": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 6,
+      "href": "/docs/features/redis/transactions#isolation"
+    },
+    "vectors/vectors/vector-mapping": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 5
+    },
+    "vectors/vectors/knn-ordering": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 8
+    },
+    "vectors/vectors/range-filters": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 7
+    },
+    "vectors/vectors/vector--scalar": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 3
+    },
+    "types/custom-type-handlers/entity-fields": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 5
+    },
+    "types/basic-types/values": {
+      "status": "partial",
+      "passed": 7,
+      "total": 11,
+      "href": "/docs/features/redis/types#basic-types"
+    },
+    "types/dates-and-times/values": {
+      "status": "partial",
+      "passed": 17,
+      "total": 18,
+      "href": "/docs/features/redis/types#time-types"
+    },
+    "types/enum-handlers/enums": {
+      "status": "partial",
+      "passed": 6,
+      "total": 7,
+      "href": "/docs/features/redis/types#enum-types"
+    },
+    "types/characters-and-byte-arrays/binary": {
+      "status": "partial",
+      "passed": 5,
+      "total": 6,
+      "href": "/docs/features/redis/types#binary-types"
+    },
+    "types/json-serialization-handlers/conversion": {
+      "status": "partial",
+      "passed": 8,
+      "total": 11,
+      "href": "/docs/features/redis/types#json-types"
+    },
+    "types/array-handlers/arrays": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 10,
+      "href": "/docs/features/redis/types#array-types"
+    },
+    "parameters/command-rules/sql-fragments": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 9,
+      "href": "/docs/features/redis/parameters#sql-fragments"
+    },
+    "parameters/command-rules/conditional-command": {
+      "status": "supported",
+      "passed": 2,
+      "total": 2,
+      "href": "/docs/features/redis/parameters#general-rules"
+    },
+    "mapping-keys/table-mapping/fields": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 12
+    },
+    "mapping-keys/naming-and-case-sensitivity/name-conversion": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 9
+    },
+    "mapping-keys/naming-and-case-sensitivity/result-columns": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 3
+    },
+    "mapping-keys/naming-and-case-sensitivity/identifiers": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 10
+    },
+    "mapping-keys/write-policies/fields": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 7
+    },
+    "mapping-keys/field-types-and-statement-templates/json-fields": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 4
+    },
+    "mapping-keys/field-types-and-statement-templates/statement-templates": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 10
+    },
+    "mapping-keys/key-generators/strategies": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 19,
+      "href": "/docs/features/redis/generated-keys#key-strategies"
+    }
+  }
+}

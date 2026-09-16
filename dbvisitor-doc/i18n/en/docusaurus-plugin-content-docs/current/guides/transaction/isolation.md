@@ -178,4 +178,4 @@ The table describes phenomena allowed by the standard. Databases may provide str
 
 - [Annotation-Based Transactions](./annotation): Set isolation on @Transactional.
 - [Transaction Templates](./template): Set isolation in the third execute argument.
-- [Transaction Manager](./manager): Understand how isolation is set on the connection and restored after the transaction.
+- [Cross-API Transactions](./manager): Learn how different APIs share a transaction connection and its isolation level.

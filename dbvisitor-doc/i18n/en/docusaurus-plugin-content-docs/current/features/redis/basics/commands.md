@@ -19,7 +19,7 @@ jdbc.executeUpdate("SET ? ?", new Object[] {"user:1001:name", "Alice Smith"});
 String name = jdbc.queryForString("GET ?", "user:1001:name");
 ```
 
-Mappers use `#{key}` and `#{value}`; see [Reading and Writing Data](../dbvisitor/usage.mdx). Write command names and options such as NX and EX directly in the command.
+Mappers use `#{key}` and `#{value}`; see [Query Operations](../dbvisitor/query.mdx) and [Data Writes](../dbvisitor/write.mdx). Write command names and options such as NX and EX directly in the command.
 
 See [Redis](../about.md) for the command list. In syntax templates, `[]` marks optional items, `|` alternatives and `...` repetition; do not include these symbols in commands. Keep optional arguments in the order shown.
 

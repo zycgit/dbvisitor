@@ -25,7 +25,7 @@ Use either `<resultMap>` or `<entity>` to map query results:
 
 :::tip[How to choose between resultMap and entity?]
 - For the same table with different query shapes, `entity` is good when columns all come from one table; `resultMap` when columns span multiple tables.
-- Using the [Fluent API](../lambda/about) requires `entity` or [Object Mapping](../mapping/about) annotations.
+- Using the [Builder API](../lambda/about) requires `entity` or [Object Mapping](../mapping/about) annotations.
 - If the SELECT uses aliases, functions, CASE, or columns from multiple tables, `resultMap` is safer.
 :::
 
@@ -79,15 +79,15 @@ Use either `<resultMap>` or `<entity>` to map query results:
 | javaType             | <TagGray/> Usually inferred; specify when the property is abstract or an interface.                                                                                   |
 | jdbcType             | <TagGray/> Overrides the default [Java↔JDBC mapping](../../types/java-jdbc).                                                                                          |
 | typeHandler          | <TagGray/> Override the [type handler](../../types/about) to use.                                                                                                     |
-| keyType              | <TagGray/> For [Fluent API](../lambda/about) only. Key generation strategy when the value is null. See [key generator](../mapping/key_generator#xml).                      |
-| insert               | <TagGray/> For [Fluent API](../lambda/about) only. Whether it participates in insert. See [write policy](../mapping/write_policy).                                    |
-| update               | <TagGray/> For [Fluent API](../lambda/about) only. Whether it participates in update. See [write policy](../mapping/write_policy).                                    |
-| selectTemplate       | <TagGray/> For [Fluent API](../lambda/about) only. Column expression when used in SELECT. Default empty (column name). See [templates](../mapping/statement_template).          |
-| insertTemplate       | <TagGray/> For [Fluent API](../lambda/about) only. Argument expression for INSERT. Default `?`. See [templates](../mapping/statement_template).                               |
-| setValueTemplate     | <TagGray/> For [Fluent API](../lambda/about) only. Argument expression in UPDATE SET. Default `?`. See [templates](../mapping/statement_template).                            |
-| whereColTemplate     | <TagGray/> For [Fluent API](../lambda/about) only. Column expression in WHERE for update/delete. Default empty (column name). See [templates](../mapping/statement_template).   |
-| whereValueTemplate   | <TagGray/> For [Fluent API](../lambda/about) only. Argument expression in WHERE for update/delete. Default `?`. See [templates](../mapping/statement_template).               |
-| orderByColTemplate   | <TagGray/> For [Fluent API](../lambda/about) only. Column expression in ORDER BY. Default empty (column name). See [templates](../mapping/statement_template).                  |
+| keyType              | <TagGray/> For [Builder API](../lambda/about) only. Key generation strategy when the value is null. See [key generator](../mapping/key_generator#xml).                      |
+| insert               | <TagGray/> For [Builder API](../lambda/about) only. Whether it participates in insert. See [write policy](../mapping/write_policy).                                    |
+| update               | <TagGray/> For [Builder API](../lambda/about) only. Whether it participates in update. See [write policy](../mapping/write_policy).                                    |
+| selectTemplate       | <TagGray/> For [Builder API](../lambda/about) only. Column expression when used in SELECT. Default empty (column name). See [templates](../mapping/statement_template).          |
+| insertTemplate       | <TagGray/> For [Builder API](../lambda/about) only. Argument expression for INSERT. Default `?`. See [templates](../mapping/statement_template).                               |
+| setValueTemplate     | <TagGray/> For [Builder API](../lambda/about) only. Argument expression in UPDATE SET. Default `?`. See [templates](../mapping/statement_template).                            |
+| whereColTemplate     | <TagGray/> For [Builder API](../lambda/about) only. Column expression in WHERE for update/delete. Default empty (column name). See [templates](../mapping/statement_template).   |
+| whereValueTemplate   | <TagGray/> For [Builder API](../lambda/about) only. Argument expression in WHERE for update/delete. Default `?`. See [templates](../mapping/statement_template).               |
+| orderByColTemplate   | <TagGray/> For [Builder API](../lambda/about) only. Column expression in ORDER BY. Default empty (column name). See [templates](../mapping/statement_template).                  |
 | sqlType              | <TagGray/> Column data type (TableDescription).                                                                                                                      |
 | length               | <TagGray/> Column length (TableDescription).                                                                                                                         |
 | precision            | <TagGray/> Numeric precision (TableDescription).                                                                                                                    |

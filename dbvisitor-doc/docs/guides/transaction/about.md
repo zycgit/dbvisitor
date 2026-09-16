@@ -103,6 +103,6 @@ LocalTransactionManager  -- begin/commit/rollBack --> TransactionStatus
 - [注解式事务](./annotation)：最常用的事务写法。
 - [模板事务](./template)：在一段代码块里使用事务。
 - [编程式事务](./program)：手动控制事务生命周期。
-- [事务管理器](./manager)：理解 `TransactionManager`、事务栈、挂起和保存点。
+- [跨 API 事务](./manager)：了解不同 API 共享事务的条件，以及统一提交和回滚的方式。
 - [传播行为](./propagation)：理解 `REQUIRED`、`REQUIRES_NEW`、`NESTED` 等行为。
 - [隔离级别](./isolation)：理解脏读、不可重复读、幻读和数据库隔离级别。

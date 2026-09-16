@@ -1,21 +1,47 @@
 ---
 id: generated-keys
 slug: /features/redis/generated-keys
-sidebar_position: 3
-hide_table_of_contents: true
-title: Keys and Identifiers
+sidebar_position: 62
+title: Keys and IDs
 ---
 
-# Keys and Identifiers
+Redis keys are named by the application. JDBC generated keys are not available, but a Mapper can assign a command's returned number to an object property.
 
-Redis keys are supplied by the application. There is no generated-key callback that fills an entity property. For example, store user 1001 under user:1001.
+## Key Strategies {#key-strategies}
 
-For increasing identifiers, read INCR's result and then use it in the key:
+Redis does not use entity KeyType strategies to generate table primary keys. Supply command keys explicitly; use INCR before writing or return an ID from a script as shown below.
+
+## Key Strategies in Mapper Files {#mapper-file-keys}
+
+The caller can supply command keys directly. To fill an ID, use `selectKey` to execute INCR or read an existing ID, or set `generatedKeySource="resultSet"` to receive a script result. Redis does not provide JDBC generated keys or relational auto-increment columns.
+
+## Allocate an ID before writing {#select-key}
+
+Use INCR to allocate a number, then use it as a Hash field. The record has writable `Long id` and `String counter`, `key`, and `value` properties.
 
 ```java
-Long id = jdbc.queryForLong("INCR ?", "user:sequence");
-String key = "user:" + id;
-jdbc.executeUpdate("HSET ? ? ?", new Object[] { key, "name", "mali" });
+@Insert("HSET #{key} #{id} #{value}")
+@SelectKeySql(value = "INCR #{counter}", keyProperty = "id", order = Order.Before)
+int save(Record record);
 ```
 
-INCR and HSET are two separate commands. If the write fails, the allocated number is not returned; retry using the saved id if that is the application's recovery policy.
+With `counter="user:sequence"` and `key="users"`, the generated number becomes both `record.id` and a field in the `users` Hash. These are two commands; a failed write does not return the allocated number.
+
+## Assign a script result to a property {#result-key}
+
+To allocate the number and write the value in one command, use EVAL. Select `GeneratedKeySource.ResultSet` and its `VALUE` column:
+
+```java
+@Insert(value = "EVAL \"local id=redis.call('INCR',KEYS[1]); "
+        + "redis.call('HSET',KEYS[2],id,ARGV[1]); return id\" "
+        + "2 #{counter} #{key} #{value}",
+        useGeneratedKeys = true, generatedKeySource = GeneratedKeySource.ResultSet,
+        keyProperty = "id", keyColumn = "VALUE")
+int save(Record record);
+```
+
+After the call, read `record.getId()`. In a Mapper file, put the same command in `<insert>` with `useGeneratedKeys="true" generatedKeySource="resultSet" keyProperty="id" keyColumn="VALUE"`.
+
+Only the command-result source is supported here. Omitting `generatedKeySource` requests JDBC generated keys and does not perform this assignment. EVAL does not provide rollback after a script error.
+
+General configuration: [Generated keys](../../../guides/core/mapper/annotation_insert.mdx#generated-keys).

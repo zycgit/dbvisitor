@@ -1,11 +1,11 @@
 ---
 id: vectors
 slug: /features/elastic/vectors
-sidebar_position: 5
-title: 向量数据操作
+sidebar_position: 50
+title: 向量操作
 ---
 
-# 向量数据操作
+# 向量操作
 
 ## 选择检索方式
 
@@ -15,10 +15,16 @@ Elasticsearch 向量查询取决于服务端版本和字段 Mapping，不能只�
 | --- | --- |
 | ES 7 script_score | 通过脚本对匹配文档评分。 |
 | ES 8.4+ _search knn | 对已建索引的 dense_vector 执行原生近似检索。 |
-| Elastic7Dialect | 向量排序生成脚本排序，不是原生 knn；需确认服务端支持相应脚本上下文。 |
+| Elastic7Dialect | 使用 script_score 评分并按 _score 降序返回，不是原生 knn。 |
 | Elastic8Dialect | 生成顶层 knn，k=10、num_candidates=100；initPage 不会修改这两个值。 |
 
-## 配置向量字段
+<span id="配置向量字段" />
+
+## 向量类型映射 {#vector-mapping}
+
+ES 7 使用 `dense_vector` 并指定 `dims`，不使用下面 ES 8 的 `index`、`similarity` 选项。写入参数可用数值 List；展开结果中的向量字段也是数值 List，不是 JSON 文本。
+
+ES 7.17 的 `dense_vector` 可以缺省，读取缺省字段得到 null；但不能显式写入或更新为 `null`。已有向量需要清空时，使用原生命令删除该字段，而不是把构造器更新值设为 null。
 
 使用下方 ES 8.4+ kNN 示例前，先创建索引：
 
@@ -60,7 +66,13 @@ List<Map<String, Object>> rows = jdbc.queryForList(
 Elastic8Dialect 将构造器标量条件放在顶层 query，而不是 knn.filter。Elasticsearch 对 query 与 knn 按 OR 合并，因此 eq(...).orderByL2(...) 不是强制候选过滤。租户、分类等范围限制使用上面的命令。
 :::
 
-## ES 7 使用脚本评分
+<span id="es7-scores" />
+
+## KNN 近邻排序 {#knn-ordering}
+
+ES 7 构造器生成 `script_score`，按 `_score` 降序返回，一次查询只支持一个向量评分，不是原生近似 kNN。
+
+向量排序接入 L2、余弦和内积；Hamming、Jaccard 和 BM25 未接入这些构造器方法，不能用全文检索的 BM25 评分代替。
 
 ES 7 的 embedding 字段声明 dense_vector、dims=3，不使用上面的 ES 8 index、similarity 选项。余弦评分使用 script_score：
 
@@ -84,9 +96,28 @@ List<Map<String, Object>> rows = jdbc.queryForList(
 
 匹配文档都应包含 embedding。脚本加 1 是为了得到非负分数，返回评分不是原始余弦相似度。
 
+## 距离范围过滤 {#range-filters}
+
+ES 7 构造器通过脚本比较距离，使用 `min_score=1` 保留条件成立的文档。`vectorByL2` 比较 L2 距离；`vectorByCosine` 比较 `1 - cosineSimilarity`；`vectorByIP` 比较负内积，三者均使用 `< threshold`。
+
+因此余弦相似度大于 `0.8` 时传 `0.2`，内积大于 `0.8` 时传 `-0.8`。范围阈值不是排序后返回的 `_score`。
+
+Hamming、Jaccard 和 BM25 尚不能通过构造器 API 进行范围过滤。
+
+## 组合查询 {#vector-scalar}
+
+ES 7 构造器把标量条件放入 `script_score.query`，仅对符合条件的文档评分。`eq(...).orderByCosine(...)` 可以限定候选范围；范围过滤也可组合标量条件。ES 8 的候选过滤写法见上方“限定向量候选范围”，不能套用 ES 7 的行为。
+
 ## 读取向量值
 
-适配器展开文档时，embedding 返回 JSON 文本。整篇文档可读 _DOC；embedding 可用 String 接收，需要 List 属性时配置 JSON 映射。
+整篇文档可读 `_DOC`。单独读取 `embedding` 时按数值 List 接收；需要 Float 元素时使用 `Number.floatValue()` 转换：
+
+```java
+List<?> values = (List<?>) row.get("embedding");
+List<Float> embedding = values.stream()
+        .map(value -> ((Number) value).floatValue())
+        .toList();
+```
 
 请求语法与版本要求见：
 [script_score](https://www.elastic.co/guide/en/elasticsearch/reference/7.17/query-dsl-script-score-query.html)、

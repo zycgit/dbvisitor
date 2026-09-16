@@ -47,7 +47,11 @@ public class AdminUsers {
 - `primary` and `keyType` are independent—you can attach a generator to a non-PK column too.
 :::
 
-### keyType options
+<span id="keytype-options" />
+
+### Key Strategies {#key-strategies}
+
+Select a key strategy with `keyType`:
 
 | Option   | Description                                                                                                                 |
 |----------|-----------------------------------------------------------------------------------------------------------------------------|
@@ -55,7 +59,7 @@ public class AdminUsers {
 | Auto     | Read database-generated values through JDBC generated keys or the INSERT ResultSet, depending on the entry point and dialect.                                           |
 | UUID32   | Pre-fill with a 32-char UUID, e.g., `4d68040901d24b70bd10c1c8119001e2`.                                                 |
 | UUID36   | Pre-fill with a 36-char UUID, e.g., `4d680409-01d2-4b70-bd10-c1c8119001e2`.                                                 |
-| Sequence | Fetch the next sequence value, assign it, then insert. Requires SeqSqlDialect; See [Dialect support](../../../features/support#dialect).<br/>Requires @KeySeq to name the sequence. |
+| Sequence | Fetch the next sequence value, assign it, then insert. Requires SeqSqlDialect; See [Dialect support](../../../features/differences/mapping-keys).<br/>Requires @KeySeq to name the sequence. |
 | Holder   | Custom generation logic: implement `GeneratedKeyHandlerFactory` and declare via @KeyHolder.                                 |
 
 ## Via mapper file {#xml}
@@ -85,7 +89,7 @@ public class AdminUsers {
 Both &lt;id&gt; and &lt;mapping&gt; tags can set `keyType`.
 :::
 
-### keyType options
+### keyType options {#keytype-options-1}
 
 | Option          | Description                                                                                  |
 |-----------------|----------------------------------------------------------------------------------------------|
@@ -93,7 +97,7 @@ Both &lt;id&gt; and &lt;mapping&gt; tags can set `keyType`.
 | auto            | Read database-generated values through JDBC generated keys or the INSERT ResultSet, depending on the entry point and dialect.            |
 | uuid32          | Pre-fill with a 32-char UUID, e.g., `4d68040901d24b70bd10c1c8119001e2`.                  |
 | uuid36          | Pre-fill with a 36-char UUID, e.g., `4d680409-01d2-4b70-bd10-c1c8119001e2`.                  |
-| Sequence::xxxx  | Fetch the next value from sequence `xxxx`, assign it, then insert. Requires SeqSqlDialect. See [Dialect support](../../../features/support#dialect). |
+| Sequence::xxxx  | Fetch the next value from sequence `xxxx`, assign it, then insert. See [Sequence keys](../../../features/differences/mapping-keys#key-generators) for support. |
 | (class name)    | Custom generator: fully qualified class implementing `GeneratedKeyHandlerFactory`.          |
 
 ## Custom generator

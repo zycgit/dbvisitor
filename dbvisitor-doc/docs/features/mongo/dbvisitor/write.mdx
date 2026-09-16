@@ -1,0 +1,119 @@
+---
+id: write
+slug: /features/mongo/write
+sidebar_position: 32
+title: 数据写入
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+通过 dbVisitor 执行 MongoDB 命令完成新增、修改和删除。查询方法及实体映射见[查询操作](query.mdx)。
+
+## 执行写入命令 {#exec-command}
+
+```java
+JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+
+jdbc.executeUpdate(
+        "test.user_info.insertOne({uid: ?, name: ?})",
+        new Object[] { "1001", "mali" });
+
+jdbc.executeUpdate(
+        "test.user_info.updateMany({uid: ?}, {$set: {name: ?}})",
+        new Object[] { "1001", "new name" });
+
+jdbc.executeUpdate(
+        "test.user_info.deleteMany({uid: ?})",
+        new Object[] { "1001" });
+```
+
+## 通过不同 API 修改数据 {#write-apis}
+
+以下示例复用[查询操作中的实体映射](query.mdx#entity-mapping)，将指定记录的名称改为 `new name`。
+
+<Tabs>
+<TabItem value="fluent" label="构造器 API" default>
+
+```java
+LambdaTemplate lambda = new LambdaTemplate(dataSource);
+int changed = lambda.update(UserInfo.class)
+        .eq(UserInfo::getUid, "1001")
+        .updateTo(UserInfo::getName, "new name")
+        .doUpdate();
+```
+
+</TabItem>
+<TabItem value="annotation" label="方法注解">
+
+```java
+@SimpleMapper
+public interface UserInfoWriteMapper {
+    @Update("test.user_info.updateMany({uid: #{uid}}, {$set: {name: #{name}}})")
+    int rename(@Param("uid") String uid, @Param("name") String name);
+}
+```
+
+</TabItem>
+<TabItem value="xml" label="Mapper 文件">
+
+```xml
+<mapper namespace="com.example.UserInfoWriteMapper">
+    <update id="rename">
+        test.user_info.updateMany({uid: #{uid}}, {$set: {name: #{name}}})
+    </update>
+</mapper>
+```
+
+```java
+@RefMapper("/mapper/mongo-write.xml")
+public interface UserInfoWriteMapper {
+    int rename(@Param("uid") String uid, @Param("name") String name);
+}
+```
+
+XML 保存到 `/mapper/mongo-write.xml`，接口位于 `com.example` 包。
+
+</TabItem>
+</Tabs>
+
+```java
+Session session = new Configuration().newSession(dataSource);
+UserInfoWriteMapper mapper = session.createMapper(UserInfoWriteMapper.class);
+int changed = mapper.rename("1001", "new name");
+```
+
+## 实际写入动作 {#write-behavior}
+
+| 操作 | 数据库动作 |
+| --- | --- |
+| 修改指定属性 | updateMany + $set |
+| 删除匹配记录 | deleteMany |
+
+BaseMapper 的修改和删除复用相同操作。
+
+## 插入冲突 {#insert-conflict}
+
+```java
+LambdaTemplate lambda = new LambdaTemplate(dataSource);
+lambda.insert(UserInfo.class)
+        .onDuplicateStrategy(DuplicateKeyStrategy.Update)
+        .applyEntity(user)
+        .executeSumResult();
+```
+
+`Ignore` 按映射主键查找，存在时保留原文档，不存在时插入；`Update` 存在时修改本次提供的非主键字段，不存在时插入。操作使用 MongoDB 原生 upsert，不会先查询再写入。
+
+必须提供全部映射主键，并为这些字段建立唯一索引；`primary=true` 不会代建索引。其他唯一字段的冲突仍会报错。只有实际新增的文档返回生成键。
+
+## 更新条数与异常 {#command-errors}
+
+:::note 更新条数
+更新返回实际改变的文档数。例如匹配 3 条文档，其中 1 条的值已经相同，返回 `2`，不是 `3`。upsert 新增一条文档返回 `1`。
+:::
+
+无效命令和重复 `_id` 会报告异常；按业务字段更新、删除时，所有匹配文档都可能受影响。查询不存在的集合的行为见[查询异常](query.mdx#command-errors)。
+
+## 多条写入与事务 {#transactions}
+
+多条命令不会自动构成事务，失败前成功的写入不保证回滚。事务调用方式、传播及隔离级别见[事务支持](transactions.md)。

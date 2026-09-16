@@ -1,6 +1,6 @@
 ---
 id: write
-sidebar_position: 6
+sidebar_position: 32
 title: 等待数据变更完成
 description: 等待 ClickHouse mutation 完成，并查看执行进度与失败原因。
 ---
@@ -26,7 +26,7 @@ jdbcTemplate.executeUpdate(
 
 这里明确使用异步执行。调用成功说明命令已接受，不表示匹配的数据已经全部修改。
 
-## 等待完成后再读取
+## 等待完成后再读取 {#wait-for-writes}
 
 如果下一步需要读取当前服务节点上的新值，在提交时使用 `mutations_sync = 1`：
 
@@ -41,6 +41,12 @@ String name = jdbcTemplate.queryForObject(
 ```
 
 成功返回后，`name` 为 `archived`。此例使用单节点 MergeTree 表；副本等待设置见[mutation 同步方式](https://clickhouse.com/docs/sql-reference/statements/alter/update)。
+
+## 修改与删除的返回值 {#affected-rows}
+
+修改或删除成功，不代表 JDBC 返回值就是实际命中条数。例如，将上述条件改为 `WHERE event_name = 'login'`，即使命中多条记录，也不能把 `executeUpdate()` 的返回值当作修改数量；返回值同样不能可靠判断是否没有匹配记录。
+
+构造器 API 和 BaseMapper 也沿用驱动的返回值。需要确认数据是否改变时，应等待操作完成后查询目标记录；不要用 `返回值 == 1` 作为单条修改成功的业务判断。
 
 ## 查看进度与失败原因
 
@@ -60,3 +66,11 @@ List<Map<String, Object>> tasks = jdbcTemplate.queryForList("""
 :::caution[注意]
 等待完成不等于把多条 mutation 变成一个事务。调用超时后先检查任务状态，不要直接重复提交。
 :::
+
+## 命令异常 {#command-errors}
+
+无效命令会向调用方报告异常，但 MergeTree 的排序键和主键不强制唯一，重复 ID 不会因此产生主键冲突错误。批量调用同样不能依赖重复主键异常判断是否出现重复记录，处理方式见[重复记录处理](./conflict.mdx)。
+
+## 事务支持 {#transaction-propagation}
+
+事务调用方式、传播及隔离级别的限制见[事务支持](transactions.md)。

@@ -13,6 +13,18 @@ description: MongoDB JDBC 驱动的接入、连接和使用。
 - 通过 PreparedStatement 绑定参数，查询支持分页、排序等选项。
 - 支持 `_id` 主键回传和文档字段展开，可配置预读行为。
 
+## 元信息查询
+
+通过 `connection.getMetaData()` 查询：
+
+| JDBC 方法 | 返回内容 |
+| --- | --- |
+| `getCatalogs()` | 当前用户可列出的数据库 |
+| `getTables()` | Collection 和 View |
+| `getColumns()` | 空结果，不扫描文档推断字段 |
+| `getSchemas()` | 空结果 |
+| `getTableTypes()` | `TABLE`、`VIEW` |
+
 ## 开始使用
 
 1. [引入依赖](dependencies.mdx)：Maven 或 Gradle 配置。
@@ -26,4 +38,4 @@ description: MongoDB JDBC 驱动的接入、连接和使用。
 - 命令必须使用驱动支持的语法，不会自动转换任意关系型 SQL。
 - 不支持 JDBC Batch 和事务。使用连接池、ORM 或其他 JDBC 工具前，请核对[驱动适配器限制](../limited.md)。
 
-[命令参考](../../features/mongo/about.md) · [dbVisitor API 用法](../../features/mongo/dbvisitor/usage.mdx)
+[命令参考](../../features/mongo/about.md) · [查询操作](../../features/mongo/dbvisitor/query.mdx) · [数据写入](../../features/mongo/dbvisitor/write.mdx)

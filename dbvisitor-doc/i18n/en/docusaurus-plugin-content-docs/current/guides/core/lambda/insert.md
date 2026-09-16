@@ -2,7 +2,7 @@
 id: insert
 sidebar_position: 2
 title: Insert
-description: Insert data with dbVisitor Fluent API using either entity beans or Maps as containers.
+description: Insert data with dbVisitor Builder API using either entity beans or Maps as containers.
 ---
 
 # Insert
@@ -150,7 +150,7 @@ The good news is that databases themselves often provide more efficient approach
 - Oracle can use `MERGE INTO ... WHEN MATCHED THEN ... WHEN NOT MATCHED THEN ...` statements.
 
 Using these database features requires two prerequisites:
-- The dbVisitor database dialect must support them; see [Dialect Support](../../../features/support#dialect).
+- The dbVisitor database dialect must support them; see [Dialect Support](../../../features/differences/builder).
 - A conflict handling strategy must be specified via `onDuplicateStrategy`.
 
 dbVisitor provides three conflict strategies to avoid redundant code logic in write operations:

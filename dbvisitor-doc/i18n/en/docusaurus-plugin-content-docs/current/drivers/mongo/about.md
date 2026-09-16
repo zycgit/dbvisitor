@@ -13,6 +13,18 @@ description: MongoDB JDBC driver setup, connections and usage.
 - Bind parameters through PreparedStatement and use query options such as pagination and sorting.
 - Retrieve generated `_id` values, expand document fields and configure pre-reading.
 
+## Metadata Queries
+
+Query through `connection.getMetaData()`:
+
+| JDBC method | Result |
+| --- | --- |
+| `getCatalogs()` | Databases the current user can list |
+| `getTables()` | Collections and views |
+| `getColumns()` | Empty result; documents are not sampled to infer fields |
+| `getSchemas()` | Empty result |
+| `getTableTypes()` | `TABLE`, `VIEW` |
+
 ## Get Connected
 
 1. [Add dependencies](dependencies.mdx): Maven or Gradle configuration.
@@ -26,4 +38,4 @@ description: MongoDB JDBC driver setup, connections and usage.
 - Commands must use the syntax supported by this driver; arbitrary relational SQL is not translated.
 - JDBC batch and transactions are not supported. Check the [shared JDBC limitations](../limited.md) before integrating a connection pool, ORM or other JDBC tool.
 
-[Command reference](../../features/mongo/about.md) · [dbVisitor API usage](../../features/mongo/dbvisitor/usage.mdx)
+[Command reference](../../features/mongo/about.md) · [Query Operations](../../features/mongo/dbvisitor/query.mdx) · [Data Writes](../../features/mongo/dbvisitor/write.mdx)

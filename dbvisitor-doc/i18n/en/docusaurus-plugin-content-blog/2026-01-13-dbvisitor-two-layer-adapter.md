@@ -11,7 +11,7 @@ dbVisitor's "Two-Layer Adapter" unifies RDBMS and NoSQL access through two abstr
 <!-- truncate -->
 
 :::note[Capability Scope]
-Invocation style is unified, not database semantics. Builders require dialect support, and native commands must be supported by the adapter. Before integrating an ORM or connection pool, check the JDBC methods it requires. See the [feature matrix](../docs/features/support) and [JDBC limitations](../docs/drivers/limited).
+Invocation style is unified, not database semantics. Builders require dialect support, and native commands must be supported by the adapter. Before integrating an ORM or connection pool, check the JDBC methods it requires. See the [feature matrix](../docs/features/overview) and [JDBC limitations](../docs/drivers/limited).
 :::
 
 

@@ -42,9 +42,17 @@ result = lambda.query(User.class)
 //   select * from users where id >= 100 order by name, age;
 ```
 
-Repeated ordering on the same ordinary mapped field keeps the first direction and null-ordering rule. This deduplication does not apply to freedom queries, expressions, or ordering templates.
+Ordering conditions retain their call order. Repeated fields are not deduplicated.
 
-## Null Ordering
+## Null Ordering {#null-ordering}
+
+`OrderType` controls the direction of non-null values; `OrderNullsStrategy` controls the position of nulls:
+
+- `DEFAULT`: retain the database's default null order.
+- `FIRST`: place nulls before non-null values.
+- `LAST`: place nulls after non-null values.
+
+`FIRST` and `LAST` do not reverse with the sort direction. For example, descending order with `FIRST` returns nulls first, followed by non-null values from largest to smallest.
 
 ```java title='NULLS FIRST'
 LambdaTemplate lambda = ...
@@ -73,5 +81,5 @@ result = lambda.query(User.class)
 ```
 
 :::info[Tip]
-- NULLS FIRST/LAST support depends on dialect; see **[database support](../../../features/support#dialect)** for null ordering support.
+- NULLS FIRST/LAST support depends on dialect; see **[database support](../../../features/differences/builder)** for null ordering support.
 :::

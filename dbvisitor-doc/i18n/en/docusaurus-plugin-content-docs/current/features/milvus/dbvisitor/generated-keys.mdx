@@ -1,7 +1,7 @@
 ---
 id: generated-keys
 slug: /features/milvus/generated-keys
-sidebar_position: 3
+sidebar_position: 62
 title: Key Generation
 ---
 
@@ -9,6 +9,16 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
 # Key Generation
+
+## Key Strategies {#key-strategies}
+
+| Strategy | Usage on this datasource |
+| --- | --- |
+| Assigned | Use a collection without AutoID; repeated IDs do not raise a uniqueness error. |
+| Auto-increment | Use AutoID; on the 2.6.2 baseline, do not mix automatic IDs with application-assigned IDs. |
+| UUID | Use a VARCHAR primary key with AutoID disabled. |
+| Sequence | No sequence-key strategy on this datasource. |
+| Custom | Use a custom generator before or after insertion. |
 
 ## Use a Generated ID
 
@@ -47,12 +57,30 @@ int insert(AutoBook item);
 
 After mapper.insert(item), read item.getId(). These examples pass one entity argument, not an argument wrapped in @Param.
 
-The optional `keyColumn="id"` names the returned primary-key column. With the Fluent API, configure `KeyType.Auto` for automatic backfill; see [Key Generators](../../../guides/core/mapping/key_generator.md).
+The optional `keyColumn="id"` names the returned primary-key column. With the Builder API, configure `KeyType.Auto` for automatic backfill; see [Key Generators](../../../guides/core/mapping/key_generator.md).
 
-## Use an Assigned ID
+## Use an Assigned ID {#assigned-key}
 
-For a collection without AUTO_ID, supply the primary-key value on insert. INSERT is not a unique-key conflict check; to overwrite by primary key, use [UPSERT](../write/upsert.md#upsert).
+For a collection without AUTO_ID, a primary-key value is required on insert. INSERT does not check for an existing primary key: inserting the same ID again does not raise a unique-key conflict.
+
+For example, to replace the title of book `1001`, use [UPSERT](../write/upsert.md#upsert). Do not detect its existence by attempting INSERT and catching a duplicate-key exception.
+
+## AUTO_ID Collections {#auto-id-boundary}
+
+For the Milvus 2.6.2 baseline, do not supply an application-assigned ID to an AutoID collection. Keep AutoID inserts and explicit-ID inserts in collections configured for the corresponding mode.
 
 ## Generate a UUID
 
 For a VARCHAR primary key with AutoID disabled, use KeyType.UUID32 or KeyType.UUID36 in the entity mapping. dbVisitor generates and assigns the value before INSERT. Reserve at least 32 or 36 characters in the field; see [Key Generators](../../../guides/core/mapping/key_generator.md).
+
+## Choosing the key source {#key-source}
+
+For method annotations and Mapper files, use `useGeneratedKeys` with the default key source. The generated-key result is separate from the statement's ordinary result set; do not set `generatedKeySource="resultSet"` for these inserts.
+
+The examples above show the supported generated-key path, including how to select the returned column with `keyColumn`.
+
+## Key Strategies in Mapper Files {#mapper-file-keys}
+
+Bind an assigned key in INSERT, or use `useGeneratedKeys` to receive an AutoID. Do not use `generatedKeySource="resultSet"`: INSERT does not return an ordinary result set for filling keys.
+
+Milvus has no database sequences, so `selectKey` cannot query a sequence value to generate a key. Assign the ID in the application when it must be known in advance. AutoID usage is shown above.

@@ -17,6 +17,16 @@ Document tags consist of the following:
 - [&lt;execute&gt;](./statements#execute): run arbitrary SQL.
 - [&lt;sql&gt;](./statements#sql): define reusable SQL fragments.
 
+## Command Execution {#execution}
+
+These tags also accept native datasource commands, not only SQL. After loading a Mapper file, invoke its statements by `namespace.statementId`; see [Call File Mapper](../mapper/file_statement.md).
+
+## Execution Options {#execution-options}
+
+`statementType` selects the execution style, `timeout` sets the timeout, `fetchSize` provides a fetch-size hint, and `resultSetType` selects the result-set type. Queries use prepared statements by default. Scrollable results also require driver support for the requested `resultSetType`.
+
+The available attributes for each tag are listed below. `fetchSize` is a fetch-size hint, not a limit on the total number of returned records.
+
 ## select tag {#select}
 
 `<select>` equals [@Query](../mapper/annotation_query). For simple cases just write the SQL:
@@ -54,6 +64,10 @@ Document tags consist of the following:
 | resultRowMapper     | <TagGray/> Configure a [RowMapper](../../result/for_mapper) for result handling (ignored if `bindOut` is set).                                                                                                                                                                                                                                                                                                                                                                                                            |
 | resultTypeHandler   | <TagGray/> Configure a [TypeHandler](../../types/about) for result handling (ignored if `bindOut` is set).                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | bindOut             | <TagGray/> Bind output params when using [Multiple Results](../jdbc/multiple_results) or [Stored Procedures](../jdbc/procedure). Requires mapper return type **Map&lt;String,Object&gt;**.                                                                                                                                                                                                                                                                                                                                                |
+
+### Stored Procedure Calls {#callable}
+
+Set `statementType="CALLABLE"` for stored procedures. Declare IN, OUT, or INOUT with the parameter's `mode`, and use `bindOut` to select outputs. See [Stored Procedure Calls](../jdbc/procedure) for output and cursor syntax. The database and JDBC driver must support the requested capability.
 
 ## update and delete tags {#update_delete}
 
@@ -101,6 +115,14 @@ Document tags consist of the following:
 | useGeneratedKeys  | <TagGray/> Whether to use JDBC generated keys. Ignored if `SelectKeySql`/`@SelectKey` is also configured.                                                      |
 | keyProperty       | <TagGray/> Bean property to fill when `useGeneratedKeys` is true. Ignored if `@SelectKey` is configured.                                                       |
 | keyColumn         | <TagGray/> Result-set column used when `useGeneratedKeys` is true. Ignored if `@SelectKey` is configured.                                                      |
+
+### Key Strategies {#key-strategies}
+
+- Assigned keys: bind a caller-supplied key directly in INSERT.
+- Generated keys: use `useGeneratedKeys`, `keyProperty`, and `keyColumn` to receive keys returned by the database.
+- Query-based keys: use [selectKey](#selectKey) before or after INSERT to query a value and fill the parameter property.
+
+Use `useGeneratedKeys`, `keyProperty`, and `keyColumn` on `<insert>` to configure key backfill. Key-return behavior differs across databases; see [Data Source Differences](../../../features/overview) for specific usage and [Generated Keys](../mapper/annotation_insert#generated-keys) for general configuration.
 
 ## selectKey tag {#selectKey}
 

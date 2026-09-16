@@ -1,7 +1,7 @@
 ---
 id: results
 slug: /features/redis/jdbc
-sidebar_position: 6
+sidebar_position: 90
 title: 结果读取
 ---
 
@@ -41,3 +41,7 @@ String message = result.get(1);
 :::
 
 完整返回类型见[命令语法](../about.md)。
+
+## 自定义结果处理 {#result-handlers}
+
+`RowMapper`、`RowCallbackHandler`、`ResultSetExtractor` 的 API 支持情况与配置方式见[结果接收](./result-handling.md)。处理时按上表中的实际结果列读取。

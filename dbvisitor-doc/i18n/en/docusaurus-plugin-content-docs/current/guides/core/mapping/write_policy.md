@@ -7,7 +7,7 @@ description: Configure how fields participate in database writes with dbVisitor 
 
 # Write Policy
 
-When using the [Fluent API](../../api/lambda), set column write policies to control INSERT/UPDATE behavior.
+When using the [Builder API](../../api/lambda), set column write policies to control INSERT/UPDATE behavior.
 
 ## Disallow Updates
 

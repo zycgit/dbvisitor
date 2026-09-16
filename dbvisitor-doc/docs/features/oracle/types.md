@@ -1,6 +1,6 @@
 ---
 id: types
-sidebar_position: 1
+sidebar_position: 80
 title: 类型支持
 description: Oracle 类型支持
 ---
@@ -54,6 +54,18 @@ private Integer sortNo;
 private BigDecimal amount;
 ```
 
-## 使用限制
+## 基础类型：空字符串 {#null-and-empty}
 
-- 空字符串按 `NULL` 处理。
+`VARCHAR2` 空字符串读取为 null。参数绑定示例及区分两种状态的方式见[空字符串参数](./parameters.md#empty-strings)。
+
+## 二进制类型：空 BLOB {#binary-values}
+
+普通 `byte[]` 可以读写二进制内容，但 Oracle JDBC 的 `setBytes` 会把 `new byte[0]` 绑定为 NULL。
+
+需要保存长度为 0 的 BLOB 时，使用 `Connection.createBlob()` 创建空 BLOB，再通过 `PreparedStatement.setBlob()` 写入。读取时，空 BLOB 返回长度为 0 的 `byte[]`，NULL 返回 null。
+
+## 数组类型 {#array-values}
+
+支持将 NULL 读为 Java 空值，但不支持通过通用 JDBC ARRAY 映射绑定、读取或修改非空数组。例如，不能将 `Integer[]` 按 `Types.ARRAY` 写入。
+
+需要在一个字段中保存列表时，使用适合的文本或 JSON 列，按[JSON 字段映射](../../guides/core/mapping/json-field.md)配置，不要将该字段配置为 JDBC ARRAY。这和把列表展开为 IN 条件是两件事。

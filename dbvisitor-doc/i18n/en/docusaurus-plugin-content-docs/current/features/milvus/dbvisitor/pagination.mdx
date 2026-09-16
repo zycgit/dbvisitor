@@ -1,7 +1,7 @@
 ---
 id: pagination
 slug: /features/milvus/pagination
-sidebar_position: 2
+sidebar_position: 34
 title: Pagination
 ---
 
@@ -12,11 +12,11 @@ Scalar queries use `LIMIT/OFFSET`; counts are separate:
 SELECT * FROM book_vectors WHERE word_count > 0 LIMIT 10 OFFSET 10;
 SELECT COUNT(*) FROM book_vectors WHERE word_count > 0;
 ```
-Milvus does not provide scalar ORDER BY. Pages from separate requests are not a stable snapshot.
+
 
 ## dbVisitor Usage
 
-Add a Page argument to a Mapper method. The entity mapping is shown in [Data Reads and Writes](usage.mdx).
+Add a Page argument to a Mapper method. The entity mapping is shown in [Entity Mapping](query.mdx#entity-mapping).
 
 ```java
 @Query("SELECT * FROM book_vectors WHERE word_count > 0")
@@ -31,6 +31,12 @@ List<BookVector> rows = mapper.findPage(page);
 Page numbering starts at zero. Page appends LIMIT/OFFSET, so omit existing pagination, a trailing semicolon, and WITH options. For queries with WITH, specify pagination in the command and do not pass Page.
 
 ## Notes
+
+### Scalar ordering {#scalar-ordering}
+
+Milvus does not provide scalar ORDER BY. Pages from separate requests are not a stable snapshot.
+
+### Page size and totals
 
 Page controls the returned range; fetchSize controls internal fetches. KNN totals are not TopK counts; do not request automatic totals for vector-range queries. See [SELECT](../query/select.md#pagination).
 

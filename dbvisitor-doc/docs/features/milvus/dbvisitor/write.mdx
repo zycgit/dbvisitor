@@ -1,0 +1,148 @@
+---
+id: write
+slug: /features/milvus/write
+sidebar_position: 32
+title: 数据写入
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+通过 dbVisitor 执行 Milvus SQL 完成新增、修改和删除。查询方法及实体映射见[查询操作](query.mdx)。
+
+## 准备集合 {#prepare-collection}
+
+运行读写示例前，在空环境创建集合及索引：
+
+```sql
+CREATE TABLE book_vectors (
+    book_id INT64 PRIMARY KEY,
+    title VARCHAR(256),
+    word_count INT32,
+    book_intro FLOAT_VECTOR(2)
+) WITH (consistency_level='Strong');
+CREATE INDEX idx_intro ON book_vectors (book_intro)
+USING "AUTOINDEX" WITH (metric_type="L2");
+LOAD TABLE book_vectors;
+```
+
+查询前需要加载集合。这里设置 Strong，便于写入后查询；使用迭代查询时，应在集合上配置该级别，不能只依赖连接参数。
+
+## 执行写入命令 {#exec-command}
+
+```java
+JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+
+jdbc.executeUpdate(
+        "INSERT INTO book_vectors (book_id, title, word_count, book_intro) VALUES (?, ?, ?, ?)",
+        new Object[] { 1001L, "mali", 100, List.of(0.1f, 0.2f) });
+
+jdbc.executeUpdate(
+        "UPDATE book_vectors SET title = ? WHERE book_id = ?",
+        new Object[] { "new title", 1001L });
+
+jdbc.executeUpdate(
+        "DELETE FROM book_vectors WHERE book_id = ?",
+        new Object[] { 1001L });
+```
+
+## 通过不同 API 修改数据 {#write-apis}
+
+以下示例复用[查询操作中的实体映射](query.mdx#entity-mapping)，将指定记录的 `title` 改为 `new name`。三种写法可任选其一，分别执行，不必连续运行。
+
+<Tabs>
+<TabItem value="fluent" label="构造器 API" default>
+
+```java
+LambdaTemplate lambda = new LambdaTemplate(dataSource);
+int changed = lambda.update(BookVector.class)
+        .eq(BookVector::getBookId, 1001L)
+        .updateTo(BookVector::getTitle, "new name")
+        .doUpdate();
+```
+
+</TabItem>
+<TabItem value="annotation" label="方法注解">
+
+```java
+@SimpleMapper
+public interface BookVectorWriteMapper {
+    @Update("UPDATE book_vectors SET title = #{name} WHERE book_id = #{id}")
+    int rename(@Param("id") Long id, @Param("name") String name);
+}
+```
+
+</TabItem>
+<TabItem value="xml" label="Mapper 文件">
+
+```xml
+<mapper namespace="com.example.BookVectorWriteMapper">
+    <update id="rename">
+        UPDATE book_vectors SET title = #{name} WHERE book_id = #{id}
+    </update>
+</mapper>
+```
+
+```java
+@RefMapper("/mapper/milvus-write.xml")
+public interface BookVectorWriteMapper {
+    int rename(@Param("id") Long id, @Param("name") String name);
+}
+```
+
+XML 保存到 `/mapper/milvus-write.xml`，接口位于 `com.example` 包。
+
+</TabItem>
+</Tabs>
+
+```java
+Session session = new Configuration().newSession(dataSource);
+BookVectorWriteMapper mapper = session.createMapper(BookVectorWriteMapper.class);
+int changed = mapper.rename(1001L, "new name");
+```
+
+## 写入操作 {#write-behavior}
+
+| 操作 | 数据库动作 |
+| --- | --- |
+| 修改指定属性 | 分页选取主键，再用 Partial Upsert 提交修改字段 |
+| 删除匹配记录 | 标量无 LIMIT 使用原生 Delete；需选取记录时分页删除 |
+
+BaseMapper 的修改和删除复用相同操作。
+
+- 删除返回值：删除不存在的主键也可能返回非零，不能据此判断记录原先是否存在，见[判断删除是否命中](#delete-count)。
+- 分批删除：不能照搬“按 ID 排序取页再删除”的流程，因为 Milvus 不支持普通字段排序。每次读取第一页匹配主键再删除，不递增 OFFSET，见[分页查询](pagination.mdx)。
+
+## Map 写入 {#map-writes}
+
+`insert().asMap()` 使用 Java 属性名；`insertFreedom` 使用 Milvus 字段名；BaseMapper 的 Map 写入使用已注册实体的属性名。
+
+updateByMap 忽略 NULL 和未提供的属性。replaceByMap 替换所有可更新的映射属性，未提供的值可能被写为 NULL；须提供要保留的值，并确保被清空字段允许 NULL。
+
+BaseMapper 的 upsertByMap 先查询再插入或替换，不等同于 SQL UPSERT，也不是原子操作。JdbcTemplate.executeBatch 在该驱动上逐条执行，不使用 JDBC Batch。
+
+## 选择插入冲突策略 {#insert-conflict}
+
+`Update` 使用部分 Upsert，必须提供主键：新 ID 插入，已有 ID 只更新本次提供的字段。不支持 `Ignore`。
+
+默认 INSERT 也不保证对重复主键报错，因此不要通过插入异常判断记录是否存在。需要“按 ID 保存”时使用 `Update`；其它重复处理规则由业务明确。
+
+## 无条件修改 {#empty-conditions}
+
+构造器默认拒绝无条件 UPDATE/DELETE，只有显式调用 allowEmptyWhere() 才放行；直接执行 SQL 没有这一保护。Milvus 2.6.2 组合条件时不要附加 WHERE 1=1，使用条件分支控制是否加入条件。参数化 LIKE、NOT 的限制见[运算符](../basics/operators.md)。
+
+## 判断删除是否命中 {#delete-count}
+
+删除不存在的主键时，Milvus 可能返回提交的主键数量，而不是 0。`BaseMapper.deleteById` 同样如此，不能据其返回值判断记录之前是否存在。
+
+业务只要求“确保该 ID 已删除”时，命令成功即可；需要原记录时应先查询，但查询与删除不是原子操作。
+
+## 多条修改中途失败 {#multiple-writes}
+
+无 LIMIT 的 UPDATE 不会只修改固定数量的记录，但需要分页执行。遇到失败时，已经写入的页面不会回滚；错误会携带已确认进度。处理方式和重试范围见[UPDATE 与 DELETE](../write/update.md)。
+
+事务 API 的行为见[事务支持](transactions.md)。
+
+## 命令异常 {#command-errors}
+
+非法命令和不存在的集合会报告异常，但重复主键不保证产生唯一约束错误。因此，普通或批量插入都不能依赖重复主键异常去重；写入选择见[插入冲突策略](#insert-conflict)。

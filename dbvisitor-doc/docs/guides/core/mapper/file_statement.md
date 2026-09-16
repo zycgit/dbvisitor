@@ -75,7 +75,18 @@ List<User> users = session.queryStatement("net.example.mapper.UserMapper.listUse
 
 ## 分页查询 {#page}
 
-通过传递 `Page` 参数进行分页查询。BaseMapper 和 Session 都支持带分页的 `queryStatement`。
+接口方法可以接收 `Page` 参数，返回 `List<User>` 或包含总数的 `PageResult<User>`。沿用上面的 XML，将方法签名改为：
+
+```java
+@RefMapper("/mapper/userMapper.xml")
+public interface UserMapper {
+    PageResult<User> listUsers(@Param("name") String name, Page page);
+}
+```
+
+调用 `mapper.listUsers("alice", PageObject.of(0, 20))` 即可获取第一页及符合条件的总记录数。
+
+直接调用 statement 时，BaseMapper 和 Session 都支持带分页的 `queryStatement`：
 
 ```java title='分页查询（返回 List）'
 Page page = PageObject.of(0, 20);
@@ -87,7 +98,7 @@ List<User> users = mapper.queryStatement(
         page);
 ```
 
-```java title='分页查询（返回 PageResult，仅 Session 支持）'
+```java title='Session 分页查询（返回 PageResult）'
 Page page = PageObject.of(0, 20);
 PageResult<User> users = session.pageStatement(
         "net.example.mapper.UserMapper.listUsers",

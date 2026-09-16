@@ -1,9 +1,10 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import clsx from 'clsx';
 import Layout from '@theme/Layout';
 import Link from '@docusaurus/Link';
 import Translate, {translate} from '@docusaurus/Translate';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 import styles from './index.module.css';
 import Vars from '@site/plugins/projectVars';
 
@@ -18,7 +19,7 @@ const LabelList = [
     {
         alt: 'Email',
         Svg: require('../../static/img/labels/email-zyc@byshell.svg').default,
-        href: 'mailto:zyc@byshell.org'
+        href: 'mailto:zyc@hasor.net'
     },
     {
         alt: 'QQ Group',
@@ -27,25 +28,53 @@ const LabelList = [
     },
 ];
 
-const RdbmsIcons = [
-    {name: 'MySQL', feature: 'mysql', icon: require('../../static/img/ds_icons/mysql.svg').default},
-    {name: 'PostgreSQL', feature: 'postgresql', icon: require('../../static/img/ds_icons/postgresql.svg').default},
-    {name: 'Oracle', feature: 'oracle', icon: require('../../static/img/ds_icons/oracle.svg').default},
-    {name: 'SQL Server', feature: 'mssql', icon: require('../../static/img/ds_icons/sqlserver.svg').default},
-    {name: 'DB2', feature: 'db2', icon: require('../../static/img/ds_icons/ibmdb2.svg').default},
-    {name: 'ClickHouse', feature: 'clickhouse', icon: require('../../static/img/ds_icons/clickhouse.svg').default},
-    {name: 'TiDB', icon: require('../../static/img/ds_icons/tidb.svg').default},
-    {name: 'OceanBase', icon: require('../../static/img/ds_icons/oceanbase.svg').default},
-    {name: 'DM', feature: 'dm', icon: require('../../static/img/ds_icons/dm.svg').default},
-    {name: 'StarRocks', icon: require('../../static/img/ds_icons/starrocks.svg').default},
-    {name: 'Doris', icon: require('../../static/img/ds_icons/doris.svg').default},
-];
-
-const NosqlIcons = [
-    {name: 'Redis', feature: 'redis', icon: require('../../static/img/ds_icons/redis.svg').default},
-    {name: 'MongoDB', feature: 'mongo', icon: require('../../static/img/ds_icons/mongodb.svg').default},
-    {name: 'Elasticsearch', feature: 'elastic', icon: require('../../static/img/ds_icons/elastic.svg').default},
-    {name: 'Milvus', feature: 'milvus', icon: require('../../static/img/ds_icons/milvus.svg').default},
+const DatabaseGroups = [
+    {
+        id: 'relational',
+        databases: [
+            {name: 'MySQL', icon: 'mysql.svg', feature: 'mysql'},
+            {name: 'MariaDB', icon: 'mariadb.svg'},
+            {name: 'PostgreSQL', icon: 'postgresql.svg', feature: 'postgresql'},
+            {name: 'Oracle', icon: 'oracle.svg', feature: 'oracle'},
+            {name: 'SQL Server', icon: 'sqlserver.svg', feature: 'mssql'},
+            {name: 'DB2', icon: 'ibmdb2.svg', feature: 'db2'},
+            {name: 'DM', icon: 'dm.svg', feature: 'dm'},
+            {name: 'Xugu', icon: 'xugu.svg'},
+            {name: 'Informix', icon: 'informix.svg'},
+            {name: 'TiDB', icon: 'tidb.svg'},
+            {name: 'OceanBase', icon: 'oceanbase.svg'},
+        ],
+    },
+    {
+        id: 'embedded',
+        databases: [
+            {name: 'H2', icon: 'h2.svg', feature: 'h2'},
+            {name: 'SQLite', icon: 'sqlite.svg'},
+            {name: 'Derby', icon: 'derby.svg'},
+            {name: 'HSQLDB', icon: 'hsqldb.svg'},
+        ],
+    },
+    {
+        id: 'analytics',
+        databases: [
+            {name: 'ClickHouse', icon: 'clickhouse.svg', feature: 'clickhouse'},
+            {name: 'Greenplum', icon: 'greenplum.svg'},
+            {name: 'SAP HANA', icon: 'hana.svg'},
+            {name: 'Hive', icon: 'hive.svg'},
+            {name: 'Impala', icon: 'impala.svg'},
+            {name: 'StarRocks', icon: 'starrocks.svg'},
+            {name: 'Doris', icon: 'doris.svg'},
+        ],
+    },
+    {
+        id: 'nosql',
+        databases: [
+            {name: 'Redis', icon: 'redis.svg', feature: 'redis'},
+            {name: 'MongoDB', icon: 'mongodb.svg', feature: 'mongo'},
+            {name: 'Elasticsearch', icon: 'elastic.svg', feature: 'elastic'},
+            {name: 'Milvus', icon: 'milvus.svg', feature: 'milvus'},
+        ],
+    },
 ];
 
 /* ==================== Hero Section ==================== */
@@ -62,7 +91,7 @@ function HeroSection() {
                     </Translate>
                 </p>
                 <div className={styles.heroBadges}>
-                    {LabelList.map((item, idx) => (
+                    {LabelList.filter(item => item.alt === 'License').map((item, idx) => (
                         <a key={idx} target="_blank" rel="noopener noreferrer" href={item.href}>
                             <item.Svg alt={item.alt}/>
                         </a>
@@ -86,9 +115,10 @@ function HeroSection() {
 /* ==================== Database Support Section ==================== */
 
 function DatabaseItem({db}) {
+    const iconUrl = useBaseUrl(`/img/ds_icons/${db.icon}`);
     const content = (
         <>
-            <db.icon className={styles.dbIcon} aria-hidden="true"/>
+            <img src={iconUrl} className={styles.dbIcon} alt="" width="44" height="44"/>
             <span className={styles.dbLabel}>{db.name}</span>
         </>
     );
@@ -116,65 +146,13 @@ function DatabaseSection() {
                     </Translate>
                 </p>
                 <div className={styles.dbGrid}>
-                    {RdbmsIcons.map(db => (
-                        <DatabaseItem key={db.name} db={db}/>
-                    ))}
-                    <div className={styles.dbDivider}/>
-                    {NosqlIcons.map(db => (
-                        <DatabaseItem key={db.name} db={db}/>
-                    ))}
-                </div>
-            </div>
-        </section>
-    );
-}
-
-/* ==================== Core Philosophy Section ==================== */
-
-function PhilosophySection() {
-    const features = [
-        {
-            icon: '🔗',
-            title: translate({id: 'dbv.phil.unified.title', message: '统一 APIs'}),
-            desc: translate({
-                id: 'dbv.phil.unified.desc',
-                message: 'JdbcTemplate、声明式接口、BaseMapper、LambdaTemplate 和 XML Mapper',
-            }),
-        },
-        {
-            icon: '📐',
-            title: translate({id: 'dbv.phil.adapter.title', message: '双层适配架构'}),
-            desc: translate({
-                id: 'dbv.phil.adapter.desc',
-                message: '应用访问层、标准驱动层、独立演进、独立使用',
-            }),
-        },
-        {
-            icon: '🧩',
-            title: translate({id: 'dbv.phil.zero.title', message: '零耦合'}),
-            desc: translate({
-                id: 'dbv.phil.zero.desc',
-                message: '可复杂、可简单、自由集成、任意使用',
-            }),
-        },
-    ];
-
-    return (
-        <section className={styles.philosophySection}>
-            <div className="container">
-                <h2 className={styles.sectionTitle} style={{textAlign: 'center'}}>
-                    <Translate id="dbv.phil.title">核心理念</Translate>
-                </h2>
-                <p className={styles.sectionSubtitle} style={{textAlign: 'center'}}>
-                    <Translate id="dbv.phil.subtitle">使用不同层面的 API 来解决不同层面的问题，尊重数据源差异，管理数据源差异。</Translate>
-                </p>
-                <div className={styles.featureGrid}>
-                    {features.map((f, idx) => (
-                        <div key={idx} className={styles.featureCard}>
-                            <div className={styles.featureIcon}>{f.icon}</div>
-                            <div className={styles.featureTitle}>{f.title}</div>
-                            <div className={styles.featureDesc}>{f.desc}</div>
-                        </div>
+                    {DatabaseGroups.map((group, index) => (
+                        <React.Fragment key={group.id}>
+                            {index > 0 && <div className={styles.dbDivider} aria-hidden="true"/>}
+                            {group.databases.map(db => (
+                                <DatabaseItem key={db.name} db={db}/>
+                            ))}
+                        </React.Fragment>
                     ))}
                 </div>
             </div>
@@ -188,19 +166,23 @@ function ArchitectureSection() {
     return (
         <section className={styles.archSection}>
             <div className="container">
-                <h2 className={styles.sectionTitle} style={{textAlign: 'center'}}>
+                <h2 className={styles.sectionTitle}>
                     <Translate id="dbv.arch.title">双层适配架构</Translate>
                 </h2>
-                <p className={styles.sectionSubtitle} style={{textAlign: 'center'}}>
+                <p className={styles.sectionSubtitle}>
                     <Translate id="dbv.arch.subtitle">
                         应用层管理查询方式差异，协议层管理通信协议差异
                     </Translate>
+                </p>
+                <p className={styles.archPrinciple}>
+                    <Translate id="dbv.phil.subtitle">使用不同层面的 API 来解决不同层面的问题，尊重数据源差异，管理数据源差异。</Translate>
                 </p>
                 <div className={styles.archDiagram}>
                     <img
                         src="/img/double.png"
                         alt="Dual-Layer Adapter Architecture"
                         className={styles.archImage}
+                        loading="lazy"
                     />
                 </div>
             </div>
@@ -208,7 +190,7 @@ function ArchitectureSection() {
     );
 }
 
-/* ==================== 5 API Styles Carousel Section ==================== */
+/* ==================== 5 API Styles Section ==================== */
 
 function CodeBlock({title, children}) {
     return (
@@ -223,7 +205,6 @@ function CodeBlock({title, children}) {
 
 function ApiStylesSection() {
     const [activeIdx, setActiveIdx] = useState(0);
-    const [paused, setPaused] = useState(false);
 
     const apiStyles = [
         {
@@ -314,17 +295,6 @@ function ApiStylesSection() {
         },
     ];
 
-    // Auto-rotate every 5 seconds
-    useEffect(() => {
-        if (paused) {
-            return;
-        }
-        const timer = setInterval(() => {
-            setActiveIdx((prev) => (prev + 1) % apiStyles.length);
-        }, 5000);
-        return () => clearInterval(timer);
-    }, [paused, apiStyles.length]);
-
     const current = apiStyles[activeIdx];
 
     return (
@@ -340,13 +310,14 @@ function ApiStylesSection() {
                 </p>
 
                 {/* Tab buttons */}
-                <div className={styles.apiTabs}
-                     onMouseLeave={() => setPaused(false)}>
+                <div className={styles.apiTabs}>
                     {apiStyles.map((api, idx) => (
                         <button
                             key={idx}
                             className={clsx(styles.apiTab, idx === activeIdx && styles.apiTabActive)}
-                            onMouseEnter={() => { setActiveIdx(idx); setPaused(true); }}
+                            type="button"
+                            aria-pressed={idx === activeIdx}
+                            aria-controls="api-example"
                             onClick={() => { setActiveIdx(idx); }}
                         >
                             <span className={styles.apiTabIcon}>{api.icon}</span>
@@ -355,17 +326,8 @@ function ApiStylesSection() {
                     ))}
                 </div>
 
-                {/* Progress bar */}
-                <div className={styles.apiProgress}>
-                    {apiStyles.map((_, idx) => (
-                        <div key={idx} className={clsx(styles.apiProgressDot, idx === activeIdx && styles.apiProgressDotActive)}/>
-                    ))}
-                </div>
-
                 {/* Content: description + code */}
-                <div className={styles.apiShowcase}
-                     onMouseEnter={() => setPaused(true)}
-                     onMouseLeave={() => setPaused(false)}>
+                <div id="api-example" className={styles.apiShowcase}>
                     <div className={styles.apiInfo}>
                         <div className={styles.apiInfoIcon}>{current.icon}</div>
                         <h3 className={styles.apiInfoTitle}>{current.name}</h3>
@@ -454,6 +416,9 @@ function QuickStartSection() {
                             {'</'}<span className={styles.codeKeyword}>{'dependency'}</span>{'>\n'}
                         </pre>
                     </div>
+                    <p className={styles.runtimeNote}>
+                        <Translate id="dbv.start.runtime">环境要求：dbVisitor 6.7.1 起要求 Java 17+。</Translate>
+                    </p>
                     <div className={styles.quickStartButtons}>
                         <Link className="button button--primary button--lg" to="/docs/guides/overview">
                             <Translate id="commons.document">使用手册</Translate>
@@ -471,6 +436,27 @@ function QuickStartSection() {
 /* ==================== Bottom CTA Section ==================== */
 
 function CtaSection() {
+    const {i18n} = useDocusaurusContext();
+    const channels = {
+        github: {label: 'GitHub Issues', href: 'https://github.com/zycgit/dbvisitor/issues'},
+        gitee: {label: 'Gitee Issues', href: 'https://gitee.com/zycgit/dbvisitor/issues'},
+        discussions: {
+            label: translate({id: 'dbv.cta.discussions', message: '使用讨论'}),
+            href: 'https://github.com/zycgit/dbvisitor/discussions',
+        },
+        qq: {
+            label: translate({id: 'dbv.cta.qq', message: 'QQ 交流群'}),
+            href: LabelList.find(item => item.alt === 'QQ Group').href,
+        },
+        email: {
+            label: translate({id: 'dbv.cta.email', message: '联系作者'}),
+            href: LabelList.find(item => item.alt === 'Email').href,
+        },
+    };
+    const order = i18n.currentLocale.startsWith('zh')
+        ? ['gitee', 'qq', 'github', 'discussions', 'email']
+        : ['github', 'discussions', 'gitee', 'qq', 'email'];
+
     return (
         <section className={styles.ctaSection}>
             <div className="container">
@@ -479,15 +465,21 @@ function CtaSection() {
                 </h2>
                 <p className={styles.ctaDesc}>
                     <Translate id="dbv.cta.desc">
-                        Apache 2.0 开源协议 · 核心依赖 Cobble · 6.7.1 起要求 Java 17+
+                        交流使用经验、反馈问题，参与 dbVisitor 的改进。
                     </Translate>
                 </p>
                 <div className={styles.ctaLinks}>
-                    {LabelList.map((item, idx) => (
-                        <a key={idx} target="_blank" rel="noopener noreferrer" href={item.href}>
-                            <item.Svg alt={item.alt}/>
-                        </a>
-                    ))}
+                    {order.map(key => {
+                        const channel = channels[key];
+                        return (
+                            <a key={key} className={styles.communityLink}
+                               target={key === 'email' ? undefined : '_blank'}
+                               rel={key === 'email' ? undefined : 'noopener noreferrer'}
+                               href={channel.href}>
+                                {channel.label}
+                            </a>
+                        );
+                    })}
                 </div>
             </div>
         </section>
@@ -502,10 +494,9 @@ export default function Home() {
             <HeroSection/>
             <main>
                 <DatabaseSection/>
-                <PhilosophySection/>
-                <ArchitectureSection/>
                 <ApiStylesSection/>
                 <CodeExampleSection/>
+                <ArchitectureSection/>
                 <QuickStartSection/>
             </main>
             <CtaSection/>

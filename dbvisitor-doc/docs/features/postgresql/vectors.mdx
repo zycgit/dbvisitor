@@ -1,15 +1,17 @@
 ---
 id: vectors
-sidebar_position: 5
-title: 向量数据操作
+sidebar_position: 50
+title: 向量操作
 description: PostgreSQL 向量字段映射、距离阈值与检索索引的使用差异。
 ---
 
-# 向量数据操作
+# 向量操作
 
 PostgreSQL 使用 pgvector 扩展存储和检索向量。通用读写用法见[向量类型映射](../../guides/core/vector_query/mapping.md)，查询用法见[KNN 近邻排序](../../guides/core/vector_query/knn.md)和[距离范围过滤](../../guides/core/vector_query/range.md)。
 
-## 映射向量字段
+<span id="映射向量字段" />
+
+## 向量类型映射 {#vector-mapping}
 
 `vector(3)` 保存三维向量，不是 PostgreSQL 数组。先启用扩展，再定义字段：
 
@@ -21,29 +23,21 @@ CREATE TABLE vector_item (
 );
 ```
 
-实体的 `List<Float>` 属性需要配置 `PgVectorTypeHandler`：
+该字段使用 `List<Float>` 和 `PgVectorTypeHandler`，配置见[向量类型处理器](../../guides/types/vector-handler)。写入和查询均传三维向量，无需先转成 `PGobject`。
+
+二进制向量使用 `BIT(n)` 字段，查询参数使用类型为 `bit` 的 `PGobject`，不要套用浮点向量处理器：
 
 ```java
-import java.util.List;
-import net.hasor.dbvisitor.mapping.Column;
-import net.hasor.dbvisitor.mapping.Table;
-import net.hasor.dbvisitor.types.handler.vector.PgVectorTypeHandler;
-
-@Table("vector_item")
-public class VectorItem {
-    @Column(primary = true)
-    private Long id;
-
-    @Column(typeHandler = PgVectorTypeHandler.class)
-    private List<Float> embedding;
-
-    // 省略 getter 和 setter
-}
+PGobject target = new PGobject();
+target.setType("bit");
+target.setValue("11110000"); // 对应 BIT(8)
 ```
 
-写入和查询均传三维的 `List<Float>`。构造器 API 的 `orderBy*` 和 `vectorBy*` 会复用字段处理器，无需先转成 `PGobject`。
+<span id="按余弦相似度查询" />
 
-## 按余弦相似度查询
+## 距离范围过滤 {#range-filters}
+
+支持 L2、余弦、内积，以及 `BIT(n)` 的 Hamming、Jaccard 距离过滤；pgvector 不提供 BM25 评分。
 
 pgvector 的 `<=>` 返回**余弦距离**，等于 `1 - 余弦相似度`。要查相似度大于 `0.8` 的记录，距离阈值应传 `0.2`，而不是 `0.8`：
 
@@ -69,7 +63,11 @@ List<VectorItem> rows = lambda.query(VectorItem.class)
 
 生成的条件为 `embedding <#> ? < -0.8`。
 
-## 匹配检索索引
+<span id="匹配检索索引" />
+
+## KNN 近邻排序 {#knn-ordering}
+
+`BIT(n)` 使用 `orderByHamming` 或 `orderByJaccard` 按距离升序排列；浮点向量使用下表的三种方式。不支持 `orderByBM25`。
 
 索引需要与查询使用的距离匹配：
 
@@ -89,3 +87,7 @@ ON vector_item USING hnsw (embedding vector_cosine_ops);
 L2 索引不能替代余弦索引。索引近邻查询需要按距离升序并限制条数；构造器 API 使用 `orderByCosine(...).initPage(10, 0)`。仅调用 `vectorByCosine` 过滤距离，不等同于索引近邻查询。
 
 距离定义与索引选项见 [pgvector 文档](https://github.com/pgvector/pgvector)。
+
+## 组合查询 {#vector-scalar}
+
+标量条件与向量条件组合到 WHERE 中。`eq(...).orderByCosine(...).initPage(k, 0)` 返回满足标量条件的近邻；使用近似索引时，过滤后可能不足 k 条，不能把 k 当作保证命中条数。用法见[组合条件](../../guides/core/vector_query/combined.md)。

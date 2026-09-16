@@ -1,7 +1,7 @@
 ---
 id: vectors
 slug: /features/elastic/vectors
-sidebar_position: 5
+sidebar_position: 50
 title: Vector Operations
 ---
 
@@ -15,10 +15,16 @@ Elasticsearch vector queries depend on the server version and field mapping. An 
 | --- | --- |
 | ES 7 script_score | Score matching documents with a script. |
 | ES 8.4+ _search knn | Native approximate search on an indexed dense_vector. |
-| Elastic7Dialect | Vector ordering produces script sort, not native knn; script context support must match the server. |
+| Elastic7Dialect | Uses script_score and descending _score ordering, not native knn. |
 | Elastic8Dialect | Produces top-level knn with fixed k=10 and num_candidates=100; initPage does not change these values. |
 
-## Configure the Vector Field
+<span id="configure-the-vector-field" />
+
+## Vector Type Mapping {#vector-mapping}
+
+ES 7 uses `dense_vector` with `dims`, without the ES 8 `index` and `similarity` options below. Bind numeric Lists when writing. Expanded vector fields are also returned as numeric Lists, not JSON text.
+
+In ES 7.17, a `dense_vector` field may be absent and reads as null, but explicitly inserting or updating it to `null` is rejected. To clear an existing vector, remove the field with a native command instead of assigning null in a builder update.
 
 For the ES 8.4+ kNN example, create this index first:
 
@@ -60,7 +66,13 @@ List<Map<String, Object>> rows = jdbc.queryForList(
 Elastic8Dialect places Fluent scalar conditions in top-level query, not knn.filter. Elasticsearch combines query and knn as alternatives; eq(...).orderByL2(...) is therefore not a mandatory candidate filter. Use the command above for tenant or category restrictions.
 :::
 
-## Script Scoring on ES 7
+<span id="es7-scores" />
+
+## KNN Ordering {#knn-ordering}
+
+Vector ordering integrates L2, cosine, and inner product. Hamming, Jaccard, and BM25 are not integrated into these builder methods; full-text BM25 scoring is a separate feature.
+
+The ES 7 builder generates `script_score` and orders by `_score` descending. It supports one vector score per query, not native approximate kNN.
 
 On ES 7, declare embedding as dense_vector with dims=3; omit the ES 8 index and similarity options. For cosine scoring, submit script_score:
 
@@ -84,10 +96,29 @@ List<Map<String, Object>> rows = jdbc.queryForList(
 
 Every matching document must contain embedding. The script adds 1 to keep scores nonnegative; the score is not the original cosine similarity.
 
+## Distance Range Filtering {#range-filters}
+
+The ES 7 builder compares distances in a script and uses `min_score=1` to retain matching documents. `vectorByL2` compares L2 distance, `vectorByCosine` compares `1 - cosineSimilarity`, and `vectorByIP` compares the negative inner product. All use `< threshold`.
+
+Cosine similarity above `0.8` therefore uses `0.2`; inner product above `0.8` uses `-0.8`. The range threshold is not the `_score` returned by vector ordering.
+
+Hamming, Jaccard, and BM25 range filters are not available through the builder API.
+
+## Combined Queries {#vector-scalar}
+
+The ES 7 builder puts scalar predicates in `script_score.query`, scoring only matching documents. `eq(...).orderByCosine(...)` restricts the candidate set; range filters can also combine scalar predicates. For ES 8, use the candidate-filtering command above rather than assuming ES 7 behavior.
+
 ## Read Vector Values
 
-The adapter returns embedding as JSON text when expanding the document. Read _DOC for the whole document; map embedding as String or configure JSON mapping for a List property.
+Read `_DOC` for the whole document. Read `embedding` as a numeric List; use `Number.floatValue()` when Float elements are needed:
+
+```java
+List<?> values = (List<?>) row.get("embedding");
+List<Float> embedding = values.stream()
+        .map(value -> ((Number) value).floatValue())
+        .toList();
+```
 
 Request syntax and version requirements:
 [script_score](https://www.elastic.co/guide/en/elasticsearch/reference/7.17/query-dsl-script-score-query.html)、
-[kNN](https://www.elastic.co/guide/en/elasticsearch/reference/8.4/knn-search.html)。
+[kNN](https://www.elastic.co/guide/en/elasticsearch/reference/8.4/knn-search.html).

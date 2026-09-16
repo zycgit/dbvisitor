@@ -1,0 +1,18 @@
+.matrix thead th {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.matrix tbody th {
+    background: inherit;
+    font-weight: normal;
+    white-space: nowrap;
+}
+
+.matrix td {
+    text-align: center;
+}
+
+.matrix tbody tr:last-child th {
+    border-bottom: 0;
+}

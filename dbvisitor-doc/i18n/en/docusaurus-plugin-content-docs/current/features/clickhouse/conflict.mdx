@@ -1,6 +1,6 @@
 ---
 id: conflict
-sidebar_position: 3
+sidebar_position: 35
 title: Duplicate Records
 description: Read the latest version when MergeTree contains repeated business IDs.
 ---
@@ -42,6 +42,10 @@ List<Map<String, Object>> latest = jdbcTemplate.queryForList("""
 
 The result contains one E1 row with `event_name = archived`. Old versions still exist in storage.
 
+## Insert conflict strategies {#duplicates}
+
+The ClickHouse Builder API does not support the `Ignore` or `Update` insert-conflict strategies. They cannot provide unique-key updates. To retain the latest state, use the version field and query shown above.
+
 :::caution[Note]
-Use a unique version per event ID so the latest value is unambiguous. The ClickHouse Fluent API does not support the Ignore or Update insert-conflict strategies; they cannot turn this model into a unique-key upsert.
+Use a unique version per event ID so the latest value is unambiguous.
 :::

@@ -56,14 +56,14 @@ The PageObject itself is universal; integration varies by API:
 
 | API | How to paginate | Return type |
 |-----|----------------|-------------|
-| Fluent API | `lambda.query(...).initPage(10, 0)` or `.usePage(page)` | `List<T>` |
+| Builder API | `lambda.query(...).initPage(10, 0)` or `.usePage(page)` | `List<T>` |
 | BaseMapper | `mapper.pageBySample(sample, page)` | `PageResult<T>` (with stats) |
 | Annotation Mapper | Add `Page` parameter to method signature | `List<T>` or `PageResult<T>` |
 | Mapper File | Add `Page` parameter to method signature | `List<T>` or `PageResult<T>` |
 
 Detailed usage per API:
 
-- [Fluent API Pagination](../core/lambda/query#page)
+- [Builder API Pagination](../core/lambda/query#page)
 - [BaseMapper Pagination](../core/mapper/about#base-mapper)
 - [Annotation Pagination](../core/mapper/annotation_query)
 - [Mapper File Pagination](../core/file/paging)

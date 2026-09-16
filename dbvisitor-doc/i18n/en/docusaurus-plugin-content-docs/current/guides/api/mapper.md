@@ -19,7 +19,7 @@ Mapper API organizes the data access layer with Java interfaces. **It is not a s
 |---|---|---|
 | SQL is short and clearest next to the interface | **Method Annotations** | `@Query` / `@Insert` / `@Update` / `@Delete` to declare SQL |
 | Single-table CRUD, don't want to write SQL | **BaseMapper** | Extend `BaseMapper<T>` for zero-SQL CRUD |
-| Complex condition combinations, but want to stay on the Mapper interface | **BaseMapper switch** | `mapper.query()` to enter the Fluent API |
+| Complex condition combinations, but want to stay on the Mapper interface | **BaseMapper switch** | `mapper.query()` to enter the Builder API |
 | SQL is long or needs centralized maintenance | **Mapper File** | XML centralizes SQL management; interface methods reference statements in the file |
 
 ## Three Common Styles
@@ -56,7 +56,7 @@ mapper.insert(user);
 User u = mapper.selectById(1L);
 List<User> users = mapper.listBySample(sample);
 
-// Switch to Fluent API when conditions get complex
+// Switch to Builder API when conditions get complex
 List<User> result = mapper.query()
         .likeRight(User::getName, "A")
         .ge(User::getAge, 18)
@@ -127,7 +127,7 @@ User user = mapper.selectById(1L);
 ## Not Best For
 
 - Just executing one-off SQL statements without needing a DAO interface → [Programmatic API](./jdbc)
-- Queries rely mainly on chainable condition composition and you don't want to maintain SQL strings → [Fluent API](./lambda)
+- Queries rely mainly on chainable condition composition and you don't want to maintain SQL strings → [Builder API](./lambda)
 
 ## Learn More
 

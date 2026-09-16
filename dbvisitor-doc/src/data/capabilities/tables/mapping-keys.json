@@ -1,0 +1,135 @@
+{
+  "schemaVersion": 1,
+  "id": "mapping-keys",
+  "groups": [
+    {
+      "id": "table-mapping",
+      "title": {
+        "zh-cn": "映射表",
+        "en": "Table Mapping"
+      },
+      "anchor": {
+        "zh-cn": "映射表",
+        "en": "table-mapping"
+      },
+      "columns": [
+        {
+          "id": "fields",
+          "title": {
+            "zh-cn": "映射表",
+            "en": "Table Mapping"
+          },
+          "href": "/docs/guides/core/mapping/table"
+        }
+      ]
+    },
+    {
+      "id": "naming-and-case-sensitivity",
+      "title": {
+        "zh-cn": "命名与名称敏感性",
+        "en": "Naming and Case Sensitivity"
+      },
+      "anchor": {
+        "zh-cn": "命名与名称敏感性",
+        "en": "naming-and-case-sensitivity"
+      },
+      "columns": [
+        {
+          "id": "name-conversion",
+          "title": {
+            "zh-cn": "驼峰命名法",
+            "en": "Camel Case"
+          },
+          "href": "/docs/guides/core/mapping/camel_case"
+        },
+        {
+          "id": "identifiers",
+          "title": {
+            "zh-cn": "名称敏感性",
+            "en": "Name Sensitivity"
+          },
+          "href": "/docs/guides/core/mapping/name_sensitivity"
+        },
+        {
+          "id": "result-columns",
+          "title": {
+            "zh-cn": "结果列大小写",
+            "en": "Result Column Case"
+          },
+          "href": "/docs/guides/core/mapping/name_sensitivity#result-column-case"
+        }
+      ]
+    },
+    {
+      "id": "write-policies",
+      "title": {
+        "zh-cn": "写入策略",
+        "en": "Write Policies"
+      },
+      "anchor": {
+        "zh-cn": "写入策略",
+        "en": "write-policies"
+      },
+      "columns": [
+        {
+          "id": "fields",
+          "title": {
+            "zh-cn": "写入策略",
+            "en": "Write Policy"
+          },
+          "href": "/docs/guides/core/mapping/write_policy"
+        }
+      ]
+    },
+    {
+      "id": "field-types-and-statement-templates",
+      "title": {
+        "zh-cn": "字段类型与语句模板",
+        "en": "Field Types and Statement Templates"
+      },
+      "anchor": {
+        "zh-cn": "字段类型与语句模板",
+        "en": "field-types-and-statement-templates"
+      },
+      "columns": [
+        {
+          "id": "json-fields",
+          "title": {
+            "zh-cn": "JSON 字段映射",
+            "en": "JSON Field Mapping"
+          },
+          "href": "/docs/guides/core/mapping/json-field"
+        },
+        {
+          "id": "statement-templates",
+          "title": {
+            "zh-cn": "语句模板",
+            "en": "Statement Templates"
+          },
+          "href": "/docs/guides/core/mapping/statement_template"
+        }
+      ]
+    },
+    {
+      "id": "key-generators",
+      "title": {
+        "zh-cn": "主键生成器",
+        "en": "Key Generators"
+      },
+      "anchor": {
+        "zh-cn": "主键生成器",
+        "en": "key-generators"
+      },
+      "columns": [
+        {
+          "id": "strategies",
+          "title": {
+            "zh-cn": "主键策略",
+            "en": "Key strategies"
+          },
+          "href": "/docs/guides/core/mapping/key_generator#key-strategies"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,489 @@
+{
+  "schemaVersion": 1,
+  "id": "mongo",
+  "capabilities": {
+    "builder/inserts-updates-and-deletes/writes": {
+      "status": "supported",
+      "passed": 23,
+      "total": 23
+    },
+    "builder/inserts-updates-and-deletes/insert-conflicts": {
+      "status": "supported",
+      "passed": 7,
+      "total": 7,
+      "href": "/docs/features/mongo/builder#conflicts"
+    },
+    "builder/queries/query": {
+      "status": "supported",
+      "passed": 16,
+      "total": 16,
+      "href": "/docs/features/mongo/builder#queries"
+    },
+    "builder/map-query/modes": {
+      "status": "supported",
+      "passed": 16,
+      "total": 16
+    },
+    "builder/pagination-and-iteration/pagination": {
+      "status": "supported",
+      "passed": 22,
+      "total": 22,
+      "href": "/docs/features/mongo/builder#pagination"
+    },
+    "builder/condition-builders/predicates": {
+      "status": "supported",
+      "passed": 37,
+      "total": 37,
+      "href": "/docs/features/mongo/builder#predicates"
+    },
+    "builder/condition-values/parameter-values": {
+      "status": "supported",
+      "passed": 19,
+      "total": 19
+    },
+    "builder/grouping-and-ordering/grouping": {
+      "status": "supported",
+      "passed": 6,
+      "total": 6,
+      "href": "/docs/features/mongo/builder#grouping"
+    },
+    "builder/grouping-and-ordering/ordering": {
+      "status": "partial",
+      "passed": 5,
+      "total": 9,
+      "href": "/docs/features/mongo/builder#ordering"
+    },
+    "jdbc/updates/updates": {
+      "status": "supported",
+      "passed": 6,
+      "total": 6,
+      "href": "/docs/features/mongo/programmatic#updates"
+    },
+    "jdbc/queries/queries": {
+      "status": "supported",
+      "passed": 16,
+      "total": 16,
+      "href": "/docs/features/mongo/programmatic#queries"
+    },
+    "jdbc/queries/pairs-queries": {
+      "status": "supported",
+      "passed": 3,
+      "total": 3
+    },
+    "jdbc/batch-operations/batch": {
+      "status": "supported",
+      "passed": 9,
+      "total": 9,
+      "href": "/docs/features/mongo/programmatic#batch"
+    },
+    "jdbc/multiple-results/multiple-results": {
+      "status": "supported",
+      "passed": 5,
+      "total": 5
+    },
+    "jdbc/stored-routines/routines": {
+      "status": "partial",
+      "passed": 3,
+      "total": 14,
+      "href": "/docs/features/mongo/programmatic#routines"
+    },
+    "mapper-files/statements/execution": {
+      "status": "supported",
+      "passed": 11,
+      "total": 11,
+      "href": "/docs/features/mongo/write#write-apis"
+    },
+    "mapper-files/statements/options": {
+      "status": "partial",
+      "passed": 5,
+      "total": 6,
+      "href": "/docs/features/mongo/query#execution-options"
+    },
+    "mapper-files/statements/key-strategies": {
+      "status": "partial",
+      "passed": 6,
+      "total": 7,
+      "href": "/docs/features/mongo/generated-keys#key-source"
+    },
+    "mapper-files/statements/callable": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 6
+    },
+    "mapper-files/statements/fragments": {
+      "status": "supported",
+      "passed": 4,
+      "total": 4
+    },
+    "mapper-files/dynamic-sql-and-result-mapping/dynamic-commands": {
+      "status": "supported",
+      "passed": 8,
+      "total": 8
+    },
+    "mapper-files/dynamic-sql-and-result-mapping/resultmap": {
+      "status": "supported",
+      "passed": 13,
+      "total": 13
+    },
+    "mapper-files/pagination/file-pagination": {
+      "status": "supported",
+      "passed": 7,
+      "total": 7,
+      "href": {
+        "zh-cn": "/docs/features/mongo/pagination#dbvisitor-用法",
+        "en": "/docs/features/mongo/pagination#dbvisitor-usage"
+      }
+    },
+    "mapper-files/external-mapper-references/calls": {
+      "status": "supported",
+      "passed": 6,
+      "total": 6
+    },
+    "mapper/method-annotations/execution": {
+      "status": "partial",
+      "passed": 21,
+      "total": 22,
+      "href": "/docs/features/mongo/mapper#annotations"
+    },
+    "mapper/base-mapper/operations": {
+      "status": "supported",
+      "passed": 45,
+      "total": 45
+    },
+    "mapper/key-strategies/strategies": {
+      "status": "partial",
+      "passed": 17,
+      "total": 18,
+      "href": "/docs/features/mongo/mapper#keys"
+    },
+    "mapper/pagination/pagination": {
+      "status": "supported",
+      "passed": 4,
+      "total": 4,
+      "href": "/docs/features/mongo/mapper#pagination"
+    },
+    "mapper/execution-options/options": {
+      "status": "partial",
+      "passed": 5,
+      "total": 8,
+      "href": "/docs/features/mongo/mapper#options"
+    },
+    "mapper/builder/calls": {
+      "status": "supported",
+      "passed": 2,
+      "total": 2
+    },
+    "mapper/file-mapper/calls": {
+      "status": "supported",
+      "passed": 5,
+      "total": 5
+    },
+    "mapper/session/management": {
+      "status": "supported",
+      "passed": 8,
+      "total": 8
+    },
+    "parameters/positional-and-named-parameters/positional": {
+      "status": "supported",
+      "passed": 5,
+      "total": 5
+    },
+    "parameters/positional-and-named-parameters/named": {
+      "status": "supported",
+      "passed": 17,
+      "total": 17
+    },
+    "parameters/sql-text-substitution/text-replacement": {
+      "status": "supported",
+      "passed": 2,
+      "total": 2
+    },
+    "parameters/parameter-interfaces-and-options/statement-setter": {
+      "status": "supported",
+      "passed": 1,
+      "total": 1
+    },
+    "parameters/parameter-interfaces-and-options/mixed-sources": {
+      "status": "supported",
+      "passed": 1,
+      "total": 1
+    },
+    "parameters/parameter-interfaces-and-options/explicit-types": {
+      "status": "supported",
+      "passed": 3,
+      "total": 3
+    },
+    "parameters/native-jdbc-parameters/binding-and-reuse": {
+      "status": "supported",
+      "passed": 7,
+      "total": 7
+    },
+    "results/rowmapper/mapping": {
+      "status": "supported",
+      "passed": 4,
+      "total": 4,
+      "variants": {
+        "jdbc": {
+          "status": "supported",
+          "passed": 3,
+          "total": 3
+        },
+        "mapper": {
+          "status": "supported",
+          "passed": 3,
+          "total": 3
+        },
+        "builder": {
+          "status": "supported",
+          "passed": 2,
+          "total": 2
+        },
+        "mapper-file": {
+          "status": "supported",
+          "passed": 1,
+          "total": 1
+        }
+      }
+    },
+    "results/rowcallbackhandler/callback": {
+      "status": "supported",
+      "passed": 4,
+      "total": 4,
+      "variants": {
+        "jdbc": {
+          "status": "supported",
+          "passed": 1,
+          "total": 1
+        },
+        "mapper": {
+          "status": "supported",
+          "passed": 1,
+          "total": 1
+        },
+        "builder": {
+          "status": "supported",
+          "passed": 1,
+          "total": 1
+        },
+        "mapper-file": {
+          "status": "supported",
+          "passed": 1,
+          "total": 1
+        }
+      }
+    },
+    "results/resultsetextractor/extraction": {
+      "status": "supported",
+      "passed": 4,
+      "total": 4,
+      "variants": {
+        "jdbc": {
+          "status": "supported",
+          "passed": 4,
+          "total": 4
+        },
+        "mapper": {
+          "status": "supported",
+          "passed": 1,
+          "total": 1
+        },
+        "builder": {
+          "status": "supported",
+          "passed": 4,
+          "total": 4
+        },
+        "mapper-file": {
+          "status": "supported",
+          "passed": 1,
+          "total": 1
+        }
+      }
+    },
+    "transactions/transaction-apis/annotations": {
+      "status": "limited",
+      "passed": 0,
+      "total": 5,
+      "href": "/docs/features/mongo/transactions#annotations"
+    },
+    "transactions/transaction-apis/templates": {
+      "status": "limited",
+      "passed": 0,
+      "total": 4,
+      "href": "/docs/features/mongo/transactions#templates"
+    },
+    "transactions/transaction-apis/programmatic": {
+      "status": "limited",
+      "passed": 0,
+      "total": 3,
+      "href": "/docs/features/mongo/transactions#programmatic"
+    },
+    "transactions/transaction-apis/shared-transactions": {
+      "status": "limited",
+      "passed": 0,
+      "total": 4,
+      "href": "/docs/features/mongo/transactions#shared-transactions"
+    },
+    "transactions/transaction-propagation/propagation": {
+      "status": "limited",
+      "passed": 0,
+      "total": 7,
+      "href": "/docs/features/mongo/transactions#propagation",
+      "variants": {
+        "REQUIRED": {
+          "status": "unsupported",
+          "passed": 0,
+          "total": 3
+        },
+        "REQUIRES_NEW": {
+          "status": "unsupported",
+          "passed": 0,
+          "total": 8
+        },
+        "NESTED": {
+          "status": "unsupported",
+          "passed": 0,
+          "total": 7
+        },
+        "SUPPORTS": {
+          "status": "partial",
+          "passed": 1,
+          "total": 4
+        },
+        "NOT_SUPPORTED": {
+          "status": "partial",
+          "passed": 1,
+          "total": 4
+        },
+        "MANDATORY": {
+          "status": "unsupported",
+          "passed": 0,
+          "total": 3
+        },
+        "NEVER": {
+          "status": "partial",
+          "passed": 1,
+          "total": 4
+        }
+      }
+    },
+    "transactions/isolation-levels/isolation": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 6,
+      "href": "/docs/features/mongo/transactions#isolation"
+    },
+    "vectors/vectors/vector-mapping": {
+      "status": "supported",
+      "passed": 5,
+      "total": 5,
+      "href": "/docs/features/mongo/vectors#vector-mapping"
+    },
+    "vectors/vectors/knn-ordering": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 8,
+      "href": "/docs/features/mongo/vectors#vector-search"
+    },
+    "vectors/vectors/range-filters": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 7,
+      "href": "/docs/features/mongo/vectors#vector-search"
+    },
+    "vectors/vectors/vector--scalar": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 3,
+      "href": "/docs/features/mongo/vectors#vector-search"
+    },
+    "types/custom-type-handlers/entity-fields": {
+      "status": "supported",
+      "passed": 5,
+      "total": 5
+    },
+    "types/basic-types/values": {
+      "status": "supported",
+      "passed": 11,
+      "total": 11
+    },
+    "types/dates-and-times/values": {
+      "status": "supported",
+      "passed": 18,
+      "total": 18
+    },
+    "types/enum-handlers/enums": {
+      "status": "supported",
+      "passed": 7,
+      "total": 7
+    },
+    "types/characters-and-byte-arrays/binary": {
+      "status": "supported",
+      "passed": 6,
+      "total": 6
+    },
+    "types/json-serialization-handlers/conversion": {
+      "status": "supported",
+      "passed": 11,
+      "total": 11
+    },
+    "types/array-handlers/arrays": {
+      "status": "supported",
+      "passed": 10,
+      "total": 10,
+      "href": "/docs/features/mongo/types#array-values"
+    },
+    "parameters/command-rules/sql-fragments": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 9,
+      "href": "/docs/features/mongo/parameters#sql-fragments"
+    },
+    "parameters/command-rules/conditional-command": {
+      "status": "supported",
+      "passed": 2,
+      "total": 2,
+      "href": "/docs/features/mongo/parameters#general-rules"
+    },
+    "mapping-keys/table-mapping/fields": {
+      "status": "supported",
+      "passed": 12,
+      "total": 12
+    },
+    "mapping-keys/naming-and-case-sensitivity/name-conversion": {
+      "status": "supported",
+      "passed": 9,
+      "total": 9
+    },
+    "mapping-keys/naming-and-case-sensitivity/result-columns": {
+      "status": "supported",
+      "passed": 3,
+      "total": 3
+    },
+    "mapping-keys/naming-and-case-sensitivity/identifiers": {
+      "status": "supported",
+      "passed": 10,
+      "total": 10
+    },
+    "mapping-keys/write-policies/fields": {
+      "status": "supported",
+      "passed": 7,
+      "total": 7
+    },
+    "mapping-keys/field-types-and-statement-templates/json-fields": {
+      "status": "supported",
+      "passed": 4,
+      "total": 4
+    },
+    "mapping-keys/field-types-and-statement-templates/statement-templates": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 10
+    },
+    "mapping-keys/key-generators/strategies": {
+      "status": "partial",
+      "passed": 14,
+      "total": 19,
+      "href": "/docs/features/mongo/generated-keys#key-strategies"
+    }
+  }
+}

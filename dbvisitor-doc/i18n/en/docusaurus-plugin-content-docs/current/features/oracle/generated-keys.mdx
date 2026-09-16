@@ -1,6 +1,6 @@
 ---
 id: generated-keys
-sidebar_position: 4
+sidebar_position: 62
 toc_min_heading_level: 2
 toc_max_heading_level: 2
 title: Key Generation
@@ -22,7 +22,17 @@ Oracle supports `IDENTITY` columns and has long used sequences for primary key g
 For general configuration, see [Generated Keys](../../guides/core/mapper/annotation_insert#generated-keys).
 :::
 
-## Using IDENTITY
+## Key Strategies {#key-strategies}
+
+| Strategy | Usage on this datasource |
+| --- | --- |
+| Assigned | Supply the primary key before insertion. |
+| Auto-increment | Use a database-generated numeric key. |
+| UUID | Use UUID32 or UUID36 with a string key field. |
+| Sequence | Fetch a sequence value before insertion. |
+| Custom | Use a custom generator before or after insertion. |
+
+## Using IDENTITY {#identity}
 
 Oracle 12c+ can use `IDENTITY` columns:
 
@@ -35,7 +45,7 @@ CREATE TABLE user_info (
 ```
 
 <Tabs>
-<TabItem value="identity-lambda" label="Fluent API" default>
+<TabItem value="identity-lambda" label="Builder API" default>
 
 Configure `KeyType.Auto` on the primary-key property for automatic backfill after insertion.
 
@@ -106,7 +116,7 @@ Set `useGeneratedKeys="true"`, with `keyProperty` naming the property to fill an
 </TabItem>
 </Tabs>
 
-## Using a Sequence
+## Using a Sequence {#sequence}
 
 This example uses a regular primary-key column and a sequence, independently of the IDENTITY example above:
 
@@ -120,7 +130,7 @@ CREATE SEQUENCE user_info_seq START WITH 1 INCREMENT BY 1;
 ```
 
 <Tabs>
-<TabItem value="sequence-lambda" label="Fluent API" default>
+<TabItem value="sequence-lambda" label="Builder API" default>
 
 Configure the primary-key property with `KeyType.Sequence` and name the sequence with `@KeySeq`:
 
@@ -184,3 +194,9 @@ int insertUser(UserInfo user);
 
 </TabItem>
 </Tabs>
+
+## Choosing the key source {#key-source}
+
+For method annotations and Mapper files, use `useGeneratedKeys` with the default key source. The generated-key result is separate from the statement's ordinary result set; do not set `generatedKeySource="resultSet"` for these inserts.
+
+For values returned by `RETURNING ... INTO`, use OUT parameters instead; see [Returning data](backfill.mdx).

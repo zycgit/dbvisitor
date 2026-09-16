@@ -1,7 +1,7 @@
 ---
 id: types
 slug: /features/milvus/types
-sidebar_position: 1
+sidebar_position: 80
 title: 类型支持
 description: Milvus 类型支持
 ---
@@ -11,6 +11,8 @@ description: Milvus 类型支持
 下表给出 Milvus 字段的 Java 属性类型建议。向量类型和维度以集合 schema 为准。Java/JDBC 类型见 [Java/JDBC 类型关系](../../../guides/types/java-jdbc.md)。
 
 ## 类型映射
+
+向量字段的用法见[向量类型](#vector-types)。
 
 表中向量行同时列出 JDBC 读写形式。
 
@@ -41,6 +43,16 @@ description: Milvus 类型支持
 | SPARSE_FLOAT_VECTOR | SortedMap&lt;Long, Float> | `getObject()` 按维度索引升序返回。写入接受非空 `Map<Number, Number>`；键为维度索引，值为有限浮点权重。 |
 
 `byte[]` 的含义由目标字段 schema 决定：用于 `FLOAT_VECTOR` 时是逐元素转换的有符号数值序列；用于 `BINARY_VECTOR`、`FLOAT16_VECTOR`、`BFLOAT16_VECTOR` 时是打包编码；用于 `INT8_VECTOR` 时每个字节是一个向量分量。驱动不会只根据 Java 参数类型猜测向量种类。
+
+## 向量类型 {#vector-types}
+
+向量字段映射与读写见[向量操作](vectors.mdx#vector-mapping)。
+
+## 数组类型 {#array-types}
+
+数组字段支持普通数组和空数组；声明 `NULL` 后，也可以将整个字段设为 `null`。例如 `new Integer[0]` 保存为空数组，与字段值为 `null` 不同。
+
+数组中的元素不能为 `null`，因此 `new Integer[] { 1, null }` 不能写入 `ARRAY<INT32>` 字段。
 
 ## 示例：数组、JSON 与浮点向量
 

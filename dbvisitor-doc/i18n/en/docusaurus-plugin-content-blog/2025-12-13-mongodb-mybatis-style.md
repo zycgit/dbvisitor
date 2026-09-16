@@ -45,7 +45,7 @@ public class UserInfo {
 }
 ```
 
-Assign id before inserting, for example UUID.randomUUID().toString(). Do not mix string and ObjectId key examples in one collection. See [MongoDB Usage](../docs/features/mongo/usage) for native ObjectId and JDBC generated keys.
+Assign id before inserting, for example UUID.randomUUID().toString(). Do not mix string and ObjectId key examples in one collection. See [Key Generation](../docs/features/mongo/generated-keys) for native ObjectId and JDBC generated keys.
 
 ### 2.2 Using Mapper Interface (Annotation Style)
 

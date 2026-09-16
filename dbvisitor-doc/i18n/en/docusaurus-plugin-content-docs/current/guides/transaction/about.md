@@ -101,6 +101,6 @@ LocalTransactionManager  -- begin/commit/rollBack --> TransactionStatus
 - [Annotation-based transactions](./annotation)
 - [Transaction template](./template)
 - [Programmatic transactions](./program)
-- [Transaction manager](./manager)
+- [Cross-API Transactions](./manager): Learn how different APIs share one transaction and commit or roll back together.
 - [Propagation behavior](./propagation)
 - [Isolation levels](./isolation)

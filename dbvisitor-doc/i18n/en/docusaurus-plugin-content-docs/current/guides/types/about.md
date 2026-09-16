@@ -45,4 +45,6 @@ If the built-in Type Handlers do not meet your needs, you can create a [custom T
 - [Serialization Handlers](./json-serialization): serialize Java objects as JSON into database columns.
 - [Geospatial Types](./gis-handler): read/write OpenGIS WKT/WKB geospatial data via JTS.
 - [Stream Type Handlers](./stream-handler): read/write streaming data via InputStream/Reader.
-- [Array Types](./array-handler): handle array types and PostgreSQL special types (pgvector, etc.).
+- [Array type handlers](./array-handler), for reading and writing SQL arrays.
+
+- [Vector type handlers](./vector-handler), for PostgreSQL and ClickHouse vector fields.

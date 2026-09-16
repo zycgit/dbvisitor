@@ -1,7 +1,7 @@
 ---
 id: types
 slug: /features/milvus/types
-sidebar_position: 1
+sidebar_position: 80
 title: Type Support
 description: Milvus type support
 ---
@@ -11,6 +11,8 @@ description: Milvus type support
 The table recommends Java property types for Milvus fields. Vector types and dimensions follow the collection schema. See [Java/JDBC types](../../../guides/types/java-jdbc.md).
 
 ## Type Mappings
+
+Vector field usage is described under [Vector Types](#vector-types).
 
 Vector rows also list JDBC read and write forms.
 
@@ -41,6 +43,16 @@ Vector rows also list JDBC read and write forms.
 | SPARSE_FLOAT_VECTOR | SortedMap&lt;Long, Float> | `getObject()` returns dimensions in ascending index order. Writes accept a nonempty `Map<Number, Number>` whose keys are dimension indices and values are finite floating-point weights. |
 
 The target field schema determines what a `byte[]` means. It is a sequence of signed numeric elements for `FLOAT_VECTOR`, a packed encoding for `BINARY_VECTOR`, `FLOAT16_VECTOR`, and `BFLOAT16_VECTOR`, and one vector component per byte for `INT8_VECTOR`. The driver does not guess the vector kind from the Java parameter type alone.
+
+## Vector Types {#vector-types}
+
+See [Vector Operations](vectors.mdx#vector-mapping) for field mapping and reads/writes.
+
+## Array Types {#array-types}
+
+Array fields accept populated and empty arrays. Declaring the field `NULL` also allows the entire field to be `null`. For example, `new Integer[0]` stores an empty array, which is distinct from a `null` field value.
+
+Individual array elements cannot be `null`, so `new Integer[] { 1, null }` cannot be written to an `ARRAY<INT32>` field.
 
 ## Example: Array, JSON and Float Vector
 

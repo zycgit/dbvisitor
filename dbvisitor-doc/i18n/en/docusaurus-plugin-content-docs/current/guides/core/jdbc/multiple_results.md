@@ -42,7 +42,7 @@ Map<String, Object> result = jdbc.multipleExecute(multipleSql, "muhammad");
 
 ## Return Value
 
-- By default, each result set is represented as **[List/Map](../../result/for_map)**. multipleExecute returns a Map whose values are update counts or result-set Lists; rows default to Maps.
+- By default, each result set is represented as **[List/Map](../../result/for_map)**: a `List<Map<String, Object>>` stored alongside update counts in the returned `Map<String, Object>`. Without an explicit name, keys are `#result-set-N` or `#update-count-N`, where N is the result's position starting at 1.
 - You can embed rules in SQL to control how each result set is handled.
 
 ```sql title="1. Annotate statements with @{resultSet} rules"

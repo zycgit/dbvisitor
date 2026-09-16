@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "id": "mapper",
+  "groups": [
+    {
+      "id": "method-annotations",
+      "columns": [
+        {
+          "id": "execution",
+          "title": {
+            "zh-cn": "方法注解",
+            "en": "Method Annotations"
+          },
+          "href": "/docs/guides/core/mapper/about#method-annotations"
+        }
+      ]
+    },
+    {
+      "id": "base-mapper",
+      "columns": [
+        {
+          "id": "operations",
+          "title": {
+            "zh-cn": "Mapper 读写",
+            "en": "Mapper Reads and Writes"
+          },
+          "href": "/docs/guides/core/mapper/about#base-mapper"
+        }
+      ]
+    },
+    {
+      "id": "key-strategies",
+      "columns": [
+        {
+          "id": "strategies",
+          "title": {
+            "zh-cn": "主键策略",
+            "en": "Key Strategies"
+          },
+          "href": "/docs/guides/core/mapper/about#key-strategies"
+        }
+      ]
+    },
+    {
+      "id": "pagination",
+      "columns": [
+        {
+          "id": "pagination",
+          "title": {
+            "zh-cn": "分页查询",
+            "en": "Pagination"
+          },
+          "href": "/docs/guides/core/mapper/annotation_query#pagination"
+        }
+      ]
+    },
+    {
+      "id": "execution-options",
+      "columns": [
+        {
+          "id": "options",
+          "title": {
+            "zh-cn": "执行选项",
+            "en": "Execution Options"
+          },
+          "href": "/docs/guides/core/mapper/annotation_query#options"
+        }
+      ]
+    },
+    {
+      "id": "builder",
+      "columns": [
+        {
+          "id": "calls",
+          "title": {
+            "zh-cn": "调用构造器",
+            "en": "Calling Builders"
+          },
+          "href": "/docs/guides/core/mapper/lambda_builder"
+        }
+      ]
+    },
+    {
+      "id": "file-mapper",
+      "columns": [
+        {
+          "id": "calls",
+          "title": {
+            "zh-cn": "引用文件 Mapper",
+            "en": "Referencing File Mappers"
+          },
+          "href": "/docs/guides/core/mapper/file_statement"
+        }
+      ]
+    },
+    {
+      "id": "session",
+      "columns": [
+        {
+          "id": "management",
+          "title": {
+            "zh-cn": "Session 管理",
+            "en": "Session Management"
+          },
+          "href": "/docs/guides/core/mapper/about#session-management"
+        }
+      ]
+    }
+  ]
+}

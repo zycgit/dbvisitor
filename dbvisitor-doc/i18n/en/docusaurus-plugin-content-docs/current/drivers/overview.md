@@ -1,9 +1,9 @@
 ---
 id: about
-sidebar_label: Driver Adapter Introduction
+sidebar_label: Driver Adapters
 sidebar_position: 0
 hide_table_of_contents: true
-title: Driver Adapter Introduction
+title: Driver Adapters
 description: JDBC driver adapters based on dbvisitor-driver that integrate non-relational databases via standard JDBC interfaces.
 ---
 

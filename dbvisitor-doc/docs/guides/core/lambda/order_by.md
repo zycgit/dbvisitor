@@ -42,9 +42,17 @@ result = lambda.query(User.class)
 //   select * from users where id >= 100 order by name, age;
 ```
 
-对同一个普通映射字段重复设置排序时，保留首次指定的方向和空值排序规则。自由查询、表达式和模板排序不作此去重。
+排序条件按调用顺序保留，不对重复字段去重。
 
-## 空值排序
+## 空值排序 {#null-ordering}
+
+`OrderType` 控制非空值的升降序，`OrderNullsStrategy` 控制空值的位置：
+
+- `DEFAULT`：保留数据库默认的空值顺序。
+- `FIRST`：空值排在非空值之前。
+- `LAST`：空值排在非空值之后。
+
+`FIRST`、`LAST` 不随升降序反转。例如降序配合 `FIRST` 时，先返回空值，再将非空值从大到小排列。
 
 ```java title='NULL 最前'
 LambdaTemplate lambda = ...
@@ -73,5 +81,5 @@ result = lambda.query(User.class)
 ```
 
 :::info[提示]
-- NULL 最前/最后，所使用的 OrderNullsStrategy 策略是否支持请参考 **[数据库支持性](../../../features/support#dialect)** 中的空值排序策略。
+- NULL 最前/最后，所使用的 OrderNullsStrategy 策略是否支持请参考 **[数据库支持性](../../../features/differences/builder)** 中的空值排序策略。
 :::

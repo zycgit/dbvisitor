@@ -21,7 +21,7 @@ The Programmatic API is based on [JdbcTemplate](../core/jdbc/about) and accesses
 
 - Lots of single-table CRUD with repetitive SQL — consider [Mapper API (BaseMapper)](./mapper) first.
 - You want DAO organized as interfaces — consider [Mapper API](./mapper) first.
-- You want to generate SQL with chainable conditions — consider [Fluent API](./lambda) first.
+- You want to generate SQL with chainable conditions — consider [Builder API](./lambda) first.
 
 ## Minimal Example
 

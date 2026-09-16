@@ -1,6 +1,6 @@
 ---
 id: conflict
-sidebar_position: 3
+sidebar_position: 35
 title: 重复记录处理
 description: MergeTree 重复写入相同业务 ID 时，如何读取最新版本。
 ---
@@ -42,6 +42,10 @@ List<Map<String, Object>> latest = jdbcTemplate.queryForList("""
 
 结果只有一条 E1，`event_name` 为 `archived`。历史版本仍保存在表中。
 
+## 插入冲突策略 {#duplicates}
+
+ClickHouse 构造器不支持 `Ignore`、`Update` 插入冲突策略，不能用它们实现唯一键更新。需要保留最新状态时，使用上面的版本号与查询方式。
+
 :::caution[注意]
-同一事件 ID 的版本号应唯一，避免最大版本对应多个值。ClickHouse 构造器不支持 Ignore、Update 插入冲突策略，不能用它们实现唯一键更新。
+同一事件 ID 的版本号应唯一，避免最大版本对应多个值。
 :::

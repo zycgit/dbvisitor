@@ -1,21 +1,47 @@
 ---
 id: generated-keys
 slug: /features/redis/generated-keys
-sidebar_position: 3
-hide_table_of_contents: true
+sidebar_position: 62
 title: 键与编号
 ---
 
-# 键与编号
+Redis 的键名由应用指定，不提供 JDBC 自动生成键。但 Mapper 可以把命令返回的编号回填到对象属性。
 
-Redis 的键由应用指定，不会通过 generated keys 回填实体属性。例如，编号 1001 的用户可以保存到 user:1001。
+## 主键策略 {#key-strategies}
 
-需要递增编号时，先读取 INCR 的结果，再组成键名：
+Redis 不通过实体 KeyType 策略生成表主键。命令中的键由应用提供；需要编号时，可在写入前使用 INCR，或通过脚本返回编号，具体见下文。
+
+## Mapper 文件的主键策略 {#mapper-file-keys}
+
+命令中的键可由调用方直接提供。需要回填编号时，可通过 `selectKey` 执行 INCR 或读取已有编号，也可使用 `generatedKeySource="resultSet"` 接收脚本返回值；Redis 不提供 JDBC 生成键，不能按关系型数据库的自增列方式读取它。
+
+## 写入前取得编号 {#select-key}
+
+使用 INCR 取得编号，再将编号作为 Hash 的字段名。Record 提供可写的 `Long id` 和 `String counter`、`key`、`value` 属性：
 
 ```java
-Long id = jdbc.queryForLong("INCR ?", "user:sequence");
-String key = "user:" + id;
-jdbc.executeUpdate("HSET ? ? ?", new Object[] { key, "name", "mali" });
+@Insert("HSET #{key} #{id} #{value}")
+@SelectKeySql(value = "INCR #{counter}", keyProperty = "id", order = Order.Before)
+int save(Record record);
 ```
 
-INCR 和 HSET 是两条独立命令。写入失败不会归还编号；业务需要重试时，可以保留已取得的 id 再写入。
+例如 `counter="user:sequence"`、`key="users"`，取得的编号会写入 `record.id`，并作为 `users` 这个 Hash 的字段名。这是两条命令；写入失败不会归还已经取得的编号。
+
+## 回填脚本返回的编号 {#result-key}
+
+需要在一条命令中取得编号并保存数据时，使用 EVAL。回填来源选择 `GeneratedKeySource.ResultSet`，返回列选择 `VALUE`：
+
+```java
+@Insert(value = "EVAL \"local id=redis.call('INCR',KEYS[1]); "
+        + "redis.call('HSET',KEYS[2],id,ARGV[1]); return id\" "
+        + "2 #{counter} #{key} #{value}",
+        useGeneratedKeys = true, generatedKeySource = GeneratedKeySource.ResultSet,
+        keyProperty = "id", keyColumn = "VALUE")
+int save(Record record);
+```
+
+调用后通过 `record.getId()` 读取编号。Mapper 文件可在 `<insert>` 中使用同一条命令，属性设置为 `useGeneratedKeys="true" generatedKeySource="resultSet" keyProperty="id" keyColumn="VALUE"`。
+
+这里仅支持从命令结果回填。省略 `generatedKeySource` 会改为请求 JDBC 自动生成键，不能完成此回填。EVAL 执行出错也不提供事务回滚。
+
+通用配置见[主键生成与回填](../../../guides/core/mapper/annotation_insert.mdx#generated-keys)。

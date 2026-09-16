@@ -1,7 +1,7 @@
 ---
 id: generated-keys
 slug: /features/mongo/generated-keys
-sidebar_position: 3
+sidebar_position: 62
 title: 主键生成
 ---
 
@@ -10,7 +10,17 @@ import TabItem from '@theme/TabItem';
 
 # 主键生成
 
-## 使用自动生成 ID
+## 主键策略 {#key-strategies}
+
+| 策略 | 本数据源的用法 |
+| --- | --- |
+| 手工赋值 | 插入前由应用提供主键。 |
+| 自增 | 不提供数值型自增主键；文档 ID 的生成与回填使用下文方式。 |
+| UUID | 字符主键使用 UUID32 或 UUID36。 |
+| 序列 | 不提供序列主键策略。 |
+| 自定义 | 使用自定义生成器，在插入前或后处理主键。 |
+
+## 使用自动生成 ID {#generated-id}
 
 插入文档未提供 _id 时，由 MongoDB 插入流程生成；适配器返回该 ID，供 Mapper 写入实体属性。
 
@@ -62,3 +72,9 @@ private String id;
 ```
 
 这种包装只用于 ObjectId 字段，不用于字符串类型的 _id。
+
+## 选择回填来源 {#key-source}
+
+方法注解和 Mapper 文件均使用 `useGeneratedKeys`，保持默认回填来源。生成键和命令本身的结果集不是同一个结果；这里的插入不要设置 `generatedKeySource="resultSet"`。
+
+上面的例子展示了可用的生成键回填方式；需要指定返回列时使用 `keyColumn`。

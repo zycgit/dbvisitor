@@ -1,7 +1,7 @@
 ---
 id: generated-keys
 slug: /features/elastic/generated-keys
-sidebar_position: 3
+sidebar_position: 62
 title: Key Generation
 ---
 
@@ -10,7 +10,17 @@ import TabItem from '@theme/TabItem';
 
 # Key Generation
 
-## Use a Generated ID
+## Key Strategies {#key-strategies}
+
+| Strategy | Usage on this datasource |
+| --- | --- |
+| Assigned | A mapped key becomes _id; an omitted ID may be generated automatically. |
+| Auto-increment | No numeric auto-increment key; native document IDs use the generation and return path described below. |
+| UUID | Use UUID32 or UUID36 with a string key field. |
+| Sequence | No sequence-key strategy on this datasource. |
+| Custom | Generate business IDs before insertion; callbacks cannot read numeric auto-increment keys. |
+
+## Use a Generated ID {#generated-id}
 
 POST without a document ID lets Elasticsearch generate _id. It is separate from any business id or uid field in _source.
 
@@ -45,7 +55,7 @@ After mapper.insert(item), read item.getId(). These examples pass one entity arg
 The generated-key column is `_ID`. Use `_ID` when specifying `keyColumn`, and receive it in a `String` property. Elasticsearch does not generate numeric identity keys.
 :::
 
-## Use an Assigned ID
+## Use an Assigned ID {#assigned-key}
 
 To use an application ID, put it in the request path:
 
@@ -57,10 +67,24 @@ jdbc.executeUpdate(
 
 Writing the same document ID replaces its content. Use `_update` for partial changes.
 
-With the Fluent API or BaseMapper, an assigned single mapped primary key also becomes the Elasticsearch `_id`. Unmarked business fields do not affect `_id`.
+With the Builder API or BaseMapper, an assigned single mapped primary key also becomes the Elasticsearch `_id`. Unmarked business fields do not affect `_id`.
+
+When no ID is supplied, Elasticsearch can generate `_id` instead of rejecting the write under a relational non-null primary-key constraint. If your application requires assigned IDs, validate the value before insertion.
 
 | Insert strategy | When the primary key already exists |
 | --- | --- |
 | `Into` (default) | Reports a duplicate-key error. |
 | `Ignore` | Skips the document and returns 0; other errors still propagate. |
 | `Update` | Updates only the supplied fields of an existing document, or inserts a new document. |
+
+## Custom Key Generators {#custom-key}
+
+A `beforeApply` handler can generate a business ID, assign it to the entity, and include it in the insert request. An `afterApply` callback is also usable, but Elasticsearch does not provide numeric identity keys to read back from it.
+
+For example, assign an order number in the application before insertion. To obtain an automatically generated string `_id`, use [Generated IDs](#generated-id) above. See [Key Generators](../../../guides/core/mapping/key_generator.md) for custom-generator configuration.
+
+## Choosing the key source {#key-source}
+
+For method annotations and Mapper files, use `useGeneratedKeys` with the default key source. The generated-key result is separate from the statement's ordinary result set; do not set `generatedKeySource="resultSet"` for these inserts.
+
+The examples above show the supported generated-key path, including how to select the returned column with `keyColumn`.

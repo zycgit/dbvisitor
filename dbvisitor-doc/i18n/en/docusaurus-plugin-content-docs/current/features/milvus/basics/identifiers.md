@@ -4,7 +4,7 @@ sidebar_position: 2
 title: Identifiers
 ---
 
-## Identifiers and Scope
+## Name Sensitivity {#identifier-handling}
 
 SQL keywords are case-insensitive; Milvus determines name case sensitivity. Databases, collections, fields and indexes use ordinary identifiers. Prefer names starting with a letter or underscore, followed by letters, digits or underscores, and avoid keywords. The server validates the final name.
 

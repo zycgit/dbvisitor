@@ -146,6 +146,6 @@ Related integrations:
 
 ## Further Reading
 
-- [Transaction Manager](./manager): How the template calls `TransactionManager`.
+- [Cross-API Transactions](./manager): Call different APIs within one transaction template.
 - [Propagation](./propagation): Choose the template's second argument.
 - [Isolation](./isolation): Choose the template's third argument.

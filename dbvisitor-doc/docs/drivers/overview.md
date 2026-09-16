@@ -1,9 +1,9 @@
 ---
 id: about
-sidebar_label: 驱动适配介绍
+sidebar_label: 驱动适配
 sidebar_position: 0
 hide_table_of_contents: true
-title: 驱动适配介绍
+title: 驱动适配
 description: 基于 dbvisitor-driver 的 JDBC 驱动适配器，将非关系型数据库以标准 JDBC 接口形式接入。
 ---
 

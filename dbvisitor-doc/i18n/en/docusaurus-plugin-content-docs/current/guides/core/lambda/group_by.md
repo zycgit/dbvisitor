@@ -7,7 +7,7 @@ description: Build grouped queries with the where builder.
 
 # Group By
 
-Use the Fluent API to construct grouped queries as follows.
+Use the Builder API to construct grouped queries as follows.
 
 ```java
 LambdaTemplate lambda = ...

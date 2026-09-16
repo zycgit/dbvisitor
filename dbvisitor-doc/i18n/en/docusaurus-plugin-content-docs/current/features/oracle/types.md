@@ -1,6 +1,6 @@
 ---
 id: types
-sidebar_position: 1
+sidebar_position: 80
 title: Type Support
 description: Oracle type support
 ---
@@ -54,6 +54,18 @@ private Integer sortNo;
 private BigDecimal amount;
 ```
 
-## Limits
+## Basic Types: Empty Strings {#null-and-empty}
 
-- Empty strings become `NULL`.
+An empty `VARCHAR2` string is read as null. For binding examples and how to preserve the distinction, see [Empty String Parameters](./parameters.md#empty-strings).
+
+## Binary Types: Empty BLOBs {#binary-values}
+
+Regular `byte[]` values can store binary data, but Oracle JDBC's `setBytes` binds `new byte[0]` as NULL.
+
+To store a zero-length BLOB, create it with `Connection.createBlob()` and bind it with `PreparedStatement.setBlob()`. Reading an empty BLOB returns a zero-length `byte[]`; reading NULL returns null.
+
+## Array Types {#array-values}
+
+NULL can be read as a Java null, but non-null arrays cannot be bound, read, or updated through the generic JDBC ARRAY mapping. For example, binding `Integer[]` with `Types.ARRAY` is not supported.
+
+To store a list in one field, use a suitable text or JSON column and [JSON field mapping](../../guides/core/mapping/json-field.md). Do not configure that column as JDBC ARRAY. This is separate from expanding a list into an IN condition.

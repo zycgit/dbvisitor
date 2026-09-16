@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "id": "transactions",
+  "groups": [
+    {
+      "id": "transaction-apis",
+      "title": {
+        "zh-cn": "事务使用方式",
+        "en": "Transaction APIs"
+      },
+      "anchor": {
+        "zh-cn": "事务使用方式",
+        "en": "transaction-apis"
+      },
+      "columns": [
+        {
+          "id": "annotations",
+          "title": {
+            "zh-cn": "注解式事务",
+            "en": "Annotations"
+          },
+          "href": "/docs/guides/transaction/annotation",
+          "requiresTransaction": true
+        },
+        {
+          "id": "templates",
+          "title": {
+            "zh-cn": "模板事务",
+            "en": "Templates"
+          },
+          "href": "/docs/guides/transaction/template",
+          "requiresTransaction": true
+        },
+        {
+          "id": "programmatic",
+          "title": {
+            "zh-cn": "编程式事务",
+            "en": "Programmatic"
+          },
+          "href": "/docs/guides/transaction/program",
+          "requiresTransaction": true
+        },
+        {
+          "id": "shared-transactions",
+          "title": {
+            "zh-cn": "跨 API 事务",
+            "en": "Shared transactions"
+          },
+          "href": "/docs/guides/transaction/manager",
+          "requiresTransaction": true
+        }
+      ]
+    },
+    {
+      "id": "transaction-propagation",
+      "title": {
+        "zh-cn": "事务传播",
+        "en": "Transaction Propagation"
+      },
+      "anchor": {
+        "zh-cn": "事务传播",
+        "en": "transaction-propagation"
+      },
+      "columns": [
+        {
+          "id": "propagation",
+          "title": {
+            "zh-cn": "事务传播",
+            "en": "Propagation"
+          },
+          "href": "/docs/guides/transaction/propagation",
+          "variants": [
+            "REQUIRED",
+            "REQUIRES_NEW",
+            "NESTED",
+            "SUPPORTS",
+            "NOT_SUPPORTED",
+            "MANDATORY",
+            "NEVER"
+          ],
+          "requiresTransaction": true
+        }
+      ]
+    },
+    {
+      "id": "isolation-levels",
+      "title": {
+        "zh-cn": "隔离级别",
+        "en": "Isolation Levels"
+      },
+      "anchor": {
+        "zh-cn": "隔离级别",
+        "en": "isolation-levels"
+      },
+      "columns": [
+        {
+          "id": "isolation",
+          "title": {
+            "zh-cn": "隔离级别",
+            "en": "Isolation"
+          },
+          "href": "/docs/guides/transaction/isolation",
+          "availability": "transaction.template.isolation"
+        }
+      ]
+    }
+  ]
+}

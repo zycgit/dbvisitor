@@ -138,3 +138,13 @@ List<UserDTO> result = (List<UserDTO>)res.get("tableCursor");
 :::info
 有些数据库在使用游标出参时可能需要将 Connection 设置为事务状态下，具体请详细参考应用程序数据库的使用说明。
 :::
+
+## 函数调用 {#functions}
+
+函数值作为查询列返回时，使用 JdbcTemplate 查询方法接收。例如在 MySQL 中：
+
+```java
+Integer value = jdbc.queryForObject("SELECT ABS(?)", new Object[] { -5 }, Integer.class);
+```
+
+返回记录时使用列表或对象查询。JDBC 函数返回参数则通过 callable 语句声明 OUT 参数接收。具体调用语法和返回形式见各数据源的[编程式 API 差异](../../../features/differences/jdbc.md)。

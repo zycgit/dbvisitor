@@ -1,0 +1,126 @@
+---
+id: query
+slug: /features/elastic/query
+sidebar_position: 31
+title: 查询操作
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+dbVisitor 将 `HTTP 方法 + 路径 + JSON` 作为可执行语句。`@Query` 中也可以写 REST 命令，并不要求 SELECT。以下示例使用 Elasticsearch 7 的无类型请求。 连接配置见 [JDBC Elasticsearch](../../../drivers/elastic/connection.mdx).
+
+## 实体映射 {#entity-mapping}
+
+```java
+@Table("user_info")
+public class UserInfo {
+    @Column(primary = true)
+    private String uid;
+    private String name;
+    // 省略 getter 和 setter
+}
+```
+
+索引名和字段名的大小写规则见[名称敏感性](name-sensitivity.md#database-names)。
+
+## 精确匹配 {#exact-match}
+
+示例索引需将 `uid`、`name` 定义为 `keyword`：
+
+```text
+PUT /user_info {"mappings":{"properties":{"uid":{"type":"keyword"},"name":{"type":"keyword"}}}}
+```
+
+构造器 `eq` 生成 match 查询。对 text 字段，它可能匹配分词后的内容；需要精确匹配时，使用 keyword 字段及下面的 term 请求。
+
+## 执行查询命令 {#exec-command}
+
+```java
+JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+
+List<UserInfo> rows = jdbc.queryForList(
+        "POST /user_info/_search {\"query\":{\"term\":{\"uid\": ?}}}",
+        new Object[] { "1001" }, UserInfo.class);
+```
+
+## 通过不同 API 查询 {#query-apis}
+
+<Tabs>
+<TabItem value="fluent" label="构造器 API" default>
+
+```java
+LambdaTemplate lambda = new LambdaTemplate(dataSource);
+UserInfo item = lambda.query(UserInfo.class)
+        .eq(UserInfo::getUid, "1001")
+        .queryForObject();
+```
+
+构造器查询生成 `_search` 请求。
+
+</TabItem>
+<TabItem value="annotation" label="方法注解">
+
+```java
+@SimpleMapper
+public interface UserInfoMapper {
+    @Query("POST /user_info/_search {\"query\":{\"term\":{\"uid\": #{uid}}}}")
+    UserInfo findById(@Param("uid") String uid);
+}
+```
+
+```java
+Session session = new Configuration().newSession(dataSource);
+UserInfoMapper mapper = session.createMapper(UserInfoMapper.class);
+UserInfo item = mapper.findById("1001");
+```
+
+</TabItem>
+<TabItem value="xml" label="Mapper 文件">
+
+```xml
+<mapper namespace="com.example.UserInfoMapper">
+    <select id="findById" resultType="com.example.UserInfo">
+        POST /user_info/_search {"query":{"term":{"uid": #{uid}}}}
+    </select>
+</mapper>
+```
+
+```java
+@RefMapper("/mapper/elastic-user.xml")
+public interface UserInfoMapper {
+    UserInfo findById(@Param("uid") String uid);
+}
+```
+
+XML 保存到 @RefMapper 指定的资源路径；示例类位于 com.example 包。通过 Session 创建 Mapper，方式与方法注解相同。
+
+</TabItem>
+</Tabs>
+
+## 读取脚本计算结果 {#functions}
+
+ES 6/7 在搜索请求中使用 Painless 的 script_fields，不是调用存储函数。以下例子要求 calculation 索引中至少有一条文档：
+
+```java
+String command = """
+        POST /calculation/_search
+        {"size": 1, "_source": false, "query": {"match_all": {}},
+         "script_fields": {"value": {"script": {
+           "lang": "painless", "source": "params.x + params.y",
+           "params": {"x": ?, "y": ?}
+         }}}}
+        """;
+Integer sum = jdbc.queryForObject(command, new Object[] { 10, 5 }, Integer.class);
+```
+
+计算针对搜索命中的文档执行；未命中时没有计算结果。支持位置参数、命名参数和标量转换，不支持 JDBC CallableStatement 回调、OUT 参数记录和 SQL 表函数语法。脚本保持固定，输入值通过 params 绑定。
+
+
+集合条件及空值过滤的写法见[条件构造器](builder.md#predicates)。
+
+## 查询执行选项 {#execution-options}
+
+Mapper 文件可配置 `statementType`、`timeout` 和 `fetchSize`，具体效果遵循驱动配置。`resultSetType` 保持 `DEFAULT` 或使用 `FORWARD_ONLY`，不支持 `SCROLL_INSENSITIVE`、`SCROLL_SENSITIVE` 滚动结果集。XML 配置见[执行选项](../../../guides/core/file/statements.mdx#execution-options)。
+
+查询结果列的说明见[结果读取](results.mdx)。

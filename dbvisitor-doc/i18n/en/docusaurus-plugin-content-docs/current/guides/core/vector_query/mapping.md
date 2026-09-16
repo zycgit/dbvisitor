@@ -71,7 +71,7 @@ public class ProductVector {
 }
 ```
 
-`PgVectorTypeHandler` converts between `List<Float>` and the pgvector text format. Other databases require the corresponding vector TypeHandler or a driver-supported argument type.
+Handler selection and conversion behavior are covered in [Vector Type Handlers](../../types/vector-handler).
 
 ## Write Vectors
 

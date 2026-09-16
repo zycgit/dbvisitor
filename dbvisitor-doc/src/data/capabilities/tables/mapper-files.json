@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "id": "mapper-files",
+  "groups": [
+    {
+      "id": "statements",
+      "columns": [
+        {
+          "id": "execution",
+          "title": {
+            "zh-cn": "命令执行",
+            "en": "Command Execution"
+          },
+          "href": "/docs/guides/core/file/statements#execution"
+        },
+        {
+          "id": "options",
+          "title": {
+            "zh-cn": "执行选项",
+            "en": "Execution Options"
+          },
+          "href": "/docs/guides/core/file/statements#execution-options"
+        },
+        {
+          "id": "key-strategies",
+          "title": {
+            "zh-cn": "主键策略",
+            "en": "Key Strategies"
+          },
+          "href": "/docs/guides/core/file/statements#key-strategies"
+        },
+        {
+          "id": "callable",
+          "title": {
+            "zh-cn": "存储过程调用",
+            "en": "Stored Procedure Calls"
+          },
+          "href": "/docs/guides/core/file/statements#callable"
+        },
+        {
+          "id": "fragments",
+          "title": {
+            "zh-cn": "sql 标签",
+            "en": "sql tag"
+          },
+          "href": "/docs/guides/core/file/statements#sql"
+        }
+      ]
+    },
+    {
+      "id": "dynamic-sql-and-result-mapping",
+      "columns": [
+        {
+          "id": "dynamic-commands",
+          "title": {
+            "zh-cn": "动态 SQL",
+            "en": "Dynamic SQL"
+          },
+          "href": "/docs/guides/core/file/dynamic_sql"
+        },
+        {
+          "id": "resultmap",
+          "title": {
+            "zh-cn": "映射结果集",
+            "en": "Mapping Result Sets"
+          },
+          "href": "/docs/guides/core/file/result_map"
+        }
+      ]
+    },
+    {
+      "id": "pagination",
+      "columns": [
+        {
+          "id": "file-pagination",
+          "title": {
+            "zh-cn": "分页查询",
+            "en": "Paging Queries"
+          },
+          "href": "/docs/guides/core/file/paging"
+        }
+      ]
+    },
+    {
+      "id": "external-mapper-references",
+      "columns": [
+        {
+          "id": "calls",
+          "title": {
+            "zh-cn": "调用文件 Mapper",
+            "en": "Call File Mapper"
+          },
+          "href": "/docs/guides/core/mapper/file_statement"
+        }
+      ]
+    }
+  ]
+}

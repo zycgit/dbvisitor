@@ -71,7 +71,7 @@ public class ProductVector {
 }
 ```
 
-`PgVectorTypeHandler` 负责 `List<Float>` 和 pgvector 文本格式之间的转换。其他数据库需要使用对应的向量 TypeHandler，或直接使用驱动支持的参数类型。
+处理器选择与转换行为见[向量类型处理器](../../types/vector-handler)。
 
 ## 写入向量
 

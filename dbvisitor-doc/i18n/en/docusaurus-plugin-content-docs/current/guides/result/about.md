@@ -73,7 +73,7 @@ ResultSetExtractor<Map<Integer, String>> extractor = rs -> {
 Map<Integer, String> idNames = jdbc.query("select * from users", extractor);
 ```
 
-## Result Processing in the Fluent API
+## Result Processing in the Builder API
 
 LambdaTemplate supports the same result processing approaches:
 

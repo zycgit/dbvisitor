@@ -1,7 +1,7 @@
 ---
 id: pagination
 slug: /features/milvus/pagination
-sidebar_position: 2
+sidebar_position: 34
 title: 分页查询
 ---
 
@@ -12,11 +12,11 @@ title: 分页查询
 SELECT * FROM book_vectors WHERE word_count > 0 LIMIT 10 OFFSET 10;
 SELECT COUNT(*) FROM book_vectors WHERE word_count > 0;
 ```
-Milvus 不提供普通字段的 ORDER BY；不要把不同请求的分页视为稳定快照。
+
 
 ## dbVisitor 用法
 
-在 Mapper 方法中增加 Page 参数。实体映射见[数据读写](usage.mdx)。
+在 Mapper 方法中增加 Page 参数。实体映射见[实体映射](query.mdx#entity-mapping)。
 
 ```java
 @Query("SELECT * FROM book_vectors WHERE word_count > 0")
@@ -31,6 +31,12 @@ List<BookVector> rows = mapper.findPage(page);
 页码从 0 开始。 Page 在原命令末尾追加 LIMIT/OFFSET，因此原命令不要已有分页、结尾分号或 WITH 选项。带 WITH 的查询直接在命令中指定分页，不再传 Page。
 
 ## 注意事项
+
+### 标量排序 {#scalar-ordering}
+
+Milvus 不提供普通字段的 ORDER BY；不要把不同请求的分页视为稳定快照。
+
+### 页大小与计数
 
 Page 控制本次返回范围，fetchSize 控制内部取页。KNN 的总数不是 TopK 数量；向量范围查询不要请求自动计数。完整规则见 [SELECT](../query/select.md#pagination)。
 

@@ -13,6 +13,18 @@ description: Elasticsearch JDBC driver setup, connections and usage.
 - Read and write documents, manage indexes, search, count and run `_cat` queries.
 - Expand document fields into result columns and configure pre-read thresholds and cache storage.
 
+## Metadata Queries
+
+Query through `connection.getMetaData()`:
+
+| JDBC method | Result |
+| --- | --- |
+| `getCatalogs()` | Empty result; no separate catalog namespace |
+| `getTables()` | Indices |
+| `getColumns()` | Fields declared in mappings |
+| `getSchemas()` | Empty result |
+| `getTableTypes()` | `TABLE` |
+
 ## Get Connected
 
 1. [Add dependencies](dependencies.mdx): Maven or Gradle configuration.
@@ -28,6 +40,6 @@ description: Elasticsearch JDBC driver setup, connections and usage.
 
 When using dbVisitor APIs, Elastic6 and Elastic7 dialects are available.
 
-[Command reference](../../features/elastic/about.md) · [dbVisitor API usage](../../features/elastic/dbvisitor/usage.mdx)
+[Command reference](../../features/elastic/about.md) · [Query Operations](../../features/elastic/dbvisitor/query.mdx) · [Data Writes](../../features/elastic/dbvisitor/write.mdx)
 
 [Vector searches](../../features/elastic/dbvisitor/vectors.mdx)

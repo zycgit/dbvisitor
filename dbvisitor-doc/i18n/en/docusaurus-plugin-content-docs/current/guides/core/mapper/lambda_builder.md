@@ -1,11 +1,11 @@
 ---
 id: lambda_builder
 sidebar_position: 11
-title: Call Fluent API
-description: Call Fluent API from Mapper interfaces for queries, updates, and deletes whose conditions are composed in Java code.
+title: Call Builder API
+description: Call Builder API from Mapper interfaces for queries, updates, and deletes whose conditions are composed in Java code.
 ---
 
-# Call Fluent API
+# Call Builder API
 
 After a Mapper interface extends `BaseMapper<T>`, it can call builder capabilities such as `query()`, `update()`, `delete()`, and `insert()` from default methods or business code.
 
@@ -78,6 +78,6 @@ How to obtain a Session depends on your project architecture. See [Framework Int
 
 ## Further Reading
 
-- [LambdaTemplate Usage Guide](../lambda/about#guide) — The complete Fluent API capabilities.
+- [LambdaTemplate Usage Guide](../lambda/about#guide) — The complete Builder API capabilities.
 - [BaseMapper](./about#base-mapper) — Common CRUD capabilities gained by extending BaseMapper.
 - [Object Mapping](../mapping/about) — How the Fluent builder generates SQL from entity mappings.

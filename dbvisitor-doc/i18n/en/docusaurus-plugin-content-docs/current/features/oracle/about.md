@@ -48,18 +48,21 @@ Mapper files can use `selectKey` to obtain a sequence value before INSERT:
 </insert>
 ```
 
-The Fluent API supports `KeyType.Sequence` + `@KeySeq` for automatic sequence assignment. See [Key Generation](./generated-keys.mdx).
+The Builder API supports `KeyType.Sequence` + `@KeySeq` for automatic sequence assignment. See [Key Generation](./generated-keys.mdx).
 
 ## Special Topics
 
-- [Data Backfill](./backfill.mdx): return inserted, updated, or deleted field values with `RETURNING INTO`.
-- [Key Generation](./generated-keys): `IDENTITY`, sequences, `keyColumn`, and `selectKey`.
+- [Programmatic API](/docs/features/oracle/programmatic): queries, writes, multiple results, and stored routine differences.
+- [Mapper API](mapper.md): annotations, Mapper reads and writes, and execution differences.
+- [Builder API](builder.md): Supported operations, datasource-specific behavior, and usage.
 - [Pagination](./pagination.mdx): Pagination principles, usage and notes.
-- [Multiple-Write Consistency](./write.mdx): handling partial failures with transactions.
 - [Insert Conflicts](./conflict.mdx): Conflict scenarios, strategies, usage and notes.
+- [Key Generation](./generated-keys): `IDENTITY`, sequences, `keyColumn`, and `selectKey`.
+- [Data Backfill](./backfill.mdx): return inserted, updated, or deleted field values with `RETURNING INTO`.
+- [Parameters and rules](./parameters.md): empty strings and parameter reuse.
+- [Type Support](./types.md): Java values, storage choices and readback boundaries.
+- [Transaction Support](./transactions.mdx): handling partial failures with transactions.
 
 ## Related Documentation
 
 For common usage, see [Core API](../../guides/overview).
-
-- [Type Support](./types.md): Java values, storage choices and readback boundaries.

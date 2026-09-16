@@ -2,7 +2,7 @@
 id: array-handler
 sidebar_position: 8
 title: 8.8 Array Type Handler
-description: Type handlers for array types and PostgreSQL pgvector in dbVisitor.
+description: Type handlers for SQL arrays in dbVisitor.
 ---
 
 <span id="array-type-handlers" />
@@ -15,21 +15,11 @@ Array type handlers are located in the `net.hasor.dbvisitor.types.handler.array`
 |---|---|---|
 | `ArrayTypeHandler` | Input: java.sql.Array or object array; output: Java array | Uses getArray/setArray; frees SQL Array after reading |
 | `PgArrayTypeHandler` | Input: java.sql.Array or object array; output: Object[] | Explicit PostgreSQL element type |
-| `PgVectorTypeHandler` | `List<Float>` | PostgreSQL [pgvector](https://github.com/pgvector/pgvector) vector type handling |
 
-## PgVectorTypeHandler
-
-`PgVectorTypeHandler` handles the PostgreSQL pgvector extension's `vector` type, converting between `List<Float>` and pgvector's text format `[1.0,2.0,3.0]`.
-
-```java title='Usage example'
-public class EmbeddingEntity {
-    @Column(typeHandler = PgVectorTypeHandler.class)
-    private List<Float> embedding;
-}
-```
+Vector field configuration is covered in [Vector Type Handlers](./vector-handler).
 
 :::caution
-When given Java arrays, both SQL ARRAY handlers use Object[]. Pass object arrays such as Integer[], not primitive arrays such as int[]. Milvus JDBC vector parameter support for primitive arrays follows a separate path; see [Milvus Parameter Binding](../../drivers/milvus/parameters.mdx#typed-values).
+`ArrayTypeHandler` accepts object arrays and primitive arrays such as `int[]`, boxing primitive elements automatically. `PgArrayTypeHandler` accepts object arrays such as `Integer[]`, but not primitive arrays. For vector parameters, see [Milvus Parameter Binding](../../drivers/milvus/parameters.mdx#typed-values).
 
 The general ArrayTypeHandler converts non-empty arrays of Double elements to Float arrays when reading. To preserve double precision, use JDBC getArray() with your own conversion or a dedicated handler. Callers are responsible for freeing SQL Array inputs they supply.
 :::

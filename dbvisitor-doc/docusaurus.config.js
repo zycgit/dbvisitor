@@ -22,7 +22,7 @@ const config = {
             fileContent: remarkProjectVars.replaceVariables(fileContent, projectVars),
         }),
     },
-    favicon: 'img/favicon.ico',
+    favicon: 'img/favicon/crab.ico',
     organizationName: 'zycgit', // Usually your GitHub org/user name.
     projectName: 'dbVisitor',   // Usually your repo name.
     i18n: {
@@ -37,6 +37,13 @@ const config = {
                 docs: {
                     remarkPlugins: [[remarkProjectVars, projectVars]],
                     sidebarPath: require.resolve('./sidebars.js'),
+                    async sidebarItemsGenerator({defaultSidebarItemsGenerator, ...args}) {
+                        const items = await defaultSidebarItemsGenerator(args);
+                        // The overview is the landing page of the differences category.
+                        return args.item.dirName === 'features'
+                            ? items.filter(item => !(item.type === 'doc' && item.id === 'features/overview'))
+                            : items;
+                    },
                     editUrl: 'https://gitee.com/zycgit/dbvisitor/blob/main/dbvisitor-doc/',
                 },
                 blog: {
@@ -76,7 +83,7 @@ const config = {
         navbar: {
             logo: {
                 alt: 'dbVisitor Logo',
-                src: 'img/logo.svg',
+                src: 'img/favicon/crab.png',
             },
             items: [
                 {

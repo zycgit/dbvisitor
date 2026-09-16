@@ -1,0 +1,113 @@
+---
+id: write
+slug: /features/elastic/write
+sidebar_position: 32
+title: Data Writes
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+Use dbVisitor to insert, update, and delete data with Elasticsearch REST commands. See [Query Operations](query.mdx) for queries and entity mapping.
+
+## Executing Write Commands {#exec-command}
+
+```java
+JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+
+jdbc.executeUpdate(
+        "POST /user_info/_doc\\?refresh=wait_for {\"uid\": ?, \"name\": ?}",
+        new Object[] { "1001", "mali" });
+
+jdbc.executeUpdate(
+        "POST /user_info/_update_by_query\\?refresh=true {\"query\":{\"term\":{\"uid\": ?}},\"script\":{\"source\":\"ctx._source.name = params.name\",\"params\":{\"name\": ?}}}",
+        new Object[] { "1001", "new name" });
+
+jdbc.executeUpdate(
+        "POST /user_info/_delete_by_query\\?refresh=true {\"query\":{\"term\":{\"uid\": ?}}}",
+        new Object[] { "1001" });
+```
+
+:::note
+The URL's `?` is not a parameter placeholder. Escape it as `\\?` in Java strings or `\?` in Mapper files. See [Escaping Parameter Markers](../../../guides/args/escape.md).
+:::
+
+## Document IDs and Update Conditions {#document-id}
+
+When inserting through the Builder API or BaseMapper, an assigned single mapped primary key also becomes the document `_id`. With a direct REST command, the request path determines the document ID. See [Key Generation](generated-keys.mdx).
+
+When several properties have `primary=true`, BaseMapper uses all of them to locate records. It does not combine them into `_id` or create a composite unique constraint. Ensure the combination is unique; otherwise, updates or deletes may affect multiple documents.
+
+## Updating Through Different APIs {#write-apis}
+
+These examples reuse the [entity mapping from Query Operations](query.mdx#entity-mapping) and change the selected record's name to `new name`.
+
+<Tabs>
+<TabItem value="fluent" label="Builder API" default>
+
+```java
+LambdaTemplate lambda = new LambdaTemplate(dataSource);
+int changed = lambda.update(UserInfo.class)
+        .eq(UserInfo::getUid, "1001")
+        .updateTo(UserInfo::getName, "new name")
+        .doUpdate();
+```
+
+</TabItem>
+<TabItem value="annotation" label="Method Annotations">
+
+```java
+@SimpleMapper
+public interface UserInfoWriteMapper {
+    @Update("POST /user_info/_update_by_query\\?refresh=true {\"query\":{\"term\":{\"uid\": #{uid}}},\"script\":{\"source\":\"ctx._source.name = params.name\",\"params\":{\"name\": #{name}}}}")
+    int rename(@Param("uid") String uid, @Param("name") String name);
+}
+```
+
+</TabItem>
+<TabItem value="xml" label="Mapper File">
+
+```xml
+<mapper namespace="com.example.UserInfoWriteMapper">
+    <update id="rename">
+        POST /user_info/_update_by_query\?refresh=true {"query":{"term":{"uid": #{uid}}},"script":{"source":"ctx._source.name = params.name","params":{"name": #{name}}}}
+    </update>
+</mapper>
+```
+
+```java
+@RefMapper("/mapper/elastic-write.xml")
+public interface UserInfoWriteMapper {
+    int rename(@Param("uid") String uid, @Param("name") String name);
+}
+```
+
+Save the XML at `/mapper/elastic-write.xml`; the interface belongs to `com.example`.
+
+</TabItem>
+</Tabs>
+
+```java
+Session session = new Configuration().newSession(dataSource);
+UserInfoWriteMapper mapper = session.createMapper(UserInfoWriteMapper.class);
+int changed = mapper.rename("1001", "new name");
+```
+
+## Database Write Operations {#write-behavior}
+
+| Operation | Database action |
+| --- | --- |
+| Update selected properties | _update_by_query |
+| Delete matching records | _delete_by_query |
+
+BaseMapper updates and deletes use the same operations.
+
+## Read-After-Write {#refresh}
+
+For immediate search visibility after a single-document write, use `refresh=wait_for`. For Builder API write-then-query calls, configure `indexRefresh=true` on the connection, at the cost of more frequent index refreshes.
+
+See [Query Operations](query.mdx) for filters and result reading.
+
+## Multiple Writes and Transactions {#transactions}
+
+Multiple commands do not automatically form a transaction; completed writes are not guaranteed to roll back after a failure. See [Transaction Support](transactions.md) for transaction APIs, propagation, and isolation.

@@ -1,0 +1,153 @@
+{
+  "schemaVersion": 1,
+  "id": "types",
+  "groups": [
+    {
+      "id": "basic-types",
+      "title": {
+        "zh-cn": "基础类型",
+        "en": "Basic types"
+      },
+      "anchor": {
+        "zh-cn": "基础类型",
+        "en": "basic-types"
+      },
+      "columns": [
+        {
+          "id": "values",
+          "title": {
+            "zh-cn": "基础类型",
+            "en": "Basic types"
+          },
+          "href": "/docs/guides/types/handlers/about"
+        }
+      ]
+    },
+    {
+      "id": "characters-and-byte-arrays",
+      "title": {
+        "zh-cn": "二进制类型",
+        "en": "Binary types"
+      },
+      "anchor": {
+        "zh-cn": "二进制类型",
+        "en": "characters-and-byte-arrays"
+      },
+      "columns": [
+        {
+          "id": "binary",
+          "title": {
+            "zh-cn": "二进制类型",
+            "en": "Binary types"
+          },
+          "href": "/docs/guides/types/handlers/bytes-handler"
+        }
+      ]
+    },
+    {
+      "id": "dates-and-times",
+      "title": {
+        "zh-cn": "时间类型",
+        "en": "Time types"
+      },
+      "anchor": {
+        "zh-cn": "时间类型",
+        "en": "dates-and-times"
+      },
+      "columns": [
+        {
+          "id": "values",
+          "title": {
+            "zh-cn": "时间类型",
+            "en": "Time types"
+          },
+          "href": "/docs/guides/types/handlers/datetime-handler"
+        }
+      ]
+    },
+    {
+      "id": "enum-handlers",
+      "title": {
+        "zh-cn": "枚举类型",
+        "en": "Enum types"
+      },
+      "anchor": {
+        "zh-cn": "枚举类型",
+        "en": "enum-handlers"
+      },
+      "columns": [
+        {
+          "id": "enums",
+          "title": {
+            "zh-cn": "枚举类型",
+            "en": "Enum types"
+          },
+          "href": "/docs/guides/types/enum-handler"
+        }
+      ]
+    },
+    {
+      "id": "json-serialization-handlers",
+      "title": {
+        "zh-cn": "JSON 序列化",
+        "en": "JSON serialization"
+      },
+      "anchor": {
+        "zh-cn": "json",
+        "en": "json"
+      },
+      "columns": [
+        {
+          "id": "conversion",
+          "title": {
+            "zh-cn": "JSON 序列化",
+            "en": "JSON serialization"
+          },
+          "href": "/docs/guides/types/json-serialization"
+        }
+      ]
+    },
+    {
+      "id": "array-handlers",
+      "title": {
+        "zh-cn": "数组类型",
+        "en": "Array types"
+      },
+      "anchor": {
+        "zh-cn": "数组类型",
+        "en": "array-handlers"
+      },
+      "columns": [
+        {
+          "id": "arrays",
+          "title": {
+            "zh-cn": "数组类型",
+            "en": "Array types"
+          },
+          "href": "/docs/guides/types/array-handler"
+        }
+      ]
+    },
+    {
+      "id": "custom-type-handlers",
+      "title": {
+        "zh-cn": "自定义处理器",
+        "en": "Custom handlers"
+      },
+      "anchor": {
+        "zh-cn": "自定义处理器",
+        "en": "custom-type-handlers"
+      },
+      "columns": [
+        {
+          "id": "entity-fields",
+          "title": {
+            "zh-cn": "自定义处理器",
+            "en": "Custom handlers"
+          },
+          "href": "/docs/guides/types/custom-handler"
+        }
+      ]
+    }
+  ]
+}

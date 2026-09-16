@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "id": "jdbc",
+  "groups": [
+    {
+      "id": "updates",
+      "anchor": {
+        "zh-cn": "更新",
+        "en": "updates"
+      },
+      "columns": [
+        {
+          "id": "updates",
+          "title": {
+            "zh-cn": "更新",
+            "en": "Updates"
+          },
+          "href": "/docs/guides/core/jdbc/update"
+        }
+      ]
+    },
+    {
+      "id": "queries",
+      "anchor": {
+        "zh-cn": "查询",
+        "en": "queries"
+      },
+      "columns": [
+        {
+          "id": "queries",
+          "title": {
+            "zh-cn": "查询",
+            "en": "Queries"
+          },
+          "href": "/docs/guides/core/jdbc/query"
+        },
+        {
+          "id": "pairs-queries",
+          "title": {
+            "zh-cn": "查询键值对",
+            "en": "Key-value Queries"
+          },
+          "href": "/docs/guides/core/jdbc/query#pairs"
+        }
+      ]
+    },
+    {
+      "id": "batch-operations",
+      "anchor": {
+        "zh-cn": "批量化",
+        "en": "batch-operations"
+      },
+      "columns": [
+        {
+          "id": "batch",
+          "title": {
+            "zh-cn": "批量化",
+            "en": "Batch Operations"
+          },
+          "href": "/docs/guides/core/jdbc/batch"
+        }
+      ]
+    },
+    {
+      "id": "multiple-results",
+      "anchor": {
+        "zh-cn": "多结果",
+        "en": "multiple-results"
+      },
+      "columns": [
+        {
+          "id": "multiple-results",
+          "title": {
+            "zh-cn": "多结果",
+            "en": "Multiple Results"
+          },
+          "href": "/docs/guides/core/jdbc/multiple_results"
+        }
+      ]
+    },
+    {
+      "id": "stored-routines",
+      "anchor": {
+        "zh-cn": "存储过程调用",
+        "en": "stored-routines"
+      },
+      "columns": [
+        {
+          "id": "routines",
+          "title": {
+            "zh-cn": "存储过程与函数",
+            "en": "Stored Procedures and Functions"
+          },
+          "href": "/docs/guides/core/jdbc/procedure"
+        }
+      ]
+    }
+  ]
+}

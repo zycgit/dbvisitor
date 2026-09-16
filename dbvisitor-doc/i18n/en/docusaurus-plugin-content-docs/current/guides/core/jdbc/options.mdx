@@ -134,7 +134,7 @@ jdbc.queryForList("select * from users");
 
 :::info[Note]
 In some database drivers, setting maxRows does not mean that the query will immediately terminate after fetching the specified number of rows.
-- For example, MySQL will still consume the extra rows returned by the server after fetching the maxRows number of result rows, but these data will not be added to the result set.
+It does not guarantee that the database scans or transfers only those rows. To limit query size, also use the database's SQL pagination or LIMIT features and consult the driver documentation.
 :::
 
 ## Dynamic Data Sources {#dynamic}

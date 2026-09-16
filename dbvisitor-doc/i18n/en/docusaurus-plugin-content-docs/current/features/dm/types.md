@@ -1,6 +1,6 @@
 ---
 id: types
-sidebar_position: 1
+sidebar_position: 80
 title: Type Support
 description: Recommended Java property types for Dameng database types
 ---

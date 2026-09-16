@@ -1,206 +1,87 @@
 ---
 id: about
 sidebar_position: 0
-title: 架构设计
-sidebar_label: 架构设计
-description: dbvisitor-driver 适配器层的核心架构、组件职责和执行流程。
+title: 1. 架构设计
+sidebar_label: 1. 架构设计
+description: JDBC 驱动适配器的分层结构、组件职责与执行流程。
 ---
 
-dbVisitor 的协议适配层（dbvisitor-driver）允许开发者通过 JDBC 接口访问非关系型数据库，从而复用 JdbcTemplate、注解 Mapper 和 Mapper 文件中的命令执行与结果映射。LambdaTemplate、BaseMapper 的命令生成还需要对应的数据库方言支持。
+驱动适配器把数据库的原生命令和 SDK 结果接入标准 JDBC。应用继续使用 Connection、Statement 和 ResultSet；适配器负责理解命令，并调用目标数据库。
 
-适配器层包含核心组件和执行模型。适配器实现步骤见 [实现指南](./guide)。
+## 分层结构
+
+| 层次 | 负责什么 |
+| --- | --- |
+| 应用访问 | 通过 JDBC、JdbcTemplate、方法注解或 Mapper 文件提交命令，读取结果 |
+| 公共 JDBC 层 | 管理连接和语句状态、绑定参数、提供标准结果集接口 |
+| 数据源适配器 | 解析原生命令、组织 SDK 请求、提供结果游标 |
+| 官方 SDK 与数据库 | 执行查询和写入，提供数据库原生能力 |
+
+SQL、Redis 命令和 MongoDB 命令在这里都是待执行的命令文本。公共 JDBC 层不把它们转换为同一种 SQL，也不为数据库补出事务、关联查询等能力。
+
+构造器 API 和 BaseMapper 需要先生成命令：这由 dbVisitor 的数据库方言负责，再交给 JDBC 驱动执行。**方言负责生成命令，适配器负责执行命令**；驱动适配器也可以脱离 dbVisitor 单独使用。
 
 ## 核心组件
 
-适配器层的主要接口和抽象类位于 `net.hasor.dbvisitor.driver` 包：
+核心接口位于 `net.hasor.dbvisitor.driver` 包。一次连接及其请求由以下组件协作完成：
 
-| 组件 | 类型 | 职责 |
-| ------ | ------ | ------ |
-| **AdapterFactory** | 接口 | 解析 JDBC URL、创建连接、提供类型支持 |
-| **AdapterConnection** | 抽象类 | 管理连接生命周期、执行请求调度 |
-| **MetadataSupport** | 接口 | 根据带类型的路径查询原生元信息 |
-| **AdapterRequest** | 抽象类 | 封装一次查询/操作请求（类似 Statement） |
-| **AdapterReceive** | 接口 | 接收执行结果的回调（结果集、更新计数、异常） |
+| 组件 | 职责 | 生命周期 |
+| --- | --- | --- |
+| `AdapterFactory` | 按适配器名称创建连接与类型支持 | 通过 SPI 注册的数据源入口 |
+| `AdapterConnection` | 持有底层客户端，创建、执行和取消请求，关闭资源 | 对应一个 JDBC 连接 |
+| `AdapterRequest` | 携带命令、绑定参数、超时、取数大小及生成键选项 | 对应一次执行请求 |
+| `AdapterReceive` | 把结果集、更新计数、生成键或错误交给 JDBC 层 | 接收请求的执行结果 |
+| `AdapterCursor` | 提供列信息和逐行数据 | 随结果集读取与关闭 |
 
-## AdapterFactory
+请求对象描述“执行什么”，连接负责“如何执行”。`AdapterReceive` 负责交付结果，`AdapterCursor` 负责读取结果中的数据，两者不是同一个职责。
 
-适配器的入口。每个数据源对应一个 Factory 实现，通过 SPI 注册到 `AdapterManager`。
+## 建立连接
 
-```java
-public interface AdapterFactory {
-    /** 适配器名称，对应 JDBC URL 中的 adapterName */
-    String getAdapterName();
+1. JDBC 驱动从 URL 中识别适配器名称，并合并连接参数。
+2. 查找已注册的 `AdapterFactory`，创建 `TypeSupport` 和 `AdapterConnection`。
+3. 工厂初始化底层 SDK 客户端，交给适配器连接管理。
+4. JDBC 连接识别适配器提供的事务与元信息能力，供标准 JDBC 方法调用。
 
-    /** 支持的配置属性名列表 */
-    String[] getPropertyNames();
+应用关闭 JDBC 连接时，适配器连接负责释放底层资源。语句和请求复用该连接，不应每次执行都重新建立数据库连接。
 
-    /** 创建类型转换支持 */
-    TypeSupport createTypeSupport(Properties properties);
+## 命令执行与结果读取
 
-    /** 解析 URL 和属性，创建适配器连接 */
-    AdapterConnection createConnection(
-        Connection owner, String jdbcUrl, Properties properties
-    ) throws SQLException;
-}
-```
+| 阶段 | 执行动作 |
+| --- | --- |
+| 创建请求 | Statement 将命令交给 `newRequest`，形成 `AdapterRequest` |
+| 绑定参数 | JDBC 层将参数及语句选项放入请求 |
+| 执行命令 | `doRequest` 解析命令，组织并调用 SDK 请求 |
+| 交付结果 | 通过 `AdapterReceive` 返回游标、更新计数或错误，并通知请求结束 |
+| 读取数据 | ResultSet 从 `AdapterCursor` 取行；按目标 Java 类型读取时选择转换器 |
+| 对象映射 | 使用 dbVisitor 时，再由其映射规则和 TypeHandler 组装属性或对象 |
 
-JDBC URL 格式为：`jdbc:dbvisitor:<adapterName>://<server>?param=value`，也兼容适配器名后省略冒号的旧写法。
+命令解析由适配器决定。现有适配器使用 ANTLR，但公共 JDBC 层不要求每个驱动都使用它。
 
-## AdapterConnection
+一次执行可以产生多个 JDBC 结果。结果游标可以缓冲小结果集，也可以按需向 SDK 取页；**请求结束不等于结果已全部读完**。结果集关闭时，游标还需要释放取数资源。
 
-适配器的核心，每个连接实例管理底层数据源客户端。下面仅列出关键 API 签名，省略已有方法的实现体；创建适配器时继承该类，而不是复制此声明：
+## 扩展能力
 
-```java
-public abstract class AdapterConnection implements Closeable {
+这些接口扩展已有连接或类型服务，不是另一套执行框架：
 
-    public AdapterConnection(String jdbcUrl, String userName) { ... }
+| 接口 | 职责 | 协作方式 |
+| --- | --- | --- |
+| `TransactionSupport` | 自动提交、隔离级别、提交和回滚 | 连接提供能力，JDBC 事务方法委托给它 |
+| `TypeSupport` | 描述类型名称、JDBC 类型与 Java 类型，选择转换器 | 工厂提供类型服务，供参数识别和结果读取使用 |
+| `TypeConvert` | 把一个结果值转换为目标 Java 类型 | 由 TypeSupport 选择，不单独注册到连接 |
+| `MetadataSupport` | 按路径查询库、Schema、表、视图和字段 | 连接提供原生节点，JDBC 层组织为标准元信息结果集 |
 
-    /** 连接信息（URL、用户名、版本等） */
-    public AdapterInfo getInfo();
+### 事务边界
 
-    /** 特性开关 */
-    public AdapterFeatures getFeatures();
+只有底层客户端能让多条命令共享事务时，才应提供 `TransactionSupport`。公共 JDBC 层负责转发事务操作，不模拟事务；该接口也不包含保存点能力。
 
-    /** catalog / schema 管理 */
-    public abstract void setCatalog(String catalog) throws SQLException;
-    public abstract String getCatalog() throws SQLException;
-    public abstract void setSchema(String schema) throws SQLException;
-    public abstract String getSchema() throws SQLException;
+### 类型与转换
 
-    /** 暴露底层原生客户端 */
-    protected <T> T unwrap(Class<T> iface) throws SQLException;
+`TypeSupport` 回答“这是什么类型、应使用哪个转换器”，`TypeConvert` 完成一次具体转换。它们服务于驱动层，不替代 dbVisitor 的实体字段 TypeHandler，也不自动完成 SDK 写入参数的序列化。
 
-    /** 创建请求对象 */
-    public abstract AdapterRequest newRequest(String sql);
+### 元信息边界
 
-    /** 执行请求并通过 receive 回调返回结果 */
-    public abstract void doRequest(
-        AdapterRequest request, AdapterReceive receive
-    ) throws SQLException;
+`MetadataSupport` 返回数据库实际存在的对象和字段。适配器负责查询原生结构，公共 JDBC 层负责名称模式过滤、排序和标准结果列。不应把 Redis key 伪装成表，也不应凭空推断不存在的字段结构。
 
-    /** 取消正在执行的请求 */
-    public abstract void cancelRequest();
+## 开始实现
 
-    /** 取消指定请求；支持并发语句时应覆盖此方法 */
-    public void cancelRequest(AdapterRequest request);
-
-    /** 关闭连接，释放底层资源 */
-    protected abstract void doClose() throws IOException;
-}
-```
-
-## MetadataSupport
-
-适配器连接实现 `MetadataSupport`，由 `JdbcConnection` 自动识别并持有，与 `TransactionSupport` 的接入方式一致。应用通过 `unwrap(MetadataSupport.class)` 获取；具体查询逻辑可委托给连接内复用的元信息对象。
-
-路径由目标 `MetadataType` 和带类型的父级组成。例如，在 `CATALOG("app")`、`TABLE("users")` 下查询 `COLUMN`，表示列出该表的字段。父级名称按原值使用，不按斜杠拆分，也不解释为 JDBC 通配符。
-
-`supportedTypes()` 声明支持的对象类型，与库中是否已有对象无关；`query(path)` 查询实际对象，返回带名称的 `MetadataNode`。字段属性通过 `MetadataNode` 中的常量描述原生类型、JDBC 类型编号、可空性等已知信息。
-
-`JdbcDatabaseMetaData` 负责 JDBC 名称过滤、排序、标准结果列和空结果，适配器无需组装 JDBC 结果集。不支持的查询返回空列表；连接、权限等异常应直接抛出。
-
-完全不提供元信息时，无需实现 `MetadataSupport`，JDBC 元信息方法会返回标准空结果。已提供的 `query` 方法不能返回 `null`。
-
-## AdapterRequest
-
-封装一次操作的参数和元信息：
-
-```java
-public abstract class AdapterRequest {
-    private final String traceId;   // 自动生成的唯一追踪 ID
-    protected boolean generatedKeys;
-    protected long    maxRows;
-    protected int     fetchSize;
-    protected int     timeoutSec;
-
-    // 参数映射（命名参数 → JdbcArg）
-    public Map<String, JdbcArg> getArgMap();
-    public void setArgMap(Map<String, JdbcArg> argMap);
-}
-```
-
-每个适配器通常定义自己的 Request 子类（如 `JedisRequest`），在 `newRequest()` 中创建。
-
-## AdapterReceive
-
-执行结果通过回调接口逐条返回，dbvisitor-driver 的 JDBC 实现层会自动将其转换为标准 `ResultSet`：
-
-```java
-public interface AdapterReceive {
-    /** 执行失败 */
-    boolean responseFailed(AdapterRequest request, Throwable e);
-
-    /** 查询结果（游标） */
-    boolean responseResult(AdapterRequest request, AdapterCursor cursor);
-
-    /** 查询结果 + 自增键 */
-    boolean responseResult(
-        AdapterRequest request, AdapterCursor cursor, AdapterCursor generatedKeys
-    );
-
-    /** 更新计数 */
-    boolean responseUpdateCount(AdapterRequest request, long updateCount);
-
-    /** 更新计数 + 自增键 */
-    boolean responseUpdateCount(
-        AdapterRequest request, long updateCount, AdapterCursor generatedKeys
-    );
-
-    /** 输出参数 */
-    boolean responseParameter(
-        AdapterRequest request, String paramName, String paramType, Object value
-    );
-
-    /** 执行完毕 */
-    boolean responseFinish(AdapterRequest request);
-}
-```
-
-## 执行流程
-
-一次完整的查询从 JDBC API 到底层 SDK 的调用链路：
-
-```text
-应用代码 → JdbcTemplate.queryForList(sql)
-         → JDBC Driver (JdbcDriver)
-         → AdapterConnection.newRequest(sql)  // 创建 Request
-         → AdapterConnection.doRequest(req, receive)
-             ├─ Parser: SQL/命令 → AST (ANTLR4)
-             ├─ Visitor: 遍历 AST，提取参数和命令结构
-             ├─ Execute: 调用底层 SDK (Jedis/MongoClient/RestClient...)
-             └─ Receive: 结果回调 → responseResult / responseUpdateCount
-         → JDBC ResultSet ← AdapterCursor
-         → dbVisitor TypeHandler 映射
-         → List<Map<String, Object>>
-```
-
-## 现有适配器
-
-已实现的适配器均遵循相同模式：
-
-| 适配器 | 底层 SDK | URL 前缀 | 解析方式 |
-| -------- | --------- | --------- | --------- |
-| **jdbc-redis** | Jedis | `jdbc:dbvisitor:jedis://` | 命令行风格 (ANTLR4) |
-| **jdbc-mongo** | MongoDB Java Driver | `jdbc:dbvisitor:mongo://` | JS Shell 风格 (ANTLR4) |
-| **jdbc-elastic** | Elasticsearch RestClient | `jdbc:dbvisitor:elastic://` | JSON 风格 (ANTLR4) |
-| **jdbc-milvus** | Milvus Java SDK | `jdbc:dbvisitor:milvus://` | SQL-like 风格 (ANTLR4) |
-
-每个适配器模块的标准目录结构：
-
-```text
-jdbc-xxx/
-├── src/main/antlr/           # .g4 语法文件
-├── src/main/java/.../
-│   ├── XxxConnFactory.java    # AdapterFactory 实现
-│   ├── XxxConn.java           # AdapterConnection 实现
-│   ├── XxxCmd.java            # 底层 SDK 命令委托
-│   ├── XxxRequest.java        # AdapterRequest 子类
-│   ├── XxxKeys.java           # 配置键常量
-│   ├── XxxCommands*.java      # 分类命令实现
-│   ├── XxxDistributeCall.java # AST 遍历 → 命令分发
-│   ├── CustomXxx.java         # 自定义扩展点
-│   └── parser/                # ANTLR4 生成的 Lexer/Parser/Visitor
-└── src/main/resources/
-    └── META-INF/services/
-        └── net.hasor.dbvisitor.driver.AdapterFactory  # SPI 注册
-```
+[自定义驱动](./guide)按创建模块、实现连接与请求、返回结果、注册驱动的顺序提供示例，并说明如何按需接入上述扩展能力。

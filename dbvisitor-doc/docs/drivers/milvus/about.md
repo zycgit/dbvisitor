@@ -14,14 +14,26 @@ description: Milvus JDBC 驱动的接入、连接和使用。
 - 支持 Hybrid Search、rerank、BM25 和 Import 任务；具体功能受服务端版本及配置约束。
 - 支持 TLS、双向证书认证及 Zilliz Cloud 连接。
 
+## 元信息查询
+
+通过 `connection.getMetaData()` 查询：
+
+| JDBC 方法 | 返回内容 |
+| --- | --- |
+| `getCatalogs()` | 当前连接的数据库 |
+| `getTables()` | 当前库的 Collection |
+| `getColumns()` | Collection schema 中的字段 |
+| `getSchemas()` | 空结果 |
+| `getTableTypes()` | `TABLE` |
+
 ## 开始使用
 
 1. [引入依赖](./dependencies.mdx)：Maven 或 Gradle 配置。
 2. [建立连接](./connection.mdx)：JDBC URL、认证及连接示例。
 3. [参数配置](./params.md)：参数名称、默认值和单位。
-4. [执行命令](execution.mdx)
-5. [参数绑定](parameters.mdx)
-6. [读取结果](results.md)
+4. [执行命令](execution.mdx)：JDBC 调用、分页写入及执行控制。
+5. [参数绑定](parameters.mdx)：标量、向量和数组参数的绑定方式。
+6. [读取结果](results.md)：结果集、更新计数及多结果读取。
 7. [使用限制](./limitations.md)：JDBC 接口及数据源特有限制。
 
 ## 使用前须知
@@ -31,4 +43,4 @@ description: Milvus JDBC 驱动的接入、连接和使用。
 - 不支持 JDBC Batch 和事务。使用连接池、ORM 或其他 JDBC 工具前，请核对[驱动适配器限制](../limited.md)。
 - Milvus 服务端最低要求 2.6.2，部分功能要求更高版本，具体见[版本与支持范围](../../features/milvus/compatibility.md)。TLS/mTLS 和 Zilliz Cloud 接入见[安全连接示例](./connection.mdx#tls)。
 
-[命令参考](../../features/milvus/about.md) · [dbVisitor API 用法](../../features/milvus/dbvisitor/usage.mdx)
+[命令参考](../../features/milvus/about.md) · [查询操作](../../features/milvus/dbvisitor/query.mdx) · [数据写入](../../features/milvus/dbvisitor/write.mdx)

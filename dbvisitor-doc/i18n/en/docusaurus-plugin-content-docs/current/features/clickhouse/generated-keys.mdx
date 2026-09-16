@@ -1,6 +1,6 @@
 ---
 id: generated-keys
-sidebar_position: 4
+sidebar_position: 62
 toc_min_heading_level: 2
 toc_max_heading_level: 2
 title: Key Generation
@@ -19,6 +19,20 @@ Generate a business ID before insertion and read it from the entity afterward. T
 For general configuration, see [Generated Keys](../../guides/core/mapper/annotation_insert#generated-keys).
 :::
 
+## Key Strategies {#key-strategies}
+
+| Strategy | Usage on this datasource |
+| --- | --- |
+| Assigned | Assigned IDs are accepted, but MergeTree does not enforce uniqueness; omitted IDs use column defaults. |
+| Auto-increment | No auto-increment generated keys. |
+| UUID | Use UUID32 or UUID36 with a string key field. |
+| Sequence | No sequence-key strategy on this datasource. |
+| Custom | Generate IDs before insertion; after-insert callbacks cannot read auto-increment keys. |
+
+## Key Strategies in Mapper Files {#mapper-file-keys}
+
+INSERT can bind an application-assigned ID directly. `selectKey` can run an additional query before or after insertion and fill its value into a parameter property. ClickHouse does not return JDBC generated keys; `useGeneratedKeys` cannot retrieve an auto-increment ID.
+
 ## Using an Application-Side ID
 
 ```sql
@@ -29,7 +43,7 @@ ENGINE = MergeTree ORDER BY id;
 If the business requires a unique ID, generating it on the Java side is recommended — for example, UUID, Snowflake ID, or business numbers.
 
 <Tabs>
-<TabItem value="application-lambda" label="Fluent API" default>
+<TabItem value="application-lambda" label="Builder API" default>
 
 ```java title='ClickHouse application-side ID mapping'
 @Table("event_log")
@@ -92,3 +106,23 @@ Mapper SQL should explicitly write the application-generated ID:
 </Tabs>
 
 For inserting several events at once, see [Batch Inserts](./batch-insert.mdx).
+
+## Assigned IDs {#assigned-key}
+
+With `KeyType.None`, dbVisitor uses the ID already assigned to the entity. A MergeTree sorting key does not reject duplicate IDs. Omitting the ID column uses its default value:
+
+```sql
+CREATE TABLE manual_keys (id Int32, name String)
+ENGINE = MergeTree ORDER BY id;
+
+INSERT INTO manual_keys (id, name) VALUES (1001, 'first'), (1001, 'second');
+INSERT INTO manual_keys (name) VALUES ('without ID');
+```
+
+The first two rows both have ID `1001`; the third has ID `0`. If IDs must be present and unique, generate and validate them before writing rather than relying on duplicate-key exceptions.
+
+## Custom Key Generators {#custom-key}
+
+For example, a `beforeApply` handler can generate an order number, assign it to the entity, and include it in the INSERT. The handler can access the current connection and mapping information. An `afterApply` callback can run post-insert logic, but ClickHouse does not return identity-generated keys to read back.
+
+See [Key Generators](../../guides/core/mapping/key_generator.md) for configuration.

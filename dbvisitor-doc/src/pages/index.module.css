@@ -93,7 +93,7 @@
 
 /* ==================== Database Strip ==================== */
 .dbSection {
-    padding: 2.5rem 0 2rem;
+    padding: 1.5rem 0;
     background: #f8f9fa;
     text-align: center;
 }
@@ -114,22 +114,36 @@
     margin-right: auto;
 }
 
+.dbSection .sectionSubtitle {
+    margin-bottom: 1rem;
+}
+
 .dbGrid {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
-    gap: 18px;
-    max-width: 900px;
+    gap: 10px 8px;
+    max-width: 1100px;
     margin: 0 auto;
+}
+
+.dbDivider {
+    flex-shrink: 0;
+    width: 1px;
+    height: 40px;
+    background: #dadce0;
+    margin: 0 4px;
 }
 
 .dbItem {
     display: flex;
+    flex: 0 0 72px;
     flex-direction: column;
     align-items: center;
     gap: 6px;
-    padding: 10px 14px;
+    padding: 6px 0;
+    min-width: 0;
     border-radius: 8px;
     transition: all 0.2s ease;
     cursor: default;
@@ -151,88 +165,60 @@ a.dbItem:focus-visible {
 }
 
 .dbIcon {
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
 }
 
 .dbLabel {
     font-size: 0.75rem;
     color: #5f6368;
     font-weight: 500;
+    white-space: nowrap;
 }
 
-.dbDivider {
-    width: 1px;
-    height: 50px;
-    background: #dadce0;
-    margin: 0 8px;
+a.dbItem .dbLabel {
+    color: var(--ifm-link-color);
 }
 
-/* ==================== Philosophy / Features Section ==================== */
-.philosophySection {
-    padding: 3.5rem 0;
-    background: #ffffff;
+a.dbItem:hover .dbLabel,
+a.dbItem:focus-visible .dbLabel {
+    text-decoration: underline;
 }
 
-.featureGrid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 28px;
-    max-width: 1000px;
-    margin: 0 auto;
-}
-
-.featureCard {
-    text-align: center;
-    padding: 2rem 1.5rem;
-    border-radius: 12px;
-    border: 1px solid #e8eaed;
-    transition: all 0.25s ease;
-}
-
-.featureCard:hover {
-    border-color: #49A0F8;
-    box-shadow: 0 4px 20px rgba(73, 160, 248, 0.15);
-    transform: translateY(-3px);
-}
-
-.featureIcon {
-    font-size: 2.5rem;
-    margin-bottom: 0.8rem;
-}
-
-.featureTitle {
-    font-size: 1.15rem;
-    font-weight: 600;
-    color: #202124;
-    margin-bottom: 0.6rem;
-}
-
-.featureDesc {
-    font-size: 0.88rem;
-    color: #5f6368;
-    line-height: 1.6;
-}
 
 /* ==================== Architecture Section ==================== */
 .archSection {
-    padding: 3.5rem 0;
-    background: #f8f9fa;
+    padding: 3rem 0;
+    background: #ffffff;
+    text-align: center;
+}
+
+.archSection .sectionSubtitle {
+    margin-bottom: 0.6rem;
+}
+
+.archPrinciple {
+    max-width: 760px;
+    margin: 0 auto 1.75rem;
+    color: #5f6368;
+    font-size: 0.95rem;
+    line-height: 1.7;
 }
 
 .archDiagram {
     max-width: 860px;
     margin: 0 auto;
-    text-align: center;
 }
 
 .archImage {
-    max-width: 100%;
+    display: block;
+    width: 100%;
     height: auto;
     border-radius: 12px;
 }
 
-/* ==================== API Styles Carousel Section ==================== */
+/* ==================== API Styles Section ==================== */
 .apiSection {
     padding: 3.5rem 0;
     background: #ffffff;
@@ -272,6 +258,11 @@ a.dbItem:focus-visible {
     color: #202124;
 }
 
+.apiTab:focus-visible {
+    outline: 2px solid #2d7bc7;
+    outline-offset: 3px;
+}
+
 .apiTabActive {
     border-color: #49A0F8;
     background: #e8f0fe;
@@ -285,28 +276,6 @@ a.dbItem:focus-visible {
 
 .apiTabName {
     font-weight: 600;
-}
-
-/* Progress dots */
-.apiProgress {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 1.5rem;
-}
-
-.apiProgressDot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #dadce0;
-    transition: all 0.3s ease;
-}
-
-.apiProgressDotActive {
-    background: #49A0F8;
-    width: 24px;
-    border-radius: 4px;
 }
 
 /* Showcase: left info + right code */
@@ -429,6 +398,12 @@ a.dbItem:focus-visible {
     margin-top: 1.5rem;
 }
 
+.runtimeNote {
+    color: #5f6368;
+    font-size: 0.88rem;
+    text-align: left;
+}
+
 /* ==================== Bottom CTA ==================== */
 .ctaSection {
     padding: 3rem 0;
@@ -466,6 +441,25 @@ a.dbItem:focus-visible {
     opacity: 0.8;
 }
 
+.communityLink {
+    padding: 10px 18px;
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    border-radius: 8px;
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.communityLink:hover {
+    color: #ffffff;
+    text-decoration: none;
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.communityLink:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 4px;
+}
+
 /* ==================== Responsive ==================== */
 @media screen and (max-width: 996px) {
     .heroBanner {
@@ -478,11 +472,6 @@ a.dbItem:focus-visible {
 
     .heroSlogan {
         font-size: 1.2rem;
-    }
-
-    .featureGrid {
-        grid-template-columns: 1fr;
-        max-width: 400px;
     }
 
     .apiShowcase {
@@ -502,16 +491,17 @@ a.dbItem:focus-visible {
         grid-template-columns: 1fr;
     }
 
+}
+
+@media screen and (max-width: 640px) {
     .dbGrid {
-        gap: 12px;
+        gap: 8px;
     }
 
     .dbDivider {
         display: none;
     }
-}
 
-@media screen and (max-width: 640px) {
     .heroTitle {
         font-size: 2rem;
     }
@@ -527,6 +517,7 @@ a.dbItem:focus-visible {
     }
 
     .apiTab {
+        flex: 1 1 140px;
         padding: 6px 10px;
         font-size: 0.78rem;
     }

@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 1,
+  "id": "builder",
+  "groups": [
+    {
+      "id": "inserts-updates-and-deletes",
+      "title": {
+        "zh-cn": "新增、更新与删除",
+        "en": "Inserts, updates, and deletes"
+      },
+      "anchor": {
+        "zh-cn": "新增更新与删除",
+        "en": "inserts-updates-and-deletes"
+      },
+      "columns": [
+        {
+          "id": "writes",
+          "title": {
+            "zh-cn": "写入操作",
+            "en": "Data Writes"
+          },
+          "href": "/docs/guides/core/lambda/about#writes"
+        },
+        {
+          "id": "insert-conflicts",
+          "title": {
+            "zh-cn": "写入冲突",
+            "en": "Write Conflicts"
+          },
+          "href": "/docs/guides/core/lambda/insert#conflict"
+        }
+      ]
+    },
+    {
+      "id": "queries",
+      "title": {
+        "zh-cn": "查询操作",
+        "en": "Queries"
+      },
+      "anchor": {
+        "zh-cn": "查询操作",
+        "en": "queries"
+      },
+      "columns": [
+        {
+          "id": "query",
+          "title": {
+            "zh-cn": "查询操作",
+            "en": "Query"
+          },
+          "href": "/docs/guides/core/lambda/query"
+        }
+      ]
+    },
+    {
+      "id": "map-query",
+      "columns": [
+        {
+          "id": "modes",
+          "title": {
+            "zh-cn": "Map 查询模式",
+            "en": "Map Query Mode"
+          },
+          "href": "/docs/guides/core/map_query/about#map-modes"
+        }
+      ]
+    },
+    {
+      "id": "pagination-and-iteration",
+      "title": {
+        "zh-cn": "分页与迭代",
+        "en": "Pagination and iteration"
+      },
+      "anchor": {
+        "zh-cn": "分页与迭代",
+        "en": "pagination-and-iteration"
+      },
+      "columns": [
+        {
+          "id": "pagination",
+          "title": {
+            "zh-cn": "分页查询",
+            "en": "Pagination"
+          },
+          "href": "/docs/guides/core/lambda/query#page"
+        }
+      ]
+    },
+    {
+      "id": "condition-builders",
+      "title": {
+        "zh-cn": "条件构造器",
+        "en": "Condition builders"
+      },
+      "anchor": {
+        "zh-cn": "条件构造器",
+        "en": "condition-builders"
+      },
+      "columns": [
+        {
+          "id": "predicates",
+          "title": {
+            "zh-cn": "条件构造器",
+            "en": "Where Builder"
+          },
+          "href": "/docs/guides/core/lambda/where_builder"
+        }
+      ]
+    },
+    {
+      "id": "condition-values",
+      "title": {
+        "zh-cn": "条件参数",
+        "en": "Condition values"
+      },
+      "anchor": {
+        "zh-cn": "条件参数",
+        "en": "condition-values"
+      },
+      "columns": [
+        {
+          "id": "parameter-values",
+          "title": {
+            "zh-cn": "条件参数",
+            "en": "Predicate Values"
+          },
+          "href": "/docs/guides/core/lambda/where_builder#parameter-values"
+        }
+      ]
+    },
+    {
+      "id": "grouping-and-ordering",
+      "title": {
+        "zh-cn": "分组与排序",
+        "en": "Grouping and ordering"
+      },
+      "anchor": {
+        "zh-cn": "分组与排序",
+        "en": "grouping-and-ordering"
+      },
+      "columns": [
+        {
+          "id": "grouping",
+          "title": {
+            "zh-cn": "分组",
+            "en": "Group By"
+          },
+          "href": "/docs/guides/core/lambda/group_by"
+        },
+        {
+          "id": "ordering",
+          "title": {
+            "zh-cn": "排序",
+            "en": "Order By"
+          },
+          "href": "/docs/guides/core/lambda/order_by"
+        }
+      ]
+    }
+  ]
+}

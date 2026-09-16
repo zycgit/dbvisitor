@@ -49,7 +49,7 @@ public interface UserMapper {
 }
 ```
 
-```java title='Example: Fluent API'
+```java title='Example: Builder API'
 // Use query() method (not queryForList)
 Map<Integer, String> result = lambda.query(User.class)
                                     .le(User::getId, 100)

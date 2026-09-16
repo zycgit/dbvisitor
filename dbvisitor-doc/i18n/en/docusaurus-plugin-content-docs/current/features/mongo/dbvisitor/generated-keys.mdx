@@ -1,7 +1,7 @@
 ---
 id: generated-keys
 slug: /features/mongo/generated-keys
-sidebar_position: 3
+sidebar_position: 62
 title: Key Generation
 ---
 
@@ -10,7 +10,17 @@ import TabItem from '@theme/TabItem';
 
 # Key Generation
 
-## Use a Generated ID
+## Key Strategies {#key-strategies}
+
+| Strategy | Usage on this datasource |
+| --- | --- |
+| Assigned | Supply the primary key before insertion. |
+| Auto-increment | No numeric auto-increment key; native document IDs use the generation and return path described below. |
+| UUID | Use UUID32 or UUID36 with a string key field. |
+| Sequence | No sequence-key strategy on this datasource. |
+| Custom | Use a custom generator before or after insertion. |
+
+## Use a Generated ID {#generated-id}
 
 If an inserted document omits _id, MongoDB's insert operation generates it. The adapter exposes the inserted ID for Mapper property assignment.
 
@@ -62,3 +72,9 @@ private String id;
 ```
 
 This wrapper is for ObjectId fields, not string _id values.
+
+## Choosing the key source {#key-source}
+
+For method annotations and Mapper files, use `useGeneratedKeys` with the default key source. The generated-key result is separate from the statement's ordinary result set; do not set `generatedKeySource="resultSet"` for these inserts.
+
+The examples above show the supported generated-key path, including how to select the returned column with `keyColumn`.

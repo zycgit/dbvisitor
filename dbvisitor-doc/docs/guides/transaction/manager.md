@@ -1,15 +1,23 @@
 ---
 id: manager
 sidebar_position: 4
-title: 10.4 事务管理器
-description: 理解 TransactionManager、TransactionStatus、事务栈、挂起事务和保存点。
+title: 10.4 跨 API 事务
+description: 让 JdbcTemplate、Mapper 和构造器 API 共享同一个事务，统一提交或回滚。
 ---
 
 <span id="事务管理器" />
 
-# 10.4 事务管理器
+# 10.4 跨 API 事务
 
-`TransactionManager` 是 dbVisitor 事务能力的核心接口。注解式事务和模板事务最终都会落到它的 `begin`、`commit`、`rollBack` 上。
+同一段业务可以混用 `JdbcTemplate`、Mapper、BaseMapper 和构造器 API，无需为每种 API 分别开启事务。例如，先用 JdbcTemplate 新增订单，再用构造器 API 扣减库存，两次写入可以一起提交或回滚。
+
+## 共享事务的条件
+
+- 各 API 和事务管理器使用同一个 `DataSource` 实例，仅连接地址相同不够。
+- 操作在同一个线程的事务范围内执行；新建线程不会自动加入当前事务。
+- 数据库和驱动支持所需的事务操作。跨 API 事务不是跨数据源的分布式事务。
+
+注解式事务、模板事务和编程式事务都适用。dbVisitor 通过线程上下文让各 API 复用当前事务连接，最终由 `TransactionManager` 统一提交或回滚。内部调用另开事务时，其行为由[事务传播](./propagation)决定。
 
 ## 接口能力
 
@@ -172,4 +180,4 @@ TransactionTemplate.execute(...)
   -> 业务代码直接调用 TransactionManager
 ```
 
-日常使用优先读 [注解式事务](./annotation) 和 [模板事务](./template)。只有在需要理解连接挂起、保存点、事务栈顺序时，再回到本页。
+选择[注解式事务](./annotation)、[模板事务](./template)或[编程式事务](./program)划定业务边界后，在其中混用各 API 即可，无需额外配置事务桥接。

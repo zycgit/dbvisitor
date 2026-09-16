@@ -25,7 +25,7 @@ Use either `<resultMap>` or `<entity>` to map query results:
 
 :::tip[How to choose between resultMap and entity?]
 - For the same table with different query shapes, `entity` is good when columns all come from one table; `resultMap` when columns span multiple tables.
-- Using the [Fluent API](../lambda/about) requires `entity` or [Object Mapping](../mapping/about) annotations.
+- Using the [Builder API](../lambda/about) requires `entity` or [Object Mapping](../mapping/about) annotations.
 - If the SELECT uses aliases, functions, CASE, or columns from multiple tables, `resultMap` is safer.
 :::
 

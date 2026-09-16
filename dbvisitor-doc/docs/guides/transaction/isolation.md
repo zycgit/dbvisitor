@@ -178,4 +178,4 @@ public void allocateUniqueNumber(String bizType) {
 
 - [注解式事务](./annotation)：在 `@Transactional` 上指定隔离级别。
 - [模板事务](./template)：在 `execute` 的第三个参数中指定隔离级别。
-- [事务管理器](./manager)：理解隔离级别如何在连接上设置并在事务结束后恢复。
+- [跨 API 事务](./manager)：了解不同 API 如何共享事务连接及其隔离级别。

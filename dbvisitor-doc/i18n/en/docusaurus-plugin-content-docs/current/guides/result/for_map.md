@@ -29,7 +29,7 @@ public interface UserMapper {
 }
 ```
 
-```java title='Example: Fluent API'
+```java title='Example: Builder API'
 List<Map<String, Object>> result = lambda.query(User.class)
                                          .le(User::getId, 100)
                                          .queryForMapList();

@@ -101,7 +101,7 @@ public interface UserMapper {
 
 如果 SQL 很长、动态片段很多，或者需要集中维护 `resultMap`、`entity` 映射和动态 SQL 标签，请改用 [Mapper 文件](./file_statement)。
 
-## BaseMapper {#base-mapper}
+## Mapper 读写 {#base-mapper}
 
 `BaseMapper<T>` 基于 [对象映射](../mapping/about) 自动生成单表 CRUD SQL，适合不想手写常规增删改查语句的场景。它通常作为 Mapper 接口的父接口使用，也可以通过 `session.createBaseMapper(User.class)` 直接创建。
 
@@ -154,6 +154,22 @@ PageResult<User> result = mapper.pageBySample(sample, page, orderBy, nulls);
 ```
 
 `update` 只更新非空字段；`replace` 表示整行替换；`upsert` 表示主键不存在时新增、存在时更新。插入后的主键回填请看 [@Insert 自增主键回填](./annotation_insert#generated-keys)。
+
+## 主键策略 {#key-strategies}
+
+方法注解可通过 [useGeneratedKeys](./annotation_insert#generated-keys) 回填数据库生成的主键，或用 [selectKey](./annotation_insert#selectkey) 先取得主键。BaseMapper 使用实体上的[主键生成器](../mapping/key_generator)配置；复合主键通过多个 `primary = true` 的字段声明。
+
+## Session 管理 {#session-management}
+
+同一 Session 可以创建方法注解 Mapper、文件 Mapper 和 BaseMapper，并通过 `jdbc()`、`lambda()` 使用其它 API。它们共用该 Session 的配置和数据源，不需要重复注册映射。
+
+```java
+Session session = configuration.newSession(dataSource);
+UserMapper mapper = session.createMapper(UserMapper.class);
+BaseMapper<User> baseMapper = session.createBaseMapper(User.class);
+```
+
+由应用创建的 Session 在使用后关闭；由整合框架管理的 Session 交给框架管理生命周期。事务用法见[跨 API 事务](../../transaction/manager.md)。
 
 ## 深入阅读
 

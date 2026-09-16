@@ -1,6 +1,6 @@
 ---
 id: types
-sidebar_position: 1
+sidebar_position: 80
 title: 类型支持
 description: DB2 类型支持
 ---
@@ -29,3 +29,9 @@ description: DB2 类型支持
 | TIME | java.sql.Time | 仅时间；文本存储时须使用可解析的时间格式。 |
 | TIMESTAMP | java.sql.Timestamp | 保留日期和时间，精度以数据库列定义为准。 |
 | CLOB | Map / List / Bean | 保存 JSON 文本时，实体属性配置见 [JSON 字段映射](../../guides/core/mapping/json-field.md)。 |
+
+## 数组类型 {#array-values}
+
+支持将 NULL 读为 Java 空值，但不支持通过通用 JDBC ARRAY 映射绑定、读取或修改非空数组。例如，不能将 `Integer[]` 按 `Types.ARRAY` 写入。
+
+需要在一个字段中保存列表时，使用适合的文本或 JSON 列，按[JSON 字段映射](../../guides/core/mapping/json-field.md)配置，不要将该字段配置为 JDBC ARRAY。这和把列表展开为 IN 条件是两件事。

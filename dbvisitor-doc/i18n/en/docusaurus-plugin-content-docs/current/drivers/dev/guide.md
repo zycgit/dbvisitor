@@ -1,8 +1,9 @@
 ---
 id: guide
-sidebar_label: Custom Drivers
+sidebar_label: 2. Custom Drivers
+toc_max_heading_level: 3
 sidebar_position: 1
-title: Custom Drivers
+title: 2. Custom Drivers
 description: Implement a dbVisitor adapter using NewDB as an example.
 ---
 
@@ -320,7 +321,235 @@ try (Connection conn = DriverManager.getConnection(
 
 SPI registration integrates the JDBC driver. To generate commands through LambdaTemplate or BaseMapper, also implement and register a database dialect.
 
-### Custom Dialects {#custom-dialect}
+## Step 9: Test the Adapter
+
+Command parsing, parameter binding, SDK request construction and JDBC result access can be tested with command interceptors and SDK mocks. Database behavior also needs tests against a real service. The integration test below assumes the service is running and NewDB supports `SELECT 1`:
+
+```java
+public class NewDBAdapterTest {
+    @Test
+    public void testBasicQuery() throws Exception {
+        // 1. Open a connection
+        try (Connection conn = DriverManager.getConnection(
+                "jdbc:dbvisitor:newdb://localhost:9000")) {
+            JdbcTemplate jdbc = new JdbcTemplate(conn);
+            assertEquals(Integer.valueOf(1), jdbc.queryForObject("SELECT 1", Integer.class));
+        }
+    }
+}
+```
+
+## Add Optional Capabilities
+
+Complete basic command execution first, then add capabilities supported by the underlying SDK. The following fragments extend the preceding example.
+
+| Interface | Responsibility | Integration point |
+| --- | --- | --- |
+| `TransactionSupport` | Auto-commit, isolation, commit and rollback | Implement on the adapter connection; JDBC detects it automatically |
+| `TypeSupport` | Type names, JDBC codes, Java classes and converter selection | Return from `AdapterFactory.createTypeSupport(properties)` |
+| `TypeConvert` | Convert one result value to a Java type | Return from `TypeSupport.findConvert(typeName, targetType)` |
+| `MetadataSupport` | Discover catalogs, schemas, tables, views and columns | Implement on the adapter connection; JDBC detects it automatically |
+
+Transactions and metadata require no additional SPI registration. Applications can obtain installed capabilities with `connection.unwrap(TransactionSupport.class)`, `connection.unwrap(TypeSupport.class)` or `connection.unwrap(MetadataSupport.class)`. Unavailable capabilities cannot be unwrapped. Most applications should use standard JDBC methods instead.
+
+### TransactionSupport
+
+This interface connects JDBC transaction methods to real database transactions. Implement it only when commands on the connection can share the same native transaction.
+
+| JDBC call | Adapter method |
+| --- | --- |
+| `setAutoCommit(value)` / `getAutoCommit()` | `setAutoCommit(value)` / `isAutoCommit()` |
+| `setTransactionIsolation(level)` / `getTransactionIsolation()` | `setIsolation(level)` / `getIsolation()` |
+| `commit()` / `rollback()` | `commit()` / `rollback()` |
+| `getMetaData().supportsTransactionIsolationLevel(level)` | `supportIsolation(level)` |
+
+Add the interface to `NewDBConn` from Step 4. This is an integration fragment: `client` represents the target SDK's transactional client. Replace its calls with the actual SDK API and implement the remaining methods listed above.
+
+```java
+public class NewDBConn extends AdapterConnection implements TransactionSupport {
+    // Keep the constructor, request execution and remaining methods.
+
+    @Override
+    public void commit() throws SQLException {
+        client.commit();
+    }
+
+    @Override
+    public void rollback() throws SQLException {
+        client.rollback();
+    }
+}
+```
+
+Application code continues to use JDBC:
+
+```java
+connection.setAutoCommit(false);
+try (Statement statement = connection.createStatement()) {
+    statement.executeUpdate(command1);
+    statement.executeUpdate(command2);
+    connection.commit();
+} catch (SQLException e) {
+    connection.rollback();
+    throw e;
+}
+```
+
+`command1` and `command2` are native write commands. Execute both in the connection's transaction context, not through newly created clients for each request.
+
+:::note
+- `setIsolation` must validate the requested level itself; JDBC does not call `supportIsolation` first.
+- `getIsolation` and `isAutoCommit` do not declare `SQLException`. Update any local state only after the SDK operation succeeds.
+- This interface does not expose savepoints. Implementing it does not enable JDBC savepoint methods.
+- Without this interface, only auto-commit and `TRANSACTION_NONE` are allowed. Disabling auto-commit, committing or rolling back is unsupported.
+:::
+
+### TypeSupport
+
+Describes adapter type names for JDBC type information, parameter type identification and result conversion. Prefer extending `AdapterTypeSupport` to retain its standard mappings.
+
+| Method | Purpose |
+| --- | --- |
+| `getTypeName(int)` | Map a JDBC type code to an adapter type name |
+| `getTypeName(Class<?>)` | Map a Java parameter class to an adapter type name |
+| `getTypeNumber(String)` | Obtain the JDBC code for an adapter type |
+| `getTypeClassName(String)` | Obtain the Java class name for an adapter type |
+| `findConvert(String, Class<?>)` | Select a converter for a column type and target Java class |
+
+For example, an SDK returns UUIDs as strings. Declare those columns as `uuid` and support explicit reads as `UUID`:
+
+```java
+import java.sql.Types;
+import java.util.Properties;
+import java.util.UUID;
+import net.hasor.dbvisitor.driver.AdapterTypeSupport;
+import net.hasor.dbvisitor.driver.TypeConvert;
+
+public class UuidTypeSupport extends AdapterTypeSupport {
+    private static final String UUID_TYPE = "uuid";
+
+    public UuidTypeSupport(Properties properties) {
+        super(properties);
+        addTypeMappingTo(UUID_TYPE, Types.OTHER, UUID.class);
+        addClassMapping(UUID.class, UUID_TYPE);
+    }
+
+    @Override
+    public TypeConvert findConvert(String typeName, Class<?> targetType) {
+        if (UUID_TYPE.equals(typeName) && targetType == UUID.class) {
+            return (type, value) -> value instanceof UUID
+                    ? value : UUID.fromString(value.toString());
+        }
+        return super.findConvert(typeName, targetType);
+    }
+}
+```
+
+Return it from the factory:
+
+```java
+@Override
+public TypeSupport createTypeSupport(Properties properties) {
+    return new UuidTypeSupport(properties);
+}
+```
+
+Set the cursor's `JdbcColumn.type` to `uuid` as well. Applications then read with `resultSet.getObject("id", UUID.class)`. When customization is unnecessary, return `new AdapterTypeSupport(properties)`; a `null` factory result also selects this default.
+
+### TypeConvert
+
+Converts one result value. It does not execute commands or describe types. The lambda in the UUID example implements:
+
+```java
+Object convert(Class<?> targetType, Object value);
+```
+
+For `ResultSet.getObject(column, UUID.class)`, JDBC selects a converter using the column type and target Java class, then calls `convert`. Reads by label resolve the column index first.
+
+:::note
+- Untyped `getObject(column)` returns the raw cursor value. Declaring a Java class name does not automatically convert it.
+- SQL NULL bypasses the converter and returns null.
+- Runtime conversion errors are wrapped in `SQLException`.
+- `AdapterTypeSupport` checks target-Java-type converters before column-type converters. Override `findConvert`, as above, to restrict conversion to a particular source/target pair.
+:::
+
+Do not register `TypeConvert` directly on a connection. It is separate from dbVisitor entity-field `TypeHandler` mapping. Serialization of UUID, JSON or vector write parameters into SDK values remains the command implementation's responsibility.
+
+### MetadataSupport
+
+Implement the interface on the connection for automatic JDBC discovery and reuse. Delegate native queries to a separate `NewDBMetadata` object:
+
+```java
+public class NewDBConn extends AdapterConnection implements MetadataSupport {
+    private final NewDBMetadata metadata; // Create once in the connection constructor.
+
+    @Override
+    public Set<MetadataType> supportedTypes() {
+        return metadata.supportedTypes();
+    }
+
+    @Override
+    public List<MetadataNode> query(MetadataPath path) throws SQLException {
+        return metadata.query(path);
+    }
+
+    // Keep the constructor and other AdapterConnection methods.
+}
+```
+
+This is an integration fragment. `NewDBMetadata` implements `MetadataSupport` using the real SDK. Connections without metadata support need not implement this interface; JDBC metadata methods return standard empty results.
+
+#### Declare Supported Object Types
+
+`supportedTypes()` declares available object kinds, not existing objects. For a database with catalogs, tables and columns:
+
+```java
+@Override
+public Set<MetadataType> supportedTypes() {
+    return Set.of(MetadataType.CATALOG, MetadataType.TABLE, MetadataType.COLUMN);
+}
+```
+
+Return the same declaration for an empty database. Do not invent schema or table levels. The default is an empty set, so override this method when providing metadata.
+
+#### Query by Path
+
+`MetadataPath` contains the target type and named parents. This example queries columns of `app.users`:
+
+```java
+MetadataPath path = new MetadataPath(MetadataType.COLUMN, List.of(
+        new MetadataPath.Level(MetadataType.CATALOG, "app"),
+        new MetadataPath.Level(MetadataType.TABLE, "users")
+));
+
+MetadataSupport metadata = connection.unwrap(MetadataSupport.class);
+List<MetadataNode> columns = metadata.query(path);
+```
+
+Dispatch on `path.type()`. Read parent names through `path.name(MetadataType.CATALOG)` and `path.name(MetadataType.TABLE)`. Names are literal: do not split slashes or interpret JDBC wildcards.
+
+A root `CATALOG` query lists databases; a `TABLE` query beneath a catalog lists tables; a `COLUMN` query beneath a table lists fields. Datasources without catalogs can list tables directly at the root.
+
+#### Return Nodes and JDBC Results
+
+For example, a non-nullable BIGINT column:
+
+```java
+MetadataNode idColumn = new MetadataNode(MetadataType.COLUMN, "id", Map.of(
+        MetadataNode.TYPE_NAME, "BIGINT",
+        MetadataNode.JDBC_TYPE, Types.BIGINT,
+        MetadataNode.NULLABLE, false,
+        MetadataNode.ORDINAL, 1
+));
+```
+
+Use actual schema names and attributes; omit unknown properties. `NULLABLE`, `AUTO_INCREMENT` and `GENERATED` are booleans. Type codes, lengths and ordinal positions are numeric; ordinals start at 1.
+
+Applications normally use `connection.getMetaData().getTables(...)` and `getColumns(...)`. JDBC handles name patterns, sorting, standard columns and empty results; adapters return native node lists only.
+
+Unsupported paths return an empty list, never `null`. Propagate connection and permission errors instead of returning empty results.
+
+## Custom Dialects {#custom-dialect}
 
 If the built-in dialects do not meet your needs, you can customize a dialect by extending `AbstractDialect` and implementing the required interfaces. The main dialect interfaces are listed below, with `SqlDialect` as their common base:
 
@@ -344,24 +573,6 @@ SqlDialectRegister.registerDialectAlias(JdbcHelper.MYSQL, MyDialect.class);
 ```
 
 An explicitly configured dialect takes precedence. Otherwise, dbVisitor looks up the dialect using the JDBC URL, driver name and database version from connection metadata, falling back to the default dialect if no match is found. Configuration accepts a dialect alias or a fully qualified class name.
-
-## Step 9: Test the Adapter
-
-Command parsing, parameter binding, SDK request construction and JDBC result access can be tested with command interceptors and SDK mocks. Database behavior also needs tests against a real service. The integration test below assumes the service is running and NewDB supports `SELECT 1`:
-
-```java
-public class NewDBAdapterTest {
-    @Test
-    public void testBasicQuery() throws Exception {
-        // 1. Open a connection
-        try (Connection conn = DriverManager.getConnection(
-                "jdbc:dbvisitor:newdb://localhost:9000")) {
-            JdbcTemplate jdbc = new JdbcTemplate(conn);
-            assertEquals(Integer.valueOf(1), jdbc.queryForObject("SELECT 1", Integer.class));
-        }
-    }
-}
-```
 
 ## Best Practices
 

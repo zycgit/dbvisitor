@@ -7,7 +7,7 @@ description: Use vectorByL2, vectorByCosine, vectorByIP, and other methods to fi
 
 # Distance Range Filtering
 
-Distance range filtering answers "find all records whose distance is below a threshold". dbVisitor uses `vectorBy*` to generate vector-distance predicates in the SQL `WHERE` part.
+Distance range filtering selects records by a distance threshold. The complete range-query examples below use PostgreSQL pgvector. Milvus implements range searches through ANN search, so it does not guarantee finding every matching entity; threshold directions and supported combinations also depend on the metric. See [Milvus Vector Operations](../../../features/milvus/dbvisitor/vectors.mdx#range-filters). dbVisitor uses `vectorBy*` to generate vector-distance predicates in the SQL `WHERE` clause.
 
 ## Suitable For
 

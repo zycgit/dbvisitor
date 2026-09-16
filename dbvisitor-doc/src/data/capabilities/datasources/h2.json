@@ -1,0 +1,469 @@
+{
+  "schemaVersion": 1,
+  "id": "h2",
+  "capabilities": {
+    "builder/inserts-updates-and-deletes/writes": {
+      "status": "supported",
+      "passed": 23,
+      "total": 23
+    },
+    "builder/inserts-updates-and-deletes/insert-conflicts": {
+      "status": "supported",
+      "passed": 7,
+      "total": 7,
+      "href": "/docs/features/h2/builder#conflicts"
+    },
+    "builder/queries/query": {
+      "status": "supported",
+      "passed": 16,
+      "total": 16
+    },
+    "builder/map-query/modes": {
+      "status": "supported",
+      "passed": 16,
+      "total": 16
+    },
+    "builder/pagination-and-iteration/pagination": {
+      "status": "supported",
+      "passed": 22,
+      "total": 22,
+      "href": "/docs/features/h2/builder#pagination"
+    },
+    "builder/condition-builders/predicates": {
+      "status": "supported",
+      "passed": 37,
+      "total": 37
+    },
+    "builder/condition-values/parameter-values": {
+      "status": "supported",
+      "passed": 19,
+      "total": 19
+    },
+    "builder/grouping-and-ordering/grouping": {
+      "status": "supported",
+      "passed": 6,
+      "total": 6
+    },
+    "builder/grouping-and-ordering/ordering": {
+      "status": "supported",
+      "passed": 9,
+      "total": 9
+    },
+    "jdbc/updates/updates": {
+      "status": "supported",
+      "passed": 6,
+      "total": 6
+    },
+    "jdbc/queries/queries": {
+      "status": "supported",
+      "passed": 16,
+      "total": 16
+    },
+    "jdbc/queries/pairs-queries": {
+      "status": "supported",
+      "passed": 3,
+      "total": 3
+    },
+    "jdbc/batch-operations/batch": {
+      "status": "supported",
+      "passed": 9,
+      "total": 9
+    },
+    "jdbc/multiple-results/multiple-results": {
+      "status": "partial",
+      "passed": 1,
+      "total": 5,
+      "href": "/docs/features/h2/programmatic#multiple-results"
+    },
+    "jdbc/stored-routines/routines": {
+      "status": "partial",
+      "passed": 7,
+      "total": 14,
+      "href": "/docs/features/h2/programmatic#routines"
+    },
+    "mapper-files/statements/execution": {
+      "status": "supported",
+      "passed": 11,
+      "total": 11
+    },
+    "mapper-files/statements/options": {
+      "status": "supported",
+      "passed": 6,
+      "total": 6
+    },
+    "mapper-files/statements/key-strategies": {
+      "status": "supported",
+      "passed": 7,
+      "total": 7,
+      "href": "/docs/features/h2/generated-keys#identity"
+    },
+    "mapper-files/statements/callable": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 6
+    },
+    "mapper-files/statements/fragments": {
+      "status": "supported",
+      "passed": 4,
+      "total": 4
+    },
+    "mapper-files/dynamic-sql-and-result-mapping/dynamic-commands": {
+      "status": "supported",
+      "passed": 8,
+      "total": 8
+    },
+    "mapper-files/dynamic-sql-and-result-mapping/resultmap": {
+      "status": "supported",
+      "passed": 13,
+      "total": 13
+    },
+    "mapper-files/pagination/file-pagination": {
+      "status": "supported",
+      "passed": 7,
+      "total": 7,
+      "href": {
+        "zh-cn": "/docs/features/h2/pagination#dbvisitor-用法",
+        "en": "/docs/features/h2/pagination#dbvisitor-usage"
+      }
+    },
+    "mapper-files/external-mapper-references/calls": {
+      "status": "supported",
+      "passed": 6,
+      "total": 6
+    },
+    "mapper/method-annotations/execution": {
+      "status": "supported",
+      "passed": 22,
+      "total": 22
+    },
+    "mapper/base-mapper/operations": {
+      "status": "supported",
+      "passed": 45,
+      "total": 45
+    },
+    "mapper/key-strategies/strategies": {
+      "status": "supported",
+      "passed": 18,
+      "total": 18,
+      "href": "/docs/features/h2/mapper#keys"
+    },
+    "mapper/pagination/pagination": {
+      "status": "supported",
+      "passed": 4,
+      "total": 4,
+      "href": "/docs/features/h2/mapper#pagination"
+    },
+    "mapper/execution-options/options": {
+      "status": "supported",
+      "passed": 8,
+      "total": 8
+    },
+    "mapper/builder/calls": {
+      "status": "supported",
+      "passed": 2,
+      "total": 2
+    },
+    "mapper/file-mapper/calls": {
+      "status": "supported",
+      "passed": 5,
+      "total": 5
+    },
+    "mapper/session/management": {
+      "status": "supported",
+      "passed": 8,
+      "total": 8
+    },
+    "parameters/positional-and-named-parameters/positional": {
+      "status": "supported",
+      "passed": 5,
+      "total": 5
+    },
+    "parameters/positional-and-named-parameters/named": {
+      "status": "supported",
+      "passed": 17,
+      "total": 17
+    },
+    "parameters/sql-text-substitution/text-replacement": {
+      "status": "supported",
+      "passed": 2,
+      "total": 2
+    },
+    "parameters/parameter-interfaces-and-options/statement-setter": {
+      "status": "supported",
+      "passed": 1,
+      "total": 1
+    },
+    "parameters/parameter-interfaces-and-options/mixed-sources": {
+      "status": "supported",
+      "passed": 1,
+      "total": 1
+    },
+    "parameters/parameter-interfaces-and-options/explicit-types": {
+      "status": "supported",
+      "passed": 3,
+      "total": 3
+    },
+    "parameters/native-jdbc-parameters/binding-and-reuse": {
+      "status": "supported",
+      "passed": 7,
+      "total": 7
+    },
+    "results/rowmapper/mapping": {
+      "status": "supported",
+      "passed": 4,
+      "total": 4,
+      "variants": {
+        "jdbc": {
+          "status": "supported",
+          "passed": 3,
+          "total": 3
+        },
+        "mapper": {
+          "status": "supported",
+          "passed": 3,
+          "total": 3
+        },
+        "builder": {
+          "status": "supported",
+          "passed": 2,
+          "total": 2
+        },
+        "mapper-file": {
+          "status": "supported",
+          "passed": 1,
+          "total": 1
+        }
+      }
+    },
+    "results/rowcallbackhandler/callback": {
+      "status": "supported",
+      "passed": 4,
+      "total": 4,
+      "variants": {
+        "jdbc": {
+          "status": "supported",
+          "passed": 1,
+          "total": 1
+        },
+        "mapper": {
+          "status": "supported",
+          "passed": 1,
+          "total": 1
+        },
+        "builder": {
+          "status": "supported",
+          "passed": 1,
+          "total": 1
+        },
+        "mapper-file": {
+          "status": "supported",
+          "passed": 1,
+          "total": 1
+        }
+      }
+    },
+    "results/resultsetextractor/extraction": {
+      "status": "supported",
+      "passed": 4,
+      "total": 4,
+      "variants": {
+        "jdbc": {
+          "status": "supported",
+          "passed": 4,
+          "total": 4
+        },
+        "mapper": {
+          "status": "supported",
+          "passed": 1,
+          "total": 1
+        },
+        "builder": {
+          "status": "supported",
+          "passed": 4,
+          "total": 4
+        },
+        "mapper-file": {
+          "status": "supported",
+          "passed": 1,
+          "total": 1
+        }
+      }
+    },
+    "transactions/transaction-apis/annotations": {
+      "status": "supported",
+      "passed": 5,
+      "total": 5
+    },
+    "transactions/transaction-apis/templates": {
+      "status": "supported",
+      "passed": 4,
+      "total": 4
+    },
+    "transactions/transaction-apis/programmatic": {
+      "status": "supported",
+      "passed": 3,
+      "total": 3
+    },
+    "transactions/transaction-apis/shared-transactions": {
+      "status": "supported",
+      "passed": 4,
+      "total": 4
+    },
+    "transactions/transaction-propagation/propagation": {
+      "status": "supported",
+      "passed": 7,
+      "total": 7,
+      "variants": {
+        "REQUIRED": {
+          "status": "supported",
+          "passed": 3,
+          "total": 3
+        },
+        "REQUIRES_NEW": {
+          "status": "supported",
+          "passed": 8,
+          "total": 8
+        },
+        "NESTED": {
+          "status": "supported",
+          "passed": 7,
+          "total": 7
+        },
+        "SUPPORTS": {
+          "status": "supported",
+          "passed": 4,
+          "total": 4
+        },
+        "NOT_SUPPORTED": {
+          "status": "supported",
+          "passed": 4,
+          "total": 4
+        },
+        "MANDATORY": {
+          "status": "supported",
+          "passed": 3,
+          "total": 3
+        },
+        "NEVER": {
+          "status": "supported",
+          "passed": 4,
+          "total": 4
+        }
+      }
+    },
+    "transactions/isolation-levels/isolation": {
+      "status": "supported",
+      "passed": 6,
+      "total": 6,
+      "href": "/docs/features/h2/transactions#isolation"
+    },
+    "vectors/vectors/vector-mapping": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 5
+    },
+    "vectors/vectors/knn-ordering": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 8
+    },
+    "vectors/vectors/range-filters": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 7
+    },
+    "vectors/vectors/vector--scalar": {
+      "status": "unsupported",
+      "passed": 0,
+      "total": 3
+    },
+    "types/custom-type-handlers/entity-fields": {
+      "status": "supported",
+      "passed": 5,
+      "total": 5
+    },
+    "types/basic-types/values": {
+      "status": "supported",
+      "passed": 11,
+      "total": 11
+    },
+    "types/dates-and-times/values": {
+      "status": "partial",
+      "passed": 17,
+      "total": 18,
+      "href": "/docs/features/h2/types#time-boundaries"
+    },
+    "types/enum-handlers/enums": {
+      "status": "supported",
+      "passed": 7,
+      "total": 7
+    },
+    "types/characters-and-byte-arrays/binary": {
+      "status": "supported",
+      "passed": 6,
+      "total": 6
+    },
+    "types/json-serialization-handlers/conversion": {
+      "status": "supported",
+      "passed": 11,
+      "total": 11
+    },
+    "types/array-handlers/arrays": {
+      "status": "supported",
+      "passed": 10,
+      "total": 10,
+      "href": "/docs/features/h2/types#array-values"
+    },
+    "parameters/command-rules/sql-fragments": {
+      "status": "supported",
+      "passed": 9,
+      "total": 9
+    },
+    "parameters/command-rules/conditional-command": {
+      "status": "supported",
+      "passed": 2,
+      "total": 2
+    },
+    "mapping-keys/table-mapping/fields": {
+      "status": "supported",
+      "passed": 12,
+      "total": 12
+    },
+    "mapping-keys/naming-and-case-sensitivity/name-conversion": {
+      "status": "supported",
+      "passed": 9,
+      "total": 9
+    },
+    "mapping-keys/naming-and-case-sensitivity/result-columns": {
+      "status": "supported",
+      "passed": 3,
+      "total": 3
+    },
+    "mapping-keys/naming-and-case-sensitivity/identifiers": {
+      "status": "supported",
+      "passed": 10,
+      "total": 10
+    },
+    "mapping-keys/write-policies/fields": {
+      "status": "supported",
+      "passed": 7,
+      "total": 7
+    },
+    "mapping-keys/field-types-and-statement-templates/json-fields": {
+      "status": "supported",
+      "passed": 4,
+      "total": 4
+    },
+    "mapping-keys/field-types-and-statement-templates/statement-templates": {
+      "status": "supported",
+      "passed": 10,
+      "total": 10
+    },
+    "mapping-keys/key-generators/strategies": {
+      "status": "supported",
+      "passed": 19,
+      "total": 19,
+      "href": "/docs/features/h2/generated-keys#key-strategies"
+    }
+  }
+}

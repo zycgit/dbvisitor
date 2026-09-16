@@ -10,8 +10,6 @@ JDBC Batch, transactions, savepoints and updatable ResultSets are not supported.
 
 ## Database-Specific Restrictions
 
-`DatabaseMetaData.getCatalogs()` returns the selected database number and reflects successful database changes. It does not enumerate all configured databases or map keys to tables or columns.
-
 Redis Cluster connections cannot select a nonzero database through `database`. The default client does not enable TLS; configure a custom client with `customJedis` when needed.
 
 For exact command syntax and result semantics, see the [command reference](../../features/redis/about.md).

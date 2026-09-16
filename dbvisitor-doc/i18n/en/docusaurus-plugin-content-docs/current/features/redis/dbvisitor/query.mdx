@@ -1,0 +1,133 @@
+---
+id: query
+slug: /features/redis/query
+sidebar_position: 31
+title: Query Operations
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+Redis commands and SQL use the same execution APIs. Pass commands such as `GET` and `HGETALL` directly. Use JdbcTemplate, method annotations, or Mapper files. See [JDBC Redis](../../../drivers/redis/connection.mdx) for connection setup.
+
+
+The Redis adapter does not provide a builder dialect. See [Builder API](builder.md#support) for its scope and command-based alternatives.
+
+## Executing Query Commands {#exec-command}
+
+Pass the Redis command directly to a query method. If the key does not exist, `name` below is `null`.
+
+```java
+JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+String name = jdbc.queryForString("GET ?", "user:1001:name");
+```
+
+## Querying Through Mappers {#query-apis}
+
+<Tabs>
+<TabItem value="annotation" label="Method Annotations" default>
+
+```java
+@SimpleMapper
+public interface NameMapper {
+    @Query("GET #{key}")
+    String load(@Param("key") String key);
+}
+```
+
+</TabItem>
+<TabItem value="xml" label="Mapper File">
+
+```xml
+<mapper namespace="com.example.NameMapper">
+    <select id="load" resultType="java.lang.String">GET #{key}</select>
+</mapper>
+```
+
+```java
+@RefMapper("/mapper/redis-name.xml")
+public interface NameMapper {
+    String load(@Param("key") String key);
+}
+```
+
+Save the XML at /mapper/redis-name.xml; NameMapper belongs to com.example.
+
+</TabItem>
+</Tabs>
+
+```java
+Session session = new Configuration().newSession(dataSource);
+NameMapper mapper = session.createMapper(NameMapper.class);
+String name = mapper.load("user:1001:name");
+```
+
+## Read a Hash as a Map
+
+```java
+Map<String, String> fields = jdbc.queryForPairs(
+        "HGETALL ?", String.class, String.class, "user:1001");
+```
+
+HGETALL exposes FIELD and VALUE columns, so queryForPairs is appropriate. For storing a whole object as JSON, see [JSON Field Mapping](../../../guides/core/mapping/json-field.md); SET/GET store and retrieve that JSON string.
+
+## Mapping Result Sets {#result-map}
+
+HGETALL returns one row per Hash entry, with `FIELD` and `VALUE` columns. It does not turn Hash field names into columns. For example, `create_time` is a value in the FIELD column; camel-case mapping will not turn it into a `createTime` property.
+
+Map the two actual columns explicitly. The following `Entry` class has writable `String field` and `String value` properties:
+
+```xml
+<resultMap id="entry" type="com.example.Entry" autoMapping="false">
+    <result column="FIELD" property="field"/>
+    <result column="VALUE" property="value"/>
+</resultMap>
+<select id="entries" resultMap="entry">HGETALL #{key}</select>
+```
+
+Explicit mapping, automatic matching of FIELD/VALUE, column-name case matching, and Map results are supported. For a single Java object stored under a key, use [JSON field mapping](../../../guides/core/mapping/json-field.md).
+
+## Dynamic SQL {#dynamic-commands}
+
+Use `<if>`, `<choose>`, `<foreach>`, and `<bind>` to select or expand Redis arguments. For example, choose a lower score boundary:
+
+```xml
+<select id="members" resultType="java.lang.String">
+    ZRANGEBYSCORE #{key}
+    <if test="minScore != null">#{minScore}</if>
+    <if test="minScore == null">-inf</if>
+    +inf
+</select>
+```
+
+The resulting command is `ZRANGEBYSCORE key lower +inf`. SQL-specific `<where>`, `<set>`, and their combined update templates are not supported: they generate SQL clauses, not Redis arguments.
+
+## Executing Mapper-file statements with BaseMapper {#base-mapper}
+
+BaseMapper's [statement execution methods](../../../guides/core/mapper/file_statement.md) can run the named commands above. This does not enable its entity-based `insert`, `update`, `delete`, or automatic pagination methods. Use explicit Redis commands for those operations.
+
+## Running Lua calculations {#functions}
+
+Redis executes Lua through EVAL, not SQL stored functions. Bind values in ARGV and read the reply from the VALUE column:
+
+```java
+Long sum = jdbc.queryForLong(
+        "EVAL 'return tonumber(ARGV[1]) + tonumber(ARGV[2])' 0 ? ?",
+        new Object[] { 10, 5 });
+```
+
+Scalar queries, named arguments, type conversion, and CallableStatement callbacks are supported. JDBC OUT-parameter records and SQL table-function results are not provided. A Lua nil reply remains null; it is not an OUT record with fallback columns.
+
+## Query Errors {#command-errors}
+
+Invalid commands report errors, but reading a missing key normally returns an empty result rather than a missing-resource error. Check the query result to determine whether a value was found.
+
+## Calling File Mappers {#file-mapper}
+
+Use `@RefMapper` to reuse file commands, parameters, and result mappings; see [Querying Through Mappers](#query-apis). For insert, update, and delete commands, see [Writing Through Mappers](write.mdx#write-apis).
+
+## Query Execution Options {#execution-options}
+
+Mapper files accept `statementType`, `timeout`, and `fetchSize`; their effect follows the driver settings. For `resultSetType`, keep `DEFAULT` or use `FORWARD_ONLY`. Scrollable result sets (`SCROLL_INSENSITIVE` and `SCROLL_SENSITIVE`) are not supported. See [Execution Options](../../../guides/core/file/statements.mdx#execution-options) for XML configuration.
+
+See [Result Reading](results.mdx) for result columns and [Result Handling](result-handling.md) for result-handler API differences.

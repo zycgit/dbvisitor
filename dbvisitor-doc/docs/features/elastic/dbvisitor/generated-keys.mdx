@@ -1,7 +1,7 @@
 ---
 id: generated-keys
 slug: /features/elastic/generated-keys
-sidebar_position: 3
+sidebar_position: 62
 title: 主键生成
 ---
 
@@ -10,7 +10,17 @@ import TabItem from '@theme/TabItem';
 
 # 主键生成
 
-## 使用自动生成 ID
+## 主键策略 {#key-strategies}
+
+| 策略 | 本数据源的用法 |
+| --- | --- |
+| 手工赋值 | 映射主键作为 _id；省略时可能自动生成 ID。 |
+| 自增 | 不提供数值型自增主键；文档 ID 的生成与回填使用下文方式。 |
+| UUID | 字符主键使用 UUID32 或 UUID36。 |
+| 序列 | 不提供序列主键策略。 |
+| 自定义 | 可在插入前生成业务 ID；回调不能读取数值型自增主键。 |
+
+## 使用自动生成 ID {#generated-id}
 
 POST 请求不带文档 ID 时，Elasticsearch 生成 _id；它与 _source 中的 id、uid 等业务字段不是一回事。
 
@@ -45,7 +55,7 @@ int insert(UserInfo item);
 生成键列名为 `_ID`。需要指定 `keyColumn` 时使用 `_ID`，接收属性使用 `String`；Elasticsearch 不生成数值型自增主键。
 :::
 
-## 使用已有 ID
+## 使用已有 ID {#assigned-key}
 
 由应用指定 ID 时，将它放到请求路径中：
 
@@ -59,8 +69,22 @@ jdbc.executeUpdate(
 
 使用构造器 API 或 BaseMapper 时，已赋值的单个映射主键会同时作为 Elasticsearch 的 `_id`。未标记为主键的业务字段不影响 `_id`。
 
+没有提供 ID 时，Elasticsearch 可以自动生成 `_id`，不会按关系表的“主键不能为空”约束拒绝写入。业务要求自行编号时，应在调用前检查 ID 是否已赋值。
+
 | 插入策略 | 同一主键已存在时 |
 | --- | --- |
 | `Into`（默认） | 报主键冲突错误。 |
 | `Ignore` | 跳过该条，返回 0；其他错误仍抛出。 |
 | `Update` | 文档存在时只更新本次提供的字段；不存在时新增文档。 |
+
+## 自定义主键生成器 {#custom-key}
+
+可以在 `beforeApply` 中生成业务编号并赋给实体，然后随插入请求写入。`afterApply` 回调也可使用，但 Elasticsearch 不提供数值型自增主键，不能用它回读这类编号。
+
+例如，订单号由应用在插入前分配；若需要 Elasticsearch 自动生成的字符串 `_id`，使用上面的[自动生成 ID](#generated-id)。自定义生成器的配置见[主键生成器](../../../guides/core/mapping/key_generator.md)。
+
+## 选择回填来源 {#key-source}
+
+方法注解和 Mapper 文件均使用 `useGeneratedKeys`，保持默认回填来源。生成键和命令本身的结果集不是同一个结果；这里的插入不要设置 `generatedKeySource="resultSet"`。
+
+上面的例子展示了可用的生成键回填方式；需要指定返回列时使用 `keyColumn`。

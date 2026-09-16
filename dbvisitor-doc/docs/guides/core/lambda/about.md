@@ -53,12 +53,18 @@ LambdaTemplate 的获取方式取决于项目架构，详见 **[框架整合](..
 
 ## 使用指引 {#guide}
 
-- [Insert](./insert)，写入数据、批量写入、冲突策略（Ignore/Update）。
-- [Update](./update)，三种更新方式及不安全更新防护。
-- [Delete](./delete)，删除数据。
-- [Query](./query)，查询数据。
+- [写入操作](#writes)，新增、更新与删除。
+- [查询操作](./query)，查询数据。
 - [条件构造器](./where_builder)，构建复杂查询条件，用于 Update/Delete/Query。
 - [分组](./group_by)，GROUP BY 分组查询。
 - [排序](./order_by)，ORDER BY 查询排序。
 - [映射 Map 模式](../map_query/mapped)，复用对象映射，但以 Map 作为数据载体。
 - [自由 Map 模式](../map_query/freedom)，不依赖对象映射，直接使用表名和列名。
+
+## 写入操作 {#writes}
+
+- [新增操作](./insert)：写入实体或多条数据；重复记录的处理见[写入冲突](./insert#conflict)。
+- [更新操作](./update)：修改指定字段、按样本更新或整行覆盖。
+- [删除操作](./delete)：删除符合条件的数据。
+
+更新和删除默认拒绝空条件；需要操作全部记录时，显式调用 `allowEmptyWhere()`。写入后的返回值与回读行为见各数据源的[构造器 API 差异](../../../features/differences/builder)。

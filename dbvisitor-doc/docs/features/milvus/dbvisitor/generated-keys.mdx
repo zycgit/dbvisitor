@@ -1,7 +1,7 @@
 ---
 id: generated-keys
 slug: /features/milvus/generated-keys
-sidebar_position: 3
+sidebar_position: 62
 title: 主键生成
 ---
 
@@ -9,6 +9,16 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
 # 主键生成
+
+## 主键策略 {#key-strategies}
+
+| 策略 | 本数据源的用法 |
+| --- | --- |
+| 手工赋值 | 使用关闭 AutoID 的集合；重复 ID 不触发唯一键冲突异常。 |
+| 自增 | 使用 AutoID；2.6.2 基线不支持与手工 ID 混用。 |
+| UUID | 使用 VARCHAR 主键并关闭 AutoID。 |
+| 序列 | 不提供序列主键策略。 |
+| 自定义 | 使用自定义生成器，在插入前或后处理主键。 |
 
 ## 使用自动生成 ID
 
@@ -49,10 +59,28 @@ int insert(AutoBook item);
 
 `keyColumn="id"` 指定返回的主键列，可以省略。构造器 API 使用 `KeyType.Auto` 配置自动回填，见[主键生成器](../../../guides/core/mapping/key_generator.md)。
 
-## 使用已有 ID
+## 使用已有 ID {#assigned-key}
 
-未启用 AUTO_ID 的集合，插入时提供主键值。INSERT 不是唯一键冲突检查；需要按主键覆盖时，使用 [UPSERT](../write/upsert.md#upsert)。
+未启用 AUTO_ID 的集合，插入时必须提供主键值。INSERT 不检查已有数据中的重复主键：同一个 ID 再次 INSERT，不会作为唯一键冲突抛错。
+
+例如，要将书籍 `1001` 的标题改为新值，应使用 [UPSERT](../write/upsert.md#upsert)，不要通过“尝试 INSERT、捕获主键冲突”的方式判断它是否存在。
+
+## AUTO_ID 集合 {#auto-id-boundary}
+
+在 Milvus 2.6.2 基线下，不支持向 AutoID 集合插入应用指定的 ID。自动编号与手工编号分别使用对应配置的集合，不要在 AutoID 集合中混用。
 
 ## 使用 UUID
 
 集合采用 VARCHAR 主键且关闭 AutoID 时，可在实体映射中使用 KeyType.UUID32 或 KeyType.UUID36。dbVisitor 在 INSERT 前生成并赋值，字段长度分别至少预留 32 或 36 个字符。配置见[主键生成器](../../../guides/core/mapping/key_generator.md)。
+
+## 选择回填来源 {#key-source}
+
+方法注解和 Mapper 文件均使用 `useGeneratedKeys`，保持默认回填来源。生成键和命令本身的结果集不是同一个结果；这里的插入不要设置 `generatedKeySource="resultSet"`。
+
+上面的例子展示了可用的生成键回填方式；需要指定返回列时使用 `keyColumn`。
+
+## Mapper 文件的主键策略 {#mapper-file-keys}
+
+可在 INSERT 中绑定已有主键，或通过 `useGeneratedKeys` 接收 AutoID。不要使用 `generatedKeySource="resultSet"`，因为 INSERT 不返回用于回填的当前结果集。
+
+Milvus 没有数据库序列，不能通过 `selectKey` 查询序列值来生成主键；需要预先确定 ID 时由应用赋值。AutoID 用法见上方示例。

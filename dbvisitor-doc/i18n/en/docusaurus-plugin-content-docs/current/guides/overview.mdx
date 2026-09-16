@@ -55,10 +55,10 @@ dbVisitor 6.7.1 and later require Java 17+. For 6.7.0 and earlier, consult the m
 
 - dbVisitor supports accessing the database using the [Programmatic API](./api/jdbc) via raw SQL.
 - dbVisitor supports accessing the database using the [Declarative API](./api/mapper) by marking interfaces with annotations.
-- dbVisitor supports accessing all framework-supported databases with the same API using the [Fluent API](./api/lambda) method.
+- dbVisitor supports accessing all framework-supported databases with the same [Builder API](./api/lambda).
 - dbVisitor supports [Map Query Mode](./core/map_query/about) for Map-based data, either reusing object mapping or using table and column names directly.
 - dbVisitor supports [Vector Query](./core/vector_query/about) for KNN ordering and vector range filtering.
-- dbVisitor supports simplifying applications by performing routine operations on the database through predefined methods in [BaseMapper](./core/mapper/about#base-mapper).
+- dbVisitor supports organizing DAOs as Java interfaces through the [Mapper API](./api/mapper), including annotations, BaseMapper CRUD methods, and Mapper files.
 - dbVisitor supports unified management of SQL statements using [Mapper XML](./api/file_mapper) files.
 - dbVisitor provides multiple ways to handle [Arguments](./args/about), believing that a suitable way can always be found to handle them in various special scenarios.
 - dbVisitor provides a more flexible and efficient [Rule](./rules/about) mechanism, which makes maintaining application SQL more concise.
@@ -81,7 +81,7 @@ dbVisitor 6.7.1 and later require Java 17+. For 6.7.0 and earlier, consult the m
 - Latest release: v{Vars.lastReleaseVer} ({Vars.lastReleaseTime})
 - This guide describes {Vars.docsVersion}. Build the development version from source; do not assume new capabilities exist in older releases.
 - `6.x` version is a brand new upgrade. While inheriting the functions of 5.x, it has made major improvements to the implementation of different style APIs to keep usage and behavior unified in all aspects.
-- `5.x` version: dbVisitor was officially separated from the Hasor framework and provides three different styles of APIs — Programmatic API, Declarative API, and Fluent API — to access the database.
+- `5.x` version: dbVisitor was officially separated from the Hasor framework and provides three different styles of APIs — Programmatic API, Declarative API, and Builder API — to access the database.
 - `4.x` and earlier versions did not have their own independent versions, and their release followed the [Hasor](https://www.hasor.net/) framework release.
 
 ## Contact Author

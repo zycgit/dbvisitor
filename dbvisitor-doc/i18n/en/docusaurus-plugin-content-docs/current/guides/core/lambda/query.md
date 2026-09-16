@@ -67,7 +67,7 @@ result = lambda.query(User.class)
 
 ## Query a single object {#object}
 
-Run a query and map the single result; no match returns null, and multiple matches throw an exception.
+Return the first matching object, or `null` when no records match. To select the first row in a specific order, request that order explicitly where the data source supports it.
 
 ```java title='Map to entity type'
 LambdaTemplate lambda = ...;
@@ -181,8 +181,10 @@ result = lambda.query(User.class)
 
 ## Pagination {#page}
 
+Use the paging methods below to fetch a page. To traverse records in batches, use [iteration in pages](#iterator).
+
 :::info[Tip]
-Pagination depends on dialect support; see **[database support](../../../features/support#dialect)** for supported databases.
+Pagination depends on dialect support; see **[database support](../../../features/differences/builder)** for supported databases.
 :::
 
 dbVisitor provides built-in pagination with no extra config. Usage:
@@ -216,3 +218,18 @@ result = lambda.query(User.class)
 
 - The Pagination Object provides many useful methods. See [Pagination Object](../../result/page_object) for more details.
 - The [query list](./query#list) and [result processing](./query#process) result receiving methods can be combined with pagination.
+
+## Iterate in pages {#iterator}
+
+Use an iterator when you do not want to collect every row in one List. The following query fetches up to 100 rows per page:
+
+```java
+Iterator<? extends UserInfo> users = lambda.query(UserInfo.class)
+        .asc("id").iteratorByBatch(100);
+while (users.hasNext()) {
+    UserInfo user = users.next();
+    // Process this record.
+}
+```
+
+`iteratorForLimit(500, 100)` limits the total to 500 records with a page size of 100; a negative total limit means no total limit. Use a stable order where the data source supports one. This is paginated iteration, not a JDBC server-side streaming guarantee; concurrent changes can affect the pages.

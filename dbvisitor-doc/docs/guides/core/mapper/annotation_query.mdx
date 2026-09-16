@@ -26,7 +26,7 @@ public interface UserMapper {
 }
 ```
 
-## 分页查询
+## 分页查询 {#pagination}
 
 方法参数中增加 `Page` 参数即可分页：
 
@@ -40,7 +40,7 @@ List<User> listUsers(@Param("id") long searchId, Page page);
 PageResult<User> pageUsers(@Param("id") long searchId, Page page);
 ```
 
-## 属性清单
+## 属性清单 {#options}
 
 | 属性名 | 描述 |
 |---|---|

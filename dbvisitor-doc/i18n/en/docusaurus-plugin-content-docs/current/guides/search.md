@@ -16,7 +16,7 @@ This page skips the API overview and organizes links by usage scenarios for quic
 ### Insert,Delete,Update
 - Use raw [SQL Statements](core/jdbc/update).
 - Use annotations [@Insert](core/mapper/annotation_insert), [@Delete](core/mapper/annotation_delete), [@Update](core/mapper/annotation_update).
-- Use the Fluent API to [Insert](core/lambda/insert), [Delete](core/lambda/delete), [Update](core/lambda/update).
+- Use the Builder API to [Insert](core/lambda/insert), [Delete](core/lambda/delete), [Update](core/lambda/update).
 - Use the [Common Mapper](core/mapper/about#base-mapper) interface.
 - In a Mapper file, use [&lt;insert&gt;](core/file/statements#insert) to insert data.
 - In a Mapper file, use [&lt;selectKey&gt;](core/file/statements#selectKey) to handle auto-increment IDs during insert.
@@ -26,8 +26,8 @@ This page skips the API overview and organizes links by usage scenarios for quic
 - Use SQL statements to [Query Result Set](core/jdbc/query#list), [Query Object](core/jdbc/query#one), [Query Key-Value Pairs](core/jdbc/query#pairs), [Query Value/List](core/jdbc/query#value), [Stream Query](core/jdbc/query#stream)
 - Execute statements and [Multiple ResultSet](core/jdbc/multiple_results).
 - Define queries on interfaces with [@Query](core/mapper/annotation_query).
-- Use the Fluent API to [Fetch one object](core/lambda/query#object), [List](core/lambda/query#list), [Count](core/lambda/query#count).
-- Use the Fluent API for [Group by](core/lambda/group_by) and [Order by](core/lambda/order_by).
+- Use the Builder API to [Fetch one object](core/lambda/query#object), [List](core/lambda/query#list), [Count](core/lambda/query#count).
+- Use the Builder API for [Group by](core/lambda/group_by) and [Order by](core/lambda/order_by).
 - In a Mapper file, use [&lt;select&gt;](core/file/statements#select) to query and [&lt;sql&gt;](core/file/statements#sql) to define fragments.
 
 ### Arguments
@@ -38,8 +38,8 @@ This page skips the API overview and organizes links by usage scenarios for quic
 - Use [Rules](args/rule) to make parameters dynamic in SQL.
 
 ### Pagination
-- Use [pagination](core/lambda/query#page) in the Fluent API.
-- In Mapper interfaces, add paging params to @Query methods for [pagination](core/mapper/annotation_query#page).
+- Use [pagination](core/lambda/query#page) in the Builder API.
+- In Mapper interfaces, add paging params to @Query methods for [pagination](core/mapper/annotation_query#pagination).
 - Paginate via the [Common Mapper](core/mapper/about#base-mapper) (includes sorting and null ordering).
 - Use Session [queryStatement / pageStatement](core/mapper/file_statement#page) overloads for pagination.
 - After binding Mapper interfaces to XML, use a [Page object](core/file/paging) for pagination.
@@ -104,27 +104,27 @@ This page skips the API overview and organizes links by usage scenarios for quic
 
 ### Redis support
 - See the 140+ Redis commands supported by dbVisitor: [Commands](../features/redis/about).
-- Learn how dbVisitor handles Redis data types ([String](../features/redis/dbvisitor/usage.mdx), [Hash](../features/redis/dbvisitor/usage.mdx),
-  [List](../features/redis/dbvisitor/usage.mdx), [Set](../features/redis/dbvisitor/usage.mdx), [Sorted Set](../features/redis/dbvisitor/usage.mdx)).
-- Use JdbcTemplate to [Execute commands](../features/redis/dbvisitor/usage.mdx).
-- Use @Insert, @Update, @Delete on Mapper interfaces for [Annotation-driven](../features/redis/dbvisitor/usage.mdx) Redis operations.
-- Configure commands via tags in [Mapper File](../features/redis/dbvisitor/usage.mdx).
+- Learn how dbVisitor handles Redis data types ([String](../features/redis/string/about.md), [Hash](../features/redis/hash/about.md),
+  [List](../features/redis/list/about.md), [Set](../features/redis/set/about.md), [Sorted Set](../features/redis/sorted-set/about.md)).
+- Use JdbcTemplate to [Query Operations](../features/redis/dbvisitor/query.mdx#exec-command) or [Data Writes](../features/redis/dbvisitor/write.mdx#exec-command).
+- Use @Insert, @Update, @Delete on Mapper interfaces for [Annotation-driven](../features/redis/dbvisitor/write.mdx#write-apis) Redis operations.
+- Configure commands via tags in [Mapper File](../features/redis/dbvisitor/query.mdx#query-apis).
 
 ### MongoDB support
 - See MongoDB commands supported by dbVisitor: [Commands](../features/mongo/about).
-- Use JdbcTemplate to [Execute commands](../features/mongo/dbvisitor/usage.mdx).
-- Use [Fluent API](../features/mongo/dbvisitor/usage.mdx).
-- Use [Common Mapper](../features/mongo/dbvisitor/usage.mdx).
-- On Mapper interfaces, use @Insert, @Update, @Delete for [Annotation-driven](../features/mongo/dbvisitor/usage.mdx) operations.
-- Configure commands via tags in [Mapper File](../features/mongo/dbvisitor/usage.mdx).
+- Use JdbcTemplate to [Query Operations](../features/mongo/dbvisitor/query.mdx#exec-command) or [Data Writes](../features/mongo/dbvisitor/write.mdx#exec-command).
+- Use [Builder API](../features/mongo/dbvisitor/query.mdx#query-apis).
+- Use [Common Mapper](../features/mongo/dbvisitor/query.mdx#query-apis).
+- On Mapper interfaces, use @Insert, @Update, @Delete for [Annotation-driven](../features/mongo/dbvisitor/write.mdx#write-apis) operations.
+- Configure commands via tags in [Mapper File](../features/mongo/dbvisitor/query.mdx#query-apis).
 
 ### ElasticSearch support
 - See ElasticSearch commands supported by dbVisitor: [Commands](../features/elastic/about).
-- Use JdbcTemplate to [Execute commands](../features/elastic/dbvisitor/usage.mdx).
-- Use [Fluent API](../features/elastic/dbvisitor/usage.mdx).
-- Use [Common Mapper](../features/elastic/dbvisitor/usage.mdx).
-- On Mapper interfaces, use @Insert, @Update, @Delete for [Annotation-driven](../features/elastic/dbvisitor/usage.mdx) operations.
-- Configure commands via tags in [Mapper File](../features/elastic/dbvisitor/usage.mdx).
+- Use JdbcTemplate to [Query Operations](../features/elastic/dbvisitor/query.mdx#exec-command) or [Data Writes](../features/elastic/dbvisitor/write.mdx#exec-command).
+- Use [Builder API](../features/elastic/dbvisitor/query.mdx#query-apis).
+- Use [Common Mapper](../features/elastic/dbvisitor/query.mdx#query-apis).
+- On Mapper interfaces, use @Insert, @Update, @Delete for [Annotation-driven](../features/elastic/dbvisitor/write.mdx#write-apis) operations.
+- Configure commands via tags in [Mapper File](../features/elastic/dbvisitor/query.mdx#query-apis).
 
 ### Database transactions
 - Spring projects: use [Spring Annotations](yourproject/with_spring#tran).

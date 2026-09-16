@@ -17,6 +17,16 @@ import TagGray from '@site/src/components/tags/TagGray';
 - [&lt;execute&gt; 标签](./statements#execute)，可以用来执行任意的 SQL 语句。
 - [&lt;sql&gt; 标签](./statements#sql)，定义 SQL 片段。
 
+## 命令执行 {#execution}
+
+这些标签也可以承载数据源的原生命令，不要求命令必须是 SQL。加载 Mapper 文件后，可通过 `namespace.statementId` 调用其中的语句；用法见[调用文件 Mapper](../mapper/file_statement.md)。
+
+## 执行选项 {#execution-options}
+
+`statementType` 选择执行方式，`timeout` 设置超时，`fetchSize` 提供读取批次提示，`resultSetType` 选择结果集类型。查询默认使用预编译语句；需要滚动结果时，驱动也必须支持相应的 `resultSetType`。
+
+各标签可配置的属性见下文。`fetchSize` 是读取批次提示，不是返回记录的总数限制。
+
 ## select 标签 {#select}
 
 &lt;select&gt; 标签等同于 [@Query 注解](../mapper/annotation_query)，用于配置 SELECT 语句，对于简单的情况只需要具体的 SQL 语句即可。例如:
@@ -54,6 +64,10 @@ import TagGray from '@site/src/components/tags/TagGray';
 | resultRowMapper    | <TagGray/> 可为查询配置一个 [RowMapper](../../result/for_mapper) 对象用于结果集处理（如果配置了 bindOut 那么该配置将会失效）                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | resultTypeHandler  | <TagGray/> 可为该方法配置一个 [TypeHandler](../../types/about) 对象用于结果集处理（如果配置了 bindOut 那么该配置将会失效）                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | bindOut            | <TagGray/> 当 Query 中使用了 [多值](../jdbc/multiple_results) 或者 [存储过程调用](../jdbc/procedure)，使用 bindOut 参数可以绑定其中的输出参数。<br/>请注意：一旦使用了该参数那么接口返回值类型必须为 **Map&lt;String,Object&gt;** 类型。                                                                                                                                                                                                                                                                                                                                                         |
+
+### 存储过程调用 {#callable}
+
+调用存储过程时设置 `statementType="CALLABLE"`，通过参数中的 `mode` 声明 IN、OUT 或 INOUT，使用 `bindOut` 选择输出。输出参数及游标的写法见[存储过程调用](../jdbc/procedure)。数据库和 JDBC 驱动需要提供对应能力。
 
 ## update 和 delete 标签 {#update_delete}
 
@@ -102,7 +116,13 @@ import TagGray from '@site/src/components/tags/TagGray';
 | keyProperty      | <TagGray/> 当 useGeneratedKeys 设置为 true 后，用于回填自增后属性值的 Bean 属性名。如果同时配置了 SelectKey 注解该属性将会失效。                                                                                                        |
 | keyColumn        | <TagGray/> 当 useGeneratedKeys 设置为 true 后，回填自增属性值时候选择的查询结果列名。如果同时配置了 SelectKey 注解该属性将会失效。                                                                                                          |
 
-### 自增主键回填
+<span id="自增主键回填" />
+
+### 主键策略 {#key-strategies}
+
+- 手工赋值：在 INSERT 中直接绑定调用方提供的主键。
+- 生成键回填：使用 `useGeneratedKeys`、`keyProperty`、`keyColumn` 接收数据库返回的生成键。
+- 查询后回填：使用 [selectKey 标签](#selectKey)，在 INSERT 前或后执行查询，将结果写回参数属性。
 
 `<insert>` 可以通过 `useGeneratedKeys`、`keyProperty`、`keyColumn` 声明主键回填。不同数据库的主键返回方式差异较大，具体用法请阅读 [数据源特性](../../../features/overview)。Generated keys 的通用说明见 [Generated Keys](../mapper/annotation_insert#generated-keys)。
 

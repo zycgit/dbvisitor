@@ -1,7 +1,7 @@
 ---
 id: types
 slug: /features/mongo/types
-sidebar_position: 1
+sidebar_position: 80
 title: Type Support
 description: MongoDB type support
 ---
@@ -11,6 +11,8 @@ description: MongoDB type support
 The table recommends Java property types for common BSON types. See [Java/JDBC types](../../../guides/types/java-jdbc.md).
 
 ## Type Mappings
+
+Vector field usage is described under [Vector Types](#vector-types).
 
 | BSON type | Java type | Description |
 | --- | --- | --- |
@@ -28,6 +30,10 @@ The table recommends Java property types for common BSON types. See [Java/JDBC t
 
 A BSON date stores an instant; a `java.sql.Date` target represents only the date. Use `Timestamp` or `Instant` when the time of day matters. Document and array content must match the configured object or list mapping.
 
+## Vector Types {#vector-types}
+
+See [Vector Operations](vectors.md#vector-mapping) for field mapping and reads/writes.
+
 ## Example: Bind a Boolean and Read Its Field
 
 ```java
@@ -43,5 +49,22 @@ Boolean enabled = jdbcTemplate.queryForObject(
 ## Limits
 
 - Default mapping does not preserve `BigInteger` or exact decimals losslessly.
-- MongoDB arrays are not JDBC `ARRAY` values.
 - The first column is document metadata; read business fields by name, `RowMapper`, or entity.
+
+## Array Types {#array-values}
+
+BSON arrays can be bound and read through the adapter’s JDBC ARRAY support. Use a homogeneous Integer[], Float[], or String[] property; document arrays with nested objects can use [JSON mapping](../../../guides/core/mapping/json-field.md).
+
+Use an empty array_example collection in the test database:
+
+```java
+import java.sql.Types;
+import net.hasor.dbvisitor.types.SqlArg;
+
+Integer[] values = { 10, 20, 30 };
+jdbc.executeUpdate("test.array_example.insert({id: ?, int_array: ?})",
+        new Object[] { 1, SqlArg.valueOf(values, Types.ARRAY) });
+Integer[] loaded = jdbc.queryForObject(
+        "test.array_example.find({id: ?}, {_id: 0, int_array: 1})",
+        new Object[] { 1 }, Integer[].class);
+```

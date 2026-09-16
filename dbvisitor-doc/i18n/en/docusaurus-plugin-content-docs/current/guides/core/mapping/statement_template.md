@@ -2,7 +2,7 @@
 id: statement_template
 sidebar_position: 7
 title: Statement Templates
-description: Statement templates control how SQL fragments are generated when using the Fluent API.
+description: Statement templates control how SQL fragments are generated when using the Builder API.
 ---
 
 # Statement Templates
@@ -11,7 +11,7 @@ description: Statement templates control how SQL fragments are generated when us
 - Templates become SQL structure and must be defined by application code, not external input. Bind data values through `?`; switching to JdbcTemplate still requires binding.
 :::
 
-When using the [Fluent API](../lambda/about), statement templates shape the generated SQL fragments.
+When using the [Builder API](../lambda/about), statement templates shape the generated SQL fragments.
 
 Example: for MySQL tables with `point` columns, templates let you wrap reads/writes with `ST_GeomFromText` and `ST_AsText`.
 

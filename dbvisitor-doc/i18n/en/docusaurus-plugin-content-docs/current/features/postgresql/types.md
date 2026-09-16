@@ -1,6 +1,6 @@
 ---
 id: types
-sidebar_position: 1
+sidebar_position: 80
 title: Type Support
 description: PostgreSQL type support
 ---
@@ -35,7 +35,7 @@ The table recommends Java property types for common columns. Use wrapper types f
 | REAL[] | Float[] | Array elements match the database element type; configure the handler explicitly when needed. |
 | vector(n) | List&lt;Float> | See [Vector Operations](./vectors.mdx) for mapping; the vector length must match the column dimension. |
 
-## Example: Native Array
+## Array Types {#array-values}
 
 ```sql
 CREATE TABLE array_example (id INTEGER PRIMARY KEY, values_col INTEGER[]);

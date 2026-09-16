@@ -24,7 +24,20 @@ List<User> result = lambda.query(User.class)
 SELECT * FROM users WHERE age = ?
 ```
 
-具体可用的方法如下表所示：
+## 条件参数 {#parameter-values}
+
+`eq`、`in`、`like`、区间和样本条件等方法会绑定传入的值，不需要自行拼接或转义字符串。
+
+```java
+String name = "O'Reilly";
+List<User> users = lambda.query(User.class)
+        .eq(User::getName, name)
+        .queryForList();
+```
+
+使用 `apply` 时，命令片段保持固定，通过占位符传值，例如 `apply("name = ?", name)`。片段须符合目标数据源的语法，不要把外部输入直接拼入片段。参数绑定不会改变数据库的模式匹配规则或字段长度限制。
+
+## 比较与集合条件 {#comparisons}
 
 | 方法                       | SQL                                 | 描述                                                                 |
 |:-------------------------|:------------------------------------|:-------------------------------------------------------------------|

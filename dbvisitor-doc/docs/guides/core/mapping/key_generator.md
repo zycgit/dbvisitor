@@ -47,7 +47,11 @@ public class AdminUsers {
 - primary 和 keyType 两个属性没有强关联，您也可以为非主键列配备生成器。
 :::
 
-### keyType 属性可选的配置
+<span id="keytype-属性可选的配置" />
+
+### 主键策略 {#key-strategies}
+
+通过 `keyType` 选择主键策略：
 
 | 属性名      | 描述                                                                                                                 |
 |----------|--------------------------------------------------------------------------------------------------------------------|
@@ -55,7 +59,7 @@ public class AdminUsers {
 | Auto     | 接收数据库生成值；具体通过 JDBC generated keys 或 INSERT 返回的 ResultSet 回填，由执行入口与方言决定。                                                    |
 | UUID32   | 在插入数据前使用 32 位字符串的 UUID 填充数据，如：`4d68040901d24b70bd10c1c8119001e2`。                                              |
 | UUID36   | 在插入数据前使用 36 位字符串的 UUID 填充数据，如：`4d680409-01d2-4b70-bd10-c1c8119001e2`。                                              |
-| Sequence | 先从数据库序列中获取最新值，填充到属性后再执行数据库插入。需要所选方言实现 `SeqSqlDialect`；兼容性请参考 [数据库支持性](../../../features/support#dialect)。<br/>- 使用该选项需要同时使用 @KeySeq 注解标识序列的名字。 |
+| Sequence | 先从数据库序列中获取最新值，填充到属性后再执行数据库插入。需要所选方言实现 `SeqSqlDialect`；兼容性请参考 [数据库支持性](../../../features/differences/mapping-keys)。<br/>- 使用该选项需要同时使用 @KeySeq 注解标识序列的名字。 |
 | Holder   | 自定义数据生成逻辑，需要实现 `GeneratedKeyHandlerFactory` 接口，并通过 @KeyHolder 注解将其一同声明。                                            |
 
 ## 基于 Mapper File {#xml}
@@ -85,7 +89,7 @@ public class AdminUsers {
 &lt;id&gt; 标签 和 &lt;mapping&gt; 标签，都可以配置 keyType 属性。
 :::
 
-### keyType 属性可选的配置
+### keyType 属性可选的配置 {#keytype-属性可选的配置-1}
 
 | 属性名            | 描述                                                                                      |
 |----------------|-----------------------------------------------------------------------------------------|
@@ -93,7 +97,7 @@ public class AdminUsers {
 | auto           | 接收数据库生成值；具体通过 JDBC generated keys 或 INSERT 返回的 ResultSet 回填，由执行入口与方言决定。                         |
 | uuid32         | 在插入数据前使用 32 位字符串的 UUID 填充数据，如：`4d68040901d24b70bd10c1c8119001e2`。                   |
 | uuid36         | 在插入数据前使用 36 位字符串的 UUID 填充数据，如：`4d680409-01d2-4b70-bd10-c1c8119001e2`。                   |
-| Sequence::xxxx | 先从名称为 xxxx 的数据库序列中获取最新值，填充到属性后再执行数据库插入。需要所选方言实现 `SeqSqlDialect`；Oracle、SQL Server 内置方言不能直接使用此方式，可改用 `selectKey`。兼容性请参考 [数据库支持性](../../../features/support#dialect)。 |
+| Sequence::xxxx | 从序列 `xxxx` 获取下一个值，填充属性后插入。支持范围见[序列主键](../../../features/differences/mapping-keys#主键生成器)。 |
 | (类名)           | 自定义数据生成逻辑，填写实现了 `GeneratedKeyHandlerFactory` 接口的完整类名。                                   |
 
 ## 自定义生成器

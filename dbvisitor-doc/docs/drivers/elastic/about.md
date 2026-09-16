@@ -13,6 +13,18 @@ description: Elasticsearch JDBC 驱动的接入、连接和使用。
 - 支持文档读写、索引管理、搜索、统计和 `_cat` 查询。
 - 支持结果字段展开，以及预读内存阈值和缓存目录配置。
 
+## 元信息查询
+
+通过 `connection.getMetaData()` 查询：
+
+| JDBC 方法 | 返回内容 |
+| --- | --- |
+| `getCatalogs()` | 空结果，无独立的库层级 |
+| `getTables()` | Index |
+| `getColumns()` | Mapping 中声明的字段 |
+| `getSchemas()` | 空结果 |
+| `getTableTypes()` | `TABLE` |
+
 ## 开始使用
 
 1. [引入依赖](dependencies.mdx)：Maven 或 Gradle 配置。
@@ -28,6 +40,6 @@ description: Elasticsearch JDBC 驱动的接入、连接和使用。
 
 配合 dbVisitor API 使用时，可使用 Elastic6、Elastic7 方言。
 
-[命令参考](../../features/elastic/about.md) · [dbVisitor API 用法](../../features/elastic/dbvisitor/usage.mdx)
+[命令参考](../../features/elastic/about.md) · [查询操作](../../features/elastic/dbvisitor/query.mdx) · [数据写入](../../features/elastic/dbvisitor/write.mdx)
 
 [向量查询](../../features/elastic/dbvisitor/vectors.mdx)

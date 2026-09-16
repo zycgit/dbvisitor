@@ -175,6 +175,6 @@ public class OrderService {
 
 ## 深入阅读
 
-- [事务管理器](./manager)：了解事务栈如何影响提交和回滚顺序。
+- [跨 API 事务](./manager)：手动开启事务后，让不同 API 参与同一事务。
 - [传播行为](./propagation)：了解每个 `Propagation` 对连接、保存点、挂起的影响。
 - [隔离级别](./isolation)：了解 `Isolation` 如何映射到 JDBC 连接隔离级别。

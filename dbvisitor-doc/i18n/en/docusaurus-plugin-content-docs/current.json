@@ -7,9 +7,9 @@
     "message": "JDBC Drivers",
     "description": "The label for category 'JDBC 驱动' in sidebar 'drivers'"
   },
-  "sidebar.drivers.category.驱动适配介绍": {
-    "message": "Driver Adapter Introduction",
-    "description": "The label for category '驱动适配介绍' in sidebar 'drivers'"
+  "sidebar.drivers.category.驱动适配": {
+    "message": "Driver Adapters",
+    "description": "The label for category '驱动适配' in sidebar 'drivers'"
   },
   "sidebar.drivers.category.自定义驱动开发": {
     "message": "Custom Driver Development",
@@ -31,9 +31,9 @@
     "message": "JDBC Redis",
     "description": "The label for category 'JDBC Redis' in sidebar 'drivers'"
   },
-  "sidebar.features.category.数据源": {
-    "message": "Data Sources",
-    "description": "The label for category '数据源' in sidebar 'features'"
+  "sidebar.features.category.数据源差异": {
+    "message": "Data Source Differences",
+    "description": "The label for category '数据源差异' in sidebar 'features'"
   },
   "sidebar.features.category.ClickHouse": {
     "message": "ClickHouse",
@@ -88,7 +88,7 @@
     "description": "The label for category '5.1 编程式 API' in sidebar 'guides'"
   },
   "sidebar.guides.category.5.3 构造器 API": {
-    "message": "5.3 Fluent API",
+    "message": "5.3 Builder API",
     "description": "The label for category '5.3 构造器 API' in sidebar 'guides'"
   },
   "sidebar.guides.category.5.5 Map 查询模式": {

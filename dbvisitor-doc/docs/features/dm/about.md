@@ -16,8 +16,8 @@ description: 达梦 在 dbVisitor 中的使用方式。
 | 分页查询 | LIMIT 偏移分页 |
 | 插入冲突 | 重复键忽略与 MERGE 更新 |
 
-- [类型支持](./types.md)：选择 Java 属性类型。
 - [分页查询](./pagination.mdx)：查询指定页及总记录数。
 - [插入冲突](./conflict.mdx)：插入时处理已有记录。
 - [主键生成](./generated-keys.mdx)：配置并获取主键。
-- [多条写入一致性](./write.mdx)：多次写入失败时整体回滚。
+- [类型支持](./types.md)：选择 Java 属性类型。
+- [事务支持](./transactions.mdx)：多次写入失败时整体回滚。

@@ -20,7 +20,7 @@ const sidebars = {
     drivers: [
         {
             type: 'category',
-            label: '驱动适配介绍',
+            label: '驱动适配',
             link: {type: 'doc', id: 'drivers/about'},
             items: [
                 'drivers/dev/about',

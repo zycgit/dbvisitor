@@ -20,8 +20,12 @@ title: 运算符
 
 向量范围不是普通标量表达式，其距离算子及 AND/OR/NOT 组合限制见 [SELECT 与向量搜索](../query/select.md)。不提供任意 JSON 路径或所有原生表达式语法的自动透传。
 
-### Milvus 2.6.2 参数限制
+### Milvus 2.6.2 参数限制 {#parameter-limits}
 
 Milvus 2.6.2 不接受 LIKE 右侧的模板参数，因此 `LIKE ?` 虽可解析并通过 SDK 绑定，执行时仍会被服务端拒绝。固定 SQL 模式字面量可用；不要通过拼接不可信输入绕过限制。
 
 该版本的整数模板比较 `NOT (age = ?)` 及双重 NOT 可触发 QueryNode 断言。普通 `age != ?`、字面量 NOT、`NOT (field IS NULL)` 不属于此问题。驱动不通过拼接参数或消除 NOT 模拟支持。
+
+构造器 API 的 AND/OR 分组和普通比较仍可使用。对整数参数比较使用 `not()`、重复 NOT，以及分组中包含参数化 LIKE 的场景受上述限制。单个“不等于”条件可直接使用 `ne(字段, 值)`，不必写 `not().eq(字段, 值)`；复杂条件不能一概这样替换。
+
+区间查询支持普通开闭区间和 `rangeNotBetween`；`rangeNotOpenClosed`、`rangeNotClosedOpen` 使用 NOT 包裹比较条件，受整数模板 NOT 的限制。可以根据端点是否包含，明确写成区间两侧的 OR 比较。

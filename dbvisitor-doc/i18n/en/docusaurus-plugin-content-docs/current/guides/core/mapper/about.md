@@ -16,7 +16,7 @@ Mapper API organizes data access layers using Java interfaces. SQL can be writte
 | SQL is short, clearest next to the method | Method annotations | [Method Annotations](#method-annotations) |
 | SQL is long, has many dynamic fragments, needs centralized maintenance | Mapper files | [Call File Mapper](./file_statement) |
 | Single-table CRUD, primary-key operations, sample queries | BaseMapper | [BaseMapper](#base-mapper) |
-| Conditions are complex but should stay under a Mapper interface | Fluent calls | [Call Fluent API](./lambda_builder) |
+| Conditions are complex but should stay under a Mapper interface | Fluent calls | [Call Builder API](./lambda_builder) |
 
 :::tip
 For single-table CRUD, prefer [BaseMapper](#base-mapper). Mapper API binds interface methods to annotation SQL, XML SQL, BaseMapper, or Fluent capabilities.
@@ -70,7 +70,7 @@ How to obtain a Session depends on your project architecture. See [Framework Int
 | [Result Reception](../../result/about) | The Mapper method return type determines how results are received — entity, list, page result, or affected rows. |
 | [Mapper File](../file/about) | `@RefMapper` maps interface methods to SQL statements in XML. |
 | [BaseMapper](#base-mapper) | An interface can extend BaseMapper for common CRUD and still declare annotation or XML methods. |
-| [Fluent API](../lambda/about) | After extending BaseMapper, default methods can call `query()`, `update()`, and other Fluent builders. |
+| [Builder API](../lambda/about) | After extending BaseMapper, default methods can call `query()`, `update()`, and other Fluent builders. |
 
 ## Method Annotations {#method-annotations}
 
@@ -101,7 +101,7 @@ Annotation SQL supports [rules](../../rules/about), including conditional concat
 
 If SQL is long, has many dynamic fragments, or needs centralized `resultMap`, `entity` mapping, and dynamic SQL tags, use [Mapper files](./file_statement) instead.
 
-## BaseMapper {#base-mapper}
+## Mapper Reads and Writes {#base-mapper}
 
 `BaseMapper<T>` auto-generates single-table CRUD SQL from [Object Mapping](../mapping/about). It is ideal when you don't want to hand-write common CRUD statements. It is usually used as a parent interface for Mapper interfaces, and can also be created directly via `session.createBaseMapper(User.class)`.
 
@@ -115,7 +115,7 @@ BaseMapper depends on [Object Mapping](../mapping/about) to generate SQL. Withou
 | Insert one or multiple rows | `insert` |
 | Query by sample object | `listBySample`, `countBySample` |
 | Single-table pagination query | `pageBySample` |
-| Conditions become complex | Switch from `mapper.query()` or `mapper.update()` to [Call Fluent API](./lambda_builder) |
+| Conditions become complex | Switch from `mapper.query()` or `mapper.update()` to [Call Builder API](./lambda_builder) |
 
 ```java title='Extending BaseMapper'
 @SimpleMapper
@@ -155,9 +155,25 @@ PageResult<User> result = mapper.pageBySample(sample, page, orderBy, nulls);
 
 `update` only writes non-null fields; `replace` means whole-row replacement; `upsert` means insert if the primary key does not exist, update if it does. For primary key write-back after insert, see [@Insert Generated Keys](./annotation_insert#generated-keys).
 
+## Key Strategies {#key-strategies}
+
+Method annotations can retrieve database-generated keys through [useGeneratedKeys](./annotation_insert#generated-keys), or obtain a key first with [selectKey](./annotation_insert#selectkey). BaseMapper uses the entity's [key generator](../mapping/key_generator) configuration; declare composite keys by marking multiple fields with `primary = true`.
+
+## Session Management {#session-management}
+
+One Session can create annotation mappers, file mappers, and BaseMapper instances, and expose other APIs through `jdbc()` and `lambda()`. They share the Session's configuration and data source; mappings do not need to be registered again.
+
+```java
+Session session = configuration.newSession(dataSource);
+UserMapper mapper = session.createMapper(UserMapper.class);
+BaseMapper<User> baseMapper = session.createBaseMapper(User.class);
+```
+
+Close sessions created by the application after use; leave framework-managed sessions to the integration framework. For transactions, see [Cross-API Transactions](../../transaction/manager.md).
+
 ## Further Reading
 
 - [Method Annotations](#method-annotations) — Using `@Query`, `@Insert`, `@Update`, `@Delete`, etc. to declare SQL on interface methods.
 - [Call File Mapper](./file_statement) — How Mapper methods call SQL in XML files.
-- [Call Fluent API](./lambda_builder) — Reusing LambdaTemplate/Fluent capabilities within Mapper interfaces.
+- [Call Builder API](./lambda_builder) — Reusing LambdaTemplate/Fluent capabilities within Mapper interfaces.
 - [@Insert Generated Keys](./annotation_insert#generated-keys) — Writing back auto-generated primary keys after INSERT.

@@ -9,7 +9,9 @@ description: Handle case sensitivity and reserved identifiers when mapping with 
 
 Some databases treat `users` and `USERS` as different tables. `caseInsensitive` controls mapping lookup; `useDelimited` controls identifier quoting in generated SQL. Neither changes the database's case rules.
 
-## Case sensitivity
+<span id="case-sensitivity" />
+
+## Result Column Case {#result-column-case}
 
 If your database allows multiple columns that differ only by case, enable case sensitivity on result sets; otherwise they collapse into one.
 
@@ -33,7 +35,7 @@ public class Users {
 
 ## Reserved words
 
-Set `useDelimited` to add delimiters when the [Fluent API](../lambda/about) generates SQL, avoiding conflicts with reserved words.
+Set `useDelimited` to add delimiters when the [Builder API](../lambda/about) generates SQL, avoiding conflicts with reserved words.
 
 ```java
 @Table(useDelimited = true)

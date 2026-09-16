@@ -1,0 +1,109 @@
+---
+id: write
+slug: /features/redis/write
+sidebar_position: 32
+title: 数据写入
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+通过 dbVisitor 执行 Redis 写入命令。`SET`、`DEL` 返回更新数，但 `INCR` 等修改命令返回查询结果，需要按返回形式选择 API。读取已保存的数据见[查询操作](query.mdx)。
+
+## 写入和删除键 {#exec-command}
+
+```java
+JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+jdbc.executeUpdate("SET ? ?", new Object[] { "user:1001:name", "mali" });
+jdbc.executeUpdate("DEL ?", "user:1001:name");
+```
+
+`SET` 覆盖原值，`DEL` 删除键；这两条命令通过 `executeUpdate` 返回更新数。写入 Hash 字段使用 `HSET`：
+
+```java
+jdbc.executeUpdate("HSET ? ? ?", new Object[] { "user:1001", "name", "mali" });
+```
+
+`HGETALL` 的读取及映射见[查询操作](query.mdx#result-map)。
+
+## 通过 Mapper 写入 {#write-apis}
+
+<Tabs>
+<TabItem value="annotation" label="方法注解" default>
+
+```java
+@SimpleMapper
+public interface NameWriteMapper {
+    @Insert("SET #{key} #{name}")
+    int save(@Param("key") String key, @Param("name") String name);
+
+    @Delete("DEL #{key}")
+    int remove(@Param("key") String key);
+}
+```
+
+</TabItem>
+<TabItem value="xml" label="Mapper 文件">
+
+```xml
+<mapper namespace="com.example.NameWriteMapper">
+    <insert id="save">SET #{key} #{name}</insert>
+    <delete id="remove">DEL #{key}</delete>
+</mapper>
+```
+
+```java
+@RefMapper("/mapper/redis-write.xml")
+public interface NameWriteMapper {
+    int save(@Param("key") String key, @Param("name") String name);
+    int remove(@Param("key") String key);
+}
+```
+
+XML 保存为 /mapper/redis-write.xml，NameWriteMapper 位于 com.example 包。
+
+</TabItem>
+</Tabs>
+
+```java
+Session session = new Configuration().newSession(dataSource);
+NameWriteMapper mapper = session.createMapper(NameWriteMapper.class);
+mapper.save("user:1001:name", "mali");
+```
+
+## BaseMapper 执行文件写入 {#base-mapper}
+
+BaseMapper 的[文件语句执行方法](../../../guides/core/mapper/file_statement.md)可调用上面的 `save`、`remove` 命令。它不会根据实体生成 Redis 写入命令；命令仍须在 Mapper 文件中明确配置。
+
+## 读取写入返回值 {#write-results}
+
+INCR 会修改值，但返回的是新数值，应使用查询方法获取：
+
+```java
+Long value = jdbc.queryForLong("INCR ?", "order:sequence");
+```
+
+在 Mapper 中，这条命令使用 @Query，而不是 @Update。选择 API 要看适配器的返回形式，不能只看命令是否修改数据。ZADD、LPOP 也有类似情况，见[命令语法](../about.md)。
+
+## Session 与 API 混用 {#session-sharing}
+
+方法注解、Mapper 文件和 `session.jdbc()` 可以读写同一组 Redis 键。多个 Session 连接同一个 Redis 数据库时，也能读取对方已写入的值：
+
+```java
+Configuration configuration = new Configuration();
+try (Session writer = configuration.newSession(dataSource);
+        Session reader = configuration.newSession(dataSource)) {
+    writer.createMapper(NameWriteMapper.class).save("user:1001:name", "mali");
+    String name = reader.jdbc().queryForString("GET ?", "user:1001:name");
+}
+```
+
+这里仍执行明确的 Redis 命令。`session.lambda()` 和 BaseMapper 按实体自动生成 CRUD 的方式不适用；BaseMapper 可用的[文件命令执行方式](query.mdx#base-mapper)不受此限制。
+
+## 覆盖与异常 {#command-errors}
+
+错误命令会报告异常，但 `SET` 已存在的键会覆盖原值，不会报告“重复主键”。读取不存在的键也不是异常，见[查询异常](query.mdx#command-errors)。
+
+## 多键写入与事务 {#transactions}
+
+多键写入可用 `MSET`，它是一条 Redis 命令，不是 JDBC batch。多次 `SET` 调用不会自动构成事务，事务相关行为见[事务支持](transactions.md)。

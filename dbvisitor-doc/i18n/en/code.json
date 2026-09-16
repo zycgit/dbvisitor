@@ -159,13 +159,25 @@
     "message": "Quick Start"
   },
   "dbv.start.subtitle": {
-    "message": "Just one Maven dependency to get started"
+    "message": "Add the core library and your JDBC driver; the example uses the latest release"
+  },
+  "dbv.start.runtime": {
+    "message": "Requirements: dbVisitor 6.7.1 and later require Java 17+."
   },
   "dbv.cta.title": {
     "message": "Join the Community"
   },
   "dbv.cta.desc": {
-    "message": "Apache 2.0 License · Core dependency: Cobble · Java 17+ starting with 6.7.1"
+    "message": "Share your experience, report issues, and help improve dbVisitor."
+  },
+  "dbv.cta.discussions": {
+    "message": "GitHub Discussions"
+  },
+  "dbv.cta.qq": {
+    "message": "QQ Group"
+  },
+  "dbv.cta.email": {
+    "message": "Contact the Author"
   },
   "faker.feature1_title": {
     "message": "Full types"

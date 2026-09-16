@@ -2,13 +2,13 @@
 id: lambda
 sidebar_position: 5
 hide_table_of_contents: true
-title: 4.5 Fluent API
-description: The Fluent API uses LambdaTemplate to generate SQL through chainable methods and handles database dialect differences.
+title: 4.5 Builder API
+description: The Builder API uses LambdaTemplate to generate SQL through chainable methods and handles database dialect differences.
 ---
 
-# 4.5 Fluent API
+# 4.5 Builder API
 
-The Fluent API is based on [LambdaTemplate](../core/lambda/about). It uses chainable methods to describe INSERT, UPDATE, DELETE, QUERY and other operations, with dbVisitor generating the SQL.
+The Builder API is based on [LambdaTemplate](../core/lambda/about). It uses chainable methods to describe INSERT, UPDATE, DELETE, QUERY and other operations, with dbVisitor generating the SQL.
 
 ## Best For
 
@@ -63,6 +63,6 @@ Map<String, Object> row = lambda.queryFreedom("users")
 
 ## Learn More
 
-- [LambdaTemplate](../core/lambda/about): complete guide to the Fluent API.
+- [LambdaTemplate](../core/lambda/about): complete guide to the Builder API.
 - [Condition Builder](../core/lambda/where_builder): WHERE condition construction capabilities.
 - [Object Mapping](../core/mapping/about): table and column mapping that Entity mode depends on.

@@ -19,7 +19,7 @@ jdbc.executeUpdate("SET ? ?", new Object[] {"user:1001:name", "Alice Smith"});
 String name = jdbc.queryForString("GET ?", "user:1001:name");
 ```
 
-Mapper 使用 `#{key}`、`#{value}`，完整例子见[数据读写](../dbvisitor/usage.mdx)。命令名和 NX、EX 等选项直接写在命令中。
+Mapper 使用 `#{key}`、`#{value}`，完整例子见[查询操作](../dbvisitor/query.mdx)和[数据写入](../dbvisitor/write.mdx)。命令名和 NX、EX 等选项直接写在命令中。
 
 命令清单见 [Redis](../about.md)。语法中的 `[]` 表示可选项，`|` 表示择一，`...` 表示可重复；这些符号不写入实际命令。可选项按各页语法所列顺序填写。
 

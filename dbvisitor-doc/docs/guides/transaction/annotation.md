@@ -143,4 +143,4 @@ public void reserveStock(long skuId, int quantity) throws java.sql.SQLException 
 
 - [传播行为](./propagation)：判断什么时候用 `REQUIRED`、`REQUIRES_NEW`、`NESTED`。
 - [隔离级别](./isolation)：判断什么时候需要显式指定隔离级别。
-- [事务管理器](./manager)：了解注解背后如何开启、提交和回滚事务。
+- [跨 API 事务](./manager)：在注解事务中混用 JdbcTemplate、Mapper 和构造器 API。

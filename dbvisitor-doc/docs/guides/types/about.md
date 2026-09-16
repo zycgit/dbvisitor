@@ -47,4 +47,6 @@ select * from users where name = #{name, jdbcType=varchar, javaType=java.lang.St
 - [序列化处理器](./json-serialization)，将 Java 对象以 JSON 格式序列化到数据库。
 - [地理信息类型](./gis-handler)，基于 JTS 读写 OpenGIS 的 WKT/WKB 地理信息数据。
 - [流类型处理器](./stream-handler)，通过 InputStream/Reader 读写流数据。
-- [数组类型](./array-handler)，处理数组类型及 PostgreSQL 特殊类型（pgvector 等）的读写。
+- [数组类型处理器](./array-handler)，读写 SQL 数组。
+
+- [向量类型处理器](./vector-handler)，配置 PostgreSQL、ClickHouse 向量字段。

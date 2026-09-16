@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "id": "vectors",
+  "groups": [
+    {
+      "id": "vectors",
+      "columns": [
+        {
+          "id": "vector-mapping",
+          "title": {
+            "zh-cn": "向量类型映射",
+            "en": "Vector Type Mapping"
+          },
+          "href": "/docs/guides/core/vector_query/mapping"
+        },
+        {
+          "id": "knn-ordering",
+          "title": {
+            "zh-cn": "KNN 近邻排序",
+            "en": "KNN Ordering"
+          },
+          "href": "/docs/guides/core/vector_query/knn"
+        },
+        {
+          "id": "range-filters",
+          "title": {
+            "zh-cn": "距离范围过滤",
+            "en": "Distance Range Filtering"
+          },
+          "href": "/docs/guides/core/vector_query/range"
+        },
+        {
+          "id": "vector--scalar",
+          "title": {
+            "zh-cn": "组合查询",
+            "en": "Combined Queries"
+          },
+          "href": "/docs/guides/core/vector_query/combined"
+        }
+      ]
+    }
+  ]
+}

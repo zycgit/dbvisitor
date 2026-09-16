@@ -130,16 +130,16 @@ public class ChildEntity extends ParentEntity {
 | jdbcType           | <TagGray/> jdbcType to use; default is Types.JAVA_OBJECT.                                                                                |
 | specialJavaType    | <TagGray/> For abstract properties, specify the concrete implementation type.                                                            |
 | typeHandler        | <TagGray/> TypeHandler to read/write the column.                                                                                         |
-| keyType            | <TagGray/> Applies to [Fluent API](../lambda/about). Data generator when the value is null. See [Key generator](./key_generator#anno).       |
+| keyType            | <TagGray/> Applies to [Builder API](../lambda/about). Data generator when the value is null. See [Key generator](./key_generator#anno).       |
 | primary            | <TagGray/> Whether this is a primary key. Default false.                                                                                 |
-| insert             | <TagGray/> For [Fluent API](../lambda/about): whether to include in insert. See [Write policy](./write_policy).               |
-| update             | <TagGray/> For [Fluent API](../lambda/about): whether to include in update. See [Write policy](./write_policy).               |
-| selectTemplate     | <TagGray/> For [Fluent API](../lambda/about): column expression in SELECT. Empty = column name. See [Statement templates](./statement_template). |
-| insertTemplate     | <TagGray/> For [Fluent API](../lambda/about): argument expression in INSERT, default `?`. See [Statement templates](./statement_template). |
-| setValueTemplate   | <TagGray/> For [Fluent API](../lambda/about): argument expression in UPDATE SET, default `?`. See [Statement templates](./statement_template). |
-| whereColTemplate   | <TagGray/> For [Fluent API](../lambda/about): column expression in WHERE (update/delete). Empty = column name. See [Statement templates](./statement_template). |
-| whereValueTemplate | <TagGray/> For [Fluent API](../lambda/about): argument expression in WHERE (update/delete), default `?`. See [Statement templates](./statement_template). |
-| orderByColTemplate | <TagGray/> For [Fluent API](../lambda/about): column expression in ORDER BY. Empty = column name. See [Statement templates](./statement_template). |
+| insert             | <TagGray/> For [Builder API](../lambda/about): whether to include in insert. See [Write policy](./write_policy).               |
+| update             | <TagGray/> For [Builder API](../lambda/about): whether to include in update. See [Write policy](./write_policy).               |
+| selectTemplate     | <TagGray/> For [Builder API](../lambda/about): column expression in SELECT. Empty = column name. See [Statement templates](./statement_template). |
+| insertTemplate     | <TagGray/> For [Builder API](../lambda/about): argument expression in INSERT, default `?`. See [Statement templates](./statement_template). |
+| setValueTemplate   | <TagGray/> For [Builder API](../lambda/about): argument expression in UPDATE SET, default `?`. See [Statement templates](./statement_template). |
+| whereColTemplate   | <TagGray/> For [Builder API](../lambda/about): column expression in WHERE (update/delete). Empty = column name. See [Statement templates](./statement_template). |
+| whereValueTemplate | <TagGray/> For [Builder API](../lambda/about): argument expression in WHERE (update/delete), default `?`. See [Statement templates](./statement_template). |
+| orderByColTemplate | <TagGray/> For [Builder API](../lambda/about): column expression in ORDER BY. Empty = column name. See [Statement templates](./statement_template). |
 
 ### @Primary Annotation
 

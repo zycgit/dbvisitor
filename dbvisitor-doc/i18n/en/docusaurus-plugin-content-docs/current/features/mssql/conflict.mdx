@@ -1,6 +1,6 @@
 ---
 id: conflict
-sidebar_position: 3
+sidebar_position: 35
 title: Insert Conflicts
 description: SQL Server insert-conflict strategies, dbVisitor usage, and limitations.
 ---
@@ -9,7 +9,7 @@ description: SQL Server insert-conflict strategies, dbVisitor usage, and limitat
 
 Conflict handling decides whether an insert matching an existing row should fail, be ignored, or update that row. Typical scenarios include replayed jobs, data synchronization, repeated imports, and insert-or-update operations. It is an INSERT execution strategy, not a separate ordinary UPDATE.
 
-## Strategies
+## Strategies {#strategies}
 
 | Strategy | SQL Server statement | Result |
 |----------|----------------------|--------|
@@ -53,6 +53,5 @@ Use `Ignore` to skip matched rows. Omitting the strategy or selecting `Into` pro
 ## Notes
 
 - Ignore and Update require an entity primary-key mapping; dbVisitor does not select another business unique key.
-- Mapping a primary key does not create a database constraint. Match columns should identify at most one row.
 - Ignore skips matched rows only; other database errors still fail.
 - MERGE concurrency and locking follow SQL Server rules. Use a transaction when several writes must commit atomically.

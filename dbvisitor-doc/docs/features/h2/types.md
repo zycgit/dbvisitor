@@ -1,6 +1,6 @@
 ---
 id: types
-sidebar_position: 1
+sidebar_position: 80
 title: 类型支持
 description: H2 类型支持
 ---
@@ -36,7 +36,7 @@ description: H2 类型支持
 | VARCHAR ARRAY | String[] | 数组元素与数据库元素类型一致，按需显式配置处理器。 |
 | REAL ARRAY | Float[] | 数组元素与数据库元素类型一致，按需显式配置处理器。 |
 
-## 示例：原生数组
+## 数组类型 {#array-values}
 
 ```sql
 CREATE TABLE array_example (id INTEGER PRIMARY KEY, values_col INTEGER ARRAY);
@@ -54,6 +54,21 @@ jdbcTemplate.executeUpdate("INSERT INTO array_example (id, values_col) VALUES (?
 Integer[] loaded = jdbcTemplate.queryForObject(
         "SELECT values_col FROM array_example WHERE id = ?",
         new Object[] { 1 }, Integer[].class);
+```
+
+## 时间类型：历史日期 {#time-boundaries}
+
+使用 H2 JDBC 2.2.224，且 JVM 时区为 `Asia/Shanghai` 时，将 `1900-01-01` 读为 `java.sql.Date` 可能得到 `1899-12-31`。数据库保存的日期没有改变，偏移发生在 JDBC 日期转换中。
+
+这类历史日期使用 JDBC 的类型化读取，避免经过 `java.sql.Date`：
+
+```java
+import java.time.LocalDate;
+
+LocalDate date = jdbcTemplate.queryForObject(
+        "SELECT DATE '1900-01-01'",
+        (rs, rowNum) -> rs.getObject(1, LocalDate.class));
+// date 为 1900-01-01
 ```
 
 ## 使用限制

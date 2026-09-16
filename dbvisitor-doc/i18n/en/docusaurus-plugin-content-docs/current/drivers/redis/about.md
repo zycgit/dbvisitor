@@ -13,6 +13,20 @@ description: Redis JDBC driver setup, connections and usage.
 - Bind command parameters through PreparedStatement and read responses as result sets or update counts.
 - Connect to standalone Redis or Redis Cluster and configure authentication, timeouts and cluster pooling.
 
+## Metadata Queries
+
+Query through `connection.getMetaData()`:
+
+| JDBC method | Result |
+| --- | --- |
+| `getCatalogs()` | The selected database number, such as `0` |
+| `getTables()` | Empty result; keys are not tables |
+| `getColumns()` | Empty result |
+| `getSchemas()` | Empty result |
+| `getTableTypes()` | Empty result |
+
+After a successful database change, `getCatalogs()` returns the new database number. It does not enumerate all configured databases.
+
 ## Get Connected
 
 1. [Add dependencies](dependencies.mdx): Maven or Gradle configuration.
@@ -27,4 +41,4 @@ description: Redis JDBC driver setup, connections and usage.
 - JDBC batch and transactions are not supported. Check the [shared JDBC limitations](../limited.md) before integrating a connection pool, ORM or other JDBC tool.
 - The JDBC URL prefix is `jdbc:dbvisitor:jedis://`, not `redis://`.
 
-[Command reference](../../features/redis/about.md) · [dbVisitor API usage](../../features/redis/dbvisitor/usage.mdx)
+[Command reference](../../features/redis/about.md) · [Query Operations](../../features/redis/dbvisitor/query.mdx) · [Data Writes](../../features/redis/dbvisitor/write.mdx)

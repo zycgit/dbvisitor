@@ -1,0 +1,143 @@
+{
+  "schemaVersion": 1,
+  "id": "parameters",
+  "groups": [
+    {
+      "id": "positional-and-named-parameters",
+      "title": {
+        "zh-cn": "位置参数与名称参数",
+        "en": "Positional and Named Parameters"
+      },
+      "anchor": {
+        "zh-cn": "位置参数与名称参数",
+        "en": "positional-and-named-parameters"
+      },
+      "columns": [
+        {
+          "id": "positional",
+          "title": {
+            "zh-cn": "位置参数",
+            "en": "Positional parameters"
+          },
+          "href": "/docs/guides/args/position"
+        },
+        {
+          "id": "named",
+          "title": {
+            "zh-cn": "名称参数",
+            "en": "Named"
+          },
+          "href": "/docs/guides/args/named"
+        }
+      ]
+    },
+    {
+      "id": "sql-text-substitution",
+      "title": {
+        "zh-cn": "SQL 文本替换",
+        "en": "SQL Text Substitution"
+      },
+      "anchor": {
+        "zh-cn": "sql-文本替换",
+        "en": "sql-text-substitution"
+      },
+      "columns": [
+        {
+          "id": "text-replacement",
+          "title": {
+            "zh-cn": "文本替换",
+            "en": "Text substitution"
+          },
+          "href": "/docs/guides/args/inject"
+        }
+      ]
+    },
+    {
+      "id": "parameter-interfaces-and-options",
+      "title": {
+        "zh-cn": "接口方式与参数选项",
+        "en": "Parameter Interfaces and Options"
+      },
+      "anchor": {
+        "zh-cn": "接口方式与参数选项",
+        "en": "parameter-interfaces-and-options"
+      },
+      "columns": [
+        {
+          "id": "statement-setter",
+          "title": {
+            "zh-cn": "参数设置接口",
+            "en": "Statement setter"
+          },
+          "href": "/docs/guides/args/interface#pset"
+        },
+        {
+          "id": "mixed-sources",
+          "title": {
+            "zh-cn": "混合参数源",
+            "en": "Mixed sources"
+          },
+          "href": "/docs/guides/args/interface#source"
+        },
+        {
+          "id": "explicit-types",
+          "title": {
+            "zh-cn": "显式类型",
+            "en": "Explicit types"
+          },
+          "href": "/docs/guides/args/options"
+        }
+      ]
+    },
+    {
+      "id": "native-jdbc-parameters",
+      "title": {
+        "zh-cn": "原生 JDBC 参数",
+        "en": "Native JDBC Parameters"
+      },
+      "anchor": {
+        "zh-cn": "原生-jdbc-参数",
+        "en": "native-jdbc-parameters"
+      },
+      "columns": [
+        {
+          "id": "binding-and-reuse",
+          "title": {
+            "zh-cn": "绑定与复用",
+            "en": "Binding and reuse"
+          },
+          "href": "/docs/guides/args/interface#pset"
+        }
+      ]
+    },
+    {
+      "id": "command-rules",
+      "title": {
+        "zh-cn": "命令规则",
+        "en": "Command rules"
+      },
+      "anchor": {
+        "zh-cn": "命令规则",
+        "en": "command-rules"
+      },
+      "columns": [
+        {
+          "id": "conditional-command",
+          "title": {
+            "zh-cn": "通用规则",
+            "en": "General rules"
+          },
+          "href": "/docs/guides/rules/dynamic_rule#if"
+        },
+        {
+          "id": "sql-fragments",
+          "title": {
+            "zh-cn": "SQL 片段规则",
+            "en": "SQL fragment rules"
+          },
+          "href": "/docs/guides/rules/dynamic_rule#and"
+        }
+      ]
+    }
+  ]
+}

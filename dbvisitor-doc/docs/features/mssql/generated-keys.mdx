@@ -1,6 +1,6 @@
 ---
 id: generated-keys
-sidebar_position: 4
+sidebar_position: 62
 toc_min_heading_level: 2
 toc_max_heading_level: 2
 title: 主键生成
@@ -19,7 +19,17 @@ SQL Server 常用 `IDENTITY` 或 sequence 生成主键。`IDENTITY` 在 INSERT �
 通用配置见[主键生成与回填](../../guides/core/mapper/annotation_insert#generated-keys)。
 :::
 
-## 使用 IDENTITY
+## 主键策略 {#key-strategies}
+
+| 策略 | 本数据源的用法 |
+| --- | --- |
+| 手工赋值 | 插入前由应用提供主键。 |
+| 自增 | 由数据库生成数值主键。 |
+| UUID | 字符主键使用 UUID32 或 UUID36。 |
+| 序列 | 插入前取得序列值。 |
+| 自定义 | 使用自定义生成器，在插入前或后处理主键。 |
+
+## 使用 IDENTITY {#identity}
 
 ```sql
 CREATE TABLE user_info (
@@ -93,7 +103,7 @@ int insertUser(UserInfo user);
 一次插入多个实体时，SQL Server 不保证 OUTPUT 按输入顺序返回。需要主键与实体严格对应时，每次调用只插入一个实体。
 :::
 
-## 使用序列
+## 使用序列 {#sequence}
 
 SQL Server 2012 及以上版本支持序列。下面是使用普通主键列的独立示例：
 

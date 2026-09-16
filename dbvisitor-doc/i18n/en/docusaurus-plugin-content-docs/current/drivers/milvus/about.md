@@ -14,14 +14,26 @@ description: Milvus JDBC driver setup, connections and usage.
 - Use Hybrid Search, reranking, BM25 and Import tasks, subject to server version and configuration requirements.
 - Connect with TLS, mutual certificate authentication or Zilliz Cloud credentials.
 
+## Metadata Queries
+
+Query through `connection.getMetaData()`:
+
+| JDBC method | Result |
+| --- | --- |
+| `getCatalogs()` | The connected database |
+| `getTables()` | Collections in the current database |
+| `getColumns()` | Fields declared in the collection schema |
+| `getSchemas()` | Empty result |
+| `getTableTypes()` | `TABLE` |
+
 ## Get Connected
 
 1. [Add dependencies](./dependencies.mdx): Maven or Gradle configuration.
 2. [Connect to the database](./connection.mdx): JDBC URL, credentials and connection examples.
 3. [Configure parameters](./params.md): names, defaults and units.
-4. [Execute Commands](execution.mdx)
-5. [Parameter Binding](parameters.mdx)
-6. [Read Results](results.md)
+4. [Execute Commands](execution.mdx): JDBC calls, paged writes and execution controls.
+5. [Parameter Binding](parameters.mdx): Bind scalar, vector and array parameters.
+6. [Read Results](results.md): Read result sets, update counts and multiple results.
 7. [Usage limitations](./limitations.md): JDBC support and database-specific restrictions.
 
 ## Before You Connect
@@ -31,4 +43,4 @@ description: Milvus JDBC driver setup, connections and usage.
 - JDBC batch and transactions are not supported. Check the [shared JDBC limitations](../limited.md) before integrating a connection pool, ORM or other JDBC tool.
 - Requires Milvus 2.6.2 or later within the documented support range; some features require newer versions. See [Versions and Supported Scope](../../features/milvus/compatibility.md). For TLS/mTLS and Zilliz Cloud, use the [secure connection examples](./connection.mdx#tls).
 
-[Command reference](../../features/milvus/about.md) · [dbVisitor API usage](../../features/milvus/dbvisitor/usage.mdx)
+[Command reference](../../features/milvus/about.md) · [Query Operations](../../features/milvus/dbvisitor/query.mdx) · [Data Writes](../../features/milvus/dbvisitor/write.mdx)

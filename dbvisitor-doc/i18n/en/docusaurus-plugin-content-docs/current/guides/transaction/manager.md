@@ -1,15 +1,23 @@
 ---
 id: manager
 sidebar_position: 4
-title: 10.4 Transaction Manager
-description: Understand TransactionManager, TransactionStatus, the transaction stack, suspension, and savepoints.
+title: 10.4 Cross-API Transactions
+description: Share one transaction across JdbcTemplate, Mapper, and the builder API, with a single commit or rollback.
 ---
 
 <span id="transaction-manager" />
 
-# 10.4 Transaction Manager
+# 10.4 Cross-API Transactions
 
-`TransactionManager` is the core transaction interface. Annotation-based transactions and templates ultimately call its `begin`, `commit`, and `rollBack` methods.
+One business operation can mix `JdbcTemplate`, Mapper, BaseMapper, and the builder API without starting a separate transaction for each API. For example, inserting an order with JdbcTemplate and reducing stock with the builder API can commit or roll back together.
+
+## Conditions for Sharing a Transaction
+
+- All APIs and the transaction manager use the same `DataSource` instance; matching connection URLs alone is not enough.
+- Operations execute within the transaction scope on the same thread. A new thread does not automatically join the transaction.
+- The database and driver support the required transaction operations. Cross-API transactions are not distributed transactions across data sources.
+
+This applies to annotation-based, template, and programmatic transactions. Through thread context, dbVisitor lets each API reuse the current transaction connection; `TransactionManager` commits or rolls it back. Calls that open another transaction follow the configured [propagation rules](./propagation).
 
 ## Interface Capabilities
 
@@ -172,4 +180,4 @@ Programmatic Transactions
   -> Business code calls TransactionManager directly
 ```
 
-Start with [Annotation-Based Transactions](./annotation) and [Transaction Templates](./template). Return here to understand connection suspension, savepoints, or stack ordering.
+Define the business boundary with [annotations](./annotation), a [template](./template), or [programmatic transactions](./program), then mix APIs within it. No additional transaction bridging is required.

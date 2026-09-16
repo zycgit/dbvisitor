@@ -45,7 +45,7 @@ public interface UserMapper {
 }
 ```
 
-```java title='Example: Fluent API'
+```java title='Example: Builder API'
 List<User> result = lambda.query(User.class)
                           .le(User::getId, 100)
                           .queryForList(userRowMapper);

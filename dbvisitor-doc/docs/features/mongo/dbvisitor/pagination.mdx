@@ -1,7 +1,7 @@
 ---
 id: pagination
 slug: /features/mongo/pagination
-sidebar_position: 2
+sidebar_position: 34
 title: 分页查询
 ---
 
@@ -15,7 +15,7 @@ test.user_info.count({name: 'mali'})
 
 ## dbVisitor 用法
 
-在 Mapper 方法中增加 Page 参数。实体映射见[数据读写](usage.mdx)。
+在 Mapper 方法中增加 Page 参数。实体映射见[实体映射](query.mdx#entity-mapping)。
 
 ```java
 @Query("test.user_info.find({name: #{name}}).sort({_id: 1})")
@@ -34,3 +34,7 @@ List<UserInfo> rows = mapper.findByName("mali", page);
 使用唯一字段排序，避免相同排序值导致翻页顺序变化。`fetchSize` 不是页大小，`preRead=false` 也不会自动把查询改成分页。
 
 总数和取页是两次请求，并发写入可能使两次结果不一致。公共 API 见 [9.5 分页](../../../guides/result/page_object.mdx)。
+
+## 空值排序 {#null-ordering}
+
+构造器 API 的 `OrderNullsStrategy.FIRST`、`LAST` 当前不生效；`DEFAULT` 使用 MongoDB 默认顺序。不要依赖这两个显式选项把空值移到分页结果的最前或最后。

@@ -1,0 +1,69 @@
+---
+id: vectors
+slug: /features/milvus/vectors
+sidebar_position: 50
+title: 向量操作
+---
+
+## 向量类型映射 {#vector-mapping}
+
+JDBC 驱动根据集合字段定义转换向量参数。`FLOAT_VECTOR(n)` 接受数值列表或一维数值基本类型数组，读取为 `List<Float>`，长度必须为 n。二进制、半精度等编码要求见[向量值](../types/vectors.md)。
+
+Milvus 2.6.2 的向量字段不能为 NULL。
+
+## KNN 近邻排序 {#knn-ordering}
+
+搜索前创建索引并执行 LOAD TABLE。查询度量必须与索引的 metric_type 一致，不能直接用 L2 索引执行 COSINE 查询。
+
+```java
+LambdaTemplate lambda = new LambdaTemplate(dataSource);
+List<Float> target = List.of(0.1f, 0.2f);
+List<BookVector> rows = lambda.query(BookVector.class)
+        .gt(BookVector::getWordCount, 500)
+        .orderByL2(BookVector::getBookIntro, target)
+        .initPage(5, 0)
+        .queryForList();
+```
+
+这会执行带标量过滤的 Search 请求，取最近的 5 个候选。一次 ORDER BY 只接收一个查询向量，不接收多个查询向量组成的列表。
+
+BM25 先配置 [BM25 函数与索引](../ddl/functions.md)，再用 `orderByBM25("sparse", "hybrid search")` 传入检索文本，按分数从高到低返回。
+
+通过 JdbcTemplate 手写带参数的 BM25 命令时，操作符 `<?>` 中的问号需要[转义](../../../guides/args/escape.md)：
+
+```java
+List<Map<String, Object>> rows = jdbc.queryForList(
+        "SELECT id FROM docs ORDER BY sparse <\\?> ? LIMIT 10",
+        new Object[] { "hybrid search" });
+```
+
+驱动收到的操作符仍为 `<?>`，只有后面的 `?` 绑定文本。构造器 API 自动处理这层转义；直接使用 JDBC 时也无需添加反斜杠。
+
+## 距离范围过滤 {#range-filters}
+
+Milvus 的 COSINE、IP 返回相似度分数，越大越相似。`vectorByCosine`、`vectorByIP` 使用分数下限；例如相似度大于 0.8：
+
+```java
+List<BookVector> rows = lambda.query(BookVector.class)
+        .vectorByCosine(BookVector::getBookIntro, target, 0.8)
+        .initPage(10, 0)
+        .queryForList();
+```
+
+此例需要 COSINE 索引，生成 `book_intro <=> ? > ?`，阈值直接传 0.8。`vectorByL2` 使用距离上限，生成小于阈值的条件。
+
+`vectorByBM25` 同样使用分数下限；Hamming、Jaccard 则针对二进制向量使用距离上限。
+
+## 组合查询 {#vector-scalar}
+
+一个向量范围可通过 AND 组合标量条件，不与 OR、NOT、另一个向量范围或向量 ORDER BY 同用。
+
+## 多路向量检索
+
+标量过滤加单路向量检索不是多路融合。需要合并多路候选时，使用 HYBRID 命令选择各检索路径和重排方式：
+
+- [HYBRID 与重排](../query/hybrid.md)
+- [BM25 与函数](../ddl/functions.md)
+- [搜索限制与返回列](../query/select.md)
+
+公共构造器 API 用法见[向量查询](../../../guides/core/vector_query/about.md)。

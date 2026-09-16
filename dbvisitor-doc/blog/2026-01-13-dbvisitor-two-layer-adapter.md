@@ -24,7 +24,7 @@ dbVisitor 提出的"双层适配"架构旨在解决这一痛点。
 <!-- truncate -->
 
 :::note[能力范围]
-统一的是调用方式，不是数据库语义。构造器需对应方言支持，原生命令需位于适配器支持范围；接入 ORM、连接池等组件前请核对其依赖的 JDBC 方法。参阅[功能矩阵](../docs/features/support)与[JDBC 限制](../docs/drivers/limited)。
+统一的是调用方式，不是数据库语义。构造器需对应方言支持，原生命令需位于适配器支持范围；接入 ORM、连接池等组件前请核对其依赖的 JDBC 方法。参阅[功能矩阵](../docs/features/overview)与[JDBC 限制](../docs/drivers/limited)。
 :::
 
 双层适配

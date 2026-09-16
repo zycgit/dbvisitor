@@ -2,7 +2,7 @@
 id: limited
 sidebar_position: 1
 hide_table_of_contents: true
-title: Adapter Limitations
+title: 3. Adapter Limitations
 description: Usage limits of JDBC adapters based on dbvisitor-driver regarding JDBC interface support.
 ---
 JDBC adapters based on dbvisitor-driver have the following usage limits regarding JDBC interface support:
@@ -24,17 +24,8 @@ JDBC adapters based on dbvisitor-driver have the following usage limits regardin
 - Savepoint operations are not supported
 - Array, Blob, Clob, and NClob type data is pre-read into memory; please be aware of data size
 
-## Databases, tables and columns
+## Metadata Interface Conventions
 
-Use `connection.getMetaData()`. An empty result below still has the standard JDBC column layout.
-
-| Driver | `getCatalogs()` | `getTables()` | `getColumns()` |
-| --- | --- | --- | --- |
-| Milvus | The connected database | Collections in the current database | Fields declared in the collection schema |
-| MongoDB | Databases the current user can list | Collections and views | Empty; documents are not sampled to infer fields |
-| Elasticsearch | Empty; no separate database namespace | Indices | Fields declared in mappings |
-| Redis | The selected database number, such as `0` | Empty; keys are not tables | Empty |
-
-These four drivers do not expose a separate schema namespace; `getSchemas()` returns an empty result. `getTableTypes()` lists the table kinds the driver exposes; Redis returns an empty result.
+The objects available for querying depend on the driver; see each driver's introduction. Empty results retain the standard JDBC column layout.
 
 `catalog` matches an exact name. Name patterns use `%` for any string, `_` for one character and `\` for escaping. A `null` filter imposes no restriction; an empty string selects objects without that catalog or schema namespace. Unknown details such as field precision are not guessed. Permission and connection errors are reported as exceptions, not empty results.

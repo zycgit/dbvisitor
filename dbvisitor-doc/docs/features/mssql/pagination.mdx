@@ -1,6 +1,6 @@
 ---
 id: pagination
-sidebar_position: 2
+sidebar_position: 34
 title: 分页查询
 description: SQL Server 分页原理、dbVisitor 用法和注意事项。
 ---
@@ -51,3 +51,6 @@ List<UserInfo> rows = lambda.query(UserInfo.class)
 - 原查询的 `ORDER BY` 用于 `ROW_NUMBER()`；排序应包含唯一的决胜列。
 - 没有业务排序时使用 `CURRENT_TIMESTAMP`，不保证稳定翻页。
 - 结果包含 `__row_number__` 列；计数与取页也不是同一查询。
+
+
+改变排序方向及多字段排序的用法见[排序](builder.md#ordering)。

@@ -1,0 +1,125 @@
+---
+id: query
+slug: /features/milvus/query
+sidebar_position: 31
+title: 查询操作
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+通过构造器 API 或 Mapper 查询 Milvus；手写命令使用 JDBC-Milvus 的 SQL 语法。连接配置见 [JDBC Milvus](../../../drivers/milvus/connection.mdx)。
+
+## 查询前准备 {#prerequisites}
+
+示例使用已建立并加载的 `book_vectors` 集合，创建语句见[准备集合](write.mdx#prepare-collection)。普通查询和向量检索前都需要加载集合；分页读取见[分页查询](pagination.mdx)。
+
+## 实体映射 {#entity-mapping}
+
+FLOAT_VECTOR 字段可直接使用 `List<Float>`，列表长度须与字段维度一致。其它向量类型见[类型支持](types.md)。
+
+```java
+@Table("book_vectors")
+public class BookVector {
+    @Column(value = "book_id", primary = true)
+    private Long bookId;
+    private String title;
+    @Column("word_count")
+    private Integer wordCount;
+    @Column("book_intro")
+    private List<Float> bookIntro;
+    // 省略 getter 和 setter
+}
+```
+
+主键由应用赋值或由集合 AutoID 生成，见[主键生成](generated-keys.mdx)。
+
+## 执行查询命令 {#exec-command}
+
+```java
+JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+
+List<BookVector> rows = jdbc.queryForList(
+        "SELECT * FROM book_vectors WHERE book_id = ?",
+        new Object[] { 1001L }, BookVector.class);
+```
+
+## 通过不同 API 查询 {#query-apis}
+
+<Tabs>
+<TabItem value="fluent" label="构造器 API" default>
+
+```java
+LambdaTemplate lambda = new LambdaTemplate(dataSource);
+BookVector item = lambda.query(BookVector.class)
+        .eq(BookVector::getBookId, 1001L)
+        .queryForObject();
+```
+
+普通条件查询使用原生 Query，向量查询使用 Search。
+
+</TabItem>
+<TabItem value="annotation" label="方法注解">
+
+```java
+@SimpleMapper
+public interface BookVectorMapper {
+    @Query("SELECT * FROM book_vectors WHERE book_id = #{id}")
+    BookVector findById(@Param("id") Long id);
+}
+```
+
+```java
+Session session = new Configuration().newSession(dataSource);
+BookVectorMapper mapper = session.createMapper(BookVectorMapper.class);
+BookVector item = mapper.findById(1001L);
+```
+
+</TabItem>
+<TabItem value="xml" label="Mapper 文件">
+
+```xml
+<mapper namespace="com.example.BookVectorMapper">
+    <select id="findById" resultType="com.example.BookVector">
+        SELECT * FROM book_vectors WHERE book_id = #{id}
+    </select>
+</mapper>
+```
+
+```java
+@RefMapper("/mapper/milvus-user.xml")
+public interface BookVectorMapper {
+    BookVector findById(@Param("id") Long id);
+}
+```
+
+XML 保存到 @RefMapper 指定的资源路径；示例类位于 com.example 包。通过 Session 创建 Mapper，方式与方法注解相同。
+
+</TabItem>
+</Tabs>
+
+向量字段映射、检索度量及标量过滤见[向量操作](vectors.mdx)。
+
+## 查询操作 {#query-results}
+
+支持选择字段、实体和 Map 结果、标量读取及 COUNT(*)，不支持计算投影、DISTINCT 和通用 SQL 聚合。条件表达式和可选条件的写法见[构造器 API](builder.md#predicates)。
+
+## Map 查询 {#map-query}
+
+| 入口 | Map 键的含义 |
+| --- | --- |
+| 实体映射的 asMap() | Java 属性名 |
+| queryFreedom | Milvus 字段名 |
+| BaseMapper 的 Map 查询方法 | 已注册实体的属性名 |
+
+Map 写入及 NULL 属性的处理见[Map 写入](write.mdx#map-writes)。
+
+## 向量查询 {#vector-queries}
+
+向量字段映射、检索度量及标量过滤见[向量操作](vectors.mdx)。
+
+## 查询执行选项 {#execution-options}
+
+Mapper 文件可配置 `statementType`、`timeout` 和 `fetchSize`，具体效果遵循驱动配置。`resultSetType` 保持 `DEFAULT` 或使用 `FORWARD_ONLY`，不支持 `SCROLL_INSENSITIVE`、`SCROLL_SENSITIVE` 滚动结果集。XML 配置见[执行选项](../../../guides/core/file/statements.mdx#execution-options)。
+
+查询结果列的说明见[读取结果](../../../drivers/milvus/results.md)。

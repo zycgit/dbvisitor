@@ -7,7 +7,7 @@ description: Map Query Mode uses Map as the row data carrier, including mapped M
 
 # 5.5 Map Query Mode
 
-Map Query Mode uses `Map<String, Object>` as the row data carrier. It has two peer entrances: **Mapped Map Mode** reuses entity object mapping, and **Freedom Map Mode** uses table and column names directly.
+Map Query Mode is a way to use the [Builder API](../lambda/about) with `Map<String, Object>` as the data carrier. **Mapped Map Mode** reuses entity object mapping, while **Freedom Map Mode** uses table and column names directly.
 
 ## Suitable For
 
@@ -22,7 +22,7 @@ Map Query Mode uses `Map<String, Object>` as the row data carrier. It has two pe
 - Only one-row primary-key operations are needed. Start with [BaseMapper](../mapper/about#base-mapper).
 - SQL shape is complex, with many joins, subqueries, or database-specific syntax. [JdbcTemplate](../jdbc/about) or [Mapper Files](../file/about) are usually clearer.
 
-## Two Map Modes
+## Two Map Modes {#map-modes}
 
 | Mode | Entrance | Requires object mapping | Field interpretation | Details |
 | --- | --- | --- | --- | --- |

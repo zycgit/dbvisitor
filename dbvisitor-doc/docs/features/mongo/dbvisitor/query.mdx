@@ -1,0 +1,156 @@
+---
+id: query
+slug: /features/mongo/query
+sidebar_position: 31
+title: 查询操作
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+dbVisitor 将 MongoDB 命令作为可执行语句：`queryForList` 读取结果，`?` 和 `#{...}` 仍用于绑定参数，不需要改写为 SQL。 连接配置见 [JDBC MongoDB](../../../drivers/mongo/connection.mdx).
+
+## 实体映射 {#entity-mapping}
+
+```java
+@Table(value = "user_info", catalog = "test")
+public class UserInfo {
+    @Column(primary = true)
+    private String uid;
+    private String name;
+    // 省略 getter 和 setter
+}
+```
+
+`uid` 是示例业务字段。`primary=true` 不会创建唯一索引；按 uid 更新、删除会影响所有匹配文档。需要使用 MongoDB 的 `_id` 时，见[主键生成](generated-keys.mdx)。
+
+## 执行查询命令 {#exec-command}
+
+```java
+JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+
+List<UserInfo> rows = jdbc.queryForList(
+        "test.user_info.find({uid: ?})",
+        new Object[] { "1001" }, UserInfo.class);
+```
+
+## 通过不同 API 查询 {#query-apis}
+
+<Tabs>
+<TabItem value="fluent" label="构造器 API" default>
+
+```java
+LambdaTemplate lambda = new LambdaTemplate(dataSource);
+UserInfo item = lambda.query(UserInfo.class)
+        .eq(UserInfo::getUid, "1001")
+        .queryForObject();
+```
+
+普通条件查询生成 MongoDB `find` 命令。
+
+</TabItem>
+<TabItem value="annotation" label="方法注解">
+
+```java
+@SimpleMapper
+public interface UserInfoMapper {
+    @Query("test.user_info.find({uid: #{uid}})")
+    UserInfo findById(@Param("uid") String uid);
+}
+```
+
+```java
+Session session = new Configuration().newSession(dataSource);
+UserInfoMapper mapper = session.createMapper(UserInfoMapper.class);
+UserInfo item = mapper.findById("1001");
+```
+
+</TabItem>
+<TabItem value="xml" label="Mapper 文件">
+
+```xml
+<mapper namespace="com.example.UserInfoMapper">
+    <select id="findById" resultType="com.example.UserInfo">
+        test.user_info.find({uid: #{uid}})
+    </select>
+</mapper>
+```
+
+```java
+@RefMapper("/mapper/mongo-user.xml")
+public interface UserInfoMapper {
+    UserInfo findById(@Param("uid") String uid);
+}
+```
+
+XML 保存到 @RefMapper 指定的资源路径；示例类位于 com.example 包。通过 Session 创建 Mapper，方式与方法注解相同。
+
+</TabItem>
+</Tabs>
+
+## 复杂条件使用命令
+
+需要组合条件时，直接绑定 MongoDB 条件：
+
+```java
+List<Map<String, Object>> rows = jdbc.queryForList(
+        "test.user_info.find({$or: [{name: ?}, {uid: ?}]})",
+        new Object[] { "mali", "1001" });
+```
+
+## 聚合与投影 {#aggregation}
+
+`applySelect` 使用 MongoDB 表达式，不使用 SQL 的 `SUM(age)` 等写法。结合 `groupBy` 时，传入累加器文档：
+
+```java
+List<Map<String, Object>> groups = lambda.query(UserInfo.class)
+        .applySelect("{cnt: {$sum: 1}}")
+        .groupBy("age")
+        .orderBy("age")
+        .queryForMapList();
+```
+
+此操作按 `age` 分组，返回 `age`、`cnt` 两列。驱动生成 `$group`，将分组字段展开为结果列。
+
+不调用 `groupBy` 时，表达式文档用于 `$project`；数组用于完整聚合管线：
+
+```java
+Long total = lambda.query(UserInfo.class)
+        .applySelect("[{$group: {_id: null, value: {$sum: '$age'}}}, {$project: {_id: 0, value: 1}}]")
+        .eq("name", name)
+        .queryForObject(Long.class);
+```
+
+条件通过参数绑定生成前置 `$match`；`orderBy` 生成末尾 `$sort`。管线数组不能再与 `groupBy` 或普通字段投影组合。
+
+:::caution
+`applySelect` 的内容是命令表达式，只使用程序中确定的表达式。用户输入应通过 `eq` 等条件参数传入，不要拼接到表达式中。
+:::
+
+更多原生命令见[命令语法](../about.md)。
+
+## 在聚合中计算字段 {#functions}
+
+MongoDB 使用 $add 等聚合表达式计算字段，不是 JDBC 存储函数。以下例子假设集合中有一条文档：
+
+```java
+Integer sum = jdbc.queryForObject(
+        "test.calculation.aggregate([{$project: {_id: 0, value: "
+                + "{$add: [{$literal: ?}, {$literal: ?}]}}}])",
+        new Object[] { 10, 5 }, Integer.class);
+```
+
+支持位置参数、命名参数和标量转换。聚合按匹配文档逐条计算；空集合不会凭空产生一条计算结果。使用查询方法读取，不使用 CallableStatement 回调、OUT 参数记录或 SQL 表函数语法。
+
+
+集合条件及空值过滤的写法见[条件构造器](builder.md#predicates)。
+
+## 查询异常 {#command-errors}
+
+无效命令会报告异常；查询不存在的集合通常返回空结果，而不是“表不存在”异常。因此不能仅凭查询没有抛异常来判断集合存在。
+
+## 查询执行选项 {#execution-options}
+
+Mapper 文件可配置 `statementType`、`timeout` 和 `fetchSize`，具体效果遵循驱动配置。`resultSetType` 保持 `DEFAULT` 或使用 `FORWARD_ONLY`，不支持 `SCROLL_INSENSITIVE`、`SCROLL_SENSITIVE` 滚动结果集。XML 配置见[执行选项](../../../guides/core/file/statements.mdx#execution-options)。
+
+查询结果列的说明见[结果读取](results.mdx)。

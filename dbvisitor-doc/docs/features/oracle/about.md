@@ -52,14 +52,17 @@ Mapper 文件可以用 `selectKey` 在 INSERT 前获取序列值：
 
 ## 专题
 
-- [数据回填](./backfill.mdx)：使用 `RETURNING INTO` 返回插入、更新或删除的字段值。
-- [主键生成](./generated-keys)：`IDENTITY`、sequence、`keyColumn` 和 `selectKey`。
+- [编程式 API](/docs/features/oracle/programmatic)：查询、写入、多结果及存储过程与函数差异。
+- [Mapper API](mapper.md)：方法注解、Mapper 读写及执行差异。
+- [构造器 API](builder.md)：可用操作、数据源差异与对应用法。
 - [分页查询](./pagination.mdx)：分页原理、用法与注意事项。
-- [多条写入一致性](./write.mdx)：中途失败的影响及事务处理。
 - [插入冲突](./conflict.mdx)：Oracle MERGE 策略、用法与注意事项。
+- [主键生成](./generated-keys)：`IDENTITY`、sequence、`keyColumn` 和 `selectKey`。
+- [数据回填](./backfill.mdx)：使用 `RETURNING INTO` 返回插入、更新或删除的字段值。
+- [参数与规则](./parameters.md)：空字符串参数及参数复用。
+- [类型支持](./types.md)：Java 值、存储方式及读回边界。
+- [事务支持](./transactions.mdx)：中途失败的影响及事务处理。
 
 ## 相关文档
 
 通用用法见 [核心 API](../../guides/overview)。
-
-- [类型支持](./types.md)：Java 值、存储方式及读回边界。
