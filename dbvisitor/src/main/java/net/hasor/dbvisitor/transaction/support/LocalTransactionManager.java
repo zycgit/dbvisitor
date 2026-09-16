@@ -91,52 +91,59 @@ public class LocalTransactionManager implements TransactionManager {
         | NEVER        ：排除事务（异常）
         | MANDATORY    ：强制要求事务（不处理）
         ===============================================================*/
-        if (this.isExistingTransaction(defStatus)) {
-            /*REQUIRES_NEW：独立事务*/
-            if (behavior == Propagation.REQUIRES_NEW) {
-                this.suspend(defStatus);/*挂起当前事务*/
+        try {
+            if (this.isExistingTransaction(defStatus)) {
+                /*REQUIRES_NEW：独立事务*/
+                if (behavior == Propagation.REQUIRES_NEW) {
+                    this.suspend(defStatus);/*挂起当前事务*/
+                    this.doBegin(defStatus);/*开启新事务*/
+                }
+                /*NESTED：嵌套事务*/
+                if (behavior == Propagation.NESTED) {
+                    defStatus.markSavepoint();/*设置保存点*/
+                }
+                /*NOT_SUPPORTED：非事务方式*/
+                if (behavior == Propagation.NOT_SUPPORTED) {
+                    this.suspend(defStatus);/*挂起事务*/
+                }
+                /*NEVER：排除事务*/
+                if (behavior == Propagation.NEVER) {
+                    throw new SQLException("existing transaction found for transaction marked with propagation 'never'");
+                }
+                return defStatus;
+            }
+            /*-------------------------------------------------------------
+            |                      环境不经存在事务
+            |
+            | REQUIRED     ：加入已有事务（开启新事务）
+            | REQUIRES_NEW ：独立事务（开启新事务）
+            | NESTED       ：嵌套事务（开启新事务）
+            | SUPPORTS     ：跟随环境（不处理）
+            | NOT_SUPPORTED：非事务方式（不处理）
+            | NEVER        ：排除事务（不处理）
+            | MANDATORY    ：强制要求事务（异常）
+            ===============================================================*/
+            /*REQUIRED：加入已有事务*/
+            if (behavior == Propagation.REQUIRED ||
+                    /*REQUIRES_NEW：独立事务*/
+                    behavior == Propagation.REQUIRES_NEW ||
+                    /*NESTED：嵌套事务*/
+                    behavior == Propagation.NESTED) {
                 this.doBegin(defStatus);/*开启新事务*/
             }
-            /*NESTED：嵌套事务*/
-            if (behavior == Propagation.NESTED) {
-                defStatus.markSavepoint();/*设置保存点*/
-            }
-            /*NOT_SUPPORTED：非事务方式*/
-            if (behavior == Propagation.NOT_SUPPORTED) {
-                this.suspend(defStatus);/*挂起事务*/
-            }
-            /*NEVER：排除事务*/
-            if (behavior == Propagation.NEVER) {
-                this.cleanupAfterCompletion(defStatus);
-                throw new SQLException("existing transaction found for transaction marked with propagation 'never'");
+            /*MANDATORY：强制要求事务*/
+            if (behavior == Propagation.MANDATORY) {
+                throw new SQLException("no existing transaction found for transaction marked with propagation 'mandatory'");
             }
             return defStatus;
+        } catch (SQLException | RuntimeException | Error failure) {
+            try {
+                this.cleanupAfterCompletion(defStatus);
+            } catch (SQLException | RuntimeException | Error cleanupFailure) {
+                failure.addSuppressed(cleanupFailure);
+            }
+            throw failure;
         }
-        /*-------------------------------------------------------------
-        |                      环境不经存在事务
-        |
-        | REQUIRED     ：加入已有事务（开启新事务）
-        | REQUIRES_NEW ：独立事务（开启新事务）
-        | NESTED       ：嵌套事务（开启新事务）
-        | SUPPORTS     ：跟随环境（不处理）
-        | NOT_SUPPORTED：非事务方式（不处理）
-        | NEVER        ：排除事务（不处理）
-        | MANDATORY    ：强制要求事务（异常）
-        ===============================================================*/
-        /*REQUIRED：加入已有事务*/
-        if (behavior == Propagation.REQUIRED ||
-                /*REQUIRES_NEW：独立事务*/
-                behavior == Propagation.REQUIRES_NEW ||
-                /*NESTED：嵌套事务*/
-                behavior == Propagation.NESTED) {
-            this.doBegin(defStatus);/*开启新事务*/
-        }
-        /*MANDATORY：强制要求事务*/
-        if (behavior == Propagation.MANDATORY) {
-            this.cleanupAfterCompletion(defStatus);
-            throw new SQLException("no existing transaction found for transaction marked with propagation 'mandatory'");
-        }
-        return defStatus;
     }
 
     /** 判断连接对象是否处于事务中，该方法会用于评估事务传播属性的处理方式 */
@@ -291,7 +298,14 @@ public class LocalTransactionManager implements TransactionManager {
         TransactionObject tranConn = defStatus.getTranConn();
         defStatus.setSuspendConn(tranConn);/*挂起*/
         SyncManager.clearSync(this.getDataSource());/*清除线程上的同步事务*/
-        defStatus.setTranConn(this.doGetConnection(defStatus));/*重新申请数据库连接*/
+        try {
+            defStatus.setTranConn(this.doGetConnection(defStatus));/*重新申请数据库连接*/
+        } catch (SQLException | RuntimeException | Error failure) {
+            // The original holder is still owned by this scope until begin cleans it up.
+            SyncManager.setSync(tranConn);
+            defStatus.setSuspendConn(null);
+            throw failure;
+        }
     }
 
     /** 恢复被挂起的事务 */
@@ -352,17 +366,25 @@ public class LocalTransactionManager implements TransactionManager {
     /** 获取数据库连接（线程绑定的） */
     protected TransactionObject doGetConnection(final LocalTransactionStatus defStatus) throws SQLException {
         ConnectionHolder holder = SyncManager.getHolder(this.dataSource);
-        if (!holder.isOpen() || !holder.hasTransaction()) {
+        boolean existingTransaction = holder.isOpen() && holder.hasTransaction();
+        if (!existingTransaction) {
             defStatus.markNewConnection();/*新事物，新连接*/
         }
         holder.requested();//ref++
-        Connection conn = holder.getConnection();
+        try {
+            Connection conn = holder.getConnection();
+            Propagation behavior = defStatus.getPropagation();
+            // These scopes will suspend or reject the existing transaction. Apply their
+            // isolation only after suspend obtains a different connection, never to the outer one.
+            if (existingTransaction && (behavior == Propagation.REQUIRES_NEW || behavior == Propagation.NOT_SUPPORTED || behavior == Propagation.NEVER)) {
+                return new TransactionObject(holder, null, this.getDataSource());
+            }
 
-        // Only restore isolation if this scope changed it. Some drivers commit even
-        // when setTransactionIsolation is called with the connection's current value.
-        if (defStatus.getIsolationLevel() == null || defStatus.getIsolationLevel() == Isolation.DEFAULT) {
-            return new TransactionObject(holder, null, this.getDataSource());
-        } else {
+            // Only restore isolation if this scope changed it. Some drivers commit even
+            // when setTransactionIsolation is called with the connection's current value.
+            if (defStatus.getIsolationLevel() == null || defStatus.getIsolationLevel() == Isolation.DEFAULT) {
+                return new TransactionObject(holder, null, this.getDataSource());
+            }
             Isolation recoverIsolation = Isolation.valueOf(conn.getTransactionIsolation());
             if (defStatus.getIsolationLevel() != recoverIsolation) {
                 conn.setTransactionIsolation(defStatus.getIsolationLevel().getValue());
@@ -370,6 +392,13 @@ public class LocalTransactionManager implements TransactionManager {
             }
 
             return new TransactionObject(holder, null, this.getDataSource());
+        } catch (SQLException | RuntimeException | Error failure) {
+            try {
+                holder.released();
+            } catch (SQLException | RuntimeException | Error cleanupFailure) {
+                failure.addSuppressed(cleanupFailure);
+            }
+            throw failure;
         }
     }
 
