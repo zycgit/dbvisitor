@@ -301,7 +301,13 @@ public abstract class AbstractSelect<R, T, P> extends BasicQueryCompare<R, T, P>
         Objects.requireNonNull(this.jdbc, "Connection unavailable, JdbcTemplate is required.");
 
         BoundSql boundSql = getBoundSql();
-        RowMapper<Map<String, Object>> rowMapper = new MapMappingRowMapper(getTableMapping());
+        RowMapper<Map<String, Object>> rowMapper;
+        if (isFreedom()) {
+            rowMapper = new ColumnMapRowMapper(this.getTableMapping().isCaseInsensitive(), this.registry.getTypeRegistry());
+        } else {
+            rowMapper = new MapMappingRowMapper(getTableMapping());
+        }
+
         return this.jdbc.queryForObject(boundSql.getSqlString(), boundSql.getArgs(), rowMapper);
     }
 

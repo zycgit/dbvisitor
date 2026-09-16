@@ -52,6 +52,7 @@ public abstract class FreedomMapCrudCase extends AbstractNxnContractTest {
         assertNotNull(loaded);
         assertEquals("NXN-Lambda-Freedom-Query", value(loaded, "name"));
         assertEquals(52, ((Number) value(loaded, "age")).intValue());
+        assertEquals(loaded, lambdaTemplate.queryFreedom(tableName()).eq("id", id).queryForMap());
     }
 
     // 能力归属：构造器 API / Map 查询模式。

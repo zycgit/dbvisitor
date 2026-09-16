@@ -26,6 +26,7 @@ dependencies {
 
 tasks.named('generateGrammarSource') {
     arguments += ['-visitor', '-package', 'net.hasor.dbvisitor.adapter.redis.parser']
+    outputDirectory = layout.buildDirectory.dir('generated-src/antlr/main/net/hasor/dbvisitor/adapter/redis/parser').get().asFile
 }
 
 tasks.named('shadowJar') {

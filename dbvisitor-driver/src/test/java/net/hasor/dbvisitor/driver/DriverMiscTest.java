@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.driver;
-import static org.junit.Assert.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.DriverPropertyInfo;
@@ -15,6 +14,7 @@ import java.util.Arrays;
 import java.util.Properties;
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.*;
 
 /** Tests for JdbcDriver, AdapterManager, JdbcArray, and other small utility classes. */
 public class DriverMiscTest {
@@ -51,8 +51,13 @@ public class DriverMiscTest {
     @Test
     public void driver_version() throws Exception {
         JdbcDriver driver = new JdbcDriver();
-        assertEquals(JdbcDriver.VERSION_MAJOR, driver.getMajorVersion());
-        assertEquals(JdbcDriver.VERSION_MINOR, driver.getMinorVersion());
+        assertEquals(6, driver.getMajorVersion());
+        assertEquals(8, driver.getMinorVersion());
+        try (Connection conn = driver.connect("jdbc:dbvisitor:mock://localhost", new Properties())) {
+            assertEquals("6.8.0", conn.getMetaData().getDriverVersion());
+            assertEquals(driver.getMajorVersion(), conn.getMetaData().getDriverMajorVersion());
+            assertEquals(driver.getMinorVersion(), conn.getMetaData().getDriverMinorVersion());
+        }
         assertFalse(driver.jdbcCompliant());
         assertNotNull(driver.getParentLogger());
     }

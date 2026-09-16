@@ -30,12 +30,12 @@ public class JdbcDriver implements java.sql.Driver {
     public static final String START_URL     = "jdbc:dbvisitor:";
     /** The major version of this adapter. */
     public static final String NAME          = "dbVisitor JDBC Adapter";
-    /** The major version of this adapter. */
-    public static final String VERSION       = "6.1";
+    /** The version of this adapter. */
+    public static final String VERSION       = "6.8.0";
     /** The major version of this adapter. */
     public static final int    VERSION_MAJOR = 6;
     /** The minor version of this adapter. */
-    public static final int    VERSION_MINOR = 1;
+    public static final int    VERSION_MINOR = 8;
     /** The major version of JDBC adapter. */
     public static final int    JDBC_MAJOR    = 4;
     /** The minor version of JDBC adapter. */
