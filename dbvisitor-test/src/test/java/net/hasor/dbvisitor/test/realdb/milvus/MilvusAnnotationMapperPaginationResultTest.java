@@ -14,16 +14,19 @@ import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapper.Param;
 import net.hasor.dbvisitor.mapper.Query;
 import net.hasor.dbvisitor.mapper.SimpleMapper;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.page.PageObject;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperPaginationResultCase;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
+import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
 import org.junit.After;
 import org.junit.Before;
 
 /** Shared PageObject assertions with native vector ordering as the page fixture. */
+@NxnConcurrent
 public class MilvusAnnotationMapperPaginationResultTest extends AnnotationMapperPaginationResultCase {
     private final MilvusDatabaseFixture fixture = new MilvusDatabaseFixture();
     private       Session               session;
@@ -46,7 +49,7 @@ public class MilvusAnnotationMapperPaginationResultTest extends AnnotationMapper
     @Override
     @Before
     public void setup() throws SQLException {
-        this.jdbcTemplate = new JdbcTemplate(this.fixture.open());
+        this.jdbcTemplate = new JdbcTemplate(this.fixture.open(), new MappingRegistry(), null);
         this.jdbcTemplate.execute("""
                 CREATE TABLE user_info (
                     id INT64 PRIMARY KEY, name VARCHAR(128) NULL, age INT32 NULL,

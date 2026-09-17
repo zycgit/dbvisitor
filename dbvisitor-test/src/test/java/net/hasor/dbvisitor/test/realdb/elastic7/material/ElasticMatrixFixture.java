@@ -9,9 +9,7 @@ package net.hasor.dbvisitor.test.realdb.elastic7.material;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import net.hasor.dbvisitor.dynamic.MacroRegistry;
 import net.hasor.dbvisitor.dynamic.RuleRegistry;
@@ -46,11 +44,11 @@ public final class ElasticMatrixFixture implements AutoCloseable {
         }
         OneApiDataSourceManager.assumeCurrentDataSource(environment);
         connection = OneApiDataSourceManager.getConnection(environment);
-        jdbc = new JdbcTemplate(connection);
+        registry = new MappingRegistry();
+        jdbc = new JdbcTemplate(connection, registry, null);
         String mapping = "es6".equals(environment) ? "{\"_doc\": " + properties + "}" : properties;
         jdbc.execute("PUT /" + index + " {\"mappings\": " + mapping + "}");
         created = true;
-        registry = new MappingRegistry();
         registry.loadEntityAsTable(entityType, index);
         return jdbc;
     }
@@ -80,6 +78,32 @@ public final class ElasticMatrixFixture implements AutoCloseable {
         jdbc.executeUpdate("PUT /" + index + "/_doc/" + id + "\\?refresh=true " + """
                 {"id": ?,"name": ?,"age": ?,"email": ?,"create_time": ?}
                 """, new Object[] { id, name, age, email, new Date() });
+    }
+
+    /** Prepare iterator data in one request; write-operation tests still use their original paths. */
+    public void seedUsers(int startId, String prefix, int count, int age) throws SQLException {
+        if (count == 0) {
+            return;
+        }
+        StringBuilder command = new StringBuilder("POST /" + index + "/_bulk\\?refresh=true [");
+        List<Object> parameters = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            if (i > 0) {
+                command.append(',');
+            }
+            command.append("{\"index\": {\"_type\": \"_doc\", \"_id\": ?}},").append("{\"id\": ?, \"name\": ?, \"age\": ?, \"email\": ?, \"create_time\": ?}");
+            parameters.add(String.valueOf(startId + i));
+            parameters.add(startId + i);
+            parameters.add(prefix + (i + 1));
+            parameters.add(age);
+            parameters.add(null);
+            parameters.add(new Date());
+        }
+        command.append(']');
+        int inserted = jdbc.executeUpdate(command.toString(), parameters.toArray());
+        if (inserted != count) {
+            throw new SQLException("Iterator fixture expected " + count + " rows, but inserted " + inserted);
+        }
     }
 
     public String select(String columns, String predicate, boolean ordered) {

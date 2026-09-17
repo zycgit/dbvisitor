@@ -15,18 +15,21 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.test.contract.api.lambda.LambdaBatchMutationCase;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
+import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 /** Shared mutation contracts without replacing unsupported predicates or ordering. */
+@NxnConcurrent
 public class MilvusLambdaBatchMutationTest extends LambdaBatchMutationCase {
     private final MilvusUserInfoFixture fixture = new MilvusUserInfoFixture();
 
@@ -38,7 +41,7 @@ public class MilvusLambdaBatchMutationTest extends LambdaBatchMutationCase {
     @Override
     @Before
     public void setup() throws SQLException {
-        this.jdbcTemplate = new JdbcTemplate(this.fixture.open());
+        this.jdbcTemplate = new JdbcTemplate(this.fixture.open(), new MappingRegistry(), null);
         this.lambdaTemplate = new LambdaTemplate(this.jdbcTemplate);
     }
 

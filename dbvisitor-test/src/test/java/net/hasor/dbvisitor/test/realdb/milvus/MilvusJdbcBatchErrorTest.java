@@ -11,13 +11,16 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcBatchErrorCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
+import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
 import org.junit.After;
 import org.junit.Before;
 
 /** JdbcTemplate's existing per-statement fallback, not JDBC addBatch/executeBatch. */
+@NxnConcurrent
 public class MilvusJdbcBatchErrorTest extends JdbcBatchErrorCase {
     private final MilvusDatabaseFixture database = new MilvusDatabaseFixture();
     private       Connection            connection;
@@ -31,7 +34,7 @@ public class MilvusJdbcBatchErrorTest extends JdbcBatchErrorCase {
     @Before
     public void setup() throws SQLException {
         this.connection = this.database.open();
-        this.jdbcTemplate = new JdbcTemplate(this.connection);
+        this.jdbcTemplate = new JdbcTemplate(this.connection, new MappingRegistry(), null);
         try (Statement statement = this.connection.createStatement()) {
             statement.executeUpdate("""
                     CREATE TABLE basic_types_test (

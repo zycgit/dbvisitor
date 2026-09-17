@@ -15,6 +15,7 @@ import java.lang.annotation.Target;
 /**
  * Opts a concrete datasource test class into concurrent execution with other opted-in classes.
  * The fixture must isolate all mutable resources, including setup and cleanup. Methods stay serial.
+ * The runner may group these classes ahead of exclusive classes; do not depend on class order.
  * Deliberately not inherited: shared contract classes cannot opt other datasources in implicitly.
  */
 @Retention(RetentionPolicy.RUNTIME)

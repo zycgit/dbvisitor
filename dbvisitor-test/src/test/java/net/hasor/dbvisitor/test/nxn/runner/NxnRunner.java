@@ -199,12 +199,16 @@ public final class NxnRunner {
         }
         CompletionService<DatasourcePlan> completions = new ExecutorCompletionService<>(workers);
         int active = 0;
+        int nextDatasource = 0;
         while (plans.stream().anyMatch(plan -> !plan.finished)) {
             boolean submitted;
             do {
                 submitted = false;
-                // One slot per datasource per pass: a large suite cannot fill the pool ahead of others.
-                for (DatasourcePlan plan : plans) {
+                // Resume after the last submission, including when just one worker becomes free.
+                int firstDatasource = nextDatasource;
+                for (int i = 0; i < plans.size(); i++) {
+                    int index = (firstDatasource + i) % plans.size();
+                    DatasourcePlan plan = plans.get(index);
                     if (!plan.finished && plan.pending.isEmpty() && plan.active == 0) {
                         finishDatasource(plan);
                     }
@@ -220,6 +224,7 @@ public final class NxnRunner {
                     plan.exclusive = !concurrent(runner);
                     plan.active++;
                     active++;
+                    nextDatasource = (index + 1) % plans.size();
                     submitted = true;
                     completions.submit(() -> {
                         runClass(plan, runner);
@@ -277,11 +282,11 @@ public final class NxnRunner {
     }
 
     private final class DatasourcePlan {
-        final String env;
-        final NxnReport report;
-        final Deque<Runner> pending = new ArrayDeque<>();
-        volatile String error;
-        int active;
+        final    String        env;
+        final    NxnReport     report;
+        final    Deque<Runner> pending = new ArrayDeque<>();
+        volatile String        error;
+        int     active;
         boolean exclusive;
         boolean started;
         boolean finished;
@@ -322,6 +327,11 @@ public final class NxnRunner {
                 }
             }
             runners.add(runner);
+        }
+        if (jobs > 1 && classJobs > 1) {
+            // Stable grouping: isolated classes may overlap even when separated by class names.
+            // Exclusive classes still wait for all isolated setup, methods and cleanup to finish.
+            runners.sort(Comparator.comparing(runner -> !concurrent(runner)));
         }
         return runners;
     }

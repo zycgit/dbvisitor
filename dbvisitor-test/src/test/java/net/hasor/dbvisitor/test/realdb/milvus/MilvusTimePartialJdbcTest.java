@@ -16,9 +16,11 @@ import java.time.Year;
 import java.time.YearMonth;
 import java.util.Map;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.test.contract.feature.type.TimePartialJdbcCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
+import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.handler.time.SqlTimestampAsMonthDayTypeHandler;
 import net.hasor.dbvisitor.types.handler.time.SqlTimestampAsMonthTypeHandler;
@@ -28,6 +30,7 @@ import org.junit.After;
 import org.junit.Before;
 
 /** Verifies the shared Java temporal conversions using native text and integer storage. */
+@NxnConcurrent
 public class MilvusTimePartialJdbcTest extends TimePartialJdbcCase {
     private static final Map<Class<?>, TypeHandler<?>> DATE_PART_HANDLERS = Map.of(Year.class, new SqlTimestampAsYearTypeHandler(), YearMonth.class, new SqlTimestampAsYearMonthTypeHandler(), Month.class, new SqlTimestampAsMonthTypeHandler(), MonthDay.class, new SqlTimestampAsMonthDayTypeHandler());
     private final        MilvusDatabaseFixture         database           = new MilvusDatabaseFixture();
@@ -52,7 +55,7 @@ public class MilvusTimePartialJdbcTest extends TimePartialJdbcCase {
     @Before
     public void setup() throws SQLException {
         this.connection = this.database.open();
-        this.jdbcTemplate = new JdbcTemplate(this.connection);
+        this.jdbcTemplate = new JdbcTemplate(this.connection, new MappingRegistry(), null);
         try (Statement statement = this.connection.createStatement()) {
             statement.executeUpdate("""
                     CREATE TABLE time_types_explicit_test (

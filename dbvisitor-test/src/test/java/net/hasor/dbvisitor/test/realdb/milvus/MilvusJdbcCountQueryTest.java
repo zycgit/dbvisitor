@@ -12,12 +12,15 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Date;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcCountQueryCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
+import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
 import org.junit.After;
 import org.junit.Before;
 
+@NxnConcurrent
 public class MilvusJdbcCountQueryTest extends JdbcCountQueryCase {
     private final MilvusDatabaseFixture fixture = new MilvusDatabaseFixture();
 
@@ -30,7 +33,7 @@ public class MilvusJdbcCountQueryTest extends JdbcCountQueryCase {
     @Before
     public void setup() throws SQLException {
         Connection connection = this.fixture.open();
-        this.jdbcTemplate = new JdbcTemplate(connection);
+        this.jdbcTemplate = new JdbcTemplate(connection, new MappingRegistry(), null);
         try (Statement statement = connection.createStatement()) {
             statement.executeUpdate("""
                     CREATE TABLE user_info (

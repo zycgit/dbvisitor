@@ -14,10 +14,12 @@ import net.hasor.dbvisitor.lambda.core.MetricType;
 import net.hasor.dbvisitor.test.contract.api.vector_query.VectorTypeMappingCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
+import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
 import org.junit.After;
 import org.junit.Before;
 
 /** Common vector assertions executed with Milvus-native values and metric indexes. */
+@NxnConcurrent
 public class MilvusVectorTypeMappingTest extends VectorTypeMappingCase {
     private final MilvusVectorQueryFixture fixture = new MilvusVectorQueryFixture();
 

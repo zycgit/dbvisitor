@@ -9,13 +9,10 @@ package net.hasor.dbvisitor.test.unit.nxn;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import com.google.gson.JsonParser;
 import net.hasor.dbvisitor.test.nxn.config.NxnContext;
@@ -27,19 +24,21 @@ import static org.junit.Assert.*;
 
 public class NxnConcurrencyTest {
     @Rule
-    public TemporaryFolder temporary = new TemporaryFolder();
-    private static final AtomicInteger ACTIVE = new AtomicInteger();
-    private static final AtomicInteger PEAK = new AtomicInteger();
-    private static final Map<String, AtomicInteger> METHODS = new ConcurrentHashMap<>();
-    private static CyclicBarrier rendezvous;
-    private static CountDownLatch progressReady;
-    private static CountDownLatch progressRelease;
+    public               TemporaryFolder            temporary = new TemporaryFolder();
+    private static final AtomicInteger              ACTIVE    = new AtomicInteger();
+    private static final AtomicInteger              PEAK      = new AtomicInteger();
+    private static final Map<String, AtomicInteger> METHODS   = new ConcurrentHashMap<>();
+    private static final List<String>               EVENTS    = new CopyOnWriteArrayList<>();
+    private static       CyclicBarrier              rendezvous;
+    private static       CountDownLatch             progressReady;
+    private static       CountDownLatch             progressRelease;
 
     @Before
     public void reset() {
         ACTIVE.set(0);
         PEAK.set(0);
         METHODS.clear();
+        EVENTS.clear();
         rendezvous = null;
     }
 
@@ -75,9 +74,28 @@ public class NxnConcurrencyTest {
     }
 
     @Test
+    public void separatedIsolatedClassesRunTogetherBeforeExclusiveClasses() throws Exception {
+        rendezvous = new CyclicBarrier(4);
+        Path root = temporary.newFolder().toPath();
+        List<Class<?>> classes = List.of(First.class, Exclusive.class, Second.class, Third.class, Fourth.class);
+        assertTrue(new NxnRunner(root, Map.of("h2", classes), 16, List.of(), null).run());
+        assertEquals(4, PEAK.get());
+        assertEquals("Exclusive", EVENTS.get(EVENTS.size() - 1));
+        assertEquals(9, EVENTS.size());
+    }
+
+    @Test
     public void classConcurrencyCanBeDisabledWithoutRemovingAnnotations() throws Exception {
-        assertTrue(new NxnRunner(temporary.newFolder().toPath(), Map.of("h2", List.of(First.class, Second.class)), 16, 1, List.of(), null).run());
+        assertTrue(new NxnRunner(temporary.newFolder().toPath(), Map.of("h2", List.of(First.class, Exclusive.class, Second.class)), 16, 1, List.of(), null).run());
         assertEquals(1, PEAK.get());
+        assertEquals(List.of("First", "First", "Exclusive", "Second", "Second"), EVENTS);
+    }
+
+    @Test
+    public void oneGlobalWorkerAlsoPreservesOriginalClassOrder() throws Exception {
+        assertTrue(new NxnRunner(temporary.newFolder().toPath(), Map.of("h2", List.of(First.class, Exclusive.class, Second.class)), 1, 16, List.of(), null).run());
+        assertEquals(1, PEAK.get());
+        assertEquals(List.of("First", "First", "Exclusive", "Second", "Second"), EVENTS);
     }
 
     @Test
@@ -93,6 +111,16 @@ public class NxnConcurrencyTest {
         assertTrue(new NxnRunner(temporary.newFolder().toPath(), suites, 2, 4, List.of(), null).run());
         assertEquals(2, PEAK.get());
         assertEquals(0, ACTIVE.get());
+    }
+
+    @Test
+    public void nextFreeWorkerRotatesAcrossDatasourcesInsteadOfRestartingAtTheFirst() throws Exception {
+        Map<String, List<Class<?>>> suites = new LinkedHashMap<>();
+        suites.put("h2", List.of(First.class, Second.class));
+        suites.put("pg", List.of(Third.class, Fourth.class));
+        assertTrue(new NxnRunner(temporary.newFolder().toPath(), suites, 1, 16, List.of(), null).run());
+        assertEquals(List.of("First", "First", "Third", "Third", "Second", "Second", "Fourth", "Fourth"), EVENTS);
+        assertEquals(1, PEAK.get());
     }
 
     @Test
@@ -167,6 +195,7 @@ public class NxnConcurrencyTest {
 
         private void verifySerialMethod() throws Exception {
             assertTrue(NxnContext.active());
+            EVENTS.add(getClass().getSimpleName());
             AtomicInteger active = METHODS.computeIfAbsent(NxnContext.environment() + getClass().getName(), ignored -> new AtomicInteger());
             assertEquals(1, active.incrementAndGet());
             try {
@@ -205,6 +234,7 @@ public class NxnConcurrencyTest {
         @Test
         public void runsAlone() {
             assertEquals(0, ACTIVE.get());
+            EVENTS.add("Exclusive");
         }
 
         @AfterClass

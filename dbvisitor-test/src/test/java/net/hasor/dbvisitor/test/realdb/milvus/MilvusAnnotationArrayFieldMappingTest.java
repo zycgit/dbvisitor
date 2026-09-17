@@ -12,13 +12,16 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.test.contract.feature.mapping.AnnotationArrayFieldMappingCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
+import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
 import org.junit.After;
 import org.junit.Before;
 
 /** Shared specialJavaType contracts backed by native JSON and ARRAY fields. */
+@NxnConcurrent
 public class MilvusAnnotationArrayFieldMappingTest extends AnnotationArrayFieldMappingCase {
     private final MilvusDatabaseFixture database = new MilvusDatabaseFixture();
     private       Connection            connection;
@@ -32,7 +35,7 @@ public class MilvusAnnotationArrayFieldMappingTest extends AnnotationArrayFieldM
     @Before
     public void setup() throws SQLException {
         this.connection = this.database.open();
-        this.jdbcTemplate = new JdbcTemplate(this.connection);
+        this.jdbcTemplate = new JdbcTemplate(this.connection, new MappingRegistry(), null);
         this.lambdaTemplate = new LambdaTemplate(this.jdbcTemplate);
         try (Statement statement = this.connection.createStatement()) {
             statement.executeUpdate("""

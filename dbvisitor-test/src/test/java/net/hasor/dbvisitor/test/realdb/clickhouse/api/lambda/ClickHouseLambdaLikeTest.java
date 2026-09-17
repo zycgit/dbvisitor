@@ -7,11 +7,33 @@
  */
 package net.hasor.dbvisitor.test.realdb.clickhouse.api.lambda;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.api.lambda.LambdaLikeCase;
 import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
+import net.hasor.dbvisitor.test.realdb.clickhouse.ClickHouseUserInfoFixture;
+import org.junit.Before;
+import org.junit.ClassRule;
 
+@NxnConcurrent
 public class ClickHouseLambdaLikeTest extends LambdaLikeCase {
+    @ClassRule
+    public static final ClickHouseUserInfoFixture FIXTURE = new ClickHouseUserInfoFixture();
+
+    @Override
+    @Before
+    public void setup() throws IOException, SQLException {
+        this.dataSource = FIXTURE.dataSource();
+        super.setup();
+    }
+
+    @Override
+    protected void cleanTestData() {
+        FIXTURE.clearRows();
+    }
+
     @Override
     protected DataSourceProfile profile() {
         return ClickHouseProfile.INSTANCE;

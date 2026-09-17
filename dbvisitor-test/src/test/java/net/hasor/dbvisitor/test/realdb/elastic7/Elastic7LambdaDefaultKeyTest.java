@@ -12,10 +12,12 @@ import net.hasor.dbvisitor.mapping.Column;
 import net.hasor.dbvisitor.test.contract.api.lambda.LambdaDefaultKeyCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
+import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
 import net.hasor.dbvisitor.test.realdb.elastic7.material.ElasticMatrixFixture;
 import org.junit.After;
 import org.junit.Before;
 
+@NxnConcurrent
 public class Elastic7LambdaDefaultKeyTest extends LambdaDefaultKeyCase {
     private final ElasticMatrixFixture fixture = new ElasticMatrixFixture();
 

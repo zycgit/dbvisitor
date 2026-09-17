@@ -11,13 +11,16 @@ import java.sql.SQLException;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.lambda.core.MetricType;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.test.contract.api.vector_query.VectorBinaryMetricCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
+import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
 import org.junit.After;
 import org.junit.Before;
 
 /** Reuses the isolated Milvus database fixture with exact binary-vector indexes. */
+@NxnConcurrent
 public class MilvusVectorBinaryMetricTest extends VectorBinaryMetricCase {
     private final MilvusDatabaseFixture database = new MilvusDatabaseFixture();
     private       boolean               created;
@@ -30,7 +33,7 @@ public class MilvusVectorBinaryMetricTest extends VectorBinaryMetricCase {
     @Override
     @Before
     public void setup() throws SQLException {
-        this.jdbcTemplate = new JdbcTemplate(this.database.open());
+        this.jdbcTemplate = new JdbcTemplate(this.database.open(), new MappingRegistry(), null);
         this.lambdaTemplate = new LambdaTemplate(this.jdbcTemplate);
     }
 

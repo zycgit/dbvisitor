@@ -12,10 +12,12 @@ import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.api.mapper.basemapper.BaseMapperQueryCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic6Profile;
+import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
 import net.hasor.dbvisitor.test.realdb.elastic7.material.ElasticMatrixFixture;
 import org.junit.After;
 import org.junit.Before;
 
+@NxnConcurrent
 public class Elastic6BaseMapperQueryTest extends BaseMapperQueryCase {
     private final ElasticMatrixFixture fixture = new ElasticMatrixFixture();
 

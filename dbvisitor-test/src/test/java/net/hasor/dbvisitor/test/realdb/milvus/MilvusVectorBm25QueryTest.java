@@ -10,13 +10,16 @@ package net.hasor.dbvisitor.test.realdb.milvus;
 import java.sql.SQLException;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.test.contract.api.vector_query.VectorBm25QueryCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
+import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
 import org.junit.After;
 import org.junit.Before;
 
 /** Same analyzer/function/index combination as the existing native Milvus BM25 SQL test. */
+@NxnConcurrent
 public class MilvusVectorBm25QueryTest extends VectorBm25QueryCase {
     private final MilvusDatabaseFixture database = new MilvusDatabaseFixture();
     private       boolean               created;
@@ -29,7 +32,7 @@ public class MilvusVectorBm25QueryTest extends VectorBm25QueryCase {
     @Override
     @Before
     public void setup() throws SQLException {
-        this.jdbcTemplate = new JdbcTemplate(this.database.open());
+        this.jdbcTemplate = new JdbcTemplate(this.database.open(), new MappingRegistry(), null);
         this.lambdaTemplate = new LambdaTemplate(this.jdbcTemplate);
     }
 

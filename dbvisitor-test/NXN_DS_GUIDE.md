@@ -197,7 +197,7 @@ requiresNxnFeature(FeatureId.ARRAY);
 
 ### 按数据源并发
 
-`all` 使用一个测试 JVM，共享默认 16 个工作线程。同一数据源中，只有具体测试类显式添加 `@NxnConcurrent` 后，才能与其他已标记的类并发。未标记的类仍串行执行，类内方法始终顺序执行。
+`all` 使用一个测试 JVM，共享默认 16 个工作线程。空闲线程轮流分配给各数据源，避免排在后面的数据源长期等待。同一数据源中，只有具体测试类显式添加 `@NxnConcurrent` 后，才能与其他已标记的类并发。未标记的类仍串行执行，类内方法始终顺序执行。
 
 `--jobs` 设置全部数据源合计的执行线程上限。`--class-jobs` 设置每个数据源中已标记类的并发上限，默认 16；设为 1 可恢复库内串行。两层上限共同生效，默认全部数据源合计最多使用 16 个执行线程，不是每个数据源各有 16 个线程。`--max-workers` 只控制前面的 Gradle 编译，不控制测试并发。
 
@@ -218,6 +218,8 @@ requiresNxnFeature(FeatureId.ARRAY);
 
 仅在具体 `realdb` 测试类上添加标记，不添加到公共契约类或父类。该注解不继承，也不会自动创建隔离资源。
 
+开启库内并发时，已标记的类集中调度；全部完成准备、执行和清理后，再串行执行未标记类。两组内部保留原有类顺序。测试不能依赖其他类的执行顺序；`--jobs 1` 或 `--class-jobs 1` 保留原来的串行顺序。
+
 ```java
 @NxnConcurrent
 public class MilvusJdbcCrudTest extends JdbcCrudCase {
@@ -235,6 +237,8 @@ public class MilvusJdbcCrudTest extends JdbcCrudCase {
 
 ClickHouse 的 `ClickHouseUserInfoFixture` 为每个类创建独立库和连接池，类内每个方法清空自己的 `user_info`。Milvus 的 `MilvusDatabaseFixture` 保留每个方法的独立库；退出时清理其中遗留的集合，再删除库。
 
+Elasticsearch 的 `ElasticMatrixFixture` 为每个方法创建独立索引和映射注册表。分页迭代测试使用 bulk 准备数据并一次刷新；单条写入和批处理测试仍执行各自的被测路径。优化准备过程时，应保留数据数量、查询条件和全部断言，不复用跨方法的可变数据。
+
 库名采用 `dbv_nxn_clickhouse_000001`、`dbv_nxn_milvus_000001` 格式。编号在进程内递增，并避开服务器已有编号；不接管或自动删除以前留下的库。创建、删除和清理失败的库名记录在数据源的 `execution.log` 中。强制中断后，可对照对应运行的日志人工确认遗留资源再清理；不要按前缀批量删除共享服务器上的库。
 
 ```bash
@@ -247,7 +251,7 @@ ClickHouse 的 `ClickHouseUserInfoFixture` 为每个类创建独立库和连接�
 
 ### 查看执行进度
 
-启动时打印一次 PID、并发上限、数据源列表和报告目录。执行中每 5 秒输出仍在运行或排队的数据源；每个数据源结束时输出结果，最后输出整轮汇总。详细的 SQL、SDK 日志和异常堆栈仍写入各数据源的 `execution.log`。
+启动时打印一次 PID、并发上限、数据源列表和报告目录。执行中每 5 秒输出仍在运行或排队的数据源；每个数据源结束时输出结果，最后输出整轮汇总。SQL、SDK 的 INFO 及以上日志和异常堆栈写入各数据源的 `execution.log`；默认关闭 SDK 传输层 DEBUG，避免大量报文输出和认证头泄露。
 
 以下为输出格式示例：
 

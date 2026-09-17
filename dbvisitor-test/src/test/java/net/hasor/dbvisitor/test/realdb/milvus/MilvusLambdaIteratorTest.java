@@ -14,15 +14,18 @@ import java.util.Locale;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.EntityQuery;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.Table;
 import net.hasor.dbvisitor.test.contract.api.lambda.LambdaIteratorCase;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
+import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
 import org.junit.After;
 import org.junit.Before;
 
 /** Same entity-iterator assertions, with an isolated collection and native vector ordering. */
+@NxnConcurrent
 public class MilvusLambdaIteratorTest extends LambdaIteratorCase {
     private final MilvusDatabaseFixture database = new MilvusDatabaseFixture();
 
@@ -34,7 +37,7 @@ public class MilvusLambdaIteratorTest extends LambdaIteratorCase {
     @Override
     @Before
     public void setup() throws SQLException {
-        this.jdbcTemplate = new JdbcTemplate(this.database.open());
+        this.jdbcTemplate = new JdbcTemplate(this.database.open(), new MappingRegistry(), null);
         this.jdbcTemplate.execute("""
                 CREATE TABLE user_info (
                     id INT64 PRIMARY KEY, name VARCHAR(128), age INT32,

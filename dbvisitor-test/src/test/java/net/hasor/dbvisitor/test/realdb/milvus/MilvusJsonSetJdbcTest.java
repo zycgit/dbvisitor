@@ -11,13 +11,16 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.test.contract.feature.type.JsonSetJdbcCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
+import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
 import org.junit.After;
 import org.junit.Before;
 
 /** Shared JSON serialization contracts, retaining their VARCHAR storage semantics. */
+@NxnConcurrent
 public class MilvusJsonSetJdbcTest extends JsonSetJdbcCase {
     private final MilvusDatabaseFixture database = new MilvusDatabaseFixture();
     private       Connection            connection;
@@ -31,7 +34,7 @@ public class MilvusJsonSetJdbcTest extends JsonSetJdbcCase {
     @Before
     public void setup() throws SQLException {
         this.connection = this.database.open();
-        this.jdbcTemplate = new JdbcTemplate(this.connection);
+        this.jdbcTemplate = new JdbcTemplate(this.connection, new MappingRegistry(), null);
         try (Statement statement = this.connection.createStatement()) {
             statement.executeUpdate("""
                     CREATE TABLE json_types_explicit_test (

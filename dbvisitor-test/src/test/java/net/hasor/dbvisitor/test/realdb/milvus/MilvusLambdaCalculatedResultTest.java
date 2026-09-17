@@ -11,13 +11,16 @@ import java.sql.SQLException;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.EntityQuery;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.test.contract.api.lambda.LambdaCalculatedResultCase;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
+import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
 import org.junit.After;
 import org.junit.Before;
 
+@NxnConcurrent
 public class MilvusLambdaCalculatedResultTest extends LambdaCalculatedResultCase {
     private final MilvusLambdaResultFixture fixture = new MilvusLambdaResultFixture();
 
@@ -29,7 +32,7 @@ public class MilvusLambdaCalculatedResultTest extends LambdaCalculatedResultCase
     @Override
     @Before
     public void setup() throws SQLException {
-        this.jdbcTemplate = new JdbcTemplate(this.fixture.open());
+        this.jdbcTemplate = new JdbcTemplate(this.fixture.open(), new MappingRegistry(), null);
         this.lambdaTemplate = new LambdaTemplate(this.jdbcTemplate);
     }
 

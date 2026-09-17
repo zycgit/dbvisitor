@@ -9,15 +9,18 @@ package net.hasor.dbvisitor.test.realdb.milvus;
 
 import java.sql.SQLException;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperCollectionRuleCase;
 import net.hasor.dbvisitor.test.contract.material.dao.declarative.ParameterBindingMapper;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
+import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
 import org.junit.After;
 import org.junit.Before;
 
 /** Shared parameter assertions against native storage, without database-function prerequisites. */
+@NxnConcurrent
 public class MilvusAnnotationMapperCollectionRuleTest extends AnnotationMapperCollectionRuleCase {
     private final MilvusUserInfoFixture fixture = new MilvusUserInfoFixture();
     private       Session               session;
@@ -30,7 +33,7 @@ public class MilvusAnnotationMapperCollectionRuleTest extends AnnotationMapperCo
     @Override
     @Before
     public void setup() throws SQLException {
-        this.jdbcTemplate = new JdbcTemplate(this.fixture.open());
+        this.jdbcTemplate = new JdbcTemplate(this.fixture.open(), new MappingRegistry(), null);
     }
 
     @Override

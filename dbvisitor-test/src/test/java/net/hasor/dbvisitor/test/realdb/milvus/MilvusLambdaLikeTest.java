@@ -10,13 +10,16 @@ package net.hasor.dbvisitor.test.realdb.milvus;
 import java.sql.SQLException;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.test.contract.api.lambda.LambdaLikeCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
+import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
 import org.junit.After;
 import org.junit.Before;
 
 /** Preserve shared predicate semantics with a native, isolated collection. */
+@NxnConcurrent
 public class MilvusLambdaLikeTest extends LambdaLikeCase {
     private final MilvusUserInfoFixture fixture = new MilvusUserInfoFixture();
 
@@ -28,7 +31,7 @@ public class MilvusLambdaLikeTest extends LambdaLikeCase {
     @Override
     @Before
     public void setup() throws SQLException {
-        this.jdbcTemplate = new JdbcTemplate(this.fixture.open());
+        this.jdbcTemplate = new JdbcTemplate(this.fixture.open(), new MappingRegistry(), null);
         this.lambdaTemplate = new LambdaTemplate(this.jdbcTemplate);
     }
 

@@ -11,10 +11,12 @@ import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.api.lambda.LambdaEmptyWhereCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
+import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
 import net.hasor.dbvisitor.test.realdb.elastic7.material.ElasticMatrixFixture;
 import org.junit.After;
 import org.junit.Before;
 
+@NxnConcurrent
 public class Elastic7LambdaEmptyWhereTest extends LambdaEmptyWhereCase {
     private final ElasticMatrixFixture fixture = new ElasticMatrixFixture();
 

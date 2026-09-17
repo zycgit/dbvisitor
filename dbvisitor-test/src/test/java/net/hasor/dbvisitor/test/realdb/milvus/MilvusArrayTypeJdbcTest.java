@@ -12,13 +12,16 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.test.contract.feature.type.ArrayTypeJdbcCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
+import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
 import org.junit.After;
 import org.junit.Before;
 
 /** Native scalar arrays; shared SQL, type handlers and assertions remain unchanged. */
+@NxnConcurrent
 public class MilvusArrayTypeJdbcTest extends ArrayTypeJdbcCase {
     private final MilvusDatabaseFixture database = new MilvusDatabaseFixture();
     private       Connection            connection;
@@ -32,7 +35,7 @@ public class MilvusArrayTypeJdbcTest extends ArrayTypeJdbcCase {
     @Before
     public void setup() throws SQLException {
         this.connection = this.database.open();
-        this.jdbcTemplate = new JdbcTemplate(this.connection);
+        this.jdbcTemplate = new JdbcTemplate(this.connection, new MappingRegistry(), null);
         this.lambdaTemplate = new LambdaTemplate(this.jdbcTemplate);
         createArrayCollection("array_types_test", """
                 int_array ARRAY<INT32>(100) NULL,

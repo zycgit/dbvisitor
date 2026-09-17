@@ -17,7 +17,7 @@ tasks.register('prepareNxnRunner') {
     doLast {
         launchDirectory.mkdirs()
         def quote = { String value -> '"' + value.replace('\\', '\\\\').replace('"', '\\"') + '"' }
-        def arguments = ['-ea', '-Xmx2g', '-Dfile.encoding=UTF-8'] + opens +
+        def arguments = ['-ea', '-Xmx2g', '-Dfile.encoding=UTF-8', '-Dlogback.configurationFile=nxn-logback.xml'] + opens +
                 ['-classpath', runtimeClasspath.asPath, 'net.hasor.dbvisitor.test.nxn.runner.NxnRunner']
         new File(launchDirectory, 'java.txt').text = javaExecutable + '\n'
         new File(launchDirectory, 'arguments.txt').text = arguments.collect { quote(it.toString()) }.join('\n') + '\n'
@@ -73,6 +73,7 @@ if (selected) {
         include "**/realdb/${packageName}/**/*Test.class"
         systemProperty 'nxn.env', selected
         systemProperty 'nxn.resultDir', resultDir.absolutePath
+        systemProperty 'logback.configurationFile', 'nxn-logback.xml'
         maxParallelForks = 1
         reports.junitXml.outputLocation = new File(resultDir, 'test-results')
         reports.html.outputLocation = new File(resultDir, 'reports')

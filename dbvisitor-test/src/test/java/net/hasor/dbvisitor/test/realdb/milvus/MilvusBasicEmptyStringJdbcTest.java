@@ -11,13 +11,16 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.test.contract.feature.type.BasicEmptyStringJdbcCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
+import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
 import org.junit.After;
 import org.junit.Before;
 
 /** Native scalar storage; DOUBLE is not an arbitrary-precision DECIMAL type. */
+@NxnConcurrent
 public class MilvusBasicEmptyStringJdbcTest extends BasicEmptyStringJdbcCase {
     private final MilvusDatabaseFixture database = new MilvusDatabaseFixture();
     private       Connection            connection;
@@ -31,7 +34,7 @@ public class MilvusBasicEmptyStringJdbcTest extends BasicEmptyStringJdbcCase {
     @Before
     public void setup() throws SQLException {
         this.connection = this.database.open();
-        this.jdbcTemplate = new JdbcTemplate(this.connection);
+        this.jdbcTemplate = new JdbcTemplate(this.connection, new MappingRegistry(), null);
         createScalarCollection("basic_types_test", """
                 byte_value INT8 NULL, short_value INT16 NULL, int_value INT32 NULL,
                 long_value INT64 NULL, float_value FLOAT NULL, double_value DOUBLE NULL,

@@ -11,10 +11,12 @@ import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.api.lambda.LambdaIteratorCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic6Profile;
+import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
 import net.hasor.dbvisitor.test.realdb.elastic7.material.ElasticMatrixFixture;
 import org.junit.After;
 import org.junit.Before;
 
+@NxnConcurrent
 public class Elastic6LambdaIteratorTest extends LambdaIteratorCase {
     private final ElasticMatrixFixture fixture = new ElasticMatrixFixture();
 
@@ -31,6 +33,11 @@ public class Elastic6LambdaIteratorTest extends LambdaIteratorCase {
     }
 
     @Override
+    protected void seedUsers(int startId, String prefix, int count, int age) throws SQLException {
+        fixture.seedUsers(startId, prefix, count, age);
+    }
+
+    @Override
     protected void insertUser(int id, String name, Integer age) throws SQLException {
         fixture.insert(id, name, age, null);
     }
@@ -40,4 +47,3 @@ public class Elastic6LambdaIteratorTest extends LambdaIteratorCase {
         fixture.close();
     }
 }
-

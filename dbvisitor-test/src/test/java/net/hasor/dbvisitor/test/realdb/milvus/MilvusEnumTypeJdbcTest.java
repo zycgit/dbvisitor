@@ -11,6 +11,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.test.contract.feature.type.EnumTypeJdbcCase;
 import net.hasor.dbvisitor.test.contract.material.model.types.StatusEnum;
 import net.hasor.dbvisitor.test.contract.material.model.types.StatusEnumOfCode;
@@ -19,12 +20,14 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
+import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 /** Keeps the shared enum SQL and assertions; native BM25 supplies the required vector field. */
+@NxnConcurrent
 public class MilvusEnumTypeJdbcTest extends EnumTypeJdbcCase {
     private final MilvusDatabaseFixture database = new MilvusDatabaseFixture();
     private       Connection            connection;
@@ -38,7 +41,7 @@ public class MilvusEnumTypeJdbcTest extends EnumTypeJdbcCase {
     @Before
     public void setup() throws SQLException {
         this.connection = this.database.open();
-        this.jdbcTemplate = new JdbcTemplate(this.connection);
+        this.jdbcTemplate = new JdbcTemplate(this.connection, new MappingRegistry(), null);
         try (Statement statement = this.connection.createStatement()) {
             statement.executeUpdate("""
                     CREATE TABLE enum_types_explicit_test (
