@@ -39,6 +39,7 @@ import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.ResultMap;
 import net.hasor.dbvisitor.mapping.Table;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
+import net.hasor.dbvisitor.page.PageResult;
 import net.hasor.dbvisitor.types.NoCache;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
@@ -348,7 +349,7 @@ public class MapperRegistry {
                     return;
                 }
 
-                def.setUsingCollection(Collection.class.isAssignableFrom(m.getReturnType()));
+                def.setUsingCollection(Collection.class.isAssignableFrom(m.getReturnType()) || m.getReturnType() == PageResult.class);
                 this.applyResultConfig(def);// for DqlConfig
                 defMap.put(configId, def);
             }
