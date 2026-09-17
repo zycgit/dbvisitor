@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="example.ApiStyles$OrderMapper">
+    <select id="totals" resultType="java.util.LinkedHashMap">
+        SELECT status AS "status", SUM(amount_cents) AS "total_cents"
+        FROM blog_orders
+        WHERE status = #{status}
+        GROUP BY status
+    </select>
+</mapper>

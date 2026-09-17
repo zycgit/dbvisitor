@@ -9,6 +9,7 @@
 
     <modules>
         <module>basic</module>
+        <module>blog-680</module>
         <module>hasor</module>
         <module>guice</module>
         <module>solon</module>

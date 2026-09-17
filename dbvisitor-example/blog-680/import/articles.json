@@ -1,0 +1,18 @@
+[
+  {
+    "id": 101,
+    "body": "first imported article",
+    "dense": [
+      1.0,
+      0.0
+    ]
+  },
+  {
+    "id": 102,
+    "body": "second imported article",
+    "dense": [
+      0.0,
+      1.0
+    ]
+  }
+]

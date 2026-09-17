@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>example</groupId>
+    <artifactId>dbvisitor-blog-examples</artifactId>
+    <version>1.0</version>
+    <properties>
+        <maven.compiler.release>17</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <dbvisitor.version>6.8.0</dbvisitor.version>
+        <example.build.directory>${project.basedir}/target</example.build.directory>
+    </properties>
+    <dependencies>
+        <dependency><groupId>net.hasor</groupId><artifactId>dbvisitor</artifactId><version>${dbvisitor.version}</version></dependency>
+        <dependency><groupId>net.hasor</groupId><artifactId>jdbc-milvus</artifactId><version>${dbvisitor.version}</version><classifier>all</classifier></dependency>
+        <dependency><groupId>net.hasor</groupId><artifactId>jdbc-redis</artifactId><version>${dbvisitor.version}</version><classifier>all</classifier></dependency>
+        <dependency><groupId>net.hasor</groupId><artifactId>jdbc-mongo</artifactId><version>${dbvisitor.version}</version><classifier>all</classifier></dependency>
+        <dependency><groupId>net.hasor</groupId><artifactId>jdbc-elastic</artifactId><version>${dbvisitor.version}</version><classifier>all</classifier></dependency>
+        <dependency><groupId>org.postgresql</groupId><artifactId>postgresql</artifactId><version>42.7.7</version><scope>test</scope></dependency>
+        <dependency><groupId>com.mysql</groupId><artifactId>mysql-connector-j</artifactId><version>8.4.0</version><scope>test</scope></dependency>
+        <dependency><groupId>com.h2database</groupId><artifactId>h2</artifactId><version>2.2.224</version></dependency>
+        <dependency><groupId>com.google.code.gson</groupId><artifactId>gson</artifactId><version>2.11.0</version></dependency>
+        <dependency><groupId>org.slf4j</groupId><artifactId>slf4j-simple</artifactId><version>1.7.36</version></dependency>
+        <dependency><groupId>junit</groupId><artifactId>junit</artifactId><version>4.13.2</version><scope>test</scope></dependency>
+    </dependencies>
+    <build>
+        <directory>${example.build.directory}</directory>
+        <plugins>
+            <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-compiler-plugin</artifactId><version>3.13.0</version></plugin>
+            <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-surefire-plugin</artifactId><version>3.2.5</version></plugin>
+            <plugin><groupId>org.codehaus.mojo</groupId><artifactId>exec-maven-plugin</artifactId><version>3.5.0</version></plugin>
+        </plugins>
+    </build>
+</project>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="example.LegacyDatabaseArticlesTest$ElasticUsers">
+    <resultMap id="userResultMap" type="example.LegacyDatabaseArticlesTest$User">
+        <result column="_id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+    </resultMap>
+    <select id="listByUserName" resultMap="userResultMap">
+        POST /blog_legacy_users/_search {"query":{"term":{"name":#{userName}}}}
+    </select>
+</mapper>
