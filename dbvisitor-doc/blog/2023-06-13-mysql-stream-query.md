@@ -1,5 +1,6 @@
 ---
 slug: mysql_stream_read
+topics: [mapping]
 title: MySQL 流式读取超大表
 description: 使用 dbVisitor 与 MySQL Connector/J 逐行读取大结果集，控制应用侧内存占用。
 authors: [ZhaoYongChun]
@@ -13,7 +14,7 @@ language: zh-cn
 
 <!-- truncate -->
 
-## 为什么需要流式查询？
+## 为何流式读取 {#为什么需要流式查询}
 
 通常我们查询数据有两种策略：
 
@@ -26,7 +27,7 @@ language: zh-cn
 
 **流式查询 (Streaming)** 是第三种选择。它通过维护一个长连接，让数据库像“流水”一样逐行（或分批）将数据推送给客户端。客户端处理完一行，丢弃一行，在应用不继续收集这些行的前提下，避免保存完整结果集；实际内存和吞吐量仍取决于行大小及消费逻辑。
 
-## MySQL 的特殊性
+## MySQL 流式配置 {#mysql-的特殊性}
 
 不同的数据库开启流式查询的方式不同（例如 PostgreSQL 需要关闭自动提交并设置 fetchSize）。而对于 **MySQL**，JDBC 驱动有着非常特殊的约定。
 
@@ -38,7 +39,7 @@ language: zh-cn
 
 这是逐行流式模式的配置，不是唯一的分批读取方式。Connector/J 还支持 `useCursorFetch=true` 配合正数 fetchSize 的游标读取；两种模式不要混淆。
 
-## dbVisitor 实现方案
+## dbVisitor 实现 {#dbvisitor-实现方案}
 
 dbVisitor 的核心组件 `JdbcTemplate` 提供了极强的底层掌控力，允许我们通过 `PreparedStatementCreator` 来定制上述参数，同时配合 `RowCallbackHandler` 实现逐行消费。
 

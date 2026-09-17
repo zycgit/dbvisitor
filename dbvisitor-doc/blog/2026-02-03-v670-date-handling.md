@@ -1,6 +1,9 @@
 ---
+last_update:
+  date: 2026-09-17
 slug: v670-date-handling
-title: v6.7.0 解读：公元前日期处理的两种方案
+topics: [mapping]
+title: "公元前日期映射：两种处理方案"
 authors: [ZhaoYongChun]
 tags: [dbVisitor, TypeHandler]
 ---
@@ -11,7 +14,10 @@ dbVisitor 6.7.0 新增了 `JulianDayTypeHandler` 和 `PgDateTypeHandler` 两个�
 
 <!--truncate-->
 
-## 问题根源：年份表示法的歧义
+固定使用 6.8.0 的回归示例：[GitHub](https://github.com/zycgit/dbvisitor/tree/main/dbvisitor-example/blog-680) / [Gitee](https://gitee.com/zycgit/dbvisitor/tree/main/dbvisitor-example/blog-680)。
+
+
+## 年份表示差异 {#问题根源年份表示法的歧义}
 
 Java 的 `LocalDate` 使用 ISO 8601 标准，`Year 0` 表示公元前 1 年：
 
@@ -26,7 +32,7 @@ Java 的 `LocalDate` 使用 ISO 8601 标准，`Year 0` 表示公元前 1 年：
 
 `LocalDate` 使用延伸格里高利历，而传统 `java.sql.Date` 相关转换涉及旧式历法处理，不能认为两者在所有历史日期上等价。不同 JDBC 驱动对公元前日期的处理也各不相同，有些甚至直接抛异常。
 
-## 方案一：JulianDayTypeHandler — 跨数据库通用方案
+## 儒略日方案 {#方案一juliandaytypehandler--跨数据库通用方案}
 
 儒略日数（Julian Day Number）是天文学中使用的连续日期计数系统，以固定纪元连续计数。使用它仍需约定历法和日界，本处理器将 ISO LocalDate 映射为整数日数。
 
@@ -71,7 +77,7 @@ long jdn = day + (153 * m2 + 2) / 5 + 365 * y2 + y2 / 4 - y2 / 100 + y2 / 400 - 
 - 数据库需支持 `BIGINT`，不依赖原生 DATE
 - 当前转换使用整数运算，不应据此承诺覆盖 `LocalDate` 的全部年份范围。应用应限制业务日期范围并验证往返转换。
 
-## 方案二：PgDateTypeHandler — PostgreSQL 原生方案
+## PostgreSQL DATE 方案 {#方案二pgdatetypehandler--postgresql-原生方案}
 
 如果你的项目锁定 PostgreSQL，可以利用其原生的 BC 后缀格式，直接使用 `DATE` 类型存储。
 
@@ -88,7 +94,12 @@ jdbcTemplate.executeUpdate(
 );
 
 // 数据库中存储为: 0100-01-01 BC
-// 读取时自动转换回 LocalDate.of(-99, 1, 1)
+LocalDate loaded = jdbcTemplate.queryForObject(
+    "SELECT event_date FROM events WHERE id = ?",
+    new Object[] { 1 },
+    (rs, rowNum) -> new PgDateTypeHandler().getResult(rs, "event_date")
+);
+// loaded.equals(bcDate)
 ```
 
 **优势**：

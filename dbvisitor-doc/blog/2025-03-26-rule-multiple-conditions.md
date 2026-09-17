@@ -1,6 +1,7 @@
 ---
 slug: rule_multiple_conditions
-title: 使用规则处理复杂条件
+topics: [apis]
+title: "SQL 规则实战：组合 AND/OR 查询条件"
 description: 详解如何使用 dbVisitor 的 AND/OR 规则定义包含括号和组合逻辑的复杂 SQL 条件。
 authors: [ZhaoYongChun]
 tags: [Rule, DynamicSQL]
@@ -15,7 +16,7 @@ language: zh-cn
 
 <!-- truncate -->
 
-## 场景挑战
+## 查询场景 {#场景挑战}
 
 假设我们有如下查询需求：
 > 查询用户，满足以下任意一组条件即可：
@@ -27,7 +28,7 @@ language: zh-cn
 WHERE (age = ? AND sex = '1') OR (name = ? AND id IN (?, ?, ?))
 ```
 
-### 传统痛点
+### 条件拼接难点 {#传统痛点}
 
 如果不使用 dbVisitor 的高级规则，在其他框架（如 MyBatis XML）中实现这个逻辑会非常痛苦：
 
@@ -49,7 +50,7 @@ WHERE (age = ? AND sex = '1') OR (name = ? AND id IN (?, ?, ?))
 </trim>
 ```
 
-## dbVisitor 的优雅解法
+## 组合条件规则 {#dbvisitor-的优雅解法}
 
 dbVisitor 的设计哲学是 **"让 SQL 回归 SQL"**。它的 `@{and, ...}` 规则不仅支持简单的 `key = value`，更支持写入完整的、包含括号和逻辑运算符的 SQL 片段。
 

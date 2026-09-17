@@ -1,6 +1,9 @@
 ---
+last_update:
+  date: 2026-09-17
 slug: v670-date-handling
-title: "v6.7.0: BCE Date Handling"
+topics: [mapping]
+title: "Mapping BCE Dates: Two Approaches"
 authors: [ZhaoYongChun]
 tags: [dbVisitor, TypeHandler]
 language: en
@@ -10,7 +13,10 @@ BCE dates cause subtle "off-by-one" bugs between Java and databases. dbVisitor 6
 
 <!--truncate-->
 
-## Root Cause: Ambiguity in Year Representation
+Regression examples pinned to 6.8.0: [GitHub](https://github.com/zycgit/dbvisitor/tree/main/dbvisitor-example/blog-680) / [Gitee](https://gitee.com/zycgit/dbvisitor/tree/main/dbvisitor-example/blog-680).
+
+
+## Year Representation {#root-cause-ambiguity-in-year-representation}
 
 Java's `LocalDate` uses ISO 8601, where `Year 0` represents 1 BC:
 
@@ -25,7 +31,7 @@ Conversion formula: **BC year = |Java Year| + 1**
 
 LocalDate uses the proleptic Gregorian calendar, while traditional java.sql.Date conversions involve legacy calendar handling; they are not equivalent for every historical date. Different JDBC drivers also handle BCE dates inconsistently — some even throw exceptions outright.
 
-## Approach 1: JulianDayTypeHandler — Cross-Database Solution
+## Julian Day Mapping {#approach-1-juliandaytypehandler--cross-database-solution}
 
 The Julian Day Number (JDN) is a continuous date counting system from astronomy, counting continuously from a fixed epoch. Calendar and day-boundary conventions still matter; this handler maps ISO LocalDate to integer day numbers.
 
@@ -70,7 +76,7 @@ long jdn = day + (153 * m2 + 2) / 5 + 365 * y2 + y2 / 4 - y2 / 100 + y2 / 400 - 
 - Requires BIGINT storage, not native DATE types
 - Integer arithmetic does not guarantee the entire LocalDate range; constrain the business range and verify round trips.
 
-## Approach 2: PgDateTypeHandler — PostgreSQL-Native Solution
+## PostgreSQL DATE Mapping {#approach-2-pgdatetypehandler--postgresql-native-solution}
 
 If your project exclusively targets PostgreSQL, you can leverage its native BC date format and store directly as a `DATE` type.
 
@@ -87,8 +93,15 @@ jdbcTemplate.executeUpdate(
 );
 
 // Stored in database as: 0100-01-01 BC
-// Automatically converted back to LocalDate.of(-99, 1, 1) on read
+LocalDate loaded = jdbcTemplate.queryForObject(
+    "SELECT event_date FROM events WHERE id = ?",
+    new Object[] { 1 },
+    (rs, rowNum) -> new PgDateTypeHandler().getResult(rs, "event_date")
+);
+// loaded.equals(bcDate)
 ```
+
+The parameter's `typeHandler` applies only to writing. Reading must also use `PgDateTypeHandler`, either through the RowMapper above or an entity field mapping. Create `events(id INTEGER PRIMARY KEY, event_date DATE)` for this example; the first approach instead needs `julian_day BIGINT`.
 
 **Advantages**:
 - Uses the native `DATE` type, allowing direct SQL querying and comparison (e.g., `WHERE event_date < '0500-01-01 BC'`)

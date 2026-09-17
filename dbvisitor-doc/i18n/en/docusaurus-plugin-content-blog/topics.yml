@@ -1,0 +1,15 @@
+vectors:
+  label: Vector databases in practice
+  description: Start with vector storage, then explore search and data ingestion.
+datasources:
+  label: Working with different databases
+  description: Use familiar Java APIs for caching, documents, and search.
+apis:
+  label: Using the APIs
+  description: Choose an API for each task and organize DAOs and dynamic conditions.
+mapping:
+  label: Mapping and data handling
+  description: Handle object fields, specialized types, and query results.
+architecture:
+  label: Architecture and design
+  description: Explore unified data access and database adaptation.

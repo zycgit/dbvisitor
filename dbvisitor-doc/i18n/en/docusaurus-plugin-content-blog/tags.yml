@@ -72,3 +72,13 @@ Vector:
   label: Vector
   permalink: /tags/vector
   description: Vector database and similarity search
+
+Milvus:
+  label: Milvus
+  permalink: /tags/milvus
+  description: Access Milvus vector data through JDBC and dbVisitor
+
+Redis:
+  label: Redis
+  permalink: /tags/redis
+  description: Redis commands, object mapping and application scenarios

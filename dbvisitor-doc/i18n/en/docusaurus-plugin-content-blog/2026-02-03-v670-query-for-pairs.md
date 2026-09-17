@@ -1,6 +1,7 @@
 ---
 slug: v670-query-for-pairs
-title: "v6.7.0: queryForPairs"
+topics: [mapping]
+title: "Key-Value Queries: Two Columns to a Map"
 authors: [ZhaoYongChun]
 tags: [dbVisitor, JDBC]
 language: en
@@ -10,7 +11,7 @@ language: en
 
 <!--truncate-->
 
-## The Pain: Repetitive Boilerplate
+## Manual Map Assembly {#the-pain-repetitive-boilerplate}
 
 The old approach:
 
@@ -28,9 +29,9 @@ for (UserInfo u : users) {
 
 First query the list, then iterate and populate. If you only need two columns, fetching the entire entity is wasteful.
 
-## The New Way: One Line
+## Querying into a Map {#the-new-way-one-line}
 
-### Fluent API — Lambda Style
+### Lambda Builders {#fluent-api--lambda-style}
 
 ```java
 Map<Integer, String> idToName = lambda.query(UserInfo.class)
@@ -42,7 +43,7 @@ Map<Integer, String> idToName = lambda.query(UserInfo.class)
 
 The framework automatically narrows the SELECT to the specified two columns, then builds a `Map` with the first column as Key and the second as Value.
 
-### Fluent API — String Style
+### String-Based Builders {#fluent-api--string-style}
 
 ```java
 Map<Integer, String> idToName = lambda.query(UserInfo.class)
@@ -50,7 +51,7 @@ Map<Integer, String> idToName = lambda.query(UserInfo.class)
       .queryForPairs("id", "name", Integer.class, String.class);
 ```
 
-### JdbcTemplate — Raw SQL
+### JdbcTemplate Queries {#jdbctemplate--raw-sql}
 
 JdbcTemplate already provided queryForPairs before this builder extension, supporting multiple parameter-passing styles:
 
@@ -82,7 +83,7 @@ Map<Integer, String> idToEmail = jdbcTemplate.queryForPairs(
 
 ## Design Details
 
-### Automatic Type Conversion
+### Type Conversion {#automatic-type-conversion}
 
 `queryForPairs` internally uses `PairsResultSetExtractor`, which automatically selects the appropriate `TypeHandler` based on the specified Key/Value types:
 
@@ -94,7 +95,7 @@ Map<Long, Date> idToDate = jdbcTemplate.queryForPairs(
 );
 ```
 
-### Single-Column Scenario
+### Single-Column Results {#single-column-scenario}
 
 If the SELECT returns only one column, Value defaults to `null`:
 

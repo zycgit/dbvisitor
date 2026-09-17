@@ -1,6 +1,7 @@
 ---
 slug: rule_multiple_conditions
-title: Handling Complex Conditions with Rules
+topics: [apis]
+title: "SQL Rules: Combining AND/OR Conditions"
 description: Use dbVisitor's AND/OR rules to build complex nested SQL conditions in one line.
 authors: [ZhaoYongChun]
 tags: [Rule, DynamicSQL]
@@ -11,7 +12,7 @@ Simple rules like `@{and, name = :name}` handle single conditions well, but real
 
 <!-- truncate -->
 
-## Scenario Challenge
+## Query Scenario {#scenario-challenge}
 
 Suppose we have the following query requirement:
 > Query users who meet any group of the following conditions:
@@ -23,7 +24,7 @@ The corresponding SQL logical structure is:
 WHERE (age = ? AND sex = '1') OR (name = ? AND id IN (?, ?, ?))
 ```
 
-### Traditional Pain Points
+### Condition Handling {#traditional-pain-points}
 
 If you don't use dbVisitor's advanced rules, implementing this logic in other frameworks (such as MyBatis XML) can be very painful:
 
@@ -45,7 +46,7 @@ The resulting XML might look like cryptic code:
 </trim>
 ```
 
-## dbVisitor's Elegant Solution
+## Composing SQL Rules {#dbvisitors-elegant-solution}
 
 dbVisitor's design philosophy is **"Let SQL return to SQL"**. Its `@{and, ...}` rule supports not only simple `key = value`, but also writing complete SQL fragments containing parentheses and logical operators.
 
@@ -60,7 +61,7 @@ where status = 'ENABLE'
 @{and, ((age = :age and sex = '1') or (name = :name and id in @{in, :ids})) }
 ```
 
-### Operating Mechanism
+### How Rules Work {#operating-mechanism}
 
 When executing this SQL, the dbVisitor engine performs the following judgments:
 
@@ -71,7 +72,7 @@ When executing this SQL, the dbVisitor engine performs the following judgments:
    The rule does not remove NULL comparisons inside the combined expression. Validate required parameters, especially ids. Use separate conditional rules if the groups should be independently optional.
 3.  **Automatic Decoration**: dbVisitor automatically handles the connector after `WHERE`. If this is the first condition, it automatically fills in `AND` (if there is already `status='ENABLE'` before it).
 
-### Generated Result
+### Generated SQL {#generated-result}
 
 Assuming the input parameters are `age = 18`, `name = "Tom"`, `ids = [1, 2, 3]`, the final generated SQL is:
 
@@ -81,7 +82,7 @@ where status = 'ENABLE'
   AND ( (age = ? and sex = '1') or (name = ? and id in (?, ?, ?)) )
 ```
 
-## Scheme Advantages
+## Benefits {#scheme-advantages}
 
 1.  **High Readability**: The rule you write is standard SQL syntax, including parentheses and `OR` logic. Anyone who knows SQL can understand it at a glance without having to decipher the nested logic of XML tags.
 2.  **Zero Glue Code**: No need for complex tags like `<trim>`, `<if>`, `<choose>` to handle the splicing of SQL syntax fragments.

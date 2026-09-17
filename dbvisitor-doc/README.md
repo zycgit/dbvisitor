@@ -25,6 +25,81 @@ npm run build
 
 本目录用于构建文档站，不是 dbVisitor Java 模块的构建入口。
 
+## 博客标题规范
+
+新增、翻译和整理文章前，请先阅读 [AI 编辑约定](./AGENTS.md)。其中规定了中英文大标题、小标题的长度上限、计数方式、措辞要求及锚点兼容规则；人工编辑与 AI 初稿使用同一标准。
+
+## 博客资源
+
+博客配图及文章附件放在 `blog/assets/`，不再放入 `static/`。可运行示例工程统一放在仓库的 `dbvisitor-example/`，文章链接到 GitHub/Gitee 源码，不再维护示例 ZIP 下载包：
+
+```text
+blog/
+├── 2026-09-17-milvus-jdbc-vector-search.md
+└── assets/
+    └── 2026-09-17-milvus-jdbc-vector-search/  # 与文章文件名（不含扩展名）一致
+        ├── jdbc-milvus-cn.svg               # 中文配图
+        └── jdbc-milvus.svg                  # 英文配图
+```
+
+每篇文章的配图和附件集中在自己的资源目录内，中英文版本共用该目录；不再按版本号或资源类型混放。没有资源的文章无需创建空目录。中文文章使用相对路径引用；构建时由 Docusaurus 打包资源并生成访问地址：
+
+```markdown
+![示意图](./assets/2026-09-17-milvus-jdbc-vector-search/jdbc-milvus-cn.svg)
+示例工程（[GitHub](https://github.com/zycgit/dbvisitor/tree/main/dbvisitor-example/blog-680) / [Gitee](https://gitee.com/zycgit/dbvisitor/tree/main/dbvisitor-example/blog-680)）
+```
+
+英文文章仍保存在 `i18n/en/docusaurus-plugin-content-blog/`，通过 `../../../blog/assets/` 引用同一份资源。不要为下载链接加 `pathname://`，否则会跳过文件打包。JSX 图片使用 `src={require('@site/blog/assets/2026-01-06-new-generation-dbvisitor/double.png').default}`。
+
+`assets` 已排除在博客文章扫描之外，其中的 Markdown 附件不会出现在文章列表或订阅中。6.8.0 系列示例维护在 `../dbvisitor-example/blog-680/`；修改源码后无需重新打包 ZIP。作者头像仍由 `authors.yml` 管理；站点共用资源继续放在 `static/`。发布文章前，需先将对应示例提交并推送到链接所指的源码分支。
+
+## 博客专栏
+
+### 发布时间与更新时间
+
+文件名前缀或 front matter 的 `date` 表示原始发布时间，不要为了更新文章而修改它。实质性修订正文或示例后，单独填写：
+
+```yaml
+last_update:
+  date: 2026-09-17
+```
+
+文章标题区分别显示“发布”和“更新”，月份、日期均补足两位；归档和专栏仍按原始发布时间排序。仅校验通过、排版或重新构建不自动生成更新时间。中英文内容同步修订时，分别设置对应文章的 `last_update`。
+
+在 `blog/topics.yml` 定义专栏，顺序即页面展示顺序：
+
+```yaml
+vectors:
+  label: 向量数据库实战
+  description: 从向量读写开始，逐步加入业务检索与数据导入。
+```
+
+在文章 front matter 中声明归属，使用配置中的专栏 ID：
+
+```yaml
+authors: [ZhaoYongChun]
+tags: [Milvus, JDBC]
+topics: [vectors]
+```
+
+一篇文章可以属于多个专栏，例如 `topics: [vectors, apis]`。省略 `topics` 或写成 `topics: []` 时，不进入任何专栏，但仍出现在“全部”和“最新”中。专栏与标签互不影响。
+
+专栏内按发布日期倒序排列，首页卡片最多展示 6 篇，详情页展示全部；没有文章的专栏不显示。专栏 ID 拼错会在构建时指出具体文章。
+
+英文名称和简介放在 `i18n/en/docusaurus-plugin-content-blog/topics.yml`，使用相同 ID；缺少某个专栏的翻译时回退到中文定义。英文文章也在自己的 front matter 中声明 `topics`。新增文章只需标记归属，不用再维护集中式文章清单。
+
+## 博客作者链接
+
+作者信息在 `blog/authors.yml` 配置，英文对应 `i18n/en/docusaurus-plugin-content-blog/authors.yml`。文章详情页的头像和姓名共用链接：配置 `page: true` 时进入作者文章页，否则使用作者 `url`，最后回退到 `email`。作者资料中的 `socials` 可配置社交网站入口。
+
+```yaml
+ZhaoYongChun:
+  name: ZhaoYongChun
+  url: https://gitee.com/zycgit
+```
+
+若不使用作者文章页、希望点击后写邮件，可将 `page` 设为 `false` 并把 `url` 改为 `mailto:zyc@hasor.net`，或不配置 `url`、只配置 `email: zyc@hasor.net`。这会打开读者的邮件客户端，不会自动发送邮件。
+
 ## 文档版本变量
 
 `plugins/projectVars.js` 统一维护版本：`docsVersion` 用于使用指南及依赖示例，`developmentVersion` 用于开发版本入口，`lastReleaseVer`、`lastReleaseTime` 用于最新发布信息。首页也从此文件读取版本。

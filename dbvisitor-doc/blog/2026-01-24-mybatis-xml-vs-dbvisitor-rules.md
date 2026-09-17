@@ -1,6 +1,7 @@
 ---
 slug: mybatis-xml-vs-dbvisitor-rules
-title: 使用动态规则简化 SQL 条件
+topics: [apis]
+title: "动态 SQL：规则与 XML 的用法对照"
 authors: [ZhaoYongChun]
 tags: [dbVisitor, MyBatis, ORM]
 ---
@@ -113,7 +114,7 @@ SELECT * FROM t_blog
 
 权限查询应先由服务端确认角色和访问范围，再生成相应条件；不要用“参数缺失就省略”的规则作为唯一的权限保护。
 
-## 在不同 API 中使用
+## 跨 API 使用 {#在不同-api-中使用}
 
 规则可以用于 JdbcTemplate：
 

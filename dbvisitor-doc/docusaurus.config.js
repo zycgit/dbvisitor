@@ -7,6 +7,7 @@ const darkCodeTheme = themes.dracula;
 const analyticsPlugin = require('./plugins/analytics.js');
 const projectVars = require('./plugins/projectVars.js');
 const remarkProjectVars = require('./plugins/remark-project-vars.js');
+const {GlobExcludeDefault} = require('@docusaurus/utils');
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -47,9 +48,10 @@ const config = {
                     editUrl: 'https://gitee.com/zycgit/dbvisitor/blob/main/dbvisitor-doc/',
                 },
                 blog: {
+                    exclude: [...GlobExcludeDefault, '**/assets/**'],
                     remarkPlugins: [[remarkProjectVars, projectVars]],
                     showReadingTime: true,
-                    blogSidebarCount: 10,
+                    blogSidebarCount: 25,
                     postsPerPage: 10,
                     feedOptions: {
                         type: ['rss', 'atom'],
@@ -111,7 +113,8 @@ const config = {
                     label: '版本记录',
                 },
                 {
-                    to: '/blog',
+                    to: '/blog/archive',
+                    activeBasePath: '/blog',
                     label: '博客',
                     position: 'left'
                 },
@@ -146,7 +149,8 @@ const config = {
         },
     },
     plugins: [
-        analyticsPlugin
+        analyticsPlugin,
+        require.resolve('./plugins/blog-topics.js'),
     ],
     themes: [
         // ... Your other themes.

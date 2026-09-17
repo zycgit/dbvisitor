@@ -1,6 +1,9 @@
 ---
+last_update:
+  date: 2026-09-17
 slug: dbvisitor-dialect-refactoring
-title: "Dialect Architecture: Separation to Unity"
+topics: [architecture]
+title: "Unifying the Database Dialect Layer"
 authors: [ZhaoYongChun]
 tags: [Architecture, dbVisitor]
 language: en
@@ -10,7 +13,7 @@ As dbVisitor expanded from RDBMS to NoSQL, the dialect system's abstractions bec
 
 <!--truncate-->
 
-## Background: Pain Points of the Old Architecture
+## Previous Architecture {#background-pain-points-of-the-old-architecture}
 
 Before the refactoring, the dialect layer design of dbVisitor adopted the principle of separation of duties, mainly consisting of two parallel interface systems:
 
@@ -27,7 +30,7 @@ Although this separation follows the single responsibility principle, it exposes
     *   Mongo scenario: `new MongoCommandBuilder(new MongoDialect())`
 *   **Redundant Intermediate Classes**: In order to adapt to NoSQL, we introduced glue code like `MongoBuilderDialect`, solely to glue Dialect and Builder together, which increased the complexity of the codebase.
 
-## Evolution: Dialect as a Factory
+## Dialect as a Factory {#evolution-dialect-as-a-factory}
 
 The core concept of this refactoring is: **The dialect object itself should be the factory of the builder**.
 
@@ -65,9 +68,9 @@ If `SqlDialect` defines "what" the database is (metadata), then the `SqlCommandB
     *   `AbstractElasticDialect`: Provides DSL construction support for ES.
 
 
-## Advantages After Transformation
+## Benefits {#advantages-after-transformation}
 
-### 1. Minimalist and Safe API
+### 1. Simpler APIs {#1-minimalist-and-safe-api}
 For upper-layer callers (such as `LambdaTemplate`), obtaining a builder becomes extremely unified and simple. There is no longer a need for `instanceof` judgments, nor is there a need to pass Dialect parameters during construction:
 
 ```java
@@ -85,20 +88,22 @@ BoundSql sql = builder.buildSelect(dialect, true);
 
 ```java
 // New way: configure table, projection, and conditions through the builder first
-SqlCommandBuilder builder = dialect.newBuilder();
+SqlCommandBuilder builder = MySqlDialect.DEFAULT.newBuilder();
+builder.setTable(null, null, "user_info");
+builder.addSelectAll();
 // The builder itself is a form of Dialect, no need to pass parameters, eliminating "mismatch"
 BoundSql sql = builder.buildSelect(true); 
 ```
 
-### 2. Improved Cohesion
+### 2. Better Cohesion {#2-improved-cohesion}
 All database-specific logic—whether it is "what are the escape characters" or "how to generate INSERT statements"—is now converged in the same class (or its parent class).
 For example, `MongoDialect` is now a self-contained unit that knows both Mongo keywords and how to generate Mongo queries.
 
-### 3. Eliminated Risk of Dialect Mismatch
+### 3. Dialect Safety {#3-eliminated-risk-of-dialect-mismatch}
 In the old version, `SqlCommandBuilder` required a `SqlDialect` object to be passed in when generating SQL. This left a hidden danger in API design: theoretically, you could create a `MongoCommandBuilder` but pass it a `MySqlDialect`, which would lead to runtime errors or absurd query construction.
 After refactoring, the builder is directly produced by the dialect, and methods like `buildSelect` no longer receive `Dialect` parameters. The builder "comes with" metadata knowledge, eliminating the possibility of dialect mismatch from the compilation level.
 
-### 4. Reduced Code Volume and Improved Maintainability
+### 4. Less Maintenance {#4-reduced-code-volume-and-improved-maintainability}
 Through this refactoring, we deleted multiple redundant Builder classes and adapter classes.
 Custom dialects return independent builders through newBuilder(); do not share one stateful builder across queries.
 

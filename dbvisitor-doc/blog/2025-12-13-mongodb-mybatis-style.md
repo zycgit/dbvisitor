@@ -1,6 +1,9 @@
 ---
+last_update:
+  date: 2026-09-17
 slug: mongodb-mybatis-style
-title: dbVisitor 使用 MyBatis 方式操作 MongoDB
+topics: [datasources]
+title: "像写 MyBatis 一样操作 MongoDB"
 authors: [ZhaoYongChun]
 tags: [MongoDB, MyBatis, ORM, JDBC, dbVisitor]
 language: zh-cn
@@ -14,6 +17,21 @@ language: zh-cn
 
 <!--truncate-->
 
+固定使用 6.8.0 的回归示例：[GitHub](https://github.com/zycgit/dbvisitor/tree/main/dbvisitor-example/blog-680) / [Gitee](https://gitee.com/zycgit/dbvisitor/tree/main/dbvisitor-example/blog-680)。
+
+
+使用 Java 17+，引入 `net.hasor:dbvisitor:6.8.0` 及以下适配器：
+
+```xml
+<dependency>
+    <groupId>net.hasor</groupId>
+    <artifactId>jdbc-mongo</artifactId>
+    <version>6.8.0</version>
+    <classifier>all</classifier>
+</dependency>
+```
+
+
 ## 1. 传统方式的痛点
 
 在传统的混合架构中，我们可能会遇到以下问题：
@@ -22,13 +40,13 @@ language: zh-cn
 *   **分页实现差异**：MyBatis 通常配合 PageHelper，而 MongoDB 需要手动计算 `skip` 和 `limit`。
 *   **维护成本高**：需要维护两套完全不同的底层逻辑，增加了代码的复杂度和出错的概率。
 
-## 2. dbVisitor 的解决方案
+## 2. dbVisitor 方案 {#2-dbvisitor-的解决方案}
 
 dbVisitor 通过提供一个 JDBC 驱动层（`dbvisitor-driver`）和适配器（`jdbc-mongo`），将 MongoDB 的操作封装成了标准的 JDBC 接口。这意味着你可以像操作 MySQL 一样操作 MongoDB。
 
 更进一步，dbVisitor 提供了类似 MyBatis 的 ORM 功能，支持 Mapper 接口、XML 映射文件、注解以及 Lambda 表达式。
 
-### 2.1 对象关系映射 (ORM)
+### 2.1 实体映射 {#21-对象关系映射-orm}
 
 首先，我们定义一个 Java 对象，并使用注解进行映射。这与 MyBatis Plus 或 JPA 非常相似。
 
@@ -51,7 +69,7 @@ public class UserInfo {
 
 插入前为 id 赋值，例如 `UUID.randomUUID().toString()`；同一集合不要混用字符串与 ObjectId 主键示例。原生 ObjectId 和 JDBC 生成键用法见 [MongoDB 主键生成](/docs/features/mongo/generated-keys)。
 
-### 2.2 使用 Mapper 接口 (注解方式)
+### 2.2 注解 Mapper {#22-使用-mapper-接口-注解方式}
 
 你可以定义一个 Mapper 接口，使用注解来编写 MongoDB 的命令。
 
@@ -72,7 +90,7 @@ public interface UserInfoMapper {
 }
 ```
 
-### 2.3 使用通用 Mapper
+### 2.3 通用 Mapper {#23-使用通用-mapper}
 
 如果你不想写任何命令，可以直接继承 `BaseMapper`，dbVisitor 会自动生成基础的 CRUD 操作。
 
@@ -83,7 +101,7 @@ public interface UserInfoBaseMapper extends BaseMapper<UserInfo> {
 }
 ```
 
-### 2.4 使用 Lambda 方式
+### 2.4 Lambda 构造器 {#24-使用-lambda-方式}
 
 dbVisitor 也提供了类似 MyBatis Plus 的 Lambda 调用方式，完全类型安全。
 
@@ -102,7 +120,7 @@ lambda.update(UserInfo.class)
     .doUpdate();
 ```
 
-### 2.5 使用 XML 管理 Mapper (MyBatis 风格)
+### 2.5 XML Mapper {#25-使用-xml-管理-mapper-mybatis-风格}
 
 对于复杂的查询或需要统一管理 SQL 的场景，dbVisitor 支持使用 XML 文件来定义 Mapper，这与 MyBatis 的体验几乎一致。
 
@@ -112,7 +130,7 @@ lambda.update(UserInfo.class)
 @RefMapper("mapper/user-mapper.xml")
 public interface UserInfoXmlMapper {
     int saveUser(@Param("info") UserInfo info);
-    List<UserInfo> listByUserName(@Param("userName") String userName, Page page);
+    PageResult<UserInfo> listByUserName(@Param("userName") String userName, Page page);
 }
 ```
 
@@ -144,10 +162,9 @@ public interface UserInfoXmlMapper {
 </mapper>
 ```
 
-## 3. 统一的分页实现
+## 3. 分页查询 {#3-统一的分页实现}
 
-在 dbVisitor 中，无论是操作 MySQL 还是 MongoDB，分页查询的实现方式是完全统一的。你只需要传递一个 `Page` 对象。
-
+上面的 XML Mapper 返回 `PageResult<UserInfo>`，同时分页并查询总记录数。仅返回 `List<UserInfo>` 不会自动统计总数。`Page`、`PageObject`、`PageResult` 均来自 `net.hasor.dbvisitor.page`。
 ```java
 // 创建分页对象
 Page page = new PageObject();
@@ -156,15 +173,23 @@ page.setCurrentPage(0); // 第一页
 
 // 执行查询，dbVisitor 会自动拦截并重写为分页查询
 // 对于 MongoDB，会自动转换为 .skip(0).limit(10)
-List<UserInfo> list = mapper.listByUserName("mali", page);
+PageResult<UserInfo> result = mapper.listByUserName("mali", page);
+List<UserInfo> list = result.getData();
 
 // 获取总记录数（如果需要）
-long total = page.getTotalCount();
+long total = result.getTotalCount();
 
 // 翻页
 page.nextPage();
-list = mapper.listByUserName("mali", page);
+result = mapper.listByUserName("mali", page);
+list = result.getData();
 ```
+
+:::caution[6.8.0 分页边界]
+此例使用 XML 语句及 `resultMap`，不要直接替换成返回 `PageResult` 的 `@Query` 方法：6.8.0 该注解路径会触发 `ClassCastException`。BaseMapper 需要总数时，先通过 `pageInitBySample(...)` 初始化，再调用 `pageBySample(...)`。
+
+注解分页问题已在 6.8.1 开发分支修复，尚未发布；本文及示例工程仍使用 6.8.0 的 XML 分页。
+:::
 
 ## 4. 总结
 

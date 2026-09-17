@@ -1,6 +1,7 @@
 ---
 slug: v670-query-for-pairs
-title: v6.7.0 解读：queryForPairs 让键值查询一步到位
+topics: [mapping]
+title: "键值查询：将两列结果映射为 Map"
 authors: [ZhaoYongChun]
 tags: [dbVisitor, JDBC]
 ---
@@ -11,7 +12,7 @@ dbVisitor 6.7.0 为构造器新增的 `queryForPairs` 方法，一行代码直�
 
 <!--truncate-->
 
-## 痛点：重复的样板代码
+## 手动组装 Map {#痛点重复的样板代码}
 
 之前的写法：
 
@@ -29,9 +30,9 @@ for (UserInfo u : users) {
 
 先查列表，再遍历填充。如果只需要两列数据，却要查出整个实体，浪费资源。
 
-## 新写法：一行搞定
+## 直接查询 Map {#新写法一行搞定}
 
-### Fluent API — Lambda 方式
+### Lambda 构造器 {#fluent-api--lambda-方式}
 
 ```java
 Map<Integer, String> idToName = lambda.query(UserInfo.class)
@@ -43,7 +44,7 @@ Map<Integer, String> idToName = lambda.query(UserInfo.class)
 
 框架自动将 SELECT 收窄为指定的两列，然后将第一列作为 Key、第二列作为 Value 构建 `Map`。
 
-### Fluent API — 字符串方式
+### 字符串构造器 {#fluent-api--字符串方式}
 
 ```java
 Map<Integer, String> idToName = lambda.query(UserInfo.class)
@@ -51,7 +52,7 @@ Map<Integer, String> idToName = lambda.query(UserInfo.class)
       .queryForPairs("id", "name", Integer.class, String.class);
 ```
 
-### JdbcTemplate — 原生 SQL
+### JdbcTemplate 查询 {#jdbctemplate--原生-sql}
 
 `JdbcTemplate` 也提供 `queryForPairs`（早于本次构造器扩展已有），支持多种参数传递方式：
 

@@ -1,0 +1,15 @@
+vectors:
+  label: 向量数据库实战
+  description: 从向量读写开始，逐步加入业务检索与数据导入。
+datasources:
+  label: 多数据源开发
+  description: 用熟悉的 Java 接口处理缓存、文档和搜索。
+apis:
+  label: API 使用指南
+  description: 按场景选择 API，组织 DAO 与动态查询条件。
+mapping:
+  label: 映射与数据处理
+  description: 处理对象字段、特殊类型和查询结果。
+architecture:
+  label: 架构与设计
+  description: 了解统一数据访问的思路与适配机制。

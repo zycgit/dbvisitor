@@ -1,16 +1,14 @@
 ---
+last_update:
+  date: 2026-09-17
 slug: mongodb-orm-odm-tool
-title: New MongoDB ORM/ODM Tool
+topics: [datasources]
+title: "MongoDB: Object Mapping and APIs"
 authors: [ZhaoYongChun]
 tags: [MongoDB, ORM, ODM, JDBC, dbVisitor]
 language: en
 ---
 
-import Vars from '@site/plugins/projectVars';
-
-export const Highlight = ({children, color}) => (
-    <span style={{ backgroundColor: color, borderRadius: '2px', color: '#fff', padding: '0.2rem', }}>{children}</span>
-);
 
 Java ORM tools are mature for RDBMS, but MongoDB's document model needs ODM (Object-Document Mapping) for clean Java integration. This post surveys the landscape and introduces **dbVisitor** as a JDBC-based solution.
 
@@ -46,36 +44,37 @@ dbVisitor is a database access toolkit that provides a MongoDB driver exposing s
    * **Mapper interfaces** with annotations (`@Insert`, `@Query`) or XML—using familiar MyBatis development patterns.
 4. **Dynamic Command**: XML supports dynamic tags; annotation commands can use dynamic rules. MongoDB conditions must still produce valid BSON; do not apply SQL WHERE assembly rules directly to BSON. Choose raw commands for complex queries or LambdaTemplate for single-collection CRUD.
 
-## Choose an Access Method
+## Access Options {#choose-an-access-method}
 
 Use jdbc-mongo when you need JDBC or Mapper interfaces; use the official SDK for MongoDB capabilities not covered by the adapter. dbVisitor unifies invocation style but does not turn MongoDB into a relational database.
 
-## How to use
+## Getting Started {#how-to-use}
 
-### 1) Add dependencies
+### 1) Dependencies {#1-add-dependencies}
 
-Add core and MongoDB adapter. Guide version: <Highlight color="rgb(227 17 108)">{Vars.docsVersion}</Highlight>
+Add core and MongoDB adapter. Guide version: **6.8.0**
 
 ```xml
 <dependencies>
     <dependency>
         <groupId>net.hasor</groupId>
         <artifactId>dbvisitor</artifactId>
-        <version>@project.docsVersion@</version>
+        <version>6.8.0</version>
     </dependency>
     <dependency>
         <groupId>net.hasor</groupId>
         <artifactId>jdbc-mongo</artifactId>
-        <version>@project.docsVersion@</version>
+        <classifier>all</classifier>
+        <version>6.8.0</version>
     </dependency>
 </dependencies>
 ```
 
-Build SNAPSHOT from source and install it in your local Maven repository first. Use the same version for core, adapter, and Spring extension.
+Use Java 17+ and the released 6.8.0 dependencies; no framework source build is required. Keep core, adapter, and Spring extension versions aligned.
 
 Connection URL example: `jdbc:dbvisitor:mongo://127.0.0.1:27017/admin?user=root&password=123456`.
 
-### 2) Raw Mongo commands
+### 2) Native Commands {#2-raw-mongo-commands}
 Good for full control or quick debugging.
 
 ```java
@@ -88,7 +87,7 @@ try (Connection c = DriverManager.getConnection(url, user, pwd)) {
 }
 ```
 
-### 3) Mapper interfaces
+### 3) Mapper Interfaces {#3-mapper-interfaces}
 Annotate commands to stay in the MyBatis style.
 
 ```java
@@ -101,15 +100,16 @@ public interface UserMapper {
 }
 
 Configuration config = new Configuration();
-Session session = config.newSession(dataSource);
-UserMapper mapper = session.createMapper(UserMapper.class);
-User cindy = new User();
-cindy.setName("Cindy");
-cindy.setAge(22);
-mapper.insert(cindy);
+try (Session session = config.newSession(dataSource)) {
+    UserMapper mapper = session.createMapper(UserMapper.class);
+    User cindy = new User();
+    cindy.setName("Cindy");
+    cindy.setAge(22);
+    mapper.insert(cindy);
+}
 ```
 
-### 4) CRUD builders
+### 4) CRUD Builders {#4-crud-builders}
 No need to handcraft commands; write conditions against entities.
 
 ```java
@@ -148,7 +148,7 @@ try (Connection c = DriverManager.getConnection(url, user, pwd)) {
 }
 ```
 
-### 5) Map entities
+### 5) Entity Mapping {#5-map-entities}
 Use @Table / @Column to map collections and fields; supports primary keys, aliases, and TypeHandler.
 
 ```java
@@ -164,7 +164,7 @@ public class User {
 }
 ```
 
-### 6) Mapper files
+### 6) Mapper Files {#6-mapper-files}
 Best for complex dynamic conditions; can coexist with annotations.
 
 ```xml
@@ -197,31 +197,32 @@ public interface UserMapper {
 }
 ```
 
-### 7) Picking an API
+### 7) Choosing an API {#7-picking-an-api}
 - **JdbcTemplate**: maximum freedom for debugging, special commands, or pipelines.
 - **Mapper interfaces**: light config; good for small/mid projects or fixed statements.
 - **LambdaTemplate**: type-safe, no template strings; ideal for standard CRUD and medium complexity.
 - **Mapper XML**: strongest dynamic command; best for complex queries/aggregations and combinations.
 - **@Table/@Column**: when you need entity-to-document mapping, aliases, or TypeHandlers.
 
-## Framework integration
+## Framework Integration {#framework-integration}
 
 Quick integration examples (see [3.3 Spring Integration](../docs/guides/yourproject/with_spring) for details).
 
 ### Spring Boot
 
-Add dependencies first. Current version: <Highlight color="rgb(227 17 108)">{Vars.docsVersion}</Highlight>
+Add dependencies first. Current version: **6.8.0**
 
 ```xml
 <dependency>
     <groupId>net.hasor</groupId>
     <artifactId>dbvisitor-spring-starter</artifactId>
-    <version>@project.docsVersion@</version>
+    <version>6.8.0</version>
 </dependency>
 <dependency>
     <groupId>net.hasor</groupId>
     <artifactId>jdbc-mongo</artifactId>
-    <version>@project.docsVersion@</version>
+    <classifier>all</classifier>
+    <version>6.8.0</version>
 </dependency>
   ```
 
@@ -229,6 +230,7 @@ Option 1: configure application.properties
 
 ```properties
 # Spring JDBC data source
+spring.datasource.driver-class-name=net.hasor.dbvisitor.driver.JdbcDriver
 spring.datasource.url=jdbc:dbvisitor:mongo://127.0.0.1:27017/admin
 spring.datasource.username=root
 spring.datasource.password=123456
@@ -252,15 +254,15 @@ Injecting mappers
 
 ```java title='Inject mapper'
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
-import net.hasor.dbvisitor.jdbc.JdbcTemplate; // different from Spring's JdbcTemplate
-import javax.annotation.Resource;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate; // different from Spring's JdbcTemplate
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class ServiceTest {
-    @Resource // or @Autowired
+    @Autowired
     private UserMapper userMapper;
-    @Resource // or @Autowired
+    @Autowired
     private JdbcTemplate jdbc;
-    @Resource // or @Autowired
+    @Autowired
     private LambdaTemplate lambda;
     ...
 }

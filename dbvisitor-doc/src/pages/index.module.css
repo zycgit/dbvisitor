@@ -67,6 +67,19 @@
     min-width: 150px;
 }
 
+.heroButtons a:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 4px;
+}
+
+.heroReadingHint {
+    margin: 1rem auto 0;
+    max-width: 600px;
+    color: #ffffff;
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
 .btnPrimary {
     background-color: #ffffff !important;
     color: #3a8fe0 !important;

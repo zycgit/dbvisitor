@@ -1,12 +1,15 @@
 ---
+last_update:
+  date: 2026-09-17
 slug: dbvisitor-two-layer-adapter
-title: "dbVisitor's Two-Layer Adapter"
+topics: [architecture]
+title: "Inside dbVisitor's Two-Layer Adapter"
 authors: [ZhaoYongChun]
 tags: [dbVisitor, Architecture, JDBC, NoSQL]
 language: en
 ---
 
-dbVisitor's "Two-Layer Adapter" unifies RDBMS and NoSQL access through two abstractions: **Layer 1** — a unified API (LambdaTemplate / Mapper) hiding syntax differences; **Layer 2** — JDBC-compliant drivers wrapping NoSQL protocols. Use the full stack, or plug just the driver into existing MyBatis/Hibernate projects.
+dbVisitor's "Two-Layer Adapter" unifies RDBMS and NoSQL access through two abstractions: **Layer 1** — a unified API (LambdaTemplate / Mapper) hiding syntax differences; **Layer 2** — JDBC-compliant drivers wrapping NoSQL protocols. Use the full stack, or integrate the driver with an existing MyBatis project after checking its required JDBC capabilities.
 
 <!-- truncate -->
 
@@ -18,7 +21,7 @@ Invocation style is unified, not database semantics. Builders require dialect su
 Two-Layer Adapter
 ----
 
-### 1. First Layer Adapter: Unified Abstraction at Application Layer (API Adapter)
+### Layer 1: API Adapter {#1-first-layer-adapter-unified-abstraction-at-application-layer-api-adapter}
 
 **"Application Layer Adapter"** solves the problem of **"How to write"**.
 
@@ -26,7 +29,7 @@ At this layer, dbVisitor shields the differences in underlying syntax through hi
 
 dbVisitor provides **5 kinds** of different styles of APIs to meet various scenario needs from simple CRUD to complex report analysis:
 
-### 1. Programmatic API (JdbcTemplate)
+### 1. Programmatic API {#1-programmatic-api-jdbctemplate}
 
 This is the most basic form, closely adhering to the JDBC standard. It is suitable for scenarios requiring fine-grained control over SQL execution, or performing simple and direct database operations.
 For NoSQL databases, you can even use their native query scripts (such as Mongo Shell) directly here.
@@ -39,7 +42,7 @@ jdbcTemplate.executeUpdate("insert into user_info (id, name) values (?, ?)", new
 jdbcTemplate.executeUpdate("db.user_info.insert({_id: 1, name: 'mali'})");
 ```
 
-### 2. Declarative API (Interface)
+### 2. Declarative API {#2-declarative-api-interface}
 
 By defining Java interfaces and cooperating with annotations like `@Query`, data access logic is separated from business code. This approach makes the code structure clearer and easier to maintain.
 
@@ -51,7 +54,7 @@ public interface UserMapper {
 }
 ```
 
-### 3. General Mapper (BaseMapper)
+### 3. BaseMapper {#3-general-mapper-basemapper}
 
 This is an enhanced version of the declarative API. By inheriting `BaseMapper<T>`, you can obtain standard CRUD capabilities without writing any code.
 The framework will automatically generate corresponding Select/Insert/Update/Delete statements or instructions based on the generic entity T.
@@ -66,7 +69,7 @@ userMapper.insert(new UserInfo("1001", "Tom"));
 UserInfo user = userMapper.selectById("1001");
 ```
 
-### 4. Constructor API (LambdaTemplate)
+### 4. Builder API {#4-constructor-api-lambdatemplate}
 
 This is the currently most recommended usage. It utilizes Java's Lambda expressions to implement **type-safe** query construction.
 The biggest advantage is: when you refactor the property names of Java entity classes, query conditions will automatically update, without worrying about "hidden bombs" caused by hardcoded strings.
@@ -79,7 +82,7 @@ List<UserInfo> users = lambdaTemplate.query(UserInfo.class)
     .queryForList();
 ```
 
-### 5. File Mapper (XML/DSL)
+### 5. File Mapper {#5-file-mapper-xmldsl}
 
 When encountering extremely complex queries (such as hundreds of lines of reporting SQL, or extremely complex ES aggregation queries), managing SQL/DSL in XML files is the best choice.
 This not only keeps Java code clean but also supports a powerful dynamic rule engine.
@@ -97,14 +100,13 @@ This not only keeps Java code clean but also supports a powerful dynamic rule en
 
 *** ** * ** ***
 
-Second Layer Adapter: Data Standardization at Protocol Layer (Driver Adapter)
---------------------------------
+## Layer 2: Driver Adapter {#second-layer-adapter-data-standardization-at-protocol-layer-driver-adapter}
 
 **"Protocol Layer Adapter"** solves the problems of **"How to connect"** and **"How to transmit"**.
 
 This is the most innovative part of dbVisitor. Unlike most frameworks that only encapsulate at the API layer, dbVisitor goes deep down to the driver layer and fully implements Java's `java.sql.Driver` interface.
 
-### The "Relational" Disguise of NoSQL
+### NoSQL JDBC Mapping {#the-relational-disguise-of-nosql}
 
 At this layer, dbVisitor "disguises" various non-relational databases as standard JDBC interfaces:
 
@@ -112,28 +114,27 @@ At this layer, dbVisitor "disguises" various non-relational databases as standar
 * **Row Mapping**: Documents are mapped to Rows, and fields are mapped to Columns.
 * **SQL Parsing** : The driver has a built-in command parser. When you send a native SQL/DSL to the driver, the driver will automatically translate it into SDK API calls conforming to the data source.
 
-This underlying application means: **Any tool or framework that supports JDBC can theoretically connect to NoSQL databases through dbVisitor.**
+This underlying application means: **Components relying on supported JDBC methods can execute the corresponding NoSQL commands; SQL generated by a relational ORM is not automatically translated.**
 
 *** ** * ** ***
 
-Flexible Combination of Dual-Layer Architecture (Synergy)
--------------------
+## Combining Layers {#flexible-combination-of-dual-layer-architecture-synergy}
 
 This **Application Layer (API)** + **Protocol Layer (Driver)** dual-layer design brings great flexibility to project architecture. You can choose "Full Stack Mode" or "Driver Mode" according to your team's habits and the status of existing code.
 
-### Mode 1: Full Stack Mode (Best Practice)
+### Mode 1: Full Stack {#mode-1-full-stack-mode-best-practice}
 
 Use dbVisitor's API and Driver at the same time. This is the smoothest way to use it, you will get a unified development experience, and method references in supported builder calls.
 > **Applicable Scenarios**: New project development, or projects that wish to completely unify the data access layer.
 
-### Mode 2: Driver Mode (Integration)
+### Mode 2: Driver Only {#mode-2-driver-mode-integration}
 
 **"Old wine in a new bottle"**. Only use dbVisitor's JDBC driver, while continuing to use your familiar ORM frameworks (such as MyBatis, Hibernate, Spring Data JDBC).
 
 Imagine you have a MyBatis project that has been running for 5 years and now needs to access MongoDB to store logs.
 You don't need to learn a new MongoTemplate, nor do you need to introduce the heavy Spring Data Mongo. You only need to:
 
-1. Modify the JDBC URL to dbVisitor's JDBC format.
+1. Add `net.hasor:jdbc-mongo:6.8.0` with classifier `all`, configure `net.hasor.dbvisitor.driver.JdbcDriver`, and use a `jdbc:dbvisitor:mongo://...` URL.
 2. Write MyBatis Mapper XML just like writing MySQL.
 
 dbVisitor driver will silently convert Command commands sent by MyBatis into MongoDB instructions in the background.
@@ -142,7 +143,7 @@ dbVisitor driver will silently convert Command commands sent by MyBatis into Mon
 <!-- MyBatis Mapper XML -->
 <!-- This is a query operating on MongoDB, but in the eyes of MyBatis it is standard SQL -->
 <select id="selectLogs" resultType="LogDoc">
-    test.user_info.find({_id: ObjectId(#{id})})
+    db.user_info.find({_id: ObjectId(#{id})})
 </select>
 ```
 

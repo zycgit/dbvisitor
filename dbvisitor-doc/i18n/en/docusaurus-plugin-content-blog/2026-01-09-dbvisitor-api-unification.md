@@ -1,12 +1,15 @@
 ---
+last_update:
+  date: 2026-09-17
 slug: dbvisitor-api-unification
-title: "One API: Unified Data Access"
+topics: [architecture]
+title: "Unified Data Access: Layers and Limits"
 authors: [ZhaoYongChun]
 tags: [dbVisitor, ORM, JDBC, NoSQL, Architecture]
 language: en
 ---
 
-After [Next-Gen Data Access: dbVisitor](/blog/new-generation-dbvisitor) went live, the core debate was direct: **can a single API truly unify RDBMS and NoSQL?** This post tackles the controversy and explains the design principles behind dbVisitor's "One API, Access Multiple Databases" vision.
+After [dbVisitor: Many Databases, One API](/blog/new-generation-dbvisitor) went live, the core debate was direct: **can a single API truly unify RDBMS and NoSQL?** This post tackles the controversy and explains the design principles behind dbVisitor's "One API, Access Multiple Databases" vision.
 
 <!-- truncate -->
 
@@ -15,22 +18,22 @@ Invocation style is unified, not database semantics. Builders require dialect su
 :::
 
 
-## I. Dismantling the Controversy: Our Misunderstanding of APIs
+## I. API Design Pitfalls {#i-dismantling-the-controversy-our-misunderstanding-of-apis}
 
 To understand why "Grand Unification" is feasible, we first need to clarify two misconceptions that have long confused the public.
 
-### 1. Abuse of Builder Pattern and "Business-Oriented APIs"
+### 1. Business-Level APIs {#1-abuse-of-builder-pattern-and-business-oriented-apis}
 
 In the current Java database access field, there is an obvious trend: APIs are becoming more and more **"Business-Oriented"**.
 
-#### What is Business-Oriented?
+#### Business-Level Design {#what-is-business-oriented}
 To solve complex query problems in specific domains, database access frameworks have begun to pursue extreme development efficiency.
 For example, excellent projects like [Easy-Query](https://www.easy-query.com/) and [SqlToy-ORM](https://gitee.com/sagacity/sagacity-sqltoy). **SqlToy-ORM** excels in dealing with extreme pagination optimization, cache translation, and hierarchical data queries (such as recursive queries), often solving headache-inducing SQL problems with minimal configuration; while **Easy-Query** achieves the ultimate in type-safe dynamic query construction, allowing you to write extremely complex business logic in Java code in a structured way.
 
 *   **Value**: For complex queries in specific domains (such as multi-table joins, dynamic aggregation, row-to-col conversion), they can even replace dozens of lines of native SQL with very little code. This efficiency improvement is huge and deserves full recognition.
 *   **Limitation**: These "artifact" level APIs are often strongly bound to the characteristics of the database. The complex query logic of MySQL is completely unworkable when copied directly to MongoDB or Elasticsearch.
 
-#### dbVisitor's Choice: Returning to the Foundation
+#### Core Data Operations {#dbvisitors-choice-returning-to-the-foundation}
 Looking back at Hibernate, MyBatis, Commons DBUtils, and even JDBC itself, these enduring projects all have one thing in common: **Single Responsibility, Clear Goal**. They do not do business logic, but focus on being the **Foundation**.
 
 The huge success of MyBatis Plus in China is built on the solid "non-business-oriented" foundation of MyBatis. MyBatis is responsible for mapping, and MP is responsible for providing more advanced features and encapsulation.
@@ -38,13 +41,13 @@ The huge success of MyBatis Plus in China is built on the solid "non-business-or
 **The value of universality lies in making the "skeleton of the house"**. dbVisitor's goal is not to replace tools like Easy-Query to solve specific business complex queries, but aims to become the **Data Access Foundation** of the new era.
 Only when the foundation is solid and unified can the upper-layer business ecosystem (like the MyBatis ecosystem) blossom on different data sources.
 
-### 2. The Fallacy of "Simple Mode is Useless"
+### 2. Simple APIs Matter {#2-the-fallacy-of-simple-mode-is-useless}
 
 Opponents often hold two views:
 1.  **"CRUD is too simple, unifying it has no value"**
 2.  **"Unified API cannot cross the gap of database features"**
 
-#### Rebuttal 1: The Universal Value of Simple CRUD
+#### The Value of CRUD {#rebuttal-1-the-universal-value-of-simple-crud}
 If your world only has MySQL and Oracle, then indeed, JDBC has already unified it, and reinventing the wheel is meaningless.
 But what if your technology stack adds **MongoDB, Elasticsearch, Redis**?
 *   MongoDB inserts a piece of data using `db.collection.insertOne()`
@@ -53,7 +56,7 @@ But what if your technology stack adds **MongoDB, Elasticsearch, Redis**?
 
 These "simple" operations have vastly different API styles. With the vision of **"One API, Access Multiple Databases"**, being able to complete all the above operations through a unified JDBC/Mapper invocation style (Redis uses commands, not entity insert builders) has extremely high universal value in itself, eliminating the cost of cognitive switching.
 
-#### Rebuttal 2: API is not just a Query Builder
+#### Beyond Query Builders {#rebuttal-2-api-is-not-just-a-query-builder}
 This is a huge cognitive misunderstanding: **"Unified API" does not equal "Unified into a specific interface"**.
 
 - Is a query builder an API? Of course!
@@ -66,14 +69,14 @@ It separates "Business Intent" (Method Name) from "Specific Implementation" (SQL
 
 As long as we no longer obsess over describing all queries with Java code, but accept the concept of **"API Defines Behavior"**, the gap crossing database features can be easily solved.
 
-## II. The Core Idea of dbVisitor's Grand Unification
+## II. Unified Access {#ii-the-core-idea-of-dbvisitors-grand-unification}
 
 **There is no silver bullet**, and any attempt to invent a "Universal Java Syntax" to generate all database queries is doomed to fail.
 
 The reason why dbVisitor dares to say "Yes" is that its core idea is not to **Eliminate Differences** and seek to invent a universal syntax,
 but to **Manage Differences** through **JDBC Standardization** and **Layered Abstraction**.
 
-### 1. Unique Double-Layer Adapter Architecture
+### 1. Two-Layer Adapter {#1-unique-double-layer-adapter-architecture}
 
 dbVisitor adopts a unique double-layer architecture to bridge the gap:
 
@@ -92,7 +95,7 @@ The Elasticsearch adapter reuses common JDBC state management and concentrates d
 The **"One API"** here does not refer to covering everything with a rigid interface, but rather to building **a Unified Data Interaction Standard**.
 dbVisitor's design philosophy believes that true unification is not to force all database operations into the same narrow entrance, but to provide a unified experience in different dimensions through **Layered Abstraction**.
 
-![API Layered Abstraction Diagram](/img/blog/api-levels.jpg)
+![API Layered Abstraction Diagram](../../../blog/assets/2026-01-09-dbvisitor-api-unification/api-levels.jpg)
 
 The diagram's layers and proportions illustrate abstraction, not feature coverage or performance statistics. JdbcTemplate executes driver-supported statements; it does not translate arbitrary SQL into arbitrary database commands.
 
@@ -115,11 +118,11 @@ Although dbVisitor unifies call forms like insert/update/commit, it cannot chang
 dbVisitor's MongoDB and Elasticsearch adapters do not expose JDBC transactions; commit()/rollback() cannot manage transactions through them. This is an adapter boundary, not a claim that MongoDB servers lack transactions.
 :::
 
-## III. Practical: Multidimensional Unified Experience
+## III. API Examples {#iii-practical-multidimensional-unified-experience}
 
 Let's look at how this concept lands through code.
 
-### 1. Simple Dimension: LambdaQuery (Type Safe)
+### 1. Type-Safe Queries {#1-simple-dimension-lambdaquery-type-safe}
 
 Regardless of whether the underlying is MySQL or Elasticsearch, standard CRUD code is completely identical.
 
@@ -137,11 +140,11 @@ List<UserInfo> list = template.query(UserInfo.class)
 
 The MySQL and Elasticsearch examples require their own data sources and Mappers; one Session does not switch databases automatically.
 
-### 2. Business Dimension: Mapper (Behavior-Centric)
+### 2. Mapper Methods {#2-business-dimension-mapper-behavior-centric}
 
 When we need to leverage ES aggregation capabilities or MySQL complex joins, the Mapper interface is the best choice. dbVisitor provides three postures for using Mapper, which can be mixed flexibly according to business complexity.
 
-#### Method 1: Pure Java Construction
+#### Java Builders {#method-1-pure-java-construction}
 
 This is one way in dbVisitor. By **inheriting BaseMapper** and using Java 8's **default methods**, you can directly use the query builder inside the Mapper interface to complete DAL logic.
 This method avoids the tediousness of XML and does not hardcode SQL in Java files like annotations, perfectly realizing "Zero SQL" development.
@@ -151,7 +154,7 @@ This method avoids the tediousness of XML and does not hardcode SQL in Java file
 public interface UserMapper extends BaseMapper<UserInfo> {
 
     // Pure Java code constructs query logic, without XML and SQL
-    default List<UserInfo> findActiveUsers(int minAge) {
+    default List<UserInfo> findActiveUsers(int minAge) throws SQLException {
         return this.query()
                    .eq(UserInfo::getStatus, "ENABLE")
                    .gt(UserInfo::getAge, minAge)
@@ -160,29 +163,30 @@ public interface UserMapper extends BaseMapper<UserInfo> {
 }
 ```
 
-#### Method 2: Annotation-Based
+#### Method Annotations {#method-2-annotation-based}
 
 For moderately complex queries, using annotations directly on interface methods is the most concise way. You don't need to write extra XML files to complete SQL or DSL binding.
 
 ```java
 @SimpleMapper
-public interface UserMapper extends BaseMapper<UserInfo> {
-
-    // Mixed Use: MySQL uses SQL
+public interface SqlUserMapper extends BaseMapper<UserInfo> {
     @Query("select * from user_info where age > #{age}")
     List<UserInfo> findByAge(@Param("age") int age);
 
-    // Mixed Use: Elasticsearch uses JSON DSL
-    @Query("POST /user_info/_search {\"query\": {\"term\": {\"age\": #{age}}}}")
-    List<UserInfo> searchByAge(@Param("age") int age);
-    
-    // Also supports standard annotations like @Insert, @Update, @Delete
     @Insert("insert into user_info (name, age) values (#{name}, #{age})")
     int insertUser(@Param("name") String name, @Param("age") int age);
 }
+
+@SimpleMapper
+public interface ElasticUserMapper extends BaseMapper<UserInfo> {
+    @Query("POST /user_info/_search {\"query\": {\"term\": {\"age\": #{age}}}}")
+    List<UserInfo> searchByAge(@Param("age") int age);
+}
 ```
 
-#### Method 3: Based on Mapper File
+Create these two mappers from sessions bound to their respective databases. Mapper methods do not switch data sources automatically.
+
+#### Mapper Files {#method-3-based-on-mapper-file}
 
 When SQL becomes extremely complex (such as hundreds of lines of report SQL), or when the company has a strict DBA review process (need to separate SQL files), XML is still an irreplaceable solution.
 
@@ -214,11 +218,11 @@ Choose one of the XML fragments below and place it in a mapper whose namespace r
 </select>
 ```
 
-### 3. Flexible Dimension: JDBC Template (Escape Hatch Mechanism)
+### 3. Native Access {#3-flexible-dimension-jdbc-template-escape-hatch-mechanism}
 
 This is dbVisitor's **"Escape Hatch"**. When all upper-layer abstractions cannot meet your special needs, such as needing extreme performance optimization, using database-specific non-standard commands, or integrating third-party frameworks like **QueryDSL**, you can retreat to this layer.
 
-#### Scenario 1: Native SQL/Shell Pass-through
+#### Native Commands {#scenario-1-native-sqlshell-pass-through}
 Use the target data source's command style. NoSQL adapters still parse supported commands and call the SDK; they do not pass through arbitrary Shell or JavaScript programs.
 
 ```java
@@ -231,31 +235,30 @@ jdbc.queryForList("select * from user where id = ?", 1);
 jdbc.queryForList("db.user.find({_id: ?})", 1);
 ```
 
-#### Scenario 2: Underlying API Reachable
+#### Underlying APIs {#scenario-2-underlying-api-reachable}
 You can break the encapsulation at any time and operate the underlying `Connection` directly. For NoSQL data sources, dbVisitor's driver layer also follows the standard JDBC `Wrapper` specification, allowing you to unwrap the official native driver object.
 
 ```java
 // Get Standard JDBC Interface
-Connection conn = jdbcTemplate.getDataSource().getConnection();
-
-// If needed, you can unwrap the underlying native driver object (like MongoClient) directly
-if (conn.isWrapperFor(MongoClient.class)) {
-    MongoClient client = conn.unwrap(MongoClient.class);
-    // Call Official Driver's API directly
+try (Connection conn = jdbcTemplate.getDataSource().getConnection()) {
+    if (conn.isWrapperFor(MongoClient.class)) {
+        MongoClient client = conn.unwrap(MongoClient.class);
+        // Use the client within the connection lifetime; do not close it separately.
+    }
 }
 ```
 
-## IV. Since usage is familiar, why choose dbVisitor?
+## IV. Architecture {#iv-since-usage-is-familiar-why-choose-dbvisitor}
 
 Many people will ask: "Isn't this just stitching MyBatis and Spring together?" Actually not. dbVisitor is not simple "glue", but a **Redesign** based on a unified architecture.
 
-![Core Component Architecture Diagram](/img/blog/one-api3.jpg)
+![Core Component Architecture Diagram](../../../blog/assets/2026-01-09-dbvisitor-api-unification/one-api3.jpg)
 
-### 1. Independent Double-Layer Adapter Capability
+### 1. Independent Layers {#1-independent-double-layer-adapter-capability}
 dbVisitor is **One API + Driver**.
 Even if you don't intend to replace your current MyBatis, you can still use dbVisitor's **JDBC Driver** independently. Use MyBatis to map driver-supported commands. Plugins requiring transactions, Batch, or complete metadata are not automatically compatible.
 
-### 2. Highly Unified Underlying Architecture
+### 2. Shared Foundation {#2-highly-unified-underlying-architecture}
 If you have tried mixing MyBatis and Spring JDBC in a project, you will find a strong sense of fragmentation:
 *   MyBatis's `TypeHandler` cannot be used in Spring JDBC.
 *   Spring's `RowMapper` cannot be reused in MyBatis.
@@ -264,7 +267,7 @@ If you have tried mixing MyBatis and Spring JDBC in a project, you will find a s
 JDBC Template, LambdaQuery, and Mapper XML all share the same **TypeHandler Mechanism**, same **Session Management**, and same **Metadata Mapping**.
 In dbVisitor, you can reuse the ResultMap defined by Mapper in Lambda queries. This underlying consistency is unmatched by simple piecing together.
 
-### 3. Ecosystem Framework Agnostic
+### 3. Framework Agnostic {#3-ecosystem-framework-agnostic}
 
 This is another important feature that distinguishes dbVisitor from Spring Data or MyBatis-Plus.
 dbVisitor's core does not depend on Spring, nor does it depend on any Web container. It is built based on pure Java and JDBC standards.

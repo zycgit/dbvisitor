@@ -1,5 +1,8 @@
 ---
+last_update:
+  date: 2026-09-17
 slug: dbvisitor-two-layer-adapter
+topics: [architecture]
 title: dbVisitor 的双层适配器
 authors: [ZhaoYongChun]
 tags: [dbVisitor, Architecture, JDBC, NoSQL]
@@ -19,7 +22,7 @@ dbVisitor 提出的"双层适配"架构旨在解决这一痛点。
 * **第一层（应用适配）**：在 API 层面，通过统一的 LambdaTemplate 和 Mapper 接口屏蔽底层语法差异（SQL vs DSL）。
 * **第二层（协议适配）**：在驱动层面，实现了标准的 JDBC 接口，将 NoSQL 数据源封装为标准 JDBC 驱动。
 
-这种设计不仅实现了"One API, Access Multiple Databases"的愿景，还带来了极高的灵活性：开发者既可以享受 dbVisitor 全栈的便捷，也可以仅使用其 JDBC 驱动，让现有的 MyBatis/Hibernate 项目瞬间具备操作 NoSQL 的能力。
+这种设计不仅实现了"One API, Access Multiple Databases"的愿景，还带来了极高的灵活性：开发者既可以享受 dbVisitor 全栈的便捷，也可以仅使用其 JDBC 驱动，在核对 JDBC 能力后，让已有 MyBatis 项目执行受支持的 NoSQL 命令。
 
 <!-- truncate -->
 
@@ -30,7 +33,7 @@ dbVisitor 提出的"双层适配"架构旨在解决这一痛点。
 双层适配
 ----
 
-### 1. 第一层适配：应用层的统一抽象 (API Adapter)
+### 第一层：应用适配 {#1-第一层适配应用层的统一抽象-api-adapter}
 
 **"应用层适配"** 解决的是 **"怎么写"** 的问题。
 
@@ -38,7 +41,7 @@ dbVisitor 提出的"双层适配"架构旨在解决这一痛点。
 
 dbVisitor 提供了 **5 种** 不同风格的 API，满足从简单 CRUD 到复杂报表分析的各类场景需求：
 
-### 1. 编程式 API (JdbcTemplate)
+### 1. 编程式 API {#1-编程式-api-jdbctemplate}
 
 这是最基础的形态，紧贴 JDBC 标准。它适合需要精细控制 SQL 执行，或者进行简单且直接的数据库操作的场景。
 对于 NoSQL 数据库，你甚至可以在这里直接使用其原生查询脚本（如 Mongo Shell）。
@@ -51,7 +54,7 @@ jdbcTemplate.executeUpdate("insert into user_info (id, name) values (?, ?)", new
 jdbcTemplate.executeUpdate("db.user_info.insert({_id: 1, name: 'mali'})");
 ```
 
-### 2. 声明式 API (Interface)
+### 2. 声明式 API {#2-声明式-api-interface}
 
 通过定义 Java 接口并配合 `@Query` 等注解，将数据访问逻辑与业务代码分离。这种方式让代码结构更加清晰，易于维护。
 
@@ -63,7 +66,7 @@ public interface UserMapper {
 }
 ```
 
-### 3. 通用 Mapper (BaseMapper)
+### 3. 通用 Mapper {#3-通用-mapper-basemapper}
 
 这是声明式 API 的增强版。通过继承 `BaseMapper<T>`，你无需编写任何代码即可获得标准的 CRUD 能力。
 框架会自动根据泛型实体 T 生成对应的 Select/Insert/Update/Delete 语句或指令。
@@ -78,7 +81,7 @@ userMapper.insert(new UserInfo("1001", "Tom"));
 UserInfo user = userMapper.selectById("1001");
 ```
 
-### 4. 构造器 API (LambdaTemplate)
+### 4. 构造器 API {#4-构造器-api-lambdatemplate}
 
 这是当前最推荐的用法。它利用 Java 的 Lambda 表达式实现了**类型安全**的查询构建。
 最大的优势在于：当你重构 Java 实体类的属性名时，查询条件会自动更新，无需担心字符串硬编码带来的"炸雷"。
@@ -91,7 +94,7 @@ List<UserInfo> users = lambdaTemplate.query(UserInfo.class)
     .queryForList();
 ```
 
-### 5. 文件 Mapper (XML/DSL)
+### 5. 文件 Mapper {#5-文件-mapper-xmldsl}
 
 当遇到极度复杂的查询（如几百行的报表 SQL，或者极其复杂的 ES 聚合查询）时，将 SQL/DSL 放在 XML 文件中管理是最佳选择。
 这不仅保持了 Java 代码的整洁，还支持强大的动态规则引擎。
@@ -109,14 +112,13 @@ List<UserInfo> users = lambdaTemplate.query(UserInfo.class)
 
 *** ** * ** ***
 
-第二层适配：协议层的数据标准化 (Driver Adapter)
---------------------------------
+## 第二层：驱动适配 {#第二层适配协议层的数据标准化-driver-adapter}
 
 **"协议层适配"** 解决的是 **"怎么连"** 和 **"怎么传"** 的问题。
 
 这是 dbVisitor 最具创新性的地方。不同于大多数框架仅在 API 层做封装，dbVisitor 向下深入到了驱动层，完整实现了 Java 的 `java.sql.Driver` 接口。
 
-### NoSQL 的"关系化"伪装
+### NoSQL 的 JDBC 映射 {#nosql-的关系化伪装}
 
 在这一层，dbVisitor 将各类非关系型数据库 "伪装" 成了标准的 JDBC 接口：
 
@@ -124,21 +126,20 @@ List<UserInfo> users = lambdaTemplate.query(UserInfo.class)
 * **行映射**: 文档（Document）被映射为行（Row），字段被映射为列（Column）。
 * **SQL 解析** : 驱动内部内置了命令解析器。当你向驱动发送一条 原生 SQL/DSL 时，驱动会自动将其翻译为符合数据源的 SDK API 调用。
 
-这种底层适配意味着：**任何支持 JDBC 的工具或框架，理论上都可以通过 dbVisitor 连接到 NoSQL 数据库。**
+这种底层适配意味着：**依赖已支持 JDBC 方法的组件，可以通过 dbVisitor 驱动执行对应 NoSQL 命令；这不代表关系型 ORM 自动生成的 SQL 可以原样执行。**
 
 *** ** * ** ***
 
-双层架构的灵活组合 (Synergy)
--------------------
+## 双层组合方式 {#双层架构的灵活组合-synergy}
 
 这种 **应用层 (API)** + **协议层 (Driver)** 的双层设计，为项目架构带来了极大的灵活性。你可以根据团队的习惯和存量代码的情况，选择"全栈模式"或"驱动模式"。
 
-### 模式一：全栈模式 (Best Practice)
+### 模式一：全栈模式 {#模式一全栈模式-best-practice}
 
 同时使用 dbVisitor 的 API 和 Driver。这是最顺滑的使用方式，你将获得统一的开发体验，并可在受支持的构造器调用中使用方法引用。
 > **适用场景**: 新项目开发，或者希望彻底统一数据访问层的项目。
 
-### 模式二：驱动模式 (Integration)
+### 模式二：驱动模式 {#模式二驱动模式-integration}
 
 **"老瓶装新酒"**。仅使用 dbVisitor 的 JDBC 驱动，而继续使用你熟悉的 ORM 框架（如 MyBatis、Hibernate、Spring Data JDBC）。
 
@@ -154,7 +155,7 @@ dbVisitor 驱动会默默地在后台将 MyBatis 发出的 Command 命令 转换
 <!-- MyBatis Mapper XML -->
 <!-- 这是一个操作 MongoDB 的查询，但在 MyBatis 看来它就是标准 SQL -->
 <select id="selectLogs" resultType="LogDoc">
-    test.user_info.find({_id: ObjectId(#{id})})
+    db.user_info.find({_id: ObjectId(#{id})})
 </select>
 ```
 

@@ -1,6 +1,9 @@
 ---
+last_update:
+  date: 2026-09-17
 slug: new-generation-dbvisitor
-title: 新一代 Java 数据访问库：dbVisitor
+topics: [architecture]
+title: "dbVisitor：多种数据库，一套 API"
 description: 数据的存储形式从单一的关系型数据库演进到了多元化时代（NoSQL, NewSQL, AI Vector 等），数据访问层依然停留在旧时代。dbVisitor 的出世旨在定义“新一代”数据访问库的标准：One API, Access Multiple Databases。
 authors: [ZhaoYongChun]
 tags: [dbVisitor, ORM, JDBC, NoSQL]
@@ -17,7 +20,7 @@ language: zh-cn
 统一的是调用方式，不是数据库语义。构造器需对应方言支持，原生命令需位于适配器支持范围；接入 ORM、连接池等组件前请核对其依赖的 JDBC 方法。参阅[功能矩阵](../docs/features/overview)与[JDBC 限制](../docs/drivers/limited)。
 :::
 
-## 一、老旧的一代
+## 一、传统访问方式 {#一老旧的一代}
 
 谈论 “老一代” 数据访问库，并非贬义，而是指它们诞生的时代背景和核心使命。
 
@@ -27,7 +30,7 @@ language: zh-cn
 
 这种格局导致了一个现象：**要么专有，要么偏向纯关系型数据库**。如果你的应用既要查 MySQL 也要查 Elasticsearch，你通常需要引入两套完全不同的技术栈，写两套风格迥异的代码。
 
-## 二、破旧尝试
+## 二、跨库访问尝试 {#二破旧尝试}
 
 数据库技术一直在不断的迭代，文档型数据库（MongoDB）、搜索引擎（Elasticsearch/OpenSearch）、键值存储（Redis）、时序数据库乃至现在的向量数据库蜂拥而至。
 
@@ -56,7 +59,7 @@ language: zh-cn
     
     这种割裂不仅增加了学习成本，更让架构设计变得复杂。我们看似有了一堆工具，但依然没有一个真正的 “One API” 来统一所有数据访问。
 
-## 三、One API, Access Multiple Databases
+## 三、统一访问目标 {#三one-api-access-multiple-databases}
 
 既然已经走向多元化，数据访问层（DAL）也必须进化。 **新一代数据访问库的使命，应当是让数据访问重新实现标准化和统一化。**
 
@@ -64,7 +67,7 @@ language: zh-cn
 
 继承 JDBC 和 SQL 的普世精神，但打破其对关系型数据库的枷锁，这就是新一代数据访问库的目标。将其概括为一句就是：**"One API, Access Multiple Databases"**。
 
-## 四、 技术选择与可行路径
+## 四、技术路径 {#四-技术选择与可行路径}
 
 要实现这个宏大的愿景，技术上有两条主要路径可供选择：
 
@@ -80,7 +83,7 @@ language: zh-cn
     AI 在这一过程中充当了 Parser 和 Optimizer 的角色，直接驱动数据库内核运行具体的物理任务。但在当下，AI 在处理 **语义精确性、数据访问安全性以及复杂逻辑推理** 时仍存在“幻觉”风险。
     将不确定的 AI 推理直接作用于确定性的数据存储内核，这将会是一场极具冒险的行为。因此，它更多被视为辅助工具（Copilot），而非底层的、确定性的数据访问标准。
 
-### 路径 2：基本范式的抽象
+### 路径 2：基本范式 {#路径-2基本范式的抽象}
 
 **操作（Operation）** 是数据访问的本质。相比发明新语言或依赖 AI，显得更加务实且可控。无论数据存在 MySQL 的行、Redis 的 Key、Elasticsearch 的 Document、还是 Neo4j 的节点。
 
@@ -97,19 +100,19 @@ language: zh-cn
 *   **适配器模式**：
     通过定义一套标准的 API（如 `insert`, `update`, `query`），我们可以在底层通过 **适配器模式**，将这些标准请求动态 “翻译” 为不同数据源的方言（Dialect）。
 
-## 五、 新一代数据访问库
+## 五、新一代访问库 {#五-新一代数据访问库}
 
 我认为 “新一代 Java 数据访问库” 应该具是以 **One API, Access Multiple Databases** 为核心愿景，通过标准化的 API 屏蔽底层数据源的差异，为开发者提供统一、简单、高效的数据操作体验为目标。
 
 它不应再区分“这是 ORM”还是“这是 Client”，它就是应用通往数据的统一大门。
 
-## 六、 dbVisitor 的技术尝试
+## 六、dbVisitor 实现 {#六-dbvisitor-的技术尝试}
 
 **dbVisitor** 正是基于这一理念诞生的技术尝试。它的架构设计非常独特，可以概括为：**API访问库 + JDBC Driver** 的双层适配架构。
 
-### 1. API访问库：提供统一 API
+### 1. 统一 API {#1-api访问库提供统一-api}
 
-![双层适配架构图](../static/img/double.png)
+![双层适配架构图](./assets/2026-01-06-new-generation-dbvisitor/double.png)
 
 dbVisitor 的数据访问层不依赖于具体的 SQL 语法，而是提供高度抽象的 API。例如：查询构造器
 ```java
@@ -124,7 +127,7 @@ lambdaTemplate.query(User.class)
 
 这些生成的 DSL 随后会被下发到 **JDBC Driver 适配层**，由对应的驱动执行器完成最终的数据交互。这种机制确保了业务代码的纯净性，同时保留了对底层特性的精确控制。
 
-### 2. JDBC Driver 适配器
+### 2. JDBC 驱动适配 {#2-jdbc-driver-适配器}
 
 标准下的选择性实现，这是 dbVisitor 最具创新性的地方。它没有重新发明轮子去写一套私有协议的 Driver，而是选择 **复用 JDBC 标准接口**，但对其内涵进行了扩展和适配。
 
@@ -136,7 +139,7 @@ dbVisitor 的解法是引入一个轻量级的驱动适配器框架。它将 JDB
 
 通过这种“旧瓶装新酒”的方式，dbVisitor 既保留了 JDBC 生态的兼容性（你可以直接用 Druid 连接池管理 ES 连接），又实现了对 NoSQL 的原生级支持。
 
-## 七、目前的挑战
+## 七、当前挑战 {#七目前的挑战}
 
 尽管 dbVisitor 的双层适配架构解决了大部分通用问题，但在实现 "One API" 的征途中，我们依然面临着一些客观存在的挑战：
 
@@ -159,11 +162,11 @@ dbVisitor 的解法是引入一个轻量级的驱动适配器框架。它将 JDB
 *   如果数据库本身提供了一套稳定的文本协议（如 SQL, MongoDB Shell Command, Elasticsearch DSL），那么基于这些标准协议构建适配器，对接底层 API，是最稳健、兼容性最好的方式。
 *   对于没有 DSL 的 数据库，只需要模仿它 API 的调用方式，提供一个 Shell Command，这一点可以借鉴 MongoDB 的思路。
 
-## 八、 dbVisitor 实战演示
+## 八、使用示例 {#八-dbvisitor-实战演示}
 
 为了让大家更直观地感受 "One API" 的魅力，以最常见的 CRUD 操作为例，展示 dbVisitor 如何在不同数据源间保持统一的编码体验。
 
-### 1. 统一的 CRUD 体验
+### 1. 统一 CRUD {#1-统一的-crud-体验}
 
 无论底层是 **MySQL**、**MongoDB** 还是 **Elasticsearch**，开发者都可以使用相同风格的 API 进行受支持的数据操作；实体映射、索引、刷新可见性和冲突行为仍需分别配置。
 
@@ -171,7 +174,7 @@ dbVisitor 的解法是引入一个轻量级的驱动适配器框架。它将 JDB
 // 初始化 (仅需更改 Connection 创建方式)
 // Connection conn = DriverManager.getConnection("jdbc:mysql://...");
 // Connection conn = DriverManager.getConnection("jdbc:dbvisitor:mongo://...");
-Connection conn = DriverManager.getConnection("jdbc:dbvisitor:elastic://...");
+try (Connection conn = DriverManager.getConnection(url, userName, password)) {
 
 LambdaTemplate template = new LambdaTemplate(conn);
 
@@ -199,9 +202,12 @@ template.update(UserInfo.class)
 template.delete(UserInfo.class)
     .eq(UserInfo::getId, "1001")
     .doDelete();
+}
 ```
 
-### 2. 底层 API 可达 (Escape Hatch)
+将 `url`、`userName`、`password` 替换为实际连接配置。下面的 unwrap 调用也应放在连接的 try 块内，不能在连接关闭后继续使用；不要单独关闭解包得到的客户端。
+
+### 2. 访问底层 API {#2-底层-api-可达-escape-hatch}
 
 当统一 API 无法满足特殊需求时（例如 Redis 的特定原子操作，或 ES 的特殊聚合），dbVisitor 允许通过 `unwrap` 机制“穿透”到底层驱动，直接使用原生 SDK。
 
@@ -223,7 +229,7 @@ if (conn.isWrapperFor(RestClient.class)) {
 }
 ```
 
-## 九、 dbVisitor 的生态现状
+## 九、生态现状 {#九-dbvisitor-的生态现状}
 
 目前，dbVisitor 已经实现了对多类数据源的统一访问支持，正在一步步践行新一代数据访问库的承诺：
 

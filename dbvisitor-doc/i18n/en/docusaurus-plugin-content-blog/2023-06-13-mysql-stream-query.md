@@ -1,6 +1,7 @@
 ---
 slug: mysql_stream_read
-title: MySQL Streaming Read for Huge Tables
+topics: [mapping]
+title: "Streaming Large MySQL Tables"
 description: Read large MySQL results row by row with dbVisitor and Connector/J to control application memory.
 authors: [ZhaoYongChun]
 tags: [dbVisitor, JDBC, Streaming]
@@ -11,7 +12,7 @@ A normal `SELECT *` loads all results into memory, easily causing OOM on huge ta
 
 <!-- truncate -->
 
-## Why Streaming Query?
+## Why Stream Results? {#why-streaming-query}
 
 Usually, we have two strategies for querying data:
 
@@ -24,7 +25,7 @@ Usually, we have two strategies for querying data:
 
 **Streaming Query** is the third choice. It maintains a long connection, letting the database push data to the client row by row (or in batches) like "running water". The client processes one row and discards one row, avoiding retention of the full result set if the application does not collect rows. Actual memory usage and throughput depend on row size and consumption logic.
 
-## MySQL Specifics
+## MySQL Configuration {#mysql-specifics}
 
 Different databases enable streaming queries in different ways (e.g., PostgreSQL requires turning off auto-commit and setting fetchSize). For **MySQL**, the JDBC driver has very specific conventions.
 
@@ -36,11 +37,11 @@ According to the [MySQL Connector/J Official Documentation](https://dev.mysql.co
 
 This is not the only way to fetch batches. Connector/J also supports cursor fetching with useCursorFetch=true and a positive fetchSize; distinguish these modes.
 
-## dbVisitor Implementation
+## dbVisitor Setup {#dbvisitor-implementation}
 
 dbVisitor's core component `JdbcTemplate` provides strong underlying control capability, allowing us to customize the above parameters through `PreparedStatementCreator`, while cooperating with `RowCallbackHandler` to achieve row-by-row consumption.
 
-### 1. Customize Statement
+### 1. Statement Setup {#1-customize-statement}
 
 We need to take over the creation process of `Statement` and forcibly set `fetchSize`.
 
@@ -60,7 +61,7 @@ PreparedStatementCreator creator = con -> {
 };
 ```
 
-### 2. Define Row Mapper
+### 2. Row Mapping {#2-define-row-mapper}
 
 To facilitate processing, we usually need to convert each row of `ResultSet` into a Java object. dbVisitor provides high-performance mappers.
 
@@ -69,7 +70,7 @@ To facilitate processing, we usually need to convert each row of `ResultSet` int
 BeanMappingRowMapper<User> rowMapper = new BeanMappingRowMapper<>(User.class);
 ```
 
-### 3. Row-by-Row Consumption Callback
+### 3. Row Callbacks {#3-row-by-row-consumption-callback}
 
 `RowCallbackHandler` takes over the processing of each row of data. **Note:** The logic here must be lightweight. Once a row is processed, the object referenced by that row becomes a candidate for garbage collection.
 
@@ -88,7 +89,7 @@ RowCallbackHandler handler = (rs, rowNum) -> {
 };
 ```
 
-### 4. Complete Code Example
+### 4. Complete Example {#4-complete-code-example}
 
 Combining the above steps:
 
@@ -120,11 +121,11 @@ public void streamUsers() throws SQLException {
 }
 ```
 
-## Performance and Resources
+## Resource Usage {#performance-and-resources}
 
 Streaming controls result buffering but does not guarantee a faster query. Choose row streaming, cursor fetching, or keyset pagination based on row width, network, indexes, and consumption speed; row count alone cannot predict memory usage.
 
-## Precautions
+## Cautions {#precautions}
 
 1.  **Connection Monopoly**: During the streaming query, the database connection will be occupied until the result set is exhausted or closed; do not execute another query on the same connection before then. Ensure the `Connection Pool` is large enough or query processing is fast enough.
 2.  **Concurrency Issues**: Since the connection is occupied continuously, if the business is also high-concurrency, it is recommended to use an independent connection pool or data source to execute such analytical tasks to avoid blocking core business.

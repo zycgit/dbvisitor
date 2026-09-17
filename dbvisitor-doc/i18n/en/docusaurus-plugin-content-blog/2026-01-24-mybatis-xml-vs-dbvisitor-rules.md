@@ -1,6 +1,7 @@
 ---
 slug: mybatis-xml-vs-dbvisitor-rules
-title: Simplify SQL Conditions with Dynamic Rules
+topics: [apis]
+title: "Dynamic SQL: Rules and XML Compared"
 authors: [ZhaoYongChun]
 tags: [dbVisitor, MyBatis, ORM]
 ---
@@ -9,7 +10,7 @@ Dynamic SQL can be expressed with XML tags or written directly in SQL using dbVi
 
 <!--truncate-->
 
-## Optional Query Conditions
+## Optional Conditions {#optional-query-conditions}
 
 XML tags usually check parameters before appending conditions. The following is a statement fragment in a dbVisitor Mapper file:
 
@@ -41,7 +42,7 @@ A single-parameter `and` or `or` rule omits its content when the parameter is nu
 
 Rules add WHERE, AND, or OR based on SQL already generated. Do not put a leading AND/OR inside the rule body. Add your own parentheses for complex OR groups.
 
-## Explicit Condition Switches
+## Condition Switches {#explicit-condition-switches}
 
 `ifand` and `ifor` use OGNL expressions to decide whether to emit a condition:
 

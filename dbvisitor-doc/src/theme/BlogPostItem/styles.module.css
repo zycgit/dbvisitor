@@ -1,0 +1,19 @@
+.listItem {
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+}
+
+.listItem:not(:last-of-type) {
+    border-bottom: 1px solid var(--ifm-color-emphasis-200);
+}
+
+.listItem > :global(.markdown) > :last-child {
+    margin-bottom: 0;
+}
+
+.readMore {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--ifm-color-primary);
+}

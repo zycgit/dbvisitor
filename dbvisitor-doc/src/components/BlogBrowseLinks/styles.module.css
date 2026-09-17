@@ -1,0 +1,45 @@
+.links {
+    display: grid;
+    width: var(--blog-browse-width);
+    max-width: 100%;
+    flex-shrink: 0;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px;
+    padding: 4px;
+    margin-bottom: 1.25rem;
+    border: 1px solid var(--ifm-color-emphasis-200);
+    border-radius: 8px;
+    background: var(--ifm-color-emphasis-100);
+}
+
+.links a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    border-radius: 5px;
+    color: var(--ifm-font-color-base);
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.links a:hover {
+    background: var(--ifm-color-emphasis-200);
+}
+
+.links a[aria-current='page'] {
+    color: #fff;
+    background: var(--ifm-color-primary-dark);
+}
+
+.links a:focus-visible {
+    outline: 2px solid var(--ifm-color-primary-dark);
+    outline-offset: 2px;
+}
+
+@media (max-width: 996px) {
+    .links {
+        margin: 0.5rem 0 1rem;
+    }
+}

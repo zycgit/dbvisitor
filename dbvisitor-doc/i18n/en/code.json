@@ -1,4 +1,28 @@
 {
+  "blog.article.published": {
+    "message": "Published: "
+  },
+  "blog.article.updated": {
+    "message": "Updated: "
+  },
+  "blog.article.author": {
+    "message": "Author"
+  },
+  "blog.article.back": {
+    "message": "Back"
+  },
+  "blog.browse.latest": {
+    "message": "Latest"
+  },
+  "blog.browse.archive": {
+    "message": "All"
+  },
+  "blog.browse.tags": {
+    "message": "Columns"
+  },
+  "blog.browse.navigation": {
+    "message": "Blog navigation"
+  },
   "commons.search": {
     "message": "Quick Search"
   },
@@ -31,6 +55,12 @@
   },
   "dbv.hero.getStarted": {
     "message": "Get Started"
+  },
+  "dbv.hero.readBlog": {
+    "message": "Read the Blog"
+  },
+  "dbv.hero.readingHint": {
+    "message": "Start with practical guides to vector search, multiple data sources, and object mapping."
   },
   "dbv.db.title": {
     "message": "Broad Database Support"

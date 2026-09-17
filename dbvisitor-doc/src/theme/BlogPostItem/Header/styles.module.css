@@ -1,0 +1,199 @@
+.navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.navigation > a {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 40px;
+    padding: 0.35rem 0.85rem;
+    border: 1px solid var(--ifm-color-emphasis-300);
+    border-radius: 6px;
+    background: var(--ifm-color-emphasis-100);
+    color: var(--ifm-font-color-base);
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.navigation > a > span[aria-hidden] {
+    font-size: 1.2rem;
+    line-height: 1;
+}
+
+.navigation > a:hover {
+    border-color: var(--ifm-color-emphasis-500);
+    background: var(--ifm-color-emphasis-200);
+    color: var(--ifm-font-color-base);
+    text-decoration: none;
+}
+
+.navigation > a:focus-visible {
+    outline: 2px solid var(--ifm-color-primary);
+    outline-offset: 3px;
+}
+
+.header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: 1.5rem;
+    row-gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.header .title {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.header .listTitle {
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.header.listHeader {
+    grid-template-columns: minmax(0, 1fr) auto;
+    row-gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.listAuthors {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.5rem 0.75rem;
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+    max-width: 220px;
+}
+
+.listMetadata {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1rem;
+    grid-column: 1 / -1;
+    grid-row: 2;
+}
+
+.header .listInfo {
+    color: var(--ifm-color-emphasis-700);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    /* The grid supplies spacing instead of the theme's margin utility. */
+    margin: 0 !important;
+}
+
+.listTags {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.9rem;
+}
+
+.listTags a {
+    display: inline-block;
+    padding: 0.05rem 0.4rem;
+    line-height: 1.4;
+}
+
+.authors {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.5rem 0.75rem;
+    min-width: 0;
+    max-width: 60%;
+}
+
+.author {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+    color: var(--ifm-color-emphasis-700);
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.author img {
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+a.author:hover {
+    color: var(--ifm-color-primary);
+    text-decoration: underline;
+}
+
+a.author:focus-visible {
+    outline: 2px solid var(--ifm-color-primary);
+    outline-offset: 4px;
+    border-radius: 4px;
+}
+
+.author span {
+    overflow-wrap: anywhere;
+}
+
+.header .info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.2rem;
+    color: var(--ifm-color-emphasis-700);
+    font-size: 0.9rem;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+
+@media (max-width: 996px) {
+    .header {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .header .info {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 0.25rem 1rem;
+        align-items: center;
+    }
+}
+
+@media (max-width: 640px) {
+    .header.listHeader {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .listAuthors {
+        grid-column: 1;
+        grid-row: 3;
+        max-width: 100%;
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 480px) {
+    .header {
+        grid-template-columns: minmax(0, 1fr);
+        row-gap: 0.5rem;
+    }
+}

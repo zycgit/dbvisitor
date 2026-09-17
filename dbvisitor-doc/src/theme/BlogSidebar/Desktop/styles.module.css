@@ -1,0 +1,60 @@
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ * Adapted from @docusaurus/theme-classic, licensed under the MIT license.
+ */
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - var(--ifm-navbar-height));
+    position: sticky;
+    top: var(--ifm-navbar-height);
+    padding: 8px;
+}
+
+.sidebarContent {
+    min-height: 0;
+    overflow-y: auto;
+}
+
+/* Avoid stacking the browse links' bottom margin with the first year's top margin. */
+.sidebar > [role='group'] {
+    margin-bottom: 8px;
+}
+
+.sidebarContent > [role='group']:first-child .yearGroupHeading {
+    margin-top: 0;
+}
+
+.sidebarItemList {
+    font-size: 0.9rem;
+}
+
+.sidebarItem {
+    margin-top: 0.7rem;
+}
+
+.sidebarItemLink {
+    color: var(--ifm-font-color-base);
+    display: block;
+    overflow-wrap: anywhere;
+}
+
+.sidebarItemLink:hover {
+    text-decoration: none;
+}
+
+.sidebarItemLinkActive {
+    color: var(--ifm-color-primary) !important;
+}
+
+.yearGroupHeading {
+    font-weight: 700;
+    margin-top: 1.6rem;
+    margin-bottom: 0.4rem;
+}
+
+@media (max-width: 996px) {
+    .sidebar {
+        display: none;
+    }
+}

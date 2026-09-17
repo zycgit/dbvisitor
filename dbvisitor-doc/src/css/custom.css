@@ -25,10 +25,113 @@
     --doc-sidebar-width: 250px !important;
     --ifm-tabs-padding-vertical: 0.2rem;
     --ifm-container-width-xl: auto;
+    --blog-browse-width: 264px;
 }
 
 :where(:root) {
     --docusaurus-highlighted-code-line-bg: rgb(218 218 218) !important;
+}
+
+/* List titles are smaller than the heading on a full article page. */
+.blog-list-page article > header > h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.4;
+    margin-bottom: 0.65rem;
+}
+
+/* Keep blog navigation compact instead of growing to a quarter of a wide screen. */
+@media (min-width: 997px) {
+    .blog-wrapper:not(.blog-post-page) .container.margin-vert--lg {
+        /* Navigation width plus 8px side padding and the 1px sidebar border. */
+        --blog-sidebar-width: calc(var(--blog-browse-width) + 17px);
+        width: 100%;
+        max-width: none;
+        margin-top: 0 !important;
+        margin-left: 0;
+        margin-right: auto;
+        padding: 0;
+    }
+
+    .blog-wrapper:not(.blog-post-page) .container.margin-vert--lg > .row {
+        margin: 0;
+    }
+
+    .blog-wrapper:not(.blog-post-page) .container.margin-vert--lg > .row > aside.col--3 {
+        --ifm-col-width: var(--blog-sidebar-width);
+        padding: 0;
+        border-right: 1px solid var(--ifm-color-emphasis-200);
+    }
+
+    .blog-wrapper:not(.blog-post-page) .container.margin-vert--lg > .row > main,
+    .blog-wrapper:not(.blog-post-page) .container.margin-vert--lg > .row > .col--2 {
+        padding-top: 2rem;
+    }
+
+    .blog-wrapper:not(.blog-post-page) .container.margin-vert--lg > .row > main {
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+
+    .blog-wrapper:not(.blog-post-page) .container.margin-vert--lg > .row > aside + main.col--7 {
+        --ifm-col-width: calc(100% - var(--blog-sidebar-width) - 100% / 6);
+    }
+
+    .blog-wrapper:not(.blog-post-page) .container.margin-vert--lg > .row > aside + main.col--7:last-child {
+        --ifm-col-width: calc(100% - var(--blog-sidebar-width));
+    }
+}
+
+/* Article detail shares the blog indexes' outer gutters, without a left sidebar. */
+.blog-post-page .container.margin-vert--lg {
+    width: 100%;
+    max-width: none;
+    margin: 0 0 3rem !important;
+    padding: 8px;
+}
+
+.blog-post-page .container.margin-vert--lg > .row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 220px;
+    gap: 24px;
+    margin: 0;
+}
+
+.blog-post-page .container.margin-vert--lg > .row > main,
+.blog-post-page .container.margin-vert--lg > .row > .col--2 {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.blog-post-page .container.margin-vert--lg > .row > main:last-child {
+    grid-column: 1 / -1;
+}
+
+.blog-post-page .container.margin-vert--lg > .row > .col--2 {
+    padding-top: calc(40px + 0.5rem);
+}
+
+.blog-post-page article > header > h1 {
+    font-size: 2rem;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 996px) {
+    .blog-post-page .container.margin-vert--lg > .row {
+        display: block;
+    }
+
+    .blog-post-page .container.margin-vert--lg > .row > .col--2 {
+        display: none;
+    }
+
+    .blog-post-page article > header > h1 {
+        font-size: 1.75rem;
+    }
 }
 
 .navbar__brand {
@@ -85,8 +188,8 @@ h3 {
     font-size: 16px;
 }
 
-/* Documentation tables: compact spacing, quiet dividers and scrollable wide content. */
-.theme-doc-markdown table {
+/* Shared Markdown styles for documentation and blog content. */
+.markdown table {
     --doc-table-border: #e1e6ed;
     --doc-table-header: #f1f5fa;
     --doc-table-stripe: #f8fafc;
@@ -104,20 +207,20 @@ h3 {
     background: var(--ifm-background-color);
 }
 
-[data-theme='dark'] .theme-doc-markdown table {
+[data-theme='dark'] .markdown table {
     --doc-table-border: #39414d;
     --doc-table-header: #282f39;
     --doc-table-stripe: #242830;
     --doc-table-hover: #2c3543;
 }
 
-.theme-doc-markdown table tr {
+.markdown table tr {
     border: 0;
     background: transparent;
 }
 
-.theme-doc-markdown table th,
-.theme-doc-markdown table td {
+.markdown table th,
+.markdown table td {
     border: 0;
     border-bottom: 1px solid var(--doc-table-border);
     padding: var(--ifm-table-cell-padding);
@@ -125,20 +228,20 @@ h3 {
     line-height: 1.6;
 }
 
-.theme-doc-markdown table th {
+.markdown table th {
     background: var(--doc-table-header);
     font-weight: 600;
 }
 
-.theme-doc-markdown table th:not([align]) {
+.markdown table th:not([align]) {
     text-align: left;
 }
 
-.theme-doc-markdown table tbody tr:nth-child(even) {
+.markdown table tbody tr:nth-child(even) {
     background: var(--doc-table-stripe);
 }
 
-.theme-doc-markdown table tbody tr:last-child td {
+.markdown table tbody tr:last-child td {
     border-bottom: 0;
 }
 
@@ -161,18 +264,18 @@ h3 {
     color: #925b08;
 }
 
-.theme-doc-markdown a .support-status {
+.markdown a .support-status {
     text-decoration: underline;
     text-underline-offset: 3px;
     text-decoration-thickness: 1px;
 }
 
-.theme-doc-markdown a:hover .support-status,
-.theme-doc-markdown a:focus-visible .support-status {
+.markdown a:hover .support-status,
+.markdown a:focus-visible .support-status {
     background: var(--ifm-hover-overlay);
 }
 
-.theme-doc-markdown a:focus-visible .support-status {
+.markdown a:focus-visible .support-status {
     outline: 2px solid currentColor;
     outline-offset: 3px;
 }
@@ -190,13 +293,13 @@ h3 {
 }
 
 @media (hover: hover) {
-    .theme-doc-markdown table tbody tr:hover {
+    .markdown table tbody tr:hover {
         background: var(--doc-table-hover);
     }
 }
 
 @media screen and (max-width: 640px) {
-    .theme-doc-markdown table {
+    .markdown table {
         --ifm-table-cell-padding: 0.5rem 0.65rem;
     }
 }

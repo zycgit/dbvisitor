@@ -1,0 +1,150 @@
+.page {
+    width: 100%;
+    padding: 8px 8px 2rem;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    min-height: 104px;
+    padding: 16px 20px;
+    margin-bottom: 1.75rem;
+    border: 1px solid var(--ifm-color-emphasis-200);
+    border-radius: 10px;
+    background: var(--ifm-color-emphasis-100);
+}
+
+.headerTop {
+    display: flex;
+    width: 100%;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.identity {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+}
+
+.summary {
+    flex: 1;
+    min-width: 0;
+}
+
+.back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-height: 34px;
+    padding: 0.25rem 0.65rem;
+    flex-shrink: 0;
+    border: 1px solid var(--ifm-color-emphasis-300);
+    border-radius: 6px;
+    background: var(--ifm-background-surface-color);
+    color: var(--ifm-font-color-base);
+    font-size: 0.85rem;
+    font-weight: 500;
+    white-space: nowrap;
+    text-decoration: none;
+}
+
+.back:hover {
+    border-color: var(--ifm-color-emphasis-500);
+    background: var(--ifm-color-emphasis-200);
+    color: var(--ifm-font-color-base);
+    text-decoration: none;
+}
+
+.back:focus-visible {
+    outline: 2px solid var(--ifm-color-primary);
+    outline-offset: 3px;
+}
+
+.backIcon {
+    width: 12px;
+    height: 12px;
+    transform: rotate(180deg);
+    flex-shrink: 0;
+}
+
+.titleRow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.75rem;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 1.65rem;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.details {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1rem;
+    margin-top: 0.5rem;
+    color: var(--ifm-color-emphasis-700);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.articleCount,
+.header p,
+.articles p {
+    color: var(--ifm-color-emphasis-700);
+}
+
+.articleCount {
+    padding: 0.2rem 0.65rem;
+    border: 1px solid var(--ifm-color-emphasis-200);
+    border-radius: 999px;
+    background: var(--ifm-background-surface-color);
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+.header p {
+    margin: 0.65rem 0 0;
+    line-height: 1.65;
+}
+
+@media (max-width: 640px) {
+    .header {
+        padding: 16px;
+    }
+
+}
+
+.articles {
+    padding-left: 1.25rem;
+}
+
+.articles li + li {
+    margin-top: 1.5rem;
+}
+
+.articles a {
+    font-weight: 500;
+    overflow-wrap: anywhere;
+}
+
+.articles p {
+    margin: 0.35rem 0 0;
+    font-size: 0.95rem;
+    overflow-wrap: anywhere;
+}

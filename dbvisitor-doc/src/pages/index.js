@@ -99,6 +99,10 @@ function HeroSection() {
                 </div>
                 <div className={styles.heroButtons}>
                     <Link className={clsx('button button--lg', styles.btnPrimary)}
+                          to="/blog/archive">
+                        <Translate id="dbv.hero.readBlog">阅读博客</Translate>
+                    </Link>
+                    <Link className={clsx('button button--lg', styles.btnSecondary)}
                           to="/docs/guides/overview">
                         <Translate id="dbv.hero.getStarted">快速开始</Translate>
                     </Link>
@@ -107,6 +111,11 @@ function HeroSection() {
                         GitHub
                     </Link>
                 </div>
+                <p className={styles.heroReadingHint}>
+                    <Translate id="dbv.hero.readingHint">
+                        从实战文章开始：向量检索、多数据源开发与对象映射。
+                    </Translate>
+                </p>
             </div>
         </header>
     );

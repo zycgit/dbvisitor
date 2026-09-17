@@ -1,5 +1,8 @@
 ---
+last_update:
+  date: 2026-09-17
 slug: dbvisitor-dialect-refactoring
+topics: [architecture]
 title: 方言系统架构演进：从分离到统一
 authors: [ZhaoYongChun]
 tags: [Architecture, dbVisitor]
@@ -14,7 +17,7 @@ dbVisitor 是一个旨在提供统一数据库访问体验的 Java 工具库。�
 
 <!--truncate-->
 
-## 背景：旧架构的痛点
+## 旧架构 {#背景旧架构的痛点}
 
 在重构之前，dbVisitor 的方言层设计采用了职责分离的原则，主要由两个平行的接口体系构成：
 
@@ -31,7 +34,7 @@ dbVisitor 是一个旨在提供统一数据库访问体验的 Java 工具库。�
     *   Mongo 场景：`new MongoCommandBuilder(new MongoDialect())`
 *   **中间类冗余**：为了适配 NoSQL，我们引入了 `MongoBuilderDialect` 这样的胶水代码，仅仅是为了把 Dialect 和 Builder 粘合在一起，这增加了代码库的复杂度。
 
-## 演进：方言即工厂
+## 方言即工厂 {#演进方言即工厂}
 
 本次重构的核心理念是：**方言对象本身应该是构建器的工厂**。
 
@@ -69,9 +72,9 @@ dbVisitor 是一个旨在提供统一数据库访问体验的 Java 工具库。�
     *   `AbstractElasticDialect`: 为 ES 提供 DSL 构建支持。
 
 
-## 改造后的优势
+## 改造收益 {#改造后的优势}
 
-### 1. 极简且安全的 API
+### 1. 简化 API {#1-极简且安全的-api}
 对于上层调用者（如 `LambdaTemplate`），获取构建器变得异常统一和简单。再也不需要 `instanceof` 判断，也不需要在构建时传入 Dialect 参数：
 
 ```java
@@ -89,20 +92,22 @@ BoundSql sql = builder.buildSelect(dialect, true);
 
 ```java
 // 新方式：统一多态，自包含；先通过构建器设置表名、投影和条件
-SqlCommandBuilder builder = dialect.newBuilder();
+SqlCommandBuilder builder = MySqlDialect.DEFAULT.newBuilder();
+builder.setTable(null, null, "user_info");
+builder.addSelectAll();
 // 构建器本身就是 Dialect 的一种形态，无需再传入参数，杜绝了“张冠李戴”
 BoundSql sql = builder.buildSelect(true); 
 ```
 
-### 2. 内聚性提升
+### 2. 提升内聚性 {#2-内聚性提升}
 所有的数据库特定逻辑——无论是“转义符是什么”还是“如何生成 INSERT 语句”——现在都收敛在同一个类（或其父类）中。
 例如，`MongoDialect` 现在是一个自包含的单元，它既知道 Mongo 的关键字，也知道如何生成 Mongo 查询。
 
-### 3. 消除了方言不匹配的风险
+### 3. 避免方言错配 {#3-消除了方言不匹配的风险}
 在旧版本中，`SqlCommandBuilder` 在生成 SQL 时要求传入 `SqlDialect` 对象。这在 API 设计上留下了隐患：理论上，你可以创建一个 `MongoCommandBuilder` 却传给它一个 `MySqlDialect`，这会导致运行时错误或荒谬的查询构建。
 重构后，构建器由方言直接生产，并且 `buildSelect` 等方法不再接收 `Dialect` 参数。构建器“自带”元数据知识，从编译层面杜绝了方言不匹配的可能。
 
-### 4. 代码量减少与维护性提高
+### 4. 减少维护成本 {#4-代码量减少与维护性提高}
 通过这次重构，我们删除了多个冗余的 Builder 类和适配器类。
 自定义方言通过 `newBuilder()` 返回独立构建器；不要在多个查询之间共享同一个有状态的构建器。
 

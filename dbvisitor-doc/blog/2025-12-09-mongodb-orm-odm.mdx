@@ -1,15 +1,13 @@
 ---
+last_update:
+  date: 2026-09-17
 slug: mongodb-orm-odm-tool
-title: MongoDB 数据库 ORM/ODM 新工具
+topics: [datasources]
+title: "MongoDB 入门：对象映射与多种访问方式"
 authors: [ZhaoYongChun]
 tags: [MongoDB, ORM, ODM, JDBC, dbVisitor]
 language: zh-cn
 ---
-import Vars from '@site/plugins/projectVars';
-
-export const Highlight = ({children, color}) => (
-    <span style={{ backgroundColor: color, borderRadius: '2px', color: '#fff', padding: '0.2rem', }}>{children}</span>
-);
 
 在 Java 开发领域，关系型数据库（RDBMS）的 ORM 工具（如 Hibernate, MyBatis）已经非常成熟。然而，随着 NoSQL 数据库特别是 MongoDB 的普及，开发者对于在 Java 中如何优雅、高效地操作 MongoDB 提出了新的需求。
 
@@ -19,7 +17,7 @@ export const Highlight = ({children, color}) => (
 
 <!--truncate-->
 
-## 为什么要 ORM/ODM？
+## 为何使用 ORM/ODM {#为什么要-ormodm}
 
 MongoDB 存储的是 BSON（Binary JSON）格式的文档，结构灵活。但在实际的 Java 工程开发中，我们面临以下挑战：
 
@@ -28,7 +26,7 @@ MongoDB 存储的是 BSON（Binary JSON）格式的文档，结构灵活。但�
 3.  **开发效率**：手写繁琐的 BSON 构建代码远不如面向对象的操作直观。
 4.  **统一规范**：在同一个项目中，同时使用 RDBMS 和 MongoDB，开发者希望有一套统一的 API 风格。
 
-## ORM/ODM 的区别
+## ORM 与 ODM {#ormodm-的区别}
 
 在讨论工具之前，我们需要厘清 **ORM** 和 **ODM** 的概念。
 
@@ -37,7 +35,7 @@ MongoDB 存储的是 BSON（Binary JSON）格式的文档，结构灵活。但�
 
 简单来说，ORM 映射的是 “表”，ODM 映射的是 “文档”。
 
-## dbVisitor：MongoDB
+## dbVisitor 与 MongoDB {#dbvisitormongodb}
 
 MongoDB 的 JDBC 驱动与 ORM/ODM 工具，**dbVisitor** 本质上是一个数据库访问工具，它最为独特之处在于：**它通过为 MongoDB 提供了复用 JDBC 接口的驱动实现（jdbc-mongo）**。
 这意味着你可以像操作 MySQL 一样，使用 JDBC 接口，通过原始 MongoDB 命令、甚至 MyBatis 风格的 Mapper 来操作 MongoDB。
@@ -67,24 +65,25 @@ MongoDB 的 JDBC 驱动与 ORM/ODM 工具，**dbVisitor** 本质上是一个数�
 
 ### 1. 依赖引入
 
-在 `pom.xml` 中加入核心依赖与 MongoDB 适配器，当前指南版本：<Highlight color="rgb(227 17 108)">{Vars.docsVersion}</Highlight>
+在 `pom.xml` 中加入核心依赖与 MongoDB 适配器，当前指南版本：**6.8.0**
 
 ```xml
 <dependencies>
     <dependency>
         <groupId>net.hasor</groupId>
         <artifactId>dbvisitor</artifactId>
-        <version>@project.docsVersion@</version>
+        <version>6.8.0</version>
     </dependency>
     <dependency>
         <groupId>net.hasor</groupId>
         <artifactId>jdbc-mongo</artifactId>
-        <version>@project.docsVersion@</version>
+        <classifier>all</classifier>
+        <version>6.8.0</version>
     </dependency>
 </dependencies>
 ```
 
-SNAPSHOT 需要先从源码构建并安装到本地 Maven 仓库；核心库、适配器与 Spring 扩展使用相同版本。
+使用 Java 17+ 和已发布的 6.8.0，无需先编译框架源码；核心库、适配器与 Spring 扩展使用相同版本。
 
 连接 URL 示例：`jdbc:dbvisitor:mongo://127.0.0.1:27017/admin?user=root&password=123456`。
 
@@ -114,12 +113,13 @@ public interface UserMapper {
 }
 
 Configuration config = new Configuration();
-Session session = config.newSession(dataSource);
-UserMapper mapper = session.createMapper(UserMapper.class);
-User cindy = new User();
-cindy.setName("Cindy");
-cindy.setAge(22);
-mapper.insert(cindy);
+try (Session session = config.newSession(dataSource)) {
+    UserMapper mapper = session.createMapper(UserMapper.class);
+    User cindy = new User();
+    cindy.setName("Cindy");
+    cindy.setAge(22);
+    mapper.insert(cindy);
+}
 ```
 
 ### 4. CRUD 构造器
@@ -177,7 +177,9 @@ public class User {
 }
 ```
 
-### 6. Mapper File
+这里的 `userId` 是业务键，不是 MongoDB 的 `_id`。`primary = true` 只指导 dbVisitor 的映射，不会创建唯一索引；需要唯一性时应另行建索引。
+
+### 6. Mapper 文件 {#6-mapper-file}
 适合复杂动态条件；可与注解并存。
 
 ```xml
@@ -223,18 +225,19 @@ public interface UserMapper {
 
 ### Spring Boot
 
-在使用之前首先引入依赖，当前版本：<Highlight color="rgb(227 17 108)">{Vars.docsVersion}</Highlight>
+在使用之前首先引入依赖，当前版本：**6.8.0**
 
 ```xml
 <dependency>
     <groupId>net.hasor</groupId>
     <artifactId>dbvisitor-spring-starter</artifactId>
-    <version>@project.docsVersion@</version>
+    <version>6.8.0</version>
 </dependency>
 <dependency>
     <groupId>net.hasor</groupId>
     <artifactId>jdbc-mongo</artifactId>
-    <version>@project.docsVersion@</version>
+    <classifier>all</classifier>
+    <version>6.8.0</version>
 </dependency>
   ```
 
@@ -242,6 +245,7 @@ public interface UserMapper {
 
 ```properties
 # Spring JDBC 数据源配置
+spring.datasource.driver-class-name=net.hasor.dbvisitor.driver.JdbcDriver
 spring.datasource.url=jdbc:dbvisitor:mongo://127.0.0.1:27017/admin
 spring.datasource.username=root
 spring.datasource.password=123456
@@ -266,14 +270,14 @@ public class DemoApplication {
 ```java title='注入 Mapper'
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate; // 注意导包和 Spring 的 JdbcTemplate 区别
-import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class ServiceTest {
-    @Resource // 或 @Autowired
+    @Autowired
     private UserMapper userMapper;
-    @Resource // 或 @Autowired
+    @Autowired
     private JdbcTemplate jdbc;
-    @Resource // 或 @Autowired
+    @Autowired
     private LambdaTemplate lambda;
     ...
 }

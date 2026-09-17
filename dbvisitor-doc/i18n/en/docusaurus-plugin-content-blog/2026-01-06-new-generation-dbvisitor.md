@@ -1,6 +1,9 @@
 ---
+last_update:
+  date: 2026-09-17
 slug: new-generation-dbvisitor
-title: "Next-Gen Data Access: dbVisitor"
+topics: [architecture]
+title: "dbVisitor: Many Databases, One API"
 description: 'Data storage has diversified beyond RDBMS to NoSQL, NewSQL, and AI Vector. dbVisitor aims to define the next-generation standard: One API, Access Multiple Databases.'
 authors: [ZhaoYongChun]
 tags: [dbVisitor, ORM, JDBC, NoSQL]
@@ -16,7 +19,7 @@ Invocation style is unified, not database semantics. Builders require dialect su
 :::
 
 
-## I. The Old Generation
+## I. Traditional Access {#i-the-old-generation}
 
 Talking about "old generation" data access libraries is not derogatory, but refers to the era background and core mission of their birth.
 
@@ -26,7 +29,7 @@ In the past and present, **MyBatis**, **Hibernate**, **JPA (Hibernate)**, **Spri
 
 This situation led to a phenomenon: **either exclusive or leaning towards pure relational databases**. If your application needs to query both MySQL and Elasticsearch, you usually need to introduce two completely different technology stacks and write two sets of code with widely different styles.
 
-## II. Attempts to Bridge the Gap
+## II. Cross-Database APIs {#ii-attempts-to-bridge-the-gap}
 
 Database technology has been constantly iterating. Document databases (MongoDB), search engines (Elasticsearch/OpenSearch), key-value stores (Redis), time-series databases, and even current vector databases are swarming in.
 
@@ -55,7 +58,7 @@ However, although these efforts have alleviated the problem to some extent, it i
     
     This fragmentation not only increases learning costs but also complicates architectural design. We seem to have a pile of tools, but still lack a true "One API" to unify all data access.
 
-## III. One API, Access Multiple Databases
+## III. One API {#iii-one-api-access-multiple-databases}
 
 Since we have moved towards diversification, the Data Access Layer (DAL) must also evolve. **The mission of the new generation data access library should be to re-standardize and unify data access.**
 
@@ -63,7 +66,7 @@ We should no longer ask "What database is this?", but "What operation do I want 
 
 Inheriting the universal spirit of JDBC and SQL, but breaking its shackles on relational databases, this is the goal of the new generation data access library. Summarized in one sentence: **"One API, Access Multiple Databases"**.
 
-## IV. Technical Choices and Feasible Paths
+## IV. Design Options {#iv-technical-choices-and-feasible-paths}
 
 To realize this grand vision, there are two main technical paths to choose from:
 
@@ -79,7 +82,7 @@ This path attempts to define a "universal language" that can express relational 
     AI acts as a Parser and Optimizer in this process, directly driving the database kernel to run specific physical tasks. But at present, AI still has "hallucination" risks when dealing with **semantic precision, data access security, and complex logical reasoning**.
     Applying uncertain AI reasoning directly to the deterministic data storage kernel will be a highly adventurous act. Therefore, it is more seen as an auxiliary tool (Copilot), rather than a low-level, deterministic data access standard.
 
-### Path 2: Abstraction of Basic Paradigms
+### Path 2: Core Patterns {#path-2-abstraction-of-basic-paradigms}
 
 **Operation** is the essence of data access. Compared to inventing a new language or relying on AI, it appears more pragmatic and controllable. Whether data exists in MySQL rows, Redis Keys, Elasticsearch Documents, or Neo4j nodes.
 
@@ -96,19 +99,19 @@ Applications' usage scenarios for data almost always fall into the four basic pa
 *   **Adapter Pattern**:
     By defining a set of standard APIs (such as `insert`, `update`, `query`), we can dynamically "translate" these standard requests into dialects (Dialect) of different data sources on the bottom layer through the **Adapter Pattern**.
 
-## V. New Generation Data Access Library
+## V. Next-Gen Access {#v-new-generation-data-access-library}
 
 I believe that the "New Generation Java Data Access Library" should take **One API, Access Multiple Databases** as its core vision, targeting to provide developers with a unified, simple, and efficient data operation experience by shielding underlying data source differences through standardized APIs.
 
 It should no longer distinguish "Is this an ORM" or "Is this a Client", it is the unified gateway for applications to access data.
 
-## VI. dbVisitor's Technical Attempt
+## VI. dbVisitor Design {#vi-dbvisitors-technical-attempt}
 
 **dbVisitor** is a technical attempt born based on this concept. Its architectural design is very unique and can be summarized as: **API Access Library + JDBC Driver** double-layer adapter architecture.
 
-### 1. API Access Library: Providing Unified API
+### 1. Unified API {#1-api-access-library-providing-unified-api}
 
-<img src="/img/double.png" alt="Double-Layer Adapter Architecture Diagram" width="80%" />
+<img src={require('@site/blog/assets/2026-01-06-new-generation-dbvisitor/double.png').default} alt="Double-Layer Adapter Architecture Diagram" width="80%" />
 
 dbVisitor's data access layer does not rely on specific SQL syntax, but provides highly abstract APIs. For example: Query Builder
 ```java
@@ -123,7 +126,7 @@ In this process, **Dialect** plays a key translator role. It is responsible for 
 
 These generated DSLs will then be issued to the **JDBC Driver Adapter Layer**, executed by the corresponding driver executor for final data interaction. This mechanism ensures the purity of business code while retaining precise control over underlying features.
 
-### 2. JDBC Driver Adapter
+### 2. JDBC Adapters {#2-jdbc-driver-adapter}
 
 Selective implementation under standards, this is the most innovative place of dbVisitor. It did not reinvent the wheel to write a set of private protocol Drivers, but chose to **reuse JDBC standard interfaces**, but extended and adapted its connotation.
 
@@ -157,11 +160,11 @@ After extensive adaptation practices, I found that the best path to realize "One
 *   If the database itself provides a stable text protocol (such as SQL, MongoDB Shell Command, Elasticsearch DSL), then building adapters based on these standard protocols to interface with underlying APIs is the most robust and compatible way.
 *   For databases without DSL, just imitate its API calling method and provide a Shell Command. This point can learn from MongoDB's idea.
 
-## VIII. dbVisitor Practical Demonstration
+## VIII. Usage Examples {#viii-dbvisitor-practical-demonstration}
 
 To let everyone feel the charm of "One API" more intuitively, taking the most common CRUD operations as an example, showing how dbVisitor maintains a unified coding experience across different data sources.
 
-### 1. Unified CRUD Experience
+### 1. Unified CRUD {#1-unified-crud-experience}
 
 Regardless of whether the underlying is **MySQL**, **MongoDB**, or **Elasticsearch**, developers can use the same API style for supported operations; entity mappings, indexes, refresh visibility, and conflict behavior still need separate configuration.
 
@@ -169,7 +172,7 @@ Regardless of whether the underlying is **MySQL**, **MongoDB**, or **Elasticsear
 // Initialization (Only need to change Connection creation method)
 // Connection conn = DriverManager.getConnection("jdbc:mysql://...");
 // Connection conn = DriverManager.getConnection("jdbc:dbvisitor:mongo://...");
-Connection conn = DriverManager.getConnection("jdbc:dbvisitor:elastic://...");
+try (Connection conn = DriverManager.getConnection(url, userName, password)) {
 
 LambdaTemplate template = new LambdaTemplate(conn);
 
@@ -197,9 +200,12 @@ template.update(UserInfo.class)
 template.delete(UserInfo.class)
     .eq(UserInfo::getId, "1001")
     .doDelete();
+}
 ```
 
-### 2. Underlying API Reachable (Escape Hatch)
+Replace `url`, `userName`, and `password` with your connection settings. Keep the following unwrap calls inside the connection's try block; closing that block also ends the native client's usable lifetime. Do not close the unwrapped client separately.
+
+### 2. Native API Access {#2-underlying-api-reachable-escape-hatch}
 
 When the unified API cannot meet special needs (such as Redis specific atomic operations, or ES special aggregations), dbVisitor allows "penetrating" to the underlying driver through the `unwrap` mechanism and directly using the native SDK.
 
@@ -221,7 +227,7 @@ if (conn.isWrapperFor(RestClient.class)) {
 }
 ```
 
-## IX. dbVisitor Ecosystem Status
+## IX. Ecosystem {#ix-dbvisitor-ecosystem-status}
 
 Currently, dbVisitor has achieved unified access support for multiple types of data sources and is step by step fulfilling the promise of the new generation data access library:
 

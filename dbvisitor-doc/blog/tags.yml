@@ -72,3 +72,13 @@ Vector:
   label: Vector
   permalink: /tags/vector
   description: 向量数据库与相似性搜索
+
+Milvus:
+  label: Milvus
+  permalink: /tags/milvus
+  description: 使用 JDBC 与 dbVisitor 操作 Milvus 向量数据库
+
+Redis:
+  label: Redis
+  permalink: /tags/redis
+  description: Redis 命令、对象映射与业务场景
