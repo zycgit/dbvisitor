@@ -10,7 +10,7 @@ topics: [vectors]
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-Java 应用通常通过 Milvus SDK 写入数据和检索向量。对关系型数据库开发者来说，SQL 和 JDBC 更熟悉。jdbc-milvus 让这套使用方式也能用于 Milvus：
+Java 应用通常通过 Milvus SDK 写入数据和检索向量。对关系型数据库开发者来说，SQL 和 JDBC 更熟悉。[jdbc-milvus](/docs/drivers/milvus/about) 让这套使用方式也能用于 Milvus：
 
 ```sql
 SELECT id, title, score FROM intro_articles -- score 为 L2 平方距离，越小越接近
@@ -18,7 +18,7 @@ WHERE category = 'java'                    -- 只在 Java 类别内检索
 ORDER BY embedding <-> [1,0] LIMIT 2;       -- 按向量距离取最近的两条
 ```
 
-加入 dbVisitor，还可以用实体和查询构造器完成同样的检索：
+加入 dbVisitor，还可以用[实体映射](/docs/features/milvus/query#entity-mapping)和[查询构造器](/docs/features/milvus/builder)完成同样的检索：
 
 ```java
 @Table("intro_articles")
@@ -47,7 +47,7 @@ List<Article> articles = lambda.query(Article.class)
 
 ## 用 SQL 理解 Milvus {#熟悉的入口原生的能力}
 
-jdbc-milvus 由 dbVisitor 项目开发，将支持的 SQL 转换为 Milvus API 调用。SQL 与 Milvus 的对应关系如下：
+jdbc-milvus 由 dbVisitor 项目开发，将[支持的 SQL](/docs/features/milvus/about) 转换为 Milvus API 调用。SQL 与 Milvus 的对应关系如下：
 
 | 场景 | 解决办法 | Milvus 中的含义 |
 | --- | --- | --- |
@@ -85,7 +85,7 @@ LOAD TABLE intro_articles;
 
 ## JDBC 接入 {#用-jdbc-接入应用}
 
-Java 17+ 应用的 Maven 依赖：
+Java 17+ 应用的 [Maven 依赖](/docs/drivers/milvus/dependencies)：
 
 ```xml
 <!-- Milvus JDBC 驱动：通过 SQL 访问 Milvus -->
@@ -101,6 +101,8 @@ Java 17+ 应用的 Maven 依赖：
     <version>6.8.0</version>
 </dependency>
 ```
+
+[连接地址与参数](/docs/drivers/milvus/connection)：
 
 ```java
 String url = "jdbc:dbvisitor:milvus://127.0.0.1:19530/default";
@@ -136,9 +138,9 @@ try (Connection conn = DriverManager.getConnection(url, props);
 
 ## ORM 映射 {#再往前一步业务接口}
 
-dbVisitor 支持与 Spring、Hasor、Solon、Guice 四个开发框架集成。
+dbVisitor 支持与 [Spring](/docs/guides/yourproject/with_spring)、[Hasor](/docs/guides/yourproject/with_hasor)、[Solon](/docs/guides/yourproject/with_solon)、[Guice](/docs/guides/yourproject/with_guice) 四个开发框架集成。
 
-用 Mapper 将 SQL 封装为业务方法。结果对象 `ArticleHit` 包含 `id`、`title`、`score` 属性及 getter/setter：
+用 [Mapper 方法注解](/docs/guides/core/mapper/annotation_query)将 SQL 封装为业务方法。结果对象 `ArticleHit` 包含 `id`、`title`、`score` 属性及 getter/setter：
 
 ```java
 @SimpleMapper
@@ -164,7 +166,7 @@ try (Session session = new Configuration().newSession(DriverManager.getConnectio
 
 <span id="经典场景相关文章推荐" />
 
-查询构造器可以组合条件与向量排序，例如查询同类别的相似文章并排除自身：
+查询构造器可以组合条件与[向量排序](/docs/features/milvus/vectors#knn-ordering)，例如查询同类别的相似文章并排除自身：
 
 ```java
 try (Connection conn = DriverManager.getConnection(url, props)) {
@@ -179,7 +181,7 @@ try (Connection conn = DriverManager.getConnection(url, props)) {
 }
 ```
 
-也可以采用 MyBatis 风格的 XML。将接口注解换成 `@RefMapper`，移除方法上的 `@Query`：
+也可以采用 [MyBatis 风格的 XML](/docs/guides/core/file/dynamic_sql)。将接口注解换成 [`@RefMapper`](/docs/guides/core/mapper/file_statement)，移除方法上的 `@Query`：
 
 ```java title="ArticleMapper.java"
 package example;
@@ -217,12 +219,12 @@ List<ArticleHit> allHits = mapper.nearest(null, List.of(1F, 0F));
 
 ## SQL 支持范围 {#语法支持范围}
 
-- **集合、索引与分区管理**：`CREATE / ALTER / DROP TABLE`、`CREATE / DROP INDEX`、`CREATE / DROP PARTITION`。
-- **数据写入与修改**：`INSERT`、`UPSERT`、`UPDATE`、`DELETE`。
-- **文件批量导入**：`IMPORT`，通过 `SHOW IMPORT` 查询任务状态。
-- **普通查询与计数**：`SELECT ... WHERE ... LIMIT ...`、`SELECT COUNT(*)`。
-- **向量与混合检索**：`ORDER BY` 距离算子、`ORDER BY HYBRID`；支持 L2、COSINE、IP 等度量。
-- **集合加载与状态查看**：`LOAD / RELEASE TABLE`、`SHOW TABLES`、`SHOW INDEXES`、`SHOW STATS`。
+- **[集合、索引与分区管理](/docs/features/milvus/about#定义语句)**：`CREATE / ALTER / DROP TABLE`、`CREATE / DROP INDEX`、`CREATE / DROP PARTITION`。
+- **[数据写入与修改](/docs/features/milvus/about#写入语句)**：`INSERT`、`UPSERT`、`UPDATE`、`DELETE`。
+- **文件批量导入**：[`IMPORT`](/docs/features/milvus/sql/import)，通过 [`SHOW IMPORT`](/docs/features/milvus/show/import) 查询任务状态。
+- **普通查询与计数**：[`SELECT ... WHERE ... LIMIT ...`](/docs/features/milvus/sql/select)、[`SELECT COUNT(*)`](/docs/features/milvus/query/count)。
+- **向量与混合检索**：[`ORDER BY` 距离算子](/docs/features/milvus/sql/select)、[`ORDER BY HYBRID`](/docs/features/milvus/sql/hybrid)；支持 L2、COSINE、IP 等度量。
+- **集合加载与状态查看**：[`LOAD`](/docs/features/milvus/sql/maintenance) / [`RELEASE TABLE`](/docs/features/milvus/admin/release)、[`SHOW TABLES`](/docs/features/milvus/show/tables)、[`SHOW INDEXES`](/docs/features/milvus/show/indexes)、[`SHOW STATS`](/docs/features/milvus/show/stats)。
 
 ## SQL Client {#在-datagrip-中查询}
 

@@ -10,7 +10,7 @@ topics: [vectors]
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-Java applications typically use the Milvus SDK to write data and search vectors. For relational database developers, SQL and JDBC are more familiar. jdbc-milvus brings that workflow to Milvus:
+Java applications typically use the Milvus SDK to write data and search vectors. For relational database developers, SQL and JDBC are more familiar. [jdbc-milvus](/en/docs/drivers/milvus/about) brings that workflow to Milvus:
 
 ```sql
 SELECT id, title, score FROM intro_articles -- score is squared L2 distance; smaller is closer
@@ -18,7 +18,7 @@ WHERE category = 'java'                    -- Search only within the Java catego
 ORDER BY embedding <-> [1,0] LIMIT 2;       -- Return the two nearest vectors
 ```
 
-Add dbVisitor to express the same search with entities and a query builder:
+Add dbVisitor to express the same search with [entity mapping](/en/docs/features/milvus/query#entity-mapping) and a [query builder](/en/docs/features/milvus/builder):
 
 ```java
 @Table("intro_articles")
@@ -47,7 +47,7 @@ List<Article> articles = lambda.query(Article.class)
 
 ## Milvus through SQL {#familiar-apis-native-work}
 
-jdbc-milvus is developed by the dbVisitor project and translates supported SQL into Milvus API calls. The following table maps SQL to Milvus concepts:
+jdbc-milvus is developed by the dbVisitor project and translates [supported SQL](/en/docs/features/milvus/about) into Milvus API calls. The following table maps SQL to Milvus concepts:
 
 | Scenario | Solution | Meaning in Milvus |
 | --- | --- | --- |
@@ -85,7 +85,7 @@ LOAD TABLE intro_articles;
 
 ## Connect through JDBC {#execute-through-jdbc}
 
-Maven dependencies for a Java 17+ application:
+[Maven dependencies](/en/docs/drivers/milvus/dependencies) for a Java 17+ application:
 
 ```xml
 <!-- Milvus JDBC driver: access Milvus through SQL -->
@@ -101,6 +101,8 @@ Maven dependencies for a Java 17+ application:
     <version>6.8.0</version>
 </dependency>
 ```
+
+[Connection URL and parameters](/en/docs/drivers/milvus/connection):
 
 ```java
 String url = "jdbc:dbvisitor:milvus://127.0.0.1:19530/default";
@@ -136,9 +138,9 @@ Query results:
 
 ## ORM Mapping {#a-business-method-next}
 
-dbVisitor integrates with Spring, Hasor, Solon and Guice.
+dbVisitor integrates with [Spring](/en/docs/guides/yourproject/with_spring), [Hasor](/en/docs/guides/yourproject/with_hasor), [Solon](/en/docs/guides/yourproject/with_solon) and [Guice](/en/docs/guides/yourproject/with_guice).
 
-A Mapper wraps SQL in a business method. The result object `ArticleHit` contains `id`, `title` and `score` properties with getters/setters:
+[Mapper method annotations](/en/docs/guides/core/mapper/annotation_query) wrap SQL in a business method. The result object `ArticleHit` contains `id`, `title` and `score` properties with getters/setters:
 
 ```java
 @SimpleMapper
@@ -164,7 +166,7 @@ try (Session session = new Configuration().newSession(DriverManager.getConnectio
 
 <span id="related-articles" />
 
-The query builder combines filters and vector ordering, for example to find similar articles in the same category while excluding the current article:
+The query builder combines filters and [vector ordering](/en/docs/features/milvus/vectors#knn-ordering), for example to find similar articles in the same category while excluding the current article:
 
 ```java
 try (Connection conn = DriverManager.getConnection(url, props)) {
@@ -179,7 +181,7 @@ try (Connection conn = DriverManager.getConnection(url, props)) {
 }
 ```
 
-For MyBatis-style XML, replace the interface annotation with `@RefMapper` and remove `@Query` from the method:
+For [MyBatis-style XML](/en/docs/guides/core/file/dynamic_sql), replace the interface annotation with [`@RefMapper`](/en/docs/guides/core/mapper/file_statement) and remove `@Query` from the method:
 
 ```java title="ArticleMapper.java"
 package example;
@@ -217,12 +219,12 @@ List<ArticleHit> allHits = mapper.nearest(null, List.of(1F, 0F));
 
 ## SQL Support {#supported-syntax}
 
-- **Manage collections, indexes and partitions**: `CREATE / ALTER / DROP TABLE`, `CREATE / DROP INDEX`, `CREATE / DROP PARTITION`.
-- **Write and modify data**: `INSERT`, `UPSERT`, `UPDATE`, `DELETE`.
-- **Import files in bulk**: `IMPORT`, with task status available through `SHOW IMPORT`.
-- **Query and count records**: `SELECT ... WHERE ... LIMIT ...`, `SELECT COUNT(*)`.
-- **Vector and hybrid search**: `ORDER BY` distance operators, `ORDER BY HYBRID`; metrics include L2, COSINE and IP.
-- **Load collections and inspect status**: `LOAD / RELEASE TABLE`, `SHOW TABLES`, `SHOW INDEXES`, `SHOW STATS`.
+- **[Manage collections, indexes and partitions](/en/docs/features/milvus/about#definition-statements)**: `CREATE / ALTER / DROP TABLE`, `CREATE / DROP INDEX`, `CREATE / DROP PARTITION`.
+- **[Write and modify data](/en/docs/features/milvus/about#write-statements)**: `INSERT`, `UPSERT`, `UPDATE`, `DELETE`.
+- **Import files in bulk**: [`IMPORT`](/en/docs/features/milvus/sql/import), with task status available through [`SHOW IMPORT`](/en/docs/features/milvus/show/import).
+- **Query and count records**: [`SELECT ... WHERE ... LIMIT ...`](/en/docs/features/milvus/sql/select), [`SELECT COUNT(*)`](/en/docs/features/milvus/query/count).
+- **Vector and hybrid search**: [`ORDER BY` distance operators](/en/docs/features/milvus/sql/select), [`ORDER BY HYBRID`](/en/docs/features/milvus/sql/hybrid); metrics include L2, COSINE and IP.
+- **Load collections and inspect status**: [`LOAD`](/en/docs/features/milvus/sql/maintenance) / [`RELEASE TABLE`](/en/docs/features/milvus/admin/release), [`SHOW TABLES`](/en/docs/features/milvus/show/tables), [`SHOW INDEXES`](/en/docs/features/milvus/show/indexes), [`SHOW STATS`](/en/docs/features/milvus/show/stats).
 
 ## SQL Client {#query-in-datagrip}
 
