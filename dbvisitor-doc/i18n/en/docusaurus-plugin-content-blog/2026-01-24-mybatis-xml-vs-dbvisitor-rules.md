@@ -1,9 +1,9 @@
 ---
 slug: mybatis-xml-vs-dbvisitor-rules
-topics: [apis]
 title: "Dynamic SQL: Rules and XML Compared"
 authors: [ZhaoYongChun]
 tags: [dbVisitor, MyBatis, ORM]
+topics: [apis]
 ---
 
 Dynamic SQL can be expressed with XML tags or written directly in SQL using dbVisitor rules. Both approaches require clear semantics for condition activation, parameter binding, and empty collections. This article covers common rule patterns and explains which forms are not interchangeable.

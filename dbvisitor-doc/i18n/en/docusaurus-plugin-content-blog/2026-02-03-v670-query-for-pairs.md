@@ -1,9 +1,9 @@
 ---
 slug: v670-query-for-pairs
-topics: [mapping]
 title: "Key-Value Queries: Two Columns to a Map"
 authors: [ZhaoYongChun]
 tags: [dbVisitor, JDBC]
+topics: [mapping]
 language: en
 ---
 

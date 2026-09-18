@@ -1,0 +1,142 @@
+---
+id: sql-client
+title: SQL Client 支持
+description: JDBC 适配器接入 DataGrip、DBeaver 时的保活、参数发现、URL 模板和查询兼容要求。
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+dbVisitor 的 JDBC 驱动适配器可以加载到 DataGrip、DBeaver 等 SQL Client 中，通过查询控制台执行数据源命令，并以表格查看结果。实现元数据接口后，客户端还可以展示数据库、集合和字段。
+
+下面是 Milvus 驱动的使用效果：
+
+<div className="sql-client-screenshots">
+<Tabs>
+  <TabItem value="datagrip" label="DataGrip">
+
+![DataGrip 中查询 Milvus 集合并查看结果](/img/drivers/datagrip.png)
+
+  </TabItem>
+  <TabItem value="dbeaver" label="DBeaver">
+
+![DBeaver 中查看 Milvus 集合的字段结构](/img/drivers/dbeaver.png)
+
+  </TabItem>
+</Tabs>
+</div>
+
+已有驱动的安装与连接配置见 [Milvus](./milvus/sql-client.mdx)、[Elasticsearch](./elastic/sql-client.mdx)、[MongoDB](./mongo/sql-client.mdx)、[Redis](./redis/sql-client.mdx)。以下说明自定义适配器需要实现和验证的内容。
+
+## 驱动加载
+
+客户端加载的入口是 `net.hasor.dbvisitor.driver.JdbcDriver`，数据源适配器通过 `META-INF/services/net.hasor.dbvisitor.driver.AdapterFactory` 注册。
+
+- 提供包含运行依赖的 `alone` 包，方便客户端直接添加 JAR；使用普通包时需要同时配置其运行依赖。
+- 打包时合并 SPI 服务文件，确保 JDBC 驱动和 `AdapterFactory` 都能被发现。
+- 客户端运行驱动的 Java 环境需满足驱动要求，当前为 Java 17 或以上。
+
+## 保活与连接检测
+
+客户端可能自动执行保活 SQL。以 Milvus 驱动为例，这两类命令分别处理：
+
+| 命令 | 实现要求 |
+| --- | --- |
+| `SELECT 1`、`SELECT 'keep alive'` | 在本地返回一行一列及正确的列类型，不调用服务端 |
+| `PING` | 执行轻量的服务端请求，成功返回 `PONG`，失败抛出异常 |
+
+常量查询只兼容客户端的自动命令，不能用来判断服务端是否在线。需要检测服务端连接时，配置 `PING` 等实际访问服务端的只读命令，不要给每次常量查询附加网络探测。
+
+新适配器应选择目标数据库支持的轻量请求实现检测，避免依赖业务表、扫描数据或执行写入。当前公共层未实现 `Connection.isValid()`；接入工具时需验证其是否允许配置检测命令。DataGrip 的相关入口见官方[连接选项](https://www.jetbrains.com/help/datagrip/data-sources-and-drivers-dialog.html#options)。
+
+## 连接参数
+
+客户端通过 JDBC 的 [`Driver.getPropertyInfo()`](https://docs.oracle.com/en/java/javase/17/docs/api/java.sql/java/sql/Driver.html#getPropertyInfo(java.lang.String,java.util.Properties)) 获取参数列表。自定义适配器应在 `AdapterFactory.getPropertyNames()` 中声明支持的配置键：
+
+```java title="AdapterFactory 参数声明示例"
+@Override
+public String[] getPropertyNames() {
+    return new String[] {
+        "server", "database", "user", "password", "connectTimeout"
+    };
+}
+```
+
+公共层负责返回尚未填写的参数、保留传入的参数值，并过滤内部参数 `adapterName`。参数发现不能建立数据库连接；URL 尚未填完、参数为空时也应能正常处理。
+
+连接参数同时支持 URL 和 `Properties`，同名参数以 URL 为准。DataGrip 在 **Advanced** 中配置，DBeaver 在 **Driver properties** 中配置；密码使用客户端的认证字段，不写入 URL 模板。
+
+当前公共层返回参数名称和传入值。若要让界面进一步展示默认值、说明或下拉选项，需要补充 `DriverPropertyInfo` 的 `value`、`description`、`choices` 等元数据，并与实际连接配置保持一致。
+
+## URL 模板
+
+为客户端提供可直接使用的模板和完整 URL。以 Milvus 为例：
+
+```text title="DataGrip URL 模板"
+jdbc:dbvisitor:milvus://{host}:{port}/{database}\?consistencyLevel=Strong
+```
+
+```text title="DBeaver URL 模板"
+jdbc:dbvisitor:milvus://{host}:{port}/{database}?consistencyLevel=Strong
+```
+
+```text title="JDBC URL 示例"
+jdbc:dbvisitor:milvus://127.0.0.1:19530/default?consistencyLevel=Strong
+```
+
+模板中的字段应与适配器的 URL 解析规则一致，包括数据库放在路径还是查询参数中。验证时修改 Host、Port、Database，检查生成的 URL 和实际连接目标。客户端配置入口见 [DataGrip](https://www.jetbrains.com/help/datagrip/other-databases.html) 和 [DBeaver](https://dbeaver.com/docs/dbeaver/Driver-Manager/#main-parameters) 官方文档。
+
+## 查询参数
+
+连接参数与 SQL 中的占位符是两回事。客户端通过 `PreparedStatement` 绑定参数时，公共层将参数交给 `AdapterRequest.getArgMap()`，适配器负责按类型传入目标数据库。
+
+```java title="Milvus 参数化查询"
+try (PreparedStatement stmt = conn.prepareStatement(
+        "SELECT id, title FROM intro_articles WHERE category = ? LIMIT 10")) {
+    stmt.setString(1, "java");
+    try (ResultSet rs = stmt.executeQuery()) {
+        while (rs.next()) {
+            System.out.println(rs.getLong("id") + ": " + rs.getString("title"));
+        }
+    }
+}
+```
+
+解析器应区分占位符与字符串、注释中的问号，按出现顺序读取参数，并检查缺失参数和不支持的类型。优先使用 SDK 的绑定能力；必须生成命令文本时，按目标语法编码参数，不直接拼接用户输入。
+
+## 客户端生成的 SQL
+
+查询控制台执行成功，不代表双击表、筛选、排序和编辑数据都会成功。客户端会自行生成 SQL，其语法也必须在驱动支持范围内。
+
+例如 DataGrip 打开表格时可能生成：
+
+```sql title="带表别名的自动查询"
+SELECT t.* FROM intro_articles t;
+```
+
+当前 Milvus 驱动不支持这种表别名写法，可在控制台使用：
+
+```sql title="Milvus 查询"
+SELECT * FROM intro_articles;
+```
+
+实现适配器时，应分别验证表别名、结果别名、名称引用、分页和筛选条件。未支持的语法明确报错，不用字符串替换强行删除别名，也不要把“查询可用”描述为“表格编辑可用”。
+
+## 元数据与结果集
+
+- 通过 `MetadataSupport` 提供真实的库、集合与字段，客户端才能构建对象树；无结果与权限、网络错误要分开处理。
+- `AdapterCursor` 提供准确的列名、类型及空值信息，空结果也应保留列结构。
+- 数据库能力声明与实现保持一致。不支持事务时使用自动提交，不向客户端宣告可提交、回滚。
+- 关闭结果集、语句或连接时释放对应资源，查询超时、取消和断线要有明确结果。
+
+公共层的接口边界见[适配器限制](./limited.md)，扩展方式见[架构设计](./dev/about.md)。
+
+## 验证清单
+
+1. **加载与配置**：在干净的客户端配置中加载 JAR，检查驱动、完整参数列表及 URL 模板；`adapterName` 不出现在参数列表中。
+2. **保活与故障**：常量查询不访问服务端；检测命令在服务正常时成功、停服或网络异常时失败。
+3. **参数绑定**：覆盖字符串中的引号与问号、数值、空值、多个占位符和缺失参数。
+4. **元数据与读取**：检查对象树、字段类型、空结果、查询结果，以及关闭后的资源释放。
+5. **界面操作**：分别验证控制台执行、打开表格、分页、排序、筛选；需要编辑能力时，再验证生成的写入语句。
+
+离线回归测试覆盖驱动行为；客户端兼容性还需用实际 JAR，在目标 DataGrip、DBeaver 版本中验证并记录支持范围。

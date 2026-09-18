@@ -1,12 +1,10 @@
 ---
-last_update:
-  date: 2026-09-17
 slug: dbvisitor-dialect-refactoring
-topics: [architecture]
-title: 方言系统架构演进：从分离到统一
+title: "方言系统架构演进：从分离到统一"
 authors: [ZhaoYongChun]
 tags: [Architecture, dbVisitor]
-date: 2026-01-15
+topics: [architecture]
+updated: 2026-09-17
 ---
 
 dbVisitor 是一个旨在提供统一数据库访问体验的 Java 工具库。随着对 MySQL、PostgreSQL 等关系型数据库以及 MongoDB、ElasticSearch 等 NoSQL 数据源支持的不断深入，底层的方言系统（Dialect System）面临着越来越复杂的挑战。

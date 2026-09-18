@@ -1,9 +1,9 @@
 ---
 slug: mybatis-xml-vs-dbvisitor-rules
-topics: [apis]
 title: "动态 SQL：规则与 XML 的用法对照"
 authors: [ZhaoYongChun]
 tags: [dbVisitor, MyBatis, ORM]
+topics: [apis]
 ---
 
 动态 SQL 可以通过 XML 标签表达，也可以用 dbVisitor 的规则直接写在 SQL 中。两种方式都需要明确条件启用、参数绑定和空集合的语义。本文介绍如何用规则处理常见场景，以及哪些写法不能直接互换。

@@ -1,12 +1,11 @@
 ---
-last_update:
-  date: 2026-09-17
 slug: elasticsearch-mybatis-style
-topics: [datasources]
 title: "Elasticsearch with Mappers"
 authors: [ZhaoYongChun]
 tags: [ElasticSearch, MyBatis, ORM, JDBC, dbVisitor]
+topics: [datasources]
 language: en
+updated: 2026-09-17
 ---
 In hybrid projects with both MySQL and ElasticSearch, the data access layer often splits between MyBatis XML and complex DSL builders. dbVisitor lets you operate ElasticSearch using the same Mapper interfaces and XML, unifying your data access code.
 

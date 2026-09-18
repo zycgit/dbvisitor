@@ -1,10 +1,10 @@
 ---
 slug: milvus-hybrid-search
-topics: [vectors]
 title: "Milvus 混合检索：组合关键词与向量查询"
-description: 用 SQL 配置 BM25、执行稠密向量与关键词两路检索，并通过 RRF 返回一个融合结果集。
+description: "用 SQL 配置 BM25、执行稠密向量与关键词两路检索，并通过 RRF 返回一个融合结果集。"
 authors: [ZhaoYongChun]
 tags: [dbVisitor, Milvus, Vector]
+topics: [vectors]
 ---
 
 查技术文章时，有人输入概念描述，也有人输入准确的产品名。向量检索可以利用 embedding 表达的接近程度，关键词检索则保留词项匹配这条线索。
@@ -13,7 +13,7 @@ tags: [dbVisitor, Milvus, Vector]
 
 <!-- truncate -->
 
-![同一类别过滤作用于稠密向量与 BM25 两路检索，Milvus 使用 RRF 融合后返回一个结果集](./assets/2026-09-17-milvus-hybrid-search/milvus-hybrid-cn.svg)
+![同一类别过滤作用于稠密向量与 BM25 两路检索，Milvus 使用 RRF 融合后返回一个结果集](./assets/2026-09-12-milvus-hybrid-search/milvus-hybrid-cn.svg)
 
 这不同于“标量过滤加向量排序”：后者只有一路向量候选，Hybrid 则组合多路候选。
 

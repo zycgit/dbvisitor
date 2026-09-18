@@ -1,10 +1,10 @@
 ---
 slug: json-field-mapping
-topics: [mapping]
 title: "JSON 字段映射：存取 Java 对象与 Map"
-description: 用类型注解将业务对象整体存入 JSON 文本字段，并说明 Map 属性配置、更新行为和查询边界。
+description: "用类型注解将业务对象整体存入 JSON 文本字段，并说明 Map 属性配置、更新行为和查询边界。"
 authors: [ZhaoYongChun]
 tags: [dbVisitor, ORM, TypeHandler]
+topics: [mapping]
 ---
 
 主题颜色、通知渠道等用户偏好，通常一起读取、一起修改。如果每次都手工把对象序列化成 JSON，再在查询后反序列化，这段转换逻辑很容易散落在多个 DAO 中。

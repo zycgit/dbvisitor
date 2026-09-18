@@ -6,25 +6,92 @@ title: Add Dependencies
 
 <span id="dependencies-and-versions" />
 
-Choose Maven or Gradle.
+Starting with 6.8.1, the driver provides a regular package and an `alone` package with the same database capabilities.
 
-## Maven
+| Comparison | Regular package | `alone` package |
+| --- | --- | --- |
+| Packaging | Selected components are embedded; remaining dependencies are resolved by Maven/Gradle | The driver and all required runtime dependencies are shaded into one JAR |
+| SDK version | An external Jedis version can be selected, subject to compatibility | Fixed in the JAR; cannot be selected independently |
+| Advantage | Control the SDK version to fit application requirements | One JAR, with no need to assemble its runtime dependencies |
+| Trade-off | More dependency coordination when managing versions or loading JARs manually | Larger JAR; embedded SDK version follows the driver build |
+| Example | Java applications requiring a specific compatible SDK version | DataGrip, DBeaver, or application development using the bundled SDK |
+
+The regular package resolves Jedis (`redis.clients:jedis`) as an external dependency. You can select a compatible SDK version through Maven dependency management or Gradle version constraints. Verify compatibility when changing versions; this does not imply support for arbitrary major versions.
+
+## Regular Package
+
+For Maven/Gradle application development, use either configuration below. No classifier is needed.
+
+### Maven
 
 ```xml
 <dependency>
     <groupId>net.hasor</groupId>
     <artifactId>jdbc-redis</artifactId>
-    <version>@project.docsVersion@</version>
-    <classifier>all</classifier>
+    <version>@project.jdbcDriverVersion@</version>
 </dependency>
 ```
 
-## Gradle
+### Gradle
 
 ```groovy
-repositories { mavenCentral() }
-dependencies { implementation "net.hasor:jdbc-redis:@project.docsVersion@:all" }
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation "net.hasor:jdbc-redis:@project.jdbcDriverVersion@"
+}
 ```
 
+For manual loading, the regular JAR must be accompanied by the external dependencies declared in its POM.
 
-After adding the dependency, [connect to the database](./connection.mdx).
+## Standalone Package
+
+Choose `alone` when you want a single driver JAR and do not need to customize its embedded SDK version. It can be used both in JDBC tools and in application code. Shading bundles the runtime dependencies; it does not mean every dependency has its package names relocated.
+
+### Maven {#alone-maven}
+
+Copy the complete dependency below into `pom.xml`. The `classifier` selects the `-alone.jar` artifact of the same driver and version.
+
+```xml
+<dependency>
+    <groupId>net.hasor</groupId>
+    <artifactId>jdbc-redis</artifactId>
+    <version>@project.jdbcDriverVersion@</version>
+    <!-- Select the self-contained JAR -->
+    <classifier>alone</classifier>
+    <!-- Dependencies are already bundled; do not fetch duplicate JARs -->
+    <exclusions>
+        <exclusion>
+            <groupId>*</groupId>
+            <artifactId>*</artifactId>
+        </exclusion>
+    </exclusions>
+</dependency>
+```
+
+### Gradle {#alone-gradle}
+
+The final `:alone` in the coordinate selects the standalone artifact.
+
+```groovy
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation("net.hasor:jdbc-redis:@project.jdbcDriverVersion@:alone") {
+        // Dependencies are already bundled in the alone JAR
+        transitive = false
+    }
+}
+```
+
+Both artifacts share a POM. The Maven exclusions and Gradle `transitive = false` above prevent dependency managers from fetching libraries already bundled in `alone`; they do not remove classes from that JAR.
+
+<span id="datagrip-and-dbeaver" />
+
+For driver downloads, URL templates and DataGrip/DBeaver setup, see [SQL Client](./sql-client.mdx).
+
+Use only one package type for a given driver. Do not load the regular JAR and `alone` together or add another SDK JAR to replace the embedded version. Neither package includes the dbVisitor ORM module; add it separately if needed.

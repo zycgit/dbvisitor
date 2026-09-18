@@ -1,10 +1,10 @@
 ---
 slug: one-mapper-three-styles
-topics: [apis]
 title: "One Mapper: Builders, Annotations, XML"
 description: "Use one order Mapper with a builder default method, an annotated short query and an XML report query."
 authors: [ZhaoYongChun]
 tags: [dbVisitor, ORM]
+topics: [apis]
 ---
 
 You do not have to choose between writing every query with a builder and putting every query in XML.

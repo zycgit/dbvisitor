@@ -1,11 +1,10 @@
 ---
-last_update:
-  date: 2026-09-17
 slug: v670-date-handling
-topics: [mapping]
 title: "公元前日期映射：两种处理方案"
 authors: [ZhaoYongChun]
 tags: [dbVisitor, TypeHandler]
+topics: [mapping]
+updated: 2026-09-17
 ---
 
 公元前日期在数据库中的处理是一个被长期忽视的难题。Java 的 ISO 8601 年份表示法与数据库的日期系统存在根本性差异，导致跨系统传递公元前日期时经常出现"偏移一年"或"偏移一天"的诡异 Bug。

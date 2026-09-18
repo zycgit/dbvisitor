@@ -1,12 +1,11 @@
 ---
-last_update:
-  date: 2026-09-17
 slug: v670-date-handling
-topics: [mapping]
 title: "Mapping BCE Dates: Two Approaches"
 authors: [ZhaoYongChun]
 tags: [dbVisitor, TypeHandler]
+topics: [mapping]
 language: en
+updated: 2026-09-17
 ---
 
 BCE dates cause subtle "off-by-one" bugs between Java and databases. dbVisitor 6.7.0 adds `JulianDayTypeHandler` and `PgDateTypeHandler` to provide cross-database and PostgreSQL-native mappings. Database date ranges and handler boundaries still need consideration.

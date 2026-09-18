@@ -1,10 +1,10 @@
 ---
 slug: milvus-data-ingestion
-topics: [vectors]
 title: "Milvus Ingestion: Choosing a Write Method"
 description: "Use jdbc-milvus for small writes, iterator-based paged ingestion and server-side Import, with distinct handling for counts, job IDs and failures."
 authors: [ZhaoYongChun]
 tags: [dbVisitor, Milvus, JDBC]
+topics: [vectors]
 ---
 
 A few online records, an incoming stream of rows and a prepared data file should not all be handled as individual INSERT statements.

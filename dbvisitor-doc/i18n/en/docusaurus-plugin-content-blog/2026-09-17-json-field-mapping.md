@@ -1,10 +1,10 @@
 ---
 slug: json-field-mapping
-topics: [mapping]
 title: "JSON Field Mapping: Java Objects and Maps"
 description: "Map a business object to JSON text using a type annotation, with Map configuration, update semantics and querying boundaries."
 authors: [ZhaoYongChun]
 tags: [dbVisitor, ORM, TypeHandler]
+topics: [mapping]
 ---
 
 User preferences such as theme and notification channels are often read and changed together. Manually serializing and deserializing them in every DAO spreads conversion logic throughout the application.

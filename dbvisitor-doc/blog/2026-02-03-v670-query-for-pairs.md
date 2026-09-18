@@ -1,9 +1,9 @@
 ---
 slug: v670-query-for-pairs
-topics: [mapping]
 title: "键值查询：将两列结果映射为 Map"
 authors: [ZhaoYongChun]
 tags: [dbVisitor, JDBC]
+topics: [mapping]
 ---
 
 在日常开发中，"查两列，组成 Map"是一个高频操作：ID 到名称的映射、编码到描述的映射、配置键到值的映射…… 以往你需要查出列表再手动遍历构建 Map。

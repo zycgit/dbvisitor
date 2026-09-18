@@ -1,10 +1,10 @@
 ---
 slug: rule_multiple_conditions
-topics: [apis]
 title: "SQL 规则实战：组合 AND/OR 查询条件"
-description: 详解如何使用 dbVisitor 的 AND/OR 规则定义包含括号和组合逻辑的复杂 SQL 条件。
+description: "详解如何使用 dbVisitor 的 AND/OR 规则定义包含括号和组合逻辑的复杂 SQL 条件。"
 authors: [ZhaoYongChun]
 tags: [Rule, DynamicSQL]
+topics: [apis]
 language: zh-cn
 ---
 

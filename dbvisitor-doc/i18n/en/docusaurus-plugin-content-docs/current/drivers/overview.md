@@ -26,3 +26,4 @@ They address the following core problems:
   - **[jdbc-milvus](./milvus/about)** is a JDBC driver adapter for Milvus vector database, allowing developers to operate Milvus using standard JDBC interfaces and SQL-style commands.
 - Developing New Adapters
   - **[Custom Adapter](./dev/about)** Learn how to develop a custom JDBC driver adapter to implement a JDBC-compatible layer for your own database.
+  - **[SQL Client Support](./sql-client.mdx)** Learn about keep-alive commands, property discovery, URL templates and query compatibility for DataGrip and DBeaver.

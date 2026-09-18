@@ -1,12 +1,11 @@
 ---
-last_update:
-  date: 2026-09-17
 slug: dbvisitor-dialect-refactoring
-topics: [architecture]
 title: "Unifying the Database Dialect Layer"
 authors: [ZhaoYongChun]
 tags: [Architecture, dbVisitor]
+topics: [architecture]
 language: en
+updated: 2026-09-17
 ---
 
 As dbVisitor expanded from RDBMS to NoSQL, the dialect system's abstractions became fragmented. This post explains a deep architectural refactoring that unifies dialect metadata and command building into a cohesive design — no functional changes, pure structural improvement.

@@ -1,10 +1,10 @@
 ---
 slug: rule_multiple_conditions
-topics: [apis]
 title: "SQL Rules: Combining AND/OR Conditions"
-description: Use dbVisitor's AND/OR rules to build complex nested SQL conditions in one line.
+description: "Use dbVisitor's AND/OR rules to build complex nested SQL conditions in one line."
 authors: [ZhaoYongChun]
 tags: [Rule, DynamicSQL]
+topics: [apis]
 language: en
 ---
 

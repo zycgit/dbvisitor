@@ -188,6 +188,17 @@ h3 {
     font-size: 16px;
 }
 
+/* Keep SQL client screenshots readable without growing with wide article layouts. */
+.sql-client-screenshots {
+    width: 100%;
+    max-width: 960px;
+}
+
+.sql-client-screenshots img {
+    max-width: 100%;
+    height: auto;
+}
+
 /* Shared Markdown styles for documentation and blog content. */
 .markdown table {
     --doc-table-border: #e1e6ed;

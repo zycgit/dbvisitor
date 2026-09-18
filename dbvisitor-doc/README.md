@@ -25,9 +25,23 @@ npm run build
 
 本目录用于构建文档站，不是 dbVisitor Java 模块的构建入口。
 
-## 博客标题规范
+## 博客编辑规范
 
-新增、翻译和整理文章前，请先阅读 [AI 编辑约定](./AGENTS.md)。其中规定了中英文大标题、小标题的长度上限、计数方式、措辞要求及锚点兼容规则；人工编辑与 AI 初稿使用同一标准。
+新增、翻译和整理文章前，请先阅读 [AI 编辑约定](./AGENTS.md)。其中规定了顶部元数据格式、日期维护方式，以及中英文标题长度、措辞和锚点兼容规则；人工编辑与 AI 初稿使用同一标准。
+
+元数据字段统一按以下顺序排列，可选字段不存在时省略。标题、描述使用双引号，列表使用行内格式；新文章不填写 `updated`：
+
+```yaml
+---
+slug: mysql_stream_read
+title: "MySQL 流式读取超大表"
+description: "使用 dbVisitor 与 MySQL Connector/J 逐行读取大结果集，控制应用侧内存占用。"
+authors: [ZhaoYongChun]
+tags: [dbVisitor, JDBC, Streaming]
+topics: [mapping]
+language: zh-cn
+---
+```
 
 ## 博客资源
 
@@ -35,9 +49,9 @@ npm run build
 
 ```text
 blog/
-├── 2026-09-17-milvus-jdbc-vector-search.md
+├── 2026-09-18-milvus-jdbc-vector-search.md
 └── assets/
-    └── 2026-09-17-milvus-jdbc-vector-search/  # 与文章文件名（不含扩展名）一致
+    └── 2026-09-18-milvus-jdbc-vector-search/  # 与文章文件名（不含扩展名）一致
         ├── jdbc-milvus-cn.svg               # 中文配图
         └── jdbc-milvus.svg                  # 英文配图
 ```
@@ -45,7 +59,7 @@ blog/
 每篇文章的配图和附件集中在自己的资源目录内，中英文版本共用该目录；不再按版本号或资源类型混放。没有资源的文章无需创建空目录。中文文章使用相对路径引用；构建时由 Docusaurus 打包资源并生成访问地址：
 
 ```markdown
-![示意图](./assets/2026-09-17-milvus-jdbc-vector-search/jdbc-milvus-cn.svg)
+![示意图](./assets/2026-09-18-milvus-jdbc-vector-search/jdbc-milvus-cn.svg)
 示例工程（[GitHub](https://github.com/zycgit/dbvisitor/tree/main/dbvisitor-example/blog-680) / [Gitee](https://gitee.com/zycgit/dbvisitor/tree/main/dbvisitor-example/blog-680)）
 ```
 
@@ -57,14 +71,13 @@ blog/
 
 ### 发布时间与更新时间
 
-文件名前缀或 front matter 的 `date` 表示原始发布时间，不要为了更新文章而修改它。实质性修订正文或示例后，单独填写：
+发布时间统一取文件名的 `YYYY-MM-DD` 前缀，front matter 不再填写顶层 `date`。不要为了更新文章而修改文件名日期。新文章在首发前的编写、校对和反复打磨不设置 `updated`，即使跨天也只保留发布时间。仅在文章正式发布后发生实质性修订时，在元数据最后填写单行更新时间：
 
 ```yaml
-last_update:
-  date: 2026-09-17
+updated: 2026-09-17
 ```
 
-文章标题区分别显示“发布”和“更新”，月份、日期均补足两位；归档和专栏仍按原始发布时间排序。仅校验通过、排版或重新构建不自动生成更新时间。中英文内容同步修订时，分别设置对应文章的 `last_update`。
+文章标题区在发布与更新日期不同时分别显示“发布”和“更新”；同一天只显示发布时间，按页面使用的 UTC 日历日期判断，不比较时分秒。月份、日期均补足两位；归档和专栏仍按原始发布时间排序。仅校验通过、排版或重新构建不自动生成更新时间。中英文内容同步修订时，分别设置对应文章的 `updated`。
 
 在 `blog/topics.yml` 定义专栏，顺序即页面展示顺序：
 
@@ -102,9 +115,9 @@ ZhaoYongChun:
 
 ## 文档版本变量
 
-`plugins/projectVars.js` 统一维护版本：`docsVersion` 用于使用指南及依赖示例，`developmentVersion` 用于开发版本入口，`lastReleaseVer`、`lastReleaseTime` 用于最新发布信息。首页也从此文件读取版本。
+`plugins/projectVars.js` 统一维护版本：`docsVersion` 用于使用指南及通用依赖示例，`jdbcDriverVersion` 用于四个非关系型 JDBC 驱动的依赖示例和 `alone` 下载链接，`developmentVersion` 用于开发版本入口，`lastReleaseVer`、`lastReleaseTime` 用于最新发布信息。首页也从此文件读取版本。
 
-Markdown/MDX 正文、行内代码、代码块和链接可使用 `@project.docsVersion@`、`@project.lastReleaseVer@`、`@project.lastReleaseTime@`。构建后显示和复制的内容均为实际值；变量名拼错会使构建失败。
+Markdown/MDX 正文、行内代码、代码块和链接可使用 `@project.docsVersion@`、`@project.jdbcDriverVersion@`、`@project.lastReleaseVer@`、`@project.lastReleaseTime@`。构建后显示和复制的内容均为实际值；变量名拼错会使构建失败。
 
 ```xml
 <version>@project.docsVersion@</version>

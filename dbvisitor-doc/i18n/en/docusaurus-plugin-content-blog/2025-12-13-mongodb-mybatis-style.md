@@ -1,12 +1,11 @@
 ---
-last_update:
-  date: 2026-09-17
 slug: mongodb-mybatis-style
-topics: [datasources]
-title: MongoDB the MyBatis Way
+title: "MongoDB the MyBatis Way"
 authors: [ZhaoYongChun]
 tags: [MongoDB, MyBatis, ORM, JDBC, dbVisitor]
+topics: [datasources]
 language: en
+updated: 2026-09-17
 ---
 
 In hybrid projects with both MySQL and MongoDB, the data access layer often feels fragmented — MyBatis Mapper on one side, `MongoTemplate` on the other. dbVisitor lets you operate MongoDB using the same Mapper interfaces and XML, achieving a unified architecture.

@@ -1,11 +1,10 @@
 ---
-last_update:
-  date: 2026-09-17
 slug: dbvisitor-two-layer-adapter
-topics: [architecture]
-title: dbVisitor 的双层适配器
+title: "dbVisitor 的双层适配器"
 authors: [ZhaoYongChun]
 tags: [dbVisitor, Architecture, JDBC, NoSQL]
+topics: [architecture]
+updated: 2026-09-17
 ---
 
 本文将深入解析 dbVisitor 独特的"双层适配"架构，揭示其如何通过应用层与协议层的双重抽象，打破 RDBMS 与 NoSQL 的壁垒。

@@ -118,4 +118,4 @@ Import REST 使用 JDBC 地址和认证/TLS 属性，不读取自定义 SDK 客�
 
 ## 连接池
 
-使用 HikariCP 时，需显式设置 `connectionTestQuery` 为 `SHOW TABLES`，因为当前公共驱动未实现 `Connection.isValid()`；不要使用不受支持的 `SELECT 1`。保持自动提交模式，不配置事务隔离级别。连接 URL、认证和 TLS 仍按普通 JDBC 连接配置，应用结束时关闭连接池。
+使用 HikariCP 时，需显式设置 `connectionTestQuery`，因为当前公共驱动未实现 `Connection.isValid()`。6.8.1 起使用 `PING` 探测服务端，旧版使用 `SHOW TABLES`。`SELECT 1` 只在本地返回常量，不用于检测服务端连接。保持自动提交模式，不配置事务隔离级别。连接 URL、认证和 TLS 仍按普通 JDBC 连接配置，应用结束时关闭连接池。

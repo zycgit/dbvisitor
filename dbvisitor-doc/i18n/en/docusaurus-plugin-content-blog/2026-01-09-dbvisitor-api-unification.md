@@ -1,12 +1,11 @@
 ---
-last_update:
-  date: 2026-09-17
 slug: dbvisitor-api-unification
-topics: [architecture]
 title: "Unified Data Access: Layers and Limits"
 authors: [ZhaoYongChun]
 tags: [dbVisitor, ORM, JDBC, NoSQL, Architecture]
+topics: [architecture]
 language: en
+updated: 2026-09-17
 ---
 
 After [dbVisitor: Many Databases, One API](/blog/new-generation-dbvisitor) went live, the core debate was direct: **can a single API truly unify RDBMS and NoSQL?** This post tackles the controversy and explains the design principles behind dbVisitor's "One API, Access Multiple Databases" vision.

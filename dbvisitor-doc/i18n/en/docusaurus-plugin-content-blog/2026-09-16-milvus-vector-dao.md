@@ -1,12 +1,10 @@
 ---
-last_update:
-  date: 2026-09-17
 slug: milvus-vector-dao
-topics: [vectors]
 title: "Milvus Entity Mapping and DAO Design"
 description: "Map a Milvus collection to Java entities, organize searches with builders and Mapper methods, and update selected fields."
 authors: [ZhaoYongChun]
 tags: [dbVisitor, Milvus, Vector, ORM]
+topics: [vectors]
 ---
 
 Once the first vector query works, applications usually need stable business operations: add an article, search within a category, or rename a title. Having every caller process ResultSet is not the only option.
@@ -15,7 +13,7 @@ This article adds dbVisitor on top of jdbc-milvus: map the collection to an enti
 
 <!-- truncate -->
 
-![Article fields map to the collection; builders and annotated methods access the same data](../../../blog/assets/2026-09-17-milvus-vector-dao/milvus-dao.svg)
+![Article fields map to the collection; builders and annotated methods access the same data](../../../blog/assets/2026-09-16-milvus-vector-dao/milvus-dao.svg)
 
 ## Entity Mapping {#from-collection-to-entity}
 

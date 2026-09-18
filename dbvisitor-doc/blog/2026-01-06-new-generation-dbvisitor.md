@@ -1,13 +1,12 @@
 ---
-last_update:
-  date: 2026-09-17
 slug: new-generation-dbvisitor
-topics: [architecture]
 title: "dbVisitor：多种数据库，一套 API"
-description: 数据的存储形式从单一的关系型数据库演进到了多元化时代（NoSQL, NewSQL, AI Vector 等），数据访问层依然停留在旧时代。dbVisitor 的出世旨在定义“新一代”数据访问库的标准：One API, Access Multiple Databases。
+description: "数据的存储形式从单一的关系型数据库演进到了多元化时代（NoSQL, NewSQL, AI Vector 等），数据访问层依然停留在旧时代。dbVisitor 的出世旨在定义“新一代”数据访问库的标准：One API, Access Multiple Databases。"
 authors: [ZhaoYongChun]
 tags: [dbVisitor, ORM, JDBC, NoSQL]
+topics: [architecture]
 language: zh-cn
+updated: 2026-09-17
 ---
 
 数据访问层（DAL）技术已经非常成熟，从最早的 JDBC 到 Hibernate、MyBatis，再到 Spring Data JPA。我们习惯了用这些框架处理数据。然而，当我们把目光投向“数据”本身的变化时，会发现这些经典的框架似乎正逐渐变为“老一代”。

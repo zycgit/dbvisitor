@@ -1,12 +1,11 @@
 ---
-last_update:
-  date: 2026-09-17
 slug: dbvisitor-api-unification
-topics: [architecture]
 title: "统一数据访问：分层设计与数据库能力边界"
 authors: [ZhaoYongChun]
 tags: [dbVisitor, ORM, JDBC, NoSQL, Architecture]
+topics: [architecture]
 language: zh-cn
+updated: 2026-09-17
 ---
 
 有开发者引用物理学隐喻：“粒子的位置与动量不可同时确定”，暗示在框架设计中，通用性与专用性难以兼得。

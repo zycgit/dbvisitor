@@ -118,4 +118,4 @@ Import REST uses the JDBC address and authentication/TLS properties, not the cus
 
 ## Connection Pools
 
-With HikariCP, explicitly set `connectionTestQuery` to `SHOW TABLES`: the current shared driver does not implement `Connection.isValid()`. Do not use the unsupported `SELECT 1`. Keep auto-commit enabled and do not configure a transaction isolation level. Configure the URL, authentication, and TLS as for a normal JDBC connection, and close the pool when the application exits.
+With HikariCP, explicitly set `connectionTestQuery`: the current shared driver does not implement `Connection.isValid()`. Use `PING` to probe the server starting with 6.8.1, or `SHOW TABLES` on older versions. `SELECT 1` returns a local constant and does not check server connectivity. Keep auto-commit enabled and do not configure a transaction isolation level. Configure the URL, authentication, and TLS as for a normal JDBC connection, and close the pool when the application exits.

@@ -1,10 +1,10 @@
 ---
 slug: one-mapper-three-styles
-topics: [apis]
 title: "一个 Mapper 中组合构造器、注解与 XML"
-description: 用一个订单 Mapper 展示默认方法调用构造器、注解维护短 SQL、XML 保存统计查询，按场景选择而不是重复实现。
+description: "用一个订单 Mapper 展示默认方法调用构造器、注解维护短 SQL、XML 保存统计查询，按场景选择而不是重复实现。"
 authors: [ZhaoYongChun]
 tags: [dbVisitor, ORM]
+topics: [apis]
 ---
 
 选择数据访问方式时，并不一定要在“全部写 Lambda”和“全部写 XML”之间做决定。

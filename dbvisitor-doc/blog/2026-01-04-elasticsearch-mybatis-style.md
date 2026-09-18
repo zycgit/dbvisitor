@@ -1,12 +1,11 @@
 ---
-last_update:
-  date: 2026-09-17
 slug: elasticsearch-mybatis-style
-topics: [datasources]
 title: "用 Mapper 操作 Elasticsearch"
 authors: [ZhaoYongChun]
 tags: [ElasticSearch, MyBatis, ORM, JDBC, dbVisitor]
+topics: [datasources]
 language: zh-cn
+updated: 2026-09-17
 ---
 
 在 Java 生态中，操作 ElasticSearch 最常见的方式莫过于使用官方的 `elasticsearch-java` (或旧版的 `RestHighLevelClient`) 或者 Spring 家族的 `spring-data-elasticsearch`。这些工具非常强大，但对于习惯了关系型数据库（RDBMS）和 MyBatis 开发模式的开发者来说，切换到 ElasticSearch 往往意味着需要适应一套全新的 API 和思维模式（DSL 构建、Builder 模式等）。

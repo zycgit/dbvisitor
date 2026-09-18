@@ -1,10 +1,10 @@
 ---
 slug: milvus-hybrid-search
-topics: [vectors]
 title: "Milvus Hybrid Search: Vectors and Keywords"
 description: "Configure BM25 through SQL, retrieve dense-vector and keyword candidates, and return one fused result set using RRF."
 authors: [ZhaoYongChun]
 tags: [dbVisitor, Milvus, Vector]
+topics: [vectors]
 ---
 
 People search technical articles using both conceptual descriptions and exact product names. Embeddings provide one retrieval signal; keyword matches provide another.
@@ -13,7 +13,7 @@ When you need both, jdbc-milvus offers ORDER BY HYBRID to express retrieval path
 
 <!-- truncate -->
 
-![A shared category filter applies to dense and BM25 retrieval; Milvus fuses candidates with RRF and returns one result set](../../../blog/assets/2026-09-17-milvus-hybrid-search/milvus-hybrid.svg)
+![A shared category filter applies to dense and BM25 retrieval; Milvus fuses candidates with RRF and returns one result set](../../../blog/assets/2026-09-12-milvus-hybrid-search/milvus-hybrid.svg)
 
 This is different from a scalar filter plus vector ordering: that is one retrieval path; Hybrid combines several candidate lists.
 

@@ -1,10 +1,10 @@
 ---
 slug: mysql_stream_read
-topics: [mapping]
-title: MySQL 流式读取超大表
-description: 使用 dbVisitor 与 MySQL Connector/J 逐行读取大结果集，控制应用侧内存占用。
+title: "MySQL 流式读取超大表"
+description: "使用 dbVisitor 与 MySQL Connector/J 逐行读取大结果集，控制应用侧内存占用。"
 authors: [ZhaoYongChun]
 tags: [dbVisitor, JDBC, Streaming]
+topics: [mapping]
 language: zh-cn
 ---
 

@@ -1,0 +1,85 @@
+---
+id: sql-client
+sidebar_position: 2.5
+title: SQL Client
+description: Configure the Milvus JDBC driver in DataGrip and DBeaver.
+---
+
+When a client tool does not support Milvus by default, or its existing support does not meet your needs, you can use the JDBC driver provided by dbVisitor to access the data source from SQL clients such as DataGrip and DBeaver.
+
+## Driver Setup
+
+Download the standalone driver from Maven Central: [jdbc-milvus-@project.jdbcDriverVersion@-alone.jar](https://repo.maven.apache.org/maven2/net/hasor/jdbc-milvus/@project.jdbcDriverVersion@/jdbc-milvus-@project.jdbcDriverVersion@-alone.jar).
+
+The `alone` JAR bundles runtime dependencies; load this file without adding the regular driver or extra SDK JARs. The driver's Java runtime must be 17 or later. For application dependencies, see [Add Dependencies](./dependencies.mdx).
+
+| Setting | Value |
+| --- | --- |
+| Driver name | dbVisitor Milvus |
+| Driver class | `net.hasor.dbvisitor.driver.JdbcDriver` |
+| Host | `127.0.0.1` |
+| Port | `19530` |
+| Database | `default` |
+
+Use `default` or an existing database you can access. The example uses Strong consistency so matching new records are visible immediately after a successful write.
+
+```text title="DataGrip URL template"
+jdbc:dbvisitor:milvus://{host}:{port}/{database}\?consistencyLevel=Strong
+```
+
+```text title="DBeaver URL template"
+jdbc:dbvisitor:milvus://{host}:{port}/{database}?consistencyLevel=Strong
+```
+
+The template variables map to connection fields. With the example values, the resulting JDBC URL is:
+
+```text
+jdbc:dbvisitor:milvus://127.0.0.1:19530/default?consistencyLevel=Strong
+```
+
+If authentication is enabled, enter credentials in the User and Password fields; otherwise leave them empty. These examples target local, non-TLS services. See [Database Connection](./connection.mdx) and [Connection Parameters](./params.md) for secure or custom connections; do not put passwords or tokens in URLs.
+
+## DataGrip
+
+Official guide: [Add a custom JDBC driver](https://www.jetbrains.com/help/datagrip/other-databases.html). Follow it for the tool interface, using the JAR, driver class and URL template provided on this page.
+
+1. Open **File → Data Sources → Drivers**, click **+**, and use the driver name above.
+2. Under **Driver Files → + → Custom JARs**, select the downloaded JAR; set **Class** to the driver class above.
+3. Add the **DataGrip template** above under **General → URL templates** and click **Apply → Create Data Source**.
+4. Select that template's connection type, fill in the fields, and check the generated URL. Click **Test Connection** and save after it succeeds.
+5. Open the query console; use **Auto** transaction mode and **Disable** for **Switch schema**.
+
+Before testing, add required driver properties as key-value pairs under the data source’s **Advanced** tab, not in VM options. See the official [connection properties documentation](https://www.jetbrains.com/help/datagrip/data-sources-and-drivers-dialog.html#advanced). For example, set `timeZone` to `UTC`; supported names and values are listed in [Connection Parameters](./params.md).
+
+## DBeaver
+
+Official guide: [Driver Manager and main parameters](https://dbeaver.com/docs/dbeaver/Driver-Manager/#main-parameters). It explains the driver class, URL template and libraries; use the values provided on this page.
+
+1. Open **Database → Driver Manager → New**, enter the driver name, and select **Generic**.
+2. Under **Libraries → Add File**, add the downloaded JAR. Set **Class Name** and **Default Port** as above, and use the **DBeaver template** for **URL Template**.
+3. Save the driver, create a new connection with it, and fill in the connection fields. Click **Test Connection** and finish after it succeeds.
+4. Open **SQL Editor → New SQL Script** for that connection and keep **Auto-commit** enabled.
+
+Before testing, add required connection-specific properties under **Driver properties**, as described in the official [driver properties documentation](https://dbeaver.com/docs/dbeaver/Driver-Manager/#driver-properties). Use the names and values in [Connection Parameters](./params.md), such as `timeZone=UTC`.
+
+In either tool, a property set in the JDBC URL overrides a property with the same name in the connection settings.
+
+## Run a Command
+
+Select and execute the complete command:
+
+```text
+SHOW TABLES;
+```
+
+List collections in the current database; an empty database returns an empty list.
+
+For SQL and vector-search syntax, see [Command Reference](../../features/milvus/about.md).
+
+Starting with 6.8.1, DataGrip's `SELECT 'keep alive'` and `SELECT 1` return one constant value in one row locally, without accessing the Milvus server.
+
+To check server connectivity, set the tool's custom validation query to `PING`. It returns `PONG` on success and raises an exception on failure. Upgrade older drivers, or use `SHOW TABLES` to validate the connection.
+
+Connection or introspection failures should be checked against [Usage Limitations](./limitations.md); code completion and grid editing are not guaranteed by JDBC connectivity.
+
+<!-- Steps checked against the tools' configuration documentation; GUI behavior has not yet been tested. -->

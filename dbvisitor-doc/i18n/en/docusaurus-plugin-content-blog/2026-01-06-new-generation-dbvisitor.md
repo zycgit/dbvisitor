@@ -1,13 +1,12 @@
 ---
-last_update:
-  date: 2026-09-17
 slug: new-generation-dbvisitor
-topics: [architecture]
 title: "dbVisitor: Many Databases, One API"
-description: 'Data storage has diversified beyond RDBMS to NoSQL, NewSQL, and AI Vector. dbVisitor aims to define the next-generation standard: One API, Access Multiple Databases.'
+description: "Data storage has diversified beyond RDBMS to NoSQL, NewSQL, and AI Vector. dbVisitor aims to define the next-generation standard: One API, Access Multiple Databases."
 authors: [ZhaoYongChun]
 tags: [dbVisitor, ORM, JDBC, NoSQL]
+topics: [architecture]
 language: en
+updated: 2026-09-17
 ---
 
 Classic frameworks like Hibernate and MyBatis were built for an RDBMS-only world. As data diversifies into NoSQL, NewSQL, and vector stores, the real challenge shifts to unified access across all of them.

@@ -1,10 +1,10 @@
 ---
 slug: milvus-data-ingestion
-topics: [vectors]
 title: "Milvus 数据入库：三种写入方式与选择"
-description: 用 jdbc-milvus 分别处理少量写入、迭代器分页写入和服务端 Import，区分返回计数、任务 ID 与失败处理。
+description: "用 jdbc-milvus 分别处理少量写入、迭代器分页写入和服务端 Import，区分返回计数、任务 ID 与失败处理。"
 authors: [ZhaoYongChun]
 tags: [dbVisitor, Milvus, JDBC]
+topics: [vectors]
 ---
 
 几条在线数据、持续到达的一批记录、已经准备好的大型文件，并不适合一律逐条 INSERT。

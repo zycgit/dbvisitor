@@ -1,12 +1,10 @@
 ---
-last_update:
-  date: 2026-09-17
 slug: redis-mapper-cache
-topics: [datasources]
 title: "Mapper 实战：Redis 商品缓存读写"
-description: 使用 dbVisitor Mapper 调用 Redis 命令，将商品对象映射成 JSON，完成带过期时间的缓存读写和失效处理。
+description: "使用 dbVisitor Mapper 调用 Redis 命令，将商品对象映射成 JSON，完成带过期时间的缓存读写和失效处理。"
 authors: [ZhaoYongChun]
 tags: [dbVisitor, Redis, JDBC]
+topics: [datasources]
 ---
 
 Redis 没有关系型表，怎么会和 Mapper 放在一起？关键不是把 Redis 变成 SQL 数据库，而是复用 Java 接口、参数绑定和结果映射。

@@ -1,12 +1,10 @@
 ---
-last_update:
-  date: 2026-09-17
 slug: milvus-vector-dao
-topics: [vectors]
 title: "Milvus 实体映射与 DAO 封装"
-description: 将 Milvus 集合映射为 Java 实体，通过构造器 API 和 Mapper 方法组织检索，并按需更新字段。
+description: "将 Milvus 集合映射为 Java 实体，通过构造器 API 和 Mapper 方法组织检索，并按需更新字段。"
 authors: [ZhaoYongChun]
 tags: [dbVisitor, Milvus, Vector, ORM]
+topics: [vectors]
 ---
 
 第一次向量查询跑通后，业务代码通常还需要一个稳定的入口：新增文章、按类别检索、修改标题。每个调用方都去处理 `ResultSet`，并不是唯一选择。
@@ -15,7 +13,7 @@ tags: [dbVisitor, Milvus, Vector, ORM]
 
 <!-- truncate -->
 
-![Article 实体的字段与集合对应，构造器和方法注解共同访问同一个集合](./assets/2026-09-17-milvus-vector-dao/milvus-dao-cn.svg)
+![Article 实体的字段与集合对应，构造器和方法注解共同访问同一个集合](./assets/2026-09-16-milvus-vector-dao/milvus-dao-cn.svg)
 
 ## 实体映射 {#从集合到实体}
 

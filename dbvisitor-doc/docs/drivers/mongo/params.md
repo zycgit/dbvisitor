@@ -1,5 +1,6 @@
 ---
 id: params
+hide_table_of_contents: true
 sidebar_position: 4
 title: 参数配置
 description: 连接参数名称、可配置值、默认值及约束。

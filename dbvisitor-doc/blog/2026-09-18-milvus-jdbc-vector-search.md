@@ -1,12 +1,10 @@
 ---
-last_update:
-  date: 2026-09-17
 slug: milvus-jdbc-vector-search
-topics: [vectors]
 title: "Milvus JDBC 入门：向量写入与检索"
-description: 从一条向量查询开始，使用独立 jdbc-milvus 驱动完成连接、建集合、参数化写入和带业务条件的向量检索。
+description: "从一条向量查询开始，使用独立 jdbc-milvus 驱动完成连接、建集合、参数化写入和带业务条件的向量检索。"
 authors: [ZhaoYongChun]
 tags: [dbVisitor, Milvus, JDBC, Vector]
+topics: [vectors]
 ---
 
 如果项目已经使用 Java 和 JDBC，接入 Milvus 后，能不能继续用 `PreparedStatement` 传参数、用 `ResultSet` 读取结果？
@@ -25,7 +23,7 @@ ORDER BY embedding <-> ? LIMIT 2;
 
 ## 独立 JDBC 驱动 {#一个可以独立使用的驱动}
 
-![JDBC 将 SQL 和参数交给驱动，驱动通过官方 SDK 执行 Milvus 查询，结果由 ResultSet 读取](./assets/2026-09-17-milvus-jdbc-vector-search/jdbc-milvus-cn.svg)
+![JDBC 将 SQL 和参数交给驱动，驱动通过官方 SDK 执行 Milvus 查询，结果由 ResultSet 读取](./assets/2026-09-18-milvus-jdbc-vector-search/jdbc-milvus-cn.svg)
 
 `jdbc-milvus` 将支持的 SQL 风格命令转换为官方 SDK 调用。普通条件查询使用 Query，向量检索使用 Search；计算仍由 Milvus 完成。
 

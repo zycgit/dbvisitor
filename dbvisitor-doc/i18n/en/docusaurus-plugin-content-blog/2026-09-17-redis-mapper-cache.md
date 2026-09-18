@@ -1,12 +1,10 @@
 ---
-last_update:
-  date: 2026-09-17
 slug: redis-mapper-cache
-topics: [datasources]
 title: "Redis Product Caching with a Mapper"
 description: "Use dbVisitor Mapper methods for Redis commands, map products to JSON, and manage cache expiration and eviction."
 authors: [ZhaoYongChun]
 tags: [dbVisitor, Redis, JDBC]
+topics: [datasources]
 ---
 
 Redis has no relational tables, so what does a Mapper mean here? It means reusing Java interfaces, parameter binding and result mapping—not turning Redis into a SQL database.

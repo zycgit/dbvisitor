@@ -1,12 +1,11 @@
 ---
-last_update:
-  date: 2026-09-17
 slug: dbvisitor-two-layer-adapter
-topics: [architecture]
 title: "Inside dbVisitor's Two-Layer Adapter"
 authors: [ZhaoYongChun]
 tags: [dbVisitor, Architecture, JDBC, NoSQL]
+topics: [architecture]
 language: en
+updated: 2026-09-17
 ---
 
 dbVisitor's "Two-Layer Adapter" unifies RDBMS and NoSQL access through two abstractions: **Layer 1** — a unified API (LambdaTemplate / Mapper) hiding syntax differences; **Layer 2** — JDBC-compliant drivers wrapping NoSQL protocols. Use the full stack, or integrate the driver with an existing MyBatis project after checking its required JDBC capabilities.

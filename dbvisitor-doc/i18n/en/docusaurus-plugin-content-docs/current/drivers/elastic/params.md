@@ -1,5 +1,6 @@
 ---
 id: params
+hide_table_of_contents: true
 sidebar_position: 4
 title: Parameter Configuration
 description: Connection parameter names, accepted values, defaults and constraints.

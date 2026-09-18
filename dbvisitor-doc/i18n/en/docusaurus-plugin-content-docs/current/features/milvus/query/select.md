@@ -28,6 +28,18 @@ Clauses follow the order shown. Without distance ordering or a vector-range cond
 This adapter unifies scalar queries (Query) and vector similarity searches (Search) using `SELECT` syntax.
 
 
+## Constant Queries
+
+Starting with 6.8.1, omit `FROM` to select a single string, number, boolean, `NULL`, or bound parameter:
+
+```sql
+SELECT 'keep alive';
+SELECT 1;
+SELECT ?;
+```
+
+This returns one row and one column without accessing the server. Multiple columns, functions, and arithmetic expressions are not supported. Use `PING` to probe server connectivity: success returns `PONG`, while failure raises an exception.
+
 ## Scalar Query (Query)
 
 Used for exact matching or range filtering.

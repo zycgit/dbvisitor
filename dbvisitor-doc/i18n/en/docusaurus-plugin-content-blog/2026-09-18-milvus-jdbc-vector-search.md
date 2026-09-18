@@ -1,12 +1,10 @@
 ---
-last_update:
-  date: 2026-09-17
 slug: milvus-jdbc-vector-search
-topics: [vectors]
 title: "Milvus JDBC: Vector Writes and Search"
 description: "Use the standalone jdbc-milvus driver to connect, create a collection, bind vectors, and filter nearest-neighbor results."
 authors: [ZhaoYongChun]
 tags: [dbVisitor, Milvus, JDBC, Vector]
+topics: [vectors]
 ---
 
 If your application already uses Java and JDBC, can it keep passing parameters through PreparedStatement and reading results through ResultSet when it adds Milvus?
@@ -25,7 +23,7 @@ The first parameter is the category; the second is a vector. You still need to u
 
 ## Standalone JDBC Driver {#a-driver-you-can-use-independently}
 
-![JDBC passes SQL and bound values to jdbc-milvus; the official SDK executes the request and results return through ResultSet](../../../blog/assets/2026-09-17-milvus-jdbc-vector-search/jdbc-milvus.svg)
+![JDBC passes SQL and bound values to jdbc-milvus; the official SDK executes the request and results return through ResultSet](../../../blog/assets/2026-09-18-milvus-jdbc-vector-search/jdbc-milvus.svg)
 
 jdbc-milvus translates its supported SQL-style commands into official SDK calls. Scalar queries use Query; vector searches use Search. Milvus performs the database work.
 

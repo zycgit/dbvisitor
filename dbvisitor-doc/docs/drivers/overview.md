@@ -26,3 +26,4 @@ JDBC 驱动适配器是一组基于 `dbvisitor-driver` 框架实现的 JDBC 驱�
   - **[jdbc-milvus](./milvus/about)** 是 Milvus 向量数据库的 JDBC 驱动适配器，它允许开发者使用标准的 JDBC 接口和 SQL 风格命令来操作 Milvus。
 - 开发新的适配器
   - **[自定义适配器](./dev/about)** 学习如何开发一个自定义的 JDBC 驱动适配器，为自己的数据库实现 JDBC 兼容层。
+  - **[SQL Client 支持](./sql-client.mdx)** 了解接入 DataGrip、DBeaver 时的保活、参数发现、URL 模板与查询兼容要求。

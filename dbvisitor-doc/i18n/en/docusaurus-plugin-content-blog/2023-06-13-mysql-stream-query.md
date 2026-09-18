@@ -1,10 +1,10 @@
 ---
 slug: mysql_stream_read
-topics: [mapping]
 title: "Streaming Large MySQL Tables"
-description: Read large MySQL results row by row with dbVisitor and Connector/J to control application memory.
+description: "Read large MySQL results row by row with dbVisitor and Connector/J to control application memory."
 authors: [ZhaoYongChun]
 tags: [dbVisitor, JDBC, Streaming]
+topics: [mapping]
 language: en
 ---
 

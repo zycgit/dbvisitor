@@ -1,0 +1,76 @@
+---
+id: sql-client
+sidebar_position: 2.5
+title: SQL Client
+description: Configure the Elasticsearch JDBC driver in DataGrip and DBeaver.
+---
+
+When a client tool does not support Elasticsearch by default, or its existing support does not meet your needs, you can use the JDBC driver provided by dbVisitor to access the data source from SQL clients such as DataGrip and DBeaver.
+
+## Driver Setup
+
+Download the standalone driver from Maven Central: [jdbc-elastic-@project.jdbcDriverVersion@-alone.jar](https://repo.maven.apache.org/maven2/net/hasor/jdbc-elastic/@project.jdbcDriverVersion@/jdbc-elastic-@project.jdbcDriverVersion@-alone.jar).
+
+The `alone` JAR bundles runtime dependencies; load this file without adding the regular driver or extra SDK JARs. The driver's Java runtime must be 17 or later. For application dependencies, see [Add Dependencies](./dependencies.mdx).
+
+| Setting | Value |
+| --- | --- |
+| Driver name | dbVisitor Elasticsearch |
+| Driver class | `net.hasor.dbvisitor.driver.JdbcDriver` |
+| Host | `127.0.0.1` |
+| Port | `9200` |
+
+Leave the database name empty; specify indexes in commands.
+
+```text title="DataGrip / DBeaver URL template"
+jdbc:dbvisitor:elastic://{host}:{port}
+```
+
+The template variables map to connection fields. With the example values, the resulting JDBC URL is:
+
+```text
+jdbc:dbvisitor:elastic://127.0.0.1:9200
+```
+
+If authentication is enabled, enter credentials in the User and Password fields; otherwise leave them empty. These examples target local, non-TLS services. See [Database Connection](./connection.mdx) and [Connection Parameters](./params.md) for secure or custom connections; do not put passwords or tokens in URLs.
+
+## DataGrip
+
+Official guide: [Add a custom JDBC driver](https://www.jetbrains.com/help/datagrip/other-databases.html). Follow it for the tool interface, using the JAR, driver class and URL template provided on this page.
+
+1. Open **File → Data Sources → Drivers**, click **+**, and use the driver name above.
+2. Under **Driver Files → + → Custom JARs**, select the downloaded JAR; set **Class** to the driver class above.
+3. Add the shared template under **General → URL templates** and click **Apply → Create Data Source**.
+4. Select that template's connection type, fill in the fields, and check the generated URL. Click **Test Connection** and save after it succeeds.
+5. Open the query console; use **Auto** transaction mode and **Disable** for **Switch schema**.
+
+Before testing, add required driver properties as key-value pairs under the data source’s **Advanced** tab, not in VM options. See the official [connection properties documentation](https://www.jetbrains.com/help/datagrip/data-sources-and-drivers-dialog.html#advanced). For example, set `timeZone` to `UTC`; supported names and values are listed in [Connection Parameters](./params.md).
+
+## DBeaver
+
+Official guide: [Driver Manager and main parameters](https://dbeaver.com/docs/dbeaver/Driver-Manager/#main-parameters). It explains the driver class, URL template and libraries; use the values provided on this page.
+
+1. Open **Database → Driver Manager → New**, enter the driver name, and select **Generic**.
+2. Under **Libraries → Add File**, add the downloaded JAR. Set **Class Name**, **URL Template**, and **Default Port** using the settings above.
+3. Save the driver, create a new connection with it, and fill in the connection fields. Click **Test Connection** and finish after it succeeds.
+4. Open **SQL Editor → New SQL Script** for that connection and keep **Auto-commit** enabled.
+
+Before testing, add required connection-specific properties under **Driver properties**, as described in the official [driver properties documentation](https://dbeaver.com/docs/dbeaver/Driver-Manager/#driver-properties). Use the names and values in [Connection Parameters](./params.md), such as `timeZone=UTC`.
+
+In either tool, a property set in the JDBC URL overrides a property with the same name in the connection settings.
+
+## Run a Command
+
+Select and execute the complete command:
+
+```text
+GET /_cluster/health
+```
+
+Inspect cluster health; the account needs the corresponding monitoring permission.
+
+A SQL client provides the editor; the driver still accepts REST-style requests, not arbitrary relational SQL. See [Command Reference](../../features/elastic/about.md).
+
+If a tool uses an unsupported default validation query such as `SELECT 1`, configure the command above instead where the tool allows it. Connection or introspection failures should be checked against [Usage Limitations](./limitations.md); code completion and grid editing are not guaranteed by JDBC connectivity.
+
+<!-- Steps checked against the tools' configuration documentation; GUI behavior has not yet been tested. -->

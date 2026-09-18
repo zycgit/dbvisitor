@@ -8,20 +8,24 @@ import {useBlogPost} from '@docusaurus/plugin-content-blog/client';
 export default function ArticleInfo({className, inline = false}) {
     const {metadata: {date, readingTime, frontMatter}} = useBlogPost();
     // Only explicit editorial updates count, not formatting edits from git history.
-    const updated = frontMatter.last_update?.date;
+    const updated = frontMatter.updated;
     const formatDate = useBlogDateFormat();
+    const publishedDate = formatDate(date);
+    const updatedDate = updated ? formatDate(updated) : null;
+    // Compare displayed calendar dates (UTC), not timestamps within the same day.
+    const showUpdated = updatedDate !== null && updatedDate !== publishedDate;
     const {selectMessage} = usePluralForm();
     const minutes = Math.ceil(readingTime);
     return (
         <div className={className}>
             <span>
-                {updated && `${translate({id: 'blog.article.published', message: '发布：'})}`}
-                <time dateTime={date}>{formatDate(date)}</time>
+                {showUpdated && `${translate({id: 'blog.article.published', message: '发布：'})}`}
+                <time dateTime={date}>{publishedDate}</time>
             </span>
-            {updated && <>
+            {showUpdated && <>
                 {inline && ' · '}
                 <span>{translate({id: 'blog.article.updated', message: '更新：'})}
-                    <time dateTime={new Date(updated).toISOString()} itemProp="dateModified">{formatDate(updated)}</time>
+                    <time dateTime={new Date(updated).toISOString()} itemProp="dateModified">{updatedDate}</time>
                 </span>
             </>}
             {inline && typeof readingTime !== 'undefined' && ' · '}

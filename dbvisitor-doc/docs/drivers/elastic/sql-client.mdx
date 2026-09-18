@@ -1,0 +1,76 @@
+---
+id: sql-client
+sidebar_position: 2.5
+title: SQL Client
+description: 在 DataGrip、DBeaver 中配置和使用 Elasticsearch JDBC 驱动。
+---
+
+当客户端工具默认不支持 Elasticsearch，或已有支持无法满足使用需求时，可以选择 dbVisitor 提供的 JDBC 驱动，在 DataGrip、DBeaver 等 SQL Client 中访问数据源。
+
+## 准备驱动
+
+从 Maven 中央仓库下载单包驱动：[jdbc-elastic-@project.jdbcDriverVersion@-alone.jar](https://repo.maven.apache.org/maven2/net/hasor/jdbc-elastic/@project.jdbcDriverVersion@/jdbc-elastic-@project.jdbcDriverVersion@-alone.jar)。
+
+`alone` 已包含运行依赖，只加载这个文件，不再添加普通驱动包或 SDK JAR。运行驱动的 Java 环境需为 17 或以上。编程开发的依赖配置见[引入依赖](./dependencies.mdx)。
+
+| 项目 | 配置 |
+| --- | --- |
+| 驱动名称 | dbVisitor Elasticsearch |
+| 驱动类 | `net.hasor.dbvisitor.driver.JdbcDriver` |
+| 主机 | `127.0.0.1` |
+| 端口 | `9200` |
+
+不填写数据库名，索引在命令中指定。
+
+```text title="DataGrip / DBeaver URL 模板"
+jdbc:dbvisitor:elastic://{host}:{port}
+```
+
+模板变量对应连接配置中的字段。填入上述示例值后，生成的 JDBC URL 为：
+
+```text
+jdbc:dbvisitor:elastic://127.0.0.1:9200
+```
+
+服务端启用认证时，在 User、Password 栏填写凭据，未启用则留空。示例面向本地非 TLS 服务；安全连接和自定义配置见[建立连接](./connection.mdx)与[连接参数](./params.md)，不要把密码、token 放入 URL。
+
+## DataGrip
+
+官方操作说明：[添加自定义 JDBC 驱动](https://www.jetbrains.com/help/datagrip/other-databases.html)。工具界面与操作流程可参照该说明，JAR、驱动类和 URL 模板使用本页给出的配置。
+
+1. 打开 **File → Data Sources → Drivers**，点击 **+**，按上表填写驱动名称。
+2. 在 **Driver Files → + → Custom JARs** 中选择下载的 JAR，**Class** 填入上述驱动类。
+3. 在 **General → URL templates** 中添加共用模板，点击 **Apply → Create Data Source**。
+4. 选择模板对应的连接类型，填写连接字段并核对生成的 URL。点击 **Test Connection**，测试通过后保存。
+5. 打开查询控制台，事务模式选择 **Auto**，**Switch schema** 设为 **Disable**。
+
+测试连接前，按需在数据源的 **Advanced** 页签添加驱动参数键值对，不填入 VM options。位置见官方[连接属性说明](https://www.jetbrains.com/help/datagrip/data-sources-and-drivers-dialog.html#advanced)。例如名称填 `timeZone`、值填 `UTC`；可用名称和值见本驱动的[连接参数](./params.md)。
+
+## DBeaver
+
+官方操作说明：[驱动管理器与主要配置项](https://dbeaver.com/docs/dbeaver/Driver-Manager/#main-parameters)。其中介绍了驱动类、URL 模板和依赖文件的配置位置，具体值使用本页提供的内容。
+
+1. 打开 **数据库（Database）→ 驱动管理器（Driver Manager）→ 新建（New）**，填写驱动名称，类型选择 **Generic**。
+2. 在 **库（Libraries）→ 添加文件（Add File）** 中选择下载的 JAR；按上文设置 **Class Name、URL Template、Default Port**。
+3. 保存驱动，用它新建数据库连接，填写连接字段，点击 **Test Connection**，通过后完成配置。
+4. 打开该连接的 **SQL 编辑器 → 新建 SQL 脚本**，保持 **自动提交（Auto-commit）**。
+
+测试连接前，按需在连接设置的 **Driver properties（驱动属性）** 中添加参数键值对，位置见官方[驱动属性说明](https://dbeaver.com/docs/dbeaver/Driver-Manager/#driver-properties)。名称和值以本驱动的[连接参数](./params.md)为准，例如 `timeZone=UTC`。
+
+两个工具中，同名参数若已写入 JDBC URL，均以 URL 中的值为准。
+
+## 执行验证
+
+选中完整命令执行：
+
+```text
+GET /_cluster/health
+```
+
+查看集群健康状态，需要相应的监控权限。
+
+SQL Client 只是执行入口，这里仍使用 REST 风格请求，不会自动转换任意关系型 SQL。完整语法见[命令参考](../../features/elastic/about.md)。
+
+若工具使用 `SELECT 1` 等不支持的默认验证语句，可在其允许自定义时改用上面的命令。连接或元信息读取失败时，结合[使用限制](./limitations.md)排查；JDBC 连通不等于支持工具的全部语法补全和表格编辑功能。
+
+<!-- 步骤按工具配置文档核对，尚未实机验证 GUI。 -->

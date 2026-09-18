@@ -6,25 +6,92 @@ title: 引入依赖
 
 <span id="1-版本与依赖" />
 
-Maven 和 Gradle 任选一种。
+从 6.8.1 起，驱动提供普通包和 `alone` 包，两者的数据库访问能力相同。
 
-## Maven
+| 对比项 | 普通包 | `alone` 包 |
+| --- | --- | --- |
+| 打包方式 | 内置部分组件，其余依赖由 Maven/Gradle 引入 | 驱动和全部必需的运行依赖 shaded 到同一个 JAR |
+| SDK 版本 | Milvus SDK 已内置，不能独立选择版本 | 固定在包内，不能独立选择版本 |
+| 优点 | 便于与应用统一管理剩余的外部依赖 | 一个 JAR 即可使用，无需自行凑齐运行依赖 |
+| 代价 | 自定义版本或手动加载时，需要协调依赖 | 包体积较大，内置 SDK 版本随驱动构建固定 |
+| 场景举例 | 需要统一管理外部依赖的 Java 应用 | DataGrip、DBeaver，或不需要自定义 SDK 版本的编程开发 |
+
+Milvus 是例外：为了一并改写 SDK 对 Protobuf 的引用，两种包都已内置 Milvus SDK。因此普通包也**不能独立选择 Milvus SDK 版本**，额外引入 SDK JAR 不能安全替换内置版本。两种包均内置并隔离 Jackson、Protobuf。
+
+## 普通包
+
+在 Maven/Gradle 管理的应用中，选择下面任意一种完整配置即可，无需填写 classifier。
+
+### Maven
 
 ```xml
 <dependency>
     <groupId>net.hasor</groupId>
     <artifactId>jdbc-milvus</artifactId>
-    <version>@project.docsVersion@</version>
-    <classifier>all</classifier>
+    <version>@project.jdbcDriverVersion@</version>
 </dependency>
 ```
 
-## Gradle
+### Gradle
 
 ```groovy
-repositories { mavenCentral() }
-dependencies { implementation "net.hasor:jdbc-milvus:@project.docsVersion@:all" }
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation "net.hasor:jdbc-milvus:@project.jdbcDriverVersion@"
+}
 ```
 
+手动加载普通 JAR 时，还需要补齐 POM 声明的外部依赖。
 
-引入依赖后，[建立数据库连接](./connection.mdx)。
+## alone 单包
+
+希望一个 JAR 即可使用、不需要自定义内置 SDK 版本时，可以选择 `alone`。它既适合 JDBC 工具，也可用于编程开发。这里的 shaded 指合并运行依赖，并不表示所有依赖都做了包名重定位。
+
+### Maven {#alone-maven}
+
+将下面的完整依赖放入 `pom.xml`。`classifier` 用来选择同一驱动、同一版本下的 `-alone.jar` 文件。
+
+```xml
+<dependency>
+    <groupId>net.hasor</groupId>
+    <artifactId>jdbc-milvus</artifactId>
+    <version>@project.jdbcDriverVersion@</version>
+    <!-- 选择包含运行依赖的单包 -->
+    <classifier>alone</classifier>
+    <!-- 运行依赖已包含在包中，不再引入重复的 JAR -->
+    <exclusions>
+        <exclusion>
+            <groupId>*</groupId>
+            <artifactId>*</artifactId>
+        </exclusion>
+    </exclusions>
+</dependency>
+```
+
+### Gradle {#alone-gradle}
+
+坐标末尾的 `:alone` 表示选择单包版本。
+
+```groovy
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation("net.hasor:jdbc-milvus:@project.jdbcDriverVersion@:alone") {
+        // 运行依赖已包含在 alone 包中
+        transitive = false
+    }
+}
+```
+
+两个产物共用 POM，因此示例中的 Maven `exclusions` 和 Gradle `transitive = false` 用于避免再次引入已经合并进 `alone` 的依赖，不会删除 JAR 内的类。
+
+<span id="datagripdbeaver" />
+
+驱动下载、URL 模板及 DataGrip、DBeaver 配置步骤见 [SQL Client](./sql-client.mdx)。
+
+同一驱动只选一种包，不要同时加载普通包和 `alone`，也不要另加 SDK JAR 尝试替换内置版本。两种包都不包含 dbVisitor ORM 模块，需要 ORM 时另行引入。
