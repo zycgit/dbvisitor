@@ -45,6 +45,15 @@ public final class MilvusCommandsForDiagnostics extends MilvusCommands {
     private MilvusCommandsForDiagnostics() {
     }
 
+    public static Future<?> execPing(Future<Object> future, MilvusCmd cmd, HintCommandContext h, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
+        readHints(new AtomicInteger(startArgIdx), request, h.hint());
+        checkActive(request);
+        cmd.getServerVersion();
+        checkActive(request);
+        receive.responseResult(request, singleResult(request, column("PING", AdapterType.String), "PONG"));
+        return completed(future);
+    }
+
     public static Future<?> execShow(Future<Object> future, MilvusCmd cmd, HintCommandContext h, ShowCmdContext c, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         readHints(new AtomicInteger(startArgIdx), request, h.hint());
         checkActive(request);

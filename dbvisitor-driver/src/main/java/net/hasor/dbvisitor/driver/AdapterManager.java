@@ -29,7 +29,7 @@ public class AdapterManager {
 
         synchronized (factoryMap) {
             factoryMap.put(adapter, factory);
-            Set<String> propertyNameSet = new HashSet<>(Arrays.asList(factory.getPropertyNames()));
+            Set<String> propertyNameSet = new LinkedHashSet<>(Arrays.asList(factory.getPropertyNames()));
             propertyNameSet.add(JdbcDriver.P_SERVER);
             propertyGroupBy.put(adapter, propertyNameSet.toArray(new String[0]));
         }
@@ -57,7 +57,7 @@ public class AdapterManager {
             synchronized (propertyGroupBy) {
                 if (!propertyGroupBy.containsKey(adapter)) {
                     AdapterFactory factory = lookup(adapter);
-                    Set<String> propertyNameSet = new HashSet<>(Arrays.asList(factory.getPropertyNames()));
+                    Set<String> propertyNameSet = new LinkedHashSet<>(Arrays.asList(factory.getPropertyNames()));
                     propertyNameSet.add(JdbcDriver.P_SERVER);
                     names = propertyNameSet.toArray(new String[0]);
                     propertyGroupBy.put(adapter, names);
@@ -69,6 +69,7 @@ public class AdapterManager {
             names = propertyGroupBy.get(adapter);
         }
 
-        return Arrays.stream(names).filter(parse::containsKey).toArray(String[]::new);
+        // Include unset options, but never expose the internal adapter selector.
+        return Arrays.stream(names).filter(name -> !JdbcDriver.P_ADAPTER_NAME.equals(name)).toArray(String[]::new);
     }
 }

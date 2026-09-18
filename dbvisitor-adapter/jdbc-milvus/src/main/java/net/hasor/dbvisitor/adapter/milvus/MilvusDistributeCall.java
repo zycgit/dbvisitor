@@ -24,6 +24,9 @@ public class MilvusDistributeCall {
             AdapterRequest request, AdapterReceive receive, int startArgIdx, MilvusConn conn) {
         try {
             MilvusParser.CommandContext command = h.command();
+            if (command.pingCmd() != null) {
+                return MilvusCommandsForDiagnostics.execPing(sync, milvusCmd, h, request, receive, startArgIdx);
+            }
             if (command.createCmd() != null) {
                 return execCreateCmd(sync, milvusCmd, h, command.createCmd(), request, receive, startArgIdx);
             }
@@ -71,6 +74,9 @@ public class MilvusDistributeCall {
             }
             if (command.selectCmd() != null) {
                 return MilvusCommandsForDQL.execSelectCmd(sync, milvusCmd, h, command.selectCmd(), request, receive, startArgIdx);
+            }
+            if (command.selectValueCmd() != null) {
+                return MilvusCommandsForDQL.execSelectValueCmd(sync, h, command.selectValueCmd(), request, receive, startArgIdx);
             }
             if (command.countCmd() != null) {
                 return MilvusCommandsForDQL.execCountCmd(sync, milvusCmd, h, command.countCmd(), request, receive, startArgIdx);

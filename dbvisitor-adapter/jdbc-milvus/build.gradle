@@ -14,15 +14,17 @@ configurations {
 
 dependencies {
     api project(':dbvisitor-driver')
-    api 'io.milvus:milvus-sdk-java:2.6.22'
-    implementation 'com.google.protobuf:protobuf-java-util:3.25.5'
-    api 'com.fasterxml.jackson.core:jackson-databind:2.18.0'
+    // Embed the SDK as well so its generated classes use the isolated Protobuf.
+    shaded 'io.milvus:milvus-sdk-java:2.6.22'
+    shaded 'com.google.protobuf:protobuf-java-util:3.25.5'
+    shaded 'com.fasterxml.jackson.core:jackson-databind:2.18.0'
+    runtimeOnly 'org.slf4j:slf4j-api:1.7.36'
 
     antlr "org.antlr:antlr4:${property('lib.antlr')}"
     compileOnly "org.antlr:antlr4-runtime:${property('lib.antlr')}"
     shaded "org.antlr:antlr4-runtime:${property('lib.antlr')}"
     testImplementation "org.antlr:antlr4-runtime:${property('lib.antlr')}"
-    testImplementation 'org.slf4j:slf4j-api:1.7.32'
+    testCompileOnly 'org.slf4j:slf4j-api:1.7.36'
     testImplementation 'org.powermock:powermock-module-junit4:2.0.9'
     testImplementation 'org.powermock:powermock-api-mockito2:2.0.9'
 }
@@ -32,10 +34,10 @@ tasks.named('generateGrammarSource') {
     outputDirectory = layout.buildDirectory.dir('generated-src/antlr/main/net/hasor/dbvisitor/adapter/milvus/parser').get().asFile
 }
 
-tasks.named('shadowJar') {
-    configurations = [project.configurations.shaded]
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+apply from: rootProject.file('dbvisitor-adapter/jdbc.gradle')
+
+tasks.withType(com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar).configureEach {
     relocate 'org.antlr', 'net.hasor.dbvisitor.adapter.milvus.internal.jars.antlr'
-    exclude 'META-INF/maven/ognl/**'
-    exclude 'META-INF/maven/org.javassist/**'
+    relocate 'com.google.protobuf', 'net.hasor.dbvisitor.adapter.milvus.internal.jars.protobuf'
+    relocate 'com.fasterxml', 'net.hasor.dbvisitor.adapter.milvus.internal.jars.fasterxml'
 }

@@ -28,7 +28,8 @@ hintValue
     ;
 
 command
-    : createCmd
+    : pingCmd
+    | createCmd
     | alterCmd
     | dropCmd
     | showCmd
@@ -42,6 +43,7 @@ command
     | importCmd
     | loadCmd
     | selectCmd
+    | selectValueCmd
     | countCmd
     | analyzeCmd
     | releaseCmd
@@ -165,6 +167,16 @@ setClause
 
 deleteCmd
     : DELETE FROM (TABLE)? collectionName=identifier (PARTITION partitionName=identifier)? (WHERE expression)? (ORDER BY sortClause)? (LIMIT (limit=INTEGER | limit=ARG))?
+    ;
+
+pingCmd
+    : PING
+    ;
+
+// SQL clients also issue collection-free constant queries.
+selectValueCmd
+    : SELECT (value=(STRING_LITERAL | TRUE | FALSE | NULL | ARG)
+             | sign=(PLUS | MINUS)? value=(INTEGER | FLOAT_LITERAL))
     ;
 
 selectCmd
@@ -362,6 +374,7 @@ identifiers: identifier (COMMA identifier)*;
 
 identifier
     : IDENTIFIER
+    | PING
     | INT8_VECTOR
     | ALL
     | VECTOR

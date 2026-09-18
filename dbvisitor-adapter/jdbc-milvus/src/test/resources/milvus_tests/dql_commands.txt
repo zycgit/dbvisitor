@@ -1,4 +1,9 @@
 -- Query (Scalar Filtering)
+PING;
+SELECT 'keep alive';
+SELECT 1;
+SELECT ?;
+SELECT ping FROM ping;
 SELECT * FROM my_table;
 SELECT * FROM my_table WHERE age > 20;
 SELECT id, age FROM my_table LIMIT 10 OFFSET 0;

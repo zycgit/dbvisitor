@@ -1,0 +1,54 @@
+// Applied scripts have a separate classpath; use the already applied plugin's loader.
+def shadowJarType = plugins.getPlugin('com.gradleup.shadow').class.classLoader.loadClass(
+        'com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar')
+
+// Embedded dependencies must include their runtime variants (not just compile APIs).
+configurations.shaded {
+    canBeConsumed = false
+    attributes.attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.JAVA_RUNTIME))
+}
+// In-repository project consumers use unshaded classes. Keep their SDK APIs and
+// runtimes available; the root publication removes embedded dependencies from POMs.
+configurations.api.extendsFrom(configurations.shaded)
+
+configurations {
+    aloneRuntime {
+        canBeConsumed = false
+        extendsFrom runtimeClasspath, shaded
+        attributes.attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.JAVA_RUNTIME))
+        // ANTLR's Gradle plugin puts the generator on runtimeClasspath; only its
+        // separately declared runtime belongs in the distributed JDBC driver.
+        exclude group: 'org.antlr', module: 'antlr4'
+    }
+}
+
+tasks.named('jar') { archiveClassifier = 'plain' }
+tasks.named('shadowJar') {
+    archiveClassifier = ''
+    configurations = [project.configurations.shaded]
+}
+
+tasks.register('aloneJar', shadowJarType) {
+    group = 'build'
+    description = 'Builds a self-contained JDBC driver for SQL clients.'
+    archiveClassifier = 'alone'
+    from sourceSets.main.output
+    configurations = [project.configurations.aloneRuntime]
+}
+
+tasks.withType(shadowJarType).configureEach {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    // Service providers must reach the transformer before duplicates are removed.
+    filesMatching('META-INF/services/**') { duplicatesStrategy = DuplicatesStrategy.INCLUDE }
+    mergeServiceFiles()
+    exclude 'META-INF/*.SF', 'META-INF/*.RSA', 'META-INF/*.DSA', 'META-INF/INDEX.LIST'
+    exclude 'module-info.class', 'META-INF/versions/**/module-info.class'
+    exclude 'META-INF/maven/ognl/**', 'META-INF/maven/org.javassist/**'
+}
+
+tasks.named('assemble') { dependsOn tasks.named('aloneJar') }
+
+// Attach the adapter-only distribution after the root selects the main artifacts.
+afterEvaluate {
+    publishing.publications.mavenJava.artifact(tasks.named('aloneJar'))
+}

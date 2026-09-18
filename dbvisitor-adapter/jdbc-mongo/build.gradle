@@ -29,10 +29,8 @@ tasks.named('generateGrammarSource') {
     outputDirectory = layout.buildDirectory.dir('generated-src/antlr/main/net/hasor/dbvisitor/adapter/mongo/parser').get().asFile
 }
 
-tasks.named('shadowJar') {
-    configurations = [project.configurations.shaded]
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+apply from: rootProject.file('dbvisitor-adapter/jdbc.gradle')
+
+tasks.withType(com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar).configureEach {
     relocate 'org.antlr', 'net.hasor.dbvisitor.adapter.mongo.internal.jars.antlr'
-    exclude 'META-INF/maven/ognl/**'
-    exclude 'META-INF/maven/org.javassist/**'
 }

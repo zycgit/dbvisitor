@@ -126,10 +126,35 @@ public class JdbcDriver implements java.sql.Driver {
 
     @Override
     public DriverPropertyInfo[] getPropertyInfo(String url, Properties info) {
-        Properties copy = new Properties(info);
-        Properties parse = parseURL(url, copy);
-        if (parse != null) {
-            copy = parse;
+        Properties copy = new Properties();
+        if (info != null) {
+            // Include inherited defaults without modifying the caller's properties.
+            for (String name : info.stringPropertyNames()) {
+                copy.setProperty(name, info.getProperty(name));
+            }
+        }
+
+        if (StringUtils.isNotBlank(url)) {
+            if (!url.startsWith(START_URL)) {
+                return new DriverPropertyInfo[0];
+            }
+
+            // SQL clients may discover properties before a host has been entered.
+            String adapterUrl = url.substring(START_URL.length());
+            if (!adapterUrl.contains("//")) {
+                if (adapterUrl.endsWith(":")) {
+                    adapterUrl = adapterUrl.substring(0, adapterUrl.length() - 1);
+                }
+                if (!adapterUrl.isEmpty()) {
+                    copy.setProperty(P_ADAPTER_NAME, adapterUrl);
+                }
+            } else {
+                Properties parse = parseURL(url, copy);
+                if (parse == null) {
+                    return new DriverPropertyInfo[0];
+                }
+                copy = parse;
+            }
         }
 
         String adapterName = copy.getProperty(P_ADAPTER_NAME);
@@ -137,7 +162,14 @@ public class JdbcDriver implements java.sql.Driver {
             return new DriverPropertyInfo[0];
         }
 
-        String[] knownProperties = AdapterManager.propertyNames(adapterName, copy);
+        String[] knownProperties;
+        try {
+            knownProperties = AdapterManager.propertyNames(adapterName, copy);
+        } catch (UnsupportedOperationException e) {
+            // The adapter may still be incomplete in a connection setup dialog.
+            return new DriverPropertyInfo[0];
+        }
+
         DriverPropertyInfo[] props = new DriverPropertyInfo[knownProperties.length];
         for (int i = 0; i < props.length; ++i) {
             String name = knownProperties[i];

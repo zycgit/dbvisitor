@@ -6,6 +6,9 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.milvus.commands.query;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -29,9 +32,11 @@ import net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommands;
 import net.hasor.dbvisitor.adapter.milvus.commands.MilvusExpression.Filter;
 import net.hasor.dbvisitor.adapter.milvus.mapping.MilvusSchema;
 import net.hasor.dbvisitor.adapter.milvus.mapping.MilvusVectorCodec;
+import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser;
 import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser.*;
 import net.hasor.dbvisitor.driver.AdapterReceive;
 import net.hasor.dbvisitor.driver.AdapterRequest;
+import net.hasor.dbvisitor.driver.AdapterType;
 import net.hasor.dbvisitor.driver.JdbcColumn;
 import static net.hasor.dbvisitor.adapter.milvus.MilvusRequest.checkActive;
 import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusCommandUtils.*;
@@ -39,7 +44,44 @@ import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusExpression.parse
 import static net.hasor.dbvisitor.adapter.milvus.commands.MilvusVector.*;
 
 public final class MilvusCommandsForDQL extends MilvusCommands {
+    private static final Map<Class<?>, String> SCALAR_TYPES = Map.of(//
+            String.class, AdapterType.String,        //
+            Boolean.class, AdapterType.Boolean,      //
+            Byte.class, AdapterType.Byte,            //
+            Short.class, AdapterType.Short,          //
+            Integer.class, AdapterType.Int,          //
+            Long.class, AdapterType.Long,            //
+            Float.class, AdapterType.Float,          //
+            Double.class, AdapterType.Double,        //
+            BigDecimal.class, AdapterType.BigDecimal,//
+            BigInteger.class, AdapterType.BigInteger);
+
     private MilvusCommandsForDQL() {
+    }
+
+    public static Future<?> execSelectValueCmd(Future<Object> future, HintCommandContext h, SelectValueCmdContext c, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
+        AtomicInteger argIndex = new AtomicInteger(startArgIdx);
+        readHints(argIndex, request, h.hint());
+        String text = (c.sign == null ? "" : c.sign.getText()) + c.value.getText();
+        Object value = switch (c.value.getType()) {
+            case MilvusParser.STRING_LITERAL -> getIdentifier(text);
+            case MilvusParser.INTEGER -> Long.valueOf(text);
+            case MilvusParser.FLOAT_LITERAL -> Double.valueOf(text);
+            case MilvusParser.TRUE -> Boolean.TRUE;
+            case MilvusParser.FALSE -> Boolean.FALSE;
+            case MilvusParser.NULL -> null;
+            case MilvusParser.ARG -> getArg(argIndex, request);
+            default -> throw new SQLException("Unsupported SELECT value.");
+        };
+        String type = value == null ? AdapterType.Null : SCALAR_TYPES.get(value.getClass());
+        if (type == null) {
+            throw new SQLException("SELECT without FROM requires a scalar value.");
+        }
+
+        checkActive(request);
+        JdbcColumn column = new JdbcColumn(text, type, "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+        receive.responseResult(request, singleResult(request, column, value));
+        return completed(future);
     }
 
     public static Future<?> execSelectCmd(Future<Object> future, MilvusCmd cmd, HintCommandContext h, SelectCmdContext c, //

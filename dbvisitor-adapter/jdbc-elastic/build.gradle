@@ -15,7 +15,7 @@ configurations {
 dependencies {
     api project(':dbvisitor-driver')
     api 'org.elasticsearch.client:elasticsearch-rest-client:7.17.10'
-    api 'com.fasterxml.jackson.core:jackson-databind:2.18.0'
+    shaded 'com.fasterxml.jackson.core:jackson-databind:2.18.0'
 
     antlr "org.antlr:antlr4:${property('lib.antlr')}"
     compileOnly "org.antlr:antlr4-runtime:${property('lib.antlr')}"
@@ -30,10 +30,9 @@ tasks.named('generateGrammarSource') {
     outputDirectory = layout.buildDirectory.dir('generated-src/antlr/main/net/hasor/dbvisitor/adapter/elastic/parser').get().asFile
 }
 
-tasks.named('shadowJar') {
-    configurations = [project.configurations.shaded]
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+apply from: rootProject.file('dbvisitor-adapter/jdbc.gradle')
+
+tasks.withType(com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar).configureEach {
     relocate 'org.antlr', 'net.hasor.dbvisitor.adapter.elastic.internal.jars.antlr'
-    exclude 'META-INF/maven/ognl/**'
-    exclude 'META-INF/maven/org.javassist/**'
+    relocate 'com.fasterxml', 'net.hasor.dbvisitor.adapter.elastic.internal.jars.fasterxml'
 }
