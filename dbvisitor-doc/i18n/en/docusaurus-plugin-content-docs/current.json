@@ -67,6 +67,138 @@
     "message": "PostgreSQL",
     "description": "The label for category 'PostgreSQL' in sidebar 'features'"
   },
+  "sidebar.features.category.数据源": {
+    "message": "Data Sources",
+    "description": "The label for category '数据源' in sidebar 'features'"
+  },
+  "sidebar.features.category.Elasticsearch": {
+    "message": "Elasticsearch",
+    "description": "The label for category 'Elasticsearch' in sidebar 'features'"
+  },
+  "sidebar.features.category.elastic-admin": {
+    "message": "Management Commands",
+    "description": "The label for category '管理命令' in sidebar 'features'"
+  },
+  "sidebar.features.category.elastic-basics": {
+    "message": "Command Basics",
+    "description": "The label for category '语法基础' in sidebar 'features'"
+  },
+  "sidebar.features.category.elastic-dbvisitor": {
+    "message": "Using dbVisitor",
+    "description": "The label for category 'dbVisitor 使用' in sidebar 'features'"
+  },
+  "sidebar.features.category.elastic-query": {
+    "message": "Query Commands",
+    "description": "The label for category '查询命令' in sidebar 'features'"
+  },
+  "sidebar.features.category.elastic-write": {
+    "message": "Write Commands",
+    "description": "The label for category '写入命令' in sidebar 'features'"
+  },
+  "sidebar.features.category.Milvus": {
+    "message": "Milvus",
+    "description": "The label for category 'Milvus' in sidebar 'features'"
+  },
+  "sidebar.features.category.milvus-admin": {
+    "message": "Administration Statements",
+    "description": "The label for category '管理语句' in sidebar 'features'"
+  },
+  "sidebar.features.category.milvus-basics": {
+    "message": "Language Basics",
+    "description": "The label for category '语法基础' in sidebar 'features'"
+  },
+  "sidebar.features.category.milvus-dbvisitor": {
+    "message": "dbVisitor Usage",
+    "description": "The label for category 'dbVisitor 使用' in sidebar 'features'"
+  },
+  "sidebar.features.category.milvus-ddl": {
+    "message": "Definition Statements",
+    "description": "The label for category '定义语句' in sidebar 'features'"
+  },
+  "sidebar.features.category.milvus-query": {
+    "message": "Query Statements",
+    "description": "The label for category '查询语句' in sidebar 'features'"
+  },
+  "sidebar.features.category.milvus-show": {
+    "message": "SHOW Statements",
+    "description": "The label for category 'SHOW 语句' in sidebar 'features'"
+  },
+  "sidebar.features.category.milvus-types": {
+    "message": "Data Types",
+    "description": "The label for category '数据类型' in sidebar 'features'"
+  },
+  "sidebar.features.category.milvus-write": {
+    "message": "Write Statements",
+    "description": "The label for category '写入语句' in sidebar 'features'"
+  },
+  "sidebar.features.category.MongoDB": {
+    "message": "MongoDB",
+    "description": "The label for category 'MongoDB' in sidebar 'features'"
+  },
+  "sidebar.features.category.mongo-admin": {
+    "message": "Management Commands",
+    "description": "The label for category '管理命令' in sidebar 'features'"
+  },
+  "sidebar.features.category.mongo-basics": {
+    "message": "Command Basics",
+    "description": "The label for category '语法基础' in sidebar 'features'"
+  },
+  "sidebar.features.category.mongo-dbvisitor": {
+    "message": "Using dbVisitor",
+    "description": "The label for category 'dbVisitor 使用' in sidebar 'features'"
+  },
+  "sidebar.features.category.mongo-query": {
+    "message": "Query Commands",
+    "description": "The label for category '查询命令' in sidebar 'features'"
+  },
+  "sidebar.features.category.mongo-write": {
+    "message": "Write Commands",
+    "description": "The label for category '写入命令' in sidebar 'features'"
+  },
+  "sidebar.features.category.Redis": {
+    "message": "Redis",
+    "description": "The label for category 'Redis' in sidebar 'features'"
+  },
+  "sidebar.features.category.redis-basics": {
+    "message": "Command Basics",
+    "description": "The label for category '语法基础' in sidebar 'features'"
+  },
+  "sidebar.features.category.redis-dbvisitor": {
+    "message": "Using dbVisitor",
+    "description": "The label for category 'dbVisitor 使用' in sidebar 'features'"
+  },
+  "sidebar.features.category.redis-hash": {
+    "message": "Hash",
+    "description": "The label for category 'Hash 散列' in sidebar 'features'"
+  },
+  "sidebar.features.category.redis-keys": {
+    "message": "Key Management",
+    "description": "The label for category '键管理' in sidebar 'features'"
+  },
+  "sidebar.features.category.redis-list": {
+    "message": "List",
+    "description": "The label for category 'List 列表' in sidebar 'features'"
+  },
+  "sidebar.features.category.redis-scenarios": {
+    "message": "Business Scenarios",
+    "description": "The label for category '业务场景' in sidebar 'features'"
+  },
+  "sidebar.features.category.redis-server": {
+    "message": "Server Commands",
+    "description": "The label for category '服务器命令' in sidebar 'features'"
+  },
+  "sidebar.features.category.redis-set": {
+    "message": "Set",
+    "description": "The label for category 'Set 集合' in sidebar 'features'"
+  },
+  "sidebar.features.category.redis-sorted-set": {
+    "message": "Sorted Set",
+    "description": "The label for category 'Sorted Set 有序集合' in sidebar 'features'"
+  },
+  "sidebar.features.category.redis-string": {
+    "message": "String",
+    "description": "The label for category 'String 字符串' in sidebar 'features'"
+  },
   "sidebar.guides.category.4. API 选择指南": {
     "message": "4. API Selection Guide",
     "description": "The label for category '4. API 选择指南' in sidebar 'guides'"
