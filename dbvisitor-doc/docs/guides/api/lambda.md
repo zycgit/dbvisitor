@@ -3,25 +3,27 @@ id: lambda
 sidebar_position: 5
 hide_table_of_contents: true
 title: 4.5 构造器 API
-description: 构造器 API 基于 LambdaTemplate 通过链式方法生成 SQL，并处理数据库方言差异。
+description: 构造器 API 基于 LambdaTemplate，通过统一链式方法与方言生成 SQL 或目标命令，访问支持的关系型、文档、搜索与向量数据源。
 ---
 
 # 4.5 构造器 API
 
-构造器 API 基于 [LambdaTemplate](../core/lambda/about)，用链式方法描述 INSERT、UPDATE、DELETE、QUERY 等操作，由 dbVisitor 生成 SQL。
+构造器 API 基于 [LambdaTemplate](../core/lambda/about)，用链式方法描述 INSERT、UPDATE、DELETE、QUERY 等操作，由对应方言生成 SQL 或目标命令，再通过 JDBC 驱动执行。这是应用适配层统一不同数据源访问方式的入口之一。
+
+例如，相同的条件构造写法可以由关系型方言生成 SQL，由 MongoDB 方言生成文档命令，或由 Elasticsearch 方言生成 Query DSL。可用操作与条件以[各数据源的构造器能力](../../features/differences/builder.md)为准。
 
 ## 适合场景
 
-- 希望少写或不写 SQL。
+- 希望减少手写 SQL 或数据源专有命令。
 - 查询条件组合较多，不想手工拼接 WHERE。
 - 希望同一套 API 适配不同数据库方言。
 - 需要在 BaseMapper 的预设 CRUD 之外表达更复杂条件。
 
 ## 不适合场景
 
-- SQL 已经固定且很复杂，直接写 SQL 更清楚。
+- SQL 或 DSL 已经固定且很复杂，直接维护命令更清楚。
 - 需要大量数据库专有语法、窗口函数、复杂 JOIN。
-- 希望 SQL 完全由 DBA 或独立 XML 文件维护。
+- 希望 SQL/DSL 完全由 DBA 或独立 XML 文件维护。
 
 这些场景可使用 [JdbcTemplate](./jdbc) 或 [文件 Mapper](./file_mapper)。
 

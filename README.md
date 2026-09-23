@@ -7,7 +7,8 @@
 <p align="center">
 	<a href="https://www.dbvisitor.net"><b>Website</b></a> •
 	<a href="https://www.dbvisitor.net/docs/guides/overview"><b>Documentation</b></a> •
-    <a href="https://www.dbvisitor.net/blog"><b>Blog</b></a>
+    <a href="https://www.dbvisitor.net/blog"><b>Blog</b></a> •
+    <a href="https://www.dbvisitor.net/llms.txt"><b>AI 文档索引</b></a>
 </p>
 
 <p align="center">

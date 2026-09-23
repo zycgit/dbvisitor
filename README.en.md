@@ -9,7 +9,8 @@
 <p align="center">
 	<a href="https://www.dbvisitor.net/en"><b>Website</b></a> •
 	<a href="https://www.dbvisitor.net/en/docs/guides/overview"><b>Documentation</b></a> •
-    <a href="https://www.dbvisitor.net/en/blog"><b>Blog</b></a>
+    <a href="https://www.dbvisitor.net/en/blog"><b>Blog</b></a> •
+    <a href="https://www.dbvisitor.net/en/llms.txt"><b>AI Documentation Index</b></a>
 </p>
 
 <p align="center">

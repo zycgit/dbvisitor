@@ -3,7 +3,7 @@ id: overview
 sidebar_position: 1
 hide_table_of_contents: true
 title: 1. 介绍
-description: dbVisitor 提供 Java 对关系数据库更加自然的访问。
+description: dbVisitor 的 One Access 理念与双层适配器架构，以统一 API 或一致编程风格访问关系型、文档、键值、搜索和向量数据源。
 ---
 import Vars from '@site/plugins/projectVars';
 
@@ -11,23 +11,63 @@ import Vars from '@site/plugins/projectVars';
 
 # 1. 介绍
 
-dbVisitor 数据库访问库，提供 Java 对多种不同类型数据库统一访问。它的目标是使用一套 API 访问所有数据库。
+{/* llms:start */}
 
-dbVisitor 是建立在 JDBC 基础之上，它改进了 JDBC 低级接口提供更加自然的 API。
+**dbVisitor 是基于 JDBC 标准构建的统一数据访问基座，核心理念是 One Access，愿景是 “One APIs Access Any DataBase”。** 它面向结构化、半结构化和非结构化数据的存储与检索场景，让 Java 应用以统一 API 或一致的编程风格访问关系型、文档、键值、搜索和向量数据库。
 
-主要包含如下三个部分：
-- dbvisitor，是核心模块，为多种不同类型数据库提供统一的访问 API。
-- dbvisitor-integration，是 dbVisitor 与主流框架的集成模块。
-  - 支持 [Spring/SpringBoot](./yourproject/with_spring)、[Solon](./yourproject/with_solon)、
-    [Hasor](./yourproject/with_hasor)、[Guice](./yourproject/with_guice)。
-- dbvisitor-adapter，用于 JDBC 驱动程序适配器的模块，用于连接诸如 NoSQL 数据库之类的数据库。
-  - 例如：[Redis](../features/redis/about.md)、[MongoDB](../features/mongo/about.md)、[ElasticSearch](../features/elastic/about.md)。
+例如，一个应用可以用 MySQL 保存业务记录、MongoDB 保存文档、Redis 保存缓存、Elasticsearch 检索内容、Milvus 检索向量，同时复用参数绑定、结果映射、Mapper 和连接访问方式。One Access 的目标是降低接入不同类别数据源的学习与维护成本，让新增数据源能够接入已有的数据访问方式。
 
-这不是一个对象关系映射框架。
-- dbVisitor 是方便 Java 访问数据库的库，虽然有些类似 ORM 但和真正意义上的 ORM 理念比起来还是有很多不同点。
+## 双层适配器架构
 
-dbVisitor 是简单的，它专注数据库的访问。任何带有具体业务含义的特定功能都不属于 dbVisitor 范畴。
-然而，您仍然可以利用这种巧妙的 API 设计来满足特定的业务需求。
+| 层次 | 职责 | 实现方式 |
+| --- | --- | --- |
+| 应用适配层：统一“怎么操作” | 统一业务代码中的访问 API，管理查询语法与数据映射差异 | `LambdaTemplate` 和 `BaseMapper` 按方言生成 SQL 或目标命令；Mapper 注解与 XML 组织 SQL/DSL；`JdbcTemplate` 执行驱动支持的 SQL、DSL 或原生命令 |
+| 协议适配层：统一“怎么接入” | 将数据源协议接入 JDBC 的连接、语句、参数与结果接口 | 关系型数据库使用厂商 JDBC 驱动；`jdbc-mongo`、`jdbc-elastic`、`jdbc-redis`、`jdbc-milvus` 将对应数据库的 SDK/协议适配为 JDBC 驱动 |
+
+两层通过 JDBC 衔接：业务代码使用应用层 API，应用层通过 JDBC 调用驱动，驱动访问目标数据源。应用层的多种 API 共享底层机制；驱动层也可独立供其他 JDBC 工具使用。这样既能统一完整的数据访问层，也能在现有项目中单独接入某个驱动适配器。
+
+接入新数据源时，可基于 `dbvisitor-driver` 实现[自定义 JDBC 适配器](../drivers/dev/about.md)，继续复用上层访问方式；需要构造器能力时，再提供对应的数据库方言。
+
+## 数据模型与访问场景
+
+| 数据模型或场景 | 代表数据源 | 接入方式与能力入口 |
+| --- | --- | --- |
+| 结构化记录与关系查询 | MySQL、PostgreSQL、Oracle 等 | 厂商 JDBC 驱动；[按数据源查看能力](../features/overview.md) |
+| 文档与半结构化数据 | MongoDB | `jdbc-mongo`；[文档操作与映射](../features/mongo/about.md) |
+| 键值、缓存与数据结构 | Redis | `jdbc-redis`；[命令访问与结果映射](../features/redis/about.md) |
+| 内容搜索与非结构化文本检索 | Elasticsearch | `jdbc-elastic`；[搜索、Query DSL 与索引操作](../features/elastic/about.md) |
+| 向量与相似性检索 | Milvus | `jdbc-milvus`；[集合、标量过滤与向量操作](../features/milvus/about.md) |
+
+One Access 遵循“承认差异、管理差异”的原则：统一调用方式、参数绑定和结果接收，并保留数据源的原生能力。具体命令、构造器、事务、批处理和分页能力以[数据源差异](../features/overview.md)为准。例如，Redis 使用 `JdbcTemplate` 或 Mapper 执行命令，当前没有构造器方言。
+
+## 按需求选择 API
+
+| 需求 | 入口 | 继续阅读 |
+| --- | --- | --- |
+| 已有 SQL、DSL 或原生命令，需要绑定参数并读取结果或更新数据 | `JdbcTemplate`；查询用 `queryForList`、`queryForObject`，修改用 `executeUpdate` | [编程式 API](./api/jdbc.md) |
+| 希望在支持的不同数据源上复用条件构造与 CRUD 写法 | `LambdaTemplate` 或 `BaseMapper`；由对应方言生成 SQL 或目标命令 | [构造器 API](./api/lambda.md) |
+| 希望用 Java 接口组织 DAO，集中管理 SQL/DSL | `Session.createMapper(...)`；方法注解、`BaseMapper` 通用 CRUD、XML 可组合 | [Mapper API](./api/mapper.md) |
+| 数据载体使用 Map | 区分复用实体映射的 Map 模式与直接使用表名、列名的 Freedom 模式 | [Map 查询](./core/map_query/about.md) |
+| 需要向量相似性查询 | 根据数据源方言选择支持的 KNN 排序或范围过滤 | [向量查询](./core/vector_query/about.md) |
+
+`Configuration` 创建 `Session`，由 `Session` 创建 Mapper 接口实例。模板、Mapper 和构造器可在同一应用中组合使用；选择统一构造器或原生命令时，根据目标数据源的能力决定。
+
+## 选择依赖和运行环境
+
+使用完整双层架构时，引入 `net.hasor:dbvisitor` 和目标 JDBC 驱动：关系型数据库选择厂商驱动，NoSQL 或向量数据库选择对应的 `jdbc-*` 适配器。需要保留现有 Spring JDBC、MyBatis 等访问方式时，也可单独使用[驱动适配器](../drivers/about)，按该驱动支持的命令与 JDBC 能力接入。
+
+dbVisitor 可直接嵌入普通 Java 应用，也提供框架集成：Spring Boot 用 `dbvisitor-spring-starter`，普通 Spring 用 `dbvisitor-spring`，Hasor 用 `dbvisitor-hasor`，Solon 用 `dbvisitor-solon-plugin`，Guice 用 `dbvisitor-guice`；这些发布模块的 groupId 均为 `net.hasor`。
+
+## 完成第一次调用
+
+1. 确定数据模型与目标数据源，选择驱动和运行环境依赖，准备 `DataSource` 或 `Connection`，以及表、集合、索引等目标资源。
+2. 在方言支持时，通过 `new LambdaTemplate(dataSource)` 复用条件构造写法；已有 SQL/DSL 或命令时使用 `new JdbcTemplate(dataSource)`。需要 Mapper 时，通过 `new Configuration().newSession(dataSource)` 获取 Session。
+3. 根据单行、多行、标量或 Map 结果选择重载，使用参数绑定传入值，并处理返回值和异常。
+4. 明确连接与事务由谁管理。独立应用负责资源关闭；框架应用使用集成提供的对象和事务方式，避免另外创建一套连接环境。
+
+起步代码见 [普通 Java 项目](./yourproject/with_java.mdx)；框架项目继续阅读 [Spring](./yourproject/with_spring.mdx)、[Hasor](./yourproject/with_hasor.mdx)、[Solon](./yourproject/with_solon.mdx) 或 [Guice](./yourproject/with_guice.mdx)。
+
+{/* llms:end */}
 
 ## 为什么使用它？
 
@@ -48,9 +88,9 @@ dbVisitor 的核心突破在于访问模式的无缝集成：开发者可以在�
 
 ## 入门
 
-- dbVisitor 支持通过原始 SQL 方式利用 [编程式 API](./api/jdbc) 来访问数据库。
+- dbVisitor 支持通过 [编程式 API](./api/jdbc) 执行目标驱动支持的 SQL、DSL 或原生命令。
 - dbVisitor 支持在接口上通过注解标记以 [声明式 API](./api/mapper) 方式来访问数据库。
-- dbVisitor 支持通过 [构造器](./api/lambda) 方式用同一种 API 来访问所有框架支持的数据库。
+- dbVisitor 支持通过 [构造器](./api/lambda) 用同一种 API 访问具备相应方言能力的数据源。
 - dbVisitor 支持使用 [Map 查询模式](./core/map_query/about) 处理 Map 数据，可选择复用对象映射或直接使用表名、列名。
 - dbVisitor 支持使用 [向量查询](./core/vector_query/about) 进行 KNN 排序和向量范围过滤。
 - dbVisitor 支持通过 [Mapper API](./api/mapper) 用 Java 接口组织 DAO（含注解、BaseMapper 通用 CRUD、Mapper 文件）。
@@ -59,7 +99,7 @@ dbVisitor 的核心突破在于访问模式的无缝集成：开发者可以在�
 - dbVisitor 提供了一种更加灵活和高效的 [规则](./rules/about) 机制，通过规则可以更加简洁的维护应用程序 SQL。
 - dbVisitor 内置多种 [类型处理器](./types/about)，可以方便的处理绝大多数数据库类型。
 - dbVisitor 支持在多个不同方法调用之间使用 [数据库事务](./transaction/about)。
-- dbVisitor 使用统一的 API 操作非关系型数据库 [Redis](../features/redis/about.md)、[MongoDB](../features/mongo/about.md)、[ElasticSearch](../features/elastic/about.md)。
+- dbVisitor 使用统一的 API 或一致编程风格访问 [Redis](../features/redis/about.md)、[MongoDB](../features/mongo/about.md)、[Elasticsearch](../features/elastic/about.md) 和 [Milvus](../features/milvus/about.md)。
 
 ## 框架整合
 

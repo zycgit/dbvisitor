@@ -3,7 +3,7 @@ id: mapper
 sidebar_position: 3
 hide_table_of_contents: true
 title: 4.3 Mapper API
-description: Mapper API 通过 Java 接口组织 DAO。SQL 可以来自方法注解、BaseMapper 通用 CRUD 或 Mapper 文件。
+description: Mapper API 通过 Java 接口组织不同数据源的访问。SQL/DSL 可以来自方法注解、BaseMapper 通用 CRUD 或 Mapper 文件。
 ---
 
 import Tabs from '@theme/Tabs';
@@ -13,14 +13,16 @@ import TabItem from '@theme/TabItem';
 
 Mapper API 用 Java 接口组织数据访问层。**它不是单一的某种写法，而是一组 API 的统称**：同一个 Mapper 接口可以混合使用方法注解、BaseMapper 通用 CRUD 和 Mapper 文件。
 
+Mapper 可组织关系型 SQL，也可通过相应驱动执行 NoSQL 的 DSL 或原生命令，保持接口调用、参数绑定与结果映射方式一致。`BaseMapper` 的通用操作由方言生成，使用前按[数据源差异](../../features/overview.md)确认支持范围。
+
 ## 先选写法
 
 | 你的情况 | 推荐写法 | 说明 |
 |---------|---------|------|
-| SQL 短，放在接口旁边最清楚 | **方法注解** | `@Query`/`@Insert`/`@Update`/`@Delete` 声明 SQL |
+| SQL/DSL 短，放在接口旁边最清楚 | **方法注解** | `@Query`/`@Insert`/`@Update`/`@Delete` 声明命令 |
 | 单表 CRUD，不想写 SQL | **BaseMapper** | 继承 `BaseMapper<T>` 获得零 SQL 的增删改查 |
 | 条件组合复杂，但希望挂在 Mapper 接口上 | **BaseMapper 切换** | `mapper.query()` 进入构造器 API |
-| SQL 长或需要集中维护 | **Mapper 文件** | XML 集中管理 SQL，接口方法引用文件中的语句 |
+| SQL/DSL 长或需要集中维护 | **Mapper 文件** | XML 集中管理命令，接口方法引用文件中的语句 |
 
 ## 三种常见写法
 

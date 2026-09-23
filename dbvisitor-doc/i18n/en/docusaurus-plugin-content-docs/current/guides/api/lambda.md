@@ -3,25 +3,27 @@ id: lambda
 sidebar_position: 5
 hide_table_of_contents: true
 title: 4.5 Builder API
-description: The Builder API uses LambdaTemplate to generate SQL through chainable methods and handles database dialect differences.
+description: The Builder API uses LambdaTemplate and dialects to generate SQL or target commands through shared chained methods for supported relational, document, search and vector data sources.
 ---
 
 # 4.5 Builder API
 
-The Builder API is based on [LambdaTemplate](../core/lambda/about). It uses chainable methods to describe INSERT, UPDATE, DELETE, QUERY and other operations, with dbVisitor generating the SQL.
+The Builder API uses [LambdaTemplate](../core/lambda/about) to describe INSERT, UPDATE, DELETE, QUERY and other operations through chained methods. The matching dialect generates SQL or target commands for execution through a JDBC driver. This is one application adapter entry point for shared access patterns across data sources.
+
+For example, the same condition builder pattern can produce SQL through a relational dialect, document commands through the MongoDB dialect, or Query DSL through an Elasticsearch dialect. Supported operations and conditions are listed in the [builder capabilities by data source](../../features/differences/builder.md).
 
 ## Best For
 
-- You want to write little or no SQL.
+- You want to reduce handwritten SQL or data source-specific commands.
 - Query conditions have many combinations and you don't want to manually concatenate WHERE clauses.
 - You want the same API to adapt across different database dialects.
 - You need to express more complex conditions beyond BaseMapper's pre-built CRUD.
 
 ## Not Best For
 
-- SQL is already fixed and very complex — writing SQL directly is clearer.
+- SQL or DSL is already fixed and complex enough that maintaining the commands directly is clearer.
 - You need lots of database-specific syntax, window functions, or complex JOINs.
-- You want SQL fully maintained by DBAs or in standalone XML files.
+- You want SQL/DSL fully maintained by DBAs or in standalone XML files.
 
 For those scenarios, use [JdbcTemplate](./jdbc) or [File Mapper](./file_mapper).
 

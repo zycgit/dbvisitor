@@ -25,6 +25,27 @@ npm run build
 
 本目录用于构建文档站，不是 dbVisitor Java 模块的构建入口。
 
+## AI 文档索引
+
+`npm run build` 通过 `@signalwire/docusaurus-plugin-llms-txt` 收集现有文档页面，再由 `plugins/llms.js` 整理项目介绍和目录。每种语言只生成一个入口：`build/llms.txt` 和 `build/en/llms.txt`；文档构建与本地开发只需要 Node.js 依赖环境。
+
+索引先说明项目定位、架构、能力选择和第一次调用流程，再列出使用指南、驱动和数据源能力等文档。版本说明和博客位于 `Optional` 部分，链接直接指向相应语言的现有网页。页面的 `rel="describedby"` 指向当前语言的 `llms.txt`。
+
+入口介绍复用中英文概览正文。`docusaurus.config.js` 中的 `overview` 指向 `docs/guides/overview.mdx`；插件读取对应语言文件中 `{/* llms:start */}` 与 `{/* llms:end */}` 之间的普通 Markdown。维护项目定位、架构与起步流程时修改这段正文即可，文档页面和 AI 入口会一起更新。
+
+摘要中的链接使用实际发布地址，可写成相对于概览的路径；插件会移除 `.md`、`.mdx` 扩展名并补齐站点地址与语言前缀。文档版本来自 `plugins/projectVars.js`，使用前应核对项目依赖版本。
+
+可以向编程助手提供以下指引：
+
+> 先读取本项目的 `/llms.txt`，理解核心理念与适用场景，选择对应的使用指南。核对项目依赖版本，再参考文档中的调用方式与示例编写代码并编译验证。
+
+索引随静态站点发布，不手工修改或提交生成文件。`npm run start` 用于开发文档页面；查看完整索引使用构建后的站点：
+
+```bash
+npm run build
+npm run serve -- --host 127.0.0.1 --port 3000
+```
+
 ## 博客编辑规范
 
 新增、翻译和整理文章前，请先阅读 [AI 编辑约定](./AGENTS.md)。其中规定了顶部元数据格式、日期维护方式，以及中英文标题长度、措辞和锚点兼容规则；人工编辑与 AI 初稿使用同一标准。

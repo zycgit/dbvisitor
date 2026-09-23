@@ -3,7 +3,7 @@ id: overview
 sidebar_position: 1
 hide_table_of_contents: true
 title: 1. Introduction
-description: dbVisitor provides a more natural way for Java to access relational databases.
+description: dbVisitor's One Access vision and two-layer adapter architecture bring a shared API or consistent programming style to relational, document, key-value, search and vector data sources.
 ---
 import Vars from '@site/plugins/projectVars';
 
@@ -11,23 +11,63 @@ import Vars from '@site/plugins/projectVars';
 
 # 1. Introduction
 
-dbVisitor is a database access library that provides unified access to multiple different types of databases for Java. Its goal is to use a single set of APIs to access all databases.
+{/* llms:start */}
 
-dbVisitor is built on top of JDBC. It improves the low-level JDBC interface to provide a more natural API.
+**dbVisitor is a unified data access foundation built on the JDBC standard. Its guiding idea is One Access, expressed in the vision "One APIs Access Any DataBase".** It serves storage and retrieval scenarios involving structured, semi-structured and unstructured data, giving Java applications a shared API or consistent programming style across relational, document, key-value, search and vector databases.
 
-It consists of three parts:
-- dbvisitor: The core module, providing a unified access API for multiple different types of databases.
-- dbvisitor-integration: The integration module for dbVisitor with mainstream frameworks.
-  Supports [Spring/SpringBoot](./yourproject/with_spring), [Solon](./yourproject/with_solon),
-  [Hasor](./yourproject/with_hasor), [Guice](./yourproject/with_guice).
-- dbvisitor-adapter: The module for JDBC driver adapters, used to connect to databases such as NoSQL.
-  For example: [Redis](../features/redis/about), [MongoDB](../features/mongo/about), [ElasticSearch](../features/elastic/about).
+For example, one application can keep business records in MySQL, documents in MongoDB and cached values in Redis, search content with Elasticsearch and retrieve similar vectors with Milvus while reusing parameter binding, result mapping, Mappers and connection access patterns. One Access aims to reduce the learning and maintenance cost of different data source categories and let new sources fit existing data access patterns.
 
-It is not an ORM framework.
-- dbVisitor is a library that facilitates Java access to databases. Although it is somewhat similar to ORM, there are still many differences compared to a true ORM philosophy.
+## Two-layer adapter architecture
 
-dbVisitor is simple; it focuses on database access. Any specific functions with specific business meanings do not belong to dbVisitor.
-Nevertheless, you can still leverage this ingenious API design to meet specific business needs.
+| Layer | Responsibility | Implementation |
+| --- | --- | --- |
+| Application adapter: how to operate on data | Unify the API used by business code and manage query syntax and mapping differences | `LambdaTemplate` and `BaseMapper` generate SQL or target commands through dialects; Mapper annotations and XML organize SQL/DSL; `JdbcTemplate` executes SQL, DSL or native commands supported by the driver |
+| Protocol adapter: how to connect | Expose data source protocols through JDBC connections, statements, parameters and results | Relational databases use vendor JDBC drivers; `jdbc-mongo`, `jdbc-elastic`, `jdbc-redis` and `jdbc-milvus` adapt their respective SDKs/protocols into JDBC drivers |
+
+JDBC connects the layers: business code uses an application API, that API calls a JDBC driver, and the driver accesses the target data source. The application APIs share underlying mechanisms, while the drivers can also serve other JDBC tools independently. Projects can adopt the complete data access stack or introduce a driver adapter into an existing stack.
+
+To integrate a new data source, implement a [custom JDBC adapter](../drivers/dev/about.md) using `dbvisitor-driver` and reuse the application access patterns. Add a matching database dialect when builder support is needed.
+
+## Data models and use cases
+
+| Data model or use case | Representative data source | Driver and capability reference |
+| --- | --- | --- |
+| Structured records and relational queries | MySQL, PostgreSQL, Oracle and others | Vendor JDBC drivers; [capabilities by data source](../features/overview.md) |
+| Documents and semi-structured data | MongoDB | `jdbc-mongo`; [document operations and mapping](../features/mongo/about.md) |
+| Key-value data, caching and data structures | Redis | `jdbc-redis`; [command access and result mapping](../features/redis/about.md) |
+| Content search and unstructured text retrieval | Elasticsearch | `jdbc-elastic`; [search, Query DSL and index operations](../features/elastic/about.md) |
+| Vectors and similarity search | Milvus | `jdbc-milvus`; [collections, scalar filters and vector operations](../features/milvus/about.md) |
+
+One Access recognizes and manages differences: it unifies calling patterns, parameter binding and result handling while preserving native data source capabilities. Consult [data source differences](../features/overview.md) for supported commands, builders, transactions, batches and pagination. For example, Redis uses `JdbcTemplate` or Mappers for commands and currently has no builder dialect.
+
+## Choose an API by task
+
+| Requirement | Entry point | Read next |
+| --- | --- | --- |
+| Execute existing SQL, DSL or native commands with parameters and mapped results | `JdbcTemplate`; use `queryForList` or `queryForObject` for queries and `executeUpdate` for changes | [Programmatic API](./api/jdbc.md) |
+| Reuse condition builders and CRUD patterns across supported data sources | `LambdaTemplate` or `BaseMapper`; the matching dialect generates SQL or target commands | [Builder API](./api/lambda.md) |
+| Organize DAOs as Java interfaces and manage SQL/DSL together | `Session.createMapper(...)`; combine method annotations, `BaseMapper` CRUD and XML | [Mapper API](./api/mapper.md) |
+| Use Map values as the data carrier | Distinguish Map mode with entity mappings from Freedom mode with table and column names | [Map queries](./core/map_query/about.md) |
+| Query vector similarity | Choose KNN ordering or range filtering supported by the data source dialect | [Vector queries](./core/vector_query/about.md) |
+
+`Configuration` creates a `Session`, which creates Mapper interface instances. Templates, Mappers and builders can be combined within one application; choose a shared builder or native commands according to the target data source capabilities.
+
+## Choose dependencies and runtime
+
+To use both layers, add `net.hasor:dbvisitor` and the target JDBC driver: a vendor driver for a relational database or a matching `jdbc-*` adapter for NoSQL or vector databases. To keep an existing access stack such as Spring JDBC or MyBatis, use a [driver adapter](../drivers/about) independently, following its supported commands and JDBC capabilities.
+
+dbVisitor embeds directly in ordinary Java applications and provides framework integrations: `dbvisitor-spring-starter` for Spring Boot, `dbvisitor-spring` for ordinary Spring, `dbvisitor-hasor` for Hasor, `dbvisitor-solon-plugin` for Solon, or `dbvisitor-guice` for Guice. All these published modules use groupId `net.hasor`.
+
+## Complete a first call
+
+1. Identify the data model and target data source, choose the driver and runtime dependencies, and prepare a `DataSource` or `Connection` plus target resources such as tables, collections or indexes.
+2. Where the dialect supports it, use `new LambdaTemplate(dataSource)` to reuse condition builders. For existing SQL/DSL or commands, use `new JdbcTemplate(dataSource)`. For Mapper interfaces, obtain a Session through `new Configuration().newSession(dataSource)`.
+3. Select an overload for a single row, multiple rows, a scalar or a Map. Bind input values and handle results and exceptions.
+4. Establish connection and transaction ownership. Standalone applications close their resources; framework applications use integration-managed objects and transactions instead of creating a separate connection environment.
+
+Start with [ordinary Java](./yourproject/with_java.mdx), or follow the matching [Spring](./yourproject/with_spring.mdx), [Hasor](./yourproject/with_hasor.mdx), [Solon](./yourproject/with_solon.mdx) or [Guice](./yourproject/with_guice.mdx) integration guide.
+
+{/* llms:end */}
 
 ## Why use it?
 
@@ -49,9 +89,9 @@ In terms of API design, dbVisitor provides APIs with a style similar to Spring J
 
 ## Getting Started
 
-- dbVisitor supports accessing the database using the [Programmatic API](./api/jdbc) via raw SQL.
+- dbVisitor uses the [Programmatic API](./api/jdbc) to execute SQL, DSL or native commands supported by the target driver.
 - dbVisitor supports accessing the database using the [Declarative API](./api/mapper) by marking interfaces with annotations.
-- dbVisitor supports accessing all framework-supported databases with the same [Builder API](./api/lambda).
+- dbVisitor uses the same [Builder API](./api/lambda) across data sources with the required dialect capabilities.
 - dbVisitor supports [Map Query Mode](./core/map_query/about) for Map-based data, either reusing object mapping or using table and column names directly.
 - dbVisitor supports [Vector Query](./core/vector_query/about) for KNN ordering and vector range filtering.
 - dbVisitor supports organizing DAOs as Java interfaces through the [Mapper API](./api/mapper), including annotations, BaseMapper CRUD methods, and Mapper files.
@@ -60,7 +100,7 @@ In terms of API design, dbVisitor provides APIs with a style similar to Spring J
 - dbVisitor provides a more flexible and efficient [Rule](./rules/about) mechanism, which makes maintaining application SQL more concise.
 - dbVisitor has built-in multiple [Type Handlers](./types/about), which can conveniently handle most database types.
 - dbVisitor supports using [Transactions](./transaction/about) between multiple different method calls.
-- dbVisitor uses a unified API to operate non-relational databases [Redis](../features/redis/about), [MongoDB](../features/mongo/about) and [ElasticSearch](../features/elastic/about).
+- dbVisitor provides shared APIs or consistent programming patterns for [Redis](../features/redis/about), [MongoDB](../features/mongo/about), [Elasticsearch](../features/elastic/about) and [Milvus](../features/milvus/about).
 
 ## Integration
 

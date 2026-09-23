@@ -151,6 +151,32 @@ const config = {
     plugins: [
         analyticsPlugin,
         require.resolve('./plugins/blog-topics.js'),
+        [
+            require.resolve('./plugins/llms.js'),
+            {
+                siteTitle: 'dbVisitor',
+                overview: 'guides/overview.mdx',
+                descriptions: {
+                    'zh-cn': `dbVisitor ${projectVars.docsVersion} 文档：Java 数据库 API、数据源特性、JDBC 驱动和实战教程。开发版本在版本说明中单独标注。`,
+                    en: `dbVisitor ${projectVars.docsVersion} documentation: Java database APIs, data source capabilities, JDBC drivers, and tutorials. Development releases are marked separately.`,
+                },
+                depth: 2,
+                onRouteError: 'throw',
+                content: {
+                    enableMarkdownFiles: false,
+                    enableLlmsFullTxt: false,
+                    includeDocs: true,
+                    includeBlog: true,
+                    includePages: false,
+                    includeGeneratedIndex: false,
+                    excludeRoutes: [
+                        '**/tags{,/**}', '**/search', '**/404.html',
+                        '**/blog', '**/blog/{archive,authors,page,topics}{,/**}',
+                    ],
+                    contentSelectors: ['.theme-doc-markdown', 'article'],
+                },
+            },
+        ],
     ],
     themes: [
         // ... Your other themes.
