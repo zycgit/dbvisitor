@@ -28,7 +28,9 @@ subprojects {
                     '--add-opens', 'java.base/java.net=ALL-UNNAMED'
         }
         tasks.withType(GenerateModuleMetadata).configureEach { enabled = false }
-        dependencies { testImplementation "junit:junit:${property('lib.junit')}" }
+        dependencies {
+            testImplementation "junit:junit:${property('lib.junit')}"
+        }
 
         plugins.withId('maven-publish') {
             apply plugin: 'signing'
@@ -62,6 +64,7 @@ subprojects {
                                 if (configurations.findByName('antlr')) {
                                     excluded.addAll(configurations.antlr.dependencies)
                                 }
+
                                 excluded.each { dep ->
                                     def groupId = dep.group ?: project.group
                                     def dependenciesNode = asNode().dependencies[0]
