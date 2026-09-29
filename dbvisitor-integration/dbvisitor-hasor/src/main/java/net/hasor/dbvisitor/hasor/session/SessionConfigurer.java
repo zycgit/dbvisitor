@@ -12,9 +12,20 @@ import net.hasor.core.ApiBinder;
 public class SessionConfigurer implements net.hasor.core.Module {
     private String sourceName;
 
+    public SessionConfigurer() {
+    }
+
+    public SessionConfigurer(String sourceName) {
+        this.sourceName = sourceName;
+    }
+
     @Override
     public void loadModule(ApiBinder apiBinder) throws Throwable {
         apiBinder.installModule(new SessionBindingModule(this.sourceName));
+    }
+
+    public String getSourceName() {
+        return this.sourceName;
     }
 
     public void setSourceName(String sourceName) {
