@@ -31,8 +31,8 @@ public class WhenRule extends AbstractCaseRule {
 
     @Override
     public void executeRule(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException {
-        String caseId = (String) data.getValue(CURRENT_CASE_ID_KEY);
-        if (!data.hasValue(CURRENT_CASE_ID_KEY) || caseId == null) {
+        String caseId = (String) data.getValue(INNER_KEY_CURRENT_CASE_ID);
+        if (!data.hasValue(INNER_KEY_CURRENT_CASE_ID) || caseId == null) {
             throw new SQLException("The '" + (isElse ? "else" : "when") + "' rule must be used within the 'case' rule.");
         }
 
@@ -69,7 +69,7 @@ public class WhenRule extends AbstractCaseRule {
 
     private void executeWhen(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue, String caseId) throws SQLException {
         boolean isMatch;
-        if (Boolean.TRUE.equals(data.getValue(caseId + HAS_TEST_EXPR_KEY))) {
+        if (Boolean.TRUE.equals(data.getValue(caseId + INNER_KEY_HAS_TEST_EXPR_SUFFIX))) {
             isMatch = this.testInSwitchMode(data, caseId, activeExpr);
         } else {
             isMatch = this.testInIfElseMode(data, activeExpr);
@@ -83,7 +83,7 @@ public class WhenRule extends AbstractCaseRule {
     }
 
     private boolean testInSwitchMode(SqlArgSource data, String caseId, String activeExpr) {
-        Object testVal = data.getValue(caseId + TEST_EXPR_SUFFIX);
+        Object testVal = data.getValue(caseId + INNER_KEY_TEST_EXPR_SUFFIX);
         Object whenVal = OgnlUtils.evalOgnl(activeExpr, data);
 
         // Basic equals check safely handling nulls

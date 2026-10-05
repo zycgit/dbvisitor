@@ -29,24 +29,24 @@ public class CaseRule extends AbstractCaseRule {
 
     private void runInCaseScope(SqlArgSource data, EConsumer<String, SQLException> action) throws SQLException {
         // Generate a unique key for tracking state within this specific CASE block
-        String caseId = CASE_KEY_PREFIX + UUID.randomUUID().toString();
+        String caseId = INNER_KEY_CASE_PREFIX + UUID.randomUUID();
         Object parentCaseId = null;
 
         try {
             // Initialize state: NOT_MATCHED
             data.putValue(caseId, Boolean.FALSE);
 
-            if (data.hasValue(CURRENT_CASE_ID_KEY)) {
-                parentCaseId = data.getValue(CURRENT_CASE_ID_KEY);
+            if (data.hasValue(INNER_KEY_CURRENT_CASE_ID)) {
+                parentCaseId = data.getValue(INNER_KEY_CURRENT_CASE_ID);
             }
-            data.putValue(CURRENT_CASE_ID_KEY, caseId);
+            data.putValue(INNER_KEY_CURRENT_CASE_ID, caseId);
 
             action.eAccept(caseId);
         } finally {
             data.putValue(caseId, null);
-            data.putValue(caseId + TEST_EXPR_SUFFIX, null);
-            data.putValue(caseId + HAS_TEST_EXPR_KEY, null);
-            data.putValue(CURRENT_CASE_ID_KEY, parentCaseId);
+            data.putValue(caseId + INNER_KEY_TEST_EXPR_SUFFIX, null);
+            data.putValue(caseId + INNER_KEY_HAS_TEST_EXPR_SUFFIX, null);
+            data.putValue(INNER_KEY_CURRENT_CASE_ID, parentCaseId);
         }
     }
 
@@ -55,8 +55,8 @@ public class CaseRule extends AbstractCaseRule {
         this.runInCaseScope(data, caseId -> {
             if (StringUtils.isNotBlank(activeExpr)) {
                 Object val = OgnlUtils.evalOgnl(activeExpr, data);
-                data.putValue(caseId + TEST_EXPR_SUFFIX, val);
-                data.putValue(caseId + HAS_TEST_EXPR_KEY, Boolean.TRUE);
+                data.putValue(caseId + INNER_KEY_TEST_EXPR_SUFFIX, val);
+                data.putValue(caseId + INNER_KEY_HAS_TEST_EXPR_SUFFIX, Boolean.TRUE);
             }
 
             if (StringUtils.isBlank(ruleValue)) {

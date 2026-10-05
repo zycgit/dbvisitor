@@ -7,9 +7,10 @@
  */
 package net.hasor.dbvisitor.dynamic.rule;
 
+/** Shared names for internal CASE state stored in the argument source. */
 public abstract class AbstractCaseRule implements SqlRule {
-    protected static final String CASE_KEY_PREFIX     = "CASE_";
-    protected static final String CURRENT_CASE_ID_KEY = "CURRENT_CASE_ID";
-    protected static final String TEST_EXPR_SUFFIX    = "_TEST_EXPR"; // Stores the calculated value
-    protected static final String HAS_TEST_EXPR_KEY   = "_HAS_TEST_EXPR"; // Flag indicating if activeExpr was present
+    protected static final String INNER_KEY_CASE_PREFIX          = "INNER_KEY_CASE_";
+    protected static final String INNER_KEY_CURRENT_CASE_ID      = "INNER_KEY_CURRENT_CASE_ID";
+    protected static final String INNER_KEY_TEST_EXPR_SUFFIX     = "_TEST_EXPR"; // Appended to the prefixed case ID.
+    protected static final String INNER_KEY_HAS_TEST_EXPR_SUFFIX = "_HAS_TEST_EXPR";
 }
