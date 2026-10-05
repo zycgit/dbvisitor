@@ -21,7 +21,7 @@
     </modules>
 
     <properties>
-        <dbvisitor.version>6.8.0</dbvisitor.version>
+        <dbvisitor.version>6.8.2</dbvisitor.version>
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>

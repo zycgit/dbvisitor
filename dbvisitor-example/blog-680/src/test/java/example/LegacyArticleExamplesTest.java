@@ -13,7 +13,7 @@ import net.hasor.dbvisitor.types.handler.time.JulianDayTypeHandler;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-/** Historical article snippets exercised against the published 6.8.0 dependency. */
+/** Historical article snippets exercised against the configured release dependency. */
 public class LegacyArticleExamplesTest {
     @Table("user_info")
     public static class UserInfo {
@@ -101,7 +101,7 @@ public class LegacyArticleExamplesTest {
             Page page = new PageObject(0, 2);
             assertEquals(2, mapper.list(page).size());
             assertEquals(0, page.getTotalCount()); // List does not request COUNT.
-            // Published 6.8.0: use the XML PageResult path shown in the articles.
+            // Use the XML PageResult path shown in the articles.
             PageResult<UserInfo> xmlPage = mapper.page(new PageObject(0, 2));
             assertEquals(3, xmlPage.getTotalCount());
             assertEquals(2, xmlPage.getData().size());
