@@ -1,6 +1,6 @@
 # Hasor Boot + dbVisitor
 
-使用 Hasor Boot 5.2.0 启动应用，通过 `AutoConfigModule` 创建数据源、装配 Session 并注册 Mapper。
+使用 Hasor Boot 5.3.0 启动应用，通过 `AutoConfigModule` 创建数据源、装配 Session 并注册 Mapper。
 
 ## 配置与启动
 

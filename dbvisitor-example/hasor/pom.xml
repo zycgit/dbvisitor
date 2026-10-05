@@ -12,7 +12,7 @@
     <packaging>jar</packaging>
 
     <properties>
-        <hasor.version>5.2.0</hasor.version>
+        <hasor.version>5.3.0</hasor.version>
     </properties>
 
     <dependencyManagement>
