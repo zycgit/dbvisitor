@@ -6,22 +6,21 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.driver;
-
 import java.math.BigDecimal;
 import java.sql.*;
 import java.time.OffsetDateTime;
 import java.util.*;
 import net.hasor.dbvisitor.driver.lob.JdbcCob;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /** Regression tests for implemented JDBC operations, not optional capabilities. */
 public class JdbcSupportedBehaviorTest {
     private JdbcConnection conn;
 
-    @Before
+    @BeforeEach
     public void open() throws Exception {
         Class.forName("net.hasor.dbvisitor.driver.JdbcDriver");
         Properties props = new Properties();
@@ -29,7 +28,7 @@ public class JdbcSupportedBehaviorTest {
         conn = new JdbcConnection("jdbc:dbvisitor:mock://localhost", props);
     }
 
-    @After
+    @AfterEach
     public void close() {
         conn.close();
     }

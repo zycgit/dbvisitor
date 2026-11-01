@@ -8,11 +8,13 @@
 package net.hasor.dbvisitor.dynamic;
 import java.util.HashMap;
 import java.util.Map;
-import junit.framework.TestCase;
 import net.hasor.dbvisitor.dynamic.args.MapSqlArgSource;
 import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class CaseRuleTest extends TestCase {
+public class CaseRuleTest {
+    @Test
     public void testSwitchMode() throws Exception {
         String sql = "select * from users where @{case, userType, " +//
                 "  @{when, 'admin', role = 'administrator'}, " +     //
@@ -43,6 +45,7 @@ public class CaseRuleTest extends TestCase {
         assertEquals("select * from users where  role = 'guest'", query.trim());
     }
 
+    @Test
     public void testIfElseMode() throws Exception {
         String sql = "update orders set @{case, , " +    //
                 "  @{when, age > 60, discount = 0.5}, " +//
@@ -69,6 +72,7 @@ public class CaseRuleTest extends TestCase {
         assertEquals("update orders set  discount = 1.0", query.trim());
     }
 
+    @Test
     public void testComplexExpressions() throws Exception {
         String mapSql = "select * from items where @{case, item.status.name, " +//
                 "  @{when, 'ACTIVE', state = 1}, " +//
@@ -88,6 +92,7 @@ public class CaseRuleTest extends TestCase {
         assertEquals("select * from items where  state = 1", query.trim());
     }
 
+    @Test
     public void testElseFragmentation() throws Exception {
         String sql = "select type from t where @{case, typeId, " +//
                 "  @{when, 1, type = 'A'}, " +                    //
@@ -104,6 +109,7 @@ public class CaseRuleTest extends TestCase {
         assertEquals("select type from t where  type = 'B', or type = 'C'", query.trim());
     }
 
+    @Test
     public void testWhitespaceRobustness() throws Exception {
         // Lots of spaces
         String sql = "result = @{case , val ,  @{ when , 1 , one } ,  @{ else , other } }";
@@ -118,6 +124,7 @@ public class CaseRuleTest extends TestCase {
         assertEquals("result =  one", query.trim());
     }
 
+    @Test
     public void testVariableVisibility() throws Exception {
         // Variable 'x' and 'y' available
         String sql = "@{case, , @{when, x + y == 10, 'ten'}, @{else, 'not-ten'}}";

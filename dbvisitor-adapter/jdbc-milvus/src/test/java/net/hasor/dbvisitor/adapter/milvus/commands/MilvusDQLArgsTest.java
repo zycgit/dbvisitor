@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.milvus.commands;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -25,7 +24,7 @@ import net.hasor.dbvisitor.adapter.milvus.MilvusCommandInterceptor;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
 
 public class MilvusDQLArgsTest extends AbstractJdbcTest {

@@ -6,15 +6,14 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperGeneratedKeysCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class MilvusXmlMapperGeneratedKeysTest extends XmlMapperGeneratedKeysCase {
     private final MilvusUserInfoFixture fixture = new MilvusUserInfoFixture(true);
@@ -25,20 +24,20 @@ public class MilvusXmlMapperGeneratedKeysTest extends XmlMapperGeneratedKeysCase
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = new JdbcTemplate(this.fixture.open());
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void createXmlMapperSession() throws Exception {
         Configuration configuration = newConfiguration();
         configuration.loadMapper("/realdb/milvus/material/XmlKeyGenerationMapper.xml");
         this.session = configuration.newSession(this.fixture.open());
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws Exception {
         try {
             this.fixture.close();

@@ -6,15 +6,14 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic7;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperGeneratedKeysCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
-import org.junit.After;
-import org.junit.Before;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class Elastic7AnnotationMapperGeneratedKeysTest extends AnnotationMapperGeneratedKeysCase {
     private final Elastic7KeyMapperFixture            fixture = new Elastic7KeyMapperFixture();
@@ -26,13 +25,13 @@ public class Elastic7AnnotationMapperGeneratedKeysTest extends AnnotationMapperG
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = fixture.open(profile().env());
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void createAnnotationMapper() throws Exception {
         this.jdbcTemplate = fixture.open(profile().env());
         this.keys = fixture.session().createMapper(Elastic7KeyMapperFixture.NativeKeys.class);
@@ -85,7 +84,7 @@ public class Elastic7AnnotationMapperGeneratedKeysTest extends AnnotationMapperG
         assertFalse(((String) id).isEmpty());
     }
 
-    @After
+    @AfterEach
     public void closeKeysFixture() throws Exception {
         fixture.close();
     }

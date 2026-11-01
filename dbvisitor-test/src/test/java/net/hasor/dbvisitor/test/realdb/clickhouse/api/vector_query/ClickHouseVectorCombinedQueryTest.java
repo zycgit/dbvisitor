@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.clickhouse.api.vector_query;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
@@ -15,9 +14,11 @@ import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.test.contract.api.vector_query.VectorCombinedQueryCase;
 import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
+import org.junit.jupiter.api.BeforeEach;
 
 public class ClickHouseVectorCombinedQueryTest extends VectorCombinedQueryCase {
     @Override
+    @BeforeEach
     public void setup() throws IOException, SQLException {
         super.setup();
         MappingRegistry registry = new MappingRegistry();

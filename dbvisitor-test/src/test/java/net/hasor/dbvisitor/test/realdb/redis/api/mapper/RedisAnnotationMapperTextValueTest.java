@@ -6,14 +6,13 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperTextValueCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
 import net.hasor.dbvisitor.test.realdb.redis.RedisAnnotationCrudFixture;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class RedisAnnotationMapperTextValueTest extends AnnotationMapperTextValueCase {
     private final RedisAnnotationCrudFixture fixture = new RedisAnnotationCrudFixture(baseId());
@@ -24,19 +23,19 @@ public class RedisAnnotationMapperTextValueTest extends AnnotationMapperTextValu
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = fixture.open();
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void createAnnotationMapper() throws Exception {
         fixture.open();
         this.mapper = fixture.createMapper(newConfiguration());
     }
 
-    @After
+    @AfterEach
     public void closeFixture() throws Exception {
         fixture.close();
     }

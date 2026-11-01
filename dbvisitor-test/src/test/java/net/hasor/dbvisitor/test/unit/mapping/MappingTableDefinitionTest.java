@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.unit.mapping;
-
 import java.sql.Types;
 import java.util.List;
 import net.hasor.dbvisitor.mapping.DdlAuto;
@@ -14,8 +13,8 @@ import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.*;
 import net.hasor.dbvisitor.test.contract.material.model.tabledef.*;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MappingTableDefinitionTest {
     @Test
@@ -173,7 +172,7 @@ public class MappingTableDefinitionTest {
             if (!expected.isInstance(e)) {
                 throw new AssertionError("Expected " + expected.getName() + " but got " + e.getClass().getName(), e);
             }
-            assertTrue("Expected message containing '" + messagePart + "', got: " + e.getMessage(), e.getMessage().contains(messagePart));
+            assertTrue(e.getMessage().contains(messagePart), "Expected message containing '" + messagePart + "', got: " + e.getMessage());
         }
     }
 

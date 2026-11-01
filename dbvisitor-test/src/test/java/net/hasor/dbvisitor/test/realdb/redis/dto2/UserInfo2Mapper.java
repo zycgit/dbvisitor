@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis.dto2;
-
 import net.hasor.dbvisitor.mapper.*;
 import net.hasor.dbvisitor.types.handler.json.JsonTypeHandler;
 

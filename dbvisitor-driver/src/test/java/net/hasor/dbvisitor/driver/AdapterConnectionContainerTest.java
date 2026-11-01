@@ -12,10 +12,11 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Assertions;
 
 /** Tests targeting AdapterConnection (unwrap, timer, features) and AdapterContainer (package-private). */
 public class AdapterConnectionContainerTest {
@@ -23,7 +24,7 @@ public class AdapterConnectionContainerTest {
     private JdbcConnection        conn;
     private MockAdapterConnection mockConn;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         Class.forName("net.hasor.dbvisitor.driver.JdbcDriver");
         Properties props = new Properties();
@@ -32,7 +33,7 @@ public class AdapterConnectionContainerTest {
         mockConn = (MockAdapterConnection) conn.adapterConnection();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         if (conn != null && !conn.isClosed()) {
             conn.close();
@@ -193,13 +194,15 @@ public class AdapterConnectionContainerTest {
         assertSame(req, container.getRequest());
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void container_prepareReceive_whenPending() throws Exception {
-        AdapterContainer container = new AdapterContainer(conn);
-        MockAdapterRequest req1 = new MockAdapterRequest("SELECT 1");
-        container.prepareReceive(req1);
-        // Should throw — already pending
-        container.prepareReceive(new MockAdapterRequest("SELECT 2"));
+        Assertions.assertThrows(SQLException.class, () -> {
+            AdapterContainer container = new AdapterContainer(conn);
+            MockAdapterRequest req1 = new MockAdapterRequest("SELECT 1");
+            container.prepareReceive(req1);
+            // Should throw — already pending
+            container.prepareReceive(new MockAdapterRequest("SELECT 2"));
+        });
     }
 
     @Test
@@ -266,12 +269,14 @@ public class AdapterConnectionContainerTest {
         assertEquals(42, outCursor.column(1));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void container_responseParameter_blankName() throws Exception {
-        AdapterContainer container = new AdapterContainer(conn);
-        MockAdapterRequest req = new MockAdapterRequest("{call proc}");
-        container.prepareReceive(req);
-        container.responseParameter(req, "", "int", 42);
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            AdapterContainer container = new AdapterContainer(conn);
+            MockAdapterRequest req = new MockAdapterRequest("{call proc}");
+            container.prepareReceive(req);
+            container.responseParameter(req, "", "int", 42);
+        });
     }
 
     @Test
@@ -346,22 +351,26 @@ public class AdapterConnectionContainerTest {
         assertFalse(hasMore);
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void container_nextResult_whenPending() throws Exception {
-        AdapterContainer container = new AdapterContainer(conn);
-        MockAdapterRequest req = new MockAdapterRequest("SELECT 1");
-        container.prepareReceive(req);
-        // State is Pending — should throw
-        container.nextResult(Statement.CLOSE_CURRENT_RESULT, 0, TimeUnit.MILLISECONDS);
+        Assertions.assertThrows(SQLException.class, () -> {
+            AdapterContainer container = new AdapterContainer(conn);
+            MockAdapterRequest req = new MockAdapterRequest("SELECT 1");
+            container.prepareReceive(req);
+            // State is Pending — should throw
+            container.nextResult(Statement.CLOSE_CURRENT_RESULT, 0, TimeUnit.MILLISECONDS);
+        });
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void container_getOutParameters_whenPending() throws Exception {
-        AdapterContainer container = new AdapterContainer(conn);
-        MockAdapterRequest req = new MockAdapterRequest("{call proc}");
-        container.prepareReceive(req);
-        // State is Pending — should throw
-        container.getOutParameters();
+        Assertions.assertThrows(SQLException.class, () -> {
+            AdapterContainer container = new AdapterContainer(conn);
+            MockAdapterRequest req = new MockAdapterRequest("{call proc}");
+            container.prepareReceive(req);
+            // State is Pending — should throw
+            container.getOutParameters();
+        });
     }
 
     @Test
@@ -371,11 +380,13 @@ public class AdapterConnectionContainerTest {
         assertNull(container.firstResult());
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void container_firstResult_whenPending() throws Exception {
-        AdapterContainer container = new AdapterContainer(conn);
-        container.prepareReceive(new MockAdapterRequest("SELECT 1"));
-        container.firstResult();
+        Assertions.assertThrows(SQLException.class, () -> {
+            AdapterContainer container = new AdapterContainer(conn);
+            container.prepareReceive(new MockAdapterRequest("SELECT 1"));
+            container.firstResult();
+        });
     }
 
     @Test

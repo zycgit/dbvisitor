@@ -9,7 +9,7 @@ package net.hasor.dbvisitor.adapter.mongo.commands;
 import java.sql.Connection;
 import java.sql.SQLException;
 import net.hasor.dbvisitor.adapter.mongo.AbstractJdbcTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class BasicCommandTest extends AbstractJdbcTest {
 

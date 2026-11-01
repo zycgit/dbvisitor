@@ -6,14 +6,13 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperCommandExecutionCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class MilvusAnnotationMapperCommandExecutionTest extends AnnotationMapperCommandExecutionCase {
     private final MilvusCapabilityFixture fixture = new MilvusCapabilityFixture();
@@ -25,15 +24,15 @@ public class MilvusAnnotationMapperCommandExecutionTest extends AnnotationMapper
     }
 
     @Override
-    @Before
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open();
         this.fixture.userTable("user_info", "id INT64 PRIMARY KEY");
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void createAnnotationMapper() throws Exception {
+        this.setup();
         this.session = newConfiguration().newSession(this.jdbcTemplate.getConnection());
         this.mapper = this.session.createMapper(MilvusCapabilityMappers.Results.class);
     }
@@ -43,7 +42,7 @@ public class MilvusAnnotationMapperCommandExecutionTest extends AnnotationMapper
         return this.fixture.executableSchema(tableName, "id INT64 PRIMARY KEY, name VARCHAR(128)");
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws Exception {
         try {
             this.fixture.close();

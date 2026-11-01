@@ -26,9 +26,9 @@ import org.bson.Document;
 import org.bson.types.Decimal128;
 import org.bson.types.Binary;
 import org.bson.conversions.Bson;
-import org.junit.Test;
-import org.powermock.api.mockito.PowerMockito;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -148,20 +148,20 @@ public class FindProjectionTest extends AbstractJdbcTest {
     @SuppressWarnings("unchecked")
     private MongoCursor<Document> mockDocuments(Document... documents) {
         MongoCommandInterceptor.resetInterceptor();
-        MongoCursor<Document> cursor = PowerMockito.mock(MongoCursor.class);
+        MongoCursor<Document> cursor = Mockito.mock(MongoCursor.class);
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("getCollection", (name, arguments) -> {
-            MongoCollection<Document> collection = PowerMockito.mock(MongoCollection.class);
-            FindIterable<Document> iterable = PowerMockito.mock(FindIterable.class);
-            AggregateIterable<Document> aggregate = PowerMockito.mock(AggregateIterable.class);
+            MongoCollection<Document> collection = Mockito.mock(MongoCollection.class);
+            FindIterable<Document> iterable = Mockito.mock(FindIterable.class);
+            AggregateIterable<Document> aggregate = Mockito.mock(AggregateIterable.class);
             Iterator<Document> values = Arrays.asList(documents).iterator();
-            PowerMockito.when(collection.find(any(Bson.class))).thenReturn(iterable);
-            PowerMockito.when(collection.aggregate(anyList())).thenReturn(aggregate);
-            PowerMockito.when(aggregate.iterator()).thenReturn(cursor);
-            PowerMockito.when(iterable.projection(any(Bson.class))).thenReturn(iterable);
-            PowerMockito.when(iterable.limit(anyInt())).thenReturn(iterable);
-            PowerMockito.when(iterable.iterator()).thenReturn(cursor);
-            PowerMockito.when(cursor.hasNext()).thenAnswer(invocation -> values.hasNext());
-            PowerMockito.when(cursor.next()).thenAnswer(invocation -> values.next());
+            Mockito.when(collection.find(any(Bson.class))).thenReturn(iterable);
+            Mockito.when(collection.aggregate(anyList())).thenReturn(aggregate);
+            Mockito.when(aggregate.iterator()).thenReturn(cursor);
+            Mockito.when(iterable.projection(any(Bson.class))).thenReturn(iterable);
+            Mockito.when(iterable.limit(anyInt())).thenReturn(iterable);
+            Mockito.when(iterable.iterator()).thenReturn(cursor);
+            Mockito.when(cursor.hasNext()).thenAnswer(invocation -> values.hasNext());
+            Mockito.when(cursor.next()).thenAnswer(invocation -> values.next());
             return collection;
         }));
         return cursor;

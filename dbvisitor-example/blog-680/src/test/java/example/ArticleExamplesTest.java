@@ -4,82 +4,81 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package example;
-
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import org.junit.Assume;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ArticleExamplesTest {
     @Test
     public void jsonFieldRoundTrip() throws Exception {
         String output = outputOf(() -> JsonField.main(new String[0]));
-        assertTrue(output, output.contains("theme=dark"));
-        assertTrue(output, output.contains("channels=[email, app]"));
-        assertTrue(output, output.contains("language=zh-CN"));
-        assertTrue(output, output.contains("updated=light"));
+        assertTrue(output.contains("theme=dark"), output);
+        assertTrue(output.contains("channels=[email, app]"), output);
+        assertTrue(output.contains("language=zh-CN"), output);
+        assertTrue(output.contains("updated=light"), output);
     }
 
     @Test
     public void threeStylesShareOneMapper() throws Exception {
         String output = outputOf(() -> ApiStyles.main(new String[0]));
-        assertTrue(output, output.contains("builder=2"));
-        assertTrue(output, output.contains("annotation=1000"));
-        assertTrue(output, output.contains("xml=PAID; total=3000"));
+        assertTrue(output.contains("builder=2"), output);
+        assertTrue(output.contains("annotation=1000"), output);
+        assertTrue(output.contains("xml=PAID; total=3000"), output);
     }
 
     @Test
     public void jdbcFiltersAndRanks() throws Exception {
         integration();
         String output = outputOf(() -> MilvusJdbc.main(new String[0]));
-        assertTrue(output, output.contains("1 | Vector introduction | 0.0"));
-        assertTrue(output, output.contains("2 | Mapper guide | 2.0"));
-        assertFalse(output, output.contains("3 |"));
+        assertTrue(output.contains("1 | Vector introduction | 0.0"), output);
+        assertTrue(output.contains("2 | Mapper guide | 2.0"), output);
+        assertFalse(output.contains("3 |"), output);
     }
 
     @Test
     public void daoPreservesUnmodifiedVector() throws Exception {
         integration();
         String output = outputOf(() -> MilvusDao.main(new String[0]));
-        assertTrue(output, output.contains("builder=Vector introduction"));
-        assertTrue(output, output.contains("annotation=Vector introduction"));
-        assertTrue(output, output.contains("updated=Revised guide; vector=[1.0, 0.0]"));
+        assertTrue(output.contains("builder=Vector introduction"), output);
+        assertTrue(output.contains("annotation=Vector introduction"), output);
+        assertTrue(output.contains("updated=Revised guide; vector=[1.0, 0.0]"), output);
     }
 
     @Test
     public void hybridCombinesBm25AndDenseWithinCategory() throws Exception {
         integration();
         String output = outputOf(() -> MilvusHybrid.main(new String[0]));
-        assertTrue(output, output.contains("hybrid=1 | milvus vector search"));
-        assertTrue(output, output.contains("hybrid=2 | mapper database guide"));
-        assertTrue(output, output.indexOf("hybrid=1") < output.indexOf("hybrid=2"));
-        assertFalse(output, output.contains("hybrid=3"));
+        assertTrue(output.contains("hybrid=1 | milvus vector search"), output);
+        assertTrue(output.contains("hybrid=2 | mapper database guide"), output);
+        assertTrue(output.indexOf("hybrid=1") < output.indexOf("hybrid=2"), output);
+        assertFalse(output.contains("hybrid=3"), output);
     }
 
     @Test
     public void iteratorWritesAcrossPageBoundaries() throws Exception {
         integration();
         String output = outputOf(() -> MilvusIngest.main(new String[0]));
-        assertTrue(output, output.contains("written=5"));
-        assertTrue(output, output.contains("count=5"));
+        assertTrue(output.contains("written=5"), output);
+        assertTrue(output.contains("count=5"), output);
     }
 
     @Test
     public void cacheMapsJsonAndExpires() throws Exception {
         integration();
         String output = outputOf(() -> RedisCache.main(new String[0]));
-        assertTrue(output, output.contains("missing=null"));
-        assertTrue(output, output.contains("cached=USB-C Hub; priceCents=12900"));
-        assertTrue(output, output.contains("afterEvict=null"));
+        assertTrue(output.contains("missing=null"), output);
+        assertTrue(output.contains("cached=USB-C Hub; priceCents=12900"), output);
+        assertTrue(output.contains("afterEvict=null"), output);
         String ttlLine = output.lines().filter(line -> line.startsWith("ttl=")).findFirst().orElseThrow();
         long ttl = Long.parseLong(ttlLine.substring(4));
         assertTrue(ttl > 0 && ttl <= 300);
     }
 
     private static void integration() {
-        Assume.assumeTrue("Set BLOG_INTEGRATION=true to run against Milvus and Redis", "true".equals(System.getenv("BLOG_INTEGRATION")));
+        Assumptions.assumeTrue("true".equals(System.getenv("BLOG_INTEGRATION")), "Set BLOG_INTEGRATION=true to run against Milvus and Redis");
     }
 
     private static String outputOf(Example example) throws Exception {

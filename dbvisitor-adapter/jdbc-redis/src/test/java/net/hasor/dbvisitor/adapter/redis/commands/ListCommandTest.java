@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Objects;
 import net.hasor.dbvisitor.adapter.redis.AbstractJdbcTest;
 import net.hasor.dbvisitor.adapter.redis.RedisCommandInterceptor;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import redis.clients.jedis.args.ListDirection;
 import redis.clients.jedis.args.ListPosition;
 import redis.clients.jedis.commands.ListCommands;

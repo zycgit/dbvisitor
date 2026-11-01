@@ -8,7 +8,7 @@
 package net.hasor.dbvisitor.dialect;
 import net.hasor.dbvisitor.dialect.provider.DefaultSqlDialect;
 import net.hasor.test.AbstractDbTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /***
  * 方言

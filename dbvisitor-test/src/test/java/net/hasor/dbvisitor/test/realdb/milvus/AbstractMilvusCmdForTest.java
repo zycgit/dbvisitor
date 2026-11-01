@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.util.function.Function;
 import io.milvus.client.MilvusServiceClient;
 import io.milvus.common.clientenum.ConsistencyLevelEnum;
@@ -31,7 +30,7 @@ import io.milvus.param.role.SelectRoleParam;
 import io.milvus.v2.client.ConnectConfig;
 import io.milvus.v2.client.MilvusClientV2;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 public class AbstractMilvusCmdForTest {
     protected static final String  MILVUS_HOST         = "127.0.0.1";
@@ -45,7 +44,7 @@ public class AbstractMilvusCmdForTest {
     private static final   int     ALIAS_NOT_FOUND     = 1600;
     protected              boolean milvusSelected;
 
-    @Before
+    @BeforeEach
     public void before() {
         OneApiDataSourceManager.assumeCurrentDataSource("milvus");
         this.milvusSelected = true;

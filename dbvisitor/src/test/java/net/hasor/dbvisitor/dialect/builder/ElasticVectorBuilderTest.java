@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.dialect.builder;
-
 import java.sql.SQLException;
 import java.util.List;
 import net.hasor.dbvisitor.dialect.BoundSql;
@@ -15,11 +14,11 @@ import net.hasor.dbvisitor.dialect.SqlCommandBuilder.ConditionType;
 import net.hasor.dbvisitor.dialect.provider.Elastic7Dialect;
 import net.hasor.dbvisitor.lambda.core.MetricType;
 import net.hasor.dbvisitor.lambda.core.OrderType;
-import org.junit.Test;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ElasticVectorBuilderTest {
     @Test

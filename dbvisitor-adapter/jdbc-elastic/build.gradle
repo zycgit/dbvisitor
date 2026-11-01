@@ -21,8 +21,7 @@ dependencies {
     compileOnly "org.antlr:antlr4-runtime:${property('lib.antlr')}"
     shaded "org.antlr:antlr4-runtime:${property('lib.antlr')}"
     testImplementation "org.antlr:antlr4-runtime:${property('lib.antlr')}"
-    testImplementation 'org.powermock:powermock-module-junit4:2.0.9'
-    testImplementation 'org.powermock:powermock-api-mockito2:2.0.9'
+    testImplementation "org.mockito:mockito-core:${property('lib.mockito')}"
 }
 
 tasks.named('generateGrammarSource') {

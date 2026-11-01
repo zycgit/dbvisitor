@@ -6,14 +6,13 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic7;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.api.adapter.NativeMapperCrudFixture;
 import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperCrudCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class Elastic7AnnotationMapperCrudTest extends AnnotationMapperCrudCase {
     private final NativeMapperCrudFixture fixture = new NativeMapperCrudFixture();
@@ -24,19 +23,19 @@ public class Elastic7AnnotationMapperCrudTest extends AnnotationMapperCrudCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open(profile().env());
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void createAnnotationMapper() throws Exception {
         this.fixture.open(profile().env());
         this.mapper = this.fixture.createMapper(newConfiguration());
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws Exception {
         this.fixture.close();
     }

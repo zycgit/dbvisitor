@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.milvus.commands;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -26,10 +25,10 @@ import net.hasor.dbvisitor.adapter.milvus.MilvusCommandInterceptor;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MilvusExpressionEscapingTest extends AbstractJdbcTest {
     private final List<QueryIteratorReq> queryParams  = new ArrayList<>();
@@ -68,7 +67,7 @@ public class MilvusExpressionEscapingTest extends AbstractJdbcTest {
         });
     }
 
-    @After
+    @AfterEach
     public void cleanupInterceptor() {
         MilvusCommandInterceptor.resetInterceptor();
     }

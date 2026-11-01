@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.*;
 import java.util.Properties;
 import com.google.gson.JsonArray;
@@ -14,8 +13,8 @@ import com.google.gson.JsonParser;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /** Native user management SQL; this does not test login enforcement on an auth-disabled server. */
 public class MilvusUserSqlTest extends MilvusSqlContractSupport {

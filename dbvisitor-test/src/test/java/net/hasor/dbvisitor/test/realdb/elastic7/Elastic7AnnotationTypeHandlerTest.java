@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic7;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.test.contract.feature.type.AnnotationTypeHandlerCase;
@@ -18,8 +17,8 @@ import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
 import net.hasor.dbvisitor.test.realdb.elastic7.material.ElasticMatrixFixture;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class Elastic7AnnotationTypeHandlerTest extends AnnotationTypeHandlerCase {
     private final ElasticMatrixFixture fixture = new ElasticMatrixFixture();
@@ -30,7 +29,7 @@ public class Elastic7AnnotationTypeHandlerTest extends AnnotationTypeHandlerCase
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         OneApiDataSourceManager.assumeCurrentDataSource(profile().env());
     }
@@ -45,7 +44,7 @@ public class Elastic7AnnotationTypeHandlerTest extends AnnotationTypeHandlerCase
         return fixture.lambdaTemplate();
     }
 
-    @After
+    @AfterEach
     public void closeFixture() throws SQLException {
         fixture.close();
     }

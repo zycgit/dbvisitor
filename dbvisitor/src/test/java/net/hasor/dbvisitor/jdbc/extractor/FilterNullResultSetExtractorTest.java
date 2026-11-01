@@ -15,7 +15,7 @@ import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.jdbc.mapper.ColumnMapRowMapper;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import static net.hasor.test.utils.TestUtils.*;
 
 /***

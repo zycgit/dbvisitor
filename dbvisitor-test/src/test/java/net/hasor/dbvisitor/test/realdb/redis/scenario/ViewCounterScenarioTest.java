@@ -6,11 +6,10 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis.scenario;
-
 import net.hasor.dbvisitor.test.realdb.redis.scenario.mapper.ViewCounterMapper;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class ViewCounterScenarioTest extends RedisScenarioSupport {
     @Test

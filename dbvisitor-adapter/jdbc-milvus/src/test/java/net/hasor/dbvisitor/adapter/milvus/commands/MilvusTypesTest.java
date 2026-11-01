@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.milvus.commands;
-
 import java.nio.ByteBuffer;
 import java.sql.*;
 import java.time.Instant;
@@ -28,10 +27,10 @@ import io.milvus.v2.utils.VectorUtils;
 import net.hasor.dbvisitor.adapter.milvus.*;
 import net.hasor.dbvisitor.adapter.milvus.mapping.MilvusSchema;
 import net.hasor.dbvisitor.driver.JdbcDriver;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /** JDBC -> official SDK -> protobuf -> SDK -> JDBC, without a running server. */
 public class MilvusTypesTest extends AbstractJdbcTest {
@@ -112,7 +111,7 @@ public class MilvusTypesTest extends AbstractJdbcTest {
         return new JdbcDriver().connect("jdbc:dbvisitor:milvus://test:19530", props);
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         MilvusCommandInterceptor.resetInterceptor();
     }
@@ -438,7 +437,7 @@ public class MilvusTypesTest extends AbstractJdbcTest {
                 stmt.executeUpdate("CREATE TABLE t (id INT64 PRIMARY KEY, v " + type + " NULL)");
                 stmt.executeUpdate("INSERT INTO t (id,v) VALUES (1,NULL)");
                 FieldData vector = stored.stream().filter(f -> "v".equals(f.getFieldName())).findFirst().orElseThrow();
-                assertEquals(type, Collections.singletonList(false), vector.getValidDataList());
+                assertEquals(Collections.singletonList(false), vector.getValidDataList(), type);
                 try (ResultSet rs = stmt.executeQuery("SELECT v FROM t LIMIT 1")) {
                     assertEquals(ResultSetMetaData.columnNullable, rs.getMetaData().isNullable(1));
                     assertTrue(rs.next());
@@ -519,8 +518,8 @@ public class MilvusTypesTest extends AbstractJdbcTest {
                 }
                 try (ResultSet rs = stmt.executeQuery("SELECT a FROM t LIMIT 1")) {
                     assertTrue(rs.next());
-                    assertEquals(types[i], jdbc[i], rs.getArray(1).getBaseType());
-                    assertArrayEquals(types[i], new Object[] { expected[i] }, (Object[]) rs.getArray(1).getArray());
+                    assertEquals(jdbc[i], rs.getArray(1).getBaseType(), types[i]);
+                    assertArrayEquals(new Object[] { expected[i] }, (Object[]) rs.getArray(1).getArray(), types[i]);
                 }
                 try (ResultSet rs = stmt.executeQuery("SHOW TABLE t")) {
                     while (rs.next()) {

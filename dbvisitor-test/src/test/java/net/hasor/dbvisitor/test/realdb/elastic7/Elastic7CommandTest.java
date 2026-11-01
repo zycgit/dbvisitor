@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic7;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -17,9 +16,9 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class Elastic7CommandTest extends AdapterCase {
     @Override
@@ -50,12 +49,12 @@ public class Elastic7CommandTest extends AdapterCase {
                         String name = rs.getString("name");
                         int age = rs.getInt("age");
 
-                        assertEquals("id not match", "1", id);
+                        assertEquals("1", id, "id not match");
                         JsonNode document = new ObjectMapper().readTree(doc);
-                        assertEquals("doc not match (name)", "mali", document.path("name").asText());
-                        assertEquals("doc not match (age)", 26, document.path("age").asInt());
-                        assertEquals("name not match", "mali", name);
-                        assertEquals("age not match", 26, age);
+                        assertEquals("mali", document.path("name").asText(), "doc not match (name)");
+                        assertEquals(26, document.path("age").asInt(), "doc not match (age)");
+                        assertEquals("mali", name, "name not match");
+                        assertEquals(26, age, "age not match");
                     } else {
                         fail("no data found");
                     }

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.test.utils;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;

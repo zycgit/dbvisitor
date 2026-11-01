@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.mongo;
-
 import java.sql.SQLException;
 import java.util.Properties;
 import javax.sql.DataSource;
@@ -20,8 +19,8 @@ import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
 import net.hasor.dbvisitor.test.realdb.mongo.material.MongoMapperFixture;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class MongoSessionFactoryTest extends SessionFactoryCase {
     private final MongoMapperFixture fixture = new MongoMapperFixture();
@@ -33,7 +32,7 @@ public class MongoSessionFactoryTest extends SessionFactoryCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open();
         Properties properties = OneApiDataSourceManager.loadAdapterProperties("mongo");
@@ -76,7 +75,7 @@ public class MongoSessionFactoryTest extends SessionFactoryCase {
         return this.fixture.source() + ".find({id: ?}, {_id: 0, name: 1})";
     }
 
-    @After
+    @AfterEach
     public void closeFixture() throws Exception {
         try {
             if (this.sessionSource != null) {

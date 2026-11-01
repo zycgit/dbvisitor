@@ -6,18 +6,17 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic6;
-
 import java.sql.*;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class Elastic6CrudPlaceholderTest {
     private static final String ES_URL     = "jdbc:dbvisitor:elastic://127.0.0.1:2920?indexRefresh=true";
     private static final String INDEX_NAME = "test_crud_placeholder";
 
-    @Before
+    @BeforeEach
     public void before() throws Exception {
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
             try {
@@ -28,7 +27,7 @@ public class Elastic6CrudPlaceholderTest {
         }
     }
 
-    @After
+    @AfterEach
     public void after() throws Exception {
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
             try {
@@ -56,7 +55,7 @@ public class Elastic6CrudPlaceholderTest {
             // Verify
             // Use match query to avoid case sensitivity issues for text fields
             try (Statement s = c.createStatement(); ResultSet rs = s.executeQuery("POST /" + INDEX_NAME + "/_search { \"query\": { \"match\": { \"name\": \"Alice\" } } }")) {
-                assertTrue("Data not found", rs.next());
+                assertTrue(rs.next(), "Data not found");
                 assertEquals("Alice", rs.getString("name"));
                 assertEquals(30, rs.getInt("age"));
             }
@@ -79,7 +78,7 @@ public class Elastic6CrudPlaceholderTest {
                 ps.setString(2, "1");
 
                 try (ResultSet rs = ps.executeQuery()) {
-                    assertTrue("Data not found", rs.next());
+                    assertTrue(rs.next(), "Data not found");
                     assertEquals("Bob", rs.getString("name"));
                     assertEquals(25, rs.getInt("age"));
                 }
@@ -103,7 +102,7 @@ public class Elastic6CrudPlaceholderTest {
                 ps.setInt(2, 35);
 
                 try (ResultSet rs = ps.executeQuery()) {
-                    assertTrue("Data not found", rs.next());
+                    assertTrue(rs.next(), "Data not found");
                     assertEquals("Charlie", rs.getString("name"));
                 }
             }
@@ -132,7 +131,7 @@ public class Elastic6CrudPlaceholderTest {
 
             // Verify using _search to ensure flattened result
             try (Statement s = c.createStatement(); ResultSet rs = s.executeQuery("POST /" + INDEX_NAME + "/_search { \"query\": { \"term\": { \"_id\": \"1\" } } }")) {
-                assertTrue("Data not found", rs.next());
+                assertTrue(rs.next(), "Data not found");
                 assertEquals(21, rs.getInt("age"));
             }
         }
@@ -159,7 +158,7 @@ public class Elastic6CrudPlaceholderTest {
 
             // Verify using search
             try (Statement s = c.createStatement(); ResultSet rs = s.executeQuery("POST /" + INDEX_NAME + "/_search { \"query\": { \"term\": { \"_id\": \"1\" } } }")) {
-                assertFalse("Data should be deleted", rs.next());
+                assertFalse(rs.next(), "Data should be deleted");
             }
         }
     }

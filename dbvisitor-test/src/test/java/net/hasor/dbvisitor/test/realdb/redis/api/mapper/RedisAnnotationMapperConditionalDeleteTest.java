@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.mapper.Delete;
 import net.hasor.dbvisitor.mapper.Param;
@@ -18,8 +17,8 @@ import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperC
 import net.hasor.dbvisitor.test.contract.material.dao.declarative.AnnotationTestMapper;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class RedisAnnotationMapperConditionalDeleteTest extends AnnotationMapperConditionalDeleteCase {
     private final RedisMapperFixture fixture = new RedisMapperFixture();
@@ -30,14 +29,14 @@ public class RedisAnnotationMapperConditionalDeleteTest extends AnnotationMapper
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         fixture.open();
         jdbcTemplate = fixture.session().jdbc();
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void createAnnotationMapper() throws Exception {
         fixture.open();
         Configuration configuration = newConfiguration();
@@ -46,7 +45,7 @@ public class RedisAnnotationMapperConditionalDeleteTest extends AnnotationMapper
         mapper = session.createMapper(ConditionalMapper.class);
     }
 
-    @After
+    @AfterEach
     public void closeFixture() throws Exception {
         fixture.close();
     }

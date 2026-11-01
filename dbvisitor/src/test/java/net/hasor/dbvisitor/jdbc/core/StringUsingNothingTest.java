@@ -14,7 +14,7 @@ import net.hasor.dbvisitor.dynamic.args.MapSqlArgSource;
 import net.hasor.test.utils.DsUtils;
 import net.hasor.test.utils.TestUtils;
 import net.hasor.test.utils.UserInfo;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class StringUsingNothingTest {
     @Test

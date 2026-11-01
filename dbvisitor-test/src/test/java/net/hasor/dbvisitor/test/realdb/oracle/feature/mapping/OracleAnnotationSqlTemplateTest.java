@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.oracle.feature.mapping;
-
 import net.hasor.dbvisitor.test.contract.feature.mapping.AnnotationSqlTemplateCase;
 import net.hasor.dbvisitor.test.contract.material.model.annotation.AbstractMd5User;
 import net.hasor.dbvisitor.test.contract.material.model.annotation.OracleMd5User;

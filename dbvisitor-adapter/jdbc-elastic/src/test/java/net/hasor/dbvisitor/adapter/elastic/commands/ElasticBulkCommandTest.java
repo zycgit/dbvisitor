@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.elastic.commands;
-
 import java.nio.charset.StandardCharsets;
 import java.sql.BatchUpdateException;
 import java.sql.Connection;
@@ -17,8 +16,8 @@ import java.sql.Statement;
 import java.util.Properties;
 import net.hasor.dbvisitor.adapter.elastic.ElasticKeys;
 import org.apache.http.util.EntityUtils;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ElasticBulkCommandTest extends AbstractElasticCommandTest {
     @Test

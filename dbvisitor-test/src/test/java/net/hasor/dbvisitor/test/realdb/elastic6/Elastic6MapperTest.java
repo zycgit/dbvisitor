@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic6;
-
 import java.util.List;
 import java.util.Map;
 import net.hasor.cobble.CollectionUtils;
@@ -23,8 +22,8 @@ import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic6Profile;
 import net.hasor.dbvisitor.test.realdb.elastic6.material.user.*;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class Elastic6MapperTest extends AdapterCase {
     @Override

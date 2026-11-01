@@ -6,14 +6,13 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MilvusFunctionSqlTest extends MilvusSqlContractSupport {
     @Test
@@ -43,7 +42,7 @@ public class MilvusFunctionSqlTest extends MilvusSqlContractSupport {
         try (Statement statement = this.connection.createStatement()) {
             for (String change : changes) {
                 SQLException failure = assertThrows(SQLException.class, () -> statement.execute("ALTER TABLE " + this.collection + " " + change + "; DROP TABLE " + this.collection));
-                assertTrue(failure.getMessage(), failure.getMessage().contains("UNIMPLEMENTED"));
+                assertTrue(failure.getMessage().contains("UNIMPLEMENTED"), failure.getMessage());
                 assertEquals(original, createScript());
             }
         }

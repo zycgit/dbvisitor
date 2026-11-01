@@ -6,14 +6,13 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.jdbc;
-
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public abstract class JdbcCrudSupport extends AbstractNxnContractTest {
     protected int baseId() {
@@ -55,16 +54,16 @@ public abstract class JdbcCrudSupport extends AbstractNxnContractTest {
 
     protected String storedValue(JdbcCrudCommand command, String column, int id) throws SQLException {
         Map<String, Object> row = jdbcTemplate.queryForMap(command(command), new Object[] { id });
-        assertNotNull("Stored row for " + id, row);
+        assertNotNull(row, "Stored row for " + id);
         Object value = field(row, column);
-        assertNotNull("Stored field " + column, value);
+        assertNotNull(value, "Stored field " + column);
         // Column types differ by source; the scalar contracts assert requested Java types separately.
         return value.toString();
     }
 
     protected void assertUserAbsent(int id) throws SQLException {
         Map<String, Object> row = jdbcTemplate.queryForMap(command(JdbcCrudCommand.COUNT_BY_ID), new Object[] { id });
-        assertNotNull("Count result for " + id, row);
+        assertNotNull(row, "Count result for " + id);
         assertEquals(1, row.size());
         assertEquals("0", row.values().iterator().next().toString());
     }

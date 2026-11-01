@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.milvus.commands;
-
 import java.sql.*;
 import java.util.*;
 import io.milvus.grpc.CollectionSchema;
@@ -26,19 +25,19 @@ import net.hasor.dbvisitor.adapter.milvus.MilvusCommandInterceptor;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MilvusQueryOptionsTest {
     private final List<Object> requests = new ArrayList<>();
     private final List<String> methods  = new ArrayList<>();
     private       Connection   connection;
 
-    @Before
+    @BeforeEach
     public void connect() throws SQLException {
         MilvusCommandInterceptor.resetInterceptor();
         MilvusCommandInterceptor.addInterceptor(MilvusClientV2.class, (proxy, method, args) -> {
@@ -75,7 +74,7 @@ public class MilvusQueryOptionsTest {
         connection = new JdbcDriver().connect("jdbc:dbvisitor:milvus://mock:19530/options_db", properties);
     }
 
-    @After
+    @AfterEach
     public void close() throws SQLException {
         try {
             if (connection != null) {
@@ -181,7 +180,7 @@ public class MilvusQueryOptionsTest {
             for (String prefix : Arrays.asList("SELECT id", "COUNT", "SELECT COUNT(*)", "/*+ overwrite_find_as_count */ SELECT id")) {
                 for (String option : Arrays.asList("nprobe=4", "limit=1", "offset=1", "round_decimal=2", "ignore_growing='true'", "ignore_growing=1", "timezone=5")) {
                     String sql = prefix + " FROM t WITH(" + option + ")";
-                    assertThrows(sql, SQLException.class, () -> statement.executeQuery(sql));
+                    assertThrows(SQLException.class, () -> statement.executeQuery(sql), sql);
                 }
             }
         }

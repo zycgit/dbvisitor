@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
@@ -18,8 +17,8 @@ import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperResultMapCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class MilvusXmlMapperResultMapTest extends XmlMapperResultMapCase {
     private final MilvusUserInfoFixture fixture = new MilvusUserInfoFixture();
@@ -31,7 +30,7 @@ public class MilvusXmlMapperResultMapTest extends XmlMapperResultMapCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = new JdbcTemplate(this.fixture.open());
         this.lambdaTemplate = new LambdaTemplate(this.jdbcTemplate);
@@ -65,7 +64,7 @@ public class MilvusXmlMapperResultMapTest extends XmlMapperResultMapCase {
         }
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws SQLException, IOException {
         try {
             this.fixture.close();

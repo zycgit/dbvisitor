@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.material.service;
-
 import java.sql.SQLException;
 import java.util.Date;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;

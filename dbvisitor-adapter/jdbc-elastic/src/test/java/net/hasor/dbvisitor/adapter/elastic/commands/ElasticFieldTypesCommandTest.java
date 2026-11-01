@@ -6,14 +6,13 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.elastic.commands;
-
 import java.sql.*;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import org.elasticsearch.client.ResponseException;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ElasticFieldTypesCommandTest extends AbstractElasticCommandTest {
     @Test

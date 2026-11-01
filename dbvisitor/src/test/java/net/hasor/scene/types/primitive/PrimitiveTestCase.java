@@ -12,7 +12,7 @@ import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.scene.types.primitive.dto.PrimitiveDTO;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class PrimitiveTestCase {
 

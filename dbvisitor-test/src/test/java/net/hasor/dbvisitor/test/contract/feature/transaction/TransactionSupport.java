@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.feature.transaction;
-
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
@@ -22,21 +21,21 @@ import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.transaction.*;
 import net.hasor.dbvisitor.transaction.support.TransactionHelper;
-import org.junit.After;
-import org.junit.Before;
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public abstract class TransactionSupport extends AbstractNxnContractTest {
     protected int baseId() {
         return 910000;
     }
 
-    @Before
+    @BeforeEach
     public void requireTransactionFeature() {
         requiresNxnFeature(FeatureId.TRANSACTION);
     }
 
-    @After
+    @AfterEach
     public void resetOracleTransactionState() {
         if (isOracle()) {
             OneApiDataSourceManager.reset();

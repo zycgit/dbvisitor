@@ -17,7 +17,7 @@ import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
 import net.hasor.dbvisitor.dynamic.segment.SqlModifier;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.handler.number.BigDecimalTypeHandler;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class DynamicTest {
     private static void assertArgCnt(int argCnt, String sql) throws SQLException {

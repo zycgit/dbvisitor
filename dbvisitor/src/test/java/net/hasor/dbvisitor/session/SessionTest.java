@@ -18,7 +18,7 @@ import net.hasor.dbvisitor.page.PageResult;
 import net.hasor.dbvisitor.session.dto.AutoIncrID;
 import net.hasor.dbvisitor.session.dto.ProxyStatementMapper;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SessionTest {
     private Session reinit(Session s) throws SQLException, IOException {

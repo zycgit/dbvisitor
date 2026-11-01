@@ -17,7 +17,7 @@ import net.hasor.dbvisitor.dynamic.TestQueryContext;
 import net.hasor.dbvisitor.dynamic.dto.UserFutures;
 import net.hasor.dbvisitor.dynamic.dto.UsersDTO;
 import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * 多个 SQL 节点组合成一个 SqlNode

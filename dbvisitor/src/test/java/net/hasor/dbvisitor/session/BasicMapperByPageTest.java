@@ -21,7 +21,7 @@ import net.hasor.dbvisitor.page.PageResult;
 import net.hasor.dbvisitor.session.dto.UserInfo2;
 import net.hasor.dbvisitor.session.dto.UserInfo3;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import static net.hasor.test.utils.TestUtils.INSERT_ARRAY;
 
 public class BasicMapperByPageTest {

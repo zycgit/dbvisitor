@@ -6,20 +6,19 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic7;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class Elastic7HintCountTest {
     private static final String ES_URL = "jdbc:dbvisitor:elastic://127.0.0.1:2921?indexRefresh=true";
 
-    @Before
+    @BeforeEach
     public void before() throws Exception {
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
             try {
@@ -35,7 +34,7 @@ public class Elastic7HintCountTest {
         }
     }
 
-    @After
+    @AfterEach
     public void after() throws Exception {
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
             try {

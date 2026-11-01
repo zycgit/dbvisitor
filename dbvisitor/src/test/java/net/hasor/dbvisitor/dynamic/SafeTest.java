@@ -6,14 +6,13 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.dynamic;
-
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
 import net.hasor.dbvisitor.types.SqlArg;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class SafeTest {
 
@@ -28,9 +27,9 @@ public class SafeTest {
         try {
             SqlBuilder builder = segment.buildQuery(new HashMap<>(), new TestQueryContext());
             Object val = ((SqlArg) builder.getArgs()[0]).getValue();
-            Assert.assertEquals("a,b", val);
+            Assertions.assertEquals("a,b", val);
         } catch (Exception e) {
-            Assert.fail("Failed to parse comma in quotes: " + e.getMessage());
+            Assertions.fail("Failed to parse comma in quotes: " + e.getMessage());
         }
     }
 
@@ -45,9 +44,9 @@ public class SafeTest {
         try {
             SqlBuilder builder = segment.buildQuery(new HashMap<>(), new TestQueryContext());
             Object val = ((SqlArg) builder.getArgs()[0]).getValue();
-            Assert.assertEquals("3", val.toString());
+            Assertions.assertEquals("3", val.toString());
         } catch (Exception e) {
-            Assert.fail("Failed to parse comma in function args: " + e.getMessage());
+            Assertions.fail("Failed to parse comma in function args: " + e.getMessage());
         }
     }
 
@@ -64,12 +63,12 @@ public class SafeTest {
         String generatedSql = builder.getSqlString();
         // Should parse as one parameter
         // generatedSql should be "select * from user where name = ?"
-        Assert.assertEquals("select * from user where name = ?", generatedSql.trim());
+        Assertions.assertEquals("select * from user where name = ?", generatedSql.trim());
 
         Object[] args = builder.getArgs();
-        Assert.assertEquals(1, args.length);
+        Assertions.assertEquals(1, args.length);
         Object arg = ((SqlArg) args[0]).getValue();
-        Assert.assertEquals("}", arg.toString());
+        Assertions.assertEquals("}", arg.toString());
     }
 
     public static int testFunc(int a, int b) {

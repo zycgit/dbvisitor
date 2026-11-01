@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.lambda;
-
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
@@ -15,7 +14,7 @@ import net.hasor.dbvisitor.lambda.EntityQuery;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public abstract class LambdaPaginationSupport extends AbstractNxnContractTest {
     protected EntityQuery<? extends UserInfo> queryRows() throws SQLException {

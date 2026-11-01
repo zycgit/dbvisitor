@@ -6,12 +6,11 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.session;
-
 import net.hasor.dbvisitor.test.contract.api.session.SessionMapperSharingCase;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 /** BaseMapper-generated CRUD sharing remains distinct from declared Redis commands. */
 public class RedisSessionMapperSharingTest extends SessionMapperSharingCase {
@@ -21,7 +20,7 @@ public class RedisSessionMapperSharingTest extends SessionMapperSharingCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() {
         OneApiDataSourceManager.assumeCurrentDataSource("redis");
     }

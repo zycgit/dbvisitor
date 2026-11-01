@@ -11,8 +11,8 @@ import java.util.Objects;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import net.hasor.test.AbstractDbTest;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /***
  *
@@ -22,7 +22,7 @@ import org.junit.Test;
 public class CamelCaseNothingUsingEnvYesTest extends AbstractDbTest {
     private MappingRegistry registry;
 
-    @Before
+    @BeforeEach
     public void beforeTest() throws Exception {
         this.registry = new MappingRegistry(null, TypeHandlerRegistry.DEFAULT, Options.of().mapUnderscoreToCamelCase(true));
         this.registry.loadMapping("/dbvisitor_coverage/basic_mapping/camel_case_nothing.xml");

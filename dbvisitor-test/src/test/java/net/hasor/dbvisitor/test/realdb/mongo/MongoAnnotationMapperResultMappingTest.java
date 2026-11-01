@@ -6,15 +6,14 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.mongo;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperResultMappingCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
 import net.hasor.dbvisitor.test.realdb.mongo.material.MongoMapperFixture;
 import net.hasor.dbvisitor.test.realdb.mongo.material.MongoResultMapper;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class MongoAnnotationMapperResultMappingTest extends AnnotationMapperResultMappingCase {
     private final MongoMapperFixture fixture = new MongoMapperFixture();
@@ -25,19 +24,19 @@ public class MongoAnnotationMapperResultMappingTest extends AnnotationMapperResu
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open();
         this.fixture.seed(baseId(), "AnnoResult", "anno-result");
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void createAnnotationMapper() throws Exception {
         this.mapper = this.fixture.session(newConfiguration()).createMapper(MongoResultMapper.class);
     }
 
-    @After
+    @AfterEach
     public void closeFixture() throws Exception {
         this.fixture.close();
     }

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.SQLException;
@@ -17,10 +16,10 @@ import net.hasor.dbvisitor.test.contract.feature.type.NativeNamedFieldTypeCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MilvusNamedFieldTypeTest extends NativeNamedFieldTypeCase {
     private final MilvusDatabaseFixture database = new MilvusDatabaseFixture();
@@ -32,7 +31,7 @@ public class MilvusNamedFieldTypeTest extends NativeNamedFieldTypeCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.connection = this.database.open();
         this.jdbcTemplate = new JdbcTemplate(this.connection);
@@ -68,7 +67,7 @@ public class MilvusNamedFieldTypeTest extends NativeNamedFieldTypeCase {
     }
 
     @Override
-    @After
+    @AfterEach
     public void closeFixture() throws SQLException {
         try {
             if (this.connection != null && !this.connection.isClosed()) {

@@ -6,14 +6,13 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.scenario;
-
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class ReturningScenario extends net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest {
     protected abstract String insertSql();

@@ -15,8 +15,8 @@ import java.util.UUID;
 import net.hasor.dbvisitor.mapper.Insert;
 import net.hasor.dbvisitor.mapper.Param;
 import net.hasor.dbvisitor.mapper.SimpleMapper;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MapperMapGeneratedKeysTest {
     @SimpleMapper

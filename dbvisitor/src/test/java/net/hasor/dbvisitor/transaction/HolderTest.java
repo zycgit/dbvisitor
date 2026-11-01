@@ -14,7 +14,7 @@ import net.hasor.test.AbstractDbTest;
 import net.hasor.test.dto.user_info;
 import net.hasor.test.utils.DefaultDs;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import static net.hasor.test.utils.TestUtils.*;
 
 public class HolderTest extends AbstractDbTest {

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.milvus.commands;
-
 import java.sql.*;
 import java.util.*;
 import io.milvus.common.clientenum.FunctionType;
@@ -18,10 +17,10 @@ import net.hasor.dbvisitor.adapter.milvus.MilvusCommandInterceptor;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MilvusFunctionManagementTest {
     private final List<String>                         methods  = new ArrayList<>();
@@ -30,7 +29,7 @@ public class MilvusFunctionManagementTest {
     private       CreateCollectionReq.CollectionSchema schema;
     private       String                               failingMethod;
 
-    @Before
+    @BeforeEach
     public void connect() throws SQLException {
         MilvusCommandInterceptor.resetInterceptor();
         MilvusCommandInterceptor.addInterceptor(MilvusClientV2.class, (proxy, method, args) -> {
@@ -55,7 +54,7 @@ public class MilvusFunctionManagementTest {
         this.connection = new JdbcDriver().connect("jdbc:dbvisitor:milvus://test:19530/db1", properties);
     }
 
-    @After
+    @AfterEach
     public void close() throws SQLException {
         try {
             if (this.connection != null) {
@@ -132,7 +131,7 @@ public class MilvusFunctionManagementTest {
                 assertTrue(rows.next());
                 script = rows.getString("CREATE SCRIPT");
             }
-            assertTrue(script, script.contains("DESCRIPTION 'author''s 中文说明'"));
+            assertTrue(script.contains("DESCRIPTION 'author''s 中文说明'"), script);
             statement.executeUpdate(script);
             assertEquals(SchemaUtils.convertToGrpcFunction(original), SchemaUtils.convertToGrpcFunction(this.schema.getFunctionList().get(0)));
         }
@@ -164,7 +163,7 @@ public class MilvusFunctionManagementTest {
         String[] invalid = { "ALTER TABLE ? DROP FUNCTION f", "ALTER TABLE docs DROP FUNCTION ?", "ALTER TABLE docs ADD FUNCTION ? USING BM25 (body) INTO (sparse)", "ALTER TABLE docs ADD FUNCTION f USING ? (body) INTO (sparse)", "ALTER TABLE docs ADD FUNCTION f USING BM25 (?) INTO (sparse)", "ALTER TABLE docs ADD FUNCTION f USING BM25 (body) INTO (?)", "ALTER TABLE docs ADD FUNCTION f USING BM25 (body,other) INTO (sparse)", "ALTER TABLE docs ALTER FUNCTION f USING unknown (body) INTO (sparse)", "ALTER TABLE docs DROP FUNCTION f WITH (force=true)" };
         for (String sql : invalid) {
             try (Statement statement = this.connection.createStatement()) {
-                assertThrows(sql, SQLException.class, () -> statement.execute(sql));
+                assertThrows(SQLException.class, () -> statement.execute(sql), sql);
             }
         }
         for (Object description : Arrays.asList(null, 42)) {

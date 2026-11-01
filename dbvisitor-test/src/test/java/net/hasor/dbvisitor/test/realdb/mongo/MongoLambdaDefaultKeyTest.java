@@ -6,15 +6,14 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.mongo;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.api.lambda.LambdaDefaultKeyCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
 import net.hasor.dbvisitor.test.realdb.mongo.material.MongoDefaultKeyEntity;
 import net.hasor.dbvisitor.test.realdb.mongo.material.MongoEntityFixture;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class MongoLambdaDefaultKeyTest extends LambdaDefaultKeyCase {
     private final MongoEntityFixture fixture = new MongoEntityFixture();
@@ -25,7 +24,7 @@ public class MongoLambdaDefaultKeyTest extends LambdaDefaultKeyCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open(MongoDefaultKeyEntity.class, "{name: 1}");
         this.lambdaTemplate = this.fixture.lambda();
@@ -48,7 +47,7 @@ public class MongoLambdaDefaultKeyTest extends LambdaDefaultKeyCase {
         return ((MongoDefaultKeyEntity) entity).getId();
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws SQLException {
         this.fixture.close();
     }

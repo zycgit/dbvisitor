@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.mssql.material;
-
 import net.hasor.dbvisitor.mapper.*;
 import net.hasor.dbvisitor.test.contract.material.dao.declarative.AnnotationAttributesMapper;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;

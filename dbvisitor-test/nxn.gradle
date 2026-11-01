@@ -25,10 +25,10 @@ tasks.register('prepareNxnRunner') {
 }
 
 // Preserve single-datasource Gradle runs and their standard reports.
-class NxnLegacyListener implements TestListener {
+class NxnGradleListener implements TestListener {
     final File directory
     final Map run
-    NxnLegacyListener(File directory, boolean filtered) {
+    NxnGradleListener(File directory, boolean filtered) {
         this.directory = directory
         this.run = new JsonSlurper().parse(new File(directory, 'run.json')) as Map
         run.filtered = filtered
@@ -82,7 +82,7 @@ if (selected) {
         doFirst { Test execution ->
             execution.systemProperty 'nxn.runId', new JsonSlurper().parse(sessionFile).runId
             def filtered = !execution.filter.commandLineIncludePatterns.empty || !execution.filter.includePatterns.empty || !execution.filter.excludePatterns.empty
-            execution.addTestListener(new NxnLegacyListener(resultDir, filtered))
+            execution.addTestListener(new NxnGradleListener(resultDir, filtered))
         }
     }
     tasks.register('updateNxnDocs', JavaExec) {

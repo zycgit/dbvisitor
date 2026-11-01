@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.clickhouse.api.mapper.annotation;
-
 import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperCommandExecutionCase;
 import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;

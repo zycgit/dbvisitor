@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.lambda;
-
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Date;
@@ -18,8 +17,8 @@ import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 @NxnContract
 public abstract class LambdaSortCase extends AbstractNxnContractTest {
@@ -78,7 +77,7 @@ public abstract class LambdaSortCase extends AbstractNxnContractTest {
                 query.queryForList();
                 fail("SQL Server must reject repeated ORDER BY columns");
             } catch (SQLException e) {
-                assertTrue(e.getMessage(), e.getMessage().contains("more than once"));
+                assertTrue(e.getMessage().contains("more than once"), e.getMessage());
             }
             List<UserInfo> rows = lambdaTemplate.query(UserInfo.class)//
                     .in(UserInfo::getId, ids(21, 22, 23)).desc("age").asc("id").queryForList();

@@ -12,6 +12,7 @@
         <example.build.directory>${project.basedir}/target</example.build.directory>
     </properties>
     <dependencies>
+        <dependency><groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter</artifactId><version>6.1.3</version><scope>test</scope></dependency>
         <dependency><groupId>net.hasor</groupId><artifactId>dbvisitor</artifactId><version>${dbvisitor.version}</version></dependency>
         <dependency><groupId>net.hasor</groupId><artifactId>jdbc-milvus</artifactId><version>${dbvisitor.version}</version></dependency>
         <dependency><groupId>net.hasor</groupId><artifactId>jdbc-redis</artifactId><version>${dbvisitor.version}</version></dependency>
@@ -22,7 +23,6 @@
         <dependency><groupId>com.h2database</groupId><artifactId>h2</artifactId><version>2.2.224</version></dependency>
         <dependency><groupId>com.google.code.gson</groupId><artifactId>gson</artifactId><version>2.11.0</version></dependency>
         <dependency><groupId>org.slf4j</groupId><artifactId>slf4j-simple</artifactId><version>1.7.36</version></dependency>
-        <dependency><groupId>junit</groupId><artifactId>junit</artifactId><version>4.13.2</version><scope>test</scope></dependency>
     </dependencies>
     <build>
         <directory>${example.build.directory}</directory>

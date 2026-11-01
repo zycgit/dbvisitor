@@ -19,7 +19,7 @@ import net.hasor.dbvisitor.adapter.redis.JedisKeys;
 import net.hasor.dbvisitor.adapter.redis.RedisCommandInterceptor;
 import net.hasor.dbvisitor.adapter.redis.RedisCustomJedis;
 import net.hasor.dbvisitor.driver.JdbcDriver;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import redis.clients.jedis.commands.StringCommands;
 
 public class SeparatorCharTest extends AbstractJdbcTest {

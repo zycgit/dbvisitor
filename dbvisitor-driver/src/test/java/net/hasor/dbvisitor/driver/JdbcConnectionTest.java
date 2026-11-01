@@ -6,19 +6,20 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.driver;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import java.sql.*;
 import java.util.Properties;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Assertions;
 
 /** Comprehensive tests for JdbcConnection — covers all creation methods, transaction, metadata, and unsupported. */
 public class JdbcConnectionTest {
 
     private JdbcConnection conn;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         Class.forName("net.hasor.dbvisitor.driver.JdbcDriver");
         Properties props = new Properties();
@@ -26,7 +27,7 @@ public class JdbcConnectionTest {
         conn = new JdbcConnection("jdbc:dbvisitor:mock://localhost", props);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         if (conn != null && !conn.isClosed()) {
             conn.close();
@@ -55,19 +56,25 @@ public class JdbcConnectionTest {
         stmt.close();
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void createStatement_invalidType() throws Exception {
-        conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+        Assertions.assertThrows(SQLException.class, () -> {
+            conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+        });
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void createStatement_invalidConcurrency() throws Exception {
-        conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+        Assertions.assertThrows(SQLException.class, () -> {
+            conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+        });
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void createStatement_invalidHoldability() throws Exception {
-        conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY, ResultSet.CLOSE_CURSORS_AT_COMMIT);
+        Assertions.assertThrows(SQLException.class, () -> {
+            conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY, ResultSet.CLOSE_CURSORS_AT_COMMIT);
+        });
     }
 
     // ==================== prepareStatement ====================
@@ -99,9 +106,11 @@ public class JdbcConnectionTest {
         ps.close();
     }
 
-    @Test(expected = SQLFeatureNotSupportedException.class)
+    @Test
     public void prepareStatement_columnIndexes_unsupported() throws Exception {
-        conn.prepareStatement("INSERT INTO test VALUES (1)", new int[] { 1 });
+        Assertions.assertThrows(SQLFeatureNotSupportedException.class, () -> {
+            conn.prepareStatement("INSERT INTO test VALUES (1)", new int[] { 1 });
+        });
     }
 
     @Test
@@ -225,9 +234,11 @@ public class JdbcConnectionTest {
         conn.setReadOnly(false);
     }
 
-    @Test(expected = SQLFeatureNotSupportedException.class)
+    @Test
     public void setReadOnly_true_unsupported() throws Exception {
-        conn.setReadOnly(true);
+        Assertions.assertThrows(SQLFeatureNotSupportedException.class, () -> {
+            conn.setReadOnly(true);
+        });
     }
 
     // ==================== holdability ====================
@@ -237,9 +248,11 @@ public class JdbcConnectionTest {
         conn.setHoldability(ResultSet.HOLD_CURSORS_OVER_COMMIT);
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void setHoldability_invalid() throws Exception {
-        conn.setHoldability(ResultSet.CLOSE_CURSORS_AT_COMMIT);
+        Assertions.assertThrows(SQLException.class, () -> {
+            conn.setHoldability(ResultSet.CLOSE_CURSORS_AT_COMMIT);
+        });
     }
 
     // ==================== warnings ====================
@@ -260,14 +273,18 @@ public class JdbcConnectionTest {
         assertNotNull(conn.getClientInfo());
     }
 
-    @Test(expected = SQLClientInfoException.class)
+    @Test
     public void setClientInfo_name_unsupported() throws Exception {
-        conn.setClientInfo("key", "value");
+        Assertions.assertThrows(SQLClientInfoException.class, () -> {
+            conn.setClientInfo("key", "value");
+        });
     }
 
-    @Test(expected = SQLClientInfoException.class)
+    @Test
     public void setClientInfo_props_unsupported() throws Exception {
-        conn.setClientInfo(new Properties());
+        Assertions.assertThrows(SQLClientInfoException.class, () -> {
+            conn.setClientInfo(new Properties());
+        });
     }
 
     // ==================== close ====================
@@ -279,64 +296,88 @@ public class JdbcConnectionTest {
     }
 
     // ==================== unsupported ====================
-    @Test(expected = SQLFeatureNotSupportedException.class)
+    @Test
     public void typeMap_get_unsupported() throws Exception {
-        conn.getTypeMap();
+        Assertions.assertThrows(SQLFeatureNotSupportedException.class, () -> {
+            conn.getTypeMap();
+        });
     }
 
-    @Test(expected = SQLFeatureNotSupportedException.class)
+    @Test
     public void typeMap_set_unsupported() throws Exception {
-        conn.setTypeMap(null);
+        Assertions.assertThrows(SQLFeatureNotSupportedException.class, () -> {
+            conn.setTypeMap(null);
+        });
     }
 
-    @Test(expected = SQLFeatureNotSupportedException.class)
+    @Test
     public void createSQLXML_unsupported() throws Exception {
-        conn.createSQLXML();
+        Assertions.assertThrows(SQLFeatureNotSupportedException.class, () -> {
+            conn.createSQLXML();
+        });
     }
 
-    @Test(expected = SQLFeatureNotSupportedException.class)
+    @Test
     public void createStruct_unsupported() throws Exception {
-        conn.createStruct("type", null);
+        Assertions.assertThrows(SQLFeatureNotSupportedException.class, () -> {
+            conn.createStruct("type", null);
+        });
     }
 
-    @Test(expected = SQLFeatureNotSupportedException.class)
+    @Test
     public void setSavepoint_unsupported() throws Exception {
-        conn.setSavepoint();
+        Assertions.assertThrows(SQLFeatureNotSupportedException.class, () -> {
+            conn.setSavepoint();
+        });
     }
 
-    @Test(expected = SQLFeatureNotSupportedException.class)
+    @Test
     public void setSavepointName_unsupported() throws Exception {
-        conn.setSavepoint("sp");
+        Assertions.assertThrows(SQLFeatureNotSupportedException.class, () -> {
+            conn.setSavepoint("sp");
+        });
     }
 
-    @Test(expected = SQLFeatureNotSupportedException.class)
+    @Test
     public void rollbackSavepoint_unsupported() throws Exception {
-        conn.rollback(null);
+        Assertions.assertThrows(SQLFeatureNotSupportedException.class, () -> {
+            conn.rollback(null);
+        });
     }
 
-    @Test(expected = SQLFeatureNotSupportedException.class)
+    @Test
     public void releaseSavepoint_unsupported() throws Exception {
-        conn.releaseSavepoint(null);
+        Assertions.assertThrows(SQLFeatureNotSupportedException.class, () -> {
+            conn.releaseSavepoint(null);
+        });
     }
 
-    @Test(expected = SQLFeatureNotSupportedException.class)
+    @Test
     public void setNetworkTimeout_unsupported() throws Exception {
-        conn.setNetworkTimeout(null, 100);
+        Assertions.assertThrows(SQLFeatureNotSupportedException.class, () -> {
+            conn.setNetworkTimeout(null, 100);
+        });
     }
 
-    @Test(expected = SQLFeatureNotSupportedException.class)
+    @Test
     public void getNetworkTimeout_unsupported() throws Exception {
-        conn.getNetworkTimeout();
+        Assertions.assertThrows(SQLFeatureNotSupportedException.class, () -> {
+            conn.getNetworkTimeout();
+        });
     }
 
-    @Test(expected = SQLFeatureNotSupportedException.class)
+    @Test
     public void abort_unsupported() throws Exception {
-        conn.abort(null);
+        Assertions.assertThrows(SQLFeatureNotSupportedException.class, () -> {
+            conn.abort(null);
+        });
     }
 
-    @Test(expected = SQLFeatureNotSupportedException.class)
+    @Test
     public void isValid_unsupported() throws Exception {
-        conn.isValid(5);
+        Assertions.assertThrows(SQLFeatureNotSupportedException.class, () -> {
+            conn.isValid(5);
+        });
     }
 
     @Test

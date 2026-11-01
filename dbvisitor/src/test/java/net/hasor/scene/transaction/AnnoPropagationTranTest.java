@@ -29,7 +29,7 @@
 //import net.hasor.db.jdbc.core.JdbcTemplate;
 //import net.hasor.test.db.AbstractDbTest;
 //import net.hasor.test.db.SingleDsModule;
-//import org.junit.Test;
+//import org.junit.jupiter.api.Test;
 //
 //import java.sql.SQLException;
 //

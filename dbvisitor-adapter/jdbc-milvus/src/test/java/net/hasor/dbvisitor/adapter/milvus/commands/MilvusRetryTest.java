@@ -6,18 +6,17 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.milvus.commands;
-
 import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.sql.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import io.milvus.grpc.CollectionSchema;
@@ -46,7 +45,7 @@ public class MilvusRetryTest {
     private int                 failuresRemaining;
     private CountDownLatch      firstAttempt;
 
-    @Before
+    @BeforeEach
     public void install() {
         iterator = Mockito.mock(QueryIterator.class);
         CollectionSchema schema = CollectionSchema.newBuilder().setName("t").addFields(FieldSchema.newBuilder().setName("id").setDataType(DataType.Int64).setIsPrimaryKey(true)).build();
@@ -76,7 +75,7 @@ public class MilvusRetryTest {
         });
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         MilvusCommandInterceptor.resetInterceptor();
     }
@@ -121,8 +120,8 @@ public class MilvusRetryTest {
                 writeFailure = error;
                 failuresRemaining = 10;
                 SQLException result = failed(statement, "DELETE FROM t WHERE id > 0");
-                assertEquals(error.toString(), 1, writes.get());
-                assertTrue(result.getMessage(), result.getMessage().contains("1 attempt(s)"));
+                assertEquals(1, writes.get(), error.toString());
+                assertTrue(result.getMessage().contains("1 attempt(s)"), result.getMessage());
                 if (error instanceof SQLException) {
                     assertEquals(((SQLException) error).getSQLState(), result.getSQLState());
                     assertEquals(((SQLException) error).getErrorCode(), result.getErrorCode());
@@ -191,10 +190,10 @@ public class MilvusRetryTest {
         Mockito.doThrow(closeFailure).when(iterator).close();
         try (Connection connection = connect(3); Statement statement = connection.createStatement()) {
             SQLException result = failed(statement, "DELETE FROM t WHERE id > 0 LIMIT 3");
-            assertTrue(result.getMessage(), result.getMessage().contains("phase=read"));
-            assertTrue(result.getMessage(), result.getMessage().contains("page=2"));
-            assertTrue(result.getMessage(), result.getMessage().contains("confirmedPages=1"));
-            assertTrue(result.getMessage(), result.getMessage().contains("confirmedRows=1"));
+            assertTrue(result.getMessage().contains("phase=read"), result.getMessage());
+            assertTrue(result.getMessage().contains("page=2"), result.getMessage());
+            assertTrue(result.getMessage().contains("confirmedPages=1"), result.getMessage());
+            assertTrue(result.getMessage().contains("confirmedRows=1"), result.getMessage());
             assertSame(readFailure, result.getCause().getCause());
             assertArrayEquals(new Throwable[] { closeFailure }, result.getSuppressed());
         }
@@ -209,9 +208,9 @@ public class MilvusRetryTest {
         Mockito.doThrow(new IllegalStateException("close failed")).when(iterator).close();
         try (Connection connection = connect(1); Statement statement = connection.createStatement()) {
             SQLException result = failed(statement, "DELETE FROM t WHERE id > 0 LIMIT 3");
-            assertTrue(result.getMessage(), result.getMessage().contains("phase=close"));
-            assertTrue(result.getMessage(), result.getMessage().contains("confirmedRows=1"));
-            assertTrue(result.getMessage(), result.getMessage().contains("confirmedPages=1"));
+            assertTrue(result.getMessage().contains("phase=close"), result.getMessage());
+            assertTrue(result.getMessage().contains("confirmedRows=1"), result.getMessage());
+            assertTrue(result.getMessage().contains("confirmedPages=1"), result.getMessage());
         }
         assertEquals(1, writes.get());
     }
@@ -240,7 +239,7 @@ public class MilvusRetryTest {
         try (Connection connection = connect(100); Statement statement = connection.createStatement()) {
             statement.setQueryTimeout(1);
             SQLException result = failed(statement, "DELETE FROM t WHERE id > 0");
-            assertTrue(result.toString(), result instanceof SQLTimeoutException);
+            assertTrue(result instanceof SQLTimeoutException, result.toString());
             assertTrue(writes.get() < 10);
         }
     }

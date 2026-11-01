@@ -2,8 +2,8 @@ package net.hasor.dbvisitor.adapter.mongo;
 import java.sql.DriverPropertyInfo;
 import java.util.*;
 import net.hasor.dbvisitor.driver.JdbcDriver;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class DriverPropertyDiscoveryTest {
     @Test

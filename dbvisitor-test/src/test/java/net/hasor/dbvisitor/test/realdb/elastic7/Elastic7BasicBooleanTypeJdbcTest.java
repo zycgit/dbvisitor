@@ -6,14 +6,13 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic7;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.api.adapter.NativeBasicTypeFixture;
 import net.hasor.dbvisitor.test.contract.feature.type.BasicBooleanTypeJdbcCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class Elastic7BasicBooleanTypeJdbcTest extends BasicBooleanTypeJdbcCase {
     private final NativeBasicTypeFixture fixture = new NativeBasicTypeFixture();
@@ -24,7 +23,7 @@ public class Elastic7BasicBooleanTypeJdbcTest extends BasicBooleanTypeJdbcCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open(profile().env());
     }
@@ -39,7 +38,7 @@ public class Elastic7BasicBooleanTypeJdbcTest extends BasicBooleanTypeJdbcCase {
         return this.fixture.selectCommand(table, columns);
     }
 
-    @After
+    @AfterEach
     public void closeFixture() throws SQLException {
         this.fixture.close();
     }

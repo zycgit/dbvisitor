@@ -6,14 +6,13 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic7;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcCallResultCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
 import net.hasor.dbvisitor.test.realdb.elastic7.material.ElasticMatrixFixture;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class Elastic7JdbcCallResultTest extends JdbcCallResultCase {
     private final ElasticMatrixFixture fixture = new ElasticMatrixFixture();
@@ -24,7 +23,7 @@ public class Elastic7JdbcCallResultTest extends JdbcCallResultCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open(profile().env());
     }
@@ -40,7 +39,7 @@ public class Elastic7JdbcCallResultTest extends JdbcCallResultCase {
         return "POST /" + this.fixture.index() + "/_search {\"_source\": [\"name\",\"age\"],\"query\": {\"term\": {\"id\": #{p_id}}}}";
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws SQLException {
         this.fixture.close();
     }

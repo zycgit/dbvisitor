@@ -21,7 +21,7 @@ import net.hasor.dbvisitor.types.handler.time.IntegerAsMonthTypeHandler;
 import net.hasor.dbvisitor.types.handler.time.SqlTimestampAsMonthTypeHandler;
 import net.hasor.dbvisitor.types.handler.time.StringAsMonthTypeHandler;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class MonthTypeHandlerTest {
     @Test

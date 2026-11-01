@@ -20,7 +20,7 @@ import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.jdbc.extractor.RowMapperResultSetExtractor;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import static net.hasor.test.utils.DsUtils.MYSQL_SCHEMA_NAME;
 
 /***

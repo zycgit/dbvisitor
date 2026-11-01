@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.adapter;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.UUID;
@@ -17,8 +16,8 @@ import net.hasor.dbvisitor.test.contract.feature.mapping.AnnotationJsonFieldMapp
 import net.hasor.dbvisitor.test.contract.material.model.annotation.BoundJsonFieldEntity;
 import net.hasor.dbvisitor.test.contract.material.model.types.SpecialJsonTypeEntity;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 /** Entity-field JSON conversion through Lambda and a private mapping registry. */
 public abstract class NativeJsonFieldMappingSupport extends AnnotationJsonFieldMappingCase {
@@ -28,7 +27,7 @@ public abstract class NativeJsonFieldMappingSupport extends AnnotationJsonFieldM
     private       boolean    mongo;
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         OneApiDataSourceManager.assumeCurrentDataSource(profile().env());
         this.connection = OneApiDataSourceManager.getConnection(profile().env());
@@ -65,7 +64,7 @@ public abstract class NativeJsonFieldMappingSupport extends AnnotationJsonFieldM
         }
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws SQLException {
         try {
             if (this.created) {

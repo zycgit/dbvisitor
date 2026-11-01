@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -16,8 +15,8 @@ import net.hasor.dbvisitor.test.contract.feature.type.TimeClockJdbcCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
 import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 /** Verifies the shared Java temporal conversions using native text and integer storage. */
 @NxnConcurrent
@@ -31,7 +30,7 @@ public class MilvusTimeClockJdbcTest extends TimeClockJdbcCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.connection = this.database.open();
         this.jdbcTemplate = new JdbcTemplate(this.connection, new MappingRegistry(), null);
@@ -51,7 +50,7 @@ public class MilvusTimeClockJdbcTest extends TimeClockJdbcCase {
         }
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws SQLException {
         try {
             if (this.connection != null && !this.connection.isClosed()) {

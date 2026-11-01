@@ -6,14 +6,13 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.pg.api.vector_query;
-
 import java.sql.SQLException;
 import java.util.UUID;
 import net.hasor.dbvisitor.lambda.core.MetricType;
 import net.hasor.dbvisitor.test.contract.api.vector_query.VectorBinaryMetricCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.PostgreSqlProfile;
-import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 import org.postgresql.util.PGobject;
 
 /** pgvector >= 0.7 exposes Hamming/Jaccard operators for PostgreSQL BIT fields. */
@@ -45,7 +44,7 @@ public class PostgreSqlVectorBinaryMetricTest extends VectorBinaryMetricCase {
         return value;
     }
 
-    @After
+    @AfterEach
     public void cleanupBinaryStorage() throws SQLException {
         if (this.created) {
             jdbcTemplate.execute("DROP TABLE " + this.table);

@@ -16,7 +16,7 @@ import java.util.Objects;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.adapter.redis.AbstractJdbcTest;
 import net.hasor.dbvisitor.adapter.redis.RedisCommandInterceptor;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import redis.clients.jedis.args.SortedSetOption;
 import redis.clients.jedis.commands.SortedSetCommands;
 import redis.clients.jedis.params.ScanParams;

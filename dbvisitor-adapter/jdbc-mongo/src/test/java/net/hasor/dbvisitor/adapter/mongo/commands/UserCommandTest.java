@@ -17,7 +17,7 @@ import net.hasor.dbvisitor.adapter.mongo.MongoCommandInterceptor;
 import org.bson.BsonDocument;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class UserCommandTest extends AbstractJdbcTest {
     @Test

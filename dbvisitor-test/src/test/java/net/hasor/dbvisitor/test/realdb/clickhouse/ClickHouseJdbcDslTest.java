@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.clickhouse;
-
 import java.sql.SQLException;
 import java.util.Map;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
@@ -14,9 +13,9 @@ import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class ClickHouseJdbcDslTest extends AbstractNxnContractTest {
     @Override

@@ -24,8 +24,8 @@ import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import net.hasor.dbvisitor.types.handler.number.ShortTypeHandler;
 import net.hasor.dbvisitor.types.handler.string.EnumTypeHandler;
 import net.hasor.dbvisitor.types.handler.string.SqlXmlTypeHandler;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ArgRuleTest {
     @Test
@@ -34,9 +34,9 @@ public class ArgRuleTest {
                 ArgRule.CFG_KEY_TYPE_HANDLER, ArgRule.CFG_KEY_NAME, ArgRule.CFG_KEY_TYPE_NAME, ArgRule.CFG_KEY_SCALE,
                 ArgRule.CFG_KEY_EXTRACTOR, ArgRule.CFG_KEY_ROW_HANDLER, ArgRule.CFG_KEY_ROW_MAPPER };
         for (String key : keys) {
-            assertTrue(key, ArgRule.isConfigEntry(key + "=value"));
-            assertTrue(key, ArgRule.isConfigEntry(" " + key.toUpperCase(Locale.ROOT) + " = value"));
-            assertTrue(key, ArgRule.isConfigEntry(key.toLowerCase(Locale.ROOT) + "=value"));
+            assertTrue(ArgRule.isConfigEntry(key + "=value"), key);
+            assertTrue(ArgRule.isConfigEntry(" " + key.toUpperCase(Locale.ROOT) + " = value"), key);
+            assertTrue(ArgRule.isConfigEntry(key.toLowerCase(Locale.ROOT) + "=value"), key);
         }
     }
 

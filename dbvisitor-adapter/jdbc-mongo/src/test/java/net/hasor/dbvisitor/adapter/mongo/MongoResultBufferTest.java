@@ -6,11 +6,10 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.mongo;
-
 import java.io.File;
 import java.io.IOException;
 import org.bson.Document;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class MongoResultBufferTest {
     @Test

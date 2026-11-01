@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.clickhouse.feature.schema;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
@@ -16,8 +15,8 @@ import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ClickHouseDistributedTableTest extends AbstractNxnContractTest {
     @Override
@@ -41,9 +40,9 @@ public class ClickHouseDistributedTableTest extends AbstractNxnContractTest {
             assertEquals("distributed", lambda.queryFreedom(distributed).eq("id", 1).queryForObject().get("name"));
             assertEquals(1, lambda.queryFreedom(local).queryForCount());
             SQLException update = assertThrows(SQLException.class, () -> lambda.updateFreedom(distributed).eq("id", 1).updateTo("name", "changed").doUpdate());
-            assertTrue(update.getMessage(), update.getMessage().contains("support mutations"));
+            assertTrue(update.getMessage().contains("support mutations"), update.getMessage());
             SQLException delete = assertThrows(SQLException.class, () -> lambda.deleteFreedom(distributed).eq("id", 1).doDelete());
-            assertTrue(delete.getMessage(), delete.getMessage().contains("not supported") || delete.getMessage().contains("support mutations"));
+            assertTrue(delete.getMessage().contains("not supported") || delete.getMessage().contains("support mutations"), delete.getMessage());
             assertEquals("distributed", lambda.queryFreedom(local).eq("id", 1).queryForObject().get("name"));
         } finally {
             dropTableIfExists(distributed);

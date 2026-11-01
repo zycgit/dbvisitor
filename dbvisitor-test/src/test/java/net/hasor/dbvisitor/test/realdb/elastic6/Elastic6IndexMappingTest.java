@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic6;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -15,18 +14,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class Elastic6IndexMappingTest {
     private static final String ES_URL       = "jdbc:dbvisitor:elastic://localhost:2920?indexRefresh=true";
     private static final String INDEX_NAME_1 = "dbv_mapping_test_idx_1";
     private static final String INDEX_NAME_2 = "dbv_mapping_test_idx_2";
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         try (Connection conn = DriverManager.getConnection(ES_URL)) {
             try (Statement stmt = conn.createStatement()) {
@@ -85,7 +84,7 @@ public class Elastic6IndexMappingTest {
         }
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         try (Connection conn = DriverManager.getConnection(ES_URL); Statement stmt = conn.createStatement()) {
             try {
@@ -151,11 +150,11 @@ public class Elastic6IndexMappingTest {
                     }
                 }
 
-                assertTrue("Name field not found", foundName);
-                assertTrue("Name.raw field not found", foundNameRaw);
-                assertTrue("Name.count field not found", foundNameCount);
-                assertTrue("Age field not found", foundAge);
-                assertTrue("Address field not found", foundAddress);
+                assertTrue(foundName, "Name field not found");
+                assertTrue(foundNameRaw, "Name.raw field not found");
+                assertTrue(foundNameCount, "Name.count field not found");
+                assertTrue(foundAge, "Age field not found");
+                assertTrue(foundAddress, "Address field not found");
             }
         }
     }
@@ -178,8 +177,8 @@ public class Elastic6IndexMappingTest {
                     }
                 }
 
-                assertTrue("Should find 'name' field from first index", foundIndex1Name);
-                assertTrue("Should find 'title' field from second index", foundIndex2Title);
+                assertTrue(foundIndex1Name, "Should find 'name' field from first index");
+                assertTrue(foundIndex2Title, "Should find 'title' field from second index");
             }
         }
     }
@@ -220,9 +219,9 @@ public class Elastic6IndexMappingTest {
                         foundAge = true;
                     }
                 }
-                assertTrue("Email field should be added", foundEmail);
-                assertTrue("OrderDate field should be added", foundOrderDate);
-                assertTrue("Age field should still exist", foundAge);
+                assertTrue(foundEmail, "Email field should be added");
+                assertTrue(foundOrderDate, "OrderDate field should be added");
+                assertTrue(foundAge, "Age field should still exist");
             }
         }
     }
@@ -252,7 +251,7 @@ public class Elastic6IndexMappingTest {
                         foundPhone = true;
                     }
                 }
-                assertTrue("Phone field should be added via PUT", foundPhone);
+                assertTrue(foundPhone, "Phone field should be added via PUT");
             }
         }
     }
@@ -272,8 +271,8 @@ public class Elastic6IndexMappingTest {
                         found2 = true;
                     }
                 }
-                assertTrue("Should find index 1", found1);
-                assertTrue("Should find index 2", found2);
+                assertTrue(found1, "Should find index 1");
+                assertTrue(found2, "Should find index 2");
             }
         }
     }

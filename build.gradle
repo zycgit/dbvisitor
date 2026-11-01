@@ -1,13 +1,17 @@
+import groovy.json.JsonSlurper
+
 plugins {
     id 'com.gradleup.shadow' version '9.2.2' apply false
 }
+
+def pomMetadata = new JsonSlurper().parse(file('pom.json'))
 
 allprojects {
     group = 'net.hasor'
 }
 
 subprojects {
-    plugins.withType(JavaPlugin).configureEach {
+    plugins.withId('java') {
         java {
             toolchain.languageVersion = JavaLanguageVersion.of(17)
         }
@@ -21,15 +25,40 @@ subprojects {
             failOnError = false
         }
         tasks.withType(Test).configureEach {
-            useJUnit()
+            useJUnitPlatform()
             jvmArgs '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
                     '--add-opens', 'java.base/java.lang.reflect=ALL-UNNAMED',
                     '--add-opens', 'java.base/java.io=ALL-UNNAMED',
                     '--add-opens', 'java.base/java.net=ALL-UNNAMED'
         }
-        tasks.withType(GenerateModuleMetadata).configureEach { enabled = false }
+        tasks.withType(GenerateModuleMetadata).configureEach {
+            enabled = false
+        }
         dependencies {
-            testImplementation "junit:junit:${property('lib.junit')}"
+            testImplementation platform("org.junit:junit-bom:${property('lib.junit')}")
+            testImplementation 'org.junit.jupiter:junit-jupiter'
+            testImplementation 'org.junit.platform:junit-platform-launcher'
+        }
+
+        apply plugin: 'jacoco'
+        jacoco {
+            toolVersion = property('lib.jacoco')
+        }
+        tasks.named('test') {
+            finalizedBy tasks.named('jacocoTestReport')
+        }
+        tasks.named('jacocoTestReport') {
+            dependsOn tasks.named('test')
+            reports {
+                xml.required = true
+                html.required = true
+            }
+        }
+        tasks.named('jacocoTestCoverageVerification') {
+            dependsOn tasks.named('test')
+        }
+        tasks.named('check') {
+            dependsOn tasks.named('jacocoTestReport'), tasks.named('jacocoTestCoverageVerification')
         }
 
         plugins.withId('maven-publish') {
@@ -45,47 +74,49 @@ subprojects {
                         pom {
                             name = providers.provider { project.findProperty('pomName') ?: project.name }
                             description = providers.provider { project.description ?: project.name }
-                            url = 'https://www.dbvisitor.net/'
-                            licenses { license { name = 'The Apache Software License, Version 2.0'; url = 'https://www.apache.org/licenses/LICENSE-2.0.txt' } }
-                            developers { developer { name = '赵永春(Mr.Zhao)'; email = 'zyc@hasor.net' } }
-                            scm {
-                                connection = 'scm:git:git@gitee.com:zycgit/dbvisitor.git'
-                                developerConnection = connection
-                                url = 'https://gitee.com/zycgit/dbvisitor'
-                                tag = 'HEAD'
-                            }
-                            withXml {
-                                def excluded = new LinkedHashSet(configurations.compileOnly.dependencies)
-                                excluded.addAll(configurations.testImplementation.dependencies)
-                                excluded.addAll(configurations.testRuntimeOnly.dependencies)
-                                if (configurations.findByName('shaded')) {
-                                    excluded.addAll(configurations.shaded.dependencies)
-                                }
-                                if (configurations.findByName('antlr')) {
-                                    excluded.addAll(configurations.antlr.dependencies)
-                                }
-
-                                excluded.each { dep ->
-                                    def groupId = dep.group ?: project.group
-                                    def dependenciesNode = asNode().dependencies[0]
-                                    dependenciesNode?.dependency?.findAll {
-                                        it.groupId.text() == groupId.toString() && it.artifactId.text() == dep.name
-                                    }?.each {
-                                        dependenciesNode.remove(it)
+                            url = pomMetadata.url
+                            licenses {
+                                pomMetadata.licenses.each { licenseMetadata ->
+                                    license {
+                                        name = licenseMetadata.name
+                                        url = licenseMetadata.url
                                     }
                                 }
+                            }
+                            developers {
+                                pomMetadata.developers.each { developerMetadata ->
+                                    developer {
+                                        name = developerMetadata.name
+                                        email = developerMetadata.email
+                                    }
+                                }
+                            }
+                            scm {
+                                connection = pomMetadata.scm.connection
+                                developerConnection = pomMetadata.scm.developerConnection
+                                url = pomMetadata.scm.url
+                                tag = pomMetadata.scm.tag
                             }
                         }
                     }
                 }
                 if (findProperty('centralBundleDir')) {
-                    repositories { maven { name = 'centralBundle'; url = uri(findProperty('centralBundleDir')) } }
+                    repositories {
+                        maven {
+                            name = 'centralBundle'
+                            url = uri(findProperty('centralBundleDir'))
+                        }
+                    }
                 }
             }
-            afterEvaluate {
-                if (plugins.hasPlugin('com.gradleup.shadow')) {
-                    publishing.publications.mavenJava.setArtifacts([tasks.shadowJar, tasks.sourcesJar, tasks.javadocJar])
+            plugins.withId('com.gradleup.shadow') {
+                def publication = publishing.publications.mavenJava
+                publication.setArtifacts([])
+                publication.artifact(tasks.named('shadowJar')) {
+                    classifier = null
                 }
+                publication.artifact(tasks.named('sourcesJar'))
+                publication.artifact(tasks.named('javadocJar'))
             }
             signing {
                 required { findProperty('centralRelease') == 'true' }

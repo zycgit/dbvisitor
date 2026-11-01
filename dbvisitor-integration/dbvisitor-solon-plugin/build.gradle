@@ -13,5 +13,5 @@ dependencies {
     testImplementation 'com.zaxxer:HikariCP:4.0.3'
     testImplementation 'com.h2database:h2:2.2.224'
     testImplementation 'ch.qos.logback:logback-classic:1.4.7'
-    testImplementation 'org.noear:solon-test-junit4:3.0.7'
+    testImplementation 'org.noear:solon-test:3.0.7'
 }

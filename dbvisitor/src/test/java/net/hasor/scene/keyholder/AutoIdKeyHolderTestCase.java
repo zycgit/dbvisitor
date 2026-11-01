@@ -18,7 +18,7 @@ import net.hasor.scene.keyholder.dto.UserDTO_36;
 import net.hasor.scene.keyholder.dto.UserDTO_KEYHOLDER;
 import net.hasor.scene.keyholder.dto.UserDTO_SEQ;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AutoIdKeyHolderTestCase {
 

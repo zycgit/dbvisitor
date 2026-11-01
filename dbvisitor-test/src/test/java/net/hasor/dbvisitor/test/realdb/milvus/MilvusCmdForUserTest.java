@@ -6,29 +6,28 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MilvusCmdForUserTest extends AbstractMilvusCmdForTest {
     private static final String TEST_USER = "test_dbv_user";
     private static final String TEST_ROLE = "test_dbv_role";
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         // Ensure clean state
         cleanUp();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         if (!milvusSelected) {
             return;
@@ -63,7 +62,7 @@ public class MilvusCmdForUserTest extends AbstractMilvusCmdForTest {
             stmt.executeUpdate("CREATE USER " + TEST_USER + " PASSWORD \"123456\"");
 
             // Verify
-            assertTrue("User should exist (SDK)", hasUserSdk(TEST_USER));
+            assertTrue(hasUserSdk(TEST_USER), "User should exist (SDK)");
         }
     }
 
@@ -88,7 +87,7 @@ public class MilvusCmdForUserTest extends AbstractMilvusCmdForTest {
             stmt.executeUpdate("DROP USER " + TEST_USER);
 
             // Verify
-            assertFalse("User should not exist (SDK)", hasUserSdk(TEST_USER));
+            assertFalse(hasUserSdk(TEST_USER), "User should not exist (SDK)");
         }
     }
 
@@ -98,7 +97,7 @@ public class MilvusCmdForUserTest extends AbstractMilvusCmdForTest {
             stmt.executeUpdate("CREATE ROLE " + TEST_ROLE);
 
             // Verify
-            assertTrue("Role should exist (SDK)", hasRoleSdk(TEST_ROLE));
+            assertTrue(hasRoleSdk(TEST_ROLE), "Role should exist (SDK)");
         }
     }
 
@@ -111,7 +110,7 @@ public class MilvusCmdForUserTest extends AbstractMilvusCmdForTest {
             stmt.executeUpdate("DROP ROLE " + TEST_ROLE);
 
             // Verify
-            assertFalse("Role should not exist (SDK)", hasRoleSdk(TEST_ROLE));
+            assertFalse(hasRoleSdk(TEST_ROLE), "Role should not exist (SDK)");
         }
     }
 
@@ -121,15 +120,15 @@ public class MilvusCmdForUserTest extends AbstractMilvusCmdForTest {
             stmt.executeUpdate("CREATE USER " + TEST_USER + " PASSWORD \"123456\"");
             stmt.executeUpdate("CREATE ROLE " + TEST_ROLE);
 
-            assertTrue("Pre-condition: User exists", hasUserSdk(TEST_USER));
-            assertTrue("Pre-condition: Role exists", hasRoleSdk(TEST_ROLE));
-            assertFalse("Pre-condition: User has no role", userHasRoleSdk(TEST_USER, TEST_ROLE));
+            assertTrue(hasUserSdk(TEST_USER), "Pre-condition: User exists");
+            assertTrue(hasRoleSdk(TEST_ROLE), "Pre-condition: Role exists");
+            assertFalse(userHasRoleSdk(TEST_USER, TEST_ROLE), "Pre-condition: User has no role");
 
             // Execute Grant
             stmt.executeUpdate("GRANT ROLE " + TEST_ROLE + " TO " + TEST_USER);
 
             // Verify
-            assertTrue("User should have role (SDK)", userHasRoleSdk(TEST_USER, TEST_ROLE));
+            assertTrue(userHasRoleSdk(TEST_USER, TEST_ROLE), "User should have role (SDK)");
         }
     }
 
@@ -143,15 +142,15 @@ public class MilvusCmdForUserTest extends AbstractMilvusCmdForTest {
                 createCollection(TEST_COLLECTION);
             }
 
-            assertTrue("Pre-condition: Role exists", hasRoleSdk(TEST_ROLE));
-            assertFalse("Pre-condition: Role has no privilege", roleHasPrivilegeSdk(TEST_ROLE, "Collection", TEST_COLLECTION, "Query"));
+            assertTrue(hasRoleSdk(TEST_ROLE), "Pre-condition: Role exists");
+            assertFalse(roleHasPrivilegeSdk(TEST_ROLE, "Collection", TEST_COLLECTION, "Query"), "Pre-condition: Role has no privilege");
 
             // Execute Grant Privilege
             // GRANT Query ON Collection dbv_table_col TO ROLE test_dbv_role
             stmt.executeUpdate("GRANT Query ON Collection " + TEST_COLLECTION + " TO ROLE " + TEST_ROLE);
 
             // Verify
-            assertTrue("Role should have privilege (SDK)", roleHasPrivilegeSdk(TEST_ROLE, "Collection", TEST_COLLECTION, "Query"));
+            assertTrue(roleHasPrivilegeSdk(TEST_ROLE, "Collection", TEST_COLLECTION, "Query"), "Role should have privilege (SDK)");
         }
     }
 
@@ -167,13 +166,13 @@ public class MilvusCmdForUserTest extends AbstractMilvusCmdForTest {
 
             // Setup grant
             stmt.executeUpdate("GRANT Query ON Collection " + TEST_COLLECTION + " TO ROLE " + TEST_ROLE);
-            assertTrue("Pre-condition: Role has privilege", roleHasPrivilegeSdk(TEST_ROLE, "Collection", TEST_COLLECTION, "Query"));
+            assertTrue(roleHasPrivilegeSdk(TEST_ROLE, "Collection", TEST_COLLECTION, "Query"), "Pre-condition: Role has privilege");
 
             // Execute Revoke
             stmt.executeUpdate("REVOKE Query ON Collection " + TEST_COLLECTION + " FROM ROLE " + TEST_ROLE);
 
             // Verify
-            assertFalse("Role should not have privilege (SDK)", roleHasPrivilegeSdk(TEST_ROLE, "Collection", TEST_COLLECTION, "Query"));
+            assertFalse(roleHasPrivilegeSdk(TEST_ROLE, "Collection", TEST_COLLECTION, "Query"), "Role should not have privilege (SDK)");
         }
     }
 
@@ -187,7 +186,7 @@ public class MilvusCmdForUserTest extends AbstractMilvusCmdForTest {
             stmt.executeUpdate("GRANT CreateCollection ON Global * TO ROLE " + TEST_ROLE);
 
             // Verify
-            assertTrue("Role should have global privilege (SDK)", roleHasPrivilegeSdk(TEST_ROLE, "Global", "*", "CreateCollection"));
+            assertTrue(roleHasPrivilegeSdk(TEST_ROLE, "Global", "*", "CreateCollection"), "Role should have global privilege (SDK)");
         }
     }
 

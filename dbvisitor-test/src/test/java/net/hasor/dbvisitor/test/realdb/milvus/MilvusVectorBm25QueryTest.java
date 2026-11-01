@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
@@ -15,8 +14,8 @@ import net.hasor.dbvisitor.test.contract.api.vector_query.VectorBm25QueryCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
 import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 /** Same analyzer/function/index combination as the existing native Milvus BM25 SQL test. */
 @NxnConcurrent
@@ -30,7 +29,7 @@ public class MilvusVectorBm25QueryTest extends VectorBm25QueryCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = new JdbcTemplate(this.database.open(), new MappingRegistry(), null);
         this.lambdaTemplate = new LambdaTemplate(this.jdbcTemplate);
@@ -62,7 +61,7 @@ public class MilvusVectorBm25QueryTest extends VectorBm25QueryCase {
         this.jdbcTemplate.execute("LOAD TABLE bm25_vectors");
     }
 
-    @After
+    @AfterEach
     public void cleanupBm25Storage() throws SQLException {
         try {
             if (this.created) {

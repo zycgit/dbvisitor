@@ -6,12 +6,11 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis.scenario;
-
 import net.hasor.dbvisitor.test.realdb.redis.scenario.mapper.LoginStateMapper;
 import net.hasor.dbvisitor.test.realdb.redis.scenario.model.LoginState;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class LoginStateScenarioTest extends RedisScenarioSupport {
     @Test

@@ -8,8 +8,9 @@
 package net.hasor.dbvisitor.driver;
 import java.sql.ResultSetMetaData;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Assertions;
 
 /** Tests for JdbcColumn — covers construction, metadata, equals, hashCode, toString and validation. */
 public class JdbcColumnTest {
@@ -61,9 +62,11 @@ public class JdbcColumnTest {
         }
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void null_element_type_throws() {
-        new JdbcColumn("id", AdapterType.Long, "tbl", "cat", "sch", ResultSetMetaData.columnNullableUnknown, false, null);
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            new JdbcColumn("id", AdapterType.Long, "tbl", "cat", "sch", ResultSetMetaData.columnNullableUnknown, false, null);
+        });
     }
 
     @Test
@@ -77,29 +80,39 @@ public class JdbcColumnTest {
         assertNotEquals(column, new JdbcColumn("values", AdapterType.Array, "tbl", "cat", "sch", ResultSetMetaData.columnNullable, true, AdapterType.Double));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void null_name_throws() {
-        new JdbcColumn(null, "int", "tbl", "cat", "sch", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            new JdbcColumn(null, "int", "tbl", "cat", "sch", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void null_type_throws() {
-        new JdbcColumn("id", null, "tbl", "cat", "sch", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            new JdbcColumn("id", null, "tbl", "cat", "sch", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void null_table_throws() {
-        new JdbcColumn("id", "int", null, "cat", "sch", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            new JdbcColumn("id", "int", null, "cat", "sch", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void null_catalog_throws() {
-        new JdbcColumn("id", "int", "tbl", null, "sch", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            new JdbcColumn("id", "int", "tbl", null, "sch", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void null_schema_throws() {
-        new JdbcColumn("id", "int", "tbl", "cat", null, ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            new JdbcColumn("id", "int", "tbl", "cat", null, ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array);
+        });
     }
 
     @Test

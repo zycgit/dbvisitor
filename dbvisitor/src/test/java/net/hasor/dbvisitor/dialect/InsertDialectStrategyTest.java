@@ -6,20 +6,20 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.dialect;
-
 import java.util.List;
 import net.hasor.dbvisitor.dialect.features.InsertSqlDialect;
 import net.hasor.dbvisitor.jdbc.JdbcHelper;
 import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
 import net.hasor.dbvisitor.lambda.GeneratedKeyStrategy;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 import static net.hasor.dbvisitor.lambda.GeneratedKeyStrategy.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@RunWith(Parameterized.class)
+@ParameterizedClass(name = "{0}", autoCloseArguments = false, quoteTextArguments = false)
+@MethodSource("dialects")
 public class InsertDialectStrategyTest {
     private final String dialectName;
     private final Expected expected;
@@ -32,7 +32,6 @@ public class InsertDialectStrategyTest {
         this.expected = expected;
     }
 
-    @Parameterized.Parameters(name = "{0}")
     public static Object[][] dialects() {
         // Expected: no return / Into / Ignore / Update; Ignore / Update / no-PK Ignore / no-PK Update / key-only Update.
         // @formatter:off
@@ -86,7 +85,7 @@ public class InsertDialectStrategyTest {
 
     private InsertSqlDialect insertDialect() {
         SqlDialect dialect = SqlDialectRegister.findOrCreate(this.dialectName);
-        assertTrue("Dialect '" + this.dialectName + "' must implement InsertSqlDialect.", dialect instanceof InsertSqlDialect);
+        assertTrue(dialect instanceof InsertSqlDialect, "Dialect '" + this.dialectName + "' must implement InsertSqlDialect.");
         return (InsertSqlDialect) dialect;
     }
 

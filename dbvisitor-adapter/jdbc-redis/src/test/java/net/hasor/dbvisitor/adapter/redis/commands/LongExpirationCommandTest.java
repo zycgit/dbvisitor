@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.redis.commands;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,20 +15,20 @@ import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 import net.hasor.dbvisitor.adapter.redis.AbstractJdbcTest;
 import net.hasor.dbvisitor.adapter.redis.RedisCommandInterceptor;
-import org.junit.After;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 import redis.clients.jedis.commands.StringCommands;
 import redis.clients.jedis.params.GetExParams;
 import redis.clients.jedis.params.SetParams;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-@RunWith(Parameterized.class)
+@ParameterizedClass(name = "{0}", autoCloseArguments = false, quoteTextArguments = false)
+@MethodSource("expirationOptions")
 public class LongExpirationCommandTest extends AbstractJdbcTest {
     private static final long EXPIRATION = 4_294_967_296L;
 
-    @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> expirationOptions() {
         return Arrays.asList(new Object[][] {
                 { "EX", new SetParams().ex(EXPIRATION), new GetExParams().ex(EXPIRATION) },
@@ -49,7 +48,7 @@ public class LongExpirationCommandTest extends AbstractJdbcTest {
         this.expectedGetEx = expectedGetEx;
     }
 
-    @After
+    @AfterEach
     public void clearInterceptors() {
         RedisCommandInterceptor.resetInterceptor();
     }

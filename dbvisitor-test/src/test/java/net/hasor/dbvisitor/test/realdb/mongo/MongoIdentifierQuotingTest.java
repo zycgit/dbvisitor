@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.mongo;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.mapping.Options;
@@ -14,8 +13,8 @@ import net.hasor.dbvisitor.test.contract.feature.naming.IdentifierQuotingCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
 import net.hasor.dbvisitor.test.realdb.mongo.material.MongoNamingFixture;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class MongoIdentifierQuotingTest extends IdentifierQuotingCase {
     private final MongoNamingFixture fixture = new MongoNamingFixture();
@@ -26,7 +25,7 @@ public class MongoIdentifierQuotingTest extends IdentifierQuotingCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open();
         this.lambdaTemplate = this.fixture.lambda(Options.of());
@@ -52,7 +51,7 @@ public class MongoIdentifierQuotingTest extends IdentifierQuotingCase {
         return this.fixture.lambda(options);
     }
 
-    @After
+    @AfterEach
     public void closeFixture() throws SQLException {
         this.fixture.close();
     }

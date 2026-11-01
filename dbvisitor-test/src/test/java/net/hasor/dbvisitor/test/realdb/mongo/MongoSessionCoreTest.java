@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.mongo;
-
 import java.sql.SQLException;
 import java.util.Properties;
 import javax.sql.DataSource;
@@ -22,8 +21,8 @@ import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
 import net.hasor.dbvisitor.test.realdb.mongo.material.MongoMapperFixture;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class MongoSessionCoreTest extends SessionCoreCase {
     private final MongoMapperFixture users  = new MongoMapperFixture();
@@ -37,7 +36,7 @@ public class MongoSessionCoreTest extends SessionCoreCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = this.users.open();
         this.orders.open();
@@ -85,7 +84,7 @@ public class MongoSessionCoreTest extends SessionCoreCase {
         return configuration;
     }
 
-    @After
+    @AfterEach
     public void closeFixtures() throws Exception {
         if (this.sessionSource != null) {
             this.sessionSource.close();

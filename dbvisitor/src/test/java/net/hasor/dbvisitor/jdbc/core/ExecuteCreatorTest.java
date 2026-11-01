@@ -19,7 +19,7 @@ import net.hasor.test.AbstractDbTest;
 import net.hasor.test.dto.UserInfo2;
 import net.hasor.test.utils.DsUtils;
 import net.hasor.test.utils.TestUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /***
  * executeUpdate 系列方法测试

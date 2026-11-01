@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic7;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import com.zaxxer.hikari.HikariDataSource;
@@ -19,8 +18,8 @@ import net.hasor.dbvisitor.test.contract.material.model.UserRole;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
 import net.hasor.dbvisitor.test.realdb.elastic7.material.ElasticMatrixFixture;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class Elastic7SessionCoreTest extends SessionCoreCase {
     private final ElasticMatrixFixture users  = new ElasticMatrixFixture();
@@ -33,7 +32,7 @@ public class Elastic7SessionCoreTest extends SessionCoreCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws IOException, SQLException {
         this.jdbcTemplate = users.open(profile().env());
         orders.open(profile().env());
@@ -66,7 +65,7 @@ public class Elastic7SessionCoreTest extends SessionCoreCase {
         return "POST /" + users.index() + "/_count {\"query\": {\"term\": {\"id\": ?}}}";
     }
 
-    @After
+    @AfterEach
     public void closeCoreFixtures() throws Exception {
         if (dataSource instanceof HikariDataSource) {
             ((HikariDataSource) dataSource).close();

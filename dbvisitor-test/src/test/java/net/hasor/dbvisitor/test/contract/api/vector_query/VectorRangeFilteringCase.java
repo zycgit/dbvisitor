@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.vector_query;
-
 import java.sql.SQLException;
 import java.util.List;
 import net.hasor.dbvisitor.lambda.core.MetricType;
@@ -15,9 +14,9 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @NxnContract
 public abstract class VectorRangeFilteringCase extends VectorQuerySupport {
@@ -38,7 +37,7 @@ public abstract class VectorRangeFilteringCase extends VectorQuerySupport {
                     .le(ProductVectorForPg::getId, startId + 4)//
                     .vectorByL2(ProductVectorForPg::getEmbedding, zero, rangeBound(MetricType.L2, 7.0))//
                     .queryForList();
-            assertTrue("L2 range should keep a strict subset", nearRows.size() >= 1 && nearRows.size() < 5);
+            assertTrue(nearRows.size() >= 1 && nearRows.size() < 5, "L2 range should keep a strict subset");
             assertVectorIds(nearRows, startId, startId + 1);
             for (ProductVectorForPg row : nearRows) {
                 assertTrue(l2Distance(zero, row.getEmbedding()) < 7.0);

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.nxn.report;
-
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -24,7 +23,7 @@ import net.hasor.dbvisitor.test.nxn.env.DataSourceId;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfileRegistry;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public final class CapabilityMatrixReport {
     private CapabilityMatrixReport() {

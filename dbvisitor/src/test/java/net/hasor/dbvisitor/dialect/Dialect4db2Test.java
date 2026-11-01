@@ -12,7 +12,7 @@ import net.hasor.dbvisitor.dialect.provider.Db2Dialect;
 import net.hasor.dbvisitor.jdbc.JdbcHelper;
 import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
 import net.hasor.dbvisitor.lambda.GeneratedKeyStrategy;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /***
  * IBM DB2 方言

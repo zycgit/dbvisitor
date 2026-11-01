@@ -6,8 +6,7 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.milvus.commands;
-
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
 import java.net.InetSocketAddress;
@@ -28,8 +27,8 @@ import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import com.sun.net.httpserver.HttpsConfigurator;
@@ -199,7 +198,7 @@ public class MilvusTlsTest {
         }
     }
 
-    @After
+    @AfterEach
     public void cleanup() throws Exception {
         for (Node node : nodes) {
             node.close();
@@ -220,7 +219,7 @@ public class MilvusTlsTest {
             assertEquals(encoded, token);
         }
         assertEquals(Arrays.asList("Bearer api-key:test", "Bearer api-key:test"), node.httpTokens);
-        assertTrue(node.bodies.get(0), node.bodies.get(0).contains("\"dbName\":\"db1\""));
+        assertTrue(node.bodies.get(0).contains("\"dbName\":\"db1\""), node.bodies.get(0));
     }
 
     @Test
@@ -250,7 +249,7 @@ public class MilvusTlsTest {
         verifyProtocols(node, properties);
         assertEquals(2, node.clientIdentities.size());
         for (String name : node.clientIdentities) {
-            assertTrue(name, name.contains("sslclient"));
+            assertTrue(name.contains("sslclient"), name);
         }
     }
 

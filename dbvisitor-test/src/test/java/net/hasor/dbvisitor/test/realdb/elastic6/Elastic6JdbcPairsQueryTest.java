@@ -6,15 +6,14 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic6;
-
 import java.sql.SQLException;
 import java.util.Date;
 import net.hasor.dbvisitor.test.contract.api.adapter.NativeDocumentQueryFixture;
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcPairsQueryCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic6Profile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class Elastic6JdbcPairsQueryTest extends JdbcPairsQueryCase {
     private final NativeDocumentQueryFixture fixture = new NativeDocumentQueryFixture();
@@ -25,7 +24,7 @@ public class Elastic6JdbcPairsQueryTest extends JdbcPairsQueryCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open(profile().env());
     }
@@ -50,7 +49,7 @@ public class Elastic6JdbcPairsQueryTest extends JdbcPairsQueryCase {
         return this.fixture.countRange(lower, upper);
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws SQLException {
         this.fixture.close();
     }

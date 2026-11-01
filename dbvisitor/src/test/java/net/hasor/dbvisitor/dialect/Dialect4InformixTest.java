@@ -8,7 +8,7 @@
 package net.hasor.dbvisitor.dialect;
 import net.hasor.dbvisitor.dialect.provider.InformixDialect;
 import net.hasor.dbvisitor.jdbc.JdbcHelper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /***
  * Informix 方言

@@ -6,19 +6,18 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.mapper.xml;
-
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 public abstract class XmlMapperCrudSupport extends AbstractNxnContractTest {
     protected Session session;
 
-    @Before
+    @BeforeEach
     public void createXmlMapperSession() throws Exception {
         Configuration config = newConfiguration();
         config.loadMapper("/mapper/XmlCrudMapper.xml");

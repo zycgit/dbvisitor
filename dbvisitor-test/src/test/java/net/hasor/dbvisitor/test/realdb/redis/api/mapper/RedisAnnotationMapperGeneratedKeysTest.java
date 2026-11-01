@@ -6,14 +6,13 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperGeneratedKeysCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
 import net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisNativeMapperSupport.Generated;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class RedisAnnotationMapperGeneratedKeysTest extends AnnotationMapperGeneratedKeysCase {
     private final RedisKeyFixture fixture = new RedisKeyFixture();
@@ -24,7 +23,7 @@ public class RedisAnnotationMapperGeneratedKeysTest extends AnnotationMapperGene
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         try {
             fixture.open();
@@ -36,7 +35,7 @@ public class RedisAnnotationMapperGeneratedKeysTest extends AnnotationMapperGene
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void createAnnotationMapper() throws Exception {
         fixture.open();
     }
@@ -61,7 +60,7 @@ public class RedisAnnotationMapperGeneratedKeysTest extends AnnotationMapperGene
         return fixture.readName(id);
     }
 
-    @After
+    @AfterEach
     public void closeFixture() throws SQLException {
         fixture.close();
     }

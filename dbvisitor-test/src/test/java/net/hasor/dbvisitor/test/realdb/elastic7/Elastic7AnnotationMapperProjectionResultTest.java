@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic7;
-
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,8 +16,8 @@ import net.hasor.dbvisitor.mapper.SimpleMapper;
 import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperProjectionResultCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class Elastic7AnnotationMapperProjectionResultTest extends AnnotationMapperProjectionResultCase {
     private final Elastic7SessionMapperFixture fixture = new Elastic7SessionMapperFixture();
@@ -29,7 +28,7 @@ public class Elastic7AnnotationMapperProjectionResultTest extends AnnotationMapp
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = fixture.open(profile().env());
         for (int i = 1; i <= 10; i++) {
@@ -38,7 +37,7 @@ public class Elastic7AnnotationMapperProjectionResultTest extends AnnotationMapp
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void createAnnotationMapper() throws Exception {
         this.jdbcTemplate = fixture.open(profile().env());
         this.mapper = fixture.session().createMapper(NativeProjection.class);
@@ -68,7 +67,7 @@ public class Elastic7AnnotationMapperProjectionResultTest extends AnnotationMapp
         return List.of(rows);
     }
 
-    @After
+    @AfterEach
     public void closeProjectionFixture() throws Exception {
         fixture.close();
     }

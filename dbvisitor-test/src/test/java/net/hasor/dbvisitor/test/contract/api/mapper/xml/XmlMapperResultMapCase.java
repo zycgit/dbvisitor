@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.mapper.xml;
-
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.sql.SQLException;
@@ -17,15 +16,15 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 @NxnContract
 public abstract class XmlMapperResultMapCase extends AbstractNxnContractTest {
     protected Session session;
 
-    @Before
+    @BeforeEach
     public void createXmlMapperSession() throws Exception {
         Configuration config = newConfiguration();
         config.loadMapper(mapperResource());
@@ -72,7 +71,7 @@ public abstract class XmlMapperResultMapCase extends AbstractNxnContractTest {
         assertEquals(1, list.size());
         assertProperties(list.get(0), expectedFull(1));
         for (String property : nonNullFullProperties()) {
-            assertNotNull(property, propertyValue(list.get(0), property));
+            assertNotNull(propertyValue(list.get(0), property), property);
         }
     }
 
@@ -85,7 +84,7 @@ public abstract class XmlMapperResultMapCase extends AbstractNxnContractTest {
         assertEquals(1, list.size());
         assertProperties(list.get(0), expectedFull(2));
         for (Map.Entry<String, Class<?>> entry : expectedPropertyTypes().entrySet()) {
-            assertTrue(entry.getKey(), entry.getValue().isInstance(propertyValue(list.get(0), entry.getKey())));
+            assertTrue(entry.getValue().isInstance(propertyValue(list.get(0), entry.getKey())), entry.getKey());
         }
     }
 
@@ -155,10 +154,10 @@ public abstract class XmlMapperResultMapCase extends AbstractNxnContractTest {
         assertEquals(3, list.size());
         for (Object row : list) {
             for (String property : nonNullPartialProperties()) {
-                assertNotNull(property, propertyValue(row, property));
+                assertNotNull(propertyValue(row, property), property);
             }
             for (String property : nullPartialProperties()) {
-                assertNull(property, propertyValue(row, property));
+                assertNull(propertyValue(row, property), property);
             }
         }
     }
@@ -195,9 +194,9 @@ public abstract class XmlMapperResultMapCase extends AbstractNxnContractTest {
     }
 
     private void assertProperties(Object bean, Map<String, Object> expected) throws Exception {
-        assertFalse("The material must define mapped properties", expected.isEmpty());
+        assertFalse(expected.isEmpty(), "The material must define mapped properties");
         for (Map.Entry<String, Object> entry : expected.entrySet()) {
-            assertEquals(entry.getKey(), entry.getValue(), propertyValue(bean, entry.getKey()));
+            assertEquals(entry.getValue(), propertyValue(bean, entry.getKey()), entry.getKey());
         }
     }
 

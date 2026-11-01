@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.mongo;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.feature.keygen.UuidKeyCase;
 import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyUuid32User;
@@ -15,8 +14,8 @@ import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyUuidStringUser
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
 import net.hasor.dbvisitor.test.realdb.mongo.material.MongoEntityFixture;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class MongoUuidKeyTest extends UuidKeyCase {
     private final MongoEntityFixture fixture = new MongoEntityFixture();
@@ -27,7 +26,7 @@ public class MongoUuidKeyTest extends UuidKeyCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = fixture.open(KeyUuid32User.class, "{id: 1}");
         fixture.mapEntity(KeyUuid36User.class);
@@ -40,7 +39,7 @@ public class MongoUuidKeyTest extends UuidKeyCase {
         jdbcTemplate.executeUpdate(fixture.command("remove({})"));
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws SQLException {
         fixture.close();
     }

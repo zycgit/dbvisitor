@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.mongo;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.UUID;
@@ -18,8 +17,8 @@ import net.hasor.dbvisitor.test.contract.material.model.types.ArrayTypesAnnotati
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class MongoArrayTypeJdbcTest extends ArrayTypeJdbcCase {
     private final String     collection = "nxn_arrays_" + UUID.randomUUID().toString().replace("-", "");
@@ -32,7 +31,7 @@ public class MongoArrayTypeJdbcTest extends ArrayTypeJdbcCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         OneApiDataSourceManager.assumeCurrentDataSource(profile().env());
         this.connection = OneApiDataSourceManager.getConnection(profile().env());
@@ -86,7 +85,7 @@ public class MongoArrayTypeJdbcTest extends ArrayTypeJdbcCase {
         return "test." + this.collection + "." + operation;
     }
 
-    @After
+    @AfterEach
     public void closeFixture() throws SQLException {
         try {
             if (this.created) {

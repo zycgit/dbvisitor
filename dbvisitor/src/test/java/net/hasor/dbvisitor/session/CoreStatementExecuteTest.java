@@ -19,7 +19,7 @@ import net.hasor.dbvisitor.page.PageObject;
 import net.hasor.dbvisitor.session.dto.CoreStatementExecuteMapper;
 import net.hasor.dbvisitor.session.dto.UserInfo;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class CoreStatementExecuteTest {
     private void reinit(Connection con) throws SQLException, IOException {

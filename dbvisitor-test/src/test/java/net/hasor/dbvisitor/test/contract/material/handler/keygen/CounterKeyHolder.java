@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.material.handler.keygen;
-
 import java.sql.Connection;
 import java.util.concurrent.atomic.AtomicInteger;
 import net.hasor.dbvisitor.mapping.GeneratedKeyHandler;

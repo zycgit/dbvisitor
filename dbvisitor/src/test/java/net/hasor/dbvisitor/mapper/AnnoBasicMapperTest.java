@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.mapper;
-
 import java.util.Map;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
@@ -17,7 +16,7 @@ import net.hasor.dbvisitor.mapper.dto.AnnoBasicCrudMapper;
 import net.hasor.dbvisitor.mapper.dto.UserInfo;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.types.SqlArg;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

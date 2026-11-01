@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.mongo;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
@@ -19,8 +18,8 @@ import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
 import net.hasor.dbvisitor.test.realdb.mongo.material.MongoMapperFixture;
 import net.hasor.dbvisitor.test.realdb.mongo.material.MongoSessionRefMapper;
 import net.hasor.dbvisitor.test.realdb.mongo.material.MongoSessionUserMapper;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class MongoSessionNativeSharingTest extends SessionNativeSharingCase {
     private final MongoMapperFixture users = new MongoMapperFixture();
@@ -31,7 +30,7 @@ public class MongoSessionNativeSharingTest extends SessionNativeSharingCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = this.users.open();
     }
@@ -65,7 +64,7 @@ public class MongoSessionNativeSharingTest extends SessionNativeSharingCase {
         return session.jdbc().queryForString(this.users.source() + ".find({id: ?}, {_id: 0, email: 1})", id);
     }
 
-    @After
+    @AfterEach
     public void closeFixtures() throws Exception {
         this.users.close();
     }

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
-
 import java.sql.SQLException;
 import java.util.*;
 import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperResultMappingCase;
@@ -14,8 +13,8 @@ import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
 import net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisNativeMapperSupport.NativeMapper;
 import net.hasor.dbvisitor.test.realdb.redis.dto1.RedisParameterUser;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class RedisAnnotationMapperResultMappingTest extends AnnotationMapperResultMappingCase {
     private final RedisMapperFixture  fixture = new RedisMapperFixture();
@@ -28,13 +27,13 @@ public class RedisAnnotationMapperResultMappingTest extends AnnotationMapperResu
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         fixture.open();
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void createAnnotationMapper() throws Exception {
         fixture.open();
         nativeMapper = fixture.session().createMapper(NativeMapper.class);
@@ -48,7 +47,7 @@ public class RedisAnnotationMapperResultMappingTest extends AnnotationMapperResu
         fixture.session().jdbc().executeUpdate("SET ? ?", new Object[] { fixture.key("date"), expectedScalarDate() });
     }
 
-    @After
+    @AfterEach
     public void closeFixture() throws SQLException {
         fixture.close();
     }

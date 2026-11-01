@@ -6,11 +6,10 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.milvus.commands;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import net.hasor.dbvisitor.adapter.milvus.AbstractJdbcTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class BasicCommandTest extends AbstractJdbcTest {
 

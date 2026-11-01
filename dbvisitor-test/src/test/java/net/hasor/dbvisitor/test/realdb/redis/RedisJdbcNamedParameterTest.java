@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -18,8 +17,8 @@ import net.hasor.dbvisitor.test.contract.feature.parameter.JdbcNamedParameterCas
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 /** Named values select private sorted-set fixtures using native ZCOUNT/ZCARD. */
 public class RedisJdbcNamedParameterTest extends JdbcNamedParameterCase {
@@ -32,7 +31,7 @@ public class RedisJdbcNamedParameterTest extends JdbcNamedParameterCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         OneApiDataSourceManager.assumeCurrentDataSource("redis");
         this.connection = OneApiDataSourceManager.getConnection("redis");
@@ -62,10 +61,10 @@ public class RedisJdbcNamedParameterTest extends JdbcNamedParameterCase {
     @Override
     protected void writeParameters(String command, Object args) throws SQLException {
         // ZADD exposes its native integer reply as a result set, not a JDBC update count.
-        org.junit.Assert.assertEquals(Long.valueOf(1), this.jdbcTemplate.queryForLong(command, args));
+        org.junit.jupiter.api.Assertions.assertEquals(Long.valueOf(1), this.jdbcTemplate.queryForLong(command, args));
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws SQLException {
         // Include conditional-rule fixtures as well as the three named-parameter fixtures.
         List<String> keys = Arrays.asList(this.prefix + "NXN-Param-Colon_" + (baseId() + 5), this.prefix + "NXN-Param-Brace_" + (baseId() + 6), this.prefix + "NXN-Param-Ognl_" + (baseId() + 7), this.prefix + "NXN-Param-Conditional_" + (baseId() + 8));

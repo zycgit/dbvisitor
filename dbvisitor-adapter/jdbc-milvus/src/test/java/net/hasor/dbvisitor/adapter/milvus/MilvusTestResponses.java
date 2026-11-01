@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.milvus;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;

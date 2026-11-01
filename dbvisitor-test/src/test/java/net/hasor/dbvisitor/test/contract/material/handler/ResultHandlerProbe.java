@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.material.handler;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -18,7 +17,7 @@ import javax.sql.DataSource;
 import net.hasor.dbvisitor.jdbc.RowMapper;
 import net.hasor.dbvisitor.jdbc.extractor.ColumnMapResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.mapper.ColumnMapRowMapper;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /** Observes successful close calls while delegating all JDBC work to the resources owned by dbVisitor. */
 public final class ResultHandlerProbe {
@@ -100,16 +99,16 @@ public final class ResultHandlerProbe {
         if (probe == null) {
             return;
         }
-        assertFalse("ResultSet must be open inside its handler", resultSet.isClosed());
+        assertFalse(resultSet.isClosed(), "ResultSet must be open inside its handler");
         Statement statement = resultSet.getStatement();
-        assertNotNull("The query must expose its owning statement", statement);
-        assertFalse("Statement must be open inside its handler", statement.isClosed());
+        assertNotNull(statement, "The query must expose its owning statement");
+        assertFalse(statement.isClosed(), "Statement must be open inside its handler");
         if (probe.resultSet == null) {
             probe.resultSet = resultSet;
             probe.statement = statement;
         } else {
-            assertSame("Every row belongs to the same ResultSet", probe.resultSet, resultSet);
-            assertSame("Every row belongs to the same statement", probe.statement, statement);
+            assertSame(probe.resultSet, resultSet, "Every row belongs to the same ResultSet");
+            assertSame(probe.statement, statement, "Every row belongs to the same statement");
         }
         probe.invocations++;
         if (probe.failure != null) {
@@ -118,7 +117,7 @@ public final class ResultHandlerProbe {
     }
 
     public static <T> T verify(int expectedInvocations, Query<T> query) throws SQLException {
-        assertNull("Result handler probes must not overlap", ACTIVE.get());
+        assertNull(ACTIVE.get(), "Result handler probes must not overlap");
         ResultHandlerProbe probe = new ResultHandlerProbe(null);
         ACTIVE.set(probe);
         try {
@@ -131,7 +130,7 @@ public final class ResultHandlerProbe {
     }
 
     public static void verifyFailure(Query<?> query) throws SQLException {
-        assertNull("Result handler probes must not overlap", ACTIVE.get());
+        assertNull(ACTIVE.get(), "Result handler probes must not overlap");
         SQLException expected = new SQLException("NXN result handler failure", "HY000");
         ResultHandlerProbe probe = new ResultHandlerProbe(expected);
         ACTIVE.set(probe);
@@ -142,7 +141,7 @@ public final class ResultHandlerProbe {
                 cause = cause.getCause();
             }
             // Mapper interfaces without a checked throws clause may wrap the same SQLException.
-            assertSame("The handler failure must reach the caller", expected, cause);
+            assertSame(expected, cause, "The handler failure must reach the caller");
             probe.assertCompleted(1);
         } finally {
             ACTIVE.remove();
@@ -150,12 +149,12 @@ public final class ResultHandlerProbe {
     }
 
     private void assertCompleted(int expectedInvocations) throws SQLException {
-        assertEquals("Handler invocation count", expectedInvocations, this.invocations);
+        assertEquals(expectedInvocations, this.invocations, "Handler invocation count");
         if (expectedInvocations > 0) {
             assertNotNull(this.resultSet);
-            assertTrue("The fixture must observe the handler ResultSet", this.closedResults.containsKey(this.resultSet));
-            assertTrue("dbVisitor must successfully close the handler ResultSet", this.closedResults.get(this.resultSet));
-            assertTrue("dbVisitor must close the handler statement", this.statement.isClosed());
+            assertTrue(this.closedResults.containsKey(this.resultSet), "The fixture must observe the handler ResultSet");
+            assertTrue(this.closedResults.get(this.resultSet), "dbVisitor must successfully close the handler ResultSet");
+            assertTrue(this.statement.isClosed(), "dbVisitor must close the handler statement");
         } else {
             // An empty RowMapper/RowCallback query does not expose its ResultSet to the handler.
             assertNull(this.resultSet);

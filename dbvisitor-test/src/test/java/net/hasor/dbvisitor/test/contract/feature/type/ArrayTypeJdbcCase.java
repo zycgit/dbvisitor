@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.feature.type;
-
 import java.sql.Array;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -21,8 +20,8 @@ import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.handler.array.ArrayTypeHandler;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 @NxnContract
 public abstract class ArrayTypeJdbcCase extends TypeJdbcCommandSupport {

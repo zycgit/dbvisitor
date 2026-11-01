@@ -18,8 +18,8 @@ import net.hasor.dbvisitor.mapper.StatementDef;
 import net.hasor.dbvisitor.page.PageObject;
 import net.hasor.dbvisitor.session.dto.CoreCallableStatementExecuteMapper;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class CoreCallableStatementExecuteMapperTest {
     private void reinit(Connection con) throws SQLException {
@@ -71,8 +71,8 @@ public class CoreCallableStatementExecuteMapperTest {
             Map<String, Object> result = (Map<String, Object>) exec.execute(con, def, ctx, null, false);
 
             //Assert.assertEquals(result.toString(), "outArg", result.get("arg1"));
-            Assert.assertTrue(result.toString(), result.get("res1") instanceof List && ((List) result.get("res1")).size() == 1);
-            Assert.assertTrue(result.toString(), result.get("res2") instanceof List && ((List) result.get("res2")).size() == 2);
+            Assertions.assertTrue(result.get("res1") instanceof List && ((List) result.get("res1")).size() == 1, result.toString());
+            Assertions.assertTrue(result.get("res2") instanceof List && ((List) result.get("res2")).size() == 2, result.toString());
             con.commit();
         }
     }
@@ -95,11 +95,11 @@ public class CoreCallableStatementExecuteMapperTest {
                     "arg1", "this is arg");
             Map<String, Object> result = (Map<String, Object>) exec.execute(con, def, ctx, null, false);
 
-            Assert.assertEquals(result.toString(), 4, result.size());
+            Assertions.assertEquals(4, result.size(), result.toString());
             //Assert.assertEquals(result.toString(), "outArg", result.get("arg1"));
-            Assert.assertTrue(result.toString(), result.get("res1") instanceof List && ((List) result.get("res1")).size() == 1);
-            Assert.assertTrue(result.toString(), result.get("res2") instanceof List && ((List) result.get("res2")).size() == 2);
-            Assert.assertEquals(result.toString(), -1, result.get("#update-count-1"));
+            Assertions.assertTrue(result.get("res1") instanceof List && ((List) result.get("res1")).size() == 1, result.toString());
+            Assertions.assertTrue(result.get("res2") instanceof List && ((List) result.get("res2")).size() == 2, result.toString());
+            Assertions.assertEquals(-1, result.get("#update-count-1"), result.toString());
             con.commit();
         }
     }

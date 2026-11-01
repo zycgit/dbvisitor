@@ -6,15 +6,14 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
-
 import java.sql.SQLException;
 import java.util.Map;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperSqlFragmentCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class RedisXmlMapperSqlFragmentTest extends XmlMapperSqlFragmentCase {
     private final RedisEntityFixture fixture = new RedisEntityFixture();
@@ -25,13 +24,13 @@ public class RedisXmlMapperSqlFragmentTest extends XmlMapperSqlFragmentCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open();
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void createXmlMapperSession() throws Exception {
         this.jdbcTemplate = this.fixture.open();
         for (int i = 1; i <= 5; i++) {
@@ -54,7 +53,7 @@ public class RedisXmlMapperSqlFragmentTest extends XmlMapperSqlFragmentCase {
         return null;
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws SQLException {
         this.fixture.close();
     }

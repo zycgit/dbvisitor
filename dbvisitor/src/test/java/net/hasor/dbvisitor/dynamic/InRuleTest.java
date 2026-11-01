@@ -15,7 +15,7 @@ import net.hasor.dbvisitor.dynamic.dto.MyTypeHandler;
 import net.hasor.dbvisitor.dynamic.rule.InRule;
 import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
 import net.hasor.dbvisitor.types.SqlArg;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class InRuleTest {
     @Test

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.elastic;
-
 import java.io.InputStream;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;

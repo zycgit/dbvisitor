@@ -20,7 +20,7 @@ import net.hasor.test.dto.user_info;
 import net.hasor.test.utils.DsUtils;
 import net.hasor.test.utils.TestUtils;
 import net.hasor.test.utils.UserInfo;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /***
  * executeUpdate 系列方法测试

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.nxn.runner;
-
 import java.io.PrintStream;
 import java.lang.reflect.Modifier;
 import java.nio.channels.FileChannel;
@@ -22,13 +21,20 @@ import net.hasor.dbvisitor.test.nxn.config.NxnContext;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
+import net.hasor.dbvisitor.test.nxn.junit.NxnSelectionCondition;
+import org.junit.jupiter.params.ParameterizedClass;
 import net.hasor.dbvisitor.test.nxn.report.NxnDocumentation;
-import org.junit.runner.Description;
-import org.junit.runner.JUnitCore;
-import org.junit.runner.Request;
-import org.junit.runner.Runner;
-import org.junit.runner.manipulation.Filter;
-import org.junit.runner.manipulation.NoTestsRemainException;
+import org.junit.platform.engine.FilterResult;
+import org.junit.platform.engine.TestDescriptor;
+import org.junit.platform.engine.support.descriptor.ClassSource;
+import org.junit.platform.engine.support.descriptor.MethodSource;
+import org.junit.platform.launcher.PostDiscoveryFilter;
+import org.junit.platform.launcher.TestIdentifier;
+import org.junit.platform.launcher.TestPlan;
+import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
+import org.junit.platform.launcher.core.LauncherFactory;
+import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
+import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 
 /** One JVM and a global worker budget; only explicitly isolated classes may overlap within a datasource. */
 public final class NxnRunner {
@@ -188,8 +194,8 @@ public final class NxnRunner {
             DatasourcePlan plan = new DatasourcePlan(suite.getKey());
             plans.add(plan);
             try (NxnContext context = plan.context()) {
-                plan.pending.addAll(prepareRunners(suite.getValue()));
-                plan.report.planned(plan.pending.stream().mapToInt(Runner::testCount).sum());
+                plan.pending.addAll(preparePlans(suite.getValue()));
+                plan.report.planned((int) plan.pending.stream().mapToLong(tests -> tests.countTestIdentifiers(TestIdentifier::isTest)).sum());
                 if (plan.pending.isEmpty()) {
                     plan.error = "No tests selected; check the datasource and --tests filter";
                 }
@@ -220,14 +226,14 @@ public final class NxnRunner {
                         plan.report.clearCurrent();
                         plan.started = true;
                     }
-                    Runner runner = plan.pending.removeFirst();
-                    plan.exclusive = !concurrent(runner);
+                    TestPlan tests = plan.pending.removeFirst();
+                    plan.exclusive = !concurrent(tests);
                     plan.active++;
                     active++;
                     nextDatasource = (index + 1) % plans.size();
                     submitted = true;
                     completions.submit(() -> {
-                        runClass(plan, runner);
+                        runClass(plan, tests);
                         return plan;
                     });
                 }
@@ -241,14 +247,20 @@ public final class NxnRunner {
         }
     }
 
-    private void runClass(DatasourcePlan plan, Runner runner) {
-        Thread.currentThread().setName("nxn-" + plan.env + "-" + runner.getDescription().getDisplayName());
+    private void runClass(DatasourcePlan plan, TestPlan tests) {
+        String name = testClass(tests).getName();
+        Thread.currentThread().setName("nxn-" + plan.env + "-" + name);
         try (NxnContext context = plan.context()) {
-            plan.report.current(runner.getDescription().getDisplayName() + " (class setup)");
+            plan.report.current(name + " (class setup)");
             try {
-                JUnitCore junit = new JUnitCore();
-                junit.addListener(plan.report.listener());
-                if (!junit.run(runner).wasSuccessful()) {
+                SummaryGeneratingListener result = new SummaryGeneratingListener();
+                try {
+                    NxnSelectionCondition.filters(filters);
+                    LauncherFactory.create().execute(tests, plan.report.listener(), result);
+                } finally {
+                    NxnSelectionCondition.filters(null);
+                }
+                if (result.getSummary().getTotalFailureCount() > 0 || plan.report.reportingFailed()) {
                     plan.error = "One or more JUnit tests failed; see the datasource report";
                 }
             } catch (Throwable failure) {
@@ -276,15 +288,21 @@ public final class NxnRunner {
         }
     }
 
-    private static boolean concurrent(Runner runner) {
-        Class<?> type = runner.getDescription().getTestClass();
-        return type != null && type.getDeclaredAnnotation(NxnConcurrent.class) != null;
+    private static boolean concurrent(TestPlan tests) {
+        return testClass(tests).getDeclaredAnnotation(NxnConcurrent.class) != null;
+    }
+
+    private static Class<?> testClass(TestPlan tests) {
+        return tests.getRoots().stream().flatMap(root -> tests.getDescendants(root).stream())
+                .map(TestIdentifier::getSource).flatMap(Optional::stream)
+                .filter(ClassSource.class::isInstance).map(ClassSource.class::cast)
+                .map(ClassSource::getJavaClass).findFirst().orElseThrow();
     }
 
     private final class DatasourcePlan {
         final    String        env;
         final    NxnReport     report;
-        final    Deque<Runner> pending = new ArrayDeque<>();
+        final    Deque<TestPlan> pending = new ArrayDeque<>();
         volatile String        error;
         int     active;
         boolean exclusive;
@@ -308,51 +326,43 @@ public final class NxnRunner {
         }
     }
 
-    private List<Runner> prepareRunners(List<Class<?>> classes) throws InterruptedException {
-        List<Runner> runners = new ArrayList<>();
-        Filter selection = filter();
+    private List<TestPlan> preparePlans(List<Class<?>> classes) throws InterruptedException {
+        List<TestPlan> plans = new ArrayList<>();
         for (Class<?> testClass : classes) {
             if (Thread.currentThread().isInterrupted()) {
                 throw new InterruptedException("Datasource planning interrupted");
             }
-            Runner runner = Request.aClass(testClass).getRunner();
+            var request = LauncherDiscoveryRequestBuilder.request().selectors(selectClass(testClass))
+                    .configurationParameter("junit.jupiter.extensions.autodetection.enabled", "true");
             if (!filters.isEmpty()) {
-                if (!selection.shouldRun(runner.getDescription())) {
-                    continue;
-                }
-                try {
-                    selection.apply(runner);
-                } catch (NoTestsRemainException ignored) {
-                    continue;
-                }
+                request.filters((PostDiscoveryFilter) this::select);
             }
-            runners.add(runner);
+            TestPlan tests = LauncherFactory.create().discover(request.build());
+            if (tests.getRoots().stream().allMatch(root -> tests.getDescendants(root).isEmpty())) {
+                continue;
+            }
+            plans.add(tests);
         }
         if (jobs > 1 && classJobs > 1) {
-            // Stable grouping: isolated classes may overlap even when separated by class names.
-            // Exclusive classes still wait for all isolated setup, methods and cleanup to finish.
-            runners.sort(Comparator.comparing(runner -> !concurrent(runner)));
+            // Isolated classes may overlap; exclusive classes wait for setup, methods and cleanup.
+            plans.sort(Comparator.comparing(tests -> !concurrent(tests)));
         }
-        return runners;
+        return plans;
     }
 
-    private Filter filter() {
-        return new Filter() {
-            @Override
-            public boolean shouldRun(Description description) {
-                if (description.isTest()) {
-                    String className = description.getClassName();
-                    String simpleName = className.substring(className.lastIndexOf('.') + 1);
-                    return filters.stream().anyMatch(pattern -> pattern.matcher(className).matches() || pattern.matcher(simpleName).matches() || pattern.matcher(className + "." + description.getMethodName()).matches() || pattern.matcher(simpleName + "." + description.getMethodName()).matches());
-                }
-                return description.getChildren().stream().anyMatch(this::shouldRun);
-            }
-
-            @Override
-            public String describe() {
-                return "NxN test filter";
-            }
-        };
+    private FilterResult select(TestDescriptor descriptor) {
+        if (descriptor.getSource().orElse(null) instanceof MethodSource method) {
+            String className = method.getClassName();
+            String simpleName = className.substring(className.lastIndexOf('.') + 1);
+            boolean selected = filters.stream().anyMatch(pattern -> pattern.matcher(className).matches()
+                    || pattern.matcher(simpleName).matches()
+                    || pattern.matcher(className + "." + method.getMethodName()).matches()
+                    || pattern.matcher(simpleName + "." + method.getMethodName()).matches());
+            // Constructor vectors are created during execution; their names are filtered by the condition.
+            boolean parameterized = method.getJavaClass().isAnnotationPresent(ParameterizedClass.class);
+            return FilterResult.includedIf(selected || parameterized);
+        }
+        return FilterResult.included("Keep enclosing Jupiter containers");
     }
 
     private void updateDocumentation() throws Exception {
@@ -428,15 +438,9 @@ public final class NxnRunner {
     }
 
     private static boolean isTestClass(Class<?> type) {
-        if (type.getAnnotation(org.junit.runner.RunWith.class) != null || junit.framework.TestCase.class.isAssignableFrom(type)) {
-            return true;
-        }
-        for (Class<?> current = type; current != null; current = current.getSuperclass()) {
-            if (Arrays.stream(current.getDeclaredMethods()).anyMatch(method -> method.getAnnotation(org.junit.Test.class) != null)) {
-                return true;
-            }
-        }
-        return false;
+        var request = LauncherDiscoveryRequestBuilder.request().selectors(selectClass(type)).build();
+        TestPlan tests = LauncherFactory.create().discover(request);
+        return tests.getRoots().stream().anyMatch(root -> !tests.getDescendants(root).isEmpty());
     }
 
     private static Pattern glob(String value) {

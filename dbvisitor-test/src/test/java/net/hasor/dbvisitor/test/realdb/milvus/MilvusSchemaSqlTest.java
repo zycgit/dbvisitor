@@ -6,14 +6,13 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.*;
 import java.util.Arrays;
 import java.util.List;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MilvusSchemaSqlTest extends MilvusSqlContractSupport {
     @Test
@@ -129,7 +128,7 @@ public class MilvusSchemaSqlTest extends MilvusSqlContractSupport {
             List<?>[] invalid = { List.of("a", "b", "c"), List.of("中文"), Arrays.asList("a", null) };
             for (List<?> value : invalid) {
                 insert.setObject(1, value);
-                assertThrows("Invalid array: " + value, SQLException.class, insert::executeUpdate);
+                assertThrows(SQLException.class, insert::executeUpdate, "Invalid array: " + value);
             }
         }
         assertEquals(0, countRows(""));
@@ -151,7 +150,7 @@ public class MilvusSchemaSqlTest extends MilvusSqlContractSupport {
                 }
             }
         }
-        assertTrue("SHOW TABLE must include the tags field", found);
+        assertTrue(found, "SHOW TABLE must include the tags field");
     }
 
     private void indexAndLoad() throws SQLException {

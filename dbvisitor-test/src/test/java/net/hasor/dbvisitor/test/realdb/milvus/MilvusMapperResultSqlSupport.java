@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -26,9 +25,9 @@ import net.hasor.dbvisitor.test.contract.material.handler.CustomRowMapper;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
-import org.junit.After;
-import org.junit.Before;
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public abstract class MilvusMapperResultSqlSupport extends AdapterCase {
     protected final        MilvusUserInfoFixture      fixture      = new MilvusUserInfoFixture();
@@ -78,7 +77,7 @@ public abstract class MilvusMapperResultSqlSupport extends AdapterCase {
         return MilvusProfile.INSTANCE;
     }
 
-    @Before
+    @BeforeEach
     public void openMapper() throws Exception {
         this.session = new Configuration().newSession(this.fixture.open());
         this.shared = this.session.createMapper(ResultHandlerMapper.class);
@@ -93,7 +92,7 @@ public abstract class MilvusMapperResultSqlSupport extends AdapterCase {
         }
     }
 
-    @After
+    @AfterEach
     public void closeMapper() throws Exception {
         try {
             this.fixture.close();

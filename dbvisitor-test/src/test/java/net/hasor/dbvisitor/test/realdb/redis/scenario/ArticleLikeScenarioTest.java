@@ -6,13 +6,12 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis.scenario;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import net.hasor.dbvisitor.test.realdb.redis.scenario.mapper.ArticleLikeMapper;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ArticleLikeScenarioTest extends RedisScenarioSupport {
     @Test

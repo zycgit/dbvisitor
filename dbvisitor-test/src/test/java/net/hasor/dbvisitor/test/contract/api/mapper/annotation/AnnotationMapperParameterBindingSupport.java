@@ -6,19 +6,18 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.mapper.annotation;
-
 import java.util.Date;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.material.dao.declarative.ParameterBindingMapper;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 public abstract class AnnotationMapperParameterBindingSupport extends AbstractNxnContractTest {
     protected ParameterBindingMapper mapper;
 
-    @Before
+    @BeforeEach
     public void createAnnotationMapper() throws Exception {
         Configuration configuration = newConfiguration();
         Session session = configuration.newSession(dataSource);

@@ -6,13 +6,12 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.material.handler.keygen;
-
 import java.sql.Connection;
 import net.hasor.dbvisitor.mapping.GeneratedKeyHandler;
 import net.hasor.dbvisitor.mapping.GeneratedKeyHandlerContext;
 import net.hasor.dbvisitor.mapping.GeneratedKeyHandlerFactory;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * 验证上下文访问的生成器
@@ -21,9 +20,9 @@ public class ContextAwareKeyHolder implements GeneratedKeyHandlerFactory {
     @Override
     public GeneratedKeyHandler createHolder(GeneratedKeyHandlerContext context) {
         // 可以访问上下文信息
-        assertNotNull("Context should not be null", context);
-        assertNotNull("Column should be available", context.getColumn());
-        assertNotNull("Table should be available", context.getTable());
+        assertNotNull(context, "Context should not be null");
+        assertNotNull(context.getColumn(), "Column should be available");
+        assertNotNull(context.getTable(), "Table should be available");
 
         return new GeneratedKeyHandler() {
             @Override

@@ -12,7 +12,7 @@ import java.util.Map;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.dynamic.rule.IfRule;
 import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class IfRuleTest {
 

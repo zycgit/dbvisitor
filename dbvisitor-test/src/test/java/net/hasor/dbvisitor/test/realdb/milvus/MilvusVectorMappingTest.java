@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -22,11 +21,11 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /** Entity vector mapping scenarios, using Milvus fields instead of pgvector-specific material. */
 public class MilvusVectorMappingTest extends AdapterCase {
@@ -40,7 +39,7 @@ public class MilvusVectorMappingTest extends AdapterCase {
         return MilvusProfile.INSTANCE;
     }
 
-    @Before
+    @BeforeEach
     public void createVectorFixture() throws SQLException {
         this.connection = this.database.open();
         JdbcTemplate jdbc = new JdbcTemplate(this.connection);
@@ -136,11 +135,11 @@ public class MilvusVectorMappingTest extends AdapterCase {
         assertNotNull(actual);
         assertEquals(expected.size(), actual.size());
         for (int i = 0; i < expected.size(); i++) {
-            assertEquals("Vector component " + i, expected.get(i), actual.get(i), 0.0001f);
+            assertEquals(expected.get(i), actual.get(i), 0.0001f, "Vector component " + i);
         }
     }
 
-    @After
+    @AfterEach
     public void cleanupVectorFixture() throws SQLException {
         try {
             if (this.connection != null) {

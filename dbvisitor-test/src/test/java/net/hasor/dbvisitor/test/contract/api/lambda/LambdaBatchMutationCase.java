@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.lambda;
-
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,9 +16,9 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @NxnContract
 public abstract class LambdaBatchMutationCase extends AbstractNxnContractTest {
@@ -170,7 +169,7 @@ public abstract class LambdaBatchMutationCase extends AbstractNxnContractTest {
             totalDeleted += lambdaTemplate.delete(UserInfo.class)//
                     .in(UserInfo::getId, ids)//
                     .doDelete();
-            assertTrue("chunk delete should make progress", totalDeleted <= 50);
+            assertTrue(totalDeleted <= 50, "chunk delete should make progress");
         }
 
         assertMutationRows(50, totalDeleted);

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.feature.parameter;
-
 import java.sql.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,10 +15,10 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /** JDBC 值绑定契约；表定义和必填字段由具体数据源提供。 */
 @NxnContract
@@ -65,7 +64,7 @@ public abstract class JdbcPreparedValueCase extends AdapterCase {
         return statement.executeUpdate();
     }
 
-    @Before
+    @BeforeEach
     public void prepareValues() throws SQLException {
         this.connection = newAdapterConnection();
         createFixture();
@@ -78,7 +77,7 @@ public abstract class JdbcPreparedValueCase extends AdapterCase {
         }
     }
 
-    @After
+    @AfterEach
     public void cleanupValues() throws SQLException {
         if (this.connection != null) {
             try (Connection closing = this.connection; Statement statement = closing.createStatement()) {

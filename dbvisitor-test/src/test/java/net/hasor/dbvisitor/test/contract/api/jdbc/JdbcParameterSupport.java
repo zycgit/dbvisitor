@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.jdbc;
-
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.Map;
@@ -15,8 +14,8 @@ import net.hasor.dbvisitor.jdbc.PreparedStatementSetter;
 
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public abstract class JdbcParameterSupport extends AbstractNxnContractTest {
     protected int baseId() {

@@ -16,7 +16,7 @@ import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.lambda.MapQuery;
 import net.hasor.scene.wrapper.crud.dto.UserTableDTO;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** 使用 MAP 映射数据库 CRUD */
 public class MapCrudTestCase {

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.mongo;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
@@ -18,8 +17,8 @@ import net.hasor.dbvisitor.test.contract.api.jdbc.metadata.StandardSchemaCase;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class MongoStandardSchemaTest extends StandardSchemaCase {
     private final Map<String, List<String>> schema = new LinkedHashMap<>();
@@ -31,7 +30,7 @@ public class MongoStandardSchemaTest extends StandardSchemaCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         OneApiDataSourceManager.assumeCurrentDataSource("mongo");
         this.connection = schemaConnection();
@@ -56,7 +55,7 @@ public class MongoStandardSchemaTest extends StandardSchemaCase {
         return this.schema;
     }
 
-    @After
+    @AfterEach
     public void closeFixture() throws SQLException {
         if (this.connection != null) {
             try {

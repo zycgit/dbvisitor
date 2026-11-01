@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.LinkedHashSet;
@@ -18,8 +17,8 @@ import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcMutationCountCase;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 /** Single-key SET/DEL replies provide the same one-item update-count assertions. */
 public class RedisJdbcMutationCountTest extends JdbcMutationCountCase {
@@ -33,7 +32,7 @@ public class RedisJdbcMutationCountTest extends JdbcMutationCountCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         OneApiDataSourceManager.assumeCurrentDataSource("redis");
         this.connection = OneApiDataSourceManager.getConnection("redis");
@@ -59,7 +58,7 @@ public class RedisJdbcMutationCountTest extends JdbcMutationCountCase {
         }
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws SQLException {
         try {
             for (String key : this.keys) {

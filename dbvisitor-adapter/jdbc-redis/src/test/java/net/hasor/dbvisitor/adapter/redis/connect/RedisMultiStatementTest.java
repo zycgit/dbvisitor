@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.redis.connect;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
@@ -18,14 +17,14 @@ import net.hasor.dbvisitor.adapter.redis.JedisKeys;
 import net.hasor.dbvisitor.adapter.redis.RedisCommandInterceptor;
 import net.hasor.dbvisitor.adapter.redis.RedisCustomJedis;
 import net.hasor.dbvisitor.driver.JdbcDriver;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import redis.clients.jedis.commands.StringCommands;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RedisMultiStatementTest extends AbstractJdbcTest {
-    @After
+    @AfterEach
     public void cleanup() {
         RedisCommandInterceptor.resetInterceptor();
     }

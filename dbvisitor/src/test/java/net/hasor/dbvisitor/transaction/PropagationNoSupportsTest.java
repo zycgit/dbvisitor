@@ -11,7 +11,7 @@ import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.transaction.support.LocalTransactionManager;
 import net.hasor.test.utils.DefaultDs;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import static net.hasor.test.utils.TestUtils.*;
 
 /**

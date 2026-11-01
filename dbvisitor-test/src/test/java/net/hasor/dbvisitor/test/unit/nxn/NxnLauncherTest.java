@@ -6,28 +6,26 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.unit.nxn;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import static org.junit.jupiter.api.Assertions.*;
 
 /** Execute the real shell launcher with a disposable compiler/runtime. */
 public class NxnLauncherTest {
-    @Rule
-    public  TemporaryFolder temporary = new TemporaryFolder();
+    @TempDir
+    public Path temporary;
     private Path            repository;
     private Path            launcher;
 
-    @Before
+    @BeforeEach
     public void prepare() throws Exception {
-        repository = temporary.newFolder("checkout with spaces").toPath();
+        repository = Files.createDirectory(temporary.resolve("checkout with spaces"));
         launcher = repository.resolve("dbvisitor-test/runnxn.sh");
         Files.createDirectories(launcher.getParent());
         Files.copy(Path.of("runnxn.sh"), launcher);
@@ -132,7 +130,7 @@ public class NxnLauncherTest {
         assertEquals(2, run("unknown").exitCode());
         assertEquals(2, run("h2", "--tests", "*CrudTest", "--update-docs").exitCode());
         for (String option : List.of("-Pnxn.env=pg", "-Pmilvus.cloud=true", "--exclude-task=test", "-xtest")) {
-            assertEquals(option, 2, run("all", option).exitCode());
+            assertEquals(2, run("all", option).exitCode(), option);
         }
         assertFalse(Files.exists(repository.resolve("arguments.txt")));
     }
@@ -183,7 +181,7 @@ public class NxnLauncherTest {
         List<String> command = new ArrayList<>(List.of("bash", script.toString()));
         command.addAll(List.of(args));
         Path output = repository.resolve("launcher-output.txt");
-        Process process = new ProcessBuilder(command).directory(temporary.getRoot()).redirectErrorStream(true).redirectOutput(output.toFile()).start();
+        Process process = new ProcessBuilder(command).directory(temporary.toFile()).redirectErrorStream(true).redirectOutput(output.toFile()).start();
         if (!process.waitFor(15, TimeUnit.SECONDS)) {
             process.destroyForcibly();
             fail("Launcher did not finish");

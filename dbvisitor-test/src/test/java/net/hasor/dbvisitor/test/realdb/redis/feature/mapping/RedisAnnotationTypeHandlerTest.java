@@ -6,12 +6,11 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis.feature.mapping;
-
 import net.hasor.dbvisitor.test.contract.feature.type.AnnotationTypeHandlerCase;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 public class RedisAnnotationTypeHandlerTest extends AnnotationTypeHandlerCase {
     @Override
@@ -20,13 +19,13 @@ public class RedisAnnotationTypeHandlerTest extends AnnotationTypeHandlerCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() {
         OneApiDataSourceManager.assumeCurrentDataSource("redis");
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void createLambdaTemplate() {
         // Redis skips the entity-write contracts before they need a LambdaTemplate.
     }

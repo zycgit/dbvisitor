@@ -6,24 +6,23 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic6;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class Elastic6IndexListTest {
     private static final String ES_URL     = "jdbc:dbvisitor:elastic://localhost:2920?indexRefresh=true";
     private static final String INDEX_NAME = "dbv_mapping_test";
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         try (Connection conn = DriverManager.getConnection(ES_URL)) {
             try (Statement stmt = conn.createStatement()) {
@@ -46,7 +45,7 @@ public class Elastic6IndexListTest {
         }
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         try (Connection conn = DriverManager.getConnection(ES_URL); Statement stmt = conn.createStatement()) {
             try {

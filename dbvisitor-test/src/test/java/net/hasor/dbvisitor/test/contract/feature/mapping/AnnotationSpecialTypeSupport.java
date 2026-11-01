@@ -6,14 +6,13 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.feature.mapping;
-
 import java.sql.SQLException;
 
 import net.hasor.dbvisitor.test.contract.material.model.types.SpecialArrayTypeEntity;
 import net.hasor.dbvisitor.test.contract.material.model.types.SpecialJsonTypeEntity;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public abstract class AnnotationSpecialTypeSupport extends AbstractNxnContractTest {
     protected int baseId() {

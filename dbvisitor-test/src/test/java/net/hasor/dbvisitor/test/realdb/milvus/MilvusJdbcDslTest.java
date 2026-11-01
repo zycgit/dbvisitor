@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -17,10 +16,10 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MilvusJdbcDslTest extends AdapterCase {
     @Override
@@ -31,7 +30,7 @@ public class MilvusJdbcDslTest extends AdapterCase {
     private Connection   connection;
     private JdbcTemplate jdbcTemplate;
 
-    @Before
+    @BeforeEach
     public void before() throws SQLException {
         this.connection = newAdapterConnection();
         this.jdbcTemplate = new JdbcTemplate(this.connection);
@@ -43,7 +42,7 @@ public class MilvusJdbcDslTest extends AdapterCase {
         }
     }
 
-    @After
+    @AfterEach
     public void after() {
         if (this.jdbcTemplate != null) {
             try {
@@ -83,7 +82,7 @@ public class MilvusJdbcDslTest extends AdapterCase {
 
         // 4. Query Single
         Map<String, Object> user1 = jdbcTemplate.queryForMap("SELECT * FROM tb_crud_user WHERE id = 1");
-        assertNotNull("The inserted entity must be visible to the iterator query", user1);
+        assertNotNull(user1, "The inserted entity must be visible to the iterator query");
         assertEquals(1L, Long.parseLong(user1.get("id").toString()));
         assertEquals("User1", user1.get("name"));
 
@@ -113,8 +112,8 @@ public class MilvusJdbcDslTest extends AdapterCase {
         Map<String, Object> row = jdbcTemplate.queryForMap("SELECT * FROM tb_vector_type LIMIT 1");
         Object v = row.get("v");
 
-        assertNotNull("Vector value should not be null", v);
-        assertTrue("Vector value should be instance of List, but was " + v.getClass().getName(), v instanceof java.util.List);
+        assertNotNull(v, "Vector value should not be null");
+        assertTrue(v instanceof java.util.List, "Vector value should be instance of List, but was " + v.getClass().getName());
 
         List<?> list = (List<?>) v;
         assertEquals(2, list.size());

@@ -16,7 +16,7 @@ Commands:
   install    Build packages and publish to Maven Local.
   deploy     Build packages, publish to Maven Local, then upload to Maven Central.
   release    Prepare a release commit and tag. With test, verify before deploy. With deploy, upload before next snapshot.
-  test       Run unit tests only. The entire dbvisitor-test module is excluded.
+  test       Run unit tests, including the dbvisitor-test framework tests.
   nxn        Run only the dbvisitor-test datasource matrix against real databases.
 
 Examples:

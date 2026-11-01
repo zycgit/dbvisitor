@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.mongo;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -15,8 +14,8 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
-import org.junit.Test;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MongoCommandTest extends AdapterCase {
     @Override
@@ -37,7 +36,7 @@ public class MongoCommandTest extends AdapterCase {
                 s.execute("test.user_info.insert({name: 'mali', age: 26})");
 
                 try (ResultSet rs = s.executeQuery("test.user_info.find({name: 'mali'})")) {
-                    assertTrue("Mongo command query should return one row", rs.next());
+                    assertTrue(rs.next(), "Mongo command query should return one row");
                     String json = rs.getString("_JSON");
                     assertTrue(json.contains("\"name\": \"mali\""));
                     assertTrue(json.contains("\"age\": 26"));

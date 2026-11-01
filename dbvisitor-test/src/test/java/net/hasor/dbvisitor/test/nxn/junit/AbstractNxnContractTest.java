@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.nxn.junit;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Collections;
@@ -25,27 +24,25 @@ import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.report.NxnTestResult;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
-import org.junit.Assume;
-import org.junit.AssumptionViolatedException;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TestRule;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Assumptions;
+import org.opentest4j.TestAbortedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.*;
+import org.junit.platform.engine.UniqueId;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public abstract class AbstractNxnContractTest extends AbstractOneApiTest {
-    @Rule
-    public final TestRule nxnCapabilityRule = this::applyNxnCapabilityRule;
+    @RegisterExtension
+    public final CapabilityExtension nxnCapability = new CapabilityExtension();
 
     protected abstract DataSourceProfile profile();
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws IOException, SQLException {
         String currentEnv = currentEnv();
-        Assume.assumeTrue("NXN contract for env '" + profile().env() + "' skipped because current env is '" + currentEnv + "'", profile().env().equals(currentEnv));
+        Assumptions.assumeTrue(profile().env().equals(currentEnv), "NXN contract for env '" + profile().env() + "' skipped because current env is '" + currentEnv + "'");
         super.setup();
     }
 
@@ -55,81 +52,108 @@ public abstract class AbstractNxnContractTest extends AbstractOneApiTest {
         }
     }
 
-    private Statement applyNxnCapabilityRule(Statement base, Description description) {
-        return new Statement() {
-            @Override
-            public void evaluate() throws Throwable {
-                Capability capability = findCapability(description);
-                String outcome = "passed";
-                Throwable failure = null;
-                try {
-                    Assume.assumeTrue("Wrong NxN environment", profile().env().equals(currentEnv()));
-                    if (capability != null) {
-                        SupportStatus support = profile().support(capability.value());
-                        if (support == SupportStatus.UNSUPPORTED_BY_DATABASE || support == SupportStatus.UNSUPPORTED_BY_DRIVER || support == SupportStatus.UNSUPPORTED_BY_DBVISITOR) {
-                            throw new UnsupportedCapability("Capability '" + capability.value() + "' is " + support + " by " + profile().env());
-                        }
-                        Assume.assumeTrue("Capability is not implemented: " + capability.value(), support == SupportStatus.SUPPORTED);
+    public final class CapabilityExtension implements BeforeEachCallback, AfterEachCallback,
+            TestExecutionExceptionHandler, LifecycleMethodExecutionExceptionHandler {
+        private Throwable failure;
+        private Capability capability;
+
+        @Override
+        public void beforeEach(ExtensionContext context) {
+            failure = null;
+            capability = findCapability(context);
+            try {
+                Assumptions.assumeTrue(profile().env().equals(currentEnv()), "Wrong NxN environment");
+                if (capability != null) {
+                    SupportStatus support = profile().support(capability.value());
+                    boolean unsupported = support == SupportStatus.UNSUPPORTED_BY_DATABASE
+                            || support == SupportStatus.UNSUPPORTED_BY_DRIVER
+                            || support == SupportStatus.UNSUPPORTED_BY_DBVISITOR;
+                    if (unsupported) {
+                        throw new UnsupportedCapability("Capability '" + capability.value() + "' is " + support
+                                + " by " + profile().env());
                     }
-                    base.evaluate();
-                } catch (UnsupportedCapability e) {
-                    outcome = "unsupported";
-                    failure = e;
-                    throw e;
-                } catch (AssumptionViolatedException e) {
-                    outcome = "unverified";
-                    failure = e;
-                    throw e;
-                } catch (Throwable e) {
-                    outcome = "failed";
-                    failure = e;
-                    throw e;
-                } finally {
-                    try {
-                        NxnTestResult.write(profile().env(), description, capability == null ? null : capability.value(), outcome, failure == null ? null : failure.toString());
-                    } catch (Exception recordingFailure) {
-                        if (failure != null) {
-                            failure.addSuppressed(recordingFailure);
-                        } else {
-                            throw recordingFailure;
-                        }
-                    }
+                    Assumptions.assumeTrue(support == SupportStatus.SUPPORTED,
+                            "Capability is not implemented: " + capability.value());
+                }
+            } catch (RuntimeException error) {
+                failure = error;
+                throw error;
+            }
+        }
+
+        @Override
+        public void handleTestExecutionException(ExtensionContext context, Throwable throwable) throws Throwable {
+            failure = throwable;
+            throw throwable;
+        }
+
+        @Override
+        public void handleBeforeEachMethodExecutionException(ExtensionContext context, Throwable throwable) throws Throwable {
+            failure = throwable;
+            throw throwable;
+        }
+
+        @Override
+        public void handleAfterEachMethodExecutionException(ExtensionContext context, Throwable throwable) throws Throwable {
+            if (failure == null) {
+                failure = throwable;
+            } else {
+                failure.addSuppressed(throwable);
+            }
+            throw throwable;
+        }
+
+        @Override
+        public void afterEach(ExtensionContext context) throws Exception {
+            String outcome = "passed";
+            if (failure instanceof UnsupportedCapability) {
+                outcome = "unsupported";
+            } else if (failure instanceof TestAbortedException) {
+                outcome = "unverified";
+            } else if (failure != null) {
+                outcome = "failed";
+            }
+            try {
+                NxnTestResult.write(profile().env(), context.getRequiredTestClass(),
+                        testMethod(context), capability == null ? null : capability.value(),
+                        outcome, failure == null ? null : failure.toString());
+            } catch (Exception recordingFailure) {
+                if (failure != null) {
+                    failure.addSuppressed(recordingFailure);
+                } else {
+                    throw recordingFailure;
                 }
             }
-        };
+        }
     }
 
-    private static final class UnsupportedCapability extends AssumptionViolatedException {
+    private static String testMethod(ExtensionContext context) {
+        StringBuilder name = new StringBuilder(context.getRequiredTestMethod().getName());
+        // Preserve separate observations for constructor/method parameter invocations.
+        for (UniqueId.Segment segment : UniqueId.parse(context.getUniqueId()).getSegments()) {
+            if (segment.getType().endsWith("-invocation")) {
+                name.append('[').append(segment.getValue()).append(']');
+            }
+        }
+        return name.toString();
+    }
+
+    private static final class UnsupportedCapability extends TestAbortedException {
         private UnsupportedCapability(String reason) {
             super(reason);
         }
     }
 
-    private Capability findCapability(Description description) {
-        Capability capability = description.getAnnotation(Capability.class);
+    private Capability findCapability(ExtensionContext context) {
+        Capability capability = context.getRequiredTestMethod().getAnnotation(Capability.class);
         if (capability != null) {
             return capability;
         }
-
-        String methodName = description.getMethodName();
-        Class<?> testClass = description.getTestClass();
-        while (testClass != null) {
-            if (methodName != null) {
-                try {
-                    capability = testClass.getMethod(methodName).getAnnotation(Capability.class);
-                    if (capability != null) {
-                        return capability;
-                    }
-                } catch (NoSuchMethodException ignored) {
-                    // Keep walking inherited contract methods.
-                }
-            }
-
-            capability = testClass.getAnnotation(Capability.class);
+        for (Class<?> type = context.getRequiredTestClass(); type != null; type = type.getSuperclass()) {
+            capability = type.getAnnotation(Capability.class);
             if (capability != null) {
                 return capability;
             }
-            testClass = testClass.getSuperclass();
         }
         return null;
     }

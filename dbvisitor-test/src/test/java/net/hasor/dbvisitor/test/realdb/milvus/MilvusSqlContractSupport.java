@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -19,8 +18,8 @@ import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.test.contract.api.adapter.AdapterCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 /** 所有集合、索引和数据操作均通过驱动 SQL；每个用例只清理自己创建的集合。 */
 public abstract class MilvusSqlContractSupport extends AdapterCase {
@@ -32,13 +31,13 @@ public abstract class MilvusSqlContractSupport extends AdapterCase {
         return MilvusProfile.INSTANCE;
     }
 
-    @Before
+    @BeforeEach
     public void openSqlConnection() throws SQLException {
         this.connection = newAdapterConnection();
         this.jdbcTemplate = new JdbcTemplate(this.connection);
     }
 
-    @After
+    @AfterEach
     public void closeSqlConnection() throws SQLException {
         if (this.connection != null) {
             try (Connection closing = this.connection; Statement statement = closing.createStatement()) {

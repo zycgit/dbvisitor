@@ -6,14 +6,13 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic7;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.api.jdbc.FunctionCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
 import net.hasor.dbvisitor.test.realdb.elastic7.material.ElasticMatrixFixture;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class Elastic7FunctionTest extends FunctionCase {
     private final ElasticMatrixFixture fixture = new ElasticMatrixFixture();
@@ -24,13 +23,13 @@ public class Elastic7FunctionTest extends FunctionCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         jdbcTemplate = fixture.open(profile().env());
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void createFunctionFixtures() throws SQLException {
         jdbcTemplate = fixture.open(profile().env());
         fixture.insert(918101, "FuncAlice", 25, "func-alice@test.com");
@@ -38,7 +37,7 @@ public class Elastic7FunctionTest extends FunctionCase {
         fixture.insert(918103, "FuncCharlie", 35, "func-charlie@test.com");
     }
 
-    @After
+    @AfterEach
     public void closeFixture() throws SQLException {
         fixture.close();
     }

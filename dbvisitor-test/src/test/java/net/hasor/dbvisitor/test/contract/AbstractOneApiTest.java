@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -22,19 +21,15 @@ import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TestName;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeEach;
 
 public abstract class AbstractOneApiTest {
     protected DataSource     dataSource;
-    @Rule
-    public    TestName       testName = new TestName();
     protected JdbcTemplate   jdbcTemplate;
     protected LambdaTemplate lambdaTemplate;
 
-    @Before
+    @BeforeEach
     public void setup() throws IOException, SQLException {
         if (dataSource == null) {
             dataSource = OneApiDataSourceManager.createDataSource();
@@ -64,7 +59,7 @@ public abstract class AbstractOneApiTest {
         Set<String> allowedDataSources = Arrays.stream(dataSourceNames).map(String::trim).collect(Collectors.toSet());
         String currentDataSource = OneApiDataSourceManager.getDbDialect();
         if (!allowedDataSources.contains(currentDataSource)) {
-            Assume.assumeTrue("Data source '" + currentDataSource + "' is not in " + allowedDataSources, false);
+            Assumptions.assumeTrue(false, "Data source '" + currentDataSource + "' is not in " + allowedDataSources);
         }
     }
 

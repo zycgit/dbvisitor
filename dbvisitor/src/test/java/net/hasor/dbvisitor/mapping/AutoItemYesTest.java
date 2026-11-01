@@ -10,8 +10,8 @@ import java.sql.JDBCType;
 import java.util.Objects;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.test.AbstractDbTest;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /***
  *
@@ -21,7 +21,7 @@ import org.junit.Test;
 public class AutoItemYesTest extends AbstractDbTest {
     private MappingRegistry registry;
 
-    @Before
+    @BeforeEach
     public void beforeTest() throws Exception {
         this.registry = new MappingRegistry();
         this.registry.loadMapping("/dbvisitor_coverage/basic_mapping/auto_item_yes.xml");

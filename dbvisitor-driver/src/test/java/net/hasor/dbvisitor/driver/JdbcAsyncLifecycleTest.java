@@ -6,23 +6,24 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.driver;
-
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.SQLTimeoutException;
 import java.util.Collections;
 import java.util.Properties;
 import java.util.concurrent.*;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import java.util.concurrent.TimeUnit;
+import org.junit.jupiter.api.Timeout;
 
 public class JdbcAsyncLifecycleTest {
     private JdbcConnection  conn;
     private ExecutorService pool;
 
-    @Before
+    @BeforeEach
     public void open() throws Exception {
         Class.forName("net.hasor.dbvisitor.driver.JdbcDriver");
         Properties props = new Properties();
@@ -31,7 +32,7 @@ public class JdbcAsyncLifecycleTest {
         pool = Executors.newFixedThreadPool(2);
     }
 
-    @After
+    @AfterEach
     public void close() throws Exception {
         conn.close();
         pool.shutdownNow();
@@ -42,7 +43,8 @@ public class JdbcAsyncLifecycleTest {
         return new AdapterMemoryCursor(Collections.singletonList(new JdbcColumn("id", "int", "", "", "", ResultSetMetaData.columnNullableUnknown, false, AdapterType.Array)), new Object[][] { { 1 } });
     }
 
-    @Test(timeout = 10000)
+    @Test
+    @Timeout(value = 10000, unit = TimeUnit.MILLISECONDS, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
     public void delayedNextResultWaitsInsteadOfReportingTimeout() throws Exception {
         try (JdbcStatement s = (JdbcStatement) conn.createStatement()) {
             MockAdapterRequest req = new MockAdapterRequest("async");
@@ -57,7 +59,8 @@ public class JdbcAsyncLifecycleTest {
         }
     }
 
-    @Test(timeout = 10000)
+    @Test
+    @Timeout(value = 10000, unit = TimeUnit.MILLISECONDS, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
     public void delayedFinishReportsExhaustion() throws Exception {
         try (JdbcStatement s = (JdbcStatement) conn.createStatement()) {
             MockAdapterRequest req = new MockAdapterRequest("async");
@@ -71,7 +74,8 @@ public class JdbcAsyncLifecycleTest {
         }
     }
 
-    @Test(timeout = 10000)
+    @Test
+    @Timeout(value = 10000, unit = TimeUnit.MILLISECONDS, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
     public void asyncErrorIsPropagated() throws Exception {
         try (JdbcStatement s = (JdbcStatement) conn.createStatement()) {
             MockAdapterRequest req = new MockAdapterRequest("async");
@@ -86,7 +90,8 @@ public class JdbcAsyncLifecycleTest {
         }
     }
 
-    @Test(timeout = 10000)
+    @Test
+    @Timeout(value = 10000, unit = TimeUnit.MILLISECONDS, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
     public void closeWakesWaiterAndRejectsLateCursors() throws Exception {
         JdbcStatement s = (JdbcStatement) conn.createStatement();
         MockAdapterRequest req = new MockAdapterRequest("async");
@@ -104,7 +109,8 @@ public class JdbcAsyncLifecycleTest {
         assertTrue(keys.isClose());
     }
 
-    @Test(timeout = 10000)
+    @Test
+    @Timeout(value = 10000, unit = TimeUnit.MILLISECONDS, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
     public void cancelDoesNotWaitForExecuteMonitorAndStatementCanBeReused() throws Exception {
         CountDownLatch entered = new CountDownLatch(1), release = new CountDownLatch(1);
         try (JdbcStatement s = new JdbcStatement(conn) {
@@ -139,7 +145,8 @@ public class JdbcAsyncLifecycleTest {
         }
     }
 
-    @Test(timeout = 10000)
+    @Test
+    @Timeout(value = 10000, unit = TimeUnit.MILLISECONDS, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
     public void streamWaitsForRowsAndFinishIsTerminal() throws Exception {
         AdapterResultCursor cursor = new AdapterResultCursor(new MockAdapterRequest("stream"), cursor().columns());
         try {
@@ -159,7 +166,8 @@ public class JdbcAsyncLifecycleTest {
         }
     }
 
-    @Test(timeout = 10000)
+    @Test
+    @Timeout(value = 10000, unit = TimeUnit.MILLISECONDS, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
     public void streamCloseWakesReader() throws Exception {
         AdapterResultCursor cursor = new AdapterResultCursor(new MockAdapterRequest("stream"), cursor().columns());
         Future<Boolean> next = pool.submit(cursor::next);
@@ -168,7 +176,8 @@ public class JdbcAsyncLifecycleTest {
         assertTrue(assertThrows(ExecutionException.class, () -> next.get(2, TimeUnit.SECONDS)).getCause() instanceof SQLException);
     }
 
-    @Test(timeout = 10000)
+    @Test
+    @Timeout(value = 10000, unit = TimeUnit.MILLISECONDS, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
     public void containerTimeoutAndInterruptAreNotSwallowed() throws Exception {
         AdapterContainer container = new AdapterContainer(conn);
         container.prepareReceive(new MockAdapterRequest("timeout"));

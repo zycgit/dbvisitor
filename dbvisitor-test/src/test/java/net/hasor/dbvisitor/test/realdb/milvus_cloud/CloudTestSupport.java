@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus_cloud;
-
 import java.net.URI;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -19,10 +18,10 @@ import java.util.Properties;
 import java.util.UUID;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import org.junit.After;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 
 /** Optional Cloud checks; no NxN profile, database creation or capability export. */
 public abstract class CloudTestSupport {
@@ -36,12 +35,12 @@ public abstract class CloudTestSupport {
     protected JdbcTemplate jdbc;
     private final List<String> collections = new ArrayList<>();
 
-    @BeforeClass
+    @BeforeAll
     public static void requireExplicitOptIn() {
-        Assume.assumeTrue("Cloud tests require -Dmilvus.cloud=true (Gradle: -Pmilvus.cloud=true)", Boolean.getBoolean("milvus.cloud"));
+        Assumptions.assumeTrue(Boolean.getBoolean("milvus.cloud"), "Cloud tests require -Dmilvus.cloud=true (Gradle: -Pmilvus.cloud=true)");
     }
 
-    @Before
+    @BeforeEach
     public void openConnection() throws SQLException {
         Map<String, String> env = System.getenv();
         this.connection = DriverManager.getConnection(jdbcUrl(env), connectionProperties(env));
@@ -126,7 +125,7 @@ public abstract class CloudTestSupport {
         return ids;
     }
 
-    @After
+    @AfterEach
     public void closeConnection() throws SQLException {
         if (this.connection == null) {
             return;

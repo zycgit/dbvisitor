@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.scenario.query.jdbc;
-
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
@@ -15,8 +14,8 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class JdbcJoinQueryCase extends AbstractNxnContractTest {
     protected int baseId() {

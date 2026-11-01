@@ -10,16 +10,16 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.sql.*;
 import java.util.*;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class JdbcResultSetTest {
 
     private static Map<String, AdapterFactory> originalFactoryMap;
 
-    @BeforeClass
+    @BeforeAll
     @SuppressWarnings("unchecked")
     public static void setup() throws Exception {
         // Inject MockAdapterFactory
@@ -30,7 +30,7 @@ public class JdbcResultSetTest {
         map.put("mock", new MockAdapterFactory());
     }
 
-    @AfterClass
+    @AfterAll
     @SuppressWarnings("unchecked")
     public static void teardown() throws Exception {
         Field field = AdapterManager.class.getDeclaredField("factoryMap");

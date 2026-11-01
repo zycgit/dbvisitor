@@ -6,15 +6,14 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.adapter;
-
 import java.sql.SQLException;
 import java.util.*;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.lambda.MapQuery;
 import net.hasor.dbvisitor.page.Page;
 import net.hasor.dbvisitor.page.PageObject;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** The same page API boundaries with datasource-native ordering and Map row fixtures. */
 public abstract class NativeLambdaPaginationSupport extends AdapterCase {
@@ -148,10 +147,10 @@ public abstract class NativeLambdaPaginationSupport extends AdapterCase {
                 break;
             }
             for (Map<String, Object> row : rows) {
-                assertTrue("No overlapping rows between pages", seen.add(sequence(row)));
+                assertTrue(seen.add(sequence(row)), "No overlapping rows between pages");
             }
             page++;
-            assertTrue("Traversal must finish within the known page count", page <= 4);
+            assertTrue(page <= 4, "Traversal must finish within the known page count");
         }
         assertEquals(23, seen.size());
         for (int i = 0; i < 23; i++) {

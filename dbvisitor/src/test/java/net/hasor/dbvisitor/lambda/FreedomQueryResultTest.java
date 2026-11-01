@@ -13,17 +13,17 @@ import java.util.Map;
 import java.util.UUID;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapping.Options;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class FreedomQueryResultTest {
     private Connection     connection;
     private JdbcTemplate   jdbc;
     private LambdaTemplate lambda;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         this.connection = DriverManager.getConnection("jdbc:h2:mem:freedom_" + UUID.randomUUID());
         this.jdbc = new JdbcTemplate(this.connection);
@@ -32,7 +32,7 @@ public class FreedomQueryResultTest {
         this.jdbc.executeUpdate("INSERT INTO items VALUES (?, ?, ?)", new Object[] { 7, "kept", null });
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         if (this.connection != null) {
             this.connection.close();

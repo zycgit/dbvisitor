@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic7.material;
-
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -23,20 +22,20 @@ import net.hasor.dbvisitor.test.contract.material.handler.CustomRowMapper;
 import net.hasor.dbvisitor.test.contract.material.handler.RecordingRowCallbackHandler;
 import net.hasor.dbvisitor.test.contract.material.handler.UserNameMapExtractor;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public abstract class ElasticAnnotationResultHandlerSupport extends AnnotationMapperResultHandlerCase {
     private final ElasticMatrixFixture fixture = new ElasticMatrixFixture();
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = fixture.open(profile().env());
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void createResultHandlerMapper() throws Exception {
         this.jdbcTemplate = fixture.open(profile().env());
         Session session = fixture.session();
@@ -49,7 +48,7 @@ public abstract class ElasticAnnotationResultHandlerSupport extends AnnotationMa
         prepareRows();
     }
 
-    @After
+    @AfterEach
     public void closeResultFixture() throws Exception {
         fixture.close();
     }

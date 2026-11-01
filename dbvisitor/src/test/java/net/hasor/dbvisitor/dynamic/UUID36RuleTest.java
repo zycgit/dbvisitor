@@ -11,7 +11,7 @@ import java.util.Map;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.dynamic.rule.UUID36Rule;
 import net.hasor.dbvisitor.types.SqlArg;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class UUID36RuleTest {
 

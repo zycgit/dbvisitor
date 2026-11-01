@@ -13,8 +13,9 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Assertions;
 
 /** Tests for AdapterResultCursor — 42 lines, currently 0% coverage. */
 public class AdapterResultCursorTest {
@@ -68,11 +69,13 @@ public class AdapterResultCursorTest {
         assertTrue(cursor.isClose());
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void next_after_close_throws() throws Exception {
-        AdapterResultCursor cursor = new AdapterResultCursor(new MockAdapterRequest("SELECT 1"), cols());
-        cursor.close();
-        cursor.next();
+        Assertions.assertThrows(SQLException.class, () -> {
+            AdapterResultCursor cursor = new AdapterResultCursor(new MockAdapterRequest("SELECT 1"), cols());
+            cursor.close();
+            cursor.next();
+        });
     }
 
     @Test

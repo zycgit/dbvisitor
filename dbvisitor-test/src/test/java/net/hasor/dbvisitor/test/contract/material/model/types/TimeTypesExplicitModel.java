@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.material.model.types;
-
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;

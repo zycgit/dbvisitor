@@ -15,7 +15,7 @@ import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.test.dto.UserInfo2;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class OraclePerformanceTest {
     private void reinit(Connection con) throws SQLException {

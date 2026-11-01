@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.milvus.commands;
-
 import java.sql.*;
 import java.util.*;
 import com.google.gson.JsonObject;
@@ -20,10 +19,10 @@ import net.hasor.dbvisitor.adapter.milvus.MilvusCommandInterceptor;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MilvusReplicasTest {
     private final List<String>              methods  = new ArrayList<>();
@@ -31,7 +30,7 @@ public class MilvusReplicasTest {
     private       DescribeReplicasResp      response = DescribeReplicasResp.builder().build();
     private       boolean                   fail;
 
-    @Before
+    @BeforeEach
     public void install() {
         MilvusCommandInterceptor.resetInterceptor();
         MilvusCommandInterceptor.addInterceptor(MilvusClientV2.class, (proxy, method, args) -> {
@@ -50,7 +49,7 @@ public class MilvusReplicasTest {
         });
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         MilvusCommandInterceptor.resetInterceptor();
     }
@@ -152,7 +151,7 @@ public class MilvusReplicasTest {
     public void malformedCommandsShouldFailBeforeSdkExecution() throws SQLException {
         try (Connection connection = connect(); Statement statement = connection.createStatement()) {
             for (String sql : Arrays.asList("SHOW REPLICAS", "SHOW REPLICAS FROM ?", "SHOW REPLICAS FROM books LIMIT 1", "SHOW REPLICAS FROM books PARTITION p", "SHOW REPLICAS FROM books WITH (num_replicas=2)")) {
-                assertThrows(sql, SQLException.class, () -> statement.execute(sql));
+                assertThrows(SQLException.class, () -> statement.execute(sql), sql);
             }
         }
         assertTrue(methods.isEmpty());

@@ -12,7 +12,7 @@ import java.sql.SQLException;
 import java.util.*;
 import net.hasor.dbvisitor.adapter.redis.AbstractJdbcTest;
 import net.hasor.dbvisitor.adapter.redis.RedisCommandInterceptor;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import redis.clients.jedis.commands.SetCommands;
 import redis.clients.jedis.params.ScanParams;
 import redis.clients.jedis.resps.ScanResult;

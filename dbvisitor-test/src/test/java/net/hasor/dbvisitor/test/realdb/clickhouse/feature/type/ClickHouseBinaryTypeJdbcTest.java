@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.clickhouse.feature.type;
-
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -16,12 +15,14 @@ import net.hasor.dbvisitor.test.contract.feature.type.BinaryTypeJdbcCase;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
-import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class ClickHouseBinaryTypeJdbcTest extends BinaryTypeJdbcCase {
     private Connection binaryConnection;
 
     @Override
+    @BeforeEach
     public void setup() throws IOException, SQLException {
         super.setup();
         Properties properties = new Properties();
@@ -30,7 +31,7 @@ public class ClickHouseBinaryTypeJdbcTest extends BinaryTypeJdbcCase {
         this.jdbcTemplate = new JdbcTemplate(this.binaryConnection);
     }
 
-    @After
+    @AfterEach
     public void closeBinaryConnection() throws SQLException {
         if (this.binaryConnection != null) {
             this.binaryConnection.close();

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic7;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.api.session.SessionMapperSharingCase;
@@ -14,8 +13,8 @@ import net.hasor.dbvisitor.test.contract.material.dao.SessionRefUserMapper;
 import net.hasor.dbvisitor.test.contract.material.dao.SessionUserMapper;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class Elastic7SessionMapperSharingTest extends SessionMapperSharingCase {
     private final Elastic7SessionMapperFixture fixture = new Elastic7SessionMapperFixture();
@@ -26,7 +25,7 @@ public class Elastic7SessionMapperSharingTest extends SessionMapperSharingCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = fixture.open(profile().env());
     }
@@ -51,7 +50,7 @@ public class Elastic7SessionMapperSharingTest extends SessionMapperSharingCase {
         return fixture.countCommand();
     }
 
-    @After
+    @AfterEach
     public void closeSessionFixture() throws Exception {
         fixture.close();
     }

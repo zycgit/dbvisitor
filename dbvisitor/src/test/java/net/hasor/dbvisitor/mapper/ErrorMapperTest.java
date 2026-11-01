@@ -6,11 +6,10 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.mapper;
-
 import net.hasor.dbvisitor.mapper.dto.Error10Mapper;
 import net.hasor.dbvisitor.mapper.dto.Error1Mapper;
 import net.hasor.dbvisitor.mapper.dto.Error2Mapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

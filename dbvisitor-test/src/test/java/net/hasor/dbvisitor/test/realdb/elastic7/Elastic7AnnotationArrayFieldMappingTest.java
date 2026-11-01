@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic7;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.feature.mapping.AnnotationArrayFieldMappingCase;
 import net.hasor.dbvisitor.test.contract.material.model.types.SpecialArrayTypeEntity;
@@ -14,8 +13,8 @@ import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
 import net.hasor.dbvisitor.test.realdb.elastic7.material.ElasticMatrixFixture;
 import net.hasor.dbvisitor.test.realdb.elastic7.material.ElasticTypeMappings;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class Elastic7AnnotationArrayFieldMappingTest extends AnnotationArrayFieldMappingCase {
     private final ElasticMatrixFixture fixture = new ElasticMatrixFixture();
@@ -26,7 +25,7 @@ public class Elastic7AnnotationArrayFieldMappingTest extends AnnotationArrayFiel
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         jdbcTemplate = fixture.open(profile().env());
         ElasticTypeMappings.addArrays(jdbcTemplate, profile().env(), fixture.index());
@@ -34,7 +33,7 @@ public class Elastic7AnnotationArrayFieldMappingTest extends AnnotationArrayFiel
         lambdaTemplate = fixture.lambdaTemplate();
     }
 
-    @After
+    @AfterEach
     public void closeFixture() throws SQLException {
         fixture.close();
     }

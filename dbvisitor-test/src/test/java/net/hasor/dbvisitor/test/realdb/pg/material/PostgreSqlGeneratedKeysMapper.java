@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.pg.material;
-
 import net.hasor.dbvisitor.mapper.GeneratedKeySource;
 import net.hasor.dbvisitor.mapper.Insert;
 import net.hasor.dbvisitor.mapper.SimpleMapper;

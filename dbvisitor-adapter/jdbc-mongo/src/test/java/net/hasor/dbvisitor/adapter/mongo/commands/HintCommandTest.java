@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.mongo.commands;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -17,9 +16,9 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import net.hasor.dbvisitor.adapter.mongo.AbstractJdbcTest;
 import net.hasor.dbvisitor.adapter.mongo.MongoCommandInterceptor;
-import org.junit.Assert;
-import org.junit.Test;
-import org.powermock.api.mockito.PowerMockito;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import static org.mockito.ArgumentMatchers.anyString;
 
 /**
@@ -37,9 +36,9 @@ public class HintCommandTest extends AbstractJdbcTest {
         // Intercept MongoClient.getDatabase -> capture db name; mock getCollection/drop
         MongoCommandInterceptor.addInterceptor(MongoClient.class, createInvocationHandler("getDatabase", (name, args) -> {
             dbRef.set((String) args[0]);
-            MongoDatabase mockDb = PowerMockito.mock(MongoDatabase.class);
-            MongoCollection<?> mockColl = PowerMockito.mock(MongoCollection.class);
-            PowerMockito.when(mockDb.getCollection(anyString())).thenAnswer(inv -> {
+            MongoDatabase mockDb = Mockito.mock(MongoDatabase.class);
+            MongoCollection<?> mockColl = Mockito.mock(MongoCollection.class);
+            Mockito.when(mockDb.getCollection(anyString())).thenAnswer(inv -> {
                 collRef.set(inv.getArgument(0));
                 return mockColl;
             });
@@ -55,8 +54,8 @@ public class HintCommandTest extends AbstractJdbcTest {
             ps.execute();
         }
 
-        Assert.assertEquals("db should come from 2nd placeholder (after hint)", "dbX", dbRef.get());
-        Assert.assertEquals("collection should come from 3rd placeholder", "colX", collRef.get());
+        Assertions.assertEquals("dbX", dbRef.get(), "db should come from 2nd placeholder (after hint)");
+        Assertions.assertEquals("colX", collRef.get(), "collection should come from 3rd placeholder");
     }
 
     @Test
@@ -68,9 +67,9 @@ public class HintCommandTest extends AbstractJdbcTest {
 
         MongoCommandInterceptor.addInterceptor(MongoClient.class, createInvocationHandler("getDatabase", (name, args) -> {
             dbRef.set((String) args[0]);
-            MongoDatabase mockDb = PowerMockito.mock(MongoDatabase.class);
-            MongoCollection<?> mockColl = PowerMockito.mock(MongoCollection.class);
-            PowerMockito.when(mockDb.getCollection(anyString())).thenAnswer(inv -> {
+            MongoDatabase mockDb = Mockito.mock(MongoDatabase.class);
+            MongoCollection<?> mockColl = Mockito.mock(MongoCollection.class);
+            Mockito.when(mockDb.getCollection(anyString())).thenAnswer(inv -> {
                 collRef.set(inv.getArgument(0));
                 return mockColl;
             });
@@ -86,7 +85,7 @@ public class HintCommandTest extends AbstractJdbcTest {
             ps.execute();
         }
 
-        Assert.assertEquals("db should be consumed after both hint placeholders", "dbY", dbRef.get());
-        Assert.assertEquals("collection should be literal from command", "ccc", collRef.get());
+        Assertions.assertEquals("dbY", dbRef.get(), "db should be consumed after both hint placeholders");
+        Assertions.assertEquals("ccc", collRef.get(), "collection should be literal from command");
     }
 }

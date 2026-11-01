@@ -6,15 +6,14 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperQueryParameterCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
 import net.hasor.dbvisitor.test.realdb.redis.RedisAnnotationParameterFixture;
 import net.hasor.dbvisitor.test.realdb.redis.dto1.RedisRangeParameterMapper;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class RedisAnnotationMapperQueryParameterTest extends AnnotationMapperQueryParameterCase {
     private final RedisAnnotationParameterFixture fixture = new RedisAnnotationParameterFixture();
@@ -25,19 +24,19 @@ public class RedisAnnotationMapperQueryParameterTest extends AnnotationMapperQue
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = fixture.open();
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void createAnnotationMapper() throws Exception {
         fixture.open();
         this.mapper = fixture.createMapper(newConfiguration(), RedisRangeParameterMapper.class);
     }
 
-    @After
+    @AfterEach
     public void closeFixture() throws Exception {
         fixture.close();
     }

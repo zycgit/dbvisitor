@@ -15,7 +15,7 @@ import net.hasor.dbvisitor.session.dto.AutoIncrID;
 import net.hasor.dbvisitor.session.dto.BasicMapperByFile;
 import net.hasor.dbvisitor.session.dto.UserInfo;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class BasicMapperByFileTest {
 

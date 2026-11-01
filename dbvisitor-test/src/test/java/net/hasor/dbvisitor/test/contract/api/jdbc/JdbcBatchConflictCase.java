@@ -6,14 +6,13 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.jdbc;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-import org.junit.Test;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @NxnContract
 public abstract class JdbcBatchConflictCase extends JdbcBatchSupport {
@@ -37,10 +36,10 @@ public abstract class JdbcBatchConflictCase extends JdbcBatchSupport {
             jdbcTemplate.executeBatch(insertCommand(), args);
         } catch (SQLException e) {
             caught = true;
-            assertTrue(lowerMessage(e), isDuplicateKeyMessage(e));
+            assertTrue(isDuplicateKeyMessage(e), lowerMessage(e));
         }
 
-        assertTrue("Expected SQLException for duplicate primary key in batch", caught);
+        assertTrue(caught, "Expected SQLException for duplicate primary key in batch");
         assertTrue(jdbcTemplate.queryForInt(countRangeCommand(true), new Object[] { baseId() + 31, baseId() + 33 }) >= 0);
     }
 }

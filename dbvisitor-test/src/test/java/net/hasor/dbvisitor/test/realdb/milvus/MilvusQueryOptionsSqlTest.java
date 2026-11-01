@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,8 +15,8 @@ import java.util.HashSet;
 import java.util.Set;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MilvusQueryOptionsSqlTest extends MilvusSqlContractSupport {
     @Test
@@ -46,7 +45,7 @@ public class MilvusQueryOptionsSqlTest extends MilvusSqlContractSupport {
                     if (!ignoreGrowing) {
                         expected.add(3L);
                     }
-                    assertEquals("fetchSize=" + fetchSize + ", ignoreGrowing=" + ignoreGrowing, expected, ids);
+                    assertEquals(expected, ids, "fetchSize=" + fetchSize + ", ignoreGrowing=" + ignoreGrowing);
                 }
             }
         }
@@ -72,7 +71,7 @@ public class MilvusQueryOptionsSqlTest extends MilvusSqlContractSupport {
         try (Statement statement = connection.createStatement()) {
             for (String options : new String[] { "nprobe=8", "ignore_growing='false'", "timezone=123", "round_decimal=2" }) {
                 SQLException error = assertThrows(SQLException.class, () -> statement.executeQuery("SELECT id FROM " + collection + " WITH(" + options + ")"));
-                assertTrue(error.getMessage(), error.getMessage().contains("WITH"));
+                assertTrue(error.getMessage().contains("WITH"), error.getMessage());
             }
             try (ResultSet rows = statement.executeQuery("SHOW VERSION")) {
                 assertTrue(rows.next());

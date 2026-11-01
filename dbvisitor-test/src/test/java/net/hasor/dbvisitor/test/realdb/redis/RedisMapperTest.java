@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis;
-
 import java.util.Properties;
 import net.hasor.dbvisitor.adapter.redis.JedisKeys;
 import net.hasor.dbvisitor.session.Configuration;
@@ -21,12 +20,12 @@ import net.hasor.dbvisitor.test.realdb.redis.dto2.UserInfo2Mapper;
 import net.hasor.dbvisitor.test.realdb.redis.dto3.UserInfo3;
 import net.hasor.dbvisitor.test.realdb.redis.dto3.UserInfo3Mapper;
 import net.hasor.dbvisitor.test.realdb.redis.dto3.UserInfo4Mapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import redis.clients.jedis.Jedis;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class RedisMapperTest {
-    @org.junit.BeforeClass
+    @org.junit.jupiter.api.BeforeAll
     public static void assumeDataSource() {
         OneApiDataSourceManager.assumeCurrentDataSource("redis");
     }

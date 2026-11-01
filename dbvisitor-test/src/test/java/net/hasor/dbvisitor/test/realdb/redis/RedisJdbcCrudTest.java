@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis;
-
 import java.sql.SQLException;
 import java.util.Map;
 import net.hasor.dbvisitor.test.contract.api.adapter.RedisJdbcCrudFixture;
@@ -14,9 +13,9 @@ import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcCrudCase;
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcCrudCommand;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
-import org.junit.After;
-import org.junit.Before;
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RedisJdbcCrudTest extends JdbcCrudCase {
     private final RedisJdbcCrudFixture fixture = new RedisJdbcCrudFixture();
@@ -27,7 +26,7 @@ public class RedisJdbcCrudTest extends JdbcCrudCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open();
     }
@@ -48,7 +47,7 @@ public class RedisJdbcCrudTest extends JdbcCrudCase {
         return row.values().iterator().next();
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws SQLException {
         this.fixture.close();
     }

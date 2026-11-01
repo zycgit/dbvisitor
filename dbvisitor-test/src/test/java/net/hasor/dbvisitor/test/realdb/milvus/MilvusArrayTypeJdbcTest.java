@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -17,8 +16,8 @@ import net.hasor.dbvisitor.test.contract.feature.type.ArrayTypeJdbcCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
 import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 /** Native scalar arrays; shared SQL, type handlers and assertions remain unchanged. */
 @NxnConcurrent
@@ -32,7 +31,7 @@ public class MilvusArrayTypeJdbcTest extends ArrayTypeJdbcCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.connection = this.database.open();
         this.jdbcTemplate = new JdbcTemplate(this.connection, new MappingRegistry(), null);
@@ -63,7 +62,7 @@ public class MilvusArrayTypeJdbcTest extends ArrayTypeJdbcCase {
         }
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws SQLException {
         try {
             if (this.connection != null) {

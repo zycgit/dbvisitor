@@ -6,21 +6,20 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic7;
-
 import java.sql.*;
 import java.util.HashSet;
 import java.util.Set;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class Elastic7CatTest {
     private static final String ES_URL     = "jdbc:dbvisitor:elastic://127.0.0.1:2921?indexRefresh=true";
     private static final String INDEX_NAME = "dbv_test_idx";
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         try (Connection conn = DriverManager.getConnection(ES_URL)) {
             try (Statement stmt = conn.createStatement()) {
@@ -34,7 +33,7 @@ public class Elastic7CatTest {
         }
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         try (Connection conn = DriverManager.getConnection(ES_URL); Statement stmt = conn.createStatement()) {
             try {
@@ -73,7 +72,7 @@ public class Elastic7CatTest {
                         assertNotNull(rs.getString("STATUS"));
                     }
                 }
-                assertTrue("Should find the test index in _cat/indices", found);
+                assertTrue(found, "Should find the test index in _cat/indices");
             }
         }
     }

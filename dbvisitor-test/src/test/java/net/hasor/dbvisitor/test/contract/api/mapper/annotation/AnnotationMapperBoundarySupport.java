@@ -6,18 +6,17 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.mapper.annotation;
-
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.material.dao.declarative.AnnotationTestMapper;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
-import org.junit.Before;
-import static org.junit.Assert.assertNotNull;
+import org.junit.jupiter.api.BeforeEach;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public abstract class AnnotationMapperBoundarySupport extends AbstractNxnContractTest {
     protected AnnotationTestMapper mapper;
 
-    @Before
+    @BeforeEach
     public void createAnnotationMapper() throws Exception {
         Configuration configuration = newConfiguration();
         Session session = configuration.newSession(dataSource);

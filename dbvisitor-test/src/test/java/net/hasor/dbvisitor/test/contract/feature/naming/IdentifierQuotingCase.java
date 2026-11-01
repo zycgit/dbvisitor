@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.feature.naming;
-
 import java.sql.SQLException;
 import java.util.Date;
 import net.hasor.dbvisitor.dialect.BoundSql;
@@ -15,8 +14,8 @@ import net.hasor.dbvisitor.test.contract.material.model.naming.*;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 @NxnContract
 public abstract class IdentifierQuotingCase extends NamingMappingSupport {
@@ -49,16 +48,16 @@ public abstract class IdentifierQuotingCase extends NamingMappingSupport {
                 .getBoundSql();
         String sql = insertSql.getSqlString();
 
-        assertTrue(sql, sql.contains(left + mappedTableName("user_info") + right));
-        assertTrue(sql, sql.contains(left + "id" + right));
-        assertTrue(sql, sql.contains(left + "name" + right));
-        assertTrue(sql, sql.contains(left + "create_time" + right));
+        assertTrue(sql.contains(left + mappedTableName("user_info") + right), sql);
+        assertTrue(sql.contains(left + "id" + right), sql);
+        assertTrue(sql.contains(left + "name" + right), sql);
+        assertTrue(sql.contains(left + "create_time" + right), sql);
 
         BoundSql caseSql = lambdaTemplate.query(CaseTestUpperCI.class)//
                 .eq(CaseTestUpperCI::getId, 1)//
                 .getBoundSql();
-        assertTrue(caseSql.getSqlString(), caseSql.getSqlString().contains(left + mappedTableName("Case_Test_Upper") + right));
-        assertTrue(caseSql.getSqlString(), caseSql.getSqlString().contains(left + "Id" + right));
+        assertTrue(caseSql.getSqlString().contains(left + mappedTableName("Case_Test_Upper") + right), caseSql.getSqlString());
+        assertTrue(caseSql.getSqlString().contains(left + "Id" + right), caseSql.getSqlString());
     }
 
     // 能力归属：对象映射 / 命名与名称敏感性 / 名称引用。
@@ -110,11 +109,11 @@ public abstract class IdentifierQuotingCase extends NamingMappingSupport {
         BoundSql autoSql = lambdaTemplate.insert(KeywordColumnNoDelimitedEntity.class).applyEntity(autoEntity).getBoundSql();
         String sql = autoSql.getSqlString();
 
-        assertTrue(sql, sql.contains(left + "order" + right));
-        assertTrue(sql, sql.contains(left + "select" + right));
+        assertTrue(sql.contains(left + "order" + right), sql);
+        assertTrue(sql.contains(left + "select" + right), sql);
         if (!left.isEmpty() || !right.isEmpty()) {
-            assertFalse(sql, sql.contains(left + "id" + right));
-            assertFalse(sql, sql.contains(left + "name" + right));
+            assertFalse(sql.contains(left + "id" + right), sql);
+            assertFalse(sql.contains(left + "name" + right), sql);
         }
 
         assertEquals(1, lambdaTemplate.insert(KeywordColumnNoDelimitedEntity.class).applyEntity(autoEntity).executeSumResult());
@@ -137,10 +136,10 @@ public abstract class IdentifierQuotingCase extends NamingMappingSupport {
         KeywordTableNoDelimitedEntity entity = keywordTableNoDelimited(1, "AutoKeywordTable", "desc");
         BoundSql sql = lambdaTemplate.insert(KeywordTableNoDelimitedEntity.class).applyEntity(entity).getBoundSql();
 
-        assertTrue(sql.getSqlString(), sql.getSqlString().contains(left + mappedTableName("order") + right));
+        assertTrue(sql.getSqlString().contains(left + mappedTableName("order") + right), sql.getSqlString());
         if (!left.isEmpty() || !right.isEmpty()) {
-            assertFalse(sql.getSqlString(), sql.getSqlString().contains(left + "id" + right));
-            assertFalse(sql.getSqlString(), sql.getSqlString().contains(left + "name" + right));
+            assertFalse(sql.getSqlString().contains(left + "id" + right), sql.getSqlString());
+            assertFalse(sql.getSqlString().contains(left + "name" + right), sql.getSqlString());
         }
 
         assertEquals(1, lambdaTemplate.insert(KeywordTableNoDelimitedEntity.class).applyEntity(entity).executeSumResult());

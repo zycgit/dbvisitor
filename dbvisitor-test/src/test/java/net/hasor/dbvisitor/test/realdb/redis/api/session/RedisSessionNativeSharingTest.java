@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.session;
-
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -17,8 +16,8 @@ import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
 import net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisMapperFixture;
 import net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisNativeMapperSupport.NativeMapper;
 import net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisNativeMapperSupport.RefNativeMapper;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class RedisSessionNativeSharingTest extends SessionNativeSharingCase {
     private final RedisMapperFixture fixture = new RedisMapperFixture();
@@ -29,7 +28,7 @@ public class RedisSessionNativeSharingTest extends SessionNativeSharingCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.fixture.open();
         this.jdbcTemplate = this.fixture.session().jdbc();
@@ -89,7 +88,7 @@ public class RedisSessionNativeSharingTest extends SessionNativeSharingCase {
         return this.fixture.key("sharing:" + id);
     }
 
-    @After
+    @AfterEach
     public void closeFixture() throws SQLException {
         this.fixture.close();
     }

@@ -21,7 +21,7 @@ import net.hasor.dbvisitor.types.custom.UserFutures2;
 import net.hasor.dbvisitor.types.custom.UserTable;
 import net.hasor.dbvisitor.types.handler.json.JsonUseForFastjson2TypeHandler;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AnnosTest {
     @Test

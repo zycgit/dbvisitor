@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.driver;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
@@ -14,8 +13,9 @@ import java.time.*;
 import java.time.chrono.JapaneseDate;
 import java.util.Calendar;
 import java.util.Date;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Assertions;
 
 /** Comprehensive tests for ConvertUtils — covers all type conversion paths. */
 public class ConvertUtilsTest {
@@ -368,9 +368,11 @@ public class ConvertUtilsTest {
         assertEquals('A', (char) ConvertUtils.toChar("65", false));
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void toChar_string_nonNumeric() {
-        ConvertUtils.toChar("ABC", false);
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            ConvertUtils.toChar("ABC", false);
+        });
     }
 
     @Test
@@ -1052,38 +1054,52 @@ public class ConvertUtilsTest {
     }
 
     // ==================== Error paths ====================
-    @Test(expected = RuntimeException.class)
+    @Test
     public void toBoolean_invalidString() {
-        ConvertUtils.toBoolean("invalid", false);
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            ConvertUtils.toBoolean("invalid", false);
+        });
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void toByte_invalidString() {
-        ConvertUtils.toByte("xyz", false);
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            ConvertUtils.toByte("xyz", false);
+        });
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void toShort_byteArrayTooShort() {
-        ConvertUtils.toShort(new byte[] { 1 }, false);
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            ConvertUtils.toShort(new byte[] { 1 }, false);
+        });
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void toInteger_byteArrayTooShort() {
-        ConvertUtils.toInteger(new byte[] { 1, 2 }, false);
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            ConvertUtils.toInteger(new byte[] { 1, 2 }, false);
+        });
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void toLong_byteArrayTooShort() {
-        ConvertUtils.toLong(new byte[] { 1, 2, 3, 4 }, false);
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            ConvertUtils.toLong(new byte[] { 1, 2, 3, 4 }, false);
+        });
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void toFloat_byteArrayTooShort() {
-        ConvertUtils.toFloat(new byte[] { 1, 2 }, false);
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            ConvertUtils.toFloat(new byte[] { 1, 2 }, false);
+        });
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void toDouble_byteArrayTooShort() {
-        ConvertUtils.toDouble(new byte[] { 1, 2, 3, 4 }, false);
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            ConvertUtils.toDouble(new byte[] { 1, 2, 3, 4 }, false);
+        });
     }
 }

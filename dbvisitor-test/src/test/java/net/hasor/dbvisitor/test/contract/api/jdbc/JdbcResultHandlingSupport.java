@@ -6,13 +6,12 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.jdbc;
-
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.Map;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public abstract class JdbcResultHandlingSupport extends AbstractNxnContractTest {
     protected int baseId() {

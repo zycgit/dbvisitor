@@ -4,7 +4,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package example;
-
 import java.sql.Connection;
 import java.sql.Statement;
 import java.sql.SQLException;

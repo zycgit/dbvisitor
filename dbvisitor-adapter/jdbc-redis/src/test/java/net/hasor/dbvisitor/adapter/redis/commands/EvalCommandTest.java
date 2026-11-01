@@ -6,20 +6,19 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.redis.commands;
-
 import java.sql.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import net.hasor.dbvisitor.adapter.redis.AbstractJdbcTest;
 import net.hasor.dbvisitor.adapter.redis.RedisCommandInterceptor;
 import redis.clients.jedis.commands.ScriptingKeyCommands;
 import redis.clients.jedis.commands.ScriptingKeyBinaryCommands;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class EvalCommandTest extends AbstractJdbcTest {
-    @After
+    @AfterEach
     public void reset() {
         RedisCommandInterceptor.resetInterceptor();
     }

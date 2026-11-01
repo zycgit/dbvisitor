@@ -6,9 +6,8 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.feature.naming;
-
 import java.sql.SQLException;
-import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 
 /** A quoted lowercase table beside the standard uppercase USER_INFO fixture. */
 public abstract class QuotedLowercaseTableSupport extends IdentifierQuotingCase {
@@ -35,7 +34,7 @@ public abstract class QuotedLowercaseTableSupport extends IdentifierQuotingCase 
         this.quotedTableCreated = true;
     }
 
-    @After
+    @AfterEach
     public void closeQuotedTable() throws SQLException {
         if (this.quotedTableCreated) {
             this.jdbcTemplate.executeUpdate("DROP TABLE " + qualified("user_info"));

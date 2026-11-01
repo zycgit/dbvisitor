@@ -16,8 +16,8 @@ import java.util.UUID;
 import javax.sql.DataSource;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.transaction.support.LocalTransactionManager;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /** Nested transaction behavior when the driver cannot release savepoints. */

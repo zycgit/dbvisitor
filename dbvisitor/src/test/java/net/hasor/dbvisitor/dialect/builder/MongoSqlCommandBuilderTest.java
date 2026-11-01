@@ -20,11 +20,12 @@ import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
 import net.hasor.dbvisitor.lambda.GeneratedKeyStrategy;
 import net.hasor.dbvisitor.lambda.core.OrderType;
 import net.hasor.dbvisitor.types.SqlArg;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import org.junit.jupiter.api.Assertions;
 
 public class MongoSqlCommandBuilderTest {
     @Test
@@ -54,12 +55,14 @@ public class MongoSqlCommandBuilderTest {
         assertFalse(dialect.supportDuplicateStrategy(Arrays.asList("tenant", "id"), Collections.singletonList("id"), Collections.emptyList(), DuplicateKeyStrategy.Update));
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void testConflictRequiresCompletePrimaryKey() throws SQLException {
-        MongoDialect builder = new MongoDialect();
-        builder.setTable(null, null, "test");
-        builder.addInsert("id", 1, null);
-        builder.buildInsert(false, Arrays.asList("tenant", "id"), 1, Collections.emptyList(), DuplicateKeyStrategy.Update, GeneratedKeyStrategy.OneByOne);
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
+            MongoDialect builder = new MongoDialect();
+            builder.setTable(null, null, "test");
+            builder.addInsert("id", 1, null);
+            builder.buildInsert(false, Arrays.asList("tenant", "id"), 1, Collections.emptyList(), DuplicateKeyStrategy.Update, GeneratedKeyStrategy.OneByOne);
+        });
     }
 
     @Test
@@ -321,20 +324,24 @@ public class MongoSqlCommandBuilderTest {
         assertEquals(0, builder.buildSelect(false).getArgs().length);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void testEmptyDeleteRequiresOptIn() throws SQLException {
-        SqlCommandBuilder builder = new MongoDialect().newBuilder();
-        builder.setTable(null, null, "test");
-        builder.addConditionGroup(ConditionLogic.AND, group -> group.addRawCondition(ConditionLogic.AND, new BoundSql.BoundSqlObj("{}")));
-        builder.buildDelete(false, false);
+        Assertions.assertThrows(IllegalStateException.class, () -> {
+            SqlCommandBuilder builder = new MongoDialect().newBuilder();
+            builder.setTable(null, null, "test");
+            builder.addConditionGroup(ConditionLogic.AND, group -> group.addRawCondition(ConditionLogic.AND, new BoundSql.BoundSqlObj("{}")));
+            builder.buildDelete(false, false);
+        });
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void testEmptyUpdateRequiresOptIn() throws SQLException {
-        SqlCommandBuilder builder = new MongoDialect().newBuilder();
-        builder.setTable(null, null, "test");
-        builder.addUpdateSet("age", 20, null);
-        builder.buildUpdate(false, false);
+        Assertions.assertThrows(IllegalStateException.class, () -> {
+            SqlCommandBuilder builder = new MongoDialect().newBuilder();
+            builder.setTable(null, null, "test");
+            builder.addUpdateSet("age", 20, null);
+            builder.buildUpdate(false, false);
+        });
     }
 
     @Test

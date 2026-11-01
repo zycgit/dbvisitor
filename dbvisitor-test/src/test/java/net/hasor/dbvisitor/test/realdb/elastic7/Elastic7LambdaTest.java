@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic7;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
@@ -25,10 +24,10 @@ import net.hasor.dbvisitor.test.realdb.elastic7.material.complex.ComplexOrder;
 import net.hasor.dbvisitor.test.realdb.elastic7.material.complex.OrderItem;
 import net.hasor.dbvisitor.test.realdb.elastic7.material.user.UserInfo1BaseMapper;
 import net.hasor.dbvisitor.test.realdb.elastic7.material.user.UserInfo1a;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class Elastic7LambdaTest extends AdapterCase {
     @Override
@@ -36,7 +35,7 @@ public class Elastic7LambdaTest extends AdapterCase {
         return Elastic7Profile.INSTANCE;
     }
 
-    @Before
+    @BeforeEach
     public void before() throws SQLException {
         try (Connection c = newAdapterConnection()) {
             JdbcTemplate jdbc = new JdbcTemplate(c);
@@ -58,7 +57,7 @@ public class Elastic7LambdaTest extends AdapterCase {
         }
     }
 
-    @After
+    @AfterEach
     public void after() throws SQLException {
         before();
     }

@@ -6,26 +6,25 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis.feature.write;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.test.realdb.redis.api.jdbc.RedisJdbcFixture;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RedisLongExpirationTest {
     private final RedisJdbcFixture fixture = new RedisJdbcFixture();
     private       JdbcTemplate     jdbc;
 
-    @Before
+    @BeforeEach
     public void openFixture() throws SQLException {
         this.jdbc = this.fixture.open();
     }
 
-    @After
+    @AfterEach
     public void closeFixture() throws SQLException {
         this.fixture.close();
     }

@@ -6,13 +6,12 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlRefMapperParameterCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class MilvusXmlRefMapperParameterTest extends XmlRefMapperParameterCase {
     private final MilvusXmlRefFixture fixture = new MilvusXmlRefFixture();
@@ -23,14 +22,14 @@ public class MilvusXmlRefMapperParameterTest extends XmlRefMapperParameterCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open();
         initData();
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void createRefMapper() throws Exception {
         this.dao = this.fixture.mapper();
     }
@@ -52,7 +51,7 @@ public class MilvusXmlRefMapperParameterTest extends XmlRefMapperParameterCase {
         throw new IllegalArgumentException("Unknown fixture ordering: " + field);
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws Exception {
         this.fixture.close();
     }

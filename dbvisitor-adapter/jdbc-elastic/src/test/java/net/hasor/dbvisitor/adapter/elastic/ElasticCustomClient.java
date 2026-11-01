@@ -6,18 +6,17 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.elastic;
-
 import java.lang.reflect.InvocationHandler;
 import java.util.Map;
 import org.elasticsearch.client.RestClient;
 import org.mockito.Answers;
-import org.powermock.api.mockito.PowerMockito;
+import org.mockito.Mockito;
 
 public class ElasticCustomClient implements CustomElastic {
 
     @Override
     public RestClient createElasticClient(String jdbcUrl, Map<String, String> props) {
-        return PowerMockito.mock(RestClient.class, invocation -> {
+        return Mockito.mock(RestClient.class, invocation -> {
             if (!"performRequest".equals(invocation.getMethod().getName())) {
                 return Answers.RETURNS_DEFAULTS.answer(invocation);
             }

@@ -6,17 +6,16 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.redis.commands;
-
 import java.sql.*;
 import net.hasor.dbvisitor.adapter.redis.AbstractJdbcTest;
 import net.hasor.dbvisitor.adapter.redis.JedisConn;
 import net.hasor.dbvisitor.adapter.redis.RedisCommandInterceptor;
 import net.hasor.dbvisitor.driver.MetadataSupport;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import redis.clients.jedis.commands.DatabaseCommands;
 import redis.clients.jedis.exceptions.JedisDataException;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class RedisMetadataTest extends AbstractJdbcTest {
     @Test
@@ -30,7 +29,7 @@ public class RedisMetadataTest extends AbstractJdbcTest {
         }
     }
 
-    @After
+    @AfterEach
     public void resetInterceptor() {
         RedisCommandInterceptor.resetInterceptor();
     }

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.feature.parameter;
-
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Date;
@@ -21,8 +20,8 @@ import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.handler.number.IntegerTypeHandler;
 import net.hasor.dbvisitor.types.handler.string.StringTypeHandler;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @NxnContract
 public abstract class JdbcExplicitTypeParameterCase extends JdbcParameterSupport {

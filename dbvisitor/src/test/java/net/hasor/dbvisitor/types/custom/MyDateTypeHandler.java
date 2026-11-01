@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.types.custom;
-
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;

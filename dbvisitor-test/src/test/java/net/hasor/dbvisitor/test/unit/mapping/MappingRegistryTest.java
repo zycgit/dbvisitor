@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.unit.mapping;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
@@ -22,8 +21,8 @@ import net.hasor.dbvisitor.test.contract.material.model.ExplicitAnnotatedEntity;
 import net.hasor.dbvisitor.test.contract.material.model.PlainEntity;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.contract.material.model.registry.*;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MappingRegistryTest {
     @Test

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.feature.type;
-
 import java.io.ByteArrayInputStream;
 import java.sql.SQLException;
 import java.util.Map;
@@ -14,8 +13,8 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 @NxnContract
 public abstract class BinaryTypeJdbcCase extends TypeJdbcCommandSupport {
@@ -115,7 +114,7 @@ public abstract class BinaryTypeJdbcCase extends TypeJdbcCommandSupport {
         assertNull(value(row, "blob_value"));
 
         for (String column : new String[] { "binary_value", "varbinary_value", "longvarbinary_value", "blob_value" }) {
-            assertNull(column, jdbcTemplate.queryForObject(selectCommand("binary_types_explicit_test", column), selectParameters(id), byte[].class));
+            assertNull(jdbcTemplate.queryForObject(selectCommand("binary_types_explicit_test", column), selectParameters(id), byte[].class), column);
         }
     }
 

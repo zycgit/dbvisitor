@@ -6,14 +6,13 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.api.adapter.RedisJsonTypeFixture;
 import net.hasor.dbvisitor.test.contract.feature.type.JsonAnnotatedBeanJdbcCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class RedisJsonAnnotatedBeanJdbcTest extends JsonAnnotatedBeanJdbcCase {
     private final RedisJsonTypeFixture fixture = new RedisJsonTypeFixture();
@@ -24,7 +23,7 @@ public class RedisJsonAnnotatedBeanJdbcTest extends JsonAnnotatedBeanJdbcCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open();
     }
@@ -49,7 +48,7 @@ public class RedisJsonAnnotatedBeanJdbcTest extends JsonAnnotatedBeanJdbcCase {
         return this.fixture.storedJson(id);
     }
 
-    @After
+    @AfterEach
     public void closeFixture() throws SQLException {
         this.fixture.close();
     }

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
@@ -15,8 +14,8 @@ import net.hasor.dbvisitor.test.contract.api.vector_query.VectorTypeMappingCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
 import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 /** Common vector assertions executed with Milvus-native values and metric indexes. */
 @NxnConcurrent
@@ -29,7 +28,7 @@ public class MilvusVectorTypeMappingTest extends VectorTypeMappingCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws IOException, SQLException {
         this.lambdaTemplate = this.fixture.open();
     }
@@ -49,7 +48,7 @@ public class MilvusVectorTypeMappingTest extends VectorTypeMappingCase {
         return this.fixture.rangeBound(metric, distance);
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws SQLException {
         this.fixture.close();
     }

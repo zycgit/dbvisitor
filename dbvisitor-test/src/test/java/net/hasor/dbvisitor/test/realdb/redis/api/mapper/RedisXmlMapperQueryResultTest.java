@@ -6,14 +6,13 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
-
 import java.sql.SQLException;
 import java.util.Map;
 import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperQueryResultCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class RedisXmlMapperQueryResultTest extends XmlMapperQueryResultCase {
     private final RedisEntityFixture fixture = new RedisEntityFixture();
@@ -24,13 +23,13 @@ public class RedisXmlMapperQueryResultTest extends XmlMapperQueryResultCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open();
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void createXmlMapperSession() throws Exception {
         this.session = this.fixture.session(newConfiguration(), "/mapper/redis/CrudAccessMapper.xml");
         for (int i = 1; i <= 5; i++) {
@@ -43,7 +42,7 @@ public class RedisXmlMapperQueryResultTest extends XmlMapperQueryResultCase {
         return Map.of("ELEMENT", "XmlCrud1", "SCORE", (double) (baseId() + 1));
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws SQLException {
         this.fixture.close();
     }

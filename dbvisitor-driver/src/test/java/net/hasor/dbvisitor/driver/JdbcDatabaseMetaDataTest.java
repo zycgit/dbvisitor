@@ -6,12 +6,12 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.driver;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import java.sql.*;
 import java.util.Properties;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /** Comprehensive tests for JdbcDatabaseMetaData — covers all methods returning defaults, empty results, and feature queries. */
 public class JdbcDatabaseMetaDataTest {
@@ -19,7 +19,7 @@ public class JdbcDatabaseMetaDataTest {
     private JdbcConnection   conn;
     private DatabaseMetaData md;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         Class.forName("net.hasor.dbvisitor.driver.JdbcDriver");
         Properties props = new Properties();
@@ -28,7 +28,7 @@ public class JdbcDatabaseMetaDataTest {
         md = conn.getMetaData();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         if (conn != null && !conn.isClosed()) {
             conn.close();

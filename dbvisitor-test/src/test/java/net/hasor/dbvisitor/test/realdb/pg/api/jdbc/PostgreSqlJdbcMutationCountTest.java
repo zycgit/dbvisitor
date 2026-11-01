@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.pg.api.jdbc;
-
 import java.sql.SQLException;
 import java.util.Date;
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcMutationCountCase;
@@ -15,8 +14,8 @@ import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.PostgreSqlProfile;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PostgreSqlJdbcMutationCountTest extends JdbcMutationCountCase {
     @Test

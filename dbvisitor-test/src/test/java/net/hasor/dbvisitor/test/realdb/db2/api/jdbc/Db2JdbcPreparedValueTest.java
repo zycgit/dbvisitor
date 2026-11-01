@@ -6,13 +6,13 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.db2.api.jdbc;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import net.hasor.dbvisitor.test.contract.feature.parameter.JdbcPreparedValueCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Db2Profile;
+import org.junit.jupiter.api.AfterEach;
 
 public class Db2JdbcPreparedValueTest extends JdbcPreparedValueCase {
     @Override
@@ -33,6 +33,7 @@ public class Db2JdbcPreparedValueTest extends JdbcPreparedValueCase {
     }
 
     @Override
+    @AfterEach
     public void cleanupValues() throws SQLException {
         if (this.connection != null) {
             try (Connection closing = this.connection; Statement statement = closing.createStatement()) {

@@ -17,10 +17,10 @@ import net.hasor.dbvisitor.dialect.provider.MilvusDialect;
 import net.hasor.dbvisitor.lambda.core.MetricType;
 import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.types.SqlArg;
-import org.junit.Test;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class MilvusVectorDialectTest {

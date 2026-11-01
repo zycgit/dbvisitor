@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.nxn.report;
-
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,7 +16,6 @@ import java.util.stream.Stream;
 
 import com.google.gson.Gson;
 import net.hasor.dbvisitor.test.nxn.config.NxnContext;
-import org.junit.runner.Description;
 
 /** One observed JUnit execution; declarations alone never produce a passing result. */
 public final class NxnTestResult {
@@ -30,7 +28,7 @@ public final class NxnTestResult {
     public String outcome;
     public String reason;
 
-    public static void write(String env, Description description, String capability, String outcome, String reason) throws Exception {
+    public static void write(String env, Class<?> testClass, String method, String capability, String outcome, String reason) throws Exception {
         Path resultDir = NxnContext.results();
         if (resultDir == null) {
             return;
@@ -39,8 +37,8 @@ public final class NxnTestResult {
         result.runId = NxnContext.executionId();
         result.env = env;
         result.fingerprint = Fingerprint.VALUE;
-        result.testClass = description.getClassName();
-        result.method = description.getMethodName();
+        result.testClass = testClass.getName();
+        result.method = method;
         result.capability = capability;
         result.outcome = outcome;
         result.reason = reason;

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.milvus.commands;
-
 import java.sql.*;
 import java.util.*;
 import com.google.gson.JsonObject;
@@ -24,10 +23,10 @@ import net.hasor.dbvisitor.adapter.milvus.MilvusCommandInterceptor;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MilvusWriteTest extends AbstractJdbcTest {
     private final List<List<JsonObject>> pages  = new ArrayList<>();
@@ -64,7 +63,7 @@ public class MilvusWriteTest extends AbstractJdbcTest {
         return new JdbcDriver().connect("jdbc:dbvisitor:milvus://test:19530", props);
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         MilvusCommandInterceptor.resetInterceptor();
     }
@@ -132,8 +131,8 @@ public class MilvusWriteTest extends AbstractJdbcTest {
                 ps.executeUpdate();
                 fail("Expected failure");
             } catch (SQLException e) {
-                assertTrue(e.getMessage(), e.getMessage().contains("confirmedPages=1, confirmedRows=2"));
-                assertTrue(e.getMessage(), e.getMessage().contains("not retried"));
+                assertTrue(e.getMessage().contains("confirmedPages=1, confirmedRows=2"), e.getMessage());
+                assertTrue(e.getMessage().contains("not retried"), e.getMessage());
             }
             assertEquals(2, pages.size());
         }
@@ -201,7 +200,7 @@ public class MilvusWriteTest extends AbstractJdbcTest {
                 ps.executeUpdate();
                 fail("Expected cancellation");
             } catch (SQLException e) {
-                assertTrue(e.getMessage(), e.getMessage().toLowerCase(Locale.ROOT).contains("cancel"));
+                assertTrue(e.getMessage().toLowerCase(Locale.ROOT).contains("cancel"), e.getMessage());
             }
             assertTrue(pages.isEmpty());
         }
@@ -229,8 +228,8 @@ public class MilvusWriteTest extends AbstractJdbcTest {
                 ps.executeUpdate();
                 fail("Expected input failure");
             } catch (SQLException e) {
-                assertTrue(e.getMessage(), e.getMessage().contains("phase=read, confirmedPages=1, confirmedRows=2"));
-                assertTrue(e.getMessage(), e.getMessage().contains("input failed"));
+                assertTrue(e.getMessage().contains("phase=read, confirmedPages=1, confirmedRows=2"), e.getMessage());
+                assertTrue(e.getMessage().contains("input failed"), e.getMessage());
             }
             assertEquals(1, pages.size());
         }

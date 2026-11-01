@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus_cloud;
-
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -22,14 +21,14 @@ import net.hasor.dbvisitor.mapper.SimpleMapper;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CloudMapperTest extends CloudTestSupport {
     private String table;
 
-    @Before
+    @BeforeEach
     public void prepareUsers() throws Exception {
         this.table = createCollection("""
                 id INT64 PRIMARY KEY, name VARCHAR(128) WITH(enable_analyzer=true),

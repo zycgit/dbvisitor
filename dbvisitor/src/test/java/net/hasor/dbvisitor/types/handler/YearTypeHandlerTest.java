@@ -21,7 +21,7 @@ import net.hasor.dbvisitor.types.handler.time.IntegerAsYearTypeHandler;
 import net.hasor.dbvisitor.types.handler.time.SqlTimestampAsYearTypeHandler;
 import net.hasor.dbvisitor.types.handler.time.StringAsYearTypeHandler;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class YearTypeHandlerTest {
     @Test

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -17,8 +16,8 @@ import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcPairsQueryCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
 import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 @NxnConcurrent
 public class MilvusJdbcPairsQueryTest extends JdbcPairsQueryCase {
@@ -30,7 +29,7 @@ public class MilvusJdbcPairsQueryTest extends JdbcPairsQueryCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         Connection connection = this.fixture.open();
         this.jdbcTemplate = new JdbcTemplate(connection, new MappingRegistry(), null);
@@ -58,7 +57,7 @@ public class MilvusJdbcPairsQueryTest extends JdbcPairsQueryCase {
         return ordered ? sql + " ORDER BY v <-> [0, 0] LIMIT 3 WITH (metric_type=L2)" : sql;
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws SQLException {
         try {
             if (this.jdbcTemplate != null) {

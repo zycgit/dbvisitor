@@ -6,17 +6,16 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.driver;
-
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.time.*;
 import java.util.*;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /** Exercise JDBC entry points with intercepted adapter requests/responses. */
 public class JdbcBoundaryRegressionTest {
@@ -28,7 +27,7 @@ public class JdbcBoundaryRegressionTest {
         void respond(AdapterRequest request, AdapterReceive receive) throws SQLException;
     }
 
-    @Before
+    @BeforeEach
     public void open() throws Exception {
         Class.forName("net.hasor.dbvisitor.driver.JdbcDriver");
         script = (request, receive) -> receive.responseUpdateCount(request, 1);
@@ -50,7 +49,7 @@ public class JdbcBoundaryRegressionTest {
         connection = new JdbcConnection("jdbc:dbvisitor:boundary-regression://localhost", properties);
     }
 
-    @After
+    @AfterEach
     public void close() {
         connection.close();
         AdapterManager.register("boundary-regression", new MockAdapterFactory());

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.unit.mapping;
-
 import java.sql.Types;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
@@ -15,8 +14,8 @@ import net.hasor.dbvisitor.test.contract.material.handler.UpperCaseTypeHandler;
 import net.hasor.dbvisitor.test.contract.material.model.annotation.JdbcTypeUser;
 import net.hasor.dbvisitor.test.contract.material.model.annotation.SpecialJavaTypeUser;
 import net.hasor.dbvisitor.test.contract.material.model.annotation.TypeHandlerUser;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AnnotationTypeHandlerTest {
     @Test

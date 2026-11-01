@@ -8,7 +8,7 @@
 package net.hasor.dbvisitor.jdbc.mapper;
 import java.sql.ResultSet;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class BasicRowMapperTest {
     @Test

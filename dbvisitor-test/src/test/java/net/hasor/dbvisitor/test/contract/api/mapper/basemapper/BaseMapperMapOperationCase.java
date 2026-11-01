@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.mapper.basemapper;
-
 import java.sql.SQLException;
 import java.util.*;
 import net.hasor.dbvisitor.mapper.BaseMapper;
@@ -15,15 +14,15 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 @NxnContract
 public abstract class BaseMapperMapOperationCase extends AbstractNxnContractTest {
     private BaseMapper<UserInfo> mapper;
 
-    @Before
+    @BeforeEach
     public void createBaseMapper() throws SQLException {
         this.mapper = newSession().createBaseMapper(UserInfo.class);
     }

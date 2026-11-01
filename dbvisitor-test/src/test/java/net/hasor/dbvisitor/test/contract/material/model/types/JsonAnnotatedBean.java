@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.material.model.types;
-
 import java.util.Objects;
 import net.hasor.dbvisitor.types.BindTypeHandler;
 import net.hasor.dbvisitor.types.handler.json.JsonTypeHandler;

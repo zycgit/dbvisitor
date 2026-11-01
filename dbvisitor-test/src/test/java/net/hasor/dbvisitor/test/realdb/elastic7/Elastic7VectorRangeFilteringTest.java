@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic7;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
@@ -14,8 +13,8 @@ import net.hasor.dbvisitor.test.contract.api.vector_query.VectorRangeFilteringCa
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
 import net.hasor.dbvisitor.test.realdb.elastic7.material.ElasticVectorFixture;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class Elastic7VectorRangeFilteringTest extends VectorRangeFilteringCase {
     private final ElasticVectorFixture fixture = new ElasticVectorFixture();
@@ -26,7 +25,7 @@ public class Elastic7VectorRangeFilteringTest extends VectorRangeFilteringCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws IOException, SQLException {
         lambdaTemplate = fixture.open();
     }
@@ -36,7 +35,7 @@ public class Elastic7VectorRangeFilteringTest extends VectorRangeFilteringCase {
         return vector;
     }
 
-    @After
+    @AfterEach
     public void closeFixture() throws SQLException {
         fixture.close();
     }

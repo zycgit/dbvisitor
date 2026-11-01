@@ -6,19 +6,18 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic7;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class Elastic7SearchTest {
     private static final String ES_URL = "jdbc:dbvisitor:elastic://127.0.0.1:2921?indexRefresh=true";
 
-    @Before
+    @BeforeEach
     public void before() throws Exception {
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
             try {
@@ -45,7 +44,7 @@ public class Elastic7SearchTest {
         }
     }
 
-    @org.junit.After
+    @org.junit.jupiter.api.AfterEach
     public void after() throws Exception {
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
             try {
@@ -74,7 +73,7 @@ public class Elastic7SearchTest {
                 while (rs.next()) {
                     count++;
                 }
-                assertEquals("Expected 3 results", 3, count);
+                assertEquals(3, count, "Expected 3 results");
             }
         }
     }
@@ -87,9 +86,9 @@ public class Elastic7SearchTest {
                 while (rs.next()) {
                     count++;
                     String city = rs.getString("city");
-                    assertTrue("Unexpected city: " + city, city.contains("York"));
+                    assertTrue(city.contains("York"), "Unexpected city: " + city);
                 }
-                assertEquals("Expected 2 results for 'York'", 2, count);
+                assertEquals(2, count, "Expected 2 results for 'York'");
             }
         }
     }
@@ -99,11 +98,11 @@ public class Elastic7SearchTest {
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
             try (ResultSet rs = s.executeQuery("POST /test_search/_search { \"from\": 0, \"size\": 1, \"sort\": [{\"age\": \"asc\"}] }")) {
                 if (rs.next()) {
-                    assertEquals("Expected Bob as first result", "Bob", rs.getString("name"));
+                    assertEquals("Bob", rs.getString("name"), "Expected Bob as first result");
                 } else {
                     fail("Expected 1 result");
                 }
-                assertFalse("Expected only 1 result", rs.next());
+                assertFalse(rs.next(), "Expected only 1 result");
             }
         }
     }
@@ -114,7 +113,7 @@ public class Elastic7SearchTest {
             try (ResultSet rs = s.executeQuery("POST /test_search/_count { \"query\": { \"match_all\": {} } }")) {
                 if (rs.next()) {
                     long count = rs.getLong("COUNT");
-                    assertEquals("Expected count 3", 3, count);
+                    assertEquals(3, count, "Expected count 3");
                 } else {
                     fail("No result for count");
                 }
@@ -123,7 +122,7 @@ public class Elastic7SearchTest {
             try (ResultSet rs = s.executeQuery("POST /test_search/_count { \"query\": { \"match\": { \"city\": \"York\" } } }")) {
                 if (rs.next()) {
                     long count = rs.getLong("COUNT");
-                    assertEquals("Expected count 2 for 'York'", 2, count);
+                    assertEquals(2, count, "Expected count 2 for 'York'");
                 } else {
                     fail("No result for count");
                 }
@@ -148,7 +147,7 @@ public class Elastic7SearchTest {
                 try (ResultSet rs = s.getResultSet()) {
                     if (rs.next()) {
                         System.out.println("Result 1 ID: " + rs.getString("_ID"));
-                        assertEquals("First result should be doc 1", "1", rs.getString("_ID"));
+                        assertEquals("1", rs.getString("_ID"), "First result should be doc 1");
                     } else {
                         fail("First result set empty");
                     }
@@ -158,7 +157,7 @@ public class Elastic7SearchTest {
                     try (ResultSet rs = s.getResultSet()) {
                         if (rs.next()) {
                             System.out.println("Result 2 ID: " + rs.getString("_ID"));
-                            assertEquals("Second result should be doc 2", "2", rs.getString("_ID"));
+                            assertEquals("2", rs.getString("_ID"), "Second result should be doc 2");
                         } else {
                             fail("Second result set empty");
                         }
@@ -179,22 +178,22 @@ public class Elastic7SearchTest {
             String sql1 = "/*+ overwrite_find_limit=1; overwrite_find_skip=0 */ POST /test_search/_search { \"sort\": [{\"age\": \"asc\"}] }";
             try (ResultSet rs = s.executeQuery(sql1)) {
                 if (rs.next()) {
-                    assertEquals("Expected Bob as first result", "Bob", rs.getString("name"));
+                    assertEquals("Bob", rs.getString("name"), "Expected Bob as first result");
                 } else {
                     fail("Expected 1 result");
                 }
-                assertFalse("Expected only 1 result", rs.next());
+                assertFalse(rs.next(), "Expected only 1 result");
             }
 
             // Page 2: limit=1, skip=1
             String sql2 = "/*+ overwrite_find_limit=1; overwrite_find_skip=1 */ POST /test_search/_search { \"sort\": [{\"age\": \"asc\"}] }";
             try (ResultSet rs = s.executeQuery(sql2)) {
                 if (rs.next()) {
-                    assertEquals("Expected Alice as second result", "Alice", rs.getString("name"));
+                    assertEquals("Alice", rs.getString("name"), "Expected Alice as second result");
                 } else {
                     fail("Expected 1 result");
                 }
-                assertFalse("Expected only 1 result", rs.next());
+                assertFalse(rs.next(), "Expected only 1 result");
             }
         }
     }
@@ -221,11 +220,11 @@ public class Elastic7SearchTest {
             if (hasResult) {
                 try (ResultSet rs = s.getResultSet()) {
                     if (rs.next()) {
-                        assertEquals("Expected Bob in first msearch result", "Bob", rs.getString("name"));
+                        assertEquals("Bob", rs.getString("name"), "Expected Bob in first msearch result");
                     } else {
                         fail("Expected result for first query");
                     }
-                    assertFalse("Expected only 1 row in first result set", rs.next());
+                    assertFalse(rs.next(), "Expected only 1 row in first result set");
                 }
             } else {
                 fail("Expected first result set");
@@ -234,11 +233,11 @@ public class Elastic7SearchTest {
             if (s.getMoreResults()) {
                 try (ResultSet rs = s.getResultSet()) {
                     if (rs.next()) {
-                        assertEquals("Expected Bob in second msearch result", "Bob", rs.getString("name"));
+                        assertEquals("Bob", rs.getString("name"), "Expected Bob in second msearch result");
                     } else {
                         fail("Expected result for second query");
                     }
-                    assertFalse("Expected only 1 row in second result set", rs.next());
+                    assertFalse(rs.next(), "Expected only 1 row in second result set");
                 }
             } else {
                 fail("Expected second result set");
@@ -252,7 +251,7 @@ public class Elastic7SearchTest {
             try (ResultSet rs = s.executeQuery("HEAD /test_search")) {
                 if (rs.next()) {
                     int status = rs.getInt("STATUS");
-                    assertEquals("Expected status 200", 200, status);
+                    assertEquals(200, status, "Expected status 200");
                 } else {
                     fail("Expected result for HEAD request");
                 }
@@ -261,7 +260,7 @@ public class Elastic7SearchTest {
             try (ResultSet rs = s.executeQuery("HEAD /test_search_not_exist")) {
                 if (rs.next()) {
                     int status = rs.getInt("STATUS");
-                    assertEquals("Expected status 404", 404, status);
+                    assertEquals(404, status, "Expected status 404");
                 } else {
                     fail("Expected result for HEAD request");
                 }
@@ -279,8 +278,8 @@ public class Elastic7SearchTest {
                     String name = rs.getString("name");
                     String id = rs.getString("_ID");
 
-                    assertEquals("Expected name User99", "User99", name);
-                    assertEquals("Expected _id 99", "99", id);
+                    assertEquals("User99", name, "Expected name User99");
+                    assertEquals("99", id, "Expected _id 99");
                 } else {
                     fail("Expected 1 result, got 0");
                 }
@@ -299,8 +298,8 @@ public class Elastic7SearchTest {
                 if (rs.next()) {
                     String name = rs.getString("name");
                     int value = rs.getInt("value");
-                    assertEquals("Expected name User99", "User99", name);
-                    assertEquals("Expected value 99", 99, value);
+                    assertEquals("User99", name, "Expected name User99");
+                    assertEquals(99, value, "Expected value 99");
                 } else {
                     fail("Expected 1 result, got 0");
                 }
@@ -318,7 +317,7 @@ public class Elastic7SearchTest {
             try (ResultSet rs = s.executeQuery(sql)) {
                 if (rs.next()) {
                     boolean matched = rs.getBoolean("matched");
-                    assertTrue("Expected matched=true", matched);
+                    assertTrue(matched, "Expected matched=true");
                 } else {
                     fail("Expected 1 result, got 0");
                 }

@@ -6,8 +6,7 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.elastic.commands;
-
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -27,9 +26,9 @@ import org.apache.http.util.EntityUtils;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
-import org.junit.After;
-import org.junit.Before;
-import org.powermock.api.mockito.PowerMockito;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.mockito.Mockito;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,7 +42,7 @@ public abstract class AbstractElasticCommandTest extends AbstractJdbcTest {
     protected final List<Request> requests  = new ArrayList<>();
     private final Deque<Object>   responses = new ArrayDeque<>();
 
-    @Before
+    @BeforeEach
     public void installCommandInterceptor() {
         ElasticCommandInterceptor.resetInterceptor();
         ElasticCommandInterceptor.addInterceptor(RestClient.class, (proxy, method, args) -> {
@@ -52,7 +51,7 @@ public abstract class AbstractElasticCommandTest extends AbstractJdbcTest {
                 return response(200, "{\"version\":{\"number\":\"7.17.10\"}}");
             }
             requests.add(request);
-            assertFalse("Unexpected SDK request: " + request, responses.isEmpty());
+            assertFalse(responses.isEmpty(), "Unexpected SDK request: " + request);
             Object next = responses.removeFirst();
             if (next instanceof IOException) {
                 throw (IOException) next;
@@ -61,10 +60,10 @@ public abstract class AbstractElasticCommandTest extends AbstractJdbcTest {
         });
     }
 
-    @After
+    @AfterEach
     public void verifyResponsesConsumedAndReset() {
         try {
-            assertTrue("Expected SDK requests were not executed", responses.isEmpty());
+            assertTrue(responses.isEmpty(), "Expected SDK requests were not executed");
         } finally {
             ElasticCommandInterceptor.resetInterceptor();
         }
@@ -83,7 +82,7 @@ public abstract class AbstractElasticCommandTest extends AbstractJdbcTest {
     }
 
     protected Response response(int status, String body) {
-        Response response = PowerMockito.mock(Response.class);
+        Response response = Mockito.mock(Response.class);
         when(response.getStatusLine()).thenReturn(new BasicStatusLine(HttpVersion.HTTP_1_1, status, "Test response"));
         when(response.getRequestLine()).thenReturn(new BasicRequestLine("GET", "/books", HttpVersion.HTTP_1_1));
         when(response.getHost()).thenReturn(new HttpHost("localhost", 9200));

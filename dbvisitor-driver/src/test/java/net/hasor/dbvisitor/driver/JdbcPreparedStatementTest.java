@@ -6,7 +6,7 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.driver;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import java.io.ByteArrayInputStream;
 import java.io.StringReader;
 import java.math.BigDecimal;
@@ -14,18 +14,19 @@ import java.net.URL;
 import java.sql.*;
 import java.util.Calendar;
 import java.util.Properties;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import net.hasor.dbvisitor.driver.lob.JdbcBob;
 import net.hasor.dbvisitor.driver.lob.JdbcCob;
+import org.junit.jupiter.api.Assertions;
 
 /** Comprehensive tests for JdbcPreparedStatement — covers all setXxx, execute, clearing, and metadata. */
 public class JdbcPreparedStatementTest {
 
     private JdbcConnection conn;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         Class.forName("net.hasor.dbvisitor.driver.JdbcDriver");
         Properties props = new Properties();
@@ -33,7 +34,7 @@ public class JdbcPreparedStatementTest {
         conn = new JdbcConnection("jdbc:dbvisitor:mock://localhost", props);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         if (conn != null && !conn.isClosed()) {
             conn.close();
@@ -506,33 +507,43 @@ public class JdbcPreparedStatementTest {
     }
 
     // ==================== unsupported ====================
-    @Test(expected = SQLFeatureNotSupportedException.class)
+    @Test
     public void setRowId_unsupported() throws Exception {
-        PreparedStatement ps = conn.prepareStatement("INSERT INTO test VALUES (?)");
-        ps.setRowId(1, null);
+        Assertions.assertThrows(SQLFeatureNotSupportedException.class, () -> {
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO test VALUES (?)");
+            ps.setRowId(1, null);
+        });
     }
 
-    @Test(expected = SQLFeatureNotSupportedException.class)
+    @Test
     public void setSQLXML_unsupported() throws Exception {
-        PreparedStatement ps = conn.prepareStatement("INSERT INTO test VALUES (?)");
-        ps.setSQLXML(1, null);
+        Assertions.assertThrows(SQLFeatureNotSupportedException.class, () -> {
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO test VALUES (?)");
+            ps.setSQLXML(1, null);
+        });
     }
 
-    @Test(expected = SQLFeatureNotSupportedException.class)
+    @Test
     public void setRef_unsupported() throws Exception {
-        PreparedStatement ps = conn.prepareStatement("INSERT INTO test VALUES (?)");
-        ps.setRef(1, null);
+        Assertions.assertThrows(SQLFeatureNotSupportedException.class, () -> {
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO test VALUES (?)");
+            ps.setRef(1, null);
+        });
     }
 
-    @Test(expected = SQLFeatureNotSupportedException.class)
+    @Test
     public void addBatch_unsupported() throws Exception {
-        PreparedStatement ps = conn.prepareStatement("INSERT INTO test VALUES (?)");
-        ps.addBatch();
+        Assertions.assertThrows(SQLFeatureNotSupportedException.class, () -> {
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO test VALUES (?)");
+            ps.addBatch();
+        });
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void checkParameterIndex_zero() throws Exception {
-        PreparedStatement ps = conn.prepareStatement("INSERT INTO test VALUES (?)");
-        ps.setInt(0, 42);
+        Assertions.assertThrows(SQLException.class, () -> {
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO test VALUES (?)");
+            ps.setInt(0, 42);
+        });
     }
 }

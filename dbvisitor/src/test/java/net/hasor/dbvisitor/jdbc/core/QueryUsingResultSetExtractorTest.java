@@ -14,7 +14,7 @@ import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.dynamic.args.MapSqlArgSource;
 import net.hasor.dbvisitor.jdbc.core.test.UserNameResultSetExtractor;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class QueryUsingResultSetExtractorTest {
     @Test

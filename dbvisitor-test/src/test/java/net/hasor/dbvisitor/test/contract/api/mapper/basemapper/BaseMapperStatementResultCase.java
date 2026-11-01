@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.mapper.basemapper;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -14,8 +13,8 @@ import net.hasor.cobble.ref.BeanMap;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 @NxnContract
 public abstract class BaseMapperStatementResultCase extends BaseMapperStatementSupport {
@@ -74,7 +73,7 @@ public abstract class BaseMapperStatementResultCase extends BaseMapperStatementS
                     break;
                 }
             }
-            assertTrue("resultType should map " + expected, found);
+            assertTrue(found, "resultType should map " + expected);
         }
 
         assertTrue(queryProjection("queryUserById", mapOf("id", baseId() + 999)).isEmpty());

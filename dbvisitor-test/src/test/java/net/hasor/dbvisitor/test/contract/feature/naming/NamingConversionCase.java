@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.feature.naming;
-
 import java.sql.SQLException;
 import java.util.Date;
 import net.hasor.dbvisitor.dialect.BoundSql;
@@ -16,8 +15,8 @@ import net.hasor.dbvisitor.test.contract.material.model.naming.*;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 @NxnContract
 public abstract class NamingConversionCase extends NamingMappingSupport {
@@ -117,7 +116,7 @@ public abstract class NamingConversionCase extends NamingMappingSupport {
 
         assertEquals(1, rows);
         assertNotNull(loaded.getCreateTime());
-        assertTrue("The mapped create_time value must actually change", loaded.getCreateTime().after(before.getCreateTime()));
+        assertTrue(loaded.getCreateTime().after(before.getCreateTime()), "The mapped create_time value must actually change");
         assertEquals(before.getName(), loaded.getName());
         assertEquals(before.getEmail(), loaded.getEmail());
     }

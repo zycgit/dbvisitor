@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
-
 import java.sql.SQLException;
 import java.util.Locale;
 import java.util.Map;
@@ -14,8 +13,8 @@ import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperDynamicSqlCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class RedisXmlMapperDynamicSqlTest extends XmlMapperDynamicSqlCase {
     private final RedisEntityFixture fixture = new RedisEntityFixture();
@@ -26,13 +25,13 @@ public class RedisXmlMapperDynamicSqlTest extends XmlMapperDynamicSqlCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open();
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void createXmlMapperSession() throws Exception {
         this.jdbcTemplate = this.fixture.open();
         String[] names = { "DynSqlAlice", "DynSqlBob", "DynSqlCarol", "DynSqlDave", "DynSqlEve" };
@@ -67,7 +66,7 @@ public class RedisXmlMapperDynamicSqlTest extends XmlMapperDynamicSqlCase {
         return "DynSqlAlice";
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws SQLException {
         this.fixture.close();
     }

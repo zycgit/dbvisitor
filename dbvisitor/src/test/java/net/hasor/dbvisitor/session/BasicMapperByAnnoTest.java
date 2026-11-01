@@ -16,7 +16,7 @@ import net.hasor.dbvisitor.session.dto.BasicMapperByAnno;
 import net.hasor.dbvisitor.session.dto.UserInfo;
 import net.hasor.dbvisitor.session.dto.UserInfoMap;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class BasicMapperByAnnoTest {
 

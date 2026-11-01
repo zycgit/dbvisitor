@@ -6,12 +6,11 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.driver;
-
 import java.sql.*;
 import java.util.Collections;
 import java.util.Properties;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class JdbcLazyCancellationTest {
     private Connection connect(LegacyConnection adapter) throws SQLException {

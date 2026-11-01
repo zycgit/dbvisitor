@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.feature.keygen;
-
 import java.sql.SQLException;
 import java.util.Date;
 import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyNoneStrictUser;
@@ -15,8 +14,8 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 @NxnContract
 public abstract class AssignedKeyCase extends KeyGenerationSupport {
@@ -57,7 +56,7 @@ public abstract class AssignedKeyCase extends KeyGenerationSupport {
             lambdaTemplate.insert(KeyNoneStrictUser.class).applyEntity(user).executeSumResult();
             fail("Expected missing primary key to be rejected");
         } catch (Exception e) {
-            assertTrue(e.getMessage(), isNotNullMessage(e));
+            assertTrue(isNotNullMessage(e), e.getMessage());
         }
     }
 
@@ -76,7 +75,7 @@ public abstract class AssignedKeyCase extends KeyGenerationSupport {
             lambdaTemplate.insert(KeyNoneUser.class).applyEntity(second).executeSumResult();
             fail("Expected duplicate primary key error");
         } catch (Exception e) {
-            assertTrue(e.getMessage(), isDuplicateKeyMessage(e));
+            assertTrue(isDuplicateKeyMessage(e), e.getMessage());
         }
         KeyNoneUser stored = lambdaTemplate.query(KeyNoneUser.class)//
                 .eq(KeyNoneUser::getId, 66666)//

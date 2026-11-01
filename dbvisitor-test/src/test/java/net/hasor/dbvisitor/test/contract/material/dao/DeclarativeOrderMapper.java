@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.material.dao;
-
 import java.math.BigDecimal;
 import java.util.List;
 import net.hasor.dbvisitor.mapper.*;

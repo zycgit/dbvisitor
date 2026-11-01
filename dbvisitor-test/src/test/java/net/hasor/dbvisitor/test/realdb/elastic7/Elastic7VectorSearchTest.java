@@ -6,16 +6,15 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic7;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Elasticsearch 7 向量搜索测试
@@ -25,7 +24,7 @@ public class Elastic7VectorSearchTest {
     private static final String ES_URL     = "jdbc:dbvisitor:elastic://127.0.0.1:2921?indexRefresh=true";
     private static final String INDEX_NAME = "test_vector_search";
 
-    @Before
+    @BeforeEach
     public void before() throws Exception {
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
             // 清理旧索引
@@ -62,7 +61,7 @@ public class Elastic7VectorSearchTest {
         }
     }
 
-    @org.junit.After
+    @org.junit.jupiter.api.AfterEach
     public void after() throws Exception {
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
             try {
@@ -78,7 +77,7 @@ public class Elastic7VectorSearchTest {
      * 注：ES 7.x 不支持顶层 knn 参数搜索，此测试方法禁用
      */
     @Test
-    @Ignore("Elasticsearch 7 does not support the top-level knn search option; script_score is tested separately")
+    @Disabled("Elasticsearch 7 does not support the top-level knn search option; script_score is tested separately")
     public void testNativeKnnQuery() throws Exception {
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
             String knnQuery = "POST /" + INDEX_NAME + """
@@ -101,8 +100,8 @@ public class Elastic7VectorSearchTest {
                     }
                     count++;
                 }
-                assertEquals("Expected 2 results", 2, count);
-                assertEquals("First result should be doc1", "doc1", firstDocName);
+                assertEquals(2, count, "Expected 2 results");
+                assertEquals("doc1", firstDocName, "First result should be doc1");
             }
         }
     }
@@ -135,9 +134,9 @@ public class Elastic7VectorSearchTest {
                 while (rs.next()) {
                     count++;
                     String name = rs.getString("name");
-                    assertTrue("Result should be doc1 or doc2", "doc1".equals(name) || "doc2".equals(name));
+                    assertTrue("doc1".equals(name) || "doc2".equals(name), "Result should be doc1 or doc2");
                 }
-                assertEquals("Expected 2 results", 2, count);
+                assertEquals(2, count, "Expected 2 results");
             }
         }
     }
@@ -175,10 +174,10 @@ public class Elastic7VectorSearchTest {
                 int count = 0;
                 while (rs.next()) {
                     String category = rs.getString("category");
-                    assertEquals("All results should be in category A", "A", category);
+                    assertEquals("A", category, "All results should be in category A");
                     count++;
                 }
-                assertEquals("Both category A documents must match", 2, count);
+                assertEquals(2, count, "Both category A documents must match");
             }
         }
     }
@@ -215,8 +214,8 @@ public class Elastic7VectorSearchTest {
                     }
                     count++;
                 }
-                assertEquals("Expected three nearest documents", 3, count);
-                assertEquals("First result should be doc1 (closest vector)", "doc1", firstDocName);
+                assertEquals(3, count, "Expected three nearest documents");
+                assertEquals("doc1", firstDocName, "First result should be doc1 (closest vector)");
             }
         }
     }
@@ -251,10 +250,10 @@ public class Elastic7VectorSearchTest {
                     String name = rs.getString("name");
                     // doc1 (1.0, 0.0, 0.0) -> sim 1.0 + 1.0 = 2.0
                     // doc2 cosine similarity is approximately 0.994, giving a score of 1.994.
-                    assertTrue("Result should be doc1 or doc2", "doc1".equals(name) || "doc2".equals(name));
+                    assertTrue("doc1".equals(name) || "doc2".equals(name), "Result should be doc1 or doc2");
                     count++;
                 }
-                assertEquals("Both similar documents must pass the threshold", 2, count);
+                assertEquals(2, count, "Both similar documents must pass the threshold");
             }
         }
     }
@@ -291,8 +290,8 @@ public class Elastic7VectorSearchTest {
                     }
                     count++;
                 }
-                assertEquals("Expected three ranked documents", 3, count);
-                assertEquals("First result should be doc1 (highest cosine similarity)", "doc1", firstDocName);
+                assertEquals(3, count, "Expected three ranked documents");
+                assertEquals("doc1", firstDocName, "First result should be doc1 (highest cosine similarity)");
             }
         }
     }
@@ -331,8 +330,8 @@ public class Elastic7VectorSearchTest {
                     }
                     count++;
                 }
-                assertEquals("Expected three ranked documents", 3, count);
-                assertEquals("First result should be doc1 (closest vector)", "doc1", firstDocName);
+                assertEquals(3, count, "Expected three ranked documents");
+                assertEquals("doc1", firstDocName, "First result should be doc1 (closest vector)");
             }
         }
     }
@@ -357,7 +356,7 @@ public class Elastic7VectorSearchTest {
                     // Retrieve vector data
                     // Depending on driver implementation, it might be an Array, List, or String
                     Object embeddingObj = rs.getObject("embedding");
-                    assertNotNull("Embedding should not be null", embeddingObj);
+                    assertNotNull(embeddingObj, "Embedding should not be null");
 
                     if (embeddingObj instanceof List<?> list) {
                         assertEquals(3, list.size());

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.lambda;
-
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlCommandBuilder.ConditionLogic;
 import net.hasor.dbvisitor.dialect.SqlCommandBuilder.ConditionType;
@@ -17,8 +16,8 @@ import net.hasor.dbvisitor.dialect.provider.Elastic7Dialect;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.lambda.core.OrderType;
 import java.util.Collections;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ElasticConditionDialectTest {
     @Test

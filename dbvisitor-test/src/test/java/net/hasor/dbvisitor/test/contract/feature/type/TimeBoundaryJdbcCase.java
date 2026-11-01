@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.feature.type;
-
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -16,9 +15,9 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @NxnContract
 public abstract class TimeBoundaryJdbcCase extends TimeTypeJdbcSupport {
@@ -98,8 +97,8 @@ public abstract class TimeBoundaryJdbcCase extends TimeTypeJdbcSupport {
         assertEquals(dateTime.getSecond(), loadedDateTime.getSecond());
         assertTrue(Math.abs(dateTime.getNano() - loadedDateTime.getNano()) < 1_000_000);
         assertTrue(Math.abs(original.getTime() - loadedTimestamp.getTime()) < 1000);
-        assertEquals("Millisecond-aligned LocalDateTime must not lose its fractional second", dateTime, loadedDateTime);
-        assertEquals("Timestamp milliseconds must survive the configured timestamp column", original.getTime(), loadedTimestamp.getTime());
-        assertTrue("Sub-millisecond rounding or truncation must stay below one millisecond", Math.abs(original.getNanos() - loadedTimestamp.getNanos()) < 1_000_000);
+        assertEquals(dateTime, loadedDateTime, "Millisecond-aligned LocalDateTime must not lose its fractional second");
+        assertEquals(original.getTime(), loadedTimestamp.getTime(), "Timestamp milliseconds must survive the configured timestamp column");
+        assertTrue(Math.abs(original.getNanos() - loadedTimestamp.getNanos()) < 1_000_000, "Sub-millisecond rounding or truncation must stay below one millisecond");
     }
 }

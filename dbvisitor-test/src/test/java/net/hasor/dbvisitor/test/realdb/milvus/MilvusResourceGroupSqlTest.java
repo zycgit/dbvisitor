@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,8 +13,8 @@ import java.util.Map;
 import com.google.gson.JsonParser;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /** Native resource-group inventory and isolated zero-node configuration lifecycle. */
 public class MilvusResourceGroupSqlTest extends MilvusSqlContractSupport {

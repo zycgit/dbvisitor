@@ -6,14 +6,13 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis.feature.type;
-
 import java.sql.SQLException;
 import java.util.Map;
 import net.hasor.dbvisitor.test.contract.feature.type.TimeJulianDayJdbcCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class RedisTimeJulianDayJdbcTest extends TimeJulianDayJdbcCase {
     private final RedisTypeCommandFixture fixture = new RedisTypeCommandFixture();
@@ -24,12 +23,12 @@ public class RedisTimeJulianDayJdbcTest extends TimeJulianDayJdbcCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open();
     }
 
-    @After
+    @AfterEach
     public void closeFixture() throws SQLException {
         this.fixture.close();
     }

@@ -6,11 +6,10 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.material.handler;
-
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /** Verifies the explicit JDBC option while making handler selection visible in stored data. */
 public class ExplicitVarcharTypeHandler extends UpperCaseTypeHandler {

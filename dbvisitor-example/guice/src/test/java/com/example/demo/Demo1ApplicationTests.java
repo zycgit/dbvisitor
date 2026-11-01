@@ -6,15 +6,14 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package com.example.demo;
-
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import net.hasor.cobble.ResourcesUtils;
 import net.hasor.dbvisitor.guice.DbVisitorModule;
 import com.example.demo.dto.UserDTO;
 import com.example.demo.service.TestService;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -26,7 +25,7 @@ public class Demo1ApplicationTests {
     @Inject
     private TestService userService;
 
-    @Before
+    @BeforeEach
     public void beforeTest() throws IOException {
         Properties properties = new Properties();
         properties.load(ResourcesUtils.getResourceAsStream("single-ds-test.properties"));

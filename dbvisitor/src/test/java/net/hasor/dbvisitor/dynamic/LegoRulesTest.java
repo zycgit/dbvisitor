@@ -9,9 +9,9 @@ package net.hasor.dbvisitor.dynamic;
 import java.util.HashMap;
 import java.util.Map;
 import net.hasor.dbvisitor.types.SqlArg;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test for "Like Lego Blocks" scenario from blog post.
@@ -39,9 +39,9 @@ public class LegoRulesTest {
             // Expectation: The @{and} rule sees empty content (or just comments/spaces) from @{case}
             // resulting in empty string for the rule part.
             // So just "SELECT * FROM tb_report"
-            assertTrue("Should start with SELECT", sql.startsWith("SELECT * FROM tb_report"));
+            assertTrue(sql.startsWith("SELECT * FROM tb_report"), "Should start with SELECT");
             // Shouldn't have WHERE unless 1=1 was there (which it isn't)
-            assertTrue("Should not have WHERE clause", !sql.toUpperCase().contains("WHERE"));
+            assertTrue(!sql.toUpperCase().contains("WHERE"), "Should not have WHERE clause");
             assertEquals(0, args.length);
         }
 
@@ -61,8 +61,8 @@ public class LegoRulesTest {
             // @{and} sees "dept_id = ?", adds "WHERE" because it's at the start of conditions.
             // Result: "SELECT * FROM tb_report WHERE dept_id = ?" (normalized spaces)
 
-            assertTrue("Should contain WHERE", sql.toUpperCase().contains("WHERE"));
-            assertTrue("Should contain dept_id", sql.contains("dept_id"));
+            assertTrue(sql.toUpperCase().contains("WHERE"), "Should contain WHERE");
+            assertTrue(sql.contains("dept_id"), "Should contain dept_id");
             assertEquals(1, args.length);
             assertEquals("D001", ((SqlArg) args[0]).getValue());
         }
@@ -82,8 +82,8 @@ public class LegoRulesTest {
             // Expectation: @{case} hits else, returns "user_id = :userId".
             // @{and} adds WHERE.
 
-            assertTrue("Should contain WHERE", sql.toUpperCase().contains("WHERE"));
-            assertTrue("Should contain user_id", sql.contains("user_id"));
+            assertTrue(sql.toUpperCase().contains("WHERE"), "Should contain WHERE");
+            assertTrue(sql.contains("user_id"), "Should contain user_id");
             assertEquals(1, args.length);
             assertEquals("U999", ((SqlArg) args[0]).getValue());
         }

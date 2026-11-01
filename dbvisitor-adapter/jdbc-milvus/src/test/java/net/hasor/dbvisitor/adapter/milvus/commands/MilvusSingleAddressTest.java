@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.milvus.commands;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -22,10 +21,10 @@ import io.milvus.shaded.io.grpc.ServerBuilder;
 import io.milvus.shaded.io.grpc.stub.StreamObserver;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /** Exercises the default connection factory through the official SDK and a local gRPC service. */
 public class MilvusSingleAddressTest {
@@ -90,12 +89,12 @@ public class MilvusSingleAddressTest {
         }
     }
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         server = ServerBuilder.forPort(0).addService(service).build().start();
     }
 
-    @After
+    @AfterEach
     public void cleanup() throws Exception {
         server.shutdownNow().awaitTermination(5, TimeUnit.SECONDS);
     }
@@ -157,7 +156,7 @@ public class MilvusSingleAddressTest {
             statement.executeUpdate("DELETE FROM t WHERE id > 0");
             fail("Expected delete failure");
         } catch (SQLException expected) {
-            assertTrue(expected.getMessage(), expected.getMessage().contains((maxRetry + 1) + " attempt"));
+            assertTrue(expected.getMessage().contains((maxRetry + 1) + " attempt"), expected.getMessage());
         }
         assertEquals(maxRetry + 1, service.deletes.size());
     }

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.dynamic.rule;
-
 import java.sql.SQLException;
 import java.util.Iterator;
 import net.hasor.dbvisitor.dynamic.DynamicParsed;

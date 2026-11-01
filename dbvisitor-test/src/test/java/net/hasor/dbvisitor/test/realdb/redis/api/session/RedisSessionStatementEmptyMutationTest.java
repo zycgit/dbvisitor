@@ -6,14 +6,13 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.session;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.api.session.SessionStatementEmptyMutationCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
 import net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisEntityFixture;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class RedisSessionStatementEmptyMutationTest extends SessionStatementEmptyMutationCase {
     private final RedisEntityFixture fixture = new RedisEntityFixture();
@@ -24,18 +23,18 @@ public class RedisSessionStatementEmptyMutationTest extends SessionStatementEmpt
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open();
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void createStatementSession() throws Exception {
         this.session = this.fixture.session(newConfiguration(), "/session/RedisUserSessionMapper.xml");
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws SQLException {
         this.fixture.close();
     }

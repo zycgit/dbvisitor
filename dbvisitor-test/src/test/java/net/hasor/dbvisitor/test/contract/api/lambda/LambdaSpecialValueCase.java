@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.lambda;
-
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Date;
@@ -19,8 +18,8 @@ import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 @NxnContract
 public abstract class LambdaSpecialValueCase extends AbstractNxnContractTest {
@@ -151,8 +150,8 @@ public abstract class LambdaSpecialValueCase extends AbstractNxnContractTest {
 
         assertNotNull(loadedEpoch.getCreateTime());
         assertNotNull(loadedFuture.getCreateTime());
-        assertTrue("epoch timestamp should stay near 1970", loadedEpoch.getCreateTime().getTime() < 100000000L);
-        assertTrue("future timestamp should remain after 2099", loadedFuture.getCreateTime().getTime() > 4070908800000L);
+        assertTrue(loadedEpoch.getCreateTime().getTime() < 100000000L, "epoch timestamp should stay near 1970");
+        assertTrue(loadedFuture.getCreateTime().getTime() > 4070908800000L, "future timestamp should remain after 2099");
     }
 
     // 能力归属：构造器 API / 条件参数。
@@ -167,9 +166,9 @@ public abstract class LambdaSpecialValueCase extends AbstractNxnContractTest {
             assertTrue(loaded.contains("Before"));
         } catch (SQLException e) {
             String message = lowerMessage(e);
-            assertTrue("null-character rejection should be explicit: " + e.getMessage(), //
+            assertTrue(//
                     message.contains("null") || message.contains("character") || message.contains("invalid") //
-                            || message.contains("byte") || message.contains("0x00") || message.contains("encoding"));
+                            || message.contains("byte") || message.contains("0x00") || message.contains("encoding"), "null-character rejection should be explicit: " + e.getMessage());
         }
     }
 
@@ -195,7 +194,7 @@ public abstract class LambdaSpecialValueCase extends AbstractNxnContractTest {
             insertUser(baseId() + 71, tooLong, 30, "too-long@test.com", new Date());
             fail("standard user_info.name VARCHAR(100) should reject overlength values");
         } catch (SQLException e) {
-            assertTrue("length rejection should be explicit: " + e.getMessage(), isLengthLimitMessage(e));
+            assertTrue(isLengthLimitMessage(e), "length rejection should be explicit: " + e.getMessage());
         }
     }
 

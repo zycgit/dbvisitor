@@ -6,19 +6,18 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic7.material;
-
 import java.sql.SQLException;
 import java.util.Date;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperResultHandlerCase;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public abstract class ElasticXmlResultHandlerSupport extends XmlMapperResultHandlerCase {
     private final ElasticMatrixFixture fixture = new ElasticMatrixFixture();
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = fixture.open(profile().env());
         for (int i = 1; i <= 3; i++) {
@@ -32,7 +31,7 @@ public abstract class ElasticXmlResultHandlerSupport extends XmlMapperResultHand
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void createXmlMapperSession() throws Exception {
         this.jdbcTemplate = fixture.open(profile().env());
         this.session = fixture.session();
@@ -41,7 +40,7 @@ public abstract class ElasticXmlResultHandlerSupport extends XmlMapperResultHand
         configuration.loadMapper(mapperResource());
     }
 
-    @After
+    @AfterEach
     public void closeXmlFixture() throws Exception {
         fixture.close();
     }

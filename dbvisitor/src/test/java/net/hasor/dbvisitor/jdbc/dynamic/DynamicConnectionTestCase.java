@@ -10,7 +10,7 @@ import java.sql.SQLException;
 import java.util.List;
 import net.hasor.dbvisitor.jdbc.UserDTO;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** 通过 DynamicConnection 接口实现 JdbcTemplate 的动态连接 */
 public class DynamicConnectionTestCase {

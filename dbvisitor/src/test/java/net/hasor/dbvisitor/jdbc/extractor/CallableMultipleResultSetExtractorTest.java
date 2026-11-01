@@ -17,7 +17,7 @@ import net.hasor.dbvisitor.jdbc.CallableStatementCreator;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /***
  * @version 2020-11-12

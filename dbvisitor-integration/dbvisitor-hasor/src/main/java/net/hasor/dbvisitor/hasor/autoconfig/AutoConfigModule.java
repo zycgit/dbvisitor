@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.hasor.autoconfig;
-
 import net.hasor.core.ApiBinder;
 import net.hasor.dbvisitor.hasor.mapper.MapperScannerConfigurer;
 import net.hasor.dbvisitor.hasor.session.SessionConfigurer;

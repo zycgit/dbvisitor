@@ -31,7 +31,7 @@ import net.hasor.dbvisitor.types.handler.io.StringAsReaderTypeHandler;
 import net.hasor.dbvisitor.types.handler.number.*;
 import net.hasor.dbvisitor.types.handler.string.*;
 import net.hasor.dbvisitor.types.handler.time.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class RegistryTest {

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.jdbc.metadata;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Types;
@@ -18,15 +17,15 @@ import net.hasor.dbvisitor.test.nxn.capability.SupportStatus;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @NxnContract(scope = NxnContract.Scope.JDBC_METADATA)
 public abstract class JdbcMetadataShapeCase extends AbstractNxnContractTest {
     @Override
-    @Before
+    @BeforeEach
     public void setup() {
         // Metadata discovery must not depend on creating the standard DML fixtures.
         OneApiDataSourceManager.assumeCurrentDataSource(profile().env());
@@ -58,7 +57,7 @@ public abstract class JdbcMetadataShapeCase extends AbstractNxnContractTest {
                 assertTrue(columns.findColumn("TYPE_NAME") > 0);
                 // Vendors represent this numeric descriptor as SMALLINT, INTEGER or NUMBER.
                 int type = columns.getMetaData().getColumnType(columns.findColumn("DATA_TYPE"));
-                assertTrue("Expected numeric DATA_TYPE descriptor: " + type, Set.of(Types.SMALLINT, Types.INTEGER, Types.BIGINT, Types.NUMERIC, Types.DECIMAL).contains(type));
+                assertTrue(Set.of(Types.SMALLINT, Types.INTEGER, Types.BIGINT, Types.NUMERIC, Types.DECIMAL).contains(type), "Expected numeric DATA_TYPE descriptor: " + type);
                 assertFalse(columns.next());
             }
         }
@@ -69,7 +68,7 @@ public abstract class JdbcMetadataShapeCase extends AbstractNxnContractTest {
         if (profile().support(capability) != SupportStatus.SUPPORTED) {
             while (rows.next()) {
                 String value = rows.getString(column);
-                assertTrue("Unexpected named namespace: " + value, value == null || value.isEmpty());
+                assertTrue(value == null || value.isEmpty(), "Unexpected named namespace: " + value);
             }
         }
     }

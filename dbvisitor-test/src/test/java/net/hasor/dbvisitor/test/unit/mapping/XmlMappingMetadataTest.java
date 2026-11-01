@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.unit.mapping;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,8 +22,8 @@ import net.hasor.dbvisitor.mapping.def.IndexDescription;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.test.contract.material.handler.UpperCaseTypeHandler;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class XmlMappingMetadataTest {
     @Test

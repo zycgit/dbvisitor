@@ -13,7 +13,7 @@ import net.hasor.dbvisitor.transaction.support.LocalTransactionManager;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.utils.DefaultDs;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import static net.hasor.test.utils.TestUtils.INSERT_ARRAY;
 import static net.hasor.test.utils.TestUtils.arrayForData4;
 

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.mapper.annotation;
-
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.Map;
@@ -15,14 +14,14 @@ import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.material.dao.declarative.ResultMappingMapper;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 public abstract class AnnotationMapperResultMappingSupport extends AbstractNxnContractTest {
     protected static final String PATTERN = "AnnoResult%";
 
     protected ResultMappingMapper mapper;
 
-    @Before
+    @BeforeEach
     public void createAnnotationMapper() throws Exception {
         Configuration configuration = newConfiguration();
         Session session = configuration.newSession(dataSource);

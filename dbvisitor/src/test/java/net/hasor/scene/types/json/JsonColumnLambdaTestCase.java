@@ -17,7 +17,7 @@ import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.scene.types.json.dto.Project1;
 import net.hasor.scene.types.json.dto.ProjectFeature;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class JsonColumnLambdaTestCase {
 

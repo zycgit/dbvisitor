@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.milvus.commands;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -25,8 +24,8 @@ import net.hasor.dbvisitor.adapter.milvus.MilvusCommandInterceptor;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
-import org.junit.Test;
-import org.powermock.api.mockito.PowerMockito;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
 
 public class MilvusExtremeArgsTest extends AbstractJdbcTest {
@@ -165,8 +164,8 @@ public class MilvusExtremeArgsTest extends AbstractJdbcTest {
     @Test
     public void testUpdateWithVectorRange() {
         List<Object> searchArgs = new ArrayList<>();
-        SearchIteratorV2 searchIterator = PowerMockito.mock(SearchIteratorV2.class);
-        PowerMockito.when(searchIterator.next()).thenReturn(new ArrayList<>());
+        SearchIteratorV2 searchIterator = Mockito.mock(SearchIteratorV2.class);
+        Mockito.when(searchIterator.next()).thenReturn(new ArrayList<>());
 
         MilvusCommandInterceptor.resetInterceptor();
         MilvusCommandInterceptor.addInterceptor(MilvusClientV2.class, (proxy, method, args) -> {
@@ -234,8 +233,8 @@ public class MilvusExtremeArgsTest extends AbstractJdbcTest {
     @Test
     public void testDeleteByVectorRange() {
         List<Object> searchArgs = new ArrayList<>();
-        SearchIteratorV2 searchIterator = PowerMockito.mock(SearchIteratorV2.class);
-        PowerMockito.when(searchIterator.next()).thenReturn(new ArrayList<>());
+        SearchIteratorV2 searchIterator = Mockito.mock(SearchIteratorV2.class);
+        Mockito.when(searchIterator.next()).thenReturn(new ArrayList<>());
 
         MilvusCommandInterceptor.resetInterceptor();
         MilvusCommandInterceptor.addInterceptor(MilvusClientV2.class, (proxy, method, args) -> {

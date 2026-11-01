@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.net.URI;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -21,8 +20,8 @@ import net.hasor.dbvisitor.test.contract.api.session.SessionFactoryCase;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 /** Reuses Session assertions unchanged; native BM25 supplies the required vector field. */
 public class MilvusSessionFactoryTest extends SessionFactoryCase {
@@ -42,7 +41,7 @@ public class MilvusSessionFactoryTest extends SessionFactoryCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         OneApiDataSourceManager.assumeCurrentDataSource(profile().env());
         this.admin = OneApiDataSourceManager.getConnection(profile().env());
@@ -95,7 +94,7 @@ public class MilvusSessionFactoryTest extends SessionFactoryCase {
         return config;
     }
 
-    @After
+    @AfterEach
     public void cleanupDatabase() throws SQLException {
         try {
             if (this.sessionSource != null) {

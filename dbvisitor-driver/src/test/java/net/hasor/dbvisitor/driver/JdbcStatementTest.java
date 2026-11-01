@@ -6,22 +6,23 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.driver;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Statement;
 import java.util.Properties;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Assertions;
 
 /** Comprehensive tests for JdbcStatement — covers execute, query, update, cancel, properties, and unsupported methods. */
 public class JdbcStatementTest {
 
     private JdbcConnection conn;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         Class.forName("net.hasor.dbvisitor.driver.JdbcDriver");
         Properties props = new Properties();
@@ -29,7 +30,7 @@ public class JdbcStatementTest {
         conn = new JdbcConnection("jdbc:dbvisitor:mock://localhost", props);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         if (conn != null && !conn.isClosed()) {
             conn.close();
@@ -158,16 +159,20 @@ public class JdbcStatementTest {
         stmt.close();
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void setMaxRows_negative() throws Exception {
-        Statement stmt = conn.createStatement();
-        stmt.setMaxRows(-1);
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            stmt.setMaxRows(-1);
+        });
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void setLargeMaxRows_negative() throws Exception {
-        Statement stmt = conn.createStatement();
-        stmt.setLargeMaxRows(-1L);
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            stmt.setLargeMaxRows(-1L);
+        });
     }
 
     @Test
@@ -179,10 +184,12 @@ public class JdbcStatementTest {
         stmt.close();
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void setFetchSize_negative() throws Exception {
-        Statement stmt = conn.createStatement();
-        stmt.setFetchSize(-1);
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            stmt.setFetchSize(-1);
+        });
     }
 
     @Test
@@ -194,10 +201,12 @@ public class JdbcStatementTest {
         stmt.close();
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void setQueryTimeout_negative() throws Exception {
-        Statement stmt = conn.createStatement();
-        stmt.setQueryTimeout(-1);
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            stmt.setQueryTimeout(-1);
+        });
     }
 
     @Test
@@ -208,10 +217,12 @@ public class JdbcStatementTest {
         stmt.close();
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void setMaxFieldSize_negative() throws Exception {
-        Statement stmt = conn.createStatement();
-        stmt.setMaxFieldSize(-1);
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            stmt.setMaxFieldSize(-1);
+        });
     }
 
     @Test
@@ -228,10 +239,12 @@ public class JdbcStatementTest {
         stmt.close();
     }
 
-    @Test(expected = SQLFeatureNotSupportedException.class)
+    @Test
     public void setFetchDirection_reverse() throws Exception {
-        Statement stmt = conn.createStatement();
-        stmt.setFetchDirection(ResultSet.FETCH_REVERSE);
+        Assertions.assertThrows(SQLFeatureNotSupportedException.class, () -> {
+            Statement stmt = conn.createStatement();
+            stmt.setFetchDirection(ResultSet.FETCH_REVERSE);
+        });
     }
 
     @Test
@@ -304,22 +317,28 @@ public class JdbcStatementTest {
     }
 
     // ==================== unsupported ====================
-    @Test(expected = SQLFeatureNotSupportedException.class)
+    @Test
     public void setPoolable_true_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        stmt.setPoolable(true);
+        Assertions.assertThrows(SQLFeatureNotSupportedException.class, () -> {
+            Statement stmt = conn.createStatement();
+            stmt.setPoolable(true);
+        });
     }
 
-    @Test(expected = SQLFeatureNotSupportedException.class)
+    @Test
     public void setCursorName_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        stmt.setCursorName("cursor");
+        Assertions.assertThrows(SQLFeatureNotSupportedException.class, () -> {
+            Statement stmt = conn.createStatement();
+            stmt.setCursorName("cursor");
+        });
     }
 
-    @Test(expected = SQLFeatureNotSupportedException.class)
+    @Test
     public void execute_columnIndexes_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        stmt.execute("INSERT INTO test VALUES (1)", new int[] { 1 });
+        Assertions.assertThrows(SQLFeatureNotSupportedException.class, () -> {
+            Statement stmt = conn.createStatement();
+            stmt.execute("INSERT INTO test VALUES (1)", new int[] { 1 });
+        });
     }
 
     @Test
@@ -328,10 +347,12 @@ public class JdbcStatementTest {
         stmt.execute("INSERT INTO test VALUES (1)", new String[] { "id" });
     }
 
-    @Test(expected = SQLFeatureNotSupportedException.class)
+    @Test
     public void executeUpdate_columnIndexes_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        stmt.executeUpdate("INSERT INTO test VALUES (1)", new int[] { 1 });
+        Assertions.assertThrows(SQLFeatureNotSupportedException.class, () -> {
+            Statement stmt = conn.createStatement();
+            stmt.executeUpdate("INSERT INTO test VALUES (1)", new int[] { 1 });
+        });
     }
 
     @Test
@@ -340,10 +361,12 @@ public class JdbcStatementTest {
         stmt.executeUpdate("INSERT INTO test VALUES (1)", new String[] { "id" });
     }
 
-    @Test(expected = SQLFeatureNotSupportedException.class)
+    @Test
     public void executeLargeUpdate_columnIndexes_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        stmt.executeLargeUpdate("INSERT INTO test VALUES (1)", new int[] { 1 });
+        Assertions.assertThrows(SQLFeatureNotSupportedException.class, () -> {
+            Statement stmt = conn.createStatement();
+            stmt.executeLargeUpdate("INSERT INTO test VALUES (1)", new int[] { 1 });
+        });
     }
 
     @Test
@@ -352,16 +375,20 @@ public class JdbcStatementTest {
         stmt.executeLargeUpdate("INSERT INTO test VALUES (1)", new String[] { "id" });
     }
 
-    @Test(expected = SQLFeatureNotSupportedException.class)
+    @Test
     public void executeLargeBatch_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        stmt.executeLargeBatch();
+        Assertions.assertThrows(SQLFeatureNotSupportedException.class, () -> {
+            Statement stmt = conn.createStatement();
+            stmt.executeLargeBatch();
+        });
     }
 
-    @Test(expected = SQLFeatureNotSupportedException.class)
+    @Test
     public void addBatch_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        stmt.addBatch("INSERT INTO test VALUES (1)");
+        Assertions.assertThrows(SQLFeatureNotSupportedException.class, () -> {
+            Statement stmt = conn.createStatement();
+            stmt.addBatch("INSERT INTO test VALUES (1)");
+        });
     }
 
     @Test
@@ -371,11 +398,13 @@ public class JdbcStatementTest {
         stmt.close();
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void checkOpen_afterClose() throws Exception {
-        Statement stmt = conn.createStatement();
-        stmt.close();
-        stmt.executeQuery("SELECT id FROM test");
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            stmt.close();
+            stmt.executeQuery("SELECT id FROM test");
+        });
     }
 
     @Test

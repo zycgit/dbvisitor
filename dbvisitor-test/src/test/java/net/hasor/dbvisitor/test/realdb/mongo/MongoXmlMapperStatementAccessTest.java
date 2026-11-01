@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.mongo;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
@@ -14,8 +13,8 @@ import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperStatementAccess
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
 import net.hasor.dbvisitor.test.realdb.mongo.material.MongoMapperFixture;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class MongoXmlMapperStatementAccessTest extends XmlMapperStatementAccessCase {
     private final MongoMapperFixture fixture = new MongoMapperFixture();
@@ -26,7 +25,7 @@ public class MongoXmlMapperStatementAccessTest extends XmlMapperStatementAccessC
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open();
         for (int i = 1; i <= 5; i++) {
@@ -35,7 +34,7 @@ public class MongoXmlMapperStatementAccessTest extends XmlMapperStatementAccessC
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void createXmlMapperSession() throws Exception {
         Configuration configuration = newConfiguration();
         configuration.loadMapper("/realdb/mongo/QueryMapper.xml");
@@ -50,7 +49,7 @@ public class MongoXmlMapperStatementAccessTest extends XmlMapperStatementAccessC
         return this.fixture.session(configuration);
     }
 
-    @After
+    @AfterEach
     public void closeFixture() throws Exception {
         this.fixture.close();
     }

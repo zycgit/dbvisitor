@@ -6,14 +6,13 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.jdbc;
-
 import java.sql.SQLException;
 import java.util.Map;
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcCallResultCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class RedisJdbcCallResultTest extends JdbcCallResultCase {
     private final RedisJdbcFixture fixture = new RedisJdbcFixture();
@@ -24,7 +23,7 @@ public class RedisJdbcCallResultTest extends JdbcCallResultCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         if (jdbcTemplate == null) {
             jdbcTemplate = fixture.open();
@@ -57,7 +56,7 @@ public class RedisJdbcCallResultTest extends JdbcCallResultCase {
         return "SCORE";
     }
 
-    @After
+    @AfterEach
     public void closeFixture() throws SQLException {
         fixture.close();
     }

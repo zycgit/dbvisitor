@@ -6,15 +6,14 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic7;
-
 import java.sql.SQLException;
 import java.util.Collections;
 import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperSelectKeyCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
-import org.junit.After;
-import org.junit.Before;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class Elastic7XmlMapperSelectKeyTest extends XmlMapperSelectKeyCase {
     private final Elastic7KeyMapperFixture fixture = new Elastic7KeyMapperFixture();
@@ -25,14 +24,14 @@ public class Elastic7XmlMapperSelectKeyTest extends XmlMapperSelectKeyCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = fixture.open(profile().env());
         fixture.prepareReservation("XmlKeyGenBefore");
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void createXmlMapperSession() throws Exception {
         this.jdbcTemplate = fixture.open(profile().env());
         this.session = fixture.session();
@@ -67,7 +66,7 @@ public class Elastic7XmlMapperSelectKeyTest extends XmlMapperSelectKeyCase {
         return session.<String>queryStatement("xmltest.KeyGenerationMapper.selectById", Collections.singletonMap("id", id)).get(0);
     }
 
-    @After
+    @AfterEach
     public void closeKeysFixture() throws Exception {
         fixture.close();
     }

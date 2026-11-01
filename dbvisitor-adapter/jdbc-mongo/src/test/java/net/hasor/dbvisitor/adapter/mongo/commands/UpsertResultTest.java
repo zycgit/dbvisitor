@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.mongo.commands;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -21,9 +20,9 @@ import org.bson.BsonObjectId;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
-import org.junit.Test;
-import org.powermock.api.mockito.PowerMockito;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 
 public class UpsertResultTest extends AbstractJdbcTest {
@@ -47,10 +46,10 @@ public class UpsertResultTest extends AbstractJdbcTest {
     private void verifyResults(UpdateResult result, int count, String key) throws Exception {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("getCollection", (method, args) -> {
-            MongoCollection<Document> collection = PowerMockito.mock(MongoCollection.class);
-            PowerMockito.when(collection.updateOne(any(Bson.class), any(Bson.class), any(UpdateOptions.class))).thenReturn(result);
-            PowerMockito.when(collection.updateMany(any(Bson.class), any(Bson.class), any(UpdateOptions.class))).thenReturn(result);
-            PowerMockito.when(collection.replaceOne(any(Bson.class), any(Document.class), any(ReplaceOptions.class))).thenReturn(result);
+            MongoCollection<Document> collection = Mockito.mock(MongoCollection.class);
+            Mockito.when(collection.updateOne(any(Bson.class), any(Bson.class), any(UpdateOptions.class))).thenReturn(result);
+            Mockito.when(collection.updateMany(any(Bson.class), any(Bson.class), any(UpdateOptions.class))).thenReturn(result);
+            Mockito.when(collection.replaceOne(any(Bson.class), any(Document.class), any(ReplaceOptions.class))).thenReturn(result);
             return collection;
         }));
         // @formatter:off
@@ -63,13 +62,13 @@ public class UpsertResultTest extends AbstractJdbcTest {
         // @formatter:on
         try (Connection connection = redisConnection("test"); Statement statement = connection.createStatement()) {
             for (String command : commands) {
-                assertEquals(command, count, statement.executeUpdate(command, Statement.RETURN_GENERATED_KEYS));
+                assertEquals(count, statement.executeUpdate(command, Statement.RETURN_GENERATED_KEYS), command);
                 try (ResultSet keys = statement.getGeneratedKeys()) {
                     if (key != null) {
-                        assertTrue(command, keys.next());
-                        assertEquals(command, key, keys.getString(1));
+                        assertTrue(keys.next(), command);
+                        assertEquals(key, keys.getString(1), command);
                     }
-                    assertFalse(command, keys.next());
+                    assertFalse(keys.next(), command);
                 }
             }
         }

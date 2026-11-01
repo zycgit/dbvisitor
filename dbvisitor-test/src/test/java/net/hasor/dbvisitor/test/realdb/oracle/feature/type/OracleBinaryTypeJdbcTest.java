@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.oracle.feature.type;
-
 import java.sql.Blob;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -16,8 +15,8 @@ import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.test.contract.feature.type.BinaryTypeJdbcCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.OracleProfile;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class OracleBinaryTypeJdbcTest extends BinaryTypeJdbcCase {
     @Override

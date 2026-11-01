@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.session;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.api.session.SessionMapperInvocationCase;
@@ -15,8 +14,8 @@ import net.hasor.dbvisitor.test.contract.material.dao.SessionUserMapper;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
 import net.hasor.dbvisitor.test.realdb.redis.api.mapper.RedisEntityFixture;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class RedisSessionMapperInvocationTest extends SessionMapperInvocationCase {
     private final RedisEntityFixture fixture = new RedisEntityFixture();
@@ -27,7 +26,7 @@ public class RedisSessionMapperInvocationTest extends SessionMapperInvocationCas
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open();
     }
@@ -47,7 +46,7 @@ public class RedisSessionMapperInvocationTest extends SessionMapperInvocationCas
         return session.createMapper(RedisSessionRefUserMapper.class);
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws SQLException {
         this.fixture.close();
     }

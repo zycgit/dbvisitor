@@ -17,10 +17,9 @@ import com.mongodb.client.MongoDatabase;
 import net.hasor.dbvisitor.adapter.mongo.AbstractJdbcTest;
 import net.hasor.dbvisitor.adapter.mongo.MongoCommandInterceptor;
 import org.bson.Document;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
 import static org.mockito.ArgumentMatchers.any;
 
 @SuppressWarnings("unchecked")
@@ -42,8 +41,8 @@ public class AggregationTest extends AbstractJdbcTest {
                 }
             }
             if ("getCollection".equals(name)) {
-                MongoCollection mockColl = PowerMockito.mock(MongoCollection.class);
-                PowerMockito.when(mockColl.aggregate(any(List.class))).thenReturn(iterable);
+                MongoCollection mockColl = Mockito.mock(MongoCollection.class);
+                Mockito.when(mockColl.aggregate(any(List.class))).thenReturn(iterable);
                 return mockColl;
             }
             return null;
@@ -79,8 +78,8 @@ public class AggregationTest extends AbstractJdbcTest {
                 }
             }
             if ("getCollection".equals(name)) {
-                MongoCollection mockColl = PowerMockito.mock(MongoCollection.class);
-                PowerMockito.when(mockColl.aggregate(any(List.class))).thenReturn(iterable);
+                MongoCollection mockColl = Mockito.mock(MongoCollection.class);
+                Mockito.when(mockColl.aggregate(any(List.class))).thenReturn(iterable);
                 return mockColl;
             }
             return null;
@@ -113,8 +112,8 @@ public class AggregationTest extends AbstractJdbcTest {
                 }
             }
             if ("getCollection".equals(name)) {
-                MongoCollection mockColl = PowerMockito.mock(MongoCollection.class);
-                PowerMockito.when(mockColl.aggregate(any(List.class))).thenReturn(iterable);
+                MongoCollection mockColl = Mockito.mock(MongoCollection.class);
+                Mockito.when(mockColl.aggregate(any(List.class))).thenReturn(iterable);
                 return mockColl;
             }
             return null;
@@ -123,9 +122,9 @@ public class AggregationTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection(); Statement stmt = conn.createStatement()) {
             stmt.execute("use mydb");
             stmt.executeQuery("db.mycol.aggregate([{$match: {}}], { allowDiskUse: 123 })");
-            Assert.fail("Should throw SQLException");
+            Assertions.fail("Should throw SQLException");
         } catch (SQLException e) {
-            Assert.assertEquals("allowDiskUse must be boolean", e.getMessage());
+            Assertions.assertEquals("allowDiskUse must be boolean", e.getMessage());
         }
     }
 }

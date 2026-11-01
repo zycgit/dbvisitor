@@ -15,7 +15,7 @@ import net.hasor.dbvisitor.lambda.Insert;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.scene.wrapper.crud.dto.UserTableDTO;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** 使用带有映射的 DTO 对象进行数据 CRUD */
 public class DtoCrudTestCase {

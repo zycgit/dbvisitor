@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -14,8 +13,8 @@ import java.sql.Types;
 import com.google.gson.JsonParser;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MilvusDiagnosticsSqlTest extends MilvusSqlContractSupport {
     @Test
@@ -38,7 +37,7 @@ public class MilvusDiagnosticsSqlTest extends MilvusSqlContractSupport {
             assertTrue(statement.getMoreResults());
             try (ResultSet rows = statement.getResultSet()) {
                 assertTrue(rows.next());
-                assertTrue(rows.getString("REASONS"), rows.getBoolean("IS_HEALTHY"));
+                assertTrue(rows.getBoolean("IS_HEALTHY"), rows.getString("REASONS"));
                 assertFalse(rows.wasNull());
                 assertEquals(Types.BOOLEAN, rows.getMetaData().getColumnType(1));
                 assertTrue(JsonParser.parseString(rows.getString("REASONS")).isJsonArray());
@@ -81,7 +80,7 @@ public class MilvusDiagnosticsSqlTest extends MilvusSqlContractSupport {
                         }
                     }
                 }
-                assertTrue(kind, segments > 0);
+                assertTrue(segments > 0, kind);
             }
             assertEquals(2, countRows(""));
             assertThrows(SQLException.class, () -> statement.executeQuery("SHOW PERSISTENT SEGMENTS FROM " + this.collection + "_missing"));

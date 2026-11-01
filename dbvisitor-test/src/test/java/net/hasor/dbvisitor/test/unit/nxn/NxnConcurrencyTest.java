@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.unit.nxn;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
@@ -18,13 +17,13 @@ import com.google.gson.JsonParser;
 import net.hasor.dbvisitor.test.nxn.config.NxnContext;
 import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
 import net.hasor.dbvisitor.test.nxn.runner.NxnRunner;
-import org.junit.*;
-import org.junit.rules.TemporaryFolder;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.io.TempDir;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class NxnConcurrencyTest {
-    @Rule
-    public               TemporaryFolder            temporary = new TemporaryFolder();
+    @TempDir
+    public Path temporary;
     private static final AtomicInteger              ACTIVE    = new AtomicInteger();
     private static final AtomicInteger              PEAK      = new AtomicInteger();
     private static final Map<String, AtomicInteger> METHODS   = new ConcurrentHashMap<>();
@@ -33,7 +32,7 @@ public class NxnConcurrencyTest {
     private static       CountDownLatch             progressReady;
     private static       CountDownLatch             progressRelease;
 
-    @Before
+    @BeforeEach
     public void reset() {
         ACTIVE.set(0);
         PEAK.set(0);
@@ -45,7 +44,7 @@ public class NxnConcurrencyTest {
     @Test
     public void optedInClassesOverlapButUnmarkedClassIsAnExclusiveBarrier() throws Exception {
         rendezvous = new CyclicBarrier(2);
-        Path root = temporary.newFolder().toPath();
+        Path root = Files.createTempDirectory(temporary, "run-");
         List<Class<?>> classes = List.of(First.class, Second.class, Exclusive.class, Third.class, Fourth.class);
         assertTrue(new NxnRunner(root, Map.of("h2", classes), 16, 2, List.of(), null).run());
         assertEquals(2, PEAK.get());
@@ -63,7 +62,7 @@ public class NxnConcurrencyTest {
     @Test
     public void defaultClassLimitAllowsMoreThanTwoConcurrentClasses() throws Exception {
         rendezvous = new CyclicBarrier(4);
-        Path root = temporary.newFolder().toPath();
+        Path root = Files.createTempDirectory(temporary, "run-");
         List<Class<?>> classes = List.of(First.class, Second.class, Third.class, Fourth.class);
         assertTrue(new NxnRunner(root, Map.of("h2", classes), 16, List.of(), null).run());
         assertEquals(4, PEAK.get());
@@ -76,7 +75,7 @@ public class NxnConcurrencyTest {
     @Test
     public void separatedIsolatedClassesRunTogetherBeforeExclusiveClasses() throws Exception {
         rendezvous = new CyclicBarrier(4);
-        Path root = temporary.newFolder().toPath();
+        Path root = Files.createTempDirectory(temporary, "run-");
         List<Class<?>> classes = List.of(First.class, Exclusive.class, Second.class, Third.class, Fourth.class);
         assertTrue(new NxnRunner(root, Map.of("h2", classes), 16, List.of(), null).run());
         assertEquals(4, PEAK.get());
@@ -86,14 +85,14 @@ public class NxnConcurrencyTest {
 
     @Test
     public void classConcurrencyCanBeDisabledWithoutRemovingAnnotations() throws Exception {
-        assertTrue(new NxnRunner(temporary.newFolder().toPath(), Map.of("h2", List.of(First.class, Exclusive.class, Second.class)), 16, 1, List.of(), null).run());
+        assertTrue(new NxnRunner(Files.createTempDirectory(temporary, "run-"), Map.of("h2", List.of(First.class, Exclusive.class, Second.class)), 16, 1, List.of(), null).run());
         assertEquals(1, PEAK.get());
         assertEquals(List.of("First", "First", "Exclusive", "Second", "Second"), EVENTS);
     }
 
     @Test
     public void oneGlobalWorkerAlsoPreservesOriginalClassOrder() throws Exception {
-        assertTrue(new NxnRunner(temporary.newFolder().toPath(), Map.of("h2", List.of(First.class, Exclusive.class, Second.class)), 1, 16, List.of(), null).run());
+        assertTrue(new NxnRunner(Files.createTempDirectory(temporary, "run-"), Map.of("h2", List.of(First.class, Exclusive.class, Second.class)), 1, 16, List.of(), null).run());
         assertEquals(1, PEAK.get());
         assertEquals(List.of("First", "First", "Exclusive", "Second", "Second"), EVENTS);
     }
@@ -101,14 +100,14 @@ public class NxnConcurrencyTest {
     @Test
     public void annotationDoesNotOptInSubclassesOrOtherDatasources() throws Exception {
         assertNull(NotOptedIn.class.getAnnotation(NxnConcurrent.class));
-        assertTrue(new NxnRunner(temporary.newFolder().toPath(), Map.of("h2", List.of(NotOptedIn.class, First.class)), 16, 4, List.of(), null).run());
+        assertTrue(new NxnRunner(Files.createTempDirectory(temporary, "run-"), Map.of("h2", List.of(NotOptedIn.class, First.class)), 16, 4, List.of(), null).run());
         assertEquals(1, PEAK.get());
     }
 
     @Test
     public void databaseAndClassConcurrencyShareTheGlobalWorkerBudget() throws Exception {
         Map<String, List<Class<?>>> suites = Map.of("h2", List.of(First.class, Second.class), "pg", List.of(Third.class, Fourth.class));
-        assertTrue(new NxnRunner(temporary.newFolder().toPath(), suites, 2, 4, List.of(), null).run());
+        assertTrue(new NxnRunner(Files.createTempDirectory(temporary, "run-"), suites, 2, 4, List.of(), null).run());
         assertEquals(2, PEAK.get());
         assertEquals(0, ACTIVE.get());
     }
@@ -118,14 +117,14 @@ public class NxnConcurrencyTest {
         Map<String, List<Class<?>>> suites = new LinkedHashMap<>();
         suites.put("h2", List.of(First.class, Second.class));
         suites.put("pg", List.of(Third.class, Fourth.class));
-        assertTrue(new NxnRunner(temporary.newFolder().toPath(), suites, 1, 16, List.of(), null).run());
+        assertTrue(new NxnRunner(Files.createTempDirectory(temporary, "run-"), suites, 1, 16, List.of(), null).run());
         assertEquals(List.of("First", "First", "Third", "Third", "Second", "Second", "Fourth", "Fourth"), EVENTS);
         assertEquals(1, PEAK.get());
     }
 
     @Test
     public void failedClassCleansUpBeforeTheNextExclusiveClassRuns() throws Exception {
-        Path root = temporary.newFolder().toPath();
+        Path root = Files.createTempDirectory(temporary, "run-");
         assertFalse(new NxnRunner(root, Map.of("h2", List.of(Failing.class, First.class, Exclusive.class)), 16, 2, List.of(), null).run());
         var report = JsonParser.parseString(Files.readString(root.resolve("h2/run.json"))).getAsJsonObject();
         assertEquals(1, report.get("failed").getAsInt());
@@ -134,7 +133,7 @@ public class NxnConcurrencyTest {
 
     @Test
     public void liveProgressIncludesEveryConcurrentClass() throws Exception {
-        Path root = temporary.newFolder().toPath();
+        Path root = Files.createTempDirectory(temporary, "run-");
         progressReady = new CountDownLatch(2);
         progressRelease = new CountDownLatch(1);
         var executor = Executors.newSingleThreadExecutor();
@@ -166,7 +165,7 @@ public class NxnConcurrencyTest {
     }
 
     public static class Isolated {
-        @BeforeClass
+        @BeforeAll
         public static void open() throws Exception {
             PEAK.accumulateAndGet(ACTIVE.incrementAndGet(), Math::max);
             if (rendezvous != null) {
@@ -174,7 +173,7 @@ public class NxnConcurrencyTest {
             }
         }
 
-        @AfterClass
+        @AfterAll
         public static void close() throws Exception {
             try {
                 Thread.sleep(40); // Class cleanup is part of the exclusive/concurrent scheduling scope.
@@ -226,7 +225,7 @@ public class NxnConcurrencyTest {
     }
 
     public static class Exclusive {
-        @BeforeClass
+        @BeforeAll
         public static void open() {
             assertEquals(0, ACTIVE.get());
         }
@@ -237,7 +236,7 @@ public class NxnConcurrencyTest {
             EVENTS.add("Exclusive");
         }
 
-        @AfterClass
+        @AfterAll
         public static void close() {
             assertEquals(0, ACTIVE.get());
         }

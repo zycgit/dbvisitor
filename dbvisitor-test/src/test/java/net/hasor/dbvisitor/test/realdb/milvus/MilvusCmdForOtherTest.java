@@ -6,19 +6,18 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MilvusCmdForOtherTest extends AbstractMilvusCmdForTest {
-    @Before
+    @BeforeEach
     public void setUp() {
         // Clean up any residual aliases from previous runs
         dropAlias("test_alias_create");
@@ -31,7 +30,7 @@ public class MilvusCmdForOtherTest extends AbstractMilvusCmdForTest {
         createCollection(TEST_COLLECTION);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         if (!milvusSelected) {
             return;
@@ -55,7 +54,7 @@ public class MilvusCmdForOtherTest extends AbstractMilvusCmdForTest {
             stmt.executeUpdate("CREATE ALIAS " + testAlias + " FOR " + TEST_COLLECTION);
 
             // Assert
-            assertTrue("Alias should verify as a collection/alias", hasCollection(testAlias));
+            assertTrue(hasCollection(testAlias), "Alias should verify as a collection/alias");
         } finally {
             dropAlias(testAlias);
         }
@@ -75,7 +74,7 @@ public class MilvusCmdForOtherTest extends AbstractMilvusCmdForTest {
             // Assert
             // To verify strictly, one would check if the alias now points to the new collection.
             // Simplified check: checking existence.
-            assertTrue("Alias should still exist", hasCollection(testAlias));
+            assertTrue(hasCollection(testAlias), "Alias should still exist");
         } finally {
             dropAlias(testAlias);
             dropCollection(TEST_COLLECTION_NEW);
@@ -91,7 +90,7 @@ public class MilvusCmdForOtherTest extends AbstractMilvusCmdForTest {
             // Act
             stmt.executeUpdate("DROP ALIAS " + testAlias);
 
-            Assert.assertFalse("Alias should be gone", hasCollection(testAlias));
+            Assertions.assertFalse(hasCollection(testAlias), "Alias should be gone");
         }
     }
 

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.nxn.config;
-
 import java.nio.file.Path;
 
 /** One datasource task's context; JVM properties remain a fallback for IDE/Gradle runs. */

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.lambda;
-
 import java.sql.SQLException;
 import java.util.Date;
 import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
@@ -16,8 +15,8 @@ import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 @NxnContract
 public abstract class LambdaDuplicateStrategyCase extends AbstractNxnContractTest {
@@ -257,6 +256,6 @@ public abstract class LambdaDuplicateStrategyCase extends AbstractNxnContractTes
     }
 
     private void assertDuplicateMessage(SQLException e) {
-        assertTrue("Duplicate rejection should mention a key/constraint failure: " + e.getMessage(), isDuplicateKeyMessage(e));
+        assertTrue(isDuplicateKeyMessage(e), "Duplicate rejection should mention a key/constraint failure: " + e.getMessage());
     }
 }

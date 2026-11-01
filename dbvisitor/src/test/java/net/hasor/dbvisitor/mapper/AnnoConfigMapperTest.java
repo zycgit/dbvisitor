@@ -6,11 +6,10 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.mapper;
-
 import net.hasor.dbvisitor.jdbc.mapper.BeanMappingRowMapper;
 import net.hasor.dbvisitor.mapper.def.*;
 import net.hasor.dbvisitor.mapper.dto.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

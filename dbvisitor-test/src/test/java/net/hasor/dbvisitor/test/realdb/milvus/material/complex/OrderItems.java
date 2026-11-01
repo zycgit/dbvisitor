@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus.material.complex;
-
 import java.util.List;
 
 public class OrderItems {

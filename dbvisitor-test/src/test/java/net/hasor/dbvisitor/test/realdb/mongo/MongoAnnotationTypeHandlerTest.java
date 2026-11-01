@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.mongo;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.test.contract.feature.type.AnnotationTypeHandlerCase;
@@ -17,8 +16,8 @@ import net.hasor.dbvisitor.test.contract.material.model.annotation.TypeHandlerUs
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
 import net.hasor.dbvisitor.test.realdb.mongo.material.MongoEntityFixture;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class MongoAnnotationTypeHandlerTest extends AnnotationTypeHandlerCase {
     private final MongoEntityFixture fixture = new MongoEntityFixture();
@@ -29,7 +28,7 @@ public class MongoAnnotationTypeHandlerTest extends AnnotationTypeHandlerCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         if (this.jdbcTemplate == null) {
             this.jdbcTemplate = this.fixture.open();
@@ -46,7 +45,7 @@ public class MongoAnnotationTypeHandlerTest extends AnnotationTypeHandlerCase {
         return this.fixture.lambda();
     }
 
-    @After
+    @AfterEach
     public void closeFixture() throws SQLException {
         this.fixture.close();
     }

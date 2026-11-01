@@ -6,14 +6,13 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MilvusTruncateSqlTest extends MilvusSqlContractSupport {
     @Test
@@ -53,7 +52,7 @@ public class MilvusTruncateSqlTest extends MilvusSqlContractSupport {
         String schema = createScript();
         try (Statement statement = this.connection.createStatement()) {
             SQLException failure = assertThrows(SQLException.class, () -> statement.execute("TRUNCATE TABLE " + this.collection + " IN DATABASE " + catalog + "; DELETE FROM " + this.collection));
-            assertTrue(failure.getMessage(), failure.getMessage().contains("UNIMPLEMENTED"));
+            assertTrue(failure.getMessage().contains("UNIMPLEMENTED"), failure.getMessage());
             assertEquals(catalog, this.connection.getCatalog());
             assertEquals(schema, createScript());
             assertIndexPresent(statement);

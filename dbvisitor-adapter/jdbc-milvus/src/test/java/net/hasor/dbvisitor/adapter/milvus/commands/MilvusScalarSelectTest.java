@@ -11,16 +11,16 @@ import net.hasor.dbvisitor.adapter.milvus.MilvusCommandInterceptor;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MilvusScalarSelectTest {
     private int     probes;
     private boolean unavailable;
 
-    @Before
+    @BeforeEach
     public void install() {
         MilvusCommandInterceptor.resetInterceptor();
         MilvusCommandInterceptor.addInterceptor(MilvusClientV2.class, (proxy, method, args) -> {
@@ -38,7 +38,7 @@ public class MilvusScalarSelectTest {
         });
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         MilvusCommandInterceptor.resetInterceptor();
     }
@@ -141,7 +141,7 @@ public class MilvusScalarSelectTest {
             assertEquals(initial + 2, probes);
             unavailable = true;
             SQLException error = assertThrows(SQLException.class, () -> statement.executeQuery("PING"));
-            assertTrue(error.getMessage(), error.getMessage().contains("server unavailable"));
+            assertTrue(error.getMessage().contains("server unavailable"), error.getMessage());
             int afterFailure = probes;
             try (ResultSet result = statement.executeQuery("SELECT 'keep alive'")) {
                 assertTrue(result.next());
@@ -155,7 +155,7 @@ public class MilvusScalarSelectTest {
     public void rejectUnsupportedExpressionsAndMissingCollection() throws Exception {
         try (Connection connection = connect(); Statement statement = connection.createStatement()) {
             for (String sql : new String[] { "SELECT missing_field", "SELECT 1 + 2", "SELECT 1, 2", "SELECT *", "SELECT [1,2]" }) {
-                assertThrows(sql, SQLException.class, () -> statement.executeQuery(sql));
+                assertThrows(SQLException.class, () -> statement.executeQuery(sql), sql);
             }
         }
     }

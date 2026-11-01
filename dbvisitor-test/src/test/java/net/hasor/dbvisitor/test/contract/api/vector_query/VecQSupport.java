@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.vector_query;
-
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +13,7 @@ import net.hasor.dbvisitor.lambda.core.MetricType;
 import net.hasor.dbvisitor.test.contract.material.model.ProductVectorForPg;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import org.postgresql.util.PGobject;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class VecQSupport extends AbstractNxnContractTest {
     protected static final int VECTOR_DIM = 128;
@@ -99,7 +98,7 @@ public abstract class VecQSupport extends AbstractNxnContractTest {
         assertNotNull(actual);
         assertEquals(expected.size(), actual.size());
         for (int i = 0; i < expected.size(); i++) {
-            assertEquals("Vector component " + i, expected.get(i), actual.get(i), 0.0001f);
+            assertEquals(expected.get(i), actual.get(i), 0.0001f, "Vector component " + i);
         }
     }
 
@@ -107,7 +106,7 @@ public abstract class VecQSupport extends AbstractNxnContractTest {
         double previous = Double.NEGATIVE_INFINITY;
         for (ProductVectorForPg row : rows) {
             double current = distance(target, row.getEmbedding(), metricType);
-            assertTrue("Distance should be monotonic for " + metricType + ": previous=" + previous + ", current=" + current, current >= previous - 1e-6);
+            assertTrue(current >= previous - 1e-6, "Distance should be monotonic for " + metricType + ": previous=" + previous + ", current=" + current);
             previous = current;
         }
     }

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package com.example.demo.quick.page3;
-
 import net.hasor.dbvisitor.page.Page;
 import net.hasor.dbvisitor.page.PageResult;
 import net.hasor.dbvisitor.mapper.BaseMapper;

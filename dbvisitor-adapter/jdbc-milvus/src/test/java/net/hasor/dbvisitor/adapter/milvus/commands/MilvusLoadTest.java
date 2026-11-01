@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.milvus.commands;
-
 import java.sql.*;
 import java.util.*;
 import com.google.gson.Gson;
@@ -17,17 +16,17 @@ import net.hasor.dbvisitor.adapter.milvus.MilvusCommandInterceptor;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MilvusLoadTest {
     private final List<Object> requests = new ArrayList<>();
     private final List<String> methods  = new ArrayList<>();
     private       boolean      failLoad;
 
-    @Before
+    @BeforeEach
     public void install() {
         MilvusCommandInterceptor.resetInterceptor();
         MilvusCommandInterceptor.addInterceptor(MilvusClientV2.class, (proxy, method, args) -> {
@@ -45,7 +44,7 @@ public class MilvusLoadTest {
         });
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         MilvusCommandInterceptor.resetInterceptor();
     }
@@ -174,8 +173,8 @@ public class MilvusLoadTest {
     public void invalidOptionsShouldFailBeforeAnyLoadRequest() throws SQLException {
         try (Connection connection = connect(); Statement statement = connection.createStatement()) {
             for (String options : Arrays.asList("num_replicas=0", "num_replicas=1.5", "num_replicas=2147483648", "num_replicas='2'", "refresh=1", "refresh=NULL", "skip_load_dynamic_field='true'", "load_fields=[1]", "load_fields=['']", "resource_groups=[NULL]", "resource_groups='{}'", "load_fields='[false]'", "load_fields=NULL", "unknown=true", "refresh=true, REFRESH=false")) {
-                assertThrows(options, SQLException.class, () -> statement.executeUpdate("LOAD TABLE books WITH (" + options + ")"));
-                assertThrows(options, SQLException.class, () -> statement.executeUpdate("LOAD TABLE books PARTITION p WITH (" + options + ")"));
+                assertThrows(SQLException.class, () -> statement.executeUpdate("LOAD TABLE books WITH (" + options + ")"), options);
+                assertThrows(SQLException.class, () -> statement.executeUpdate("LOAD TABLE books PARTITION p WITH (" + options + ")"), options);
             }
             assertThrows(SQLException.class, () -> statement.executeUpdate("/*+ timeout=0 */ LOAD TABLE books"));
         }

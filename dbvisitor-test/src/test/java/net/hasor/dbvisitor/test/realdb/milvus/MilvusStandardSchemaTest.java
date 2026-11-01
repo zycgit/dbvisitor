@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -15,8 +14,8 @@ import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.test.contract.api.jdbc.metadata.StandardSchemaCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 /** Binds the common scenarios to the explicitly declared Milvus boundary. */
 public class MilvusStandardSchemaTest extends StandardSchemaCase {
@@ -24,7 +23,7 @@ public class MilvusStandardSchemaTest extends StandardSchemaCase {
     private       boolean               created;
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         jdbcTemplate = new JdbcTemplate(database.open());
         jdbcTemplate.execute("CREATE TABLE nxn_metadata_user (id INT64 PRIMARY KEY, name VARCHAR(128) NULL, age INT32, v FLOAT_VECTOR(2))");
@@ -41,7 +40,7 @@ public class MilvusStandardSchemaTest extends StandardSchemaCase {
         return Map.of("nxn_metadata_user", List.of("id", "name", "age", "v"));
     }
 
-    @After
+    @AfterEach
     public void cleanupMetadata() throws SQLException {
         try {
             if (created) {

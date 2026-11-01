@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.mapper.xml;
-
 import java.sql.SQLException;
 import java.util.*;
 import net.hasor.dbvisitor.session.Configuration;
@@ -17,16 +16,16 @@ import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @NxnContract
 public abstract class XmlMapperDynamicSqlCase extends AbstractNxnContractTest {
     protected Session session;
 
-    @Before
+    @BeforeEach
     public void createXmlMapperSession() throws Exception {
         Configuration config = newConfiguration();
         config.loadMapper(mapperResource());

@@ -6,15 +6,14 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.test.contract.feature.naming.ResultColumnCasingCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 /** Only schema fixtures change; shared mappings, SQL and assertions remain intact. */
 public class MilvusResultColumnCaseTest extends ResultColumnCasingCase {
@@ -26,7 +25,7 @@ public class MilvusResultColumnCaseTest extends ResultColumnCasingCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = new JdbcTemplate(this.fixture.open());
         this.lambdaTemplate = new LambdaTemplate(this.jdbcTemplate);
@@ -49,7 +48,7 @@ public class MilvusResultColumnCaseTest extends ResultColumnCasingCase {
         this.jdbcTemplate.executeUpdate("LOAD TABLE " + name);
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws SQLException {
         try {
             this.jdbcTemplate.executeUpdate("DROP TABLE IF EXISTS plain_user");

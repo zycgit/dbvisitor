@@ -13,7 +13,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import net.hasor.dbvisitor.adapter.redis.AbstractJdbcTest;
 import net.hasor.dbvisitor.adapter.redis.RedisCommandInterceptor;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import redis.clients.jedis.args.ExpiryOption;
 import redis.clients.jedis.commands.DatabaseCommands;
 import redis.clients.jedis.commands.KeyCommands;

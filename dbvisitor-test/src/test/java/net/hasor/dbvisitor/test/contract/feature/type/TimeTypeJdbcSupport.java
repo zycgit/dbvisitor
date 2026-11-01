@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.feature.type;
-
 import java.util.Map;
 
 public abstract class TimeTypeJdbcSupport extends TypeJdbcCommandSupport {

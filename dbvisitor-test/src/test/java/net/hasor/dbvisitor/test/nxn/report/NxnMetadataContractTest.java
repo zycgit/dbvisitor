@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.nxn.report;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -28,14 +27,14 @@ import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfileRegistry;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 @NxnContract(scope = NxnContract.Scope.INFRASTRUCTURE)
 public abstract class NxnMetadataContractTest extends AbstractNxnContractTest {
     @Override
-    @Before
+    @BeforeEach
     public void setup() {
         // Registry, annotations and report generation do not require a database connection.
         OneApiDataSourceManager.assumeCurrentDataSource(profile().env());
@@ -52,7 +51,7 @@ public abstract class NxnMetadataContractTest extends AbstractNxnContractTest {
                 }
             }
         }
-        assertTrue("Every contract @Test method must declare @Capability: " + missing, missing.isEmpty());
+        assertTrue(missing.isEmpty(), "Every contract @Test method must declare @Capability: " + missing);
     }
 
     @Test
@@ -61,8 +60,8 @@ public abstract class NxnMetadataContractTest extends AbstractNxnContractTest {
         List<Class<?>> contracts = contractClasses();
         List<Class<?>> realdbClasses = realdbClassesForCurrentProfile();
 
-        assertFalse("Expected contract classes", contracts.isEmpty());
-        assertFalse("Expected realdb contract classes for " + profile().env(), realdbClasses.isEmpty());
+        assertFalse(contracts.isEmpty(), "Expected contract classes");
+        assertFalse(realdbClasses.isEmpty(), "Expected realdb contract classes for " + profile().env());
 
         Set<Class<?>> contractSet = new HashSet<>(contracts);
         Set<Class<?>> boundContracts = new HashSet<>();
@@ -81,8 +80,8 @@ public abstract class NxnMetadataContractTest extends AbstractNxnContractTest {
                 duplicate.add(contract.getName());
             }
         }
-        assertTrue("Matrix tests must inherit a known case or declare valid datasource capabilities: " + invalid, invalid.isEmpty());
-        assertTrue("A datasource must not bind the same contract more than once: " + duplicate, duplicate.isEmpty());
+        assertTrue(invalid.isEmpty(), "Matrix tests must inherit a known case or declare valid datasource capabilities: " + invalid);
+        assertTrue(duplicate.isEmpty(), "A datasource must not bind the same contract more than once: " + duplicate);
     }
 
     @Test
@@ -113,10 +112,10 @@ public abstract class NxnMetadataContractTest extends AbstractNxnContractTest {
         boolean repeatableRead = transactions && current.supportsFeature(FeatureId.TRANSACTION_REPEATABLE_READ);
         assertSupportDeclaration(current, CapabilityId.TRANSACTION_ISOLATION_REPEATABLE_READ, repeatableRead);
         for (Map.Entry<String, SupportStatus> expected : expectedProfileStatuses().entrySet()) {
-            assertEquals(expected.getKey(), expected.getValue(), current.support(expected.getKey()));
+            assertEquals(expected.getValue(), current.support(expected.getKey()), expected.getKey());
         }
         for (Map.Entry<String, Boolean> expected : expectedFeatures().entrySet()) {
-            assertEquals(expected.getKey(), expected.getValue(), Boolean.valueOf(current.supportsFeature(expected.getKey())));
+            assertEquals(expected.getValue(), Boolean.valueOf(current.supportsFeature(expected.getKey())), expected.getKey());
         }
     }
 
@@ -131,9 +130,9 @@ public abstract class NxnMetadataContractTest extends AbstractNxnContractTest {
     private void assertSupportDeclaration(DataSourceProfile current, String capability, boolean supported) {
         SupportStatus actual = current.support(capability);
         if (supported) {
-            assertEquals(capability, SupportStatus.SUPPORTED, actual);
+            assertEquals(SupportStatus.SUPPORTED, actual, capability);
         } else {
-            assertTrue(capability + " must identify the unsupported layer: " + actual, actual == SupportStatus.UNSUPPORTED_BY_DATABASE || actual == SupportStatus.UNSUPPORTED_BY_DRIVER || actual == SupportStatus.UNSUPPORTED_BY_DBVISITOR);
+            assertTrue(actual == SupportStatus.UNSUPPORTED_BY_DATABASE || actual == SupportStatus.UNSUPPORTED_BY_DRIVER || actual == SupportStatus.UNSUPPORTED_BY_DBVISITOR, capability + " must identify the unsupported layer: " + actual);
         }
     }
 
@@ -142,7 +141,7 @@ public abstract class NxnMetadataContractTest extends AbstractNxnContractTest {
     public void nxnMetadata_shouldGenerateCapabilityMatrixReportForCurrentDatasource() throws Exception {
         Path report = CapabilityMatrixReport.writeCurrentProfileReport(profile());
 
-        assertTrue("NXN report should be generated: " + report, Files.isRegularFile(report));
+        assertTrue(Files.isRegularFile(report), "NXN report should be generated: " + report);
         String text = new String(Files.readAllBytes(report), StandardCharsets.UTF_8);
         assertTrue(text.contains("- Current env: `" + profile().env() + "`"));
         assertTrue(text.contains("- Datasources: `h2`, `mysql`, `pg`, `mssql`, `oracle`, `db2`, `clickhouse`, `redis`, `mongo`, `es6`, `es7`, `milvus`"));
@@ -154,10 +153,10 @@ public abstract class NxnMetadataContractTest extends AbstractNxnContractTest {
         assertTrue(text.contains("`UNSUPPORTED_BY_DATABASE`"));
         assertTrue(text.contains("`NOT_IMPLEMENTED`"));
         long profileRows = text.lines().filter(line -> line.startsWith("| `" + CapabilityId.NXN_METADATA_PROFILE_REGISTRY + "` ")).count();
-        assertEquals("Overriding a contract method must not create an additional capability row", 1, profileRows);
+        assertEquals(1, profileRows, "Overriding a contract method must not create an additional capability row");
         for (String line : text.split("\n")) {
             if (line.startsWith("| `")) {
-                assertTrue("Every reported contract must have a datasource binding: " + line, line.contains("`SUPPORTED`") || line.contains("`UNSUPPORTED_BY_DATABASE`") || line.contains("`UNSUPPORTED_BY_DRIVER`"));
+                assertTrue(line.contains("`SUPPORTED`") || line.contains("`UNSUPPORTED_BY_DATABASE`") || line.contains("`UNSUPPORTED_BY_DRIVER`"), "Every reported contract must have a datasource binding: " + line);
             }
         }
     }

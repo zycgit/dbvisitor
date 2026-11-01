@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
-
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -15,8 +14,8 @@ import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperResultMapCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class RedisXmlMapperResultMapTest extends XmlMapperResultMapCase {
     private final RedisMapperFixture fixture = new RedisMapperFixture();
@@ -27,14 +26,14 @@ public class RedisXmlMapperResultMapTest extends XmlMapperResultMapCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.fixture.open();
         this.jdbcTemplate = this.fixture.session().jdbc();
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void createXmlMapperSession() throws Exception {
         this.fixture.open();
         for (int offset = 1; offset <= 3; offset++) {
@@ -86,7 +85,7 @@ public class RedisXmlMapperResultMapTest extends XmlMapperResultMapCase {
         return Map.of("FIELD", String.valueOf(baseId() + 3), "VALUE", "RmCfg3");
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws SQLException {
         this.fixture.close();
     }

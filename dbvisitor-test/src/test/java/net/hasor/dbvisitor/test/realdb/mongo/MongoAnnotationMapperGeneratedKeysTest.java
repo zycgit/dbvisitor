@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.mongo;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperGeneratedKeysCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
@@ -15,11 +14,11 @@ import net.hasor.dbvisitor.test.realdb.mongo.material.MongoKeyFixture;
 import net.hasor.dbvisitor.test.realdb.mongo.material.MongoKeyMapper;
 import net.hasor.dbvisitor.test.realdb.mongo.material.MongoKeyRecord;
 import org.bson.types.ObjectId;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MongoAnnotationMapperGeneratedKeysTest extends AnnotationMapperGeneratedKeysCase {
     private final MongoKeyFixture fixture = new MongoKeyFixture();
@@ -31,13 +30,13 @@ public class MongoAnnotationMapperGeneratedKeysTest extends AnnotationMapperGene
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open();
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void createAnnotationMapper() throws Exception {
         this.keyMapper = this.fixture.session(newConfiguration()).createMapper(MongoKeyMapper.class);
     }
@@ -101,7 +100,7 @@ public class MongoAnnotationMapperGeneratedKeysTest extends AnnotationMapperGene
         assertTrue(ObjectId.isValid((String) id));
     }
 
-    @After
+    @AfterEach
     public void closeFixture() throws Exception {
         this.fixture.close();
     }

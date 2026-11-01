@@ -10,21 +10,21 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MilvusCmdForTableTest extends AbstractMilvusCmdForTest {
-    @Before
+    @BeforeEach
     public void setUp() {
         dropCollection(TEST_COLLECTION);
         dropCollection(TEST_COLLECTION_NEW);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         if (!milvusSelected) {
             return;
@@ -44,7 +44,7 @@ public class MilvusCmdForTableTest extends AbstractMilvusCmdForTest {
                     )
                     """);
 
-            assertTrue("Table should exist", hasCollection(TEST_COLLECTION));
+            assertTrue(hasCollection(TEST_COLLECTION), "Table should exist");
         }
     }
 
@@ -76,8 +76,8 @@ public class MilvusCmdForTableTest extends AbstractMilvusCmdForTest {
             stmt.executeUpdate("LOAD TABLE " + TEST_COLLECTION);
             try (ResultSet result = stmt.executeQuery("SELECT word_count FROM " + TEST_COLLECTION + " WHERE book_id = 1 LIMIT 1")) {
                 assertTrue(result.next());
-                Assert.assertEquals(7, result.getInt(1));
-                Assert.assertEquals(java.sql.Types.INTEGER, result.getMetaData().getColumnType(1));
+                Assertions.assertEquals(7, result.getInt(1));
+                Assertions.assertEquals(java.sql.Types.INTEGER, result.getMetaData().getColumnType(1));
                 assertFalse(result.next());
             }
         }
@@ -90,7 +90,7 @@ public class MilvusCmdForTableTest extends AbstractMilvusCmdForTest {
             assertTrue(hasCollection(TEST_COLLECTION));
 
             stmt.executeUpdate("DROP TABLE " + TEST_COLLECTION);
-            assertFalse("Table should be dropped", hasCollection(TEST_COLLECTION));
+            assertFalse(hasCollection(TEST_COLLECTION), "Table should be dropped");
         }
     }
 
@@ -116,8 +116,8 @@ public class MilvusCmdForTableTest extends AbstractMilvusCmdForTest {
 
             stmt.executeUpdate("ALTER TABLE " + TEST_COLLECTION + " RENAME TO " + TEST_COLLECTION_NEW);
 
-            assertFalse("Old table should not exist", hasCollection(TEST_COLLECTION));
-            assertTrue("New table should exist", hasCollection(TEST_COLLECTION_NEW));
+            assertFalse(hasCollection(TEST_COLLECTION), "Old table should not exist");
+            assertTrue(hasCollection(TEST_COLLECTION_NEW), "New table should exist");
         }
     }
 
@@ -134,7 +134,7 @@ public class MilvusCmdForTableTest extends AbstractMilvusCmdForTest {
                     }
                 }
             }
-            assertTrue("Should find the test table in SHOW TABLES", found);
+            assertTrue(found, "Should find the test table in SHOW TABLES");
         }
     }
 
@@ -152,7 +152,7 @@ public class MilvusCmdForTableTest extends AbstractMilvusCmdForTest {
                     }
                 }
             }
-            assertTrue("Should find column book_id in SHOW TABLE", found);
+            assertTrue(found, "Should find column book_id in SHOW TABLE");
         }
     }
 
@@ -174,7 +174,7 @@ public class MilvusCmdForTableTest extends AbstractMilvusCmdForTest {
                     assertTrue(createSql.contains("float_vector(2)"));
                 }
             }
-            assertTrue("Should get result from SHOW CREATE TABLE", found);
+            assertTrue(found, "Should get result from SHOW CREATE TABLE");
         }
     }
 
@@ -190,7 +190,7 @@ public class MilvusCmdForTableTest extends AbstractMilvusCmdForTest {
                     """;
             stmt.executeUpdate(sql);
 
-            assertTrue("Table should exist", hasCollection(TEST_COLLECTION));
+            assertTrue(hasCollection(TEST_COLLECTION), "Table should exist");
 
             try (ResultSet rs = stmt.executeQuery("SHOW CREATE TABLE " + TEST_COLLECTION)) {
                 if (rs.next()) {
@@ -217,7 +217,7 @@ public class MilvusCmdForTableTest extends AbstractMilvusCmdForTest {
                     """;
             stmt.executeUpdate(sql);
 
-            assertTrue("Table should exist", hasCollection(TEST_COLLECTION));
+            assertTrue(hasCollection(TEST_COLLECTION), "Table should exist");
 
             try (ResultSet rs = stmt.executeQuery("SHOW CREATE TABLE " + TEST_COLLECTION)) {
                 if (rs.next()) {
@@ -257,7 +257,7 @@ public class MilvusCmdForTableTest extends AbstractMilvusCmdForTest {
                     ")";
             stmt.executeUpdate(sql);
 
-            assertTrue("Table should exist", hasCollection(collectionName));
+            assertTrue(hasCollection(collectionName), "Table should exist");
 
             // Verify with Milvus native SDK
             io.milvus.client.MilvusServiceClient client = newClient();
@@ -277,62 +277,62 @@ public class MilvusCmdForTableTest extends AbstractMilvusCmdForTest {
 
                 // Verify ID
                 io.milvus.grpc.FieldSchema idField = fieldMap.get("id");
-                Assert.assertEquals(io.milvus.grpc.DataType.Int64, idField.getDataType());
-                Assert.assertTrue(idField.getIsPrimaryKey());
-                Assert.assertTrue(idField.getAutoID());
-                Assert.assertEquals("Primary Key", idField.getDescription());
+                Assertions.assertEquals(io.milvus.grpc.DataType.Int64, idField.getDataType());
+                Assertions.assertTrue(idField.getIsPrimaryKey());
+                Assertions.assertTrue(idField.getAutoID());
+                Assertions.assertEquals("Primary Key", idField.getDescription());
 
                 // Verify Bool
                 io.milvus.grpc.FieldSchema boolField = fieldMap.get("col_bool");
-                Assert.assertEquals(io.milvus.grpc.DataType.Bool, boolField.getDataType());
-                Assert.assertEquals("Boolean column", boolField.getDescription());
+                Assertions.assertEquals(io.milvus.grpc.DataType.Bool, boolField.getDataType());
+                Assertions.assertEquals("Boolean column", boolField.getDescription());
 
                 // Verify Int8
-                Assert.assertEquals(io.milvus.grpc.DataType.Int8, fieldMap.get("col_int8").getDataType());
+                Assertions.assertEquals(io.milvus.grpc.DataType.Int8, fieldMap.get("col_int8").getDataType());
                 // Verify Int16
-                Assert.assertEquals(io.milvus.grpc.DataType.Int16, fieldMap.get("col_int16").getDataType());
+                Assertions.assertEquals(io.milvus.grpc.DataType.Int16, fieldMap.get("col_int16").getDataType());
                 // Verify Int32
-                Assert.assertEquals(io.milvus.grpc.DataType.Int32, fieldMap.get("col_int32").getDataType());
+                Assertions.assertEquals(io.milvus.grpc.DataType.Int32, fieldMap.get("col_int32").getDataType());
                 // Verify Float
-                Assert.assertEquals(io.milvus.grpc.DataType.Float, fieldMap.get("col_float").getDataType());
+                Assertions.assertEquals(io.milvus.grpc.DataType.Float, fieldMap.get("col_float").getDataType());
                 // Verify Double
-                Assert.assertEquals(io.milvus.grpc.DataType.Double, fieldMap.get("col_double").getDataType());
+                Assertions.assertEquals(io.milvus.grpc.DataType.Double, fieldMap.get("col_double").getDataType());
                 // Verify JSON
-                Assert.assertEquals(io.milvus.grpc.DataType.JSON, fieldMap.get("col_json").getDataType());
+                Assertions.assertEquals(io.milvus.grpc.DataType.JSON, fieldMap.get("col_json").getDataType());
 
                 // Verify Varchar
                 io.milvus.grpc.FieldSchema varcharField = fieldMap.get("col_varchar");
-                Assert.assertEquals(io.milvus.grpc.DataType.VarChar, varcharField.getDataType());
+                Assertions.assertEquals(io.milvus.grpc.DataType.VarChar, varcharField.getDataType());
                 boolean foundMaxLength = false;
                 for (io.milvus.grpc.KeyValuePair kv : varcharField.getTypeParamsList()) {
                     if ("max_length".equals(kv.getKey())) {
-                        Assert.assertEquals("256", kv.getValue());
+                        Assertions.assertEquals("256", kv.getValue());
                         foundMaxLength = true;
                     }
                 }
-                Assert.assertTrue("Should have max_length parameter", foundMaxLength);
-                Assert.assertEquals("String column", varcharField.getDescription());
+                Assertions.assertTrue(foundMaxLength, "Should have max_length parameter");
+                Assertions.assertEquals("String column", varcharField.getDescription());
 
                 // Verify Float Vector
                 io.milvus.grpc.FieldSchema floatVectorField = fieldMap.get("col_float_vector");
-                Assert.assertEquals(io.milvus.grpc.DataType.FloatVector, floatVectorField.getDataType());
+                Assertions.assertEquals(io.milvus.grpc.DataType.FloatVector, floatVectorField.getDataType());
                 boolean foundDim = false;
                 for (io.milvus.grpc.KeyValuePair kv : floatVectorField.getTypeParamsList()) {
                     if ("dim".equals(kv.getKey())) {
-                        Assert.assertEquals("128", kv.getValue());
+                        Assertions.assertEquals("128", kv.getValue());
                         foundDim = true;
                     }
                 }
-                Assert.assertTrue("Should have dim parameter", foundDim);
-                Assert.assertEquals("Float Vector", floatVectorField.getDescription());
+                Assertions.assertTrue(foundDim, "Should have dim parameter");
+                Assertions.assertEquals("Float Vector", floatVectorField.getDescription());
 
                 // Verify Binary Vector (Binary vector dimension must be multiple of 8, 128 is fine)
                 io.milvus.grpc.FieldSchema binaryVectorField = fieldMap.get("col_binary_vector");
-                Assert.assertEquals(io.milvus.grpc.DataType.BinaryVector, binaryVectorField.getDataType());
+                Assertions.assertEquals(io.milvus.grpc.DataType.BinaryVector, binaryVectorField.getDataType());
                 // Verify Float16 Vector
-                Assert.assertEquals(io.milvus.grpc.DataType.Float16Vector, fieldMap.get("col_float16_vector").getDataType());
+                Assertions.assertEquals(io.milvus.grpc.DataType.Float16Vector, fieldMap.get("col_float16_vector").getDataType());
                 // Verify BFloat16 Vector
-                Assert.assertEquals(io.milvus.grpc.DataType.BFloat16Vector, fieldMap.get("col_bfloat16_vector").getDataType());
+                Assertions.assertEquals(io.milvus.grpc.DataType.BFloat16Vector, fieldMap.get("col_bfloat16_vector").getDataType());
 
             } finally {
                 client.close();

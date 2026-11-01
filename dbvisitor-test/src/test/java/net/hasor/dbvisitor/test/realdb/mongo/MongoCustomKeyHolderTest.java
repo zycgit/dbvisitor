@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.mongo;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.feature.keygen.CustomKeyHolderCase;
 import net.hasor.dbvisitor.test.contract.material.model.keygen.*;
@@ -15,9 +14,9 @@ import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
 import net.hasor.dbvisitor.test.realdb.mongo.material.MongoAfterKeyEntity;
 import net.hasor.dbvisitor.test.realdb.mongo.material.MongoEntityFixture;
 import org.bson.types.ObjectId;
-import org.junit.After;
-import org.junit.Before;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MongoCustomKeyHolderTest extends CustomKeyHolderCase {
     private final MongoEntityFixture fixture      = new MongoEntityFixture();
@@ -29,7 +28,7 @@ public class MongoCustomKeyHolderTest extends CustomKeyHolderCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open(KeyHolderUser.class, "{id: 1}");
         for (Class<?> type : new Class<?>[] { KeyHolderBothUser.class, KeyHolderContextUser.class, KeyHolderConnectionUser.class, KeyHolderFailingUser.class, KeyHolderSqlExceptionUser.class }) {
@@ -86,7 +85,7 @@ public class MongoCustomKeyHolderTest extends CustomKeyHolderCase {
         return jdbcTemplate.queryForString(this.afterFixture.command("find({_id: ObjectId(?)}, {_id: 0, name: 1})"), new Object[] { key });
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws SQLException {
         try {
             this.afterFixture.close();

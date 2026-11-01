@@ -16,7 +16,7 @@ import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.lambda.MapQuery;
 import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class CaseSensitiveTest {
     // 默认大小写不敏感，数据字段全大写

@@ -6,15 +6,14 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package com.example.demo;
-
 import com.example.demo.dto.UserDTO;
 import com.example.demo.service.UserService;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
@@ -23,7 +22,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration({ "classpath:application.xml", "classpath:test-datasource.xml" })
 public class ApplicationTests {
     @Resource
@@ -31,7 +30,7 @@ public class ApplicationTests {
     @Resource
     private DataSource  dataSource;
 
-    @Before
+    @BeforeEach
     public void beforeTest() throws SQLException, IOException {
         new JdbcTemplate(this.dataSource).loadSQL("CreateDB.sql");
     }

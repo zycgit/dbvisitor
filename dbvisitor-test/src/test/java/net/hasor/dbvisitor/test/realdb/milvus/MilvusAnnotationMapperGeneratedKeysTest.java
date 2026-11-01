@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.SQLException;
 import java.util.Date;
 import net.hasor.dbvisitor.mapper.Insert;
@@ -16,8 +15,8 @@ import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperG
 import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyAutoLongUser;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 /** Same key backfill and explicit-ID assertions, using the native Int64 entity field. */
 public class MilvusAnnotationMapperGeneratedKeysTest extends AnnotationMapperGeneratedKeysCase {
@@ -31,7 +30,7 @@ public class MilvusAnnotationMapperGeneratedKeysTest extends AnnotationMapperGen
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         if (this.jdbcTemplate == null) {
             this.jdbcTemplate = this.fixture.open();
@@ -42,7 +41,7 @@ public class MilvusAnnotationMapperGeneratedKeysTest extends AnnotationMapperGen
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void createAnnotationMapper() throws Exception {
         setup();
         this.session = newConfiguration().newSession(this.jdbcTemplate.getConnection());
@@ -92,7 +91,7 @@ public class MilvusAnnotationMapperGeneratedKeysTest extends AnnotationMapperGen
         int generatedWithColumn(KeyAutoLongUser user);
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws Exception {
         try {
             this.fixture.close();

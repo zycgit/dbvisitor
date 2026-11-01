@@ -16,8 +16,8 @@ import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.handler.string.NStringTypeHandler;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class NestedTest {
 
@@ -36,13 +36,13 @@ public class NestedTest {
 
         String generatedSql = sqlBuilder.getSqlString();
         if (!StringUtils.equals(generatedSql, "where  password = ?")) {
-            Assert.assertEquals(String.format("Original: [%s]", generatedSql), expectedSql, generatedSql);
+            Assertions.assertEquals(expectedSql, generatedSql, String.format("Original: [%s]", generatedSql));
         }
 
-        Assert.assertEquals("Arg count mismatch", 1, sqlBuilder.getArgs().length);
+        Assertions.assertEquals(1, sqlBuilder.getArgs().length, "Arg count mismatch");
 
         Object outputArg = ((SqlArg) sqlBuilder.getArgs()[0]).getValue();
-        Assert.assertEquals("MD5 mismatch", "e10adc3949ba59abbe56e057f20f883e", outputArg);
+        Assertions.assertEquals("e10adc3949ba59abbe56e057f20f883e", outputArg, "MD5 mismatch");
     }
 
     @Test
@@ -60,7 +60,7 @@ public class NestedTest {
         String expected = "SELECT * FROM tb_user WHERE 1=1 and  deleted=0";
         String actual = builder.getSqlString();
 
-        Assert.assertEquals(expected, actual.trim());
+        Assertions.assertEquals(expected, actual.trim());
     }
 
     @Test
@@ -78,12 +78,12 @@ public class NestedTest {
 
         String generatedSql = sqlBuilder.getSqlString();
         if (!StringUtils.equals(generatedSql, "where  password = ?")) {
-            Assert.assertEquals(String.format("Original: [%s]", generatedSql), expectedSql, generatedSql);
+            Assertions.assertEquals(expectedSql, generatedSql, String.format("Original: [%s]", generatedSql));
         }
-        Assert.assertEquals("Arg count mismatch", 1, sqlBuilder.getArgs().length);
+        Assertions.assertEquals(1, sqlBuilder.getArgs().length, "Arg count mismatch");
 
         Object outputArg = ((SqlArg) sqlBuilder.getArgs()[0]).getValue();
-        Assert.assertEquals("MD5 mismatch", "e10adc3949ba59abbe56e057f20f883e", outputArg);
+        Assertions.assertEquals("e10adc3949ba59abbe56e057f20f883e", outputArg, "MD5 mismatch");
     }
 
     @Test
@@ -101,13 +101,13 @@ public class NestedTest {
         assert StringUtils.equals(generatedSql, "where  col = ?");
 
         Object[] args = builder.getArgs();
-        Assert.assertEquals(1, args.length);
+        Assertions.assertEquals(1, args.length);
         SqlArg arg = (SqlArg) args[0];
 
-        Assert.assertEquals("123", arg.getValue());
-        Assert.assertEquals(111, (int) arg.getJdbcType());
-        Assert.assertEquals(SqlMode.In, arg.getSqlMode());
-        Assert.assertEquals(String.class, arg.getJavaType());
+        Assertions.assertEquals("123", arg.getValue());
+        Assertions.assertEquals(111, (int) arg.getJdbcType());
+        Assertions.assertEquals(SqlMode.In, arg.getSqlMode());
+        Assertions.assertEquals(String.class, arg.getJavaType());
         assert arg.getTypeHandler() instanceof NStringTypeHandler;
     }
 
@@ -132,7 +132,7 @@ public class NestedTest {
         assert StringUtils.equals(generatedSqlTrue, "where  password =   ?");
 
         Object valTrue = ((SqlArg) builderTrue.getArgs()[0]).getValue();
-        Assert.assertEquals("True Case MD5 mismatch", "e10adc3949ba59abbe56e057f20f883e", valTrue);
+        Assertions.assertEquals("e10adc3949ba59abbe56e057f20f883e", valTrue, "True Case MD5 mismatch");
 
         // Case 2: encryptMode = false -> original value
         Map<String, Object> paramsFalse = new HashMap<>();
@@ -146,7 +146,7 @@ public class NestedTest {
         assert StringUtils.equals(generatedSqlTrue, "where  password =   ?");
 
         Object valFalse = ((SqlArg) builderFalse.getArgs()[0]).getValue();
-        Assert.assertEquals("False Case mismatch", "123456", valFalse);
+        Assertions.assertEquals("123456", valFalse, "False Case mismatch");
     }
 
     @Test
@@ -162,7 +162,7 @@ public class NestedTest {
 
         String generatedSql = sqlBuilder.getSqlString();
         assert StringUtils.equals(generatedSql, expectedSql);
-        Assert.assertEquals("Arg count mismatch", 0, sqlBuilder.getArgs().length);
+        Assertions.assertEquals(0, sqlBuilder.getArgs().length, "Arg count mismatch");
     }
 
     @Test

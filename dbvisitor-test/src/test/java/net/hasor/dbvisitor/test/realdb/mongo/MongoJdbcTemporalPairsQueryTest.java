@@ -6,15 +6,14 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.mongo;
-
 import java.sql.SQLException;
 import java.util.Date;
 import net.hasor.dbvisitor.test.contract.api.adapter.NativeDocumentQueryFixture;
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcTemporalPairsQueryCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class MongoJdbcTemporalPairsQueryTest extends JdbcTemporalPairsQueryCase {
     private final NativeDocumentQueryFixture fixture = new NativeDocumentQueryFixture();
@@ -25,7 +24,7 @@ public class MongoJdbcTemporalPairsQueryTest extends JdbcTemporalPairsQueryCase 
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open(profile().env());
     }
@@ -50,7 +49,7 @@ public class MongoJdbcTemporalPairsQueryTest extends JdbcTemporalPairsQueryCase 
         return this.fixture.countRange(lower, upper);
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws SQLException {
         this.fixture.close();
     }

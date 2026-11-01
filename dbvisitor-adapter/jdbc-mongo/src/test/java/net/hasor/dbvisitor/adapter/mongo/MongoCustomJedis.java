@@ -6,30 +6,28 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.mongo;
-
 import java.lang.reflect.InvocationHandler;
 import java.util.Map;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
 
 public class MongoCustomJedis implements CustomMongo {
 
     @Override
     public MongoClient createMongoClient(String jdbcUrl, Map<String, String> props) {
-        MongoClient root = PowerMockito.mock(MongoClient.class);
+        MongoClient root = Mockito.mock(MongoClient.class);
 
-        PowerMockito.when(root.getDatabase(Mockito.anyString())).thenAnswer(invocation -> {
+        Mockito.when(root.getDatabase(Mockito.anyString())).thenAnswer(invocation -> {
             String dbName = invocation.getArgument(0);
 
-            MongoDatabase md = PowerMockito.mock(MongoDatabase.class);
-            PowerMockito.when(md.getName()).thenAnswer(im -> dbName);
+            MongoDatabase md = Mockito.mock(MongoDatabase.class);
+            Mockito.when(md.getName()).thenAnswer(im -> dbName);
 
-            PowerMockito.when(md.getCollection(Mockito.anyString())).thenAnswer(im -> {
+            Mockito.when(md.getCollection(Mockito.anyString())).thenAnswer(im -> {
                 String collectionName = im.getArgument(0);
-                return PowerMockito.mock(MongoCollection.class);
+                return Mockito.mock(MongoCollection.class);
             });
 
             return md;

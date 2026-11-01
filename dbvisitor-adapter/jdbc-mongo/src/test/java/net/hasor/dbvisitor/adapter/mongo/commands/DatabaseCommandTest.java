@@ -19,8 +19,8 @@ import com.mongodb.client.MongoDatabase;
 import net.hasor.dbvisitor.adapter.mongo.AbstractJdbcTest;
 import net.hasor.dbvisitor.adapter.mongo.MongoCommandInterceptor;
 import org.bson.Document;
-import org.junit.Test;
-import org.powermock.api.mockito.PowerMockito;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import static org.mockito.ArgumentMatchers.any;
 
 public class DatabaseCommandTest extends AbstractJdbcTest {
@@ -34,8 +34,8 @@ public class DatabaseCommandTest extends AbstractJdbcTest {
                 return mockListDatabasesIterable(result);
             }
             if ("getDatabase".equals(name)) {
-                MongoDatabase mockDb = PowerMockito.mock(MongoDatabase.class);
-                PowerMockito.when(mockDb.runCommand(any())).thenAnswer(inv -> {
+                MongoDatabase mockDb = Mockito.mock(MongoDatabase.class);
+                Mockito.when(mockDb.runCommand(any())).thenAnswer(inv -> {
                     Document doc = inv.getArgument(0);
                     if (doc.containsKey("buildInfo")) {
                         return new Document("version", "4.0.0");
@@ -83,15 +83,15 @@ public class DatabaseCommandTest extends AbstractJdbcTest {
                 return mockListDatabasesIterable(dbs);
             }
             if ("getDatabase".equals(name)) {
-                MongoDatabase mockDb = PowerMockito.mock(MongoDatabase.class);
-                PowerMockito.when(mockDb.runCommand(any())).thenAnswer(inv -> {
+                MongoDatabase mockDb = Mockito.mock(MongoDatabase.class);
+                Mockito.when(mockDb.runCommand(any())).thenAnswer(inv -> {
                     Document doc = inv.getArgument(0);
                     if (doc.containsKey("buildInfo")) {
                         return new Document("version", "4.0.0");
                     }
                     return null;
                 });
-                PowerMockito.doAnswer(inv -> {
+                Mockito.doAnswer(inv -> {
                     dropped.add("mydb");
                     return null;
                 }).when(mockDb).drop();
@@ -120,15 +120,15 @@ public class DatabaseCommandTest extends AbstractJdbcTest {
                 return mockListDatabasesIterable(dbs);
             }
             if ("getDatabase".equals(name)) {
-                MongoDatabase mockDb = PowerMockito.mock(MongoDatabase.class);
-                PowerMockito.when(mockDb.runCommand(any())).thenAnswer(inv -> {
+                MongoDatabase mockDb = Mockito.mock(MongoDatabase.class);
+                Mockito.when(mockDb.runCommand(any())).thenAnswer(inv -> {
                     Document doc = inv.getArgument(0);
                     if (doc.containsKey("buildInfo")) {
                         return new Document("version", "4.0.0");
                     }
                     return null;
                 });
-                PowerMockito.doAnswer(inv -> {
+                Mockito.doAnswer(inv -> {
                     dropped.add("mydb");
                     return null;
                 }).when(mockDb).drop();
@@ -157,15 +157,15 @@ public class DatabaseCommandTest extends AbstractJdbcTest {
                 return mockListDatabasesIterable(dbs);
             }
             if ("getDatabase".equals(name)) {
-                MongoDatabase mockDb = PowerMockito.mock(MongoDatabase.class);
-                PowerMockito.when(mockDb.runCommand(any())).thenAnswer(inv -> {
+                MongoDatabase mockDb = Mockito.mock(MongoDatabase.class);
+                Mockito.when(mockDb.runCommand(any())).thenAnswer(inv -> {
                     Document doc = inv.getArgument(0);
                     if (doc.containsKey("buildInfo")) {
                         return new Document("version", "4.0.0");
                     }
                     return null;
                 });
-                PowerMockito.doAnswer(inv -> {
+                Mockito.doAnswer(inv -> {
                     dropped.add("mydb");
                     return null;
                 }).when(mockDb).drop();

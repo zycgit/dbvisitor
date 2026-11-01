@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic7;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.api.mapper.basemapper.BaseMapperCompositeKeyCase;
@@ -15,8 +14,8 @@ import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
 import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
 import net.hasor.dbvisitor.test.realdb.elastic7.material.ElasticMatrixFixture;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 @NxnConcurrent
 public class Elastic7BaseMapperCompositeKeyTest extends BaseMapperCompositeKeyCase {
@@ -28,7 +27,7 @@ public class Elastic7BaseMapperCompositeKeyTest extends BaseMapperCompositeKeyCa
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open(profile().env(), UserRole.class, """
                 {"properties": {"user_id": {"type": "integer"},"role_id": {"type": "integer"},
@@ -38,7 +37,7 @@ public class Elastic7BaseMapperCompositeKeyTest extends BaseMapperCompositeKeyCa
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void createBaseMapper() throws SQLException {
         setup();
         super.createBaseMapper();
@@ -49,7 +48,7 @@ public class Elastic7BaseMapperCompositeKeyTest extends BaseMapperCompositeKeyCa
         return this.fixture.session();
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws SQLException {
         this.fixture.close();
     }

@@ -22,7 +22,7 @@ import net.hasor.dbvisitor.types.handler.io.SqlXmlAsInputStreamTypeHandler;
 import net.hasor.dbvisitor.types.handler.io.SqlXmlAsReaderTypeHandler;
 import net.hasor.dbvisitor.types.handler.string.SqlXmlTypeHandler;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SqlXmlTypeHandlerTest {
     protected void preProc(JdbcTemplate jdbcTemplate) throws SQLException {

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.unit.mapping;
-
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
@@ -17,8 +16,8 @@ import net.hasor.dbvisitor.test.contract.material.model.tabledef.CamelCaseEntity
 import net.hasor.dbvisitor.test.contract.material.model.tabledef.CaseSensitiveUser;
 import net.hasor.dbvisitor.test.contract.material.model.tabledef.CatalogSchemaUser;
 import net.hasor.dbvisitor.test.contract.material.model.tabledef.OrderByTemplateUser;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AnnotationTableMetadataTest {
     @Test

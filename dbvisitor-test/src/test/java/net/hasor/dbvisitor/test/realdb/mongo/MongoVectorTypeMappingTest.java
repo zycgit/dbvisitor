@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.mongo;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -23,8 +22,8 @@ import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
 import net.hasor.dbvisitor.test.realdb.mongo.material.MongoEntityFixture;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import net.hasor.dbvisitor.types.handler.json.BsonListTypeHandler;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 /** Shared embedding storage assertions using BSON numeric arrays, without vector search. */
 public class MongoVectorTypeMappingTest extends VectorTypeMappingCase {
@@ -36,7 +35,7 @@ public class MongoVectorTypeMappingTest extends VectorTypeMappingCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws IOException, SQLException {
         this.jdbcTemplate = this.fixture.open();
         TypeHandlerRegistry handlers = new TypeHandlerRegistry();
@@ -60,7 +59,7 @@ public class MongoVectorTypeMappingTest extends VectorTypeMappingCase {
         this.lambdaTemplate = new LambdaTemplate(this.jdbcTemplate.getConnection(), mappings, null);
     }
 
-    @After
+    @AfterEach
     public void closeFixture() throws SQLException {
         this.fixture.close();
     }

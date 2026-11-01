@@ -6,15 +6,14 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis.feature.type;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.feature.type.NativeNamedFieldTypeCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
-import org.junit.After;
-import org.junit.Before;
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RedisNamedFieldTypeTest extends NativeNamedFieldTypeCase {
     private final RedisTypeCommandFixture fixture = new RedisTypeCommandFixture();
@@ -25,13 +24,13 @@ public class RedisNamedFieldTypeTest extends NativeNamedFieldTypeCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open();
     }
 
     @Override
-    @After
+    @AfterEach
     public void closeFixture() throws SQLException {
         this.fixture.close();
     }

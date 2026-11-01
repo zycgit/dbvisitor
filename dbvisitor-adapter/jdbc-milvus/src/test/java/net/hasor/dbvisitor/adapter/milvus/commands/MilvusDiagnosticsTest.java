@@ -21,10 +21,10 @@ import net.hasor.dbvisitor.adapter.milvus.MilvusCommandInterceptor;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MilvusDiagnosticsTest {
     private final List<String>                 methods    = new ArrayList<>();
@@ -34,7 +34,7 @@ public class MilvusDiagnosticsTest {
     private       GetQuerySegmentInfoResp      query      = GetQuerySegmentInfoResp.builder().build();
     private       boolean                      fail;
 
-    @Before
+    @BeforeEach
     public void install() {
         MilvusCommandInterceptor.resetInterceptor();
         MilvusCommandInterceptor.addInterceptor(MilvusClientV2.class, (proxy, method, args) -> {
@@ -63,7 +63,7 @@ public class MilvusDiagnosticsTest {
         });
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         MilvusCommandInterceptor.resetInterceptor();
     }
@@ -184,7 +184,7 @@ public class MilvusDiagnosticsTest {
     public void diagnosticsShouldRejectMalformedSqlAndBoundCollectionNames() throws SQLException {
         try (Connection connection = connect(); Statement statement = connection.createStatement()) {
             for (String sql : Arrays.asList("SHOW HEALTH FROM books", "SHOW VERSION ?", "SHOW SEGMENTS FROM books", "SHOW QUERY SEGMENTS", "SHOW PERSISTENT SEGMENTS FROM ?", "SHOW QUERY SEGMENTS FROM books LIMIT 1")) {
-                assertThrows(sql, SQLException.class, () -> statement.executeQuery(sql));
+                assertThrows(SQLException.class, () -> statement.executeQuery(sql), sql);
             }
         }
         assertTrue(methods.isEmpty());

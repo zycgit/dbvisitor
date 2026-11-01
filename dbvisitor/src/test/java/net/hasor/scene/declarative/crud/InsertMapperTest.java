@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.scene.declarative.crud;
-
 import java.util.Date;
 import java.util.List;
 import net.hasor.dbvisitor.session.Configuration;
@@ -14,7 +13,7 @@ import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.session.dto.UserInfoMap;
 import net.hasor.scene.declarative.crud.dto.UserTable;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class InsertMapperTest {
     @Test

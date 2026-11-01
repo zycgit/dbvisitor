@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.mapper.xml;
-
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
@@ -22,15 +21,15 @@ import net.hasor.dbvisitor.transaction.Propagation;
 import net.hasor.dbvisitor.transaction.TransactionManager;
 import net.hasor.dbvisitor.transaction.TransactionStatus;
 import net.hasor.dbvisitor.transaction.support.TransactionHelper;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 @NxnContract
 public abstract class XmlMapperCallableCase extends AbstractNxnContractTest {
     private Session session;
 
-    @Before
+    @BeforeEach
     public void createCallableMapperFixtures() throws Exception {
         if (!profile().supportsFeature(FeatureId.XML_MAPPER_CALLABLE)) {
             return;
@@ -203,7 +202,7 @@ public abstract class XmlMapperCallableCase extends AbstractNxnContractTest {
     private Map<String, Object> executeForMap(String statementId, Map<String, Object> params) throws Exception {
         Object result = this.session.executeStatement(statementId, params);
         assertNotNull(result);
-        assertTrue("Expected result Map from " + statementId, result instanceof Map);
+        assertTrue(result instanceof Map, "Expected result Map from " + statementId);
         return (Map<String, Object>) result;
     }
 

@@ -6,7 +6,7 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.driver;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.ByteArrayInputStream;
 import java.io.StringReader;
 import java.math.BigDecimal;
@@ -17,15 +17,16 @@ import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Types;
 import java.util.Calendar;
 import java.util.Properties;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Assertions;
 /** Comprehensive tests for JdbcCallableStatement — covers callable execution, OUT parameters, named set/get methods. */
 public class JdbcCallableStatementTest {
 
     private JdbcConnection conn;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         Class.forName("net.hasor.dbvisitor.driver.JdbcDriver");
         Properties props = new Properties();
@@ -33,7 +34,7 @@ public class JdbcCallableStatementTest {
         conn = new JdbcConnection("jdbc:dbvisitor:mock://localhost", props);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         if (conn != null && !conn.isClosed()) {
             conn.close();
@@ -1166,16 +1167,20 @@ public class JdbcCallableStatementTest {
     }
 
     // feature not supported
-    @Test(expected = SQLFeatureNotSupportedException.class)
+    @Test
     public void setRowId_byName_unsupported() throws Exception {
-        CallableStatement cs = conn.prepareCall("{call myproc}");
-        cs.setRowId("arg1", null);
+        Assertions.assertThrows(SQLFeatureNotSupportedException.class, () -> {
+            CallableStatement cs = conn.prepareCall("{call myproc}");
+            cs.setRowId("arg1", null);
+        });
     }
 
-    @Test(expected = SQLFeatureNotSupportedException.class)
+    @Test
     public void setSQLXML_byName_unsupported() throws Exception {
-        CallableStatement cs = conn.prepareCall("{call myproc}");
-        cs.setSQLXML("arg1", null);
+        Assertions.assertThrows(SQLFeatureNotSupportedException.class, () -> {
+            CallableStatement cs = conn.prepareCall("{call myproc}");
+            cs.setSQLXML("arg1", null);
+        });
     }
 
     @Test

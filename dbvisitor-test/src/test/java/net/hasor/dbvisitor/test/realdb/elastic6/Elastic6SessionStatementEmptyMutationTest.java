@@ -6,15 +6,14 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic6;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.api.session.SessionStatementEmptyMutationCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic6Profile;
 import net.hasor.dbvisitor.test.realdb.elastic7.Elastic7SessionMapperFixture;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class Elastic6SessionStatementEmptyMutationTest extends SessionStatementEmptyMutationCase {
     private final Elastic7SessionMapperFixture fixture = new Elastic7SessionMapperFixture();
@@ -25,13 +24,13 @@ public class Elastic6SessionStatementEmptyMutationTest extends SessionStatementE
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = fixture.open(profile().env());
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void createStatementSession() throws Exception {
         this.jdbcTemplate = fixture.open(profile().env());
         Session session = fixture.session();
@@ -39,7 +38,7 @@ public class Elastic6SessionStatementEmptyMutationTest extends SessionStatementE
         this.session = session;
     }
 
-    @After
+    @AfterEach
     public void closeStatementFixture() throws Exception {
         fixture.close();
     }

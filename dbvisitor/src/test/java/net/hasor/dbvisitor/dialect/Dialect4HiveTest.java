@@ -8,7 +8,7 @@
 package net.hasor.dbvisitor.dialect;
 import net.hasor.dbvisitor.dialect.provider.HiveDialect;
 import net.hasor.dbvisitor.jdbc.JdbcHelper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /***
  * Hive 方言

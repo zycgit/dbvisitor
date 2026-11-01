@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.mapper.annotation;
-
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.util.*;
@@ -15,8 +14,8 @@ import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 @NxnContract
 public abstract class AnnotationMapperResultMappingCase extends AnnotationMapperResultMappingSupport {
@@ -33,7 +32,7 @@ public abstract class AnnotationMapperResultMappingCase extends AnnotationMapper
         assertNotNull(full);
         assertProperties(full, expectedFullEntity());
         for (String property : nonNullFullProperties()) {
-            assertNotNull(property, propertyValue(full, property));
+            assertNotNull(propertyValue(full, property), property);
         }
         assertNotNull(partial);
         assertProperties(partial, expectedPartialEntity());
@@ -55,7 +54,7 @@ public abstract class AnnotationMapperResultMappingCase extends AnnotationMapper
             assertEquals(new HashSet<>(expectedMapRows()), new HashSet<>(rows));
         }
         for (String column : expectedMap().keySet()) {
-            assertNotNull(column, value(rows.get(0), column));
+            assertNotNull(value(rows.get(0), column), column);
         }
     }
 
@@ -99,7 +98,7 @@ public abstract class AnnotationMapperResultMappingCase extends AnnotationMapper
                 }
                 matches |= candidateMatches;
             }
-            assertTrue("Entity must match the selected native projection", matches);
+            assertTrue(matches, "Entity must match the selected native projection");
         }
         assertTrue(names.contains(expectedFirstName()));
         assertTrue(ids.contains(expectedFirstId()));
@@ -297,7 +296,7 @@ public abstract class AnnotationMapperResultMappingCase extends AnnotationMapper
                 assertTrue(actualValue instanceof Number);
                 assertEquals(((Number) field.getValue()).longValue(), ((Number) actualValue).longValue());
             } else {
-                assertEquals(field.getKey(), field.getValue(), actualValue);
+                assertEquals(field.getValue(), actualValue, field.getKey());
             }
         }
     }
@@ -306,7 +305,7 @@ public abstract class AnnotationMapperResultMappingCase extends AnnotationMapper
         assertNotNull(bean);
         assertFalse(expected.isEmpty());
         for (Map.Entry<String, Object> field : expected.entrySet()) {
-            assertEquals(field.getKey(), field.getValue(), propertyValue(bean, field.getKey()));
+            assertEquals(field.getValue(), propertyValue(bean, field.getKey()), field.getKey());
         }
     }
 

@@ -6,21 +6,22 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.driver;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.Calendar;
 import java.util.Properties;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Assertions;
 
 /** Comprehensive tests for JdbcResultSet — covers getXxx, navigation, metadata, wasNull, updateXxx unsupported, etc. */
 public class JdbcResultSetComprehensiveTest {
 
     private JdbcConnection conn;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         Class.forName("net.hasor.dbvisitor.driver.JdbcDriver");
         Properties props = new Properties();
@@ -28,7 +29,7 @@ public class JdbcResultSetComprehensiveTest {
         conn = new JdbcConnection("jdbc:dbvisitor:mock://localhost", props);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         if (conn != null && !conn.isClosed()) {
             conn.close();
@@ -492,53 +493,67 @@ public class JdbcResultSetComprehensiveTest {
         stmt.close();
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void absolute_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM multi");
-        rs.absolute(1);
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM multi");
+            rs.absolute(1);
+        });
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void relative_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM multi");
-        rs.relative(1);
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM multi");
+            rs.relative(1);
+        });
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void previous_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM multi");
-        rs.previous();
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM multi");
+            rs.previous();
+        });
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void first_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM multi");
-        rs.first();
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM multi");
+            rs.first();
+        });
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void last_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM multi");
-        rs.last();
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM multi");
+            rs.last();
+        });
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void beforeFirst_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM multi");
-        rs.beforeFirst();
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM multi");
+            rs.beforeFirst();
+        });
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void afterLast_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM multi");
-        rs.afterLast();
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM multi");
+            rs.afterLast();
+        });
     }
 
     // ==================== metadata ====================
@@ -614,11 +629,13 @@ public class JdbcResultSetComprehensiveTest {
         stmt.close();
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void setFetchDirection_reverse_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM test");
-        rs.setFetchDirection(ResultSet.FETCH_REVERSE);
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM test");
+            rs.setFetchDirection(ResultSet.FETCH_REVERSE);
+        });
     }
 
     @Test
@@ -899,219 +916,273 @@ public class JdbcResultSetComprehensiveTest {
     }
 
     // ==================== updateXxx — all unsupported ====================
-    @Test(expected = SQLException.class)
+    @Test
     public void updateNull_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM types");
-        rs.next();
-        rs.updateNull(1);
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM types");
+            rs.next();
+            rs.updateNull(1);
+        });
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void updateBoolean_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM types");
-        rs.next();
-        rs.updateBoolean(1, true);
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM types");
+            rs.next();
+            rs.updateBoolean(1, true);
+        });
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void updateByte_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM types");
-        rs.next();
-        rs.updateByte(1, (byte) 1);
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM types");
+            rs.next();
+            rs.updateByte(1, (byte) 1);
+        });
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void updateShort_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM types");
-        rs.next();
-        rs.updateShort(1, (short) 1);
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM types");
+            rs.next();
+            rs.updateShort(1, (short) 1);
+        });
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void updateInt_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM types");
-        rs.next();
-        rs.updateInt(1, 1);
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM types");
+            rs.next();
+            rs.updateInt(1, 1);
+        });
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void updateLong_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM types");
-        rs.next();
-        rs.updateLong(1, 1L);
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM types");
+            rs.next();
+            rs.updateLong(1, 1L);
+        });
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void updateFloat_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM types");
-        rs.next();
-        rs.updateFloat(1, 1.0f);
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM types");
+            rs.next();
+            rs.updateFloat(1, 1.0f);
+        });
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void updateDouble_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM types");
-        rs.next();
-        rs.updateDouble(1, 1.0d);
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM types");
+            rs.next();
+            rs.updateDouble(1, 1.0d);
+        });
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void updateString_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM types");
-        rs.next();
-        rs.updateString(1, "x");
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM types");
+            rs.next();
+            rs.updateString(1, "x");
+        });
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void updateBytes_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM types");
-        rs.next();
-        rs.updateBytes(1, new byte[] { 1 });
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM types");
+            rs.next();
+            rs.updateBytes(1, new byte[] { 1 });
+        });
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void updateObject_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM types");
-        rs.next();
-        rs.updateObject(1, "x");
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM types");
+            rs.next();
+            rs.updateObject(1, "x");
+        });
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void updateBigDecimal_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM types");
-        rs.next();
-        rs.updateBigDecimal(1, BigDecimal.ONE);
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM types");
+            rs.next();
+            rs.updateBigDecimal(1, BigDecimal.ONE);
+        });
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void updateDate_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM types");
-        rs.next();
-        rs.updateDate(1, new Date(0));
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM types");
+            rs.next();
+            rs.updateDate(1, new Date(0));
+        });
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void updateTime_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM types");
-        rs.next();
-        rs.updateTime(1, new Time(0));
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM types");
+            rs.next();
+            rs.updateTime(1, new Time(0));
+        });
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void updateTimestamp_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM types");
-        rs.next();
-        rs.updateTimestamp(1, new Timestamp(0));
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM types");
+            rs.next();
+            rs.updateTimestamp(1, new Timestamp(0));
+        });
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void insertRow_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM types");
-        rs.next();
-        rs.insertRow();
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM types");
+            rs.next();
+            rs.insertRow();
+        });
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void updateRow_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM types");
-        rs.next();
-        rs.updateRow();
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM types");
+            rs.next();
+            rs.updateRow();
+        });
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void deleteRow_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM types");
-        rs.next();
-        rs.deleteRow();
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM types");
+            rs.next();
+            rs.deleteRow();
+        });
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void refreshRow_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM types");
-        rs.next();
-        rs.refreshRow();
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM types");
+            rs.next();
+            rs.refreshRow();
+        });
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void cancelRowUpdates_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM types");
-        rs.next();
-        rs.cancelRowUpdates();
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM types");
+            rs.next();
+            rs.cancelRowUpdates();
+        });
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void moveToInsertRow_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM types");
-        rs.moveToInsertRow();
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM types");
+            rs.moveToInsertRow();
+        });
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void moveToCurrentRow_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM types");
-        rs.moveToCurrentRow();
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM types");
+            rs.moveToCurrentRow();
+        });
     }
 
     // ==================== updateXxx by name ====================
-    @Test(expected = SQLException.class)
+    @Test
     public void updateNull_byName_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM types");
-        rs.next();
-        rs.updateNull("c_int");
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM types");
+            rs.next();
+            rs.updateNull("c_int");
+        });
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void updateInt_byName_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM types");
-        rs.next();
-        rs.updateInt("c_int", 1);
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM types");
+            rs.next();
+            rs.updateInt("c_int", 1);
+        });
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void updateString_byName_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM types");
-        rs.next();
-        rs.updateString("c_string", "x");
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM types");
+            rs.next();
+            rs.updateString("c_string", "x");
+        });
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void updateLong_byName_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM types");
-        rs.next();
-        rs.updateLong("c_int", 1L);
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM types");
+            rs.next();
+            rs.updateLong("c_int", 1L);
+        });
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void updateObject_byName_unsupported() throws Exception {
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM types");
-        rs.next();
-        rs.updateObject("c_int", 1);
+        Assertions.assertThrows(SQLException.class, () -> {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM types");
+            rs.next();
+            rs.updateObject("c_int", 1);
+        });
     }
 
     // unwrap

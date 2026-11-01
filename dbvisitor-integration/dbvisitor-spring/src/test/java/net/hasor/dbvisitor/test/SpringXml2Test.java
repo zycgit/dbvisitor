@@ -15,13 +15,13 @@ import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.dao.role.RoleMapper;
 import net.hasor.dbvisitor.test.dao.user.UserMapper;
 import net.hasor.dbvisitor.test.dto.UserDTO;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration("classpath:spring-xml-2.xml")
 public class SpringXml2Test {
     @Resource
@@ -31,7 +31,7 @@ public class SpringXml2Test {
     @Resource
     private Session    dalSession;
 
-    @Before
+    @BeforeEach
     public void beforeTest() throws SQLException, IOException {
         this.dalSession.jdbc().loadSQL("CreateDB.sql");
     }

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.milvus.commands;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -23,16 +22,16 @@ import net.hasor.dbvisitor.adapter.milvus.MilvusCommandInterceptor;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MilvusSchemaChangesTest {
     private final List<Object> requests = new ArrayList<>();
     private       Connection   connection;
 
-    @Before
+    @BeforeEach
     public void connect() throws SQLException {
         MilvusCommandInterceptor.resetInterceptor();
         MilvusCommandInterceptor.addInterceptor(MilvusClientV2.class, (proxy, method, args) -> {
@@ -50,7 +49,7 @@ public class MilvusSchemaChangesTest {
         this.connection = new JdbcDriver().connect("jdbc:dbvisitor:milvus://test:19530/db1", properties);
     }
 
-    @After
+    @AfterEach
     public void close() throws SQLException {
         try {
             if (this.connection != null) {
@@ -175,7 +174,7 @@ public class MilvusSchemaChangesTest {
         String[] statements = { "ALTER TABLE t ADD COLUMN name VARCHAR(64) NOT NULL", "ALTER TABLE t ADD COLUMN id INT64 PRIMARY KEY NULL", "ALTER TABLE t DROP PROPERTIES ('')", "ALTER TABLE t DROP PROPERTIES (?)" };
         try (Statement statement = this.connection.createStatement()) {
             for (String sql : statements) {
-                assertThrows(sql, SQLException.class, () -> statement.executeUpdate(sql));
+                assertThrows(SQLException.class, () -> statement.executeUpdate(sql), sql);
             }
         }
         try (PreparedStatement statement = this.connection.prepareStatement("ALTER TABLE t SET PROPERTIES (description=?)")) {

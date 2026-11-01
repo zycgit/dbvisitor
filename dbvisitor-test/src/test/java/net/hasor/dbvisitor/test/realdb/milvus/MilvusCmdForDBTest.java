@@ -6,25 +6,24 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.*;
 import java.util.HashSet;
 import java.util.Set;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MilvusCmdForDBTest extends AbstractMilvusCmdForTest {
-    @Before
+    @BeforeEach
     public void setUp() {
         if (hasDatabase(TEST_DATABASE)) {
             dropDatabase(TEST_DATABASE);
         }
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         if (!milvusSelected) {
             return;
@@ -38,7 +37,7 @@ public class MilvusCmdForDBTest extends AbstractMilvusCmdForTest {
     public void testCreateDatabase() throws Exception {
         try (Connection conn = DriverManager.getConnection(MILVUS_URL); Statement stmt = conn.createStatement()) {
             stmt.executeUpdate("CREATE DATABASE " + TEST_DATABASE);
-            assertTrue("Database should exist after CREATE", hasDatabase(TEST_DATABASE));
+            assertTrue(hasDatabase(TEST_DATABASE), "Database should exist after CREATE");
         }
     }
 
@@ -47,7 +46,7 @@ public class MilvusCmdForDBTest extends AbstractMilvusCmdForTest {
         createDatabase(TEST_DATABASE);
         try (Connection conn = DriverManager.getConnection(MILVUS_URL); Statement stmt = conn.createStatement()) {
             stmt.executeUpdate("ALTER DATABASE " + TEST_DATABASE + " SET PROPERTIES (\"replica.number\" = 1)");
-            assertTrue("Database should still exist after ALTER", hasDatabase(TEST_DATABASE));
+            assertTrue(hasDatabase(TEST_DATABASE), "Database should still exist after ALTER");
         }
     }
 
@@ -56,7 +55,7 @@ public class MilvusCmdForDBTest extends AbstractMilvusCmdForTest {
         createDatabase(TEST_DATABASE);
         try (Connection conn = DriverManager.getConnection(MILVUS_URL); Statement stmt = conn.createStatement()) {
             stmt.executeUpdate("DROP DATABASE " + TEST_DATABASE);
-            assertFalse("Database should not exist after DROP", hasDatabase(TEST_DATABASE));
+            assertFalse(hasDatabase(TEST_DATABASE), "Database should not exist after DROP");
         }
     }
 
@@ -106,7 +105,7 @@ public class MilvusCmdForDBTest extends AbstractMilvusCmdForTest {
                 }
             }
 
-            assertTrue("Should find the test database in SHOW DATABASES", found);
+            assertTrue(found, "Should find the test database in SHOW DATABASES");
         }
     }
 

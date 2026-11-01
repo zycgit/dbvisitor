@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.unit.nxn;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -20,18 +19,23 @@ import net.hasor.dbvisitor.test.nxn.capability.SupportStatus;
 import net.hasor.dbvisitor.test.nxn.env.*;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.report.NxnTestResult;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.JUnitCore;
-import org.junit.runner.Result;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.platform.launcher.core.LauncherFactory;
+import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
+import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
+import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Assertions;
 
 public class NxnRecorderTest {
-    @Rule
-    public TemporaryFolder temporary = new TemporaryFolder();
+    @TempDir
+    public Path temporary;
 
     @Test
     public void capturesPassesLimitsUnknownSkipsAndFailures() throws Exception {
@@ -72,8 +76,36 @@ public class NxnRecorderTest {
         assertEquals(SupportStatus.UNSUPPORTED_BY_DATABASE, MilvusProfile.INSTANCE.support(CapabilityId.LAMBDA_QUERY_ORDER));
     }
 
+    @Test
+    public void setupFailureIsRecordedAsFailure() throws Exception {
+        // A failing setup must still produce its observed contract result.
+        var results = execute("h2", SetupFailureFixture.class, 1, 1);
+        assertEquals("failed", results.get("check").outcome);
+        assertTrue(results.get("check").reason.contains("setup failure"));
+    }
+
+    @Test
+    public void cleanupFailureIsRecordedAsFailure() throws Exception {
+        // Recording follows user cleanup, so its failure cannot become a passing capability.
+        var results = execute("h2", CleanupFailureFixture.class, 1, 1);
+        assertEquals("failed", results.get("check").outcome);
+        assertTrue(results.get("check").reason.contains("cleanup failure"));
+    }
+
+    @Test
+    public void parameterizedClassInvocationsProduceDistinctObservations() throws Exception {
+        // Both constructor invocations must be recorded without overwriting one method's result.
+        var results = execute("h2", ParameterRecordingFixture.class, 0, 2);
+        assertEquals(2, results.keySet().stream().filter(name -> name.startsWith("check[")).count());
+        assertTrue(results.values().stream().allMatch(result -> "passed".equals(result.outcome)));
+    }
+
     private Map<String, NxnTestResult> execute(String env) throws Exception {
-        Path directory = temporary.newFolder().toPath();
+        return execute(env, RecordingFixture.class, "h2".equals(env) ? 1 : 0, 6);
+    }
+
+    private Map<String, NxnTestResult> execute(String env, Class<?> fixture, int failures, int count) throws Exception {
+        Path directory = Files.createTempDirectory(temporary, "run-");
         Map<String, String> properties = Map.of("nxn.env", env, "nxn.resultDir", directory.toString(), "nxn.runId", "unit-run");
         Map<String, String> previous = new HashMap<>();
         try {
@@ -81,8 +113,10 @@ public class NxnRecorderTest {
                 previous.put(property.getKey(), System.getProperty(property.getKey()));
                 System.setProperty(property.getKey(), property.getValue());
             }
-            Result execution = JUnitCore.runClasses(RecordingFixture.class);
-            assertEquals("h2".equals(env) ? 1 : 0, execution.getFailureCount());
+            SummaryGeneratingListener execution = new SummaryGeneratingListener();
+            var request = LauncherDiscoveryRequestBuilder.request().selectors(selectClass(fixture)).build();
+            LauncherFactory.create().execute(request, execution);
+            assertEquals(failures, execution.getSummary().getTestsFailedCount());
         } finally {
             for (Map.Entry<String, String> property : previous.entrySet()) {
                 if (property.getValue() == null) {
@@ -100,13 +134,13 @@ public class NxnRecorderTest {
                 assertEquals("unit-run", result.runId);
             }
         }
-        assertEquals(6, results.size());
+        assertEquals(count, results.size());
         return results;
     }
 
     public static class RecordingFixture extends AbstractNxnContractTest {
         @Override
-        @Before
+        @BeforeEach
         public void setup() {
             // These fixtures exercise JUnit reporting, not a database connection.
         }
@@ -122,10 +156,12 @@ public class NxnRecorderTest {
             assertTrue(true);
         }
 
-        @Test(expected = IllegalArgumentException.class)
+        @Test
         @Capability(CapabilityId.JDBC_CRUD_INSERT)
         public void expectedException() {
-            throw new IllegalArgumentException("Expected command validation failure");
+            Assertions.assertThrows(IllegalArgumentException.class, () -> {
+                throw new IllegalArgumentException("Expected command validation failure");
+            });
         }
 
         @Test
@@ -144,7 +180,7 @@ public class NxnRecorderTest {
         @Test
         @Capability(CapabilityId.JDBC_CRUD_INSERT)
         public void unknownSkip() {
-            Assume.assumeTrue("Unclassified environment issue", false);
+            Assumptions.assumeTrue(false, "Unclassified environment issue");
         }
 
         @Test
@@ -153,4 +189,75 @@ public class NxnRecorderTest {
             fail("Intentional fixture failure");
         }
     }
+    public static class SetupFailureFixture extends AbstractNxnContractTest {
+        @Override
+        protected DataSourceProfile profile() {
+            return H2Profile.INSTANCE;
+        }
+
+        @Override
+        @BeforeEach
+        public void setup() {
+            throw new IllegalStateException("setup failure");
+        }
+
+        @Test
+        @Capability(CapabilityId.JDBC_CRUD_INSERT)
+        public void check() {
+            fail("Setup must prevent this method from running");
+        }
+    }
+
+    public static class CleanupFailureFixture extends AbstractNxnContractTest {
+        @Override
+        protected DataSourceProfile profile() {
+            return H2Profile.INSTANCE;
+        }
+
+        @Override
+        @BeforeEach
+        public void setup() {
+            // This fixture exercises lifecycle recording without a database.
+        }
+
+        @AfterEach
+        public void cleanup() {
+            throw new IllegalStateException("cleanup failure");
+        }
+
+        @Test
+        @Capability(CapabilityId.JDBC_CRUD_INSERT)
+        public void check() {
+            assertTrue(true);
+        }
+    }
+
+    @ParameterizedClass(quoteTextArguments = false, autoCloseArguments = false)
+    @MethodSource("parameters")
+    public static class ParameterRecordingFixture extends AbstractNxnContractTest {
+        public static java.util.List<Object[]> parameters() {
+            return java.util.List.of(new Object[] { 1 }, new Object[] { 2 });
+        }
+
+        public ParameterRecordingFixture(int ignored) {
+        }
+
+        @Override
+        protected DataSourceProfile profile() {
+            return H2Profile.INSTANCE;
+        }
+
+        @Override
+        @BeforeEach
+        public void setup() {
+            // This fixture exercises parameter identities without a database.
+        }
+
+        @Test
+        @Capability(CapabilityId.JDBC_CRUD_INSERT)
+        public void check() {
+            assertTrue(true);
+        }
+    }
+
 }

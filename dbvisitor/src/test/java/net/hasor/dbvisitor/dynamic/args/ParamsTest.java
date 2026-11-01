@@ -12,7 +12,7 @@ import java.util.function.Supplier;
 import net.hasor.cobble.BeanUtils;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.utils.UserInfo;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import static net.hasor.test.utils.TestUtils.beanForData1;
 
 /***

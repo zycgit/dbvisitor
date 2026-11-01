@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.types.handler;
-
 import java.sql.CallableStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -22,8 +21,8 @@ import net.hasor.cobble.reflect.resolvable.ResolvableType;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.handler.json.BsonListTypeHandler;
 import org.bson.Document;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class BsonListTypeHandlerTest {

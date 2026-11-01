@@ -6,15 +6,14 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.mongo;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlRefMapperCrudCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
 import net.hasor.dbvisitor.test.realdb.mongo.material.MongoMapperFixture;
 import net.hasor.dbvisitor.test.realdb.mongo.material.MongoRefMapper;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class MongoXmlRefMapperCrudTest extends XmlRefMapperCrudCase {
     private final MongoMapperFixture fixture = new MongoMapperFixture();
@@ -25,7 +24,7 @@ public class MongoXmlRefMapperCrudTest extends XmlRefMapperCrudCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open();
         initData();
@@ -42,12 +41,12 @@ public class MongoXmlRefMapperCrudTest extends XmlRefMapperCrudCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void createRefMapper() throws Exception {
         this.dao = this.fixture.session(newConfiguration()).createMapper(MongoRefMapper.class);
     }
 
-    @After
+    @AfterEach
     public void closeFixture() throws Exception {
         this.fixture.close();
     }

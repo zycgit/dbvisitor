@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.vector_query;
-
 import java.sql.SQLException;
 import java.util.*;
 import net.hasor.dbvisitor.lambda.core.MetricType;
@@ -15,9 +14,9 @@ import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** BM25 uses the datasource's analyzer and sparse-vector function, not Java-side scoring. */
 @NxnContract
@@ -67,7 +66,7 @@ public abstract class VectorBm25QueryCase extends AbstractNxnContractTest {
                 .vectorByBM25("embedding", "milvus", 1000000.0)//
                 .initPage(4, 0)//
                 .queryForMapList();
-        assertTrue("No score from the four short fixture documents can reach this threshold", aboveAllScores.isEmpty());
+        assertTrue(aboveAllScores.isEmpty(), "No score from the four short fixture documents can reach this threshold");
 
         List<Map<String, Object>> disabled = lambdaTemplate.queryFreedom(vectorTable())//
                 .select("id")//
@@ -81,7 +80,7 @@ public abstract class VectorBm25QueryCase extends AbstractNxnContractTest {
         List<Long> ids = new ArrayList<>(rows.size());
         for (Map<String, Object> row : rows) {
             Object id = row.get("id");
-            assertTrue("Expected numeric BM25 result id", id instanceof Number);
+            assertTrue(id instanceof Number, "Expected numeric BM25 result id");
             ids.add(((Number) id).longValue());
         }
         return ids;

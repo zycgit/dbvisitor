@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.milvus.commands;
-
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
@@ -36,12 +35,12 @@ import io.milvus.v2.service.vector.response.InsertResp;
 import io.milvus.v2.service.vector.response.UpsertResp;
 import net.hasor.dbvisitor.adapter.milvus.*;
 import net.hasor.dbvisitor.driver.JdbcDriver;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MilvusV2ConnectionTest {
     private          HttpServer       server;
@@ -66,7 +65,7 @@ public class MilvusV2ConnectionTest {
         }
     }
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         ClientFactory.calls.set(0);
         ClientFactory.client = Mockito.mock(MilvusClientV2.class);
@@ -119,7 +118,7 @@ public class MilvusV2ConnectionTest {
         server.start();
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         server.stop(0);
         executor.shutdownNow();
@@ -375,7 +374,7 @@ public class MilvusV2ConnectionTest {
                 }
             }
         }
-        assertTrue("Invalid SQL options must not reach the REST client", paths.isEmpty());
+        assertTrue(paths.isEmpty(), "Invalid SQL options must not reach the REST client");
     }
 
     @Test
@@ -422,10 +421,10 @@ public class MilvusV2ConnectionTest {
                 stmt.executeUpdate("IMPORT FROM [['a.npy','v.npy']] INTO t");
                 fail("Expected failed job");
             } catch (SQLException e) {
-                assertTrue(e.getMessage(), e.getMessage().contains("jobId=92233720368547758070"));
-                assertTrue(e.getMessage(), e.getMessage().contains("importedRows=3500"));
-                assertTrue(e.getMessage(), e.getMessage().contains("invalid file"));
-                assertTrue(e.getMessage(), e.getMessage().contains("not cancelled or resubmitted"));
+                assertTrue(e.getMessage().contains("jobId=92233720368547758070"), e.getMessage());
+                assertTrue(e.getMessage().contains("importedRows=3500"), e.getMessage());
+                assertTrue(e.getMessage().contains("invalid file"), e.getMessage());
+                assertTrue(e.getMessage().contains("not cancelled or resubmitted"), e.getMessage());
             }
         }
         assertEquals(1, paths.stream().filter(p -> p.endsWith("/create")).count());
@@ -441,7 +440,7 @@ public class MilvusV2ConnectionTest {
                 statement.executeUpdate("IMPORT FROM 'data.json' INTO t");
                 fail("Expected " + failure + " failure");
             } catch (SQLException expected) {
-                assertTrue(expected.getMessage(), expected.getMessage().contains("failed"));
+                assertTrue(expected.getMessage().contains("failed"), expected.getMessage());
             }
         }
     }
@@ -453,7 +452,7 @@ public class MilvusV2ConnectionTest {
             statement.executeUpdate("/*+ timeout=200 */ IMPORT FROM 'data.json' INTO t");
             fail("Expected timeout");
         } catch (SQLException expected) {
-            assertTrue(expected.getMessage(), expected.getMessage().contains("Timeout"));
+            assertTrue(expected.getMessage().contains("Timeout"), expected.getMessage());
         }
     }
 

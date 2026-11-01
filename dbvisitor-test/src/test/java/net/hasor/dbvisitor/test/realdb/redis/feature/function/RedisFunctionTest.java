@@ -6,16 +6,15 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis.feature.function;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.api.jdbc.FunctionCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
 import net.hasor.dbvisitor.test.realdb.redis.api.jdbc.RedisJdbcFixture;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /** Lua functions execute on Redis; the adapter preserves their native reply in VALUE. */
 public class RedisFunctionTest extends FunctionCase {
@@ -27,18 +26,18 @@ public class RedisFunctionTest extends FunctionCase {
     }
 
     @Override
-    @Before
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open();
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void createFunctionFixtures() throws SQLException {
+        this.setup();
         this.jdbcTemplate.executeUpdate("HSET ? ? ?", new Object[] { this.fixture.key("users"), "918101", "FuncAlice" });
     }
 
-    @After
+    @AfterEach
     public void closeFixture() throws SQLException {
         this.fixture.close();
     }

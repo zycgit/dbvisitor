@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis.dto1;
-
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.types.BindTypeHandler;
 import net.hasor.dbvisitor.types.handler.json.JsonTypeHandler;

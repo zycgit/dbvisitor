@@ -6,8 +6,7 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.milvus.commands;
-
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
@@ -22,7 +21,7 @@ import javax.tools.JavaCompiler;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.sun.source.tree.*;
 import com.sun.source.util.JavacTask;
@@ -69,7 +68,7 @@ public class MilvusKeysTest {
         assertEquals(expected.size(), properties.length);
         Set<String> declared = new HashSet<>();
         for (Field field : MilvusKeys.class.getFields()) {
-            assertEquals("Only connection parameter names belong in MilvusKeys: " + field.getName(), String.class, field.getType());
+            assertEquals(String.class, field.getType(), "Only connection parameter names belong in MilvusKeys: " + field.getName());
             declared.add((String) field.get(null));
         }
         assertEquals(expected, declared);
@@ -115,7 +114,7 @@ public class MilvusKeysTest {
         }
         assertFalse(sources.isEmpty());
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        assertNotNull("Run this test with a JDK", compiler);
+        assertNotNull(compiler, "Run this test with a JDK");
         try (StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.ROOT, StandardCharsets.UTF_8)) {
             JavacTask task = (JavacTask) compiler.getTask(null, manager, null, Collections.singletonList("-proc:none"), null, manager.getJavaFileObjectsFromPaths(sources));
             for (CompilationUnitTree source : task.parse()) {

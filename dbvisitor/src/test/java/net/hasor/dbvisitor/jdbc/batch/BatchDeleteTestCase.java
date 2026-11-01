@@ -20,7 +20,7 @@ import net.hasor.dbvisitor.dynamic.args.MapSqlArgSource;
 import net.hasor.dbvisitor.jdbc.BatchPreparedStatementSetter;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** 批量删除的不同传参方式 */
 public class BatchDeleteTestCase {

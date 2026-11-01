@@ -6,15 +6,14 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package com.example.demo;
-
 import com.example.demo.dto.UserDTO;
 import com.example.demo.service.TestService;
 import net.hasor.boot.Boot;
 import net.hasor.boot.BootApplication;
 import net.hasor.core.Inject;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,13 +24,13 @@ public class Demo1ApplicationTests {
     @Inject
     private TestService userService;
 
-    @Before
+    @BeforeEach
     public void beforeTest() throws Exception {
         application = new Boot().sources(DemoApplication.class).hconfigFile("single-ds-test.properties").start();
         application.getAppContext().justInject(this);
     }
 
-    @After
+    @AfterEach
     public void afterTest() throws Exception {
         if (application != null) {
             application.close();

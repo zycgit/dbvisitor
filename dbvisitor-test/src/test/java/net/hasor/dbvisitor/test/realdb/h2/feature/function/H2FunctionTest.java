@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.h2.feature.function;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;

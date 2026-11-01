@@ -1,5 +1,4 @@
 package example;
-
 import java.io.InputStream;
 import java.nio.file.*;
 import java.sql.*;
@@ -17,15 +16,15 @@ import net.hasor.dbvisitor.page.*;
 import net.hasor.dbvisitor.session.*;
 import net.hasor.dbvisitor.types.handler.time.PgDateTypeHandler;
 import net.hasor.dbvisitor.types.handler.vector.PgVectorTypeHandler;
-import org.junit.Assume;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /** Explicit opt-in: -Dblog.jdbc.config.dir=/path/to/test-connection-properties. */
 public class LegacyDatabaseArticlesTest {
     private Connection connection(String name) throws Exception {
         String directory = System.getProperty("blog.jdbc.config.dir");
-        Assume.assumeTrue("Set blog.jdbc.config.dir for real database article tests", directory != null);
+        Assumptions.assumeTrue(directory != null, "Set blog.jdbc.config.dir for real database article tests");
         Properties p = new Properties();
         try (InputStream in = Files.newInputStream(Path.of(directory, "jdbc-" + name + ".properties"))) {
             p.load(in);

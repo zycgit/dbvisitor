@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.mongo.commands;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -27,9 +26,9 @@ import net.hasor.dbvisitor.adapter.mongo.MongoCommandInterceptor;
 import org.bson.BsonObjectId;
 import org.bson.Document;
 import org.bson.types.ObjectId;
-import org.junit.Test;
-import org.powermock.api.mockito.PowerMockito;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 
@@ -115,11 +114,11 @@ public class InsertConflictTest extends AbstractJdbcTest {
     private void mockBulk(int modified, List<BulkWriteUpsert> upserts, Consumer<List<WriteModel<Document>>> assertion) {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("getCollection", (method, args) -> {
-            MongoCollection<Document> collection = PowerMockito.mock(MongoCollection.class);
-            BulkWriteResult result = PowerMockito.mock(BulkWriteResult.class);
-            PowerMockito.when(result.getModifiedCount()).thenReturn(modified);
-            PowerMockito.when(result.getUpserts()).thenReturn(upserts);
-            PowerMockito.when(collection.bulkWrite(anyList(), any(BulkWriteOptions.class))).thenAnswer(invocation -> {
+            MongoCollection<Document> collection = Mockito.mock(MongoCollection.class);
+            BulkWriteResult result = Mockito.mock(BulkWriteResult.class);
+            Mockito.when(result.getModifiedCount()).thenReturn(modified);
+            Mockito.when(result.getUpserts()).thenReturn(upserts);
+            Mockito.when(collection.bulkWrite(anyList(), any(BulkWriteOptions.class))).thenAnswer(invocation -> {
                 assertion.accept(invocation.getArgument(0));
                 return result;
             });

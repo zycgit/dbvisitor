@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.mapper;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
@@ -18,7 +17,7 @@ import net.hasor.dbvisitor.mapper.def.SelectKeyConfig;
 import net.hasor.dbvisitor.mapper.dto.DynamicXmlMapper;
 import net.hasor.dbvisitor.mapper.dto.UserInfo;
 import net.hasor.dbvisitor.types.SqlArg;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

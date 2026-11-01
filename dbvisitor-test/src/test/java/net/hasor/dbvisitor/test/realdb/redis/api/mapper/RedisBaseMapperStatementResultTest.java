@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
-
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
@@ -16,8 +15,8 @@ import net.hasor.dbvisitor.test.contract.api.mapper.basemapper.BaseMapperStateme
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class RedisBaseMapperStatementResultTest extends BaseMapperStatementResultCase {
     private final RedisEntityFixture fixture = new RedisEntityFixture();
@@ -28,19 +27,19 @@ public class RedisBaseMapperStatementResultTest extends BaseMapperStatementResul
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open();
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void createBaseMapperWithStatements() throws Exception {
         Session session = this.fixture.session(newConfiguration(), "/mapper/redis/StatementProjectionMapper.xml");
         this.mapper = session.createBaseMapper(UserInfo.class);
     }
 
-    @After
+    @AfterEach
     public void closeFixture() throws SQLException {
         this.fixture.close();
     }

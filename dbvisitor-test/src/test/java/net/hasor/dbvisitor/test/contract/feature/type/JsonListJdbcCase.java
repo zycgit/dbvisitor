@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.feature.type;
-
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,9 +18,9 @@ import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 import net.hasor.dbvisitor.types.handler.json.wrap.JsonType;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @NxnContract
 public abstract class JsonListJdbcCase extends JsonTypeJdbcSupport {
@@ -70,7 +69,7 @@ public abstract class JsonListJdbcCase extends JsonTypeJdbcSupport {
         assertEquals(3, loadedList.size());
         assertJsonElementName(loadedList.get(0), "George");
         for (int i = 0; i < beanList.size(); i++) {
-            assertTrue("Untyped JsonType.jsonList() represents JSON objects as maps", loadedList.get(i) instanceof Map);
+            assertTrue(loadedList.get(i) instanceof Map, "Untyped JsonType.jsonList() represents JSON objects as maps");
             Map element = (Map) loadedList.get(i);
             JsonTestBean expected = beanList.get(i);
             assertEquals(expected.getName(), element.get("name"));

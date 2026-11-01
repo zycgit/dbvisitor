@@ -16,7 +16,7 @@ import net.hasor.dbvisitor.types.handler.string.EnumTypeHandler;
 import net.hasor.dbvisitor.types.handler.string.StringTypeHandler;
 import net.hasor.dbvisitor.types.handler.time.SqlTimestampAsDateTypeHandler;
 import net.hasor.test.dto.ResourceType;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class BasicXmlResultMapTest {
     @Test

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.milvus.commands;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -27,11 +26,11 @@ import net.hasor.dbvisitor.adapter.milvus.MilvusCommandInterceptor;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
-import org.junit.After;
-import org.junit.Test;
-import org.powermock.api.mockito.PowerMockito;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MilvusLimitArgsTest extends AbstractJdbcTest {
     private final List<QueryReq>            queryParams           = new ArrayList<>();
@@ -73,13 +72,13 @@ public class MilvusLimitArgsTest extends AbstractJdbcTest {
         this.queryResult = QueryResults.newBuilder()//
                 .setStatus(Status.newBuilder().setErrorCode(ErrorCode.Success))//
                 .build();
-        this.queryIterator = PowerMockito.mock(QueryIterator.class);
-        this.searchIterator = PowerMockito.mock(SearchIteratorV2.class);
+        this.queryIterator = Mockito.mock(QueryIterator.class);
+        this.searchIterator = Mockito.mock(SearchIteratorV2.class);
         this.upsertFailuresRemaining = 0;
         this.deleteFailuresRemaining = 0;
         this.primaryKeyType = DataType.Int64;
-        PowerMockito.when(this.queryIterator.next()).thenReturn(new ArrayList<>());
-        PowerMockito.when(this.searchIterator.next()).thenReturn(new ArrayList<>());
+        Mockito.when(this.queryIterator.next()).thenReturn(new ArrayList<>());
+        Mockito.when(this.searchIterator.next()).thenReturn(new ArrayList<>());
         MilvusCommandInterceptor.addInterceptor(MilvusClientV2.class, (proxy, method, args) -> {
             if ("query".equals(method.getName())) {
                 this.queryParams.add((QueryReq) args[0]);
@@ -144,7 +143,7 @@ public class MilvusLimitArgsTest extends AbstractJdbcTest {
         });
     }
 
-    @After
+    @AfterEach
     public void cleanupInterceptor() {
         MilvusCommandInterceptor.resetInterceptor();
     }
@@ -175,7 +174,7 @@ public class MilvusLimitArgsTest extends AbstractJdbcTest {
             this.primaryKeyType = key instanceof String ? DataType.VarChar : DataType.Int64;
             QueryResultsWrapper.RowRecord row = new QueryResultsWrapper.RowRecord();
             row.put("book_id", key);
-            PowerMockito.when(this.queryIterator.next()).thenReturn(List.of(row), new ArrayList<>());
+            Mockito.when(this.queryIterator.next()).thenReturn(List.of(row), new ArrayList<>());
             try (Connection conn = this.getConnection(); PreparedStatement ps = conn.prepareStatement("DELETE FROM book_vectors PARTITION selected_partition LIMIT ?")) {
                 ps.setFetchSize(1);
                 ps.setInt(1, 1);
@@ -233,7 +232,7 @@ public class MilvusLimitArgsTest extends AbstractJdbcTest {
         first.put("book_id", 101L);
         QueryResultsWrapper.RowRecord second = new QueryResultsWrapper.RowRecord();
         second.put("book_id", 102L);
-        PowerMockito.when(this.queryIterator.next())//
+        Mockito.when(this.queryIterator.next())//
                 .thenReturn(List.of(first), List.of(second), new ArrayList<>());
 
         int affected;
@@ -317,7 +316,7 @@ public class MilvusLimitArgsTest extends AbstractJdbcTest {
         QueryResultsWrapper.RowRecord second = new QueryResultsWrapper.RowRecord();
         second.put("book_id", 102L);
         second.put("word_count", 200);
-        PowerMockito.when(this.queryIterator.next())//
+        Mockito.when(this.queryIterator.next())//
                 .thenReturn(List.of(first), List.of(second), new ArrayList<>());
 
         int affected;
@@ -385,7 +384,7 @@ public class MilvusLimitArgsTest extends AbstractJdbcTest {
         QueryResultsWrapper.RowRecord row = new QueryResultsWrapper.RowRecord();
         row.put("book_id", 101L);
         row.put("word_count", 100);
-        PowerMockito.when(this.queryIterator.next()).thenReturn(List.of(row), new ArrayList<>());
+        Mockito.when(this.queryIterator.next()).thenReturn(List.of(row), new ArrayList<>());
         this.upsertFailuresRemaining = 2;
 
         int affected;
@@ -406,7 +405,7 @@ public class MilvusLimitArgsTest extends AbstractJdbcTest {
         QueryResultsWrapper.RowRecord row = new QueryResultsWrapper.RowRecord();
         row.put("book_id", 101L);
         row.put("word_count", 100);
-        PowerMockito.when(this.queryIterator.next()).thenReturn(List.of(row));
+        Mockito.when(this.queryIterator.next()).thenReturn(List.of(row));
         this.upsertFailuresRemaining = 2;
 
         try (Connection conn = this.getConnection(1); PreparedStatement ps = conn.prepareStatement(//
@@ -448,8 +447,8 @@ public class MilvusLimitArgsTest extends AbstractJdbcTest {
                     }
                     throw new AssertionError("Do not read another page after a write failure.");
                 };
-                PowerMockito.when(this.queryIterator.next()).thenAnswer(nextPage);
-                PowerMockito.when(this.searchIterator.next()).thenAnswer(invocation -> net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.searchHits("book_id", nextPage.answer(invocation)));
+                Mockito.when(this.queryIterator.next()).thenAnswer(nextPage);
+                Mockito.when(this.searchIterator.next()).thenAnswer(invocation -> net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.searchHits("book_id", nextPage.answer(invocation)));
 
                 String operation = update ? "UPDATE" : "DELETE";
                 String sql = update ? "UPDATE book_vectors SET word_count = 999" : "DELETE FROM book_vectors";
@@ -462,12 +461,12 @@ public class MilvusLimitArgsTest extends AbstractJdbcTest {
                     ps.executeUpdate();
                     fail("Expected retries on the second page to be exhausted.");
                 } catch (SQLException e) {
-                    assertTrue(e.getMessage(), e.getMessage().contains("Milvus " + operation + " failed during paged execution"));
-                    assertTrue(e.getMessage(), e.getMessage().contains("page=2"));
-                    assertTrue(e.getMessage(), e.getMessage().contains("confirmedPages=1"));
-                    assertTrue(e.getMessage(), e.getMessage().contains("confirmedRows=1"));
-                    assertTrue(e.getMessage(), e.getMessage().contains("currentPageRows=1"));
-                    assertTrue(e.getMessage(), e.getMessage().contains("failed after 2 attempt(s)"));
+                    assertTrue(e.getMessage().contains("Milvus " + operation + " failed during paged execution"), e.getMessage());
+                    assertTrue(e.getMessage().contains("page=2"), e.getMessage());
+                    assertTrue(e.getMessage().contains("confirmedPages=1"), e.getMessage());
+                    assertTrue(e.getMessage().contains("confirmedRows=1"), e.getMessage());
+                    assertTrue(e.getMessage().contains("currentPageRows=1"), e.getMessage());
+                    assertTrue(e.getMessage().contains("failed after 2 attempt(s)"), e.getMessage());
                 }
 
                 assertEquals(2, pagesRead[0]);
@@ -490,8 +489,8 @@ public class MilvusLimitArgsTest extends AbstractJdbcTest {
                 this.installInterceptor();
                 QueryResultsWrapper.RowRecord first = new QueryResultsWrapper.RowRecord();
                 first.put("book_id", 101L);
-                PowerMockito.when(this.queryIterator.next()).thenReturn(List.of(first)).thenThrow(new IllegalStateException("read page failed"));
-                PowerMockito.when(this.searchIterator.next()).thenReturn(net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.searchHits("book_id", List.of(first))).thenThrow(new IllegalStateException("read page failed"));
+                Mockito.when(this.queryIterator.next()).thenReturn(List.of(first)).thenThrow(new IllegalStateException("read page failed"));
+                Mockito.when(this.searchIterator.next()).thenReturn(net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.searchHits("book_id", List.of(first))).thenThrow(new IllegalStateException("read page failed"));
 
                 String sql = update ? "UPDATE book_vectors SET word_count = 999" : "DELETE FROM book_vectors";
                 sql += " WHERE book_id > 0";
@@ -503,10 +502,10 @@ public class MilvusLimitArgsTest extends AbstractJdbcTest {
                     ps.executeUpdate();
                     fail("Expected an iterator read failure.");
                 } catch (SQLException e) {
-                    assertTrue(e.getMessage(), e.getMessage().contains("phase=read"));
-                    assertTrue(e.getMessage(), e.getMessage().contains("confirmedPages=1"));
-                    assertTrue(e.getMessage(), e.getMessage().contains("confirmedRows=1"));
-                    assertTrue(e.getMessage(), e.getMessage().contains("read page failed"));
+                    assertTrue(e.getMessage().contains("phase=read"), e.getMessage());
+                    assertTrue(e.getMessage().contains("confirmedPages=1"), e.getMessage());
+                    assertTrue(e.getMessage().contains("confirmedRows=1"), e.getMessage());
+                    assertTrue(e.getMessage().contains("read page failed"), e.getMessage());
                 }
 
                 assertEquals(1, update ? this.partialUpsertRequests.size() : this.deleteParams.size());
@@ -592,7 +591,7 @@ public class MilvusLimitArgsTest extends AbstractJdbcTest {
         first.put("book_id", 101L);
         QueryResultsWrapper.RowRecord second = new QueryResultsWrapper.RowRecord();
         second.put("book_id", 102L);
-        PowerMockito.when(this.searchIterator.next())//
+        Mockito.when(this.searchIterator.next())//
                 .thenReturn(net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.searchHits("book_id", List.of(first)), net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.searchHits("book_id", List.of(second)), new ArrayList<>());
 
         int affected;

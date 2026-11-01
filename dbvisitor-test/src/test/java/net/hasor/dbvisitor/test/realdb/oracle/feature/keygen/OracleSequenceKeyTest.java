@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.oracle.feature.keygen;
-
 import java.sql.SQLException;
 import java.util.Arrays;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
@@ -15,8 +14,8 @@ import net.hasor.dbvisitor.test.contract.feature.keygen.SequenceKeyCase;
 import net.hasor.dbvisitor.test.contract.material.model.keygen.KeySequenceUser;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.OracleProfile;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class OracleSequenceKeyTest extends SequenceKeyCase {
     @Override

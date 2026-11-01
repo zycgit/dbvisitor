@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.hasor.mapper;
-
 import java.lang.annotation.Annotation;
 import java.util.HashSet;
 import java.util.Set;

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.adapter;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.UUID;
@@ -15,8 +14,8 @@ import net.hasor.dbvisitor.lambda.EntityQuery;
 import net.hasor.dbvisitor.test.contract.api.lambda.LambdaResultValueCase;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 /** Document stores use isolated collections and the same public result-conversion assertions. */
 public abstract class NativeLambdaResultValueSupport extends LambdaResultValueCase {
@@ -25,7 +24,7 @@ public abstract class NativeLambdaResultValueSupport extends LambdaResultValueCa
     private         Connection                connection;
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         OneApiDataSourceManager.assumeCurrentDataSource(profile().env());
         this.connection = OneApiDataSourceManager.getConnection(profile().env());
@@ -54,7 +53,7 @@ public abstract class NativeLambdaResultValueSupport extends LambdaResultValueCa
         return this.fixture.queryRows(prefix);
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws SQLException {
         if (this.connection != null) {
             try (Connection closing = this.connection) {

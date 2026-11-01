@@ -6,22 +6,21 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic7;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class Elastic7RefreshAndReindexTest {
     private static final String ES_URL       = "jdbc:dbvisitor:elastic://127.0.0.1:2921?indexRefresh=true";
     private static final String INDEX_SOURCE = "dbv_reindex_source";
     private static final String INDEX_DEST   = "dbv_reindex_dest";
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         try (Connection conn = DriverManager.getConnection(ES_URL); Statement stmt = conn.createStatement()) {
             try {
@@ -41,7 +40,7 @@ public class Elastic7RefreshAndReindexTest {
         }
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         try (Connection conn = DriverManager.getConnection(ES_URL); Statement stmt = conn.createStatement()) {
             try {
@@ -87,15 +86,15 @@ public class Elastic7RefreshAndReindexTest {
             int count = stmt.executeUpdate("POST /_reindex " + reindexBody);
 
             // Should be at least 2 docs
-            Assert.assertEquals("Expected 2 reindexed docs, source count was " + sourceCount, 2, count);
-            Assert.assertEquals(2, sourceCount);
+            Assertions.assertEquals(2, count, "Expected 2 reindexed docs, source count was " + sourceCount);
+            Assertions.assertEquals(2, sourceCount);
             stmt.executeUpdate("POST /" + INDEX_DEST + "/_refresh");
             assertCount(stmt, INDEX_DEST, 2);
             for (int id = 1; id <= 2; id++) {
                 try (ResultSet rs = stmt.executeQuery("POST /" + INDEX_DEST + "/_search {\"_source\": [\"name\"],\"query\": {\"ids\": {\"values\": [\"" + id + "\"]}}}")) {
-                    Assert.assertTrue(rs.next());
-                    Assert.assertEquals("doc" + id, rs.getString("name"));
-                    Assert.assertFalse(rs.next());
+                    Assertions.assertTrue(rs.next());
+                    Assertions.assertEquals("doc" + id, rs.getString("name"));
+                    Assertions.assertFalse(rs.next());
                 }
             }
         }
@@ -103,9 +102,9 @@ public class Elastic7RefreshAndReindexTest {
 
     private void assertCount(Statement stmt, String index, long expected) throws Exception {
         try (ResultSet rs = stmt.executeQuery("POST /" + index + "/_count")) {
-            Assert.assertTrue(rs.next());
-            Assert.assertEquals(expected, rs.getLong("COUNT"));
-            Assert.assertFalse(rs.next());
+            Assertions.assertTrue(rs.next());
+            Assertions.assertEquals(expected, rs.getLong("COUNT"));
+            Assertions.assertFalse(rs.next());
         }
     }
 

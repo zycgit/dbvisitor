@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.milvus.commands;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -17,17 +16,17 @@ import net.hasor.dbvisitor.adapter.milvus.MilvusCommandInterceptor;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MilvusRenameTest {
     private final List<RenameCollectionReq> requests = new ArrayList<>();
     private final List<String>              methods  = new ArrayList<>();
     private       boolean                   failRename;
 
-    @Before
+    @BeforeEach
     public void install() {
         MilvusCommandInterceptor.resetInterceptor();
         MilvusCommandInterceptor.addInterceptor(MilvusClientV2.class, (proxy, method, args) -> {
@@ -45,7 +44,7 @@ public class MilvusRenameTest {
         });
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         MilvusCommandInterceptor.resetInterceptor();
     }
@@ -82,7 +81,7 @@ public class MilvusRenameTest {
     public void databaseAndCollectionNamesShouldRequireIdentifiersNotBoundValues() throws SQLException {
         try (Connection connection = connect(); Statement statement = connection.createStatement()) {
             for (String sql : Arrays.asList("ALTER TABLE ? RENAME TO other", "ALTER TABLE books RENAME TO ?", "ALTER TABLE books RENAME TO other IN DATABASE ?", "ALTER TABLE books RENAME TO other IN DATABASE")) {
-                assertThrows(sql, SQLException.class, () -> statement.executeUpdate(sql));
+                assertThrows(SQLException.class, () -> statement.executeUpdate(sql), sql);
             }
         }
         assertTrue(requests.isEmpty());

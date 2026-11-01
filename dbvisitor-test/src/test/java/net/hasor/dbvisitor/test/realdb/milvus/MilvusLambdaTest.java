@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
@@ -26,9 +25,9 @@ import net.hasor.dbvisitor.test.realdb.milvus.material.complex.OrderItem;
 import net.hasor.dbvisitor.test.realdb.milvus.material.complex.OrderItems;
 import net.hasor.dbvisitor.test.realdb.milvus.material.user.UserInfoMilvus;
 import net.hasor.dbvisitor.test.realdb.milvus.material.user.UserInfoMilvusBaseMapper;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MilvusLambdaTest extends AdapterCase {
     @Override
@@ -36,7 +35,7 @@ public class MilvusLambdaTest extends AdapterCase {
         return MilvusProfile.INSTANCE;
     }
 
-    @Before
+    @BeforeEach
     public void before() throws SQLException {
         try (Connection c = newAdapterConnection()) {
             JdbcTemplate jdbc = new JdbcTemplate(c);

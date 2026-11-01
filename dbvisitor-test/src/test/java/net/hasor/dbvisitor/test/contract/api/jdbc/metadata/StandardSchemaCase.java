@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.jdbc.metadata;
-
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -16,8 +15,8 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-import org.junit.Test;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @NxnContract(scope = NxnContract.Scope.JDBC_METADATA)
 public abstract class StandardSchemaCase extends AbstractNxnContractTest {
@@ -48,7 +47,7 @@ public abstract class StandardSchemaCase extends AbstractNxnContractTest {
     public void schema_shouldExposeAllStandardTablesForCurrentDatasource() throws SQLException {
         Set<String> tables = readTables();
         for (String table : standardSchema().keySet()) {
-            assertTrue("Expected standard table '" + table + "' in " + profile().env() + ", actual=" + tables, tables.contains(normalize(table)));
+            assertTrue(tables.contains(normalize(table)), "Expected standard table '" + table + "' in " + profile().env() + ", actual=" + tables);
         }
     }
 
@@ -58,7 +57,7 @@ public abstract class StandardSchemaCase extends AbstractNxnContractTest {
         for (Map.Entry<String, List<String>> entry : standardSchema().entrySet()) {
             Set<String> columns = readColumns(entry.getKey());
             for (String column : entry.getValue()) {
-                assertTrue("Expected column '" + entry.getKey() + "." + column + "' in " + profile().env() + ", actual=" + columns, columns.contains(normalize(column)));
+                assertTrue(columns.contains(normalize(column)), "Expected column '" + entry.getKey() + "." + column + "' in " + profile().env() + ", actual=" + columns);
             }
         }
     }

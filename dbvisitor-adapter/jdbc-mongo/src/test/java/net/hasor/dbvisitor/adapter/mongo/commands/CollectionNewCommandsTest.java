@@ -29,8 +29,8 @@ import org.bson.BsonInt32;
 import org.bson.BsonValue;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import org.junit.Test;
-import org.powermock.api.mockito.PowerMockito;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import static org.mockito.ArgumentMatchers.any;
 
 public class CollectionNewCommandsTest extends AbstractJdbcTest {
@@ -39,13 +39,13 @@ public class CollectionNewCommandsTest extends AbstractJdbcTest {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, (proxy, method, args) -> {
             if ("getCollection".equals(method.getName())) {
-                MongoCollection mockColl = PowerMockito.mock(MongoCollection.class);
-                PowerMockito.when(mockColl.insertOne(any(Document.class), any(InsertOneOptions.class))).thenAnswer(inv -> {
+                MongoCollection mockColl = Mockito.mock(MongoCollection.class);
+                Mockito.when(mockColl.insertOne(any(Document.class), any(InsertOneOptions.class))).thenAnswer(inv -> {
                     Document doc = inv.getArgument(0);
                     assert doc.get("name").equals("zhangsan");
-                    InsertOneResult res = PowerMockito.mock(InsertOneResult.class);
-                    PowerMockito.when(res.getInsertedId()).thenReturn(new BsonInt32(123));
-                    PowerMockito.when(res.wasAcknowledged()).thenReturn(true);
+                    InsertOneResult res = Mockito.mock(InsertOneResult.class);
+                    Mockito.when(res.getInsertedId()).thenReturn(new BsonInt32(123));
+                    Mockito.when(res.wasAcknowledged()).thenReturn(true);
                     return res;
                 });
                 return mockColl;
@@ -66,16 +66,16 @@ public class CollectionNewCommandsTest extends AbstractJdbcTest {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, (proxy, method, args) -> {
             if ("getCollection".equals(method.getName())) {
-                MongoCollection mockColl = PowerMockito.mock(MongoCollection.class);
-                PowerMockito.when(mockColl.insertMany(any(List.class), any(InsertManyOptions.class))).thenAnswer(inv -> {
+                MongoCollection mockColl = Mockito.mock(MongoCollection.class);
+                Mockito.when(mockColl.insertMany(any(List.class), any(InsertManyOptions.class))).thenAnswer(inv -> {
                     List<Document> docs = inv.getArgument(0);
                     assert docs.size() == 2;
-                    InsertManyResult res = PowerMockito.mock(InsertManyResult.class);
+                    InsertManyResult res = Mockito.mock(InsertManyResult.class);
                     Map<Integer, BsonValue> ids = new HashMap<>();
                     ids.put(0, new BsonInt32(123));
                     ids.put(1, new BsonInt32(124));
-                    PowerMockito.when(res.getInsertedIds()).thenReturn(ids);
-                    PowerMockito.when(res.wasAcknowledged()).thenReturn(true);
+                    Mockito.when(res.getInsertedIds()).thenReturn(ids);
+                    Mockito.when(res.wasAcknowledged()).thenReturn(true);
                     return res;
                 });
                 return mockColl;
@@ -96,10 +96,10 @@ public class CollectionNewCommandsTest extends AbstractJdbcTest {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, (proxy, method, args) -> {
             if ("getCollection".equals(method.getName())) {
-                MongoCollection mockColl = PowerMockito.mock(MongoCollection.class);
-                DeleteResult res = PowerMockito.mock(DeleteResult.class);
-                PowerMockito.when(res.getDeletedCount()).thenReturn(1L);
-                PowerMockito.when(mockColl.deleteOne(any(Bson.class), any(DeleteOptions.class))).thenReturn(res);
+                MongoCollection mockColl = Mockito.mock(MongoCollection.class);
+                DeleteResult res = Mockito.mock(DeleteResult.class);
+                Mockito.when(res.getDeletedCount()).thenReturn(1L);
+                Mockito.when(mockColl.deleteOne(any(Bson.class), any(DeleteOptions.class))).thenReturn(res);
                 return mockColl;
             }
             return null;
@@ -119,10 +119,10 @@ public class CollectionNewCommandsTest extends AbstractJdbcTest {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, (proxy, method, args) -> {
             if ("getCollection".equals(method.getName())) {
-                MongoCollection mockColl = PowerMockito.mock(MongoCollection.class);
-                DeleteResult res = PowerMockito.mock(DeleteResult.class);
-                PowerMockito.when(res.getDeletedCount()).thenReturn(5L);
-                PowerMockito.when(mockColl.deleteMany(any(Bson.class), any(DeleteOptions.class))).thenReturn(res);
+                MongoCollection mockColl = Mockito.mock(MongoCollection.class);
+                DeleteResult res = Mockito.mock(DeleteResult.class);
+                Mockito.when(res.getDeletedCount()).thenReturn(5L);
+                Mockito.when(mockColl.deleteMany(any(Bson.class), any(DeleteOptions.class))).thenReturn(res);
                 return mockColl;
             }
             return null;
@@ -142,10 +142,10 @@ public class CollectionNewCommandsTest extends AbstractJdbcTest {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, (proxy, method, args) -> {
             if ("getCollection".equals(method.getName())) {
-                MongoCollection mockColl = PowerMockito.mock(MongoCollection.class);
-                UpdateResult res = PowerMockito.mock(UpdateResult.class);
-                PowerMockito.when(res.getModifiedCount()).thenReturn(1L);
-                PowerMockito.when(mockColl.updateOne(any(Bson.class), any(Bson.class), any(UpdateOptions.class))).thenReturn(res);
+                MongoCollection mockColl = Mockito.mock(MongoCollection.class);
+                UpdateResult res = Mockito.mock(UpdateResult.class);
+                Mockito.when(res.getModifiedCount()).thenReturn(1L);
+                Mockito.when(mockColl.updateOne(any(Bson.class), any(Bson.class), any(UpdateOptions.class))).thenReturn(res);
                 return mockColl;
             }
             return null;
@@ -165,10 +165,10 @@ public class CollectionNewCommandsTest extends AbstractJdbcTest {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, (proxy, method, args) -> {
             if ("getCollection".equals(method.getName())) {
-                MongoCollection mockColl = PowerMockito.mock(MongoCollection.class);
-                UpdateResult res = PowerMockito.mock(UpdateResult.class);
-                PowerMockito.when(res.getModifiedCount()).thenReturn(10L);
-                PowerMockito.when(mockColl.updateMany(any(Bson.class), any(Bson.class), any(UpdateOptions.class))).thenReturn(res);
+                MongoCollection mockColl = Mockito.mock(MongoCollection.class);
+                UpdateResult res = Mockito.mock(UpdateResult.class);
+                Mockito.when(res.getModifiedCount()).thenReturn(10L);
+                Mockito.when(mockColl.updateMany(any(Bson.class), any(Bson.class), any(UpdateOptions.class))).thenReturn(res);
                 return mockColl;
             }
             return null;
@@ -188,10 +188,10 @@ public class CollectionNewCommandsTest extends AbstractJdbcTest {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, (proxy, method, args) -> {
             if ("getCollection".equals(method.getName())) {
-                MongoCollection mockColl = PowerMockito.mock(MongoCollection.class);
-                UpdateResult res = PowerMockito.mock(UpdateResult.class);
-                PowerMockito.when(res.getModifiedCount()).thenReturn(1L);
-                PowerMockito.when(mockColl.replaceOne(any(Bson.class), any(Document.class), any(ReplaceOptions.class))).thenReturn(res);
+                MongoCollection mockColl = Mockito.mock(MongoCollection.class);
+                UpdateResult res = Mockito.mock(UpdateResult.class);
+                Mockito.when(res.getModifiedCount()).thenReturn(1L);
+                Mockito.when(mockColl.replaceOne(any(Bson.class), any(Document.class), any(ReplaceOptions.class))).thenReturn(res);
                 return mockColl;
             }
             return null;
@@ -211,8 +211,8 @@ public class CollectionNewCommandsTest extends AbstractJdbcTest {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, (proxy, method, args) -> {
             if ("getCollection".equals(method.getName())) {
-                MongoCollection mockColl = PowerMockito.mock(MongoCollection.class);
-                PowerMockito.doNothing().when(mockColl).renameCollection(any(MongoNamespace.class), any(RenameCollectionOptions.class));
+                MongoCollection mockColl = Mockito.mock(MongoCollection.class);
+                Mockito.doNothing().when(mockColl).renameCollection(any(MongoNamespace.class), any(RenameCollectionOptions.class));
                 return mockColl;
             }
             return null;
@@ -231,15 +231,15 @@ public class CollectionNewCommandsTest extends AbstractJdbcTest {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, (proxy, method, args) -> {
             if ("getCollection".equals(method.getName())) {
-                MongoCollection mockColl = PowerMockito.mock(MongoCollection.class);
-                FindIterable iterable = PowerMockito.mock(FindIterable.class);
-                PowerMockito.when(mockColl.find(any(Bson.class))).thenReturn(iterable);
-                PowerMockito.when(iterable.limit(1)).thenReturn(iterable);
+                MongoCollection mockColl = Mockito.mock(MongoCollection.class);
+                FindIterable iterable = Mockito.mock(FindIterable.class);
+                Mockito.when(mockColl.find(any(Bson.class))).thenReturn(iterable);
+                Mockito.when(iterable.limit(1)).thenReturn(iterable);
 
-                MongoCursor cursor = PowerMockito.mock(MongoCursor.class);
-                PowerMockito.when(cursor.hasNext()).thenReturn(true).thenReturn(false);
-                PowerMockito.when(cursor.next()).thenReturn(new Document("name", "zhangsan"));
-                PowerMockito.when(iterable.iterator()).thenReturn(cursor);
+                MongoCursor cursor = Mockito.mock(MongoCursor.class);
+                Mockito.when(cursor.hasNext()).thenReturn(true).thenReturn(false);
+                Mockito.when(cursor.next()).thenReturn(new Document("name", "zhangsan"));
+                Mockito.when(iterable.iterator()).thenReturn(cursor);
 
                 return mockColl;
             }

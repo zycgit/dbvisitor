@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic7;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import com.zaxxer.hikari.HikariDataSource;
@@ -17,8 +16,8 @@ import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
 import net.hasor.dbvisitor.test.realdb.elastic7.material.ElasticMatrixFixture;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class Elastic7SessionFactoryTest extends SessionFactoryCase {
     private final ElasticMatrixFixture fixture = new ElasticMatrixFixture();
@@ -29,7 +28,7 @@ public class Elastic7SessionFactoryTest extends SessionFactoryCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws IOException, SQLException {
         this.jdbcTemplate = fixture.open(profile().env());
         dataSource = Elastic7SessionDataSource.open(profile().env());
@@ -62,7 +61,7 @@ public class Elastic7SessionFactoryTest extends SessionFactoryCase {
         return "POST /" + fixture.index() + "/_search {\"_source\": [\"name\"],\"query\": {\"term\": {\"id\": ?}}}";
     }
 
-    @After
+    @AfterEach
     public void closeFactoryFixture() throws Exception {
         try {
             if (dataSource instanceof HikariDataSource) {

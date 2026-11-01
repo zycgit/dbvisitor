@@ -11,7 +11,7 @@ import java.sql.SQLException;
 import java.util.*;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /***
  * executeBatch 系列方法测试

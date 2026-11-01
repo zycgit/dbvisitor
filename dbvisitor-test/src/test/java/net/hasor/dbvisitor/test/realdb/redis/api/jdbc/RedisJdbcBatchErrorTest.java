@@ -6,13 +6,12 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.jdbc;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcBatchErrorCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class RedisJdbcBatchErrorTest extends JdbcBatchErrorCase {
 
@@ -24,12 +23,12 @@ public class RedisJdbcBatchErrorTest extends JdbcBatchErrorCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open();
     }
 
-    @After
+    @AfterEach
     public void closeRedisFixture() throws SQLException {
         this.fixture.close();
     }

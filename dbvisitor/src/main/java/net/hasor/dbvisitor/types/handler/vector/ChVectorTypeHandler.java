@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.types.handler.vector;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;

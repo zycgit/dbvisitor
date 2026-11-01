@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.vector_query;
-
 import java.sql.SQLException;
 import java.util.*;
 import net.hasor.dbvisitor.lambda.core.MetricType;
@@ -15,9 +14,9 @@ import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Binary distance entry points use binary fields, never FLOAT_VECTOR substitutes. */
 @NxnContract
@@ -115,7 +114,7 @@ public abstract class VectorBinaryMetricCase extends AbstractNxnContractTest {
         List<Long> ids = new ArrayList<>(rows.size());
         for (Map<String, Object> row : rows) {
             Object id = row.get("id");
-            assertTrue("Expected numeric binary-vector id", id instanceof Number);
+            assertTrue(id instanceof Number, "Expected numeric binary-vector id");
             ids.add(((Number) id).longValue());
         }
         return ids;

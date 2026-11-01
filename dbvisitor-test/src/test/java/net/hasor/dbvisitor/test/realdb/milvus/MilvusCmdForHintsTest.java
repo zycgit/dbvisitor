@@ -10,18 +10,18 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MilvusCmdForHintsTest extends AbstractMilvusCmdForTest {
-    @Before
+    @BeforeEach
     public void setUp() {
         dropCollection(TEST_COLLECTION);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         if (!milvusSelected) {
             return;
@@ -98,7 +98,7 @@ public class MilvusCmdForHintsTest extends AbstractMilvusCmdForTest {
                 ResultSet rs = stmt.executeQuery("/*+ overwrite_find_as_count=true */ SELECT * FROM " + TEST_COLLECTION + " WHERE book_id > 1");
                 assertTrue(rs.next());
                 assertEquals(2, rs.getLong(1)); // Should be count
-                assertFalse("Column name should be count or similar", rs.getMetaData().getColumnName(1).isEmpty());
+                assertFalse(rs.getMetaData().getColumnName(1).isEmpty(), "Column name should be count or similar");
             }
         } finally {
             dropCollection(TEST_COLLECTION);

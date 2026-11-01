@@ -9,7 +9,7 @@ package net.hasor.dbvisitor.dialect;
 import net.hasor.dbvisitor.dialect.features.PageSqlDialect;
 import net.hasor.dbvisitor.dialect.provider.MySqlDialect;
 import net.hasor.dbvisitor.jdbc.JdbcHelper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /***
  * MariaDB 方言

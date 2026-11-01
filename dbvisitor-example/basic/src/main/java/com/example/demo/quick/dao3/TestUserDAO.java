@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package com.example.demo.quick.dao3;
-
 import net.hasor.dbvisitor.mapper.BaseMapper;
 import net.hasor.dbvisitor.mapper.Param;
 import net.hasor.dbvisitor.mapper.RefMapper;

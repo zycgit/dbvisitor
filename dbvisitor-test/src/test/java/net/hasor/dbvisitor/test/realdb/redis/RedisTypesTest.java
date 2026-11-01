@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis;
-
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,11 +18,11 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.types.SqlArg;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class RedisTypesTest {
-    @org.junit.BeforeClass
+    @org.junit.jupiter.api.BeforeAll
     public static void assumeDataSource() {
         OneApiDataSourceManager.assumeCurrentDataSource("redis");
     }

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.clickhouse.feature.schema;
-
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -17,14 +16,14 @@ import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.test.nxn.env.ClickHouseProfile;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
+import static org.junit.jupiter.api.Assertions.*;
 
-@RunWith(Parameterized.class)
+@ParameterizedClass(name = "{0}", quoteTextArguments = false, autoCloseArguments = false)
+@MethodSource("engines")
 public class ClickHouseTableEngineTest extends AbstractNxnContractTest {
-    @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> engines() {
         // @formatter:off
         return Arrays.asList(new Object[][] {
@@ -76,9 +75,9 @@ public class ClickHouseTableEngineTest extends AbstractNxnContractTest {
                 assertEquals(0, lambdaTemplate.queryFreedom(this.table).queryForCount());
             } else {
                 SQLException update = assertThrows(SQLException.class, () -> lambdaTemplate.updateFreedom(this.table).eq("id", 1).updateTo("name", "after").doUpdate());
-                assertTrue(update.getMessage(), update.getMessage().contains("support mutations"));
+                assertTrue(update.getMessage().contains("support mutations"), update.getMessage());
                 SQLException delete = assertThrows(SQLException.class, () -> lambdaTemplate.deleteFreedom(this.table).eq("id", 1).doDelete());
-                assertTrue(delete.getMessage(), delete.getMessage().contains("not supported") || delete.getMessage().contains("support mutations"));
+                assertTrue(delete.getMessage().contains("not supported") || delete.getMessage().contains("support mutations"), delete.getMessage());
                 assertEquals("before", lambdaTemplate.queryFreedom(this.table).eq("id", 1).queryForObject().get("name"));
             }
         } finally {

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.util.List;
 import java.util.Map;
 import net.hasor.dbvisitor.mapper.BaseMapper;
@@ -14,9 +13,9 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.realdb.milvus.material.user.UserInfoMilvus2;
 import net.hasor.dbvisitor.test.realdb.milvus.material.user.UserInfoMilvus3;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Named-statement execution through BaseMapper with native Milvus commands. */
 public class MilvusBaseMapperStatementTest extends MilvusSessionSqlSupport {

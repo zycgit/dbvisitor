@@ -6,8 +6,8 @@
 package net.hasor.dbvisitor.test.realdb.milvus;
 import java.sql.*;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /** SQL-client validation must work without creating or loading a collection. */
 public class MilvusKeepAliveTest {

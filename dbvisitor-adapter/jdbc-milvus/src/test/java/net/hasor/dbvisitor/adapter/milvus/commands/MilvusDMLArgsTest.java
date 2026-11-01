@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.milvus.commands;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -28,8 +27,8 @@ import net.hasor.dbvisitor.adapter.milvus.MilvusCommandInterceptor;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
-import org.junit.Test;
-import org.powermock.api.mockito.PowerMockito;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
 
 public class MilvusDMLArgsTest extends AbstractJdbcTest {
@@ -211,11 +210,11 @@ public class MilvusDMLArgsTest extends AbstractJdbcTest {
     public void testUpdateWithArgs() {
         List<Object> upsertArgs = new ArrayList<>();
         List<Object> queryArgs = new ArrayList<>();
-        QueryIterator queryIterator = PowerMockito.mock(QueryIterator.class);
+        QueryIterator queryIterator = Mockito.mock(QueryIterator.class);
         QueryResultsWrapper.RowRecord row = new QueryResultsWrapper.RowRecord();
         row.put("book_id", 999L);
         row.put("word_count", 100);
-        PowerMockito.when(queryIterator.next()).thenReturn(List.of(row), new ArrayList<>());
+        Mockito.when(queryIterator.next()).thenReturn(List.of(row), new ArrayList<>());
 
         MilvusCommandInterceptor.resetInterceptor();
         MilvusCommandInterceptor.addInterceptor(MilvusClientV2.class, (proxy, method, args) -> {

@@ -6,13 +6,12 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.material.handler;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import net.hasor.dbvisitor.jdbc.RowCallbackHandler;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /** Captures rows on the invoking thread so callback queries can assert their output. */
 public class RecordingRowCallbackHandler implements RowCallbackHandler {

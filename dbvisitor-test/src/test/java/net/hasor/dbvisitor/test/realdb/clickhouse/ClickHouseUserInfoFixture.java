@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.clickhouse;
-
 import java.net.URI;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -18,17 +17,19 @@ import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.test.contract.material.handler.ResultHandlerProbe;
 import net.hasor.dbvisitor.test.nxn.config.NxnDatabaseNames;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
-import org.junit.rules.ExternalResource;
+import org.junit.jupiter.api.extension.AfterAllCallback;
+import org.junit.jupiter.api.extension.BeforeAllCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 
 /** One numbered database per class; only UserInfo scenarios may use this fixture. */
-public final class ClickHouseUserInfoFixture extends ExternalResource {
+public final class ClickHouseUserInfoFixture implements BeforeAllCallback, AfterAllCallback {
     private String database;
     private Connection admin;
     private HikariDataSource pool;
     private DataSource observed;
 
     @Override
-    protected void before() throws Throwable {
+    public void beforeAll(ExtensionContext context) throws Exception {
         OneApiDataSourceManager.assumeCurrentDataSource("clickhouse");
         try {
             admin = OneApiDataSourceManager.getConnection("clickhouse");
@@ -53,7 +54,7 @@ public final class ClickHouseUserInfoFixture extends ExternalResource {
                     """);
         } catch (Throwable failure) {
             try {
-                after();
+                afterAll(context);
             } catch (Throwable cleanup) {
                 failure.addSuppressed(cleanup);
             }
@@ -74,7 +75,7 @@ public final class ClickHouseUserInfoFixture extends ExternalResource {
     }
 
     @Override
-    protected void after() {
+    public void afterAll(ExtensionContext context) {
         if (pool != null) {
             pool.close();
             pool = null;

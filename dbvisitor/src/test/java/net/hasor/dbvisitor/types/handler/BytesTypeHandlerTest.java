@@ -21,7 +21,7 @@ import net.hasor.dbvisitor.types.handler.bytes.BytesAsBytesWrapTypeHandler;
 import net.hasor.dbvisitor.types.handler.bytes.BytesTypeHandler;
 import net.hasor.dbvisitor.types.handler.io.BytesAsInputStreamTypeHandler;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class BytesTypeHandlerTest {
     private byte[] toPrimitive(Byte[] bytes) {

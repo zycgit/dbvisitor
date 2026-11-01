@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.milvus.commands;
-
 import java.util.*;
 import java.util.function.Function;
 import io.milvus.shaded.io.grpc.CallOptions;
@@ -23,8 +22,8 @@ import io.milvus.v2.service.collection.request.CreateCollectionReq;
 import io.milvus.v2.service.vector.request.QueryIteratorReq;
 import io.milvus.v2.service.vector.request.SearchIteratorReqV2;
 import io.milvus.v2.service.vector.request.data.FloatVec;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /** Run the actual SDK iterators over an in-memory gRPC transport, including subsequent pages. */
 public class MilvusIteratorBindingTest {

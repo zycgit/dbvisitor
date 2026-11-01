@@ -30,8 +30,7 @@ dependencies {
     testImplementation 'com.alibaba.fastjson2:fastjson2:2.0.53'
     testImplementation 'com.google.code.gson:gson:2.11.0'
     testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.18.0'
-    testImplementation 'org.powermock:powermock-module-junit4:2.0.9'
-    testImplementation 'org.powermock:powermock-api-mockito2:2.0.9'
+    testImplementation "org.mockito:mockito-core:${property('lib.mockito')}"
     testImplementation 'ch.qos.logback:logback-classic:1.2.11'
     testImplementation 'xerces:xercesImpl:2.12.2'
     testImplementation 'com.h2database:h2:2.2.220'

@@ -15,7 +15,7 @@ import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.dao.role.RoleMapper;
 import net.hasor.dbvisitor.test.dao.user.UserMapper;
 import net.hasor.dbvisitor.test.dto.UserDTO;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SimpleTest {
     private UserMapper userMapper;

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.milvus.commands;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -19,10 +18,10 @@ import net.hasor.dbvisitor.adapter.milvus.MilvusCommandInterceptor;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MilvusTruncateTest {
     private final List<String> methods  = new ArrayList<>();
@@ -30,7 +29,7 @@ public class MilvusTruncateTest {
     private       Connection   connection;
     private       boolean      failTruncate;
 
-    @Before
+    @BeforeEach
     public void connect() throws SQLException {
         MilvusCommandInterceptor.resetInterceptor();
         MilvusCommandInterceptor.addInterceptor(MilvusClientV2.class, (proxy, method, args) -> {
@@ -52,7 +51,7 @@ public class MilvusTruncateTest {
         this.connection = new JdbcDriver().connect("jdbc:dbvisitor:milvus://test:19530/db1", properties);
     }
 
-    @After
+    @AfterEach
     public void close() throws SQLException {
         try {
             if (this.connection != null) {
@@ -111,11 +110,11 @@ public class MilvusTruncateTest {
     public void malformedTargetsAndPartialDeletionClausesFailBeforeSdk() throws SQLException {
         String[] invalid = { "TRUNCATE TABLE ?", "TRUNCATE TABLE books IN DATABASE ?", "TRUNCATE TABLE ``", "TRUNCATE TABLE books IN DATABASE ``", "TRUNCATE TABLE *", "TRUNCATE TABLE books IN DATABASE *", "TRUNCATE TABLE books WHERE id=1", "TRUNCATE TABLE books LIMIT 1", "TRUNCATE TABLE books,other", "TRUNCATE TABLE books WITH (limit=1)" };
         for (String sql : invalid) {
-            assertThrows(sql, SQLException.class, () -> {
+            assertThrows(SQLException.class, () -> {
                 try (Statement statement = this.connection.createStatement()) {
                     statement.execute(sql);
                 }
-            });
+            }, sql);
         }
         assertTrue(this.methods.isEmpty());
     }

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.mongo;
-
 import java.lang.reflect.InvocationHandler;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -16,7 +15,7 @@ import java.util.Properties;
 import com.mongodb.client.ListDatabasesIterable;
 import com.mongodb.client.MongoCursor;
 import net.hasor.dbvisitor.driver.JdbcDriver;
-import org.powermock.api.mockito.PowerMockito;
+import org.mockito.Mockito;
 
 public class AbstractJdbcTest {
 
@@ -53,13 +52,13 @@ public class AbstractJdbcTest {
     }
 
     protected <T> ListDatabasesIterable<T> mockListDatabasesIterable(List<T> list) {
-        ListDatabasesIterable<T> iterable = PowerMockito.mock(ListDatabasesIterable.class);
-        MongoCursor<T> cursor = PowerMockito.mock(MongoCursor.class);
+        ListDatabasesIterable<T> iterable = Mockito.mock(ListDatabasesIterable.class);
+        MongoCursor<T> cursor = Mockito.mock(MongoCursor.class);
         Iterator<T> iterator = list.iterator();
 
-        PowerMockito.when(iterable.iterator()).thenReturn(cursor);
-        PowerMockito.when(cursor.hasNext()).thenAnswer(inv -> iterator.hasNext());
-        PowerMockito.when(cursor.next()).thenAnswer(inv -> {
+        Mockito.when(iterable.iterator()).thenReturn(cursor);
+        Mockito.when(cursor.hasNext()).thenAnswer(inv -> iterator.hasNext());
+        Mockito.when(cursor.next()).thenAnswer(inv -> {
             T val = iterator.next();
             return val;
         });
@@ -68,13 +67,13 @@ public class AbstractJdbcTest {
     }
 
     protected <T> com.mongodb.client.MongoIterable<T> mockMongoIterable(List<T> list) {
-        com.mongodb.client.MongoIterable<T> iterable = PowerMockito.mock(com.mongodb.client.MongoIterable.class);
-        MongoCursor<T> cursor = PowerMockito.mock(MongoCursor.class);
+        com.mongodb.client.MongoIterable<T> iterable = Mockito.mock(com.mongodb.client.MongoIterable.class);
+        MongoCursor<T> cursor = Mockito.mock(MongoCursor.class);
         Iterator<T> iterator = list.iterator();
 
-        PowerMockito.when(iterable.iterator()).thenReturn(cursor);
-        PowerMockito.when(cursor.hasNext()).thenAnswer(inv -> iterator.hasNext());
-        PowerMockito.when(cursor.next()).thenAnswer(inv -> {
+        Mockito.when(iterable.iterator()).thenReturn(cursor);
+        Mockito.when(cursor.hasNext()).thenAnswer(inv -> iterator.hasNext());
+        Mockito.when(cursor.next()).thenAnswer(inv -> {
             T val = iterator.next();
             return val;
         });
@@ -83,13 +82,13 @@ public class AbstractJdbcTest {
     }
 
     protected com.mongodb.client.ListCollectionNamesIterable mockListCollectionNamesIterable(List<String> list) {
-        com.mongodb.client.ListCollectionNamesIterable iterable = PowerMockito.mock(com.mongodb.client.ListCollectionNamesIterable.class);
-        MongoCursor<String> cursor = PowerMockito.mock(MongoCursor.class);
+        com.mongodb.client.ListCollectionNamesIterable iterable = Mockito.mock(com.mongodb.client.ListCollectionNamesIterable.class);
+        MongoCursor<String> cursor = Mockito.mock(MongoCursor.class);
         Iterator<String> iterator = list.iterator();
 
-        PowerMockito.when(iterable.iterator()).thenReturn(cursor);
-        PowerMockito.when(cursor.hasNext()).thenAnswer(inv -> iterator.hasNext());
-        PowerMockito.when(cursor.next()).thenAnswer(inv -> {
+        Mockito.when(iterable.iterator()).thenReturn(cursor);
+        Mockito.when(cursor.hasNext()).thenAnswer(inv -> iterator.hasNext());
+        Mockito.when(cursor.next()).thenAnswer(inv -> {
             String val = iterator.next();
             return val;
         });
@@ -98,13 +97,13 @@ public class AbstractJdbcTest {
     }
 
     protected <T> com.mongodb.client.ListCollectionsIterable<T> mockListCollectionsIterable(List<T> list) {
-        com.mongodb.client.ListCollectionsIterable<T> iterable = PowerMockito.mock(com.mongodb.client.ListCollectionsIterable.class);
-        MongoCursor<T> cursor = PowerMockito.mock(MongoCursor.class);
+        com.mongodb.client.ListCollectionsIterable<T> iterable = Mockito.mock(com.mongodb.client.ListCollectionsIterable.class);
+        MongoCursor<T> cursor = Mockito.mock(MongoCursor.class);
         Iterator<T> iterator = list.iterator();
 
-        PowerMockito.when(iterable.iterator()).thenReturn(cursor);
-        PowerMockito.when(cursor.hasNext()).thenAnswer(inv -> iterator.hasNext());
-        PowerMockito.when(cursor.next()).thenAnswer(inv -> {
+        Mockito.when(iterable.iterator()).thenReturn(cursor);
+        Mockito.when(cursor.hasNext()).thenAnswer(inv -> iterator.hasNext());
+        Mockito.when(cursor.next()).thenAnswer(inv -> {
             T val = iterator.next();
             return val;
         });

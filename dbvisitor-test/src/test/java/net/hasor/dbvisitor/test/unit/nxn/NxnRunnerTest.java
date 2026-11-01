@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.unit.nxn;
-
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -34,19 +33,18 @@ import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
 import net.hasor.dbvisitor.test.nxn.report.NxnTestResult;
 import net.hasor.dbvisitor.test.nxn.runner.NxnRunner;
+import net.hasor.dbvisitor.test.realdb.RealDbTestRunner;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import net.hasor.dbvisitor.types.handler.json.JsonTypeHandler;
-import org.junit.*;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.Description;
-import org.junit.runner.RunWith;
-import org.junit.runners.MethodSorters;
-import org.junit.runners.Parameterized;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class NxnRunnerTest {
-    @Rule
-    public               TemporaryFolder   temporary = new TemporaryFolder();
+    @TempDir
+    public Path temporary;
     private static final Map<String, Long> THREADS   = new ConcurrentHashMap<>();
     private static final AtomicInteger     ACTIVE    = new AtomicInteger();
     private static final AtomicInteger     PEAK      = new AtomicInteger();
@@ -58,7 +56,7 @@ public class NxnRunnerTest {
         ACTIVE.set(0);
         PEAK.set(0);
         barrier = new CyclicBarrier(3);
-        Path root = temporary.newFolder().toPath();
+        Path root = Files.createTempDirectory(temporary, "run-");
         Map<String, List<Class<?>>> suites = new LinkedHashMap<>();
         for (String env : List.of("h2", "pg", "redis")) {
             suites.put(env, List.of(ParallelFixture.class));
@@ -94,7 +92,7 @@ public class NxnRunnerTest {
         ACTIVE.set(0);
         PEAK.set(0);
         barrier = null;
-        Path root = temporary.newFolder().toPath();
+        Path root = Files.createTempDirectory(temporary, "run-");
         assertTrue(new NxnRunner(root, Map.of("h2", List.of(ParallelFixture.class), "pg", List.of(ParallelFixture.class)), 1, List.of(), null).run());
         assertEquals(1, PEAK.get());
         assertEquals(1, THREADS.values().stream().distinct().count());
@@ -103,7 +101,7 @@ public class NxnRunnerTest {
 
     @Test
     public void failuresAndEmptySelectionsDoNotStopOtherDatabases() throws Exception {
-        Path root = temporary.newFolder().toPath();
+        Path root = Files.createTempDirectory(temporary, "run-");
         assertFalse(new NxnRunner(root, Map.of("h2", List.of(FailureFixture.class), "pg", List.of(FailureFixture.class), "redis", List.of()), 16, List.of(), null).run());
         assertTrue(json(root.resolve("h2/run.json")).get("complete").getAsBoolean());
         assertEquals(1, json(root.resolve("pg/run.json")).get("failed").getAsInt());
@@ -113,7 +111,7 @@ public class NxnRunnerTest {
 
     @Test
     public void filtersParameterizedMethodsAndPreservesIgnoredTests() throws Exception {
-        Path root = temporary.newFolder().toPath();
+        Path root = Files.createTempDirectory(temporary, "run-");
         List<Class<?>> classes = List.of(ParameterFixture.class, IgnoredFixture.class);
         assertTrue(new NxnRunner(root, Map.of("h2", classes), 16, List.of("*ParameterFixture.keep*"), null).run());
         assertEquals(2, json(root.resolve("h2/run.json")).get("tests").getAsInt());
@@ -128,15 +126,33 @@ public class NxnRunnerTest {
         assertEquals(1, json(root.resolve("h2/run.json")).get("skipped").getAsInt());
         try (var files = Files.list(root.resolve("h2/test-results"))) {
             for (Path path : files.toList()) {
-                DocumentBuilderFactory.newDefaultInstance().newDocumentBuilder().parse(path.toFile());
+                var document = DocumentBuilderFactory.newDefaultInstance().newDocumentBuilder().parse(path.toFile());
+                var cases = document.getElementsByTagName("testcase");
+                var names = new java.util.HashSet<String>();
+                for (int index = 0; index < cases.getLength(); index++) {
+                    String name = cases.item(index).getAttributes().getNamedItem("name").getNodeValue();
+                    assertTrue(names.add(name), "Duplicate parameterized testcase: " + name);
+                }
             }
         }
         assertTrue(Files.readString(root.resolve("h2/reports/index.html")).contains("ParameterFixture"));
     }
 
     @Test
+    public void filtersParameterizedClassByItsVectorDisplayName() throws Exception {
+        // Vector names appear only when Jupiter expands constructor arguments during execution.
+        Path root = Files.createTempDirectory(temporary, "vector-");
+        assertTrue(new NxnRunner(root, Map.of("h2", List.of(NamedParameterFixture.class)),
+                16, List.of("*NamedParameterFixture.keep[second]"), null).run());
+        JsonObject report = json(root.resolve("h2/run.json"));
+        assertEquals(1, report.get("total").getAsInt());
+        assertEquals(1, report.get("passed").getAsInt());
+        assertEquals(0, report.get("skipped").getAsInt());
+    }
+
+    @Test
     public void liveProgressIncludesMethodResultsBeforeTheClassFinishes() throws Exception {
-        Path root = temporary.newFolder().toPath();
+        Path root = Files.createTempDirectory(temporary, "run-");
         LiveProgressFixture.ready = new CountDownLatch(1);
         LiveProgressFixture.release = new CountDownLatch(1);
         ByteArrayOutputStream captured = new ByteArrayOutputStream();
@@ -147,17 +163,17 @@ public class NxnRunnerTest {
             NxnRunner runner = new NxnRunner(root, Map.of("h2", List.of(LiveProgressFixture.class)), 16, List.of(), null);
             var result = executor.submit(runner::run);
             try {
-                assertTrue("Fixture did not reach the blocking method", LiveProgressFixture.ready.await(5, TimeUnit.SECONDS));
+                assertTrue(LiveProgressFixture.ready.await(5, TimeUnit.SECONDS), "Fixture did not reach the blocking method");
                 long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(12);
                 String output;
                 do {
                     Thread.sleep(25);
                     output = captured.toString(StandardCharsets.UTF_8);
                 } while (output.split("NxN progress", -1).length < 3 && System.nanoTime() < deadline);
-                assertTrue(output, output.split("NxN progress", -1).length >= 3);
-                assertTrue(output, output.contains("4/5 | PASS=1 FAIL=1 SKIP=2"));
-                assertTrue(output, output.contains("current=NxnRunnerTest$LiveProgressFixture#e_block"));
-                assertEquals(output, 1, output.split("PID=", -1).length - 1);
+                assertTrue(output.split("NxN progress", -1).length >= 3, output);
+                assertTrue(output.contains("4/5 | PASS=1 FAIL=1 SKIP=2"), output);
+                assertTrue(output.contains("current=NxnRunnerTest$LiveProgressFixture#e_block"), output);
+                assertEquals(1, output.split("PID=", -1).length - 1, output);
                 JsonObject live = json(root.resolve("h2/run.json"));
                 assertFalse(live.get("complete").getAsBoolean());
                 assertEquals("running", live.get("status").getAsString());
@@ -180,9 +196,9 @@ public class NxnRunnerTest {
             assertEquals(2, finished.get("passed").getAsInt());
             assertFalse(finished.has("currentTest"));
             String output = captured.toString(StandardCharsets.UTF_8);
-            assertTrue(output, output.contains("NxN summary"));
-            assertTrue(output, output.contains("5/5 | PASS=2 FAIL=1 SKIP=2"));
-            assertFalse(output, output.contains("{env="));
+            assertTrue(output.contains("NxN summary"), output);
+            assertTrue(output.contains("5/5 | PASS=2 FAIL=1 SKIP=2"), output);
+            assertFalse(output.contains("{env="), output);
         } finally {
             executor.shutdownNow();
             System.setOut(original);
@@ -191,7 +207,7 @@ public class NxnRunnerTest {
 
     @Test
     public void classSetupFailureIsCountedWithoutInventingMethodResults() throws Exception {
-        Path root = temporary.newFolder().toPath();
+        Path root = Files.createTempDirectory(temporary, "run-");
         assertFalse(new NxnRunner(root, Map.of("h2", List.of(ClassSetupFailureFixture.class)), 16, List.of(), null).run());
         JsonObject report = json(root.resolve("h2/run.json"));
         assertEquals(2, report.get("total").getAsInt());
@@ -202,7 +218,7 @@ public class NxnRunnerTest {
 
     @Test
     public void rejectsFilteredDocumentationAndUnsafeDatasourceNames() throws Exception {
-        Path root = temporary.newFolder().toPath();
+        Path root = Files.createTempDirectory(temporary, "run-");
         assertThrows(IllegalArgumentException.class, () -> new NxnRunner(root, Map.of("h2", List.of()), 0, List.of(), null));
         assertThrows(IllegalArgumentException.class, () -> new NxnRunner(root, Map.of("../other", List.of()), 16, List.of(), null));
         assertThrows(IllegalArgumentException.class, () -> new NxnRunner(root, Map.of("h2", List.of()), 16, List.of("*"), root));
@@ -211,7 +227,7 @@ public class NxnRunnerTest {
 
     @Test
     public void refusesToClearUnrelatedFilesInACustomOutputDirectory() throws Exception {
-        Path root = temporary.newFolder().toPath();
+        Path root = Files.createTempDirectory(temporary, "run-");
         Path file = Files.createDirectories(root.resolve("h2")).resolve("user-file.txt");
         Files.writeString(file, "keep this file");
         assertThrows(IllegalArgumentException.class, () -> new NxnRunner(root, Map.of("h2", List.of(ParallelFixture.class)), 1, List.of(), null).run());
@@ -248,7 +264,7 @@ public class NxnRunnerTest {
 
     @Test
     public void terminatingJvmStopsBlockedTestAndBackgroundThreads() throws Exception {
-        Path root = temporary.newFolder().toPath();
+        Path root = Files.createTempDirectory(temporary, "run-");
         String javaCommand = ProcessHandle.current().info().command().orElseThrow();
         // URLClassLoader is used by Gradle test workers; capture its resolved runtime for the child probe.
         ClassLoader loader = getClass().getClassLoader();
@@ -259,10 +275,10 @@ public class NxnRunnerTest {
             while (!Files.exists(root.resolve("h2/ready")) && process.isAlive() && System.nanoTime() < deadline) {
                 Thread.sleep(25);
             }
-            assertTrue(Files.readString(root.resolve("process.log")), Files.exists(root.resolve("h2/ready")));
+            assertTrue(Files.exists(root.resolve("h2/ready")), Files.readString(root.resolve("process.log")));
             assertEquals(0, process.descendants().count());
             process.destroy();
-            assertTrue("JVM did not exit after TERM", process.waitFor(5, TimeUnit.SECONDS));
+            assertTrue(process.waitFor(5, TimeUnit.SECONDS), "JVM did not exit after TERM");
             assertNotEquals(0, process.exitValue());
             assertFalse(json(root.resolve("summary.json")).get("complete").getAsBoolean());
             assertEquals("cancelled", json(root.resolve("h2/run.json")).get("status").getAsString());
@@ -274,11 +290,19 @@ public class NxnRunnerTest {
         }
     }
 
+    @Test
+    public void standaloneRunnerRejectsClassesWithoutTests() {
+        // Launcher discovery can return an empty plan; the convenience main must fail it explicitly.
+        AssertionError failure = assertThrows(AssertionError.class,
+                () -> RealDbTestRunner.run(Object.class));
+        assertTrue(failure.getMessage().contains("No real-database tests found"));
+    }
+
     private static JsonObject json(Path path) throws Exception {
         return JsonParser.parseString(Files.readString(path)).getAsJsonObject();
     }
 
-    @FixMethodOrder(MethodSorters.NAME_ASCENDING)
+    @TestMethodOrder(MethodOrderer.MethodName.class)
     public static class ParallelFixture {
         @Test
         public void first() throws Exception {
@@ -296,7 +320,7 @@ public class NxnRunnerTest {
                 child.start();
                 child.join();
                 assertEquals(env, inherited.get());
-                NxnTestResult.write(env, Description.createTestDescription(getClass(), "first"), null, "passed", null);
+                NxnTestResult.write(env, getClass(), "first", null, "passed", null);
             } finally {
                 ACTIVE.decrementAndGet();
             }
@@ -311,11 +335,11 @@ public class NxnRunnerTest {
     public static class FailureFixture {
         @Test
         public void check() {
-            assertNotEquals("intentional fixture failure", "pg", NxnContext.environment());
+            assertNotEquals("pg", NxnContext.environment(), "intentional fixture failure");
         }
     }
 
-    @FixMethodOrder(MethodSorters.NAME_ASCENDING)
+    @TestMethodOrder(MethodOrderer.MethodName.class)
     public static class LiveProgressFixture {
         private static CountDownLatch ready;
         private static CountDownLatch release;
@@ -332,10 +356,10 @@ public class NxnRunnerTest {
 
         @Test
         public void c_assume() {
-            Assume.assumeTrue("intentional fixture skip", false);
+            Assumptions.assumeTrue(false, "intentional fixture skip");
         }
 
-        @Ignore
+        @Disabled
         @Test
         public void d_ignore() {
             fail("Must stay ignored");
@@ -349,7 +373,7 @@ public class NxnRunnerTest {
     }
 
     public static class ClassSetupFailureFixture {
-        @BeforeClass
+        @BeforeAll
         public static void setup() {
             fail("intentional class setup failure");
         }
@@ -365,9 +389,9 @@ public class NxnRunnerTest {
         }
     }
 
-    @RunWith(Parameterized.class)
+    @ParameterizedClass(quoteTextArguments = false, autoCloseArguments = false)
+    @MethodSource("parameters")
     public static class ParameterFixture {
-        @Parameterized.Parameters
         public static List<Object[]> parameters() {
             return List.of(new Object[] { 1 }, new Object[] { 2 });
         }
@@ -384,7 +408,22 @@ public class NxnRunnerTest {
         }
     }
 
-    @Ignore
+    @ParameterizedClass(name = "{0}", quoteTextArguments = false, autoCloseArguments = false)
+    @MethodSource("parameters")
+    public static class NamedParameterFixture {
+        public static List<Object[]> parameters() {
+            return List.of(new Object[] { "first" }, new Object[] { "second" });
+        }
+
+        public NamedParameterFixture(String ignored) {
+        }
+
+        @Test
+        public void keep() {
+        }
+    }
+
+    @Disabled
     public static class IgnoredFixture {
         @Test
         public void ignored() {

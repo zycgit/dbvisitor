@@ -8,7 +8,7 @@
 package net.hasor.dbvisitor.dialect;
 import net.hasor.dbvisitor.dialect.provider.H2Dialect;
 import net.hasor.dbvisitor.jdbc.JdbcHelper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /***
  * H2 方言

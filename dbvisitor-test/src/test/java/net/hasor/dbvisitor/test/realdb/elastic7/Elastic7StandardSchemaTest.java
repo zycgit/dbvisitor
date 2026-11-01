@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic7;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
@@ -16,8 +15,8 @@ import net.hasor.dbvisitor.test.contract.api.jdbc.metadata.StandardSchemaCase;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class Elastic7StandardSchemaTest extends StandardSchemaCase {
     private final Map<String, List<String>> physicalSchema = new LinkedHashMap<>();
@@ -30,7 +29,7 @@ public class Elastic7StandardSchemaTest extends StandardSchemaCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         OneApiDataSourceManager.assumeCurrentDataSource(profile().env());
         fixtureConnection = OneApiDataSourceManager.getConnection(profile().env());
@@ -81,7 +80,7 @@ public class Elastic7StandardSchemaTest extends StandardSchemaCase {
         return OneApiDataSourceManager.getConnection(profile().env());
     }
 
-    @After
+    @AfterEach
     public void closeFixture() throws SQLException {
         if (fixtureConnection == null) {
             return;

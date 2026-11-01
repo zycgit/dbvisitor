@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.vector_query;
-
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
@@ -16,9 +15,9 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.capability.FeatureId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @NxnContract
 public abstract class VectorKnnOrderingCase extends VectorQuerySupport {
@@ -110,11 +109,11 @@ public abstract class VectorKnnOrderingCase extends VectorQuerySupport {
                         .le(ProductVectorForPg::getId, startId + 2)//
                         .orderByMetric(metric, ProductVectorForPg::getEmbedding, target)//
                         .queryForList();
-                assertEquals("Metric " + metric + " should return all rows", 3, rows.size());
+                assertEquals(3, rows.size(), "Metric " + metric + " should return all rows");
                 assertVectorIds(rows, startId, startId + 1, startId + 2);
                 assertDistanceOrder(targetVector, rows, metric);
                 int nearestId = metric == MetricType.IP ? startId + 2 : startId + 1;
-                assertEquals("Nearest row for " + metric, Integer.valueOf(nearestId), rows.get(0).getId());
+                assertEquals(Integer.valueOf(nearestId), rows.get(0).getId(), "Nearest row for " + metric);
             }
         } finally {
             cleanupRange(startId, 3);

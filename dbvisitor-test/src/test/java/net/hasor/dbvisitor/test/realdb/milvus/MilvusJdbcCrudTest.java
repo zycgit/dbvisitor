@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
@@ -15,8 +14,8 @@ import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcCrudCommand;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
 import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 @NxnConcurrent
 public class MilvusJdbcCrudTest extends JdbcCrudCase {
@@ -28,7 +27,7 @@ public class MilvusJdbcCrudTest extends JdbcCrudCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = new JdbcTemplate(this.fixture.open(), new MappingRegistry(), null);
     }
@@ -38,7 +37,7 @@ public class MilvusJdbcCrudTest extends JdbcCrudCase {
         return command == JdbcCrudCommand.COUNT_BY_ID ? "COUNT FROM user_info WHERE id = ?" : super.command(command);
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws SQLException {
         this.fixture.close();
     }

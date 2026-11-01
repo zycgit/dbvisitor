@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.feature.mapping;
-
 import java.sql.SQLException;
 import java.util.*;
 import net.hasor.dbvisitor.dialect.BoundSql;
@@ -19,16 +18,16 @@ import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 import net.hasor.dbvisitor.types.SqlArg;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 @NxnContract
 public abstract class AnnotationSqlTemplateCase extends AbstractNxnContractTest {
     private static final Set<String>    INITIALIZED_ENVS = new HashSet<>();
     private              LambdaTemplate lambdaTemplate;
 
-    @Before
+    @BeforeEach
     public void createLambdaTemplate() throws SQLException {
         this.lambdaTemplate = new LambdaTemplate(dataSource);
         synchronized (INITIALIZED_ENVS) {
@@ -128,7 +127,7 @@ public abstract class AnnotationSqlTemplateCase extends AbstractNxnContractTest 
                 .le(OrderByTemplateUser::getId, 910110)//
                 .asc(OrderByTemplateUser::getAge)//
                 .getBoundSql();
-        assertTrue(boundSql.getSqlString(), boundSql.getSqlString().contains("age * -1"));
+        assertTrue(boundSql.getSqlString().contains("age * -1"), boundSql.getSqlString());
 
         List<OrderByTemplateUser> ascending = lambdaTemplate.query(OrderByTemplateUser.class)//
                 .ge(OrderByTemplateUser::getId, 910108)//

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis.scenario.mapper;
-
 import net.hasor.dbvisitor.mapper.*;
 import net.hasor.dbvisitor.test.realdb.redis.scenario.model.LoginState;
 

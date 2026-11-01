@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.pg.api.vector_query;
-
 import java.util.List;
 import net.hasor.dbvisitor.test.contract.api.vector_query.VectorKnnOrderingCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;

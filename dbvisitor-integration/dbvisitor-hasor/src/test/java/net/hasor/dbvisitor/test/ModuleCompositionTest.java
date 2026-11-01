@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test;
-
 import javax.sql.DataSource;
 import net.hasor.core.AppContext;
 import net.hasor.core.Hasor;
@@ -16,10 +15,10 @@ import net.hasor.dbvisitor.hasor.session.SessionConfigurer;
 import net.hasor.dbvisitor.mapper.Mapper;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.dao.user.UserMapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 public class ModuleCompositionTest {
     @Test

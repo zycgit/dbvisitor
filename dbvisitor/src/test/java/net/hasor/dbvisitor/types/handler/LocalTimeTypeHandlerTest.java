@@ -21,7 +21,7 @@ import net.hasor.dbvisitor.types.handler.time.LocalDateTimeAsLocalDateTypeHandle
 import net.hasor.dbvisitor.types.handler.time.LocalDateTimeTypeHandler;
 import net.hasor.dbvisitor.types.handler.time.SqlTimestampAsLocalTimeTypeHandler;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class LocalTimeTypeHandlerTest {
     @Test

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -18,8 +17,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MilvusImportSqlTest extends MilvusSqlContractSupport {
     @Test
@@ -44,10 +43,10 @@ public class MilvusImportSqlTest extends MilvusSqlContractSupport {
             submit.setString(1, missingFile);
             SQLException failure = assertThrows(SQLException.class, submit::executeUpdate);
             String message = failure.getMessage();
-            assertTrue(message, message.contains("state=Failed"));
-            assertTrue(message, message.contains(missingFile));
+            assertTrue(message.contains("state=Failed"), message);
+            assertTrue(message.contains(missingFile), message);
             Matcher id = Pattern.compile("jobId=(\\d+)").matcher(message);
-            assertTrue(message, id.find());
+            assertTrue(id.find(), message);
             syncJob = id.group(1);
         }
         assertNotEquals(asyncJob, syncJob);
@@ -82,7 +81,7 @@ public class MilvusImportSqlTest extends MilvusSqlContractSupport {
                     if ("Failed".equals(state)) {
                         String reason = result.getString("REASON");
                         assertNotNull(reason);
-                        assertTrue(reason, reason.contains(missingFile));
+                        assertTrue(reason.contains(missingFile), reason);
                         assertFalse(result.next());
                         return;
                     }

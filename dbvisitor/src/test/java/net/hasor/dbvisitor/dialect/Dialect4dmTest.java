@@ -14,7 +14,7 @@ import net.hasor.dbvisitor.dialect.provider.DmDialect;
 import net.hasor.dbvisitor.jdbc.JdbcHelper;
 import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
 import net.hasor.dbvisitor.lambda.GeneratedKeyStrategy;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /***
  * 达梦方言

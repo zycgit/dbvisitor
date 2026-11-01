@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
@@ -21,8 +20,8 @@ import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
 import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 /** Same entity-iterator assertions, with an isolated collection and native vector ordering. */
 @NxnConcurrent
@@ -35,7 +34,7 @@ public class MilvusLambdaIteratorTest extends LambdaIteratorCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = new JdbcTemplate(this.database.open(), new MappingRegistry(), null);
         this.jdbcTemplate.execute("""
@@ -69,7 +68,7 @@ public class MilvusLambdaIteratorTest extends LambdaIteratorCase {
         this.jdbcTemplate.executeUpdate("INSERT INTO user_info (id, name, age, email, create_time, v) VALUES (?, ?, ?, ?, ?, ?)", new Object[] { id, name, age, name.toLowerCase(Locale.ROOT) + "@nxn.test", new Date(), new float[] { id, 0 } });
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws SQLException {
         try {
             if (this.jdbcTemplate != null) {

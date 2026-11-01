@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
@@ -16,8 +15,8 @@ import net.hasor.dbvisitor.test.contract.material.dao.declarative.AnnotationTest
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
 import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 @NxnConcurrent
 public class MilvusAnnotationMapperTextValueTest extends AnnotationMapperTextValueCase {
@@ -30,13 +29,13 @@ public class MilvusAnnotationMapperTextValueTest extends AnnotationMapperTextVal
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = new JdbcTemplate(this.fixture.open(), new MappingRegistry(), null);
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void createAnnotationMapper() throws Exception {
         this.session = newConfiguration().newSession(this.fixture.open());
         this.mapper = this.session.createMapper(AnnotationTestMapper.class);
@@ -48,7 +47,7 @@ public class MilvusAnnotationMapperTextValueTest extends AnnotationMapperTextVal
         return "CREATE TABLE " + tableName + " (id INT64 PRIMARY KEY, name VARCHAR(50), v FLOAT_VECTOR(2))";
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws Exception {
         try {
             this.fixture.close();

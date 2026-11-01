@@ -14,7 +14,7 @@ import net.hasor.dbvisitor.dynamic.args.MapSqlArgSource;
 import net.hasor.dbvisitor.jdbc.PreparedStatementSetter;
 import net.hasor.dbvisitor.jdbc.core.test.UserNameRowCallback;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class QueryUsingRowCallbackHandlerTest {
     @Test

@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Set;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ObjectTypeHandlerTest {
     @Test

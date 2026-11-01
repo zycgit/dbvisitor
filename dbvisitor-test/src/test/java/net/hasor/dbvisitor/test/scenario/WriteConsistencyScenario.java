@@ -6,14 +6,13 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.scenario;
-
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.transaction.TransactionTemplate;
 import net.hasor.dbvisitor.transaction.TransactionTemplateManager;
 import net.hasor.dbvisitor.transaction.support.TransactionHelper;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public abstract class WriteConsistencyScenario extends AbstractNxnContractTest {
     private String table;

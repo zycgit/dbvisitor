@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.mapper.xml;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -19,9 +18,9 @@ import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
-import org.junit.Before;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public abstract class XmlMapperStatementAttributeSupport extends AbstractNxnContractTest {
     protected Session session;
@@ -30,7 +29,7 @@ public abstract class XmlMapperStatementAttributeSupport extends AbstractNxnCont
     private   Integer observedQueryTimeout;
     private   Integer observedFetchSize;
 
-    @Before
+    @BeforeEach
     public void createXmlMapperSession() throws Exception {
         Configuration config = newConfiguration();
         config.loadMapper("/mapper/XmlStatementAttrMapper.xml");
@@ -79,19 +78,19 @@ public abstract class XmlMapperStatementAttributeSupport extends AbstractNxnCont
     }
 
     protected void assertStatementFactory(String expected) {
-        assertEquals("XML statementType must select the JDBC statement factory", expected, this.observedStatementFactory);
+        assertEquals(expected, this.observedStatementFactory, "XML statementType must select the JDBC statement factory");
     }
 
     protected void assertResultSetType(int expected) {
-        assertEquals("XML resultSetType must reach the JDBC connection", Integer.valueOf(expected), this.observedResultSetType);
+        assertEquals(Integer.valueOf(expected), this.observedResultSetType, "XML resultSetType must reach the JDBC connection");
     }
 
     protected void assertQueryTimeout(int expected) {
-        assertEquals("XML timeout must reach the JDBC statement", Integer.valueOf(expected), this.observedQueryTimeout);
+        assertEquals(Integer.valueOf(expected), this.observedQueryTimeout, "XML timeout must reach the JDBC statement");
     }
 
     protected void assertFetchSize(int expected) {
-        assertEquals("XML fetchSize must reach the JDBC statement", Integer.valueOf(expected), this.observedFetchSize);
+        assertEquals(Integer.valueOf(expected), this.observedFetchSize, "XML fetchSize must reach the JDBC statement");
     }
 
     private void clearObservedOptions() {

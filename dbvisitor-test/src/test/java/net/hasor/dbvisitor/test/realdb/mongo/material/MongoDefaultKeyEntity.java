@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.mongo.material;
-
 import net.hasor.dbvisitor.mapping.Column;
 
 public class MongoDefaultKeyEntity {

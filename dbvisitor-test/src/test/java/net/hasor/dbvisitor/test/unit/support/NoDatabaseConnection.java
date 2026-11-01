@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.unit.support;
-
 import java.lang.reflect.Proxy;
 import java.sql.Connection;
 

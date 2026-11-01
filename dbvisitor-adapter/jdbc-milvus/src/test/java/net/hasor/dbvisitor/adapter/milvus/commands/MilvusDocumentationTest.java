@@ -41,25 +41,24 @@ import net.hasor.dbvisitor.adapter.milvus.parser.MilvusLexer;
 import net.hasor.dbvisitor.adapter.milvus.parser.MilvusParser;
 import net.hasor.dbvisitor.driver.JdbcDriver;
 import org.antlr.v4.runtime.*;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /** Compile the actual documented Java and validate SQL examples, without a Milvus service. */
 public class MilvusDocumentationTest {
-    @Rule
-    public        TemporaryFolder temporary = new TemporaryFolder();
+    @TempDir
+    public        Path            temporary;
     private final List<Object>    requests  = new ArrayList<>();
     private       int             insertions;
     private       int             partialUpdates;
     private       int             deletions;
 
-    @Before
+    @BeforeEach
     public void install() throws Exception {
         Class.forName(JdbcDriver.class.getName());
         MilvusCommandInterceptor.resetInterceptor();
@@ -117,7 +116,7 @@ public class MilvusDocumentationTest {
         });
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         MilvusCommandInterceptor.resetInterceptor();
     }
@@ -140,7 +139,7 @@ public class MilvusDocumentationTest {
         while (root != null && !Files.isDirectory(root.resolve("dbvisitor-doc"))) {
             root = root.getParent();
         }
-        assertNotNull("Run documentation tests inside the dbvisitor repository", root);
+        assertNotNull(root, "Run documentation tests inside the dbvisitor repository");
         return root;
     }
 
@@ -162,7 +161,7 @@ public class MilvusDocumentationTest {
                 documents.add(reference.relativize(path).toString().replace(File.separatorChar, '/'));
             });
         }
-        assertFalse("Missing SQL reference chapters: " + language, documents.isEmpty());
+        assertFalse(documents.isEmpty(), "Missing SQL reference chapters: " + language);
         documents.addAll(Arrays.asList("execution.mdx", "parameters.mdx", "results.md"));
         return documents;
     }
@@ -268,11 +267,11 @@ public class MilvusDocumentationTest {
                 MilvusParser parser = new MilvusParser(new CommonTokenStream(lexer));
                 parser.removeErrorListeners();
                 parser.addErrorListener(strict);
-                assertFalse(sql, parser.root().hintCommand().isEmpty());
+                assertFalse(parser.root().hintCommand().isEmpty(), sql);
                 examples++;
             }
         }
-        assertTrue("Expected all concrete manual examples, not syntax templates", examples >= 30);
+        assertTrue(examples >= 30, "Expected all concrete manual examples, not syntax templates");
     }
 
     @Test
@@ -303,7 +302,7 @@ public class MilvusDocumentationTest {
         for (String language : Arrays.asList("cn", "en")) {
             String parameters = document(language, "params.md");
             int start = parameters.indexOf("id=\"properties\"");
-            assertTrue("Missing connection properties section: " + language, start >= 0);
+            assertTrue(start >= 0, "Missing connection properties section: " + language);
             Matcher nextHeading = Pattern.compile("(?m)^#{1,6} ").matcher(parameters);
             nextHeading.region(start, parameters.length());
             int end = nextHeading.find() ? nextHeading.start() : parameters.length();
@@ -330,7 +329,7 @@ public class MilvusDocumentationTest {
         Set<String> linkedDocuments = new HashSet<>();
         while (link.find()) {
             Path target = module.resolve(link.group(1)).normalize();
-            assertTrue("Missing documentation target: " + target, Files.isRegularFile(target));
+            assertTrue(Files.isRegularFile(target), "Missing documentation target: " + target);
             linkedDocuments.add(Files.readString(target, StandardCharsets.UTF_8));
         }
         Set<String> expected = new HashSet<>();
@@ -348,8 +347,8 @@ public class MilvusDocumentationTest {
 
     private URLClassLoader compile(String className, String source) throws Exception {
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        assertNotNull("Documentation compilation requires a JDK", compiler);
-        Path output = temporary.newFolder().toPath();
+        assertNotNull(compiler, "Documentation compilation requires a JDK");
+        Path output = Files.createTempDirectory(temporary, "documentation-");
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
         JavaFileObject unit = new SimpleJavaFileObject(URI.create("string:///" + className + ".java"), JavaFileObject.Kind.SOURCE) {
             @Override
@@ -370,7 +369,7 @@ public class MilvusDocumentationTest {
         try (StandardJavaFileManager files = compiler.getStandardFileManager(diagnostics, null, StandardCharsets.UTF_8)) {
             List<String> options = Arrays.asList("--release", "17", "-proc:none", "-classpath", String.join(File.pathSeparator, classpath), "-d", output.toString());
             boolean compiled = compiler.getTask(null, files, diagnostics, options, null, Collections.singletonList(unit)).call();
-            assertTrue(diagnostics.getDiagnostics().toString(), compiled);
+            assertTrue(compiled, diagnostics.getDiagnostics().toString());
         }
         return new URLClassLoader(new URL[] { output.toUri().toURL() }, getClass().getClassLoader());
     }

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.db2.api.mapper.xml;
-
 import java.sql.SQLException;
 
 import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperCallableCase;

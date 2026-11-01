@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
-
 import java.util.List;
 import java.util.Map;
 import net.hasor.dbvisitor.mapper.Param;

@@ -6,24 +6,23 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic7;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class Elastic7GlobalMappingTest {
     private static final String ES_URL       = "jdbc:dbvisitor:elastic://127.0.0.1:2921?indexRefresh=true";
     private static final String INDEX_NAME_1 = "dbv_global_mapping_test_idx_1";
     private static final String INDEX_NAME_2 = "dbv_global_mapping_test_idx_2";
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         try (Connection conn = DriverManager.getConnection(ES_URL)) {
             try (Statement stmt = conn.createStatement()) {
@@ -65,7 +64,7 @@ public class Elastic7GlobalMappingTest {
         }
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         try (Connection conn = DriverManager.getConnection(ES_URL); Statement stmt = conn.createStatement()) {
             try {
@@ -91,8 +90,8 @@ public class Elastic7GlobalMappingTest {
                     foundIndices.add(rs.getString("NAME"));
                 }
 
-                assertTrue("Should contain index 1", foundIndices.contains(INDEX_NAME_1));
-                assertTrue("Should contain index 2", foundIndices.contains(INDEX_NAME_2));
+                assertTrue(foundIndices.contains(INDEX_NAME_1), "Should contain index 1");
+                assertTrue(foundIndices.contains(INDEX_NAME_2), "Should contain index 2");
             }
         }
     }
@@ -107,8 +106,8 @@ public class Elastic7GlobalMappingTest {
                     foundIndices.add(rs.getString("NAME"));
                 }
 
-                assertTrue("Should contain index 1", foundIndices.contains(INDEX_NAME_1));
-                assertTrue("Should contain index 2", foundIndices.contains(INDEX_NAME_2));
+                assertTrue(foundIndices.contains(INDEX_NAME_1), "Should contain index 1");
+                assertTrue(foundIndices.contains(INDEX_NAME_2), "Should contain index 2");
             }
         }
     }

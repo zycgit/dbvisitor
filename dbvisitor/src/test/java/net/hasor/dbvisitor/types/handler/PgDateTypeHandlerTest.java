@@ -13,8 +13,8 @@ import java.util.List;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.handler.time.PgDateTypeHandler;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * PostgreSQL DATE 类型处理器测试，支持公元前日期
@@ -76,7 +76,7 @@ public class PgDateTypeHandlerTest {
             // 验证数据库中存储的是 BC 格式
             String rawValue = jdbcTemplate.queryForObject("SELECT date_value::TEXT FROM test_pg_date WHERE id = ?",//
                     new Object[] { 2 }, String.class);
-            assertTrue("Should contain BC suffix: " + rawValue, rawValue.contains(" BC"));
+            assertTrue(rawValue.contains(" BC"), "Should contain BC suffix: " + rawValue);
 
             // 读取并验证
             LocalDate loaded = jdbcTemplate.queryForObject("SELECT date_value FROM test_pg_date WHERE id = ?", new Object[] { 2 }, (rs, rowNum) -> new PgDateTypeHandler().getResult(rs, "date_value"));
@@ -109,7 +109,7 @@ public class PgDateTypeHandlerTest {
             // 验证数据库中存储的是 '0100-01-01 BC'
             String rawValue = jdbcTemplate.queryForObject("SELECT date_value::TEXT FROM test_pg_date WHERE id = ?",//
                     new Object[] { 3 }, String.class);
-            assertTrue("Should be 100 BC: " + rawValue, rawValue.startsWith("0100-01-01") && rawValue.contains("BC"));
+            assertTrue(rawValue.startsWith("0100-01-01") && rawValue.contains("BC"), "Should be 100 BC: " + rawValue);
 
             LocalDate loaded = jdbcTemplate.queryForObject("SELECT date_value FROM test_pg_date WHERE id = ?", new Object[] { 3 }, (rs, rowNum) -> new PgDateTypeHandler().getResult(rs, "date_value"));
 
@@ -206,7 +206,7 @@ public class PgDateTypeHandlerTest {
 
             assertEquals(4, loaded.size());
             for (int i = 0; i < dates.length; i++) {
-                assertEquals("Date at index " + i, dates[i], loaded.get(i));
+                assertEquals(dates[i], loaded.get(i), "Date at index " + i);
             }
         }
     }

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.lambda;
-
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,8 +14,8 @@ import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 @NxnContract
 public abstract class LambdaPageNavigationCase extends LambdaPaginationSupport {
@@ -75,7 +74,7 @@ public abstract class LambdaPageNavigationCase extends LambdaPaginationSupport {
                 allIds.add(row.getId());
             }
             pageNumber++;
-            assertTrue("Traversal must finish within the known page count", pageNumber <= 4);
+            assertTrue(pageNumber <= 4, "Traversal must finish within the known page count");
         }
 
         assertEquals(total, allIds.size());

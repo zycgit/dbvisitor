@@ -19,8 +19,8 @@ import org.bson.BsonInt32;
 import org.bson.BsonValue;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import org.junit.Test;
-import org.powermock.api.mockito.PowerMockito;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.MongoCollection;
@@ -49,16 +49,16 @@ public class CollectionWriteTest extends AbstractJdbcTest {
                 assert ((MongoDatabase) proxy).getName().equals("mydb1");
                 assert args[0].equals("mycol");
 
-                MongoCollection<Document> mockColl = PowerMockito.mock(MongoCollection.class);
-                PowerMockito.when(mockColl.insertMany(any())).thenAnswer(inv -> {
+                MongoCollection<Document> mockColl = Mockito.mock(MongoCollection.class);
+                Mockito.when(mockColl.insertMany(any())).thenAnswer(inv -> {
                     List<Document> docs = inv.getArgument(0);
                     assert docs.size() == 1;
                     assert docs.get(0).get("name").equals("zhangsan");
-                    InsertManyResult res = PowerMockito.mock(InsertManyResult.class);
+                    InsertManyResult res = Mockito.mock(InsertManyResult.class);
                     Map<Integer, BsonValue> ids = new HashMap<>();
                     ids.put(0, new BsonInt32(123));
-                    PowerMockito.when(res.getInsertedIds()).thenReturn(ids);
-                    PowerMockito.when(res.wasAcknowledged()).thenReturn(true);
+                    Mockito.when(res.getInsertedIds()).thenReturn(ids);
+                    Mockito.when(res.wasAcknowledged()).thenReturn(true);
                     return res;
                 });
                 return mockColl;
@@ -88,18 +88,18 @@ public class CollectionWriteTest extends AbstractJdbcTest {
                 assert ((MongoDatabase) proxy).getName().equals("mydb");
                 assert args[0].equals("mycol");
 
-                MongoCollection<Document> mockColl = (MongoCollection<Document>) PowerMockito.mock(MongoCollection.class);
-                PowerMockito.when(mockColl.insertMany(any())).thenAnswer(inv -> {
+                MongoCollection<Document> mockColl = (MongoCollection<Document>) Mockito.mock(MongoCollection.class);
+                Mockito.when(mockColl.insertMany(any())).thenAnswer(inv -> {
                     List<Document> docs = inv.getArgument(0);
                     assert docs.size() == 2;
                     assert docs.get(0).get("name").equals("zhangsan");
                     assert docs.get(1).get("name").equals("lisi");
-                    InsertManyResult res = PowerMockito.mock(InsertManyResult.class);
+                    InsertManyResult res = Mockito.mock(InsertManyResult.class);
                     Map<Integer, BsonValue> ids = new HashMap<>();
                     ids.put(0, new BsonInt32(123));
                     ids.put(1, new BsonInt32(124));
-                    PowerMockito.when(res.getInsertedIds()).thenReturn(ids);
-                    PowerMockito.when(res.wasAcknowledged()).thenReturn(true);
+                    Mockito.when(res.getInsertedIds()).thenReturn(ids);
+                    Mockito.when(res.wasAcknowledged()).thenReturn(true);
                     return res;
                 });
                 return mockColl;
@@ -129,10 +129,10 @@ public class CollectionWriteTest extends AbstractJdbcTest {
                 assert ((MongoDatabase) proxy).getName().equals("bbb");
                 assert args[0].equals("mycol");
 
-                MongoCollection<Document> mockColl = (MongoCollection<Document>) PowerMockito.mock(MongoCollection.class);
-                UpdateResult res = PowerMockito.mock(UpdateResult.class);
-                PowerMockito.when(res.getModifiedCount()).thenReturn(1L);
-                PowerMockito.when(mockColl.updateOne(any(Bson.class), any(Bson.class), any(UpdateOptions.class))).thenReturn(res);
+                MongoCollection<Document> mockColl = (MongoCollection<Document>) Mockito.mock(MongoCollection.class);
+                UpdateResult res = Mockito.mock(UpdateResult.class);
+                Mockito.when(res.getModifiedCount()).thenReturn(1L);
+                Mockito.when(mockColl.updateOne(any(Bson.class), any(Bson.class), any(UpdateOptions.class))).thenReturn(res);
                 return mockColl;
             }
             return null;
@@ -161,10 +161,10 @@ public class CollectionWriteTest extends AbstractJdbcTest {
                 assert ((MongoDatabase) proxy).getName().equals("mydb");
                 assert args[0].equals("mycol");
 
-                MongoCollection<Document> mockColl = (MongoCollection<Document>) PowerMockito.mock(MongoCollection.class);
-                DeleteResult res = PowerMockito.mock(DeleteResult.class);
-                PowerMockito.when(res.getDeletedCount()).thenReturn(5L);
-                PowerMockito.when(mockColl.deleteMany(any())).thenReturn(res);
+                MongoCollection<Document> mockColl = (MongoCollection<Document>) Mockito.mock(MongoCollection.class);
+                DeleteResult res = Mockito.mock(DeleteResult.class);
+                Mockito.when(res.getDeletedCount()).thenReturn(5L);
+                Mockito.when(mockColl.deleteMany(any())).thenReturn(res);
                 return mockColl;
             }
             return null;
@@ -194,13 +194,13 @@ public class CollectionWriteTest extends AbstractJdbcTest {
                 assert ((MongoDatabase) proxy).getName().equals("mydb");
                 assert args[0].equals("mycol");
 
-                MongoCollection<Document> mockColl = (MongoCollection<Document>) PowerMockito.mock(MongoCollection.class);
-                BulkWriteResult res = PowerMockito.mock(BulkWriteResult.class);
-                PowerMockito.when(res.getInsertedCount()).thenReturn(1);
-                PowerMockito.when(res.getModifiedCount()).thenReturn(1);
-                PowerMockito.when(res.getDeletedCount()).thenReturn(1);
-                PowerMockito.when(res.getUpserts()).thenReturn(java.util.Collections.emptyList());
-                PowerMockito.when(mockColl.bulkWrite(any(List.class), any(BulkWriteOptions.class))).thenReturn(res);
+                MongoCollection<Document> mockColl = (MongoCollection<Document>) Mockito.mock(MongoCollection.class);
+                BulkWriteResult res = Mockito.mock(BulkWriteResult.class);
+                Mockito.when(res.getInsertedCount()).thenReturn(1);
+                Mockito.when(res.getModifiedCount()).thenReturn(1);
+                Mockito.when(res.getDeletedCount()).thenReturn(1);
+                Mockito.when(res.getUpserts()).thenReturn(java.util.Collections.emptyList());
+                Mockito.when(mockColl.bulkWrite(any(List.class), any(BulkWriteOptions.class))).thenReturn(res);
                 return mockColl;
             }
             return null;

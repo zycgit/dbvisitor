@@ -6,14 +6,13 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.mongo;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.api.adapter.NativeAnnotationParameterFixture;
 import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperSpecialTextParameterCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class MongoAnnotationMapperSpecialTextParameterTest extends AnnotationMapperSpecialTextParameterCase {
     private final NativeAnnotationParameterFixture fixture = new NativeAnnotationParameterFixture();
@@ -24,19 +23,19 @@ public class MongoAnnotationMapperSpecialTextParameterTest extends AnnotationMap
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open(profile().env());
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void createAnnotationMapper() throws Exception {
         this.fixture.open(profile().env());
         this.mapper = this.fixture.createMapper(newConfiguration());
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws Exception {
         this.fixture.close();
     }

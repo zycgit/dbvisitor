@@ -6,13 +6,12 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcColumnMappingCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 /** Uses a stored uppercase field rather than changing ResultSet metadata. */
 public class MilvusJdbcColumnMappingTest extends JdbcColumnMappingCase {
@@ -24,7 +23,7 @@ public class MilvusJdbcColumnMappingTest extends JdbcColumnMappingCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open();
         this.fixture.create("column_case", "id INT64 PRIMARY KEY, NXN_VALUE VARCHAR(128)");
@@ -40,7 +39,7 @@ public class MilvusJdbcColumnMappingTest extends JdbcColumnMappingCase {
         return "SELECT NXN_VALUE FROM column_case WHERE id = 932001";
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws SQLException {
         this.fixture.close();
     }

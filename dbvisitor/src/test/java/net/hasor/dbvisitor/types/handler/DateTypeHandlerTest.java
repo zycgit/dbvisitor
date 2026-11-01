@@ -23,7 +23,7 @@ import net.hasor.dbvisitor.types.handler.time.SqlDateAsDateHandler;
 import net.hasor.dbvisitor.types.handler.time.SqlTimeAsDateTypeHandler;
 import net.hasor.dbvisitor.types.handler.time.SqlTimestampAsDateTypeHandler;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class DateTypeHandlerTest {
     @Test

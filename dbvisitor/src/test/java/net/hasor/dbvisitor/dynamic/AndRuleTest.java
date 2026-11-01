@@ -15,7 +15,7 @@ import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.dynamic.rule.AndRule;
 import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
 import net.hasor.dbvisitor.types.SqlArg;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AndRuleTest {
     @Test

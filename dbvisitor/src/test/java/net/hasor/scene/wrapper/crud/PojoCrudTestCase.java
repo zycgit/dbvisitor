@@ -20,7 +20,7 @@ import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.scene.wrapper.crud.dto.UserTable;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** 使用标准的 pojo 来做 DTO 进行数据 插入 */
 public class PojoCrudTestCase {

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -21,10 +20,10 @@ import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
 import net.hasor.dbvisitor.test.realdb.milvus.material.user.UserInfoMilvus;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MilvusUpdateTest extends AdapterCase {
     @Override
@@ -32,7 +31,7 @@ public class MilvusUpdateTest extends AdapterCase {
         return MilvusProfile.INSTANCE;
     }
 
-    @Before
+    @BeforeEach
     public void before() throws SQLException {
         try (Connection c = newAdapterConnection()) {
             JdbcTemplate jdbc = new JdbcTemplate(c);

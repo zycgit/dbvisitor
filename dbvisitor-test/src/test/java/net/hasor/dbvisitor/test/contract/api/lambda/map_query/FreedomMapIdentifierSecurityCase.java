@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.lambda.map_query;
-
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -17,8 +16,8 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 @NxnContract
 public abstract class FreedomMapIdentifierSecurityCase extends AbstractNxnContractTest {
@@ -38,7 +37,7 @@ public abstract class FreedomMapIdentifierSecurityCase extends AbstractNxnContra
             List<Map<String, Object>> result = lambdaTemplate.queryFreedom(tableName())//
                     .eq(maliciousEqColumn, "irrelevant")//
                     .queryForList();
-            assertTrue("Column identifier payload must not expand query results: " + result, result.size() <= 1);
+            assertTrue(result.size() <= 1, "Column identifier payload must not expand query results: " + result);
         } catch (SQLException e) {
             assertNotNull(e.getMessage());
         }
@@ -48,7 +47,7 @@ public abstract class FreedomMapIdentifierSecurityCase extends AbstractNxnContra
             List<Map<String, Object>> result = lambdaTemplate.queryFreedom(tableName())//
                     .like(maliciousLikeColumn, "FreedomId%")//
                     .queryForList();
-            assertTrue("LIKE column identifier payload must not bypass predicates: " + result, result.size() <= 1);
+            assertTrue(result.size() <= 1, "LIKE column identifier payload must not bypass predicates: " + result);
         } catch (SQLException e) {
             assertNotNull(e.getMessage());
         }
@@ -68,7 +67,7 @@ public abstract class FreedomMapIdentifierSecurityCase extends AbstractNxnContra
                     .eq("(SELECT name FROM " + tableName() + " LIMIT 1)", "FreedomSubquerySafe")//
                     .queryForList();
             if (acceptsLiteralUnknownColumn()) {
-                assertTrue("An unknown literal field must not execute the subquery", result.isEmpty());
+                assertTrue(result.isEmpty(), "An unknown literal field must not execute the subquery");
             } else {
                 fail("Subquery column identifier should be rejected, returned " + result.size() + " rows");
             }
@@ -126,7 +125,7 @@ public abstract class FreedomMapIdentifierSecurityCase extends AbstractNxnContra
             List<Map<String, Object>> result = lambdaTemplate.queryFreedom(tableName())//
                     .eqBySampleMap(expandedSample)//
                     .queryForList();
-            assertTrue("eqBySampleMap key payload must not expand query results: " + result, result.size() <= 1);
+            assertTrue(result.size() <= 1, "eqBySampleMap key payload must not expand query results: " + result);
         } catch (SQLException e) {
             assertNotNull(e.getMessage());
         }
@@ -137,7 +136,7 @@ public abstract class FreedomMapIdentifierSecurityCase extends AbstractNxnContra
             List<Map<String, Object>> result = lambdaTemplate.queryFreedom(tableName())//
                     .eqBySampleMap(alwaysTrueSample)//
                     .queryForList();
-            assertTrue("eqBySampleMap always-true key must not return rows: " + result, result.isEmpty());
+            assertTrue(result.isEmpty(), "eqBySampleMap always-true key must not return rows: " + result);
         } catch (SQLException e) {
             assertNotNull(e.getMessage());
         }
@@ -194,8 +193,8 @@ public abstract class FreedomMapIdentifierSecurityCase extends AbstractNxnContra
 
         UserInfo loaded = loadUserOrNull(baseId() + 41);
         if (loaded != null) {
-            assertNotEquals("INSERT key payload must not inject name", "HACKED", loaded.getName());
-            assertNotEquals("INSERT key payload must not inject age", Integer.valueOf(999), loaded.getAge());
+            assertNotEquals("HACKED", loaded.getName(), "INSERT key payload must not inject name");
+            assertNotEquals(Integer.valueOf(999), loaded.getAge(), "INSERT key payload must not inject age");
         }
         assertTableReadable();
     }
@@ -211,7 +210,7 @@ public abstract class FreedomMapIdentifierSecurityCase extends AbstractNxnContra
         try {
             List<Map<String, Object>> result = lambdaTemplate.queryFreedom(maliciousTable)//
                     .queryForList();
-            assertTrue("Table identifier payload must not return rows: " + result, result.isEmpty());
+            assertTrue(result.isEmpty(), "Table identifier payload must not return rows: " + result);
         } catch (Exception e) {
             assertNotNull(e.getMessage());
         }
@@ -232,7 +231,7 @@ public abstract class FreedomMapIdentifierSecurityCase extends AbstractNxnContra
                     .eq("id", baseId() + 61)//
                     .queryForList();
             if (!result.isEmpty()) {
-                assertFalse("SELECT identifier payload must not expose injected alias: " + result, result.get(0).containsKey("leaked_count"));
+                assertFalse(result.get(0).containsKey("leaked_count"), "SELECT identifier payload must not expose injected alias: " + result);
             }
         } catch (SQLException e) {
             assertNotNull(e.getMessage());
@@ -258,7 +257,7 @@ public abstract class FreedomMapIdentifierSecurityCase extends AbstractNxnContra
 
     private String loadName(int id) throws SQLException {
         UserInfo user = loadUserOrNull(id);
-        assertNotNull("Expected user_info row id=" + id, user);
+        assertNotNull(user, "Expected user_info row id=" + id);
         return user.getName();
     }
 
@@ -271,7 +270,7 @@ public abstract class FreedomMapIdentifierSecurityCase extends AbstractNxnContra
 
     private void assertTableSurvived(int id) throws SQLException {
         try {
-            assertTrue("user_info should remain readable after identifier payload", countById(id) >= 1);
+            assertTrue(countById(id) >= 1, "user_info should remain readable after identifier payload");
         } catch (SQLException e) {
             fail("user_info should survive identifier payload: " + e.getMessage());
         }

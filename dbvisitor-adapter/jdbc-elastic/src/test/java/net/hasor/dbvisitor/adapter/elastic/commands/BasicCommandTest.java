@@ -6,8 +6,7 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.elastic.commands;
-
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -17,7 +16,7 @@ import java.util.Collections;
 
 import org.elasticsearch.client.ResponseException;
 import org.elasticsearch.client.RestClient;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import net.hasor.dbvisitor.driver.JdbcErrorCode;
 

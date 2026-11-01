@@ -9,7 +9,7 @@ package net.hasor.dbvisitor.dialect;
 import java.util.Map;
 import net.hasor.dbvisitor.page.Page;
 import net.hasor.dbvisitor.page.PageObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * 分页器的功能测试。

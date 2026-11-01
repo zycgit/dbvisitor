@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis.feature.type;
-
 import java.sql.SQLException;
 import java.time.Month;
 import java.time.MonthDay;
@@ -20,8 +19,8 @@ import net.hasor.dbvisitor.types.handler.time.SqlTimestampAsMonthDayTypeHandler;
 import net.hasor.dbvisitor.types.handler.time.SqlTimestampAsMonthTypeHandler;
 import net.hasor.dbvisitor.types.handler.time.SqlTimestampAsYearMonthTypeHandler;
 import net.hasor.dbvisitor.types.handler.time.SqlTimestampAsYearTypeHandler;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class RedisTimePartialJdbcTest extends TimePartialJdbcCase {
     private final RedisTypeCommandFixture fixture = new RedisTypeCommandFixture();
@@ -32,12 +31,12 @@ public class RedisTimePartialJdbcTest extends TimePartialJdbcCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open();
     }
 
-    @After
+    @AfterEach
     public void closeFixture() throws SQLException {
         this.fixture.close();
     }

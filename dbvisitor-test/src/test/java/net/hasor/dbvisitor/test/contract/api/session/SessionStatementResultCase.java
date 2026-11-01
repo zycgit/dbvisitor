@@ -6,13 +6,12 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.session;
-
 import java.util.List;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 @NxnContract
 public abstract class SessionStatementResultCase extends SessionStatementSupport {
@@ -29,7 +28,7 @@ public abstract class SessionStatementResultCase extends SessionStatementSupport
         assertEquals(Integer.valueOf(baseId() + 10), propertyValue(byId.get(0), resultIdProperty()));
         assertEquals("StmtQueryOne", propertyValue(byId.get(0), resultNameProperty()));
         for (String property : presentResultProperties()) {
-            assertNotNull(property, propertyValue(byId.get(0), property));
+            assertNotNull(propertyValue(byId.get(0), property), property);
         }
 
         assertEquals(2, queryUsers("queryUsersByAge", mapOf("age", 40)).size());

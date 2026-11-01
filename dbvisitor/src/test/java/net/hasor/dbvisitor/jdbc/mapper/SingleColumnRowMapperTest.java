@@ -14,7 +14,7 @@ import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.test.dto.UserInfo3;
 import net.hasor.test.dto.UserInfo4;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SingleColumnRowMapperTest {
 

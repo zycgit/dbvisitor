@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.feature.type;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Map;
@@ -15,7 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import net.hasor.dbvisitor.test.contract.material.model.types.JsonAnnotatedBean;
 import net.hasor.dbvisitor.test.contract.material.model.types.JsonTestBean;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class JsonTypeJdbcSupport extends AbstractNxnContractTest {
     protected int baseId() {

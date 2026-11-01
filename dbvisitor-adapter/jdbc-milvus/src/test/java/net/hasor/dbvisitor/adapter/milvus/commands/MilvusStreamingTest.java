@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.milvus.commands;
-
 import java.sql.*;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
@@ -35,13 +34,13 @@ import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
 import net.hasor.dbvisitor.driver.JdbcErrorCode;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.searchHits;
 import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /** Exercise lazy reads through public JDBC methods and intercepted official SDK iterators. */
 public class MilvusStreamingTest {
@@ -51,7 +50,7 @@ public class MilvusStreamingTest {
     private final        List<String> events    = new ArrayList<>();
     private              int          totalRows = 7;
 
-    @Before
+    @BeforeEach
     public void install() {
         MilvusCommandInterceptor.resetInterceptor();
         MilvusCommandInterceptor.addInterceptor(MilvusClientV2.class, (proxy, method, args) -> {
@@ -93,7 +92,7 @@ public class MilvusStreamingTest {
         });
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         MilvusCommandInterceptor.resetInterceptor();
     }
@@ -237,7 +236,7 @@ public class MilvusStreamingTest {
                     statement.executeQuery("SELECT id FROM t ORDER BY v <-> [1,2] LIMIT 2 WITH (" + option + ")");
                     fail(option);
                 } catch (SQLException expected) {
-                    assertTrue(expected.getMessage(), expected.getMessage().contains("requires"));
+                    assertTrue(expected.getMessage().contains("requires"), expected.getMessage());
                 }
             }
             assertTrue(calls.isEmpty());

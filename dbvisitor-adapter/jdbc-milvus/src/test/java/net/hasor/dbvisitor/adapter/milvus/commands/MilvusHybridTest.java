@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.milvus.commands;
-
 import java.sql.*;
 import java.util.*;
 import io.milvus.grpc.*;
@@ -25,10 +24,10 @@ import net.hasor.dbvisitor.adapter.milvus.MilvusCommandInterceptor;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MilvusHybridTest extends AbstractJdbcTest {
     private              CreateCollectionReq.CollectionSchema schema;
@@ -73,7 +72,7 @@ public class MilvusHybridTest extends AbstractJdbcTest {
         return new JdbcDriver().connect("jdbc:dbvisitor:milvus://test:19530/db1", props);
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         MilvusCommandInterceptor.resetInterceptor();
     }
@@ -242,7 +241,7 @@ public class MilvusHybridTest extends AbstractJdbcTest {
             }
             SearchRequest first = hybrid.getRequests(0);
             SearchRequest second = hybrid.getRequests(1);
-            assertTrue(first.getDsl(), first.getDsl().startsWith("(body == {arg1}) && ("));
+            assertTrue(first.getDsl().startsWith("(body == {arg1}) && ("), first.getDsl());
             assertTrue(first.getDsl().contains("id > {arg3}"));
             assertTrue(first.getDsl().contains("body == {arg4}"));
             assertFalse(first.getDsl().contains("tenant"));
@@ -295,7 +294,7 @@ public class MilvusHybridTest extends AbstractJdbcTest {
             stmt.executeUpdate(DDL);
             String base = "SELECT id FROM docs ORDER BY HYBRID (dense <-> [1,2] %s LIMIT 10 %s, sparse <?> 'text' LIMIT 10) LIMIT 2 WITH(reranker='rrf'%s)";
             for (String sql : Arrays.asList(String.format(base, "WHERE dense <-> [1,2] < 3", "", ""), String.format(base, "", "WITH(timezone=5)", ""), String.format(base, "", "WITH(round_decimal=2)", ""), String.format(base, "", "", ",round_decimal='2'"), String.format(base, "", "", ",round_decimal=2.5"), String.format(base, "", "", ",round_decimal=2147483648"), String.format(base, "", "", ",timezone='UTC'"))) {
-                assertThrows(sql, SQLException.class, () -> stmt.executeQuery(sql));
+                assertThrows(SQLException.class, () -> stmt.executeQuery(sql), sql);
             }
             assertNull(hybrid);
         }

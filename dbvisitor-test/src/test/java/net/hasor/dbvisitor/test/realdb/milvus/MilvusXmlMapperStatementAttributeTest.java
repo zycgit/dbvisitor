@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.SQLException;
 import java.util.Date;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
@@ -14,8 +13,8 @@ import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperStatementAttributeCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class MilvusXmlMapperStatementAttributeTest extends XmlMapperStatementAttributeCase {
     private final MilvusLambdaResultFixture fixture = new MilvusLambdaResultFixture();
@@ -26,14 +25,14 @@ public class MilvusXmlMapperStatementAttributeTest extends XmlMapperStatementAtt
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = new JdbcTemplate(this.fixture.open());
         initData();
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void createXmlMapperSession() throws Exception {
         Configuration configuration = new Configuration();
         configuration.loadMapper("/realdb/milvus/mapper/SharedStatementAttrMapper.xml");
@@ -47,7 +46,7 @@ public class MilvusXmlMapperStatementAttributeTest extends XmlMapperStatementAtt
         }
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws Exception {
         try {
             this.fixture.close();

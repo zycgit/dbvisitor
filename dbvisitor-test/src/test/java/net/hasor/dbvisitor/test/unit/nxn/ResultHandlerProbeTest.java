@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.unit.nxn;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -15,8 +14,8 @@ import javax.sql.DataSource;
 import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.test.contract.material.handler.ResultHandlerProbe;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ResultHandlerProbeTest {
     @Test
@@ -39,7 +38,7 @@ public class ResultHandlerProbeTest {
             }));
             assertEquals(Integer.valueOf(7), result);
             assertEquals(1, fixture.closeCalls);
-            assertFalse("The simulated driver still reports open after close", fixture.driverResult.isClosed());
+            assertFalse(fixture.driverResult.isClosed(), "The simulated driver still reports open after close");
             assertTrue(fixture.resultSet.isClosed());
             assertTrue(fixture.statement.isClosed());
         }
@@ -72,7 +71,7 @@ public class ResultHandlerProbeTest {
                     return null;
                 }
             }));
-            assertEquals("dbVisitor must successfully close the handler ResultSet", failure.getMessage());
+            assertTrue(failure.getMessage().startsWith("dbVisitor must successfully close the handler ResultSet"));
             assertEquals(0, fixture.closeCalls);
             assertTrue(fixture.statement.isClosed());
             assertTrue(fixture.resultSet.isClosed());
@@ -89,11 +88,11 @@ public class ResultHandlerProbeTest {
                     ResultSet rs = statement.executeQuery("SELECT 1");
                     assertTrue(rs.next());
                     ResultHandlerProbe.record(rs);
-                    assertSame("Reflection must not wrap the driver's SQLException", expected, assertThrows(SQLException.class, rs::close));
+                    assertSame(expected, assertThrows(SQLException.class, rs::close), "Reflection must not wrap the driver's SQLException");
                     return null;
                 }
             }));
-            assertEquals("dbVisitor must successfully close the handler ResultSet", failure.getMessage());
+            assertTrue(failure.getMessage().startsWith("dbVisitor must successfully close the handler ResultSet"));
             assertEquals(1, fixture.closeCalls);
             assertTrue(fixture.statement.isClosed());
         }

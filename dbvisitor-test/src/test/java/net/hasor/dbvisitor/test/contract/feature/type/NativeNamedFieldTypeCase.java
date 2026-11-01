@@ -14,10 +14,10 @@ import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @NxnContract
 public abstract class NativeNamedFieldTypeCase extends AbstractNxnContractTest {
@@ -29,7 +29,7 @@ public abstract class NativeNamedFieldTypeCase extends AbstractNxnContractTest {
     private final NativeBasicTypeFixture fixture = new NativeBasicTypeFixture();
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open(profile().env(), "named_types");
     }
@@ -63,7 +63,7 @@ public abstract class NativeNamedFieldTypeCase extends AbstractNxnContractTest {
         assertEquals(expected, actual);
     }
 
-    @After
+    @AfterEach
     public void closeFixture() throws SQLException {
         this.fixture.close();
     }

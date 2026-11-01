@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.driver;
-
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;

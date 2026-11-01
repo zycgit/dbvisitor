@@ -6,15 +6,14 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.mongo;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.api.adapter.NativeDocumentParameterFixture;
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcParameterCommand;
 import net.hasor.dbvisitor.test.contract.feature.parameter.JdbcArgumentSourceParameterCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class MongoJdbcArgumentSourceParameterTest extends JdbcArgumentSourceParameterCase {
     private final NativeDocumentParameterFixture fixture = new NativeDocumentParameterFixture();
@@ -25,7 +24,7 @@ public class MongoJdbcArgumentSourceParameterTest extends JdbcArgumentSourcePara
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open(profile().env());
     }
@@ -38,7 +37,7 @@ public class MongoJdbcArgumentSourceParameterTest extends JdbcArgumentSourcePara
         return this.fixture.command(command);
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws SQLException {
         this.fixture.close();
     }

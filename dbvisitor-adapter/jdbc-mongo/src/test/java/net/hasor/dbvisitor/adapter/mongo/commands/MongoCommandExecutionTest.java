@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.mongo.commands;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,12 +24,12 @@ import net.hasor.dbvisitor.adapter.mongo.AbstractJdbcTest;
 import net.hasor.dbvisitor.adapter.mongo.MongoCommandInterceptor;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.powermock.api.mockito.PowerMockito;
-import static org.junit.Assert.*;
+import org.mockito.Mockito;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -38,9 +37,9 @@ import static org.mockito.Mockito.*;
 public class MongoCommandExecutionTest extends AbstractJdbcTest {
     private MongoCollection<Document> collection;
 
-    @Before
+    @BeforeEach
     public void install() {
-        collection = PowerMockito.mock(MongoCollection.class);
+        collection = Mockito.mock(MongoCollection.class);
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, (proxy, method, args) -> {
             if ("runCommand".equals(method.getName())) {
@@ -54,7 +53,7 @@ public class MongoCommandExecutionTest extends AbstractJdbcTest {
         });
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         MongoCommandInterceptor.resetInterceptor();
     }
@@ -122,8 +121,8 @@ public class MongoCommandExecutionTest extends AbstractJdbcTest {
 
     @Test
     public void findPassesProjectionSortAndPaginationAndHonorsJdbcMaxRows() throws Exception {
-        FindIterable<Document> iterable = PowerMockito.mock(FindIterable.class);
-        MongoCursor<Document> cursor = PowerMockito.mock(MongoCursor.class);
+        FindIterable<Document> iterable = Mockito.mock(FindIterable.class);
+        MongoCursor<Document> cursor = Mockito.mock(MongoCursor.class);
         Iterator<Document> rows = Arrays.asList(new Document("_id", "1").append("name", "Java"), new Document("_id", "2").append("name", "SQL")).iterator();
         when(collection.find(any(Bson.class))).thenReturn(iterable);
         when(iterable.iterator()).thenReturn(cursor);
@@ -157,7 +156,7 @@ public class MongoCommandExecutionTest extends AbstractJdbcTest {
             SQLException error = assertThrows(SQLException.class, statement::executeQuery);
             assertTrue(error.getMessage().contains("param size not match"));
         }
-        verifyZeroInteractions(collection);
+        verifyNoInteractions(collection);
     }
 
     @Test

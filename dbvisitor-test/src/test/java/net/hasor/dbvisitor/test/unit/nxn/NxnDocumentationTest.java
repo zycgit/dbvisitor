@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.unit.nxn;
-
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,23 +22,22 @@ import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 import net.hasor.dbvisitor.test.nxn.report.NxnDocumentation;
 import net.hasor.dbvisitor.test.nxn.report.NxnTestResult;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class NxnDocumentationTest {
     private static final Gson            JSON         = new Gson();
-    @Rule
-    public               TemporaryFolder temporary    = new TemporaryFolder();
+    @TempDir
+    public Path temporary;
     private              Path            documents;
     private              Path            runDirectory;
     private final        List<Path>      observations = new ArrayList<>();
 
-    @Before
+    @BeforeEach
     public void prepareSyntheticRun() throws Exception {
-        documents = temporary.newFolder("capabilities").toPath();
+        documents = Files.createDirectory(temporary.resolve("capabilities"));
         Path original = Path.of("../dbvisitor-doc/src/data/capabilities");
         try (Stream<Path> files = Files.walk(original)) {
             for (Path file : files.filter(path -> path.toString().endsWith(".json")).toList()) {
@@ -48,7 +46,7 @@ public class NxnDocumentationTest {
                 Files.copy(file, target);
             }
         }
-        runDirectory = temporary.newFolder("run").toPath();
+        runDirectory = Files.createDirectory(temporary.resolve("run"));
         Files.createDirectory(runDirectory.resolve("cases"));
         JsonObject summary = new JsonObject();
         summary.addProperty("runId", "synthetic-unit-run");
@@ -109,7 +107,7 @@ public class NxnDocumentationTest {
         assertFalse(h2.has("types/array-handlers/null-round-trips"));
         for (Map.Entry<Path, String> original : before.entrySet()) {
             if (!original.getKey().equals(documents.resolve("datasources/h2.json"))) {
-                assertEquals("Changed table, index or another datasource: " + original.getKey(), original.getValue(), Files.readString(original.getKey()));
+                assertEquals(original.getValue(), Files.readString(original.getKey()), "Changed table, index or another datasource: " + original.getKey());
             }
         }
         assertTrue(Files.isRegularFile(runDirectory.resolve("compatibility.json")));
@@ -154,7 +152,7 @@ public class NxnDocumentationTest {
             int expectedTotal = result.has("variants") ? result.getAsJsonObject("variants").size() : entry.getValue().getAsJsonArray().size();
             assertEquals(expectedTotal, result.get("total").getAsInt());
             for (var test : entry.getValue().getAsJsonArray()) {
-                assertTrue("Method counted more than once", methods.add(test.getAsJsonObject().get("contract").getAsString()));
+                assertTrue(methods.add(test.getAsJsonObject().get("contract").getAsString()), "Method counted more than once");
             }
         }
     }
@@ -166,7 +164,7 @@ public class NxnDocumentationTest {
         Map<String, Integer> expected = Map.of("statements/execution", 11, "statements/options", 6, "statements/key-strategies", 7, "statements/callable", 6, "statements/fragments", 4, "dynamic-sql-and-result-mapping/dynamic-commands", 8, "dynamic-sql-and-result-mapping/resultmap", 13, "pagination/file-pagination", 7, "external-mapper-references/calls", 6);
         assertEquals(expected.size(), results.keySet().stream().filter(key -> key.startsWith("mapper-files/")).count());
         for (var entry : expected.entrySet()) {
-            assertEquals(entry.getKey(), entry.getValue().intValue(), results.getAsJsonObject("mapper-files/" + entry.getKey()).get("total").getAsInt());
+            assertEquals(entry.getValue().intValue(), results.getAsJsonObject("mapper-files/" + entry.getKey()).get("total").getAsInt(), entry.getKey());
         }
         assertEquals(68, expected.values().stream().mapToInt(Integer::intValue).sum());
         assertFalse(results.has("mapper-files/session-calls/query-results"));
@@ -188,7 +186,7 @@ public class NxnDocumentationTest {
         Map<String, Integer> expected = Map.of("inserts-updates-and-deletes/writes", 23, "inserts-updates-and-deletes/insert-conflicts", 7, "queries/query", 16, "map-query/modes", 16, "pagination-and-iteration/pagination", 22, "condition-builders/predicates", 37, "condition-values/parameter-values", 19, "grouping-and-ordering/grouping", 6, "grouping-and-ordering/ordering", 9);
         assertEquals(expected.size(), results.keySet().stream().filter(key -> key.startsWith("builder/")).count());
         for (var entry : expected.entrySet()) {
-            assertEquals(entry.getKey(), entry.getValue().intValue(), results.getAsJsonObject("builder/" + entry.getKey()).get("total").getAsInt());
+            assertEquals(entry.getValue().intValue(), results.getAsJsonObject("builder/" + entry.getKey()).get("total").getAsInt(), entry.getKey());
         }
         assertEquals(155, expected.values().stream().mapToInt(Integer::intValue).sum());
 
@@ -338,7 +336,7 @@ public class NxnDocumentationTest {
 
     @Test
     public void transactionPrerequisiteLimitsApisButNotIsolationAvailability() throws Exception {
-        Path run = temporary.newFolder("clickhouse-run").toPath();
+        Path run = Files.createDirectory(temporary.resolve("clickhouse-run"));
         Files.createDirectory(run.resolve("cases"));
         JsonObject summary = read(runDirectory.resolve("run.json"));
         summary.addProperty("env", "clickhouse");
@@ -414,7 +412,7 @@ public class NxnDocumentationTest {
                     found = true;
                 }
             }
-            assertTrue(method.getKey(), found);
+            assertTrue(found, method.getKey());
         }
     }
 
@@ -427,9 +425,9 @@ public class NxnDocumentationTest {
         int columns = 0;
         for (String column : results.keySet()) {
             if (column.startsWith("mapper/")) {
-                assertTrue(column, expected.containsKey(column));
+                assertTrue(expected.containsKey(column), column);
                 int count = results.getAsJsonObject(column).get("total").getAsInt();
-                assertEquals(column, expected.get(column).intValue(), count);
+                assertEquals(expected.get(column).intValue(), count, column);
                 total += count;
                 columns++;
             }
@@ -447,9 +445,9 @@ public class NxnDocumentationTest {
         int columns = 0;
         for (String column : results.keySet()) {
             if (column.startsWith("jdbc/")) {
-                assertTrue(column, expected.containsKey(column));
+                assertTrue(expected.containsKey(column), column);
                 int count = results.getAsJsonObject(column).get("total").getAsInt();
-                assertEquals(column, expected.get(column).intValue(), count);
+                assertEquals(expected.get(column).intValue(), count, column);
                 total += count;
                 columns++;
             }
@@ -623,9 +621,9 @@ public class NxnDocumentationTest {
     private void assertUpdateRejected(String expected) throws Exception {
         Map<Path, String> before = documentContents();
         IllegalStateException error = assertThrows(IllegalStateException.class, () -> new NxnDocumentation(documents).update("h2", runDirectory));
-        assertTrue(error.getMessage(), error.getMessage().contains(expected));
+        assertTrue(error.getMessage().contains(expected), error.getMessage());
         for (Map.Entry<Path, String> original : before.entrySet()) {
-            assertEquals("Rejected update changed " + original.getKey(), original.getValue(), Files.readString(original.getKey()));
+            assertEquals(original.getValue(), Files.readString(original.getKey()), "Rejected update changed " + original.getKey());
         }
     }
 

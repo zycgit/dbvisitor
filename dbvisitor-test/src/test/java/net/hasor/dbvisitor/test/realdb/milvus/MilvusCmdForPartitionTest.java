@@ -6,20 +6,19 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.*;
 import java.util.HashSet;
 import java.util.Set;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MilvusCmdForPartitionTest extends AbstractMilvusCmdForTest {
     private static final String PARTITION = "dbv_partition_p1";
 
-    @Before
+    @BeforeEach
     public void setUp() {
         if (hasCollection(TEST_COLLECTION)) {
             dropCollection(TEST_COLLECTION);
@@ -27,7 +26,7 @@ public class MilvusCmdForPartitionTest extends AbstractMilvusCmdForTest {
         createCollection(TEST_COLLECTION);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         if (!milvusSelected) {
             return;
@@ -40,7 +39,7 @@ public class MilvusCmdForPartitionTest extends AbstractMilvusCmdForTest {
         try (Connection conn = DriverManager.getConnection(MILVUS_URL); Statement stmt = conn.createStatement()) {
             stmt.executeUpdate("CREATE PARTITION " + PARTITION + " ON TABLE " + TEST_COLLECTION);
 
-            assertTrue("Partition should exist", hasPartition(TEST_COLLECTION, PARTITION));
+            assertTrue(hasPartition(TEST_COLLECTION, PARTITION), "Partition should exist");
         }
     }
 
@@ -63,7 +62,7 @@ public class MilvusCmdForPartitionTest extends AbstractMilvusCmdForTest {
             assertTrue(hasPartition(TEST_COLLECTION, PARTITION));
 
             stmt.executeUpdate("DROP PARTITION " + PARTITION + " ON TABLE " + TEST_COLLECTION);
-            assertFalse("Partition should be dropped", hasPartition(TEST_COLLECTION, PARTITION));
+            assertFalse(hasPartition(TEST_COLLECTION, PARTITION), "Partition should be dropped");
         }
     }
 
@@ -99,7 +98,7 @@ public class MilvusCmdForPartitionTest extends AbstractMilvusCmdForTest {
                     }
                 }
             }
-            assertTrue("Should find the test partition in SHOW PARTITIONS", found);
+            assertTrue(found, "Should find the test partition in SHOW PARTITIONS");
         }
     }
 
@@ -116,7 +115,7 @@ public class MilvusCmdForPartitionTest extends AbstractMilvusCmdForTest {
                     }
                 }
             }
-            assertTrue("Should find the test partition in SHOW PARTITION command", foundSingle);
+            assertTrue(foundSingle, "Should find the test partition in SHOW PARTITION command");
         }
     }
 

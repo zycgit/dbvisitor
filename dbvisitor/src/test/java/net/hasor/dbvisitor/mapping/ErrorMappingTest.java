@@ -7,7 +7,7 @@
  */
 package net.hasor.dbvisitor.mapping;
 import net.hasor.dbvisitor.mapping.dto.UserInfoUsingMap;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ErrorMappingTest {
 

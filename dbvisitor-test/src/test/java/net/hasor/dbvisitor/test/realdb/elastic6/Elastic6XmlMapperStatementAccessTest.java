@@ -6,15 +6,14 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic6;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlMapperStatementAccessCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic6Profile;
 import net.hasor.dbvisitor.test.realdb.elastic7.Elastic7SessionMapperFixture;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class Elastic6XmlMapperStatementAccessTest extends XmlMapperStatementAccessCase {
     private final Elastic7SessionMapperFixture fixture = new Elastic7SessionMapperFixture();
@@ -25,7 +24,7 @@ public class Elastic6XmlMapperStatementAccessTest extends XmlMapperStatementAcce
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = fixture.open(profile().env());
         for (int i = 1; i <= 5; i++) {
@@ -34,7 +33,7 @@ public class Elastic6XmlMapperStatementAccessTest extends XmlMapperStatementAcce
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void createXmlMapperSession() throws Exception {
         this.jdbcTemplate = fixture.open(profile().env());
         this.session = fixture.session();
@@ -47,7 +46,7 @@ public class Elastic6XmlMapperStatementAccessTest extends XmlMapperStatementAcce
         return this.session;
     }
 
-    @After
+    @AfterEach
     public void closeXmlFixture() throws Exception {
         fixture.close();
     }

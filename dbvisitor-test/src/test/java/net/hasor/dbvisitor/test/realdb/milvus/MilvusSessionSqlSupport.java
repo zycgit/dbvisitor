@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.List;
@@ -17,8 +16,8 @@ import net.hasor.dbvisitor.test.contract.api.adapter.AdapterCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
 import net.hasor.dbvisitor.test.realdb.milvus.material.user.UserInfoMilvus3Mapper;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 /** Isolated collection and mapper configuration shared by Milvus Session contracts. */
 public abstract class MilvusSessionSqlSupport extends AdapterCase {
@@ -32,7 +31,7 @@ public abstract class MilvusSessionSqlSupport extends AdapterCase {
         return MilvusProfile.INSTANCE;
     }
 
-    @Before
+    @BeforeEach
     public void openSession() throws Exception {
         this.connection = this.database.open();
         try (Statement statement = this.connection.createStatement()) {
@@ -50,7 +49,7 @@ public abstract class MilvusSessionSqlSupport extends AdapterCase {
         this.session = configuration.newSession(this.connection);
     }
 
-    @After
+    @AfterEach
     public void closeFixture() throws Exception {
         try {
             if (this.connection != null && !this.connection.isClosed()) {

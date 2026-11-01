@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.jdbc;
-
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -14,8 +13,8 @@ import java.util.Map;
 import net.hasor.dbvisitor.test.contract.feature.result.JdbcRowMapperCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class RedisJdbcRowMapperTest extends JdbcRowMapperCase {
     private final RedisJdbcFixture fixture = new RedisJdbcFixture();
@@ -26,7 +25,7 @@ public class RedisJdbcRowMapperTest extends JdbcRowMapperCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open();
     }
@@ -41,7 +40,7 @@ public class RedisJdbcRowMapperTest extends JdbcRowMapperCase {
         return RedisJdbcFixture.ScoredMember.class;
     }
 
-    @After
+    @AfterEach
     public void closeRedisFixture() throws SQLException {
         this.fixture.close();
     }

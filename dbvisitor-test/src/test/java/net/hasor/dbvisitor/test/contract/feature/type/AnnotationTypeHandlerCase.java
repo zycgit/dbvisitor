@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.feature.type;
-
 import java.sql.SQLException;
 import java.util.Date;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
@@ -19,16 +18,16 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @NxnContract
 public abstract class AnnotationTypeHandlerCase extends AbstractNxnContractTest {
     private LambdaTemplate lambda;
 
-    @Before
+    @BeforeEach
     public void createLambdaTemplate() throws SQLException {
         this.lambda = mappingLambdaTemplate();
     }

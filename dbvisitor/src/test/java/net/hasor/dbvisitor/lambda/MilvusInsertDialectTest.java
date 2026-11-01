@@ -9,8 +9,8 @@ package net.hasor.dbvisitor.lambda;
 import java.util.List;
 import java.util.Map;
 import net.hasor.dbvisitor.dialect.provider.MilvusDialect;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MilvusInsertDialectTest {
     private final MilvusDialect dialect = new MilvusDialect();

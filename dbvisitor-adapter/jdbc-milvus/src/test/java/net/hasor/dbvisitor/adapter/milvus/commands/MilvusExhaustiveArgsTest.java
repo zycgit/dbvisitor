@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.milvus.commands;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -27,8 +26,8 @@ import net.hasor.dbvisitor.adapter.milvus.MilvusCommandInterceptor;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
-import org.junit.Test;
-import org.powermock.api.mockito.PowerMockito;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
@@ -66,12 +65,12 @@ public class MilvusExhaustiveArgsTest extends AbstractJdbcTest {
                 } else if ("upsert".equals(expectedMethod)) { // For UPDATE
                     return v2Response(method.getName(), io.milvus.grpc.MutationResult.newBuilder().setInsertCnt(1).build());
                 } else if ("queryIterator".equals(expectedMethod)) {
-                    QueryIterator iterator = PowerMockito.mock(QueryIterator.class);
-                    PowerMockito.when(iterator.next()).thenReturn(new ArrayList<>());
+                    QueryIterator iterator = Mockito.mock(QueryIterator.class);
+                    Mockito.when(iterator.next()).thenReturn(new ArrayList<>());
                     return v2Response(method.getName(), iterator);
                 } else if ("searchIteratorV2".equals(expectedMethod)) {
-                    SearchIteratorV2 iterator = PowerMockito.mock(SearchIteratorV2.class);
-                    PowerMockito.when(iterator.next()).thenReturn(new ArrayList<>());
+                    SearchIteratorV2 iterator = Mockito.mock(SearchIteratorV2.class);
+                    Mockito.when(iterator.next()).thenReturn(new ArrayList<>());
                     return v2Response(method.getName(), iterator);
                 }
             }
@@ -128,63 +127,63 @@ public class MilvusExhaustiveArgsTest extends AbstractJdbcTest {
         runTest("SELECT * FROM t WHERE a = ?", List.of(10), "queryIterator", args -> {
             QueryIteratorReq p = (QueryIteratorReq) args.get(0);
             assertExpr(p.getExpr(), "a == {arg1}");
-            org.junit.Assert.assertEquals(java.util.Map.of("arg1", 10), p.getFilterTemplateValues());
+            org.junit.jupiter.api.Assertions.assertEquals(java.util.Map.of("arg1", 10), p.getFilterTemplateValues());
         });
         testCount.incrementAndGet();
 
         // 2. Binary Ops
         runTest("SELECT * FROM t WHERE a > ?", List.of(10), "queryIterator", args -> {
             assertExpr(((QueryIteratorReq) args.get(0)).getExpr(), "a > {arg1}");
-            org.junit.Assert.assertEquals(java.util.Map.of("arg1", 10), ((QueryIteratorReq) args.get(0)).getFilterTemplateValues());
+            org.junit.jupiter.api.Assertions.assertEquals(java.util.Map.of("arg1", 10), ((QueryIteratorReq) args.get(0)).getFilterTemplateValues());
         });
         runTest("SELECT * FROM t WHERE a < ?", List.of(10), "queryIterator", args -> {
             assertExpr(((QueryIteratorReq) args.get(0)).getExpr(), "a < {arg1}");
-            org.junit.Assert.assertEquals(java.util.Map.of("arg1", 10), ((QueryIteratorReq) args.get(0)).getFilterTemplateValues());
+            org.junit.jupiter.api.Assertions.assertEquals(java.util.Map.of("arg1", 10), ((QueryIteratorReq) args.get(0)).getFilterTemplateValues());
         });
         runTest("SELECT * FROM t WHERE a >= ?", List.of(10), "queryIterator", args -> {
             assertExpr(((QueryIteratorReq) args.get(0)).getExpr(), "a >= {arg1}");
-            org.junit.Assert.assertEquals(java.util.Map.of("arg1", 10), ((QueryIteratorReq) args.get(0)).getFilterTemplateValues());
+            org.junit.jupiter.api.Assertions.assertEquals(java.util.Map.of("arg1", 10), ((QueryIteratorReq) args.get(0)).getFilterTemplateValues());
         });
         runTest("SELECT * FROM t WHERE a <= ?", List.of(10), "queryIterator", args -> {
             assertExpr(((QueryIteratorReq) args.get(0)).getExpr(), "a <= {arg1}");
-            org.junit.Assert.assertEquals(java.util.Map.of("arg1", 10), ((QueryIteratorReq) args.get(0)).getFilterTemplateValues());
+            org.junit.jupiter.api.Assertions.assertEquals(java.util.Map.of("arg1", 10), ((QueryIteratorReq) args.get(0)).getFilterTemplateValues());
         });
         runTest("SELECT * FROM t WHERE a != ?", List.of(10), "queryIterator", args -> {
             assertExpr(((QueryIteratorReq) args.get(0)).getExpr(), "a != {arg1}");
-            org.junit.Assert.assertEquals(java.util.Map.of("arg1", 10), ((QueryIteratorReq) args.get(0)).getFilterTemplateValues());
+            org.junit.jupiter.api.Assertions.assertEquals(java.util.Map.of("arg1", 10), ((QueryIteratorReq) args.get(0)).getFilterTemplateValues());
         });
         runTest("SELECT * FROM t WHERE a <> ?", List.of(10), "queryIterator", args -> {
             QueryIteratorReq request = (QueryIteratorReq) args.get(0);
             assertExpr(request.getExpr(), "a != {arg1}");
-            org.junit.Assert.assertEquals(java.util.Map.of("arg1", 10), request.getFilterTemplateValues());
+            org.junit.jupiter.api.Assertions.assertEquals(java.util.Map.of("arg1", 10), request.getFilterTemplateValues());
         });
         testCount.addAndGet(6);
 
         // 3. Like
         runTest("SELECT * FROM t WHERE a LIKE ?", List.of("pref%"), "queryIterator", args -> {
             assertExpr(((QueryIteratorReq) args.get(0)).getExpr(), "a like {arg1}");
-            org.junit.Assert.assertEquals(java.util.Map.of("arg1", "pref%"), ((QueryIteratorReq) args.get(0)).getFilterTemplateValues());
+            org.junit.jupiter.api.Assertions.assertEquals(java.util.Map.of("arg1", "pref%"), ((QueryIteratorReq) args.get(0)).getFilterTemplateValues());
         });
         testCount.incrementAndGet();
 
         // 4. IN (List Object)
         runTest("SELECT * FROM t WHERE a IN ?", List.of(Arrays.asList(1, 2)), "queryIterator", args -> {
             assertExpr(((QueryIteratorReq) args.get(0)).getExpr(), "a in {arg1}");
-            org.junit.Assert.assertEquals(java.util.Map.of("arg1", Arrays.asList(1, 2)), ((QueryIteratorReq) args.get(0)).getFilterTemplateValues());
+            org.junit.jupiter.api.Assertions.assertEquals(java.util.Map.of("arg1", Arrays.asList(1, 2)), ((QueryIteratorReq) args.get(0)).getFilterTemplateValues());
         });
         testCount.incrementAndGet();
 
         // 5. IN [?, ?]
         runTest("SELECT * FROM t WHERE a IN [?, ?]", Arrays.asList(1, 2), "queryIterator", args -> {
             assertExpr(((QueryIteratorReq) args.get(0)).getExpr(), "a in {arg1}");
-            org.junit.Assert.assertEquals(java.util.Map.of("arg1", Arrays.asList(1, 2)), ((QueryIteratorReq) args.get(0)).getFilterTemplateValues());
+            org.junit.jupiter.api.Assertions.assertEquals(java.util.Map.of("arg1", Arrays.asList(1, 2)), ((QueryIteratorReq) args.get(0)).getFilterTemplateValues());
         });
         testCount.incrementAndGet();
 
         // 6. Logic
         runTest("SELECT * FROM t WHERE a = ? AND b = ?", Arrays.asList(1, 2), "queryIterator", args -> {
             assertExpr(((QueryIteratorReq) args.get(0)).getExpr(), "a == {arg1} && b == {arg2}");
-            org.junit.Assert.assertEquals(java.util.Map.of("arg1", 1, "arg2", 2), ((QueryIteratorReq) args.get(0)).getFilterTemplateValues());
+            org.junit.jupiter.api.Assertions.assertEquals(java.util.Map.of("arg1", 1, "arg2", 2), ((QueryIteratorReq) args.get(0)).getFilterTemplateValues());
         });
         testCount.incrementAndGet();
 
@@ -206,7 +205,7 @@ public class MilvusExhaustiveArgsTest extends AbstractJdbcTest {
         runTest("SELECT * FROM t WHERE a = ? LIMIT ? OFFSET ?", Arrays.asList(99, 10, 5), "queryIterator", args -> {
             QueryIteratorReq p = (QueryIteratorReq) args.get(0);
             assertExpr(p.getExpr(), "a == {arg1}");
-            org.junit.Assert.assertEquals(java.util.Map.of("arg1", 99), p.getFilterTemplateValues());
+            org.junit.jupiter.api.Assertions.assertEquals(java.util.Map.of("arg1", 99), p.getFilterTemplateValues());
             assert p.getLimit() == 15;
             assert p.getOffset() == 0;
         });
@@ -237,7 +236,7 @@ public class MilvusExhaustiveArgsTest extends AbstractJdbcTest {
         runTest("SELECT * FROM t WHERE a = ? ORDER BY v <-> ? LIMIT 10", Arrays.asList(123, vec), "search", args -> {
             SearchReq p = (SearchReq) args.get(0);
             assertExpr(p.getFilter(), "a == {arg1}");
-            org.junit.Assert.assertEquals(java.util.Map.of("arg1", 123), p.getFilterTemplateValues());
+            org.junit.jupiter.api.Assertions.assertEquals(java.util.Map.of("arg1", 123), p.getFilterTemplateValues());
             assert p.getData().get(0).getData().equals(vec);
         });
         testCount.incrementAndGet();
@@ -246,7 +245,7 @@ public class MilvusExhaustiveArgsTest extends AbstractJdbcTest {
         runTest("SELECT * FROM t WHERE a = ? ORDER BY v <-> ? LIMIT ?", Arrays.asList(123, vec, 10), "search", args -> {
             SearchReq p = (SearchReq) args.get(0);
             assertExpr(p.getFilter(), "a == {arg1}");
-            org.junit.Assert.assertEquals(java.util.Map.of("arg1", 123), p.getFilterTemplateValues());
+            org.junit.jupiter.api.Assertions.assertEquals(java.util.Map.of("arg1", 123), p.getFilterTemplateValues());
             assert p.getData().get(0).getData().equals(vec);
             assert p.getTopK() == 10;
         });
@@ -264,7 +263,7 @@ public class MilvusExhaustiveArgsTest extends AbstractJdbcTest {
         runTest("SELECT * FROM t WHERE (a=? OR b=?) AND c=? ORDER BY v <-> ? LIMIT ?", Arrays.asList(1, 2, 3, vec, 10), "search", args -> {
             SearchReq p = (SearchReq) args.get(0);
             assertExpr(p.getFilter(), "(a == {arg1} || b == {arg2}) && c == {arg3}");
-            org.junit.Assert.assertEquals(java.util.Map.of("arg1", 1, "arg2", 2, "arg3", 3), p.getFilterTemplateValues());
+            org.junit.jupiter.api.Assertions.assertEquals(java.util.Map.of("arg1", 1, "arg2", 2, "arg3", 3), p.getFilterTemplateValues());
             assert p.getData().get(0).getData().equals(vec);
             assert p.getTopK() == 10;
         });
@@ -286,7 +285,7 @@ public class MilvusExhaustiveArgsTest extends AbstractJdbcTest {
             // JSON construction in Adapter has no spaces: "radius":1.5
             assert new com.google.gson.Gson().toJson(p.getSearchParams()).contains("\"radius\":1.5");
             assertExpr(p.getFilter(), "a == {arg3}");
-            org.junit.Assert.assertEquals(java.util.Map.of("arg3", 999), p.getFilterTemplateValues());
+            org.junit.jupiter.api.Assertions.assertEquals(java.util.Map.of("arg3", 999), p.getFilterTemplateValues());
         });
         testCount.incrementAndGet();
 
@@ -296,7 +295,7 @@ public class MilvusExhaustiveArgsTest extends AbstractJdbcTest {
         runTest(sqlRangeMixed2, Arrays.asList(999, vec, 1.5), "search", args -> {
             SearchReq p = (SearchReq) args.get(0);
             assertExpr(p.getFilter(), "a == {arg1}");
-            org.junit.Assert.assertEquals(java.util.Map.of("arg1", 999), p.getFilterTemplateValues());
+            org.junit.jupiter.api.Assertions.assertEquals(java.util.Map.of("arg1", 999), p.getFilterTemplateValues());
             assert p.getData().get(0).getData().equals(vec);
             assert new com.google.gson.Gson().toJson(p.getSearchParams()).contains("\"radius\":1.5");
         });
@@ -332,7 +331,7 @@ public class MilvusExhaustiveArgsTest extends AbstractJdbcTest {
         runTest("UPDATE t SET a=? WHERE b=? LIMIT 5", Arrays.asList("newVal", 10), "queryIterator", args -> {
             QueryIteratorReq p = (QueryIteratorReq) args.get(0);
             assertExpr(p.getExpr(), "b == {arg2}");
-            org.junit.Assert.assertEquals(java.util.Map.of("arg2", 10), p.getFilterTemplateValues());
+            org.junit.jupiter.api.Assertions.assertEquals(java.util.Map.of("arg2", 10), p.getFilterTemplateValues());
             assert p.getLimit() == 5;
         });
         testCount.incrementAndGet();
@@ -341,7 +340,7 @@ public class MilvusExhaustiveArgsTest extends AbstractJdbcTest {
         runTest("UPDATE t SET a=? WHERE b=? LIMIT ?", Arrays.asList("newVal", 10, 5), "queryIterator", args -> {
             QueryIteratorReq p = (QueryIteratorReq) args.get(0);
             assertExpr(p.getExpr(), "b == {arg2}");
-            org.junit.Assert.assertEquals(java.util.Map.of("arg2", 10), p.getFilterTemplateValues());
+            org.junit.jupiter.api.Assertions.assertEquals(java.util.Map.of("arg2", 10), p.getFilterTemplateValues());
             assert p.getLimit() == 5;
         });
         testCount.incrementAndGet();
@@ -354,7 +353,7 @@ public class MilvusExhaustiveArgsTest extends AbstractJdbcTest {
         runTest("DELETE FROM t WHERE a=?", List.of(10), "delete", args -> {
             DeleteReq p = (DeleteReq) args.get(0);
             assertExpr(p.getFilter(), "a == {arg1}");
-            org.junit.Assert.assertEquals(java.util.Map.of("arg1", 10), p.getFilterTemplateValues());
+            org.junit.jupiter.api.Assertions.assertEquals(java.util.Map.of("arg1", 10), p.getFilterTemplateValues());
         });
         testCount.incrementAndGet();
 

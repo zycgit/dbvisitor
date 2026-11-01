@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.elastic;
-
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -19,8 +18,8 @@ import net.hasor.dbvisitor.driver.AdapterResultCursor;
 import net.hasor.dbvisitor.driver.JdbcArg;
 import net.hasor.dbvisitor.driver.JdbcArgMode;
 import net.hasor.dbvisitor.driver.JdbcColumn;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ElasticCommandsTest {
     @Test

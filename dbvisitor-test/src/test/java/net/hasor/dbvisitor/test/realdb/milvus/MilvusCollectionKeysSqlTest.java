@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -15,9 +14,9 @@ import java.util.Arrays;
 import java.util.List;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MilvusCollectionKeysSqlTest extends MilvusSqlContractSupport {
     @Test
@@ -100,10 +99,10 @@ public class MilvusCollectionKeysSqlTest extends MilvusSqlContractSupport {
             try (ResultSet rows = statement.executeQuery("SHOW CREATE TABLE " + this.collection)) {
                 assertTrue(rows.next());
                 String sql = rows.getString("CREATE SCRIPT");
-                assertTrue(sql, sql.contains("PARTITION KEY"));
-                assertTrue(sql, sql.contains("CLUSTERING KEY"));
-                assertTrue(sql, sql.contains("num_partitions=" + expected));
-                assertTrue(sql, sql.contains("consistency_level='STRONG'"));
+                assertTrue(sql.contains("PARTITION KEY"), sql);
+                assertTrue(sql.contains("CLUSTERING KEY"), sql);
+                assertTrue(sql.contains("num_partitions=" + expected), sql);
+                assertTrue(sql.contains("consistency_level='STRONG'"), sql);
             }
         }
     }

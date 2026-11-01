@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.mongo.commands;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.Arrays;
@@ -18,8 +17,8 @@ import net.hasor.dbvisitor.adapter.mongo.MongoCommandInterceptor;
 import net.hasor.dbvisitor.adapter.mongo.MongoConn;
 import net.hasor.dbvisitor.driver.MetadataSupport;
 import org.bson.Document;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CollectionMetadataTest extends AbstractJdbcTest {
     @Test

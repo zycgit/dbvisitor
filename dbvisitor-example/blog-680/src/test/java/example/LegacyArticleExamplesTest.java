@@ -1,5 +1,4 @@
 package example;
-
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.*;
@@ -10,8 +9,8 @@ import net.hasor.dbvisitor.mapper.*;
 import net.hasor.dbvisitor.page.*;
 import net.hasor.dbvisitor.session.*;
 import net.hasor.dbvisitor.types.handler.time.JulianDayTypeHandler;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /** Historical article snippets exercised against the configured release dependency. */
 public class LegacyArticleExamplesTest {

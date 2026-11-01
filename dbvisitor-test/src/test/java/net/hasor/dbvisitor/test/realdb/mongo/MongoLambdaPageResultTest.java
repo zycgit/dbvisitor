@@ -6,15 +6,14 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.mongo;
-
 import java.sql.SQLException;
 import java.util.Date;
 import net.hasor.dbvisitor.test.contract.api.adapter.NativeDocumentQueryFixture;
 import net.hasor.dbvisitor.test.contract.api.lambda.LambdaPageResultCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class MongoLambdaPageResultTest extends LambdaPageResultCase {
     private final NativeDocumentQueryFixture fixture = new NativeDocumentQueryFixture();
@@ -25,7 +24,7 @@ public class MongoLambdaPageResultTest extends LambdaPageResultCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open(profile().env());
         this.lambdaTemplate = this.fixture.lambdaTemplate();
@@ -36,7 +35,7 @@ public class MongoLambdaPageResultTest extends LambdaPageResultCase {
         this.fixture.insert(id, name, age, name + "@test.com", new Date());
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws SQLException {
         this.fixture.close();
     }

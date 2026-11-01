@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import net.hasor.dbvisitor.mapper.BaseMapper;
 import net.hasor.dbvisitor.session.dto.UserInfo2;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class BasicMapperBySampleTest {
     @Test

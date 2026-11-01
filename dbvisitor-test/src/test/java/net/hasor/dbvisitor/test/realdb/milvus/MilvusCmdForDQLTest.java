@@ -9,18 +9,18 @@ package net.hasor.dbvisitor.test.realdb.milvus;
 import java.sql.*;
 import java.util.Arrays;
 import java.util.List;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MilvusCmdForDQLTest extends AbstractMilvusCmdForTest {
-    @Before
+    @BeforeEach
     public void setUp() {
         dropCollection(TEST_COLLECTION);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         if (!milvusSelected) {
             return;
@@ -75,7 +75,7 @@ public class MilvusCmdForDQLTest extends AbstractMilvusCmdForTest {
                         hasWordCount = true;
                     }
                 }
-                assertTrue("Result should contain 'word_count'", hasWordCount);
+                assertTrue(hasWordCount, "Result should contain 'word_count'");
 
                 // 3. Test Pagination (Limit + Offset)
                 // Limit 2 (Should get 2 rows)
@@ -84,7 +84,7 @@ public class MilvusCmdForDQLTest extends AbstractMilvusCmdForTest {
                 while (rs.next()) {
                     count++;
                 }
-                assertEquals("Limit 2 should return 2 rows", 2, count);
+                assertEquals(2, count, "Limit 2 should return 2 rows");
 
                 // Limit 1
                 rs = stmt.executeQuery("SELECT book_id FROM " + TEST_COLLECTION + " WHERE book_id > 0 LIMIT 1");
@@ -92,7 +92,7 @@ public class MilvusCmdForDQLTest extends AbstractMilvusCmdForTest {
                 while (rs.next()) {
                     count++;
                 }
-                assertEquals("Limit 1 should return 1 row", 1, count);
+                assertEquals(1, count, "Limit 1 should return 1 row");
 
                 // Try Offset 2 Limit 1 (Should be the 3rd item ideally)
                 rs = stmt.executeQuery("SELECT book_id FROM " + TEST_COLLECTION + " WHERE book_id > 0 LIMIT 1 OFFSET 2");
@@ -100,7 +100,7 @@ public class MilvusCmdForDQLTest extends AbstractMilvusCmdForTest {
                 while (rs.next()) {
                     count++;
                 }
-                assertEquals("Limit 1 Offset 2 should return 1 row", 1, count);
+                assertEquals(1, count, "Limit 1 Offset 2 should return 1 row");
             }
 
         } finally {
@@ -207,7 +207,7 @@ public class MilvusCmdForDQLTest extends AbstractMilvusCmdForTest {
 
                 try {
                     ps.executeQuery();
-                    org.junit.Assert.fail("Expected multiple query vectors to be rejected");
+                    org.junit.jupiter.api.Assertions.fail("Expected multiple query vectors to be rejected");
                 } catch (java.sql.SQLException e) {
                     assertTrue(e.getMessage().contains("single query vector"));
                 }

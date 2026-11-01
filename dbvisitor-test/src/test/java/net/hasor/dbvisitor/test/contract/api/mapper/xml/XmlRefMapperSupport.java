@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.mapper.xml;
-
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -16,13 +15,13 @@ import net.hasor.dbvisitor.test.contract.material.dao.XmlRefMapperDao;
 import net.hasor.dbvisitor.test.contract.material.dao.XmlRefMapperOperations;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
-import org.junit.Before;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public abstract class XmlRefMapperSupport extends AbstractNxnContractTest {
     protected XmlRefMapperOperations dao;
 
-    @Before
+    @BeforeEach
     public void createRefMapper() throws Exception {
         Configuration config = newConfiguration();
         Session session = config.newSession(dataSource);

@@ -6,15 +6,14 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic6;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.api.adapter.NativeBasicTypeFixture;
 import net.hasor.dbvisitor.test.contract.feature.type.EnumTypeJdbcCase;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic6Profile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class Elastic6EnumTypeJdbcTest extends EnumTypeJdbcCase {
     private final NativeBasicTypeFixture fixture = new NativeBasicTypeFixture();
@@ -25,7 +24,7 @@ public class Elastic6EnumTypeJdbcTest extends EnumTypeJdbcCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         OneApiDataSourceManager.assumeCurrentDataSource(profile().env());
         jdbcTemplate = fixture.open(profile().env(), "enum_types_explicit_test");
@@ -46,7 +45,7 @@ public class Elastic6EnumTypeJdbcTest extends EnumTypeJdbcCase {
         return fixture.selectCommand(table, columns);
     }
 
-    @After
+    @AfterEach
     public void closeFixture() throws SQLException {
         fixture.close();
     }

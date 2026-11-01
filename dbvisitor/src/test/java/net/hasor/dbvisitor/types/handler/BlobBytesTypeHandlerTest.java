@@ -21,7 +21,7 @@ import net.hasor.dbvisitor.types.handler.bytes.BlobAsBytesTypeHandler;
 import net.hasor.dbvisitor.types.handler.bytes.BlobAsBytesWrapTypeHandler;
 import net.hasor.dbvisitor.types.handler.io.BlobAsInputStreamTypeHandler;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class BlobBytesTypeHandlerTest {
     private byte[] toPrimitive(Byte[] bytes) {

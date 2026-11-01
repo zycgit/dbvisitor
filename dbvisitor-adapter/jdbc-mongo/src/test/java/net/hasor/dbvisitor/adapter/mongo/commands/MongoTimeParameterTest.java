@@ -27,21 +27,21 @@ import org.bson.BsonDocument;
 import org.bson.BsonInt32;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.powermock.api.mockito.PowerMockito;
-import static org.junit.Assert.*;
+import org.mockito.Mockito;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 public class MongoTimeParameterTest extends AbstractJdbcTest {
     private MongoCollection<Document> collection;
 
-    @Before
+    @BeforeEach
     public void install() {
-        this.collection = PowerMockito.mock(MongoCollection.class);
+        this.collection = Mockito.mock(MongoCollection.class);
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, (proxy, method, args) -> {
             if ("runCommand".equals(method.getName())) {
@@ -55,7 +55,7 @@ public class MongoTimeParameterTest extends AbstractJdbcTest {
         });
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         MongoCommandInterceptor.resetInterceptor();
     }

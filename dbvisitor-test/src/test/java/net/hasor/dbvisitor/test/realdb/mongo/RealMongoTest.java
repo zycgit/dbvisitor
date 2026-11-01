@@ -6,16 +6,15 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.mongo;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class RealMongoTest {
-    @BeforeClass
+    @BeforeAll
     public static void assumeDataSource() {
         OneApiDataSourceManager.assumeCurrentDataSource("mongo");
     }

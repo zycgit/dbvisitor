@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.mongo.commands;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -18,16 +17,16 @@ import net.hasor.dbvisitor.adapter.mongo.AbstractJdbcTest;
 import net.hasor.dbvisitor.adapter.mongo.MongoCommandInterceptor;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import org.junit.After;
-import org.junit.Test;
-import org.powermock.api.mockito.PowerMockito;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 
 public class MongoMultiStatementTest extends AbstractJdbcTest {
-    @After
+    @AfterEach
     public void cleanup() {
         MongoCommandInterceptor.resetInterceptor();
     }
@@ -39,8 +38,8 @@ public class MongoMultiStatementTest extends AbstractJdbcTest {
             MongoCommandInterceptor.resetInterceptor();
             MongoCommandInterceptor.addInterceptor(MongoDatabase.class, (proxy, method, args) -> {
                 if ("getCollection".equals(method.getName())) {
-                    MongoCollection collection = PowerMockito.mock(MongoCollection.class);
-                    PowerMockito.when(collection.countDocuments(any(Bson.class))).thenAnswer(invocation -> {
+                    MongoCollection collection = Mockito.mock(MongoCollection.class);
+                    Mockito.when(collection.countDocuments(any(Bson.class))).thenAnswer(invocation -> {
                         calls.add(invocation.getArgument(0));
                         return 1L;
                     });

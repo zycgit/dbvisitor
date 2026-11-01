@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -26,8 +25,8 @@ import net.hasor.dbvisitor.types.handler.time.SqlTimestampAsMonthDayTypeHandler;
 import net.hasor.dbvisitor.types.handler.time.SqlTimestampAsMonthTypeHandler;
 import net.hasor.dbvisitor.types.handler.time.SqlTimestampAsYearMonthTypeHandler;
 import net.hasor.dbvisitor.types.handler.time.SqlTimestampAsYearTypeHandler;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 /** Verifies the shared Java temporal conversions using native text and integer storage. */
 @NxnConcurrent
@@ -52,7 +51,7 @@ public class MilvusTimePartialJdbcTest extends TimePartialJdbcCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.connection = this.database.open();
         this.jdbcTemplate = new JdbcTemplate(this.connection, new MappingRegistry(), null);
@@ -72,7 +71,7 @@ public class MilvusTimePartialJdbcTest extends TimePartialJdbcCase {
         }
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws SQLException {
         try {
             if (this.connection != null && !this.connection.isClosed()) {

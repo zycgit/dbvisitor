@@ -6,18 +6,17 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.mapper.basemapper;
-
 import java.sql.SQLException;
 import java.util.Date;
 import net.hasor.dbvisitor.mapper.BaseMapper;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 public abstract class BaseMapperCrudSupport extends AbstractNxnContractTest {
     protected BaseMapper<UserInfo> mapper;
 
-    @Before
+    @BeforeEach
     public void createBaseMapper() throws SQLException {
         this.mapper = newSession().createBaseMapper(UserInfo.class);
     }

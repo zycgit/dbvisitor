@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
-
 import java.sql.SQLException;
 import java.util.List;
 import net.hasor.dbvisitor.mapper.*;
@@ -18,8 +17,8 @@ import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
 import net.hasor.dbvisitor.types.handler.json.JsonTypeHandler;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class RedisAnnotationMapperExecutionTest extends AnnotationMapperExecutionCase {
     private final RedisMapperFixture fixture = new RedisMapperFixture();
@@ -30,15 +29,15 @@ public class RedisAnnotationMapperExecutionTest extends AnnotationMapperExecutio
     }
 
     @Override
-    @Before
     public void setup() throws SQLException {
         this.fixture.open();
         this.jdbcTemplate = this.fixture.session().jdbc();
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void createAnnotationMapper() throws Exception {
+        this.setup();
         this.fixture.open();
         Configuration configuration = newConfiguration();
         configuration.addMacro("redisAttributeUsers", "'" + this.fixture.key("attribute-users") + "'");
@@ -57,7 +56,7 @@ public class RedisAnnotationMapperExecutionTest extends AnnotationMapperExecutio
         }
     }
 
-    @After
+    @AfterEach
     public void closeFixture() throws SQLException {
         this.fixture.close();
     }

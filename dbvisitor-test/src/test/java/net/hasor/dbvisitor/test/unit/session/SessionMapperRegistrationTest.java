@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.unit.session;
-
 import net.hasor.dbvisitor.dialect.provider.H2Dialect;
 import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.session.Configuration;
@@ -14,8 +13,8 @@ import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.material.dao.SessionRefUserMapper;
 import net.hasor.dbvisitor.test.contract.material.dao.SessionUserMapper;
 import net.hasor.dbvisitor.test.unit.support.NoDatabaseConnection;
-import org.junit.Test;
-import static org.junit.Assert.assertNotNull;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class SessionMapperRegistrationTest {
     @Test

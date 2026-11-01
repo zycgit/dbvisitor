@@ -6,15 +6,14 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic7;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.api.mapper.basemapper.BaseMapperStatementPaginationCase;
 import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class Elastic7BaseMapperStatementPaginationTest extends BaseMapperStatementPaginationCase {
     private final Elastic7SessionMapperFixture fixture = new Elastic7SessionMapperFixture();
@@ -25,13 +24,13 @@ public class Elastic7BaseMapperStatementPaginationTest extends BaseMapperStateme
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = fixture.open(profile().env());
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void createBaseMapperWithStatements() throws Exception {
         this.jdbcTemplate = fixture.open(profile().env());
         Session session = fixture.session();
@@ -39,7 +38,7 @@ public class Elastic7BaseMapperStatementPaginationTest extends BaseMapperStateme
         this.mapper = session.createBaseMapper(UserInfo.class);
     }
 
-    @After
+    @AfterEach
     public void closeStatementFixture() throws Exception {
         fixture.close();
     }

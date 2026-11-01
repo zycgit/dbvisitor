@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Date;
@@ -23,10 +22,10 @@ import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
 import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 @NxnConcurrent
 public class MilvusBaseMapperMapOperationTest extends BaseMapperMapOperationCase {
@@ -39,7 +38,7 @@ public class MilvusBaseMapperMapOperationTest extends BaseMapperMapOperationCase
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = new JdbcTemplate(this.fixture.open(), new MappingRegistry(), null);
         this.lambdaTemplate = new LambdaTemplate(this.jdbcTemplate);
@@ -86,7 +85,7 @@ public class MilvusBaseMapperMapOperationTest extends BaseMapperMapOperationCase
         assertNull(upserted.getCreateTime());
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws SQLException, IOException {
         try {
             // Drop the isolated schema before Session closes the shared fixture connection.

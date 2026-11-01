@@ -10,21 +10,21 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MilvusCmdForIndexTest extends AbstractMilvusCmdForTest {
     private String tableName;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         tableName = "tb_index_test_" + System.currentTimeMillis();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         if (tableName != null) {
             dropCollection(tableName);

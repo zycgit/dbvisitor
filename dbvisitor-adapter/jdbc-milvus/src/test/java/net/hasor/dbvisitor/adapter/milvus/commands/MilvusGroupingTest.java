@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.milvus.commands;
-
 import java.sql.*;
 import java.util.*;
 import io.milvus.grpc.*;
@@ -19,11 +18,11 @@ import net.hasor.dbvisitor.adapter.milvus.MilvusCommandInterceptor;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MilvusGroupingTest {
     private final List<String>        methods      = new ArrayList<>();
@@ -34,7 +33,7 @@ public class MilvusGroupingTest {
     private       boolean             fail;
     private       int                 returnedRows = 6;
 
-    @Before
+    @BeforeEach
     public void install() {
         MilvusCommandInterceptor.resetInterceptor();
         MilvusCommandInterceptor.addInterceptor(MilvusClientV2.class, (proxy, method, args) -> {
@@ -67,7 +66,7 @@ public class MilvusGroupingTest {
         });
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         MilvusCommandInterceptor.resetInterceptor();
     }
@@ -167,7 +166,7 @@ public class MilvusGroupingTest {
         try (Connection connection = connect(); Statement statement = connection.createStatement()) {
             for (String options : Arrays.asList("group_by_field='category'", "group_limit=3", "group_by_field='',group_limit=3", "group_by_field=10,group_limit=3", "group_by_field='category',group_limit=0", "group_by_field='category',group_limit=2147483648", "group_by_field='category',group_limit=1.5", "group_by_field='category',group_limit=3,group_size=0", "group_by_field='category',group_limit=3,group_size=2147483648", "group_by_field='category',group_limit=3,strict_group_size='true'", "group_by_field='category',group_limit=3,group_offset=null",
                     "group_by_field='category',group_limit=3,group_offset=9223372036854775807")) {
-                assertThrows(options, SQLException.class, () -> statement.executeQuery(base + options + ")"));
+                assertThrows(SQLException.class, () -> statement.executeQuery(base + options + ")"), options);
             }
             assertThrows(SQLException.class, () -> statement.executeQuery("SELECT id FROM docs WITH (group_by_field='category',group_limit=3)"));
             assertThrows(SQLException.class, () -> statement.executeQuery("SELECT id FROM docs ORDER BY HYBRID (v <-> [0,0] LIMIT 8 WITH (group_size=2)) LIMIT 3 WITH (reranker='rrf')"));

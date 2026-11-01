@@ -6,18 +6,17 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.milvus.commands;
-
 import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.*;
 import java.util.*;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import com.google.gson.Gson;
@@ -59,7 +58,7 @@ public class MilvusBugRegressionTest {
     private boolean            failWrite;
     private boolean            delayRead;
 
-    @Before
+    @BeforeEach
     public void install() {
         MilvusCommandInterceptor.resetInterceptor();
         schema = CollectionSchema.newBuilder().setName("t").addFields(FieldSchema.newBuilder().setName("id").setDataType(DataType.Int64).setIsPrimaryKey(true)).addFields(FieldSchema.newBuilder().setName("a").setDataType(DataType.Int32)).addFields(FieldSchema.newBuilder().setName("j").setDataType(DataType.JSON)).addFields(FieldSchema.newBuilder().setName("v").setDataType(DataType.FloatVector).addTypeParams(KeyValuePair.newBuilder().setKey(MilvusCommandKeys.DIMENSION).setValue("2"))).build();
@@ -132,7 +131,7 @@ public class MilvusBugRegressionTest {
         return Collections.emptyList();
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         MilvusCommandInterceptor.resetInterceptor();
     }
@@ -166,7 +165,7 @@ public class MilvusBugRegressionTest {
         } catch (SQLException expected) {
             assertFalse(expected.getMessage().isEmpty());
         }
-        assertTrue("No search or mutation may be sent: " + sql, requests.isEmpty());
+        assertTrue(requests.isEmpty(), "No search or mutation may be sent: " + sql);
     }
 
     private static FieldData longField(String name, long... values) {
@@ -249,7 +248,7 @@ public class MilvusBugRegressionTest {
             requests.clear();
             execute("DELETE FROM t WHERE " + condition + " LIMIT ?", 10, new double[] { 1, 2 }, 3, 20, 2);
             SearchIteratorReqV2 selected = (SearchIteratorReqV2) requests.get(0);
-            assertTrue(selected.getFilter(), selected.getFilter().contains("a > {arg1}") && selected.getFilter().contains("a < {arg4}"));
+            assertTrue(selected.getFilter().contains("a > {arg1}") && selected.getFilter().contains("a < {arg4}"), selected.getFilter());
             assertEquals(Map.of("arg1", 10, "arg4", 20), selected.getFilterTemplateValues());
             assertEquals(3.0, JsonParser.parseString(new com.google.gson.Gson().toJson(selected.getSearchParams())).getAsJsonObject().get(MilvusCommandKeys.RADIUS).getAsDouble(), 0);
             assertEquals(2L, selected.getLimit());
@@ -417,7 +416,7 @@ public class MilvusBugRegressionTest {
                             statement.executeUpdate(command + selection);
                             fail("Expected cancellation");
                         } catch (SQLException expected) {
-                            assertTrue(expected.getMessage(), expected.getMessage().toLowerCase(Locale.ROOT).contains("cancel"));
+                            assertTrue(expected.getMessage().toLowerCase(Locale.ROOT).contains("cancel"), expected.getMessage());
                         }
                         assertEquals(2, requests.size()); // one selection request and exactly one write
                         boolean scalar = selection.startsWith(" WHERE a");
@@ -511,7 +510,7 @@ public class MilvusBugRegressionTest {
             CreateCollectionReq.FieldSchema field = fields.get(i + 1);
             assertEquals(expected[i], field.getDefaultValue());
             FieldSchema wire = SchemaUtils.convertToGrpcFieldSchema(field);
-            assertTrue(field.getName(), wire.hasDefaultValue());
+            assertTrue(wire.hasDefaultValue(), field.getName());
         }
     }
 

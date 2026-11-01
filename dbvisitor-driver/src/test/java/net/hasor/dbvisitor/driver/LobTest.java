@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.driver;
-
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
@@ -16,8 +15,9 @@ import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import net.hasor.dbvisitor.driver.lob.JdbcBob;
 import net.hasor.dbvisitor.driver.lob.JdbcCob;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Assertions;
 
 /** Comprehensive tests for JdbcBob (Blob) and JdbcCob (Clob/NClob). */
 public class LobTest {
@@ -192,16 +192,20 @@ public class LobTest {
         }
     }
 
-    @Test(expected = SQLFeatureNotSupportedException.class)
+    @Test
     public void bob_position_unsupported() throws Exception {
-        JdbcBob b = new JdbcBob(new byte[] { 1, 2, 3 });
-        b.position(new byte[] { 1 }, 1);
+        Assertions.assertThrows(SQLFeatureNotSupportedException.class, () -> {
+            JdbcBob b = new JdbcBob(new byte[] { 1, 2, 3 });
+            b.position(new byte[] { 1 }, 1);
+        });
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void bob_position_blob_unsupported() throws Exception {
-        JdbcBob b = new JdbcBob(new byte[] { 1, 2, 3 });
-        b.position(new JdbcBob(new byte[] { 1 }), 1);
+        Assertions.assertThrows(SQLException.class, () -> {
+            JdbcBob b = new JdbcBob(new byte[] { 1, 2, 3 });
+            b.position(new JdbcBob(new byte[] { 1 }), 1);
+        });
     }
 
     // ==================== JdbcCob ====================

@@ -6,16 +6,15 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis.api.mapper;
-
 import java.sql.SQLException;
 import java.util.List;
 import net.hasor.dbvisitor.test.contract.api.mapper.annotation.AnnotationMapperQueryResultCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.RedisProfile;
 import net.hasor.dbvisitor.test.realdb.redis.dto1.RedisParameterUser;
-import org.junit.After;
-import org.junit.Before;
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RedisAnnotationMapperQueryResultTest extends AnnotationMapperQueryResultCase {
     private final RedisMapperFixture fixture = new RedisMapperFixture();
@@ -26,12 +25,12 @@ public class RedisAnnotationMapperQueryResultTest extends AnnotationMapperQueryR
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         fixture.open();
     }
 
-    @After
+    @AfterEach
     public void closeFixture() throws SQLException {
         fixture.close();
     }
@@ -39,6 +38,7 @@ public class RedisAnnotationMapperQueryResultTest extends AnnotationMapperQueryR
     private RedisCoverageMapper nativeMapper;
 
     @Override
+    @BeforeEach
     public void createAnnotationMapper() throws Exception {
         fixture.open();
         nativeMapper = fixture.session().createMapper(RedisCoverageMapper.class);

@@ -6,14 +6,13 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic6;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.api.session.SessionStatementParameterCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic6Profile;
 import net.hasor.dbvisitor.test.realdb.elastic7.Elastic7SessionMapperFixture;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class Elastic6SessionStatementParameterTest extends SessionStatementParameterCase {
     private final Elastic7SessionMapperFixture fixture = new Elastic7SessionMapperFixture();
@@ -24,20 +23,20 @@ public class Elastic6SessionStatementParameterTest extends SessionStatementParam
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open(profile().env());
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void createStatementSession() throws Exception {
         this.jdbcTemplate = this.fixture.open(profile().env());
         this.session = this.fixture.session();
         this.session.getConfiguration().loadMapper("/mapper/elastic/SessionStatementMatrix.xml");
     }
 
-    @After
+    @AfterEach
     public void closeStatementFixture() throws Exception {
         this.fixture.close();
     }

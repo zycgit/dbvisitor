@@ -6,15 +6,14 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic7;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.api.lambda.LambdaIteratorCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic7Profile;
 import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
 import net.hasor.dbvisitor.test.realdb.elastic7.material.ElasticMatrixFixture;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 @NxnConcurrent
 public class Elastic7LambdaIteratorTest extends LambdaIteratorCase {
@@ -26,7 +25,7 @@ public class Elastic7LambdaIteratorTest extends LambdaIteratorCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         jdbcTemplate = fixture.open(profile().env());
         lambdaTemplate = fixture.lambdaTemplate();
@@ -42,7 +41,7 @@ public class Elastic7LambdaIteratorTest extends LambdaIteratorCase {
         fixture.insert(id, name, age, null);
     }
 
-    @After
+    @AfterEach
     public void closeFixture() throws SQLException {
         fixture.close();
     }

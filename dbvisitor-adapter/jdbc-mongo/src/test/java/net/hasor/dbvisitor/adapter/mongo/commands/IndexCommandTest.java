@@ -18,9 +18,9 @@ import java.util.List;
 import org.bson.BsonDocument;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import org.junit.Test;
-import org.junit.Assert;
-import org.powermock.api.mockito.PowerMockito;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Assertions;
+import org.mockito.Mockito;
 
 import com.mongodb.client.ListIndexesIterable;
 import com.mongodb.client.MongoCollection;
@@ -36,8 +36,8 @@ public class IndexCommandTest extends AbstractJdbcTest {
     public void create_index_0() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("getCollection", (name, args) -> {
-            MongoCollection mockColl = PowerMockito.mock(MongoCollection.class);
-            PowerMockito.when(mockColl.createIndex(any(Bson.class), any(IndexOptions.class))).thenReturn("idx_name");
+            MongoCollection mockColl = Mockito.mock(MongoCollection.class);
+            Mockito.when(mockColl.createIndex(any(Bson.class), any(IndexOptions.class))).thenReturn("idx_name");
             return mockColl;
         }));
 
@@ -55,18 +55,18 @@ public class IndexCommandTest extends AbstractJdbcTest {
     public void create_index_without_name_uses_sdk_default() throws SQLException {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("getCollection", (name, args) -> {
-            MongoCollection mockColl = PowerMockito.mock(MongoCollection.class);
-            PowerMockito.when(mockColl.createIndex(any(Bson.class), any(IndexOptions.class))).thenAnswer(invocation -> {
+            MongoCollection mockColl = Mockito.mock(MongoCollection.class);
+            Mockito.when(mockColl.createIndex(any(Bson.class), any(IndexOptions.class))).thenAnswer(invocation -> {
                 IndexOptions options = invocation.getArgument(1);
-                Assert.assertNull(options.getName());
+                Assertions.assertNull(options.getName());
                 return "name_1";
             });
             return mockColl;
         }));
         try (Connection conn = redisConnection(); Statement stmt = conn.createStatement()) {
             stmt.execute("use mydb");
-            Assert.assertEquals(0, stmt.executeUpdate("db.mycol.createIndex({name: 1})"));
-            Assert.assertEquals(0, stmt.executeUpdate("db.mycol.createIndex({name: 1}, {unique: true})"));
+            Assertions.assertEquals(0, stmt.executeUpdate("db.mycol.createIndex({name: 1})"));
+            Assertions.assertEquals(0, stmt.executeUpdate("db.mycol.createIndex({name: 1}, {unique: true})"));
         }
     }
 
@@ -74,8 +74,8 @@ public class IndexCommandTest extends AbstractJdbcTest {
     public void create_index_1() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("getCollection", (name, args) -> {
-            MongoCollection mockColl = PowerMockito.mock(MongoCollection.class);
-            PowerMockito.when(mockColl.createIndex(any(Bson.class), any(IndexOptions.class))).thenAnswer(inv -> {
+            MongoCollection mockColl = Mockito.mock(MongoCollection.class);
+            Mockito.when(mockColl.createIndex(any(Bson.class), any(IndexOptions.class))).thenAnswer(inv -> {
                 IndexOptions opts = inv.getArgument(1);
                 assert opts.isUnique();
                 assert "my_idx".equals(opts.getName());
@@ -99,8 +99,8 @@ public class IndexCommandTest extends AbstractJdbcTest {
         // Test background, sparse, expireAfterSeconds, hidden
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("getCollection", (name, args) -> {
-            MongoCollection mockColl = PowerMockito.mock(MongoCollection.class);
-            PowerMockito.when(mockColl.createIndex(any(Bson.class), any(IndexOptions.class))).thenAnswer(inv -> {
+            MongoCollection mockColl = Mockito.mock(MongoCollection.class);
+            Mockito.when(mockColl.createIndex(any(Bson.class), any(IndexOptions.class))).thenAnswer(inv -> {
                 IndexOptions opts = inv.getArgument(1);
                 assert opts.isBackground();
                 assert opts.isSparse();
@@ -126,8 +126,8 @@ public class IndexCommandTest extends AbstractJdbcTest {
         // Test weights, default_language, language_override, textIndexVersion
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("getCollection", (name, args) -> {
-            MongoCollection mockColl = PowerMockito.mock(MongoCollection.class);
-            PowerMockito.when(mockColl.createIndex(any(Bson.class), any(IndexOptions.class))).thenAnswer(inv -> {
+            MongoCollection mockColl = Mockito.mock(MongoCollection.class);
+            Mockito.when(mockColl.createIndex(any(Bson.class), any(IndexOptions.class))).thenAnswer(inv -> {
                 IndexOptions opts = inv.getArgument(1);
                 Bson weights = opts.getWeights();
                 assert weights.toBsonDocument(BsonDocument.class, com.mongodb.MongoClientSettings.getDefaultCodecRegistry()).getNumber("content").intValue() == 10;
@@ -154,8 +154,8 @@ public class IndexCommandTest extends AbstractJdbcTest {
         // Test 2dsphereIndexVersion, bits, min, max
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("getCollection", (name, args) -> {
-            MongoCollection mockColl = PowerMockito.mock(MongoCollection.class);
-            PowerMockito.when(mockColl.createIndex(any(Bson.class), any(IndexOptions.class))).thenAnswer(inv -> {
+            MongoCollection mockColl = Mockito.mock(MongoCollection.class);
+            Mockito.when(mockColl.createIndex(any(Bson.class), any(IndexOptions.class))).thenAnswer(inv -> {
                 IndexOptions opts = inv.getArgument(1);
                 assert opts.getSphereVersion() == 2;
                 assert opts.getBits() == 26;
@@ -181,8 +181,8 @@ public class IndexCommandTest extends AbstractJdbcTest {
         // Test partialFilterExpression, collation, storageEngine
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("getCollection", (name, args) -> {
-            MongoCollection mockColl = PowerMockito.mock(MongoCollection.class);
-            PowerMockito.when(mockColl.createIndex(any(Bson.class), any(IndexOptions.class))).thenAnswer(inv -> {
+            MongoCollection mockColl = Mockito.mock(MongoCollection.class);
+            Mockito.when(mockColl.createIndex(any(Bson.class), any(IndexOptions.class))).thenAnswer(inv -> {
                 IndexOptions opts = inv.getArgument(1);
 
                 Bson partial = opts.getPartialFilterExpression();
@@ -217,7 +217,7 @@ public class IndexCommandTest extends AbstractJdbcTest {
     public void drop_index_0() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("getCollection", (name, args) -> {
-            MongoCollection mockColl = PowerMockito.mock(MongoCollection.class);
+            MongoCollection mockColl = Mockito.mock(MongoCollection.class);
             return mockColl;
         }));
 
@@ -235,7 +235,7 @@ public class IndexCommandTest extends AbstractJdbcTest {
     public void drop_index_1() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("getCollection", (name, args) -> {
-            MongoCollection mockColl = PowerMockito.mock(MongoCollection.class);
+            MongoCollection mockColl = Mockito.mock(MongoCollection.class);
             return mockColl;
         }));
 
@@ -253,17 +253,17 @@ public class IndexCommandTest extends AbstractJdbcTest {
     public void get_indexes_0() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("getCollection", (name, args) -> {
-            MongoCollection mockColl = PowerMockito.mock(MongoCollection.class);
-            ListIndexesIterable iterable = PowerMockito.mock(ListIndexesIterable.class);
-            MongoCursor cursor = PowerMockito.mock(MongoCursor.class);
+            MongoCollection mockColl = Mockito.mock(MongoCollection.class);
+            ListIndexesIterable iterable = Mockito.mock(ListIndexesIterable.class);
+            MongoCursor cursor = Mockito.mock(MongoCursor.class);
 
             List<Document> indexes = Arrays.asList(new Document("name", "idx_1").append("v", 2).append("key", new Document("a", 1)), new Document("name", "idx_2").append("v", 2).append("key", new Document("b", 1)));
             java.util.Iterator<Document> iterator = indexes.iterator();
 
-            PowerMockito.when(mockColl.listIndexes()).thenReturn(iterable);
-            PowerMockito.when(iterable.iterator()).thenReturn(cursor);
-            PowerMockito.when(cursor.hasNext()).thenAnswer(inv -> iterator.hasNext());
-            PowerMockito.when(cursor.next()).thenAnswer(inv -> iterator.next());
+            Mockito.when(mockColl.listIndexes()).thenReturn(iterable);
+            Mockito.when(iterable.iterator()).thenReturn(cursor);
+            Mockito.when(cursor.hasNext()).thenAnswer(inv -> iterator.hasNext());
+            Mockito.when(cursor.next()).thenAnswer(inv -> iterator.next());
 
             return mockColl;
         }));

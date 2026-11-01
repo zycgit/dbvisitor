@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.feature.transaction;
-
 import java.sql.SQLException;
 import java.util.Properties;
 import java.util.UUID;
@@ -14,8 +13,8 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 /** Native commands run through the same pool as their propagation scope. */
 public abstract class NativeNonTransactionSupport extends NonTransactionPropagationCase {
@@ -24,7 +23,7 @@ public abstract class NativeNonTransactionSupport extends NonTransactionPropagat
     private       boolean          created;
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         String environment = profile().env();
         OneApiDataSourceManager.assumeCurrentDataSource(environment);
@@ -111,7 +110,7 @@ public abstract class NativeNonTransactionSupport extends NonTransactionPropagat
         }
     }
 
-    @After
+    @AfterEach
     public void cleanupNativeData() throws SQLException {
         if (this.pool == null) {
             return;

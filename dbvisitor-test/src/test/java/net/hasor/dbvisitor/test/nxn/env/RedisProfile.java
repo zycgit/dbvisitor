@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.nxn.env;
-
 import java.util.Set;
 
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;

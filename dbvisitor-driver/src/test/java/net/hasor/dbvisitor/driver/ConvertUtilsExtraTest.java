@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.driver;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Timestamp;
@@ -14,8 +13,8 @@ import java.time.*;
 import java.time.chrono.JapaneseDate;
 import java.util.Calendar;
 import java.util.Date;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /** Additional ConvertUtils tests — covers uncovered Number subtype branches, date/time chains, and string parsing. */
 public class ConvertUtilsExtraTest {

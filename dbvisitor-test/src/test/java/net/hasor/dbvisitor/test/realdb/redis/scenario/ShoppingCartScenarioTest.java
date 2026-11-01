@@ -6,15 +6,14 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis.scenario;
-
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import net.hasor.dbvisitor.test.realdb.redis.scenario.mapper.ShoppingCartMapper;
 import net.hasor.dbvisitor.test.realdb.redis.scenario.model.CartItem;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ShoppingCartScenarioTest extends RedisScenarioSupport {
     @Test

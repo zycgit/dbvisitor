@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic6;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.contract.api.mapper.basemapper.BaseMapperDefaultKeyCase;
@@ -14,8 +13,8 @@ import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.Elastic6Profile;
 import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
 import net.hasor.dbvisitor.test.realdb.elastic7.material.ElasticMatrixFixture;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 @NxnConcurrent
 public class Elastic6BaseMapperDefaultKeyTest extends BaseMapperDefaultKeyCase {
@@ -27,7 +26,7 @@ public class Elastic6BaseMapperDefaultKeyTest extends BaseMapperDefaultKeyCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         jdbcTemplate = fixture.open(profile().env());
         lambdaTemplate = fixture.lambdaTemplate();
@@ -39,7 +38,7 @@ public class Elastic6BaseMapperDefaultKeyTest extends BaseMapperDefaultKeyCase {
         return fixture.session();
     }
 
-    @After
+    @AfterEach
     public void closeFixture() throws SQLException {
         fixture.close();
     }

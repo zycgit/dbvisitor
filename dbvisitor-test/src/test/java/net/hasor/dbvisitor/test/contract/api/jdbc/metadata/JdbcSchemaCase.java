@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.jdbc.metadata;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.HashSet;
@@ -16,14 +15,14 @@ import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.junit.AbstractNxnContractTest;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 @NxnContract(scope = NxnContract.Scope.JDBC_METADATA)
 public abstract class JdbcSchemaCase extends AbstractNxnContractTest {
     @Override
-    @Before
+    @BeforeEach
     public void setup() {
         // Metadata discovery must not depend on creating the standard DML fixtures.
         OneApiDataSourceManager.assumeCurrentDataSource(profile().env());
@@ -40,10 +39,10 @@ public abstract class JdbcSchemaCase extends AbstractNxnContractTest {
                 assertFalse(name.isEmpty());
                 names.add(name);
             }
-            assertFalse("Expected native schemas", names.isEmpty());
+            assertFalse(names.isEmpty(), "Expected native schemas");
             String current = connection.getSchema();
             if (current != null && !current.isEmpty()) {
-                assertTrue("Current schema missing: " + current + ", actual=" + names, names.contains(current));
+                assertTrue(names.contains(current), "Current schema missing: " + current + ", actual=" + names);
             }
         }
     }

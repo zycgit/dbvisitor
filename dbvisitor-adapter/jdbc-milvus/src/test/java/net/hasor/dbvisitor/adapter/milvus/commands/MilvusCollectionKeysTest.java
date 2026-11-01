@@ -19,16 +19,16 @@ import net.hasor.dbvisitor.adapter.milvus.MilvusCommandInterceptor;
 import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MilvusCollectionKeysTest {
     private final List<CreateCollectionReq> requests = new ArrayList<>();
     private       boolean                   failCreate;
 
-    @Before
+    @BeforeEach
     public void install() {
         MilvusCommandInterceptor.resetInterceptor();
         MilvusCommandInterceptor.addInterceptor(MilvusClientV2.class, (proxy, method, args) -> {
@@ -49,7 +49,7 @@ public class MilvusCollectionKeysTest {
         });
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         MilvusCommandInterceptor.resetInterceptor();
     }
@@ -147,11 +147,11 @@ public class MilvusCollectionKeysTest {
         String fields = "CREATE TABLE books (id INT64 PRIMARY KEY, tenant INT64 PARTITION KEY, v FLOAT_VECTOR(2)) WITH ";
         try (Connection connection = connect(); Statement statement = connection.createStatement()) {
             for (String options : Arrays.asList("(num_partitions=0)", "(num_partitions=1.5)", "(num_shards=2147483648)", "(num_shards='2')", "(num_partitions=true)", "(consistency_level='bad')", "(description=42)", "(unknown=1)", "(num_partitions=2,num_partitions=3)", "(num_shards=2,NUM_SHARDS=3)")) {
-                assertThrows(options, SQLException.class, () -> statement.executeUpdate(fields + options));
+                assertThrows(SQLException.class, () -> statement.executeUpdate(fields + options), options);
             }
             for (String sql : Arrays.asList("CREATE TABLE t (id INT64 PRIMARY KEY, v FLOAT_VECTOR(2)) WITH (num_partitions=2)", "CREATE TABLE t (id INT64 PRIMARY KEY PARTITION KEY, v FLOAT_VECTOR(2))", "CREATE TABLE t (id INT64 PRIMARY KEY, tenant INT32 PARTITION KEY, v FLOAT_VECTOR(2))", "CREATE TABLE t (id INT64 PRIMARY KEY, tenant INT64 NULL PARTITION KEY, v FLOAT_VECTOR(2))", "CREATE TABLE t (id INT64 PRIMARY KEY, a INT64 PARTITION KEY, b INT64 PARTITION KEY, v FLOAT_VECTOR(2))", "CREATE TABLE t (id INT64 PRIMARY KEY, a INT64 CLUSTERING KEY, b INT64 CLUSTERING KEY, v FLOAT_VECTOR(2))",
                     "ALTER TABLE t ADD COLUMN tenant INT64 NULL PARTITION KEY", "ALTER TABLE t ADD COLUMN rank INT64 NULL CLUSTERING KEY")) {
-                assertThrows(sql, SQLException.class, () -> statement.executeUpdate(sql));
+                assertThrows(SQLException.class, () -> statement.executeUpdate(sql), sql);
             }
             try (PreparedStatement prepared = connection.prepareStatement(fields + "(num_partitions=?)")) {
                 prepared.setNull(1, Types.INTEGER);

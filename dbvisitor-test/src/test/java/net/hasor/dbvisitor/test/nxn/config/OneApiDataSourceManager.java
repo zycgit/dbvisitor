@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.nxn.config;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -22,7 +21,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.test.contract.material.handler.ResultHandlerProbe;
-import org.junit.Assume;
+import org.junit.jupiter.api.Assumptions;
 
 /**
  * OneAPI DataSource Manager - Follows DsUtils pattern
@@ -176,7 +175,7 @@ public class OneApiDataSourceManager {
 
     public static void assumeCurrentDataSource(String targetEnv) {
         String currentEnv = getDbDialect();
-        Assume.assumeTrue("Skipping data source '" + targetEnv + "' scenario because nxn.env=" + currentEnv, targetEnv.equals(currentEnv));
+        Assumptions.assumeTrue(targetEnv.equals(currentEnv), "Skipping data source '" + targetEnv + "' scenario because nxn.env=" + currentEnv);
     }
 
     public static String getProperty(String key) {

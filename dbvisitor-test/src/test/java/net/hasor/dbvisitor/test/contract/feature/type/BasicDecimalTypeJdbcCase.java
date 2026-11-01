@@ -6,16 +6,15 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.feature.type;
-
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.material.model.types.BasicTypesModel;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @NxnContract
 public abstract class BasicDecimalTypeJdbcCase extends BasicTypeJdbcSupport {
@@ -25,7 +24,7 @@ public abstract class BasicDecimalTypeJdbcCase extends BasicTypeJdbcSupport {
     public void decimalValue_shouldRoundTripWithoutPrecisionLoss() throws SQLException {
         BigDecimal loaded = roundTripDecimalValue();
         assertNotNull(loaded);
-        assertEquals("Decimal readback: " + loaded, 0, new BigDecimal("12345.67").compareTo(loaded));
+        assertEquals(0, new BigDecimal("12345.67").compareTo(loaded), "Decimal readback: " + loaded);
     }
 
     protected BigDecimal roundTripDecimalValue() throws SQLException {

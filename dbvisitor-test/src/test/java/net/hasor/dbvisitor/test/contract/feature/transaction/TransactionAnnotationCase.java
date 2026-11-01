@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.feature.transaction;
-
 import net.hasor.dbvisitor.test.contract.material.service.ClassLevelTransactionService;
 import net.hasor.dbvisitor.test.contract.material.service.UserTransactionService;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
@@ -15,8 +14,8 @@ import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
 import net.hasor.dbvisitor.transaction.Propagation;
 import net.hasor.dbvisitor.transaction.TransactionStatus;
 import net.hasor.dbvisitor.transaction.support.TransactionHelper;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 @NxnContract
 public abstract class TransactionAnnotationCase extends TransactionSupport {

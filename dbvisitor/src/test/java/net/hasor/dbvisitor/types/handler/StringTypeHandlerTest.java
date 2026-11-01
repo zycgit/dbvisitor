@@ -18,7 +18,7 @@ import net.hasor.dbvisitor.types.handler.string.NClobAsStringTypeHandler;
 import net.hasor.dbvisitor.types.handler.string.NStringTypeHandler;
 import net.hasor.dbvisitor.types.handler.string.StringTypeHandler;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class StringTypeHandlerTest {
     @Test

@@ -19,8 +19,8 @@ import net.hasor.dbvisitor.transaction.ConnectionProxy;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
-import org.powermock.api.mockito.PowerMockito;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
@@ -40,13 +40,13 @@ public class MockPropertyTest extends AbstractDbTest {
 
     @Test
     public void jdbcConnectionTest_2() throws SQLException {
-        Connection connection = PowerMockito.mock(Connection.class);
+        Connection connection = Mockito.mock(Connection.class);
         JdbcConnection jdbcTemplate = new JdbcConnection(connection);
         jdbcTemplate.setIgnoreWarnings(false);
 
-        Statement statement = PowerMockito.mock(Statement.class);
+        Statement statement = Mockito.mock(Statement.class);
         SQLWarning warning = new SQLWarning("abc");
-        PowerMockito.when(statement.getWarnings()).thenReturn(warning);
+        Mockito.when(statement.getWarnings()).thenReturn(warning);
 
         try {
             jdbcTemplate.handleWarnings(statement);
@@ -115,7 +115,7 @@ public class MockPropertyTest extends AbstractDbTest {
 
     @Test
     public void jdbcConnectionTest_6() throws SQLException {
-        Connection connection = PowerMockito.mock(Connection.class);
+        Connection connection = Mockito.mock(Connection.class);
         JdbcConnection jdbcConnection = new JdbcConnection(connection);
 
         jdbcConnection.execute((ConnectionCallback<Object>) con -> {
@@ -133,7 +133,7 @@ public class MockPropertyTest extends AbstractDbTest {
 
     @Test
     public void jdbcTemplateTest_6() {
-        DataSource dataSource = PowerMockito.mock(DataSource.class);
+        DataSource dataSource = Mockito.mock(DataSource.class);
         TypeHandlerRegistry typeRegistry = new TypeHandlerRegistry();
         MappingRegistry mappingRegistry = new MappingRegistry(null, typeRegistry, Options.of());
         JdbcQueryContext context = new JdbcQueryContext();

@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import net.hasor.dbvisitor.lambda.dto.AnnoUserInfoDTO;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import static net.hasor.test.utils.TestUtils.*;
 
 /***

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.redis.commands;
-
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,13 +13,13 @@ import java.sql.ResultSet;
 import java.util.concurrent.atomic.AtomicInteger;
 import net.hasor.dbvisitor.adapter.redis.AbstractJdbcTest;
 import net.hasor.dbvisitor.adapter.redis.RedisCommandInterceptor;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import redis.clients.jedis.commands.StringBinaryCommands;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class BinaryStringCommandTest extends AbstractJdbcTest {
-    @After
+    @AfterEach
     public void clearInterceptors() {
         RedisCommandInterceptor.resetInterceptor();
     }

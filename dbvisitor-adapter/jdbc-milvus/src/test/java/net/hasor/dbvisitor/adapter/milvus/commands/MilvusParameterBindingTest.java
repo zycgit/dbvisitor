@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.milvus.commands;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.*;
@@ -32,12 +31,12 @@ import net.hasor.dbvisitor.adapter.milvus.MilvusCustomClient;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.adapter.milvus.mapping.MilvusSchema;
 import net.hasor.dbvisitor.driver.JdbcDriver;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /** Public JDBC binding -> intercepted official SDK requests -> typed wire values. */
 public class MilvusParameterBindingTest {
@@ -45,7 +44,7 @@ public class MilvusParameterBindingTest {
     private final        List<Object>  requests = new ArrayList<>();
     private              QueryIterator queryIterator;
 
-    @Before
+    @BeforeEach
     public void install() {
         MilvusCommandInterceptor.resetInterceptor();
         queryIterator = Mockito.mock(QueryIterator.class);
@@ -82,7 +81,7 @@ public class MilvusParameterBindingTest {
         });
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         MilvusCommandInterceptor.resetInterceptor();
     }
@@ -149,10 +148,10 @@ public class MilvusParameterBindingTest {
         for (String sql : commands) {
             requests.clear();
             execute(sql, PAYLOAD);
-            assertEquals(sql, 1, requests.size());
+            assertEquals(1, requests.size(), sql);
             BoundFilter bound = filter(requests.get(0));
-            assertEquals(sql, "title == {arg1}", bound.expression());
-            assertEquals(sql, Collections.singletonMap("arg1", PAYLOAD), bound.values());
+            assertEquals("title == {arg1}", bound.expression(), sql);
+            assertEquals(Collections.singletonMap("arg1", PAYLOAD), bound.values(), sql);
             assertEquals(PAYLOAD, VectorUtils.deduceAndCreateTemplateValue(bound.values().get("arg1")).getStringVal());
         }
     }
@@ -264,8 +263,8 @@ public class MilvusParameterBindingTest {
                     assertEquals(3, requests.size());
                     for (Object request : requests) {
                         BoundFilter bound = filter(request);
-                        assertEquals(sql, "title == {arg1}", bound.expression());
-                        assertEquals(sql, Collections.singletonMap("arg1", expected), bound.values());
+                        assertEquals("title == {arg1}", bound.expression(), sql);
+                        assertEquals(Collections.singletonMap("arg1", expected), bound.values(), sql);
                         assertEquals(expected, VectorUtils.deduceAndCreateTemplateValue(bound.values().get("arg1")).getStringVal());
                     }
                 }

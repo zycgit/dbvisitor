@@ -6,8 +6,9 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.nxn.runner;
-
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,15 +17,20 @@ import java.util.*;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 import com.google.gson.GsonBuilder;
-import org.junit.runner.Description;
-import org.junit.runner.notification.Failure;
-import org.junit.runner.notification.RunListener;
+import net.hasor.dbvisitor.test.nxn.junit.NxnSelectionCondition;
+import org.junit.platform.engine.TestExecutionResult;
+import org.junit.platform.engine.support.descriptor.ClassSource;
+import org.junit.platform.engine.support.descriptor.MethodSource;
+import org.junit.platform.launcher.TestExecutionListener;
+import org.junit.platform.launcher.TestIdentifier;
+import org.junit.platform.launcher.TestPlan;
 
 /** Execution state plus standard JUnit XML and a small browsable report, one directory per datasource. */
 final class NxnReport {
     final         Path                directory;
     private final Map<String, Object> state   = new LinkedHashMap<>();
     private final List<TestEntry>     entries = new ArrayList<>();
+    private volatile boolean reportingFailed;
     private       long                startedNanos;
     private       long                finishedNanos;
     private       long                testNanos;
@@ -78,7 +84,7 @@ final class NxnReport {
         StringBuilder html = new StringBuilder("<!doctype html><meta charset=\"utf-8\"><title>NxN tests</title><h1>" + escape(state.get("env")) + "</h1>");
         html.append("<p>").append(escape(snapshot())).append("</p><p><a href='../execution.log'>Execution log</a></p><table><tr><th>Test</th><th>Result</th><th>Details</th></tr>");
         for (TestEntry entry : entries) {
-            html.append("<tr><td>").append(escape(entry.description.getDisplayName())).append("</td><td>").append(entry.outcome).append("</td><td><pre>").append(escape(entry.trace)).append("</pre></td></tr>");
+            html.append("<tr><td>").append(escape(entry.className + "#" + entry.name)).append("</td><td>").append(entry.outcome).append("</td><td><pre>").append(escape(entry.trace)).append("</pre></td></tr>");
         }
         Files.writeString(directory.resolve("reports/index.html"), html.append("</table>").toString());
     }
@@ -168,63 +174,100 @@ final class NxnReport {
         }
     }
 
-    RunListener listener() {
-        return new RunListener() {
-            private final Map<Description, TestEntry> current = new LinkedHashMap<>();
+    boolean reportingFailed() {
+        return reportingFailed;
+    }
 
-            private TestEntry entry(Description description) {
-                return current.computeIfAbsent(description, TestEntry::new);
+    TestExecutionListener listener() {
+        return new TestExecutionListener() {
+            private final Map<String, TestEntry> executions = new LinkedHashMap<>();
+            private TestPlan plan;
+
+            private TestEntry entry(TestIdentifier identifier) {
+                return executions.computeIfAbsent(identifier.getUniqueId(), ignored -> new TestEntry(identifier));
             }
 
             @Override
-            public void testStarted(Description description) {
-                entry(description);
-                current(testName(description));
+            public void testPlanExecutionStarted(TestPlan testPlan) {
+                plan = testPlan;
             }
 
             @Override
-            public void testFailure(Failure failure) {
-                TestEntry entry = entry(failure.getDescription());
-                entry.outcome = "failed";
-                entry.trace += failure.getTrace();
-            }
-
-            @Override
-            public void testAssumptionFailure(Failure failure) {
-                TestEntry entry = entry(failure.getDescription());
-                if (!entry.outcome.equals("failed")) {
-                    entry.outcome = "skipped";
-                    entry.trace = failure.getMessage();
+            public void dynamicTestRegistered(TestIdentifier identifier) {
+                if (identifier.isTest()) {
+                    synchronized (NxnReport.this) {
+                        state.put("total", (int) state.get("total") + 1);
+                    }
                 }
             }
 
             @Override
-            public void testIgnored(Description description) {
-                TestEntry entry = entry(description);
-                entry.outcome = "skipped";
-                completed(entry);
+            public void executionStarted(TestIdentifier identifier) {
+                if (identifier.isTest()) {
+                    TestEntry entry = entry(identifier);
+                    current(testName(entry));
+                }
             }
 
             @Override
-            public void testFinished(Description description) {
-                TestEntry entry = entry(description);
+            public void executionSkipped(TestIdentifier identifier, String reason) {
+                if (identifier.isTest()) {
+                    if (NxnSelectionCondition.FILTERED.equals(reason)) {
+                        synchronized (NxnReport.this) {
+                            state.put("total", (int) state.get("total") - 1);
+                        }
+                        return;
+                    }
+                    TestEntry entry = entry(identifier);
+                    entry.outcome = "skipped";
+                    entry.trace = reason;
+                    completed(entry);
+                } else {
+                    // A disabled class is one callback; account for each declared method without running it.
+                    for (TestIdentifier descendant : plan.getDescendants(identifier)) {
+                        if (descendant.isTest()) {
+                            executionSkipped(descendant, reason);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void executionFinished(TestIdentifier identifier, TestExecutionResult result) {
+                if (!identifier.isTest() && result.getStatus() != TestExecutionResult.Status.FAILED) {
+                    return;
+                }
+                TestEntry entry = entry(identifier);
                 entry.nanos = System.nanoTime() - entry.started;
+                if (result.getStatus() == TestExecutionResult.Status.FAILED) {
+                    entry.outcome = "failed";
+                } else if (result.getStatus() == TestExecutionResult.Status.ABORTED) {
+                    entry.outcome = "skipped";
+                }
+                result.getThrowable().ifPresent(failure -> {
+                    StringWriter trace = new StringWriter();
+                    failure.printStackTrace(new PrintWriter(trace));
+                    entry.trace = trace.toString();
+                });
                 completed(entry);
-                current(description.getClassName() + " (class cleanup)");
+                current(entry.className + " (class cleanup)");
             }
 
             @Override
-            public void testRunFinished(org.junit.runner.Result result) throws Exception {
-                List<TestEntry> suite = new ArrayList<>(current.values());
+            public void testPlanExecutionFinished(TestPlan testPlan) {
+                List<TestEntry> suite = new ArrayList<>(executions.values());
                 if (suite.isEmpty()) {
                     return;
                 }
-                // Class-level setup/cleanup failures may have no testStarted/testFinished pair.
-                suite.forEach(NxnReport.this::completed);
-                writeSuite(suite);
-                save();
+                try {
+                    writeSuite(suite);
+                    save();
+                } catch (Exception failure) {
+                    reportingFailed = true;
+                    failure.printStackTrace();
+                }
                 for (TestEntry entry : suite) {
-                    System.out.println(entry.outcome + " " + entry.description.getDisplayName());
+                    System.out.println(entry.outcome + " " + entry.className + "#" + entry.name);
                     if (entry.outcome.equals("failed")) {
                         System.err.println(entry.trace);
                     }
@@ -234,7 +277,7 @@ final class NxnReport {
     }
 
     private void writeSuite(List<TestEntry> suite) throws Exception {
-        String name = suite.get(0).description.getClassName();
+        String name = suite.get(0).className;
         try (var output = Files.newOutputStream(directory.resolve("test-results/TEST-" + name + ".xml"))) {
             XMLStreamWriter xml = XMLOutputFactory.newDefaultFactory().createXMLStreamWriter(output, "UTF-8");
             xml.writeStartDocument("UTF-8", "1.0");
@@ -247,7 +290,7 @@ final class NxnReport {
             for (TestEntry entry : suite) {
                 xml.writeStartElement("testcase");
                 xml.writeAttribute("classname", name);
-                xml.writeAttribute("name", String.valueOf(entry.description.getMethodName()));
+                xml.writeAttribute("name", String.valueOf(entry.name));
                 xml.writeAttribute("time", String.valueOf(entry.nanos / 1_000_000_000.0));
                 if (!entry.outcome.equals("passed")) {
                     xml.writeStartElement(entry.outcome.equals("failed") ? "failure" : "skipped");
@@ -266,24 +309,39 @@ final class NxnReport {
         return String.valueOf(value).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;");
     }
 
-    private static String testName(Description description) {
-        String className = description.getClassName();
-        return className.substring(className.lastIndexOf('.') + 1) + "#" + description.getMethodName();
+    private static String testName(TestEntry entry) {
+        return entry.className.substring(entry.className.lastIndexOf('.') + 1) + "#" + entry.name;
     }
 
     private static final class TestEntry {
-        final Description description;
-        final long        started = System.nanoTime();
-        String  outcome = "passed";
-        String  trace   = "";
-        long    nanos;
+        final TestIdentifier identifier;
+        final String className;
+        final String name;
+        final long started = System.nanoTime();
+        String outcome = "passed";
+        String trace = "";
+        long nanos;
         boolean completed;
 
-        TestEntry(Description description) {
-            this.description = description;
+        TestEntry(TestIdentifier identifier) {
+            this.identifier = identifier;
+            Object source = identifier.getSource().orElse(null);
+            this.className = source instanceof MethodSource method ? method.getClassName()
+                    : source instanceof ClassSource type ? type.getClassName() : identifier.getDisplayName();
+            // Legacy reporting names include invocation indexes for parameterized methods/classes.
+            String reportingName = identifier.getLegacyReportingName();
+            this.name = reportingName.endsWith("()")
+                    ? reportingName.substring(0, reportingName.length() - 2) : reportingName;
         }
     }
 
-    private record Activity(String name, long started) {
+    private static final class Activity {
+        final String name;
+        final long started;
+
+        Activity(String name, long started) {
+            this.name = name;
+            this.started = started;
+        }
     }
 }

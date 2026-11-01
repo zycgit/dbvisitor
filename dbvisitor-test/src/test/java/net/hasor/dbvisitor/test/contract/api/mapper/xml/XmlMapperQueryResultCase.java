@@ -6,15 +6,14 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.mapper.xml;
-
 import java.util.List;
 import java.util.Map;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @NxnContract
 public abstract class XmlMapperQueryResultCase extends XmlMapperCrudSupport {
@@ -28,7 +27,7 @@ public abstract class XmlMapperQueryResultCase extends XmlMapperCrudSupport {
         Map<String, Object> row = list.get(0);
         for (Map.Entry<String, Object> entry : expectedFirstMapRow().entrySet()) {
             Object actual = value(row, entry.getKey());
-            assertNotNull(entry.getKey(), actual);
+            assertNotNull(actual, entry.getKey());
             if (entry.getValue() instanceof Number) {
                 assertEquals(((Number) entry.getValue()).doubleValue(), ((Number) actual).doubleValue(), 0.0);
             } else {

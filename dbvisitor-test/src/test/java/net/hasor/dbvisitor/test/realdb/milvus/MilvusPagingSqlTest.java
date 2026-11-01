@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -18,10 +17,10 @@ import java.util.Set;
 
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /** 小 fetchSize 强制跨页；使用固定向量和 FLAT 索引，避免近似检索/随机数据影响断言。 */
 public class MilvusPagingSqlTest extends MilvusSqlContractSupport {
@@ -41,7 +40,7 @@ public class MilvusPagingSqlTest extends MilvusSqlContractSupport {
         }
     }
 
-    @Before
+    @BeforeEach
     public void prepareRows() throws SQLException {
         createCollection("id INT64 PRIMARY KEY, label VARCHAR(64), value INT64, v FLOAT_VECTOR(2)");
         createIndex("v", "FLAT", "L2");

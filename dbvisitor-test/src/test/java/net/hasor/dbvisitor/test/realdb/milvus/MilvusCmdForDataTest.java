@@ -25,8 +25,8 @@ import io.milvus.param.index.CreateIndexParam;
 import io.milvus.response.QueryResultsWrapper;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
     private static final String STRONG_CONSISTENCY_HINT = "/*+ consistency_level=Strong */ ";
@@ -738,7 +738,7 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
             // Prepared server-side fixture; see docker/README.md. Never upload into arbitrary buckets.
             String env = MilvusProfile.INSTANCE.env();
             String file = OneApiDataSourceManager.loadAdapterProperties(env).getProperty("test.import.file");
-            assertNotNull("Configure test.import.file and prepare import_data.json on the server", file);
+            assertNotNull(file, "Configure test.import.file and prepare import_data.json on the server");
             try (Connection conn = OneApiDataSourceManager.getConnection(env); Statement stmt = conn.createStatement()) {
                 String jobId;
                 try (PreparedStatement submit = conn.prepareStatement("/*+ timeout=60000 */ IMPORT FROM ? INTO " + TEST_COLLECTION + " RETURNING JOB_ID")) {
@@ -769,7 +769,7 @@ public class MilvusCmdForDataTest extends AbstractMilvusCmdForTest {
                 java.util.Map<Long, Long> imported = new java.util.HashMap<>();
                 try (ResultSet rows = stmt.executeQuery("SELECT book_id, word_count FROM " + TEST_COLLECTION)) {
                     while (rows.next()) {
-                        assertNull("Duplicate imported primary key", imported.put(rows.getLong(1), rows.getLong(2)));
+                        assertNull(imported.put(rows.getLong(1), rows.getLong(2)), "Duplicate imported primary key");
                     }
                 }
                 assertEquals(java.util.Map.of(1L, 100L, 2L, 200L), imported);

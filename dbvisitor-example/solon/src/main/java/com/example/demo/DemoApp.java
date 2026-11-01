@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package com.example.demo;
-
 import org.noear.solon.Solon;
 import org.noear.solon.annotation.SolonMain;
 

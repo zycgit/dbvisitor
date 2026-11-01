@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.hasor.mapper;
-
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.setting.Settings;
 import net.hasor.dbvisitor.mapper.Mapper;

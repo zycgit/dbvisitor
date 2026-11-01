@@ -6,12 +6,11 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.elastic.commands;
-
 import java.sql.*;
 import net.hasor.dbvisitor.adapter.elastic.ElasticConn;
 import net.hasor.dbvisitor.driver.MetadataSupport;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ElasticMetadataCommandTest extends AbstractElasticCommandTest {
     @Test

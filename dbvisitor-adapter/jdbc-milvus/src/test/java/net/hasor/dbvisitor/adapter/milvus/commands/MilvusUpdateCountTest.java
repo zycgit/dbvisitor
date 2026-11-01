@@ -6,10 +6,9 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.milvus.commands;
-
 import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -23,9 +22,9 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import io.milvus.grpc.CollectionSchema;
@@ -50,7 +49,7 @@ public class MilvusUpdateCountTest {
     private QueryIterator    queryIterator;
     private SearchIteratorV2 searchIterator;
 
-    @Before
+    @BeforeEach
     public void install() {
         deleteCount = 1;
         queryIterator = Mockito.mock(QueryIterator.class);
@@ -77,7 +76,7 @@ public class MilvusUpdateCountTest {
         });
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         MilvusCommandInterceptor.resetInterceptor();
     }
@@ -159,8 +158,8 @@ public class MilvusUpdateCountTest {
                 Mockito.reset(queryIterator, searchIterator);
                 Mockito.when(queryIterator.next()).thenReturn(page(1)).thenReturn(page(2)).thenReturn(page(3)).thenReturn(Collections.emptyList());
                 Mockito.when(searchIterator.next()).thenReturn(net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.searchHits("id", page(1))).thenReturn(net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.searchHits("id", page(2))).thenReturn(net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.searchHits("id", page(3))).thenReturn(Collections.emptyList());
-                assertEquals(sql, 3L, statement.executeLargeUpdate(sql));
-                assertEquals(sql, 3L, statement.getLargeUpdateCount());
+                assertEquals(3L, statement.executeLargeUpdate(sql), sql);
+                assertEquals(3L, statement.getLargeUpdateCount(), sql);
                 if (sql.contains("v <->")) {
                     Mockito.verify(searchIterator).close();
                 } else {

@@ -6,13 +6,12 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic7;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class Elastic7GenericTest {
     private static final String ES_URL = "jdbc:dbvisitor:elastic://127.0.0.1:2921?indexRefresh=true";
@@ -21,13 +20,13 @@ public class Elastic7GenericTest {
     public void testGenericGet() throws Exception {
         try (Connection c = DriverManager.getConnection(ES_URL); Statement s = c.createStatement()) {
             boolean result = s.execute("GET /");
-            Assert.assertTrue(result);
+            Assertions.assertTrue(result);
             try (ResultSet rs = s.getResultSet()) {
-                Assert.assertTrue(rs.next());
-                Assert.assertFalse(rs.getString("cluster_name").isEmpty());
+                Assertions.assertTrue(rs.next());
+                Assertions.assertFalse(rs.getString("cluster_name").isEmpty());
                 com.fasterxml.jackson.databind.JsonNode version = new com.fasterxml.jackson.databind.ObjectMapper().readTree(rs.getString("version"));
-                Assert.assertTrue(version.path("number").asText().startsWith("7."));
-                Assert.assertFalse(rs.next());
+                Assertions.assertTrue(version.path("number").asText().startsWith("7."));
+                Assertions.assertFalse(rs.next());
             }
         }
     }
@@ -46,9 +45,9 @@ public class Elastic7GenericTest {
 
             // Verify with standard GET
             try (ResultSet rs = s.executeQuery("GET /test_generic/_doc/1")) {
-                Assert.assertTrue(rs.next());
+                Assertions.assertTrue(rs.next());
                 String source = rs.getString("_source");
-                Assert.assertTrue(source.contains("generic_test"));
+                Assertions.assertTrue(source.contains("generic_test"));
             }
 
             // Clean up

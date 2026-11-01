@@ -13,7 +13,7 @@ import java.util.Map;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.lambda.dto.AnnoUserInfoDTO;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import static net.hasor.test.utils.TestUtils.beanForData1;
 
 /***

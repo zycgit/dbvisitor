@@ -10,7 +10,7 @@ import java.sql.SQLException;
 import java.util.Collections;
 import net.hasor.dbvisitor.dynamic.rule.TextRule;
 import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TextRuleTest {
     @Test

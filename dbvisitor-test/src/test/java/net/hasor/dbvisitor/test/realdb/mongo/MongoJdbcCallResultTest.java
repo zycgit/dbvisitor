@@ -6,14 +6,13 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.mongo;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.contract.api.jdbc.JdbcCallResultCase;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MongoProfile;
 import net.hasor.dbvisitor.test.realdb.mongo.material.MongoEntityFixture;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class MongoJdbcCallResultTest extends JdbcCallResultCase {
     private final MongoEntityFixture fixture = new MongoEntityFixture();
@@ -24,7 +23,7 @@ public class MongoJdbcCallResultTest extends JdbcCallResultCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         if (this.jdbcTemplate == null) {
             this.jdbcTemplate = this.fixture.open();
@@ -42,7 +41,7 @@ public class MongoJdbcCallResultTest extends JdbcCallResultCase {
         return this.fixture.command("find({id: :p_id}, {_id: 0, name: 1, age: 1})");
     }
 
-    @After
+    @AfterEach
     public void closeFixture() throws SQLException {
         this.fixture.close();
     }

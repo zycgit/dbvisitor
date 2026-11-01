@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.mapper;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
@@ -16,7 +15,7 @@ import java.util.Map;
 import net.hasor.dbvisitor.mapper.def.QueryType;
 import net.hasor.dbvisitor.mapper.dto.ResultType1Mapper;
 import org.h2.value.CaseInsensitiveMap;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

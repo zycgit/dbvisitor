@@ -6,16 +6,15 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.scenario.query.xml;
-
 import java.util.List;
 import java.util.Map;
 import net.hasor.dbvisitor.test.contract.api.mapper.xml.XmlRefMapperSupport;
 import net.hasor.dbvisitor.test.contract.material.dao.XmlRefMapperDao;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public abstract class XmlRefMapperAggregateCase extends XmlRefMapperSupport {
     @Test

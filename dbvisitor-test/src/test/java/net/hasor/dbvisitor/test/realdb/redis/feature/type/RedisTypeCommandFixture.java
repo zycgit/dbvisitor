@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis.feature.type;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.LinkedHashSet;
@@ -14,7 +13,7 @@ import java.util.Set;
 import java.util.UUID;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
-import org.junit.Assume;
+import org.junit.jupiter.api.Assumptions;
 
 /** Stores each logical column in a private Redis hash, keyed by the test row ID. */
 final class RedisTypeCommandFixture implements AutoCloseable {
@@ -24,7 +23,7 @@ final class RedisTypeCommandFixture implements AutoCloseable {
     private       JdbcTemplate template;
 
     JdbcTemplate open() throws SQLException {
-        Assume.assumeTrue("Redis type contract", "redis".equals(OneApiDataSourceManager.getDbDialect()));
+        Assumptions.assumeTrue("redis".equals(OneApiDataSourceManager.getDbDialect()), "Redis type contract");
         if (this.connection == null) {
             this.connection = OneApiDataSourceManager.getConnection("redis");
             this.template = new JdbcTemplate(this.connection);

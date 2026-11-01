@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.elastic.commands;
-
 import java.sql.*;
 import java.util.Arrays;
 import java.util.Collection;
@@ -14,14 +13,16 @@ import java.util.Collections;
 import java.util.Properties;
 import net.hasor.dbvisitor.adapter.elastic.ElasticKeys;
 import org.apache.http.util.EntityUtils;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
+import static org.junit.jupiter.api.Assertions.*;
+import java.util.concurrent.TimeUnit;
+import org.junit.jupiter.api.Timeout;
 
-@RunWith(Parameterized.class)
+@ParameterizedClass(name = "preRead={0}", autoCloseArguments = false, quoteTextArguments = false)
+@MethodSource("modes")
 public class ElasticQueryCommandTest extends AbstractElasticCommandTest {
     private static final String  HITS = """
             {"took":1,"hits":{"total":{"value":2,"relation":"eq"},"hits":[
@@ -30,10 +31,9 @@ public class ElasticQueryCommandTest extends AbstractElasticCommandTest {
             """;
     private final        boolean preRead;
 
-    @Rule
-    public TemporaryFolder cache = new TemporaryFolder();
+    @TempDir
+    public java.nio.file.Path cache;
 
-    @Parameterized.Parameters(name = "preRead={0}")
     public static Collection<Object[]> modes() {
         return Arrays.asList(new Object[] { true }, new Object[] { false });
     }
@@ -45,7 +45,7 @@ public class ElasticQueryCommandTest extends AbstractElasticCommandTest {
     private Properties settings() {
         Properties settings = new Properties();
         settings.setProperty(ElasticKeys.PREREAD_ENABLED, Boolean.toString(preRead));
-        settings.setProperty(ElasticKeys.PREREAD_CACHE_DIR, cache.getRoot().getAbsolutePath());
+        settings.setProperty(ElasticKeys.PREREAD_CACHE_DIR, cache.toAbsolutePath().toString());
         return settings;
     }
 
@@ -214,7 +214,8 @@ public class ElasticQueryCommandTest extends AbstractElasticCommandTest {
         assertRequest(0, "POST", "/books/_count", "{\"query\":{\"match_all\":{}}}");
     }
 
-    @Test(timeout = 5000)
+    @Test
+    @Timeout(value = 5000, unit = TimeUnit.MILLISECONDS, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
     public void multiSearchUsesNdjsonAndJdbcMultipleResultsIncludingEmptyGroups() throws Exception {
         respondWith("{\"responses\":[" + HITS + ",{\"hits\":{\"hits\":[]}},{\"hits\":{\"hits\":[{\"_id\":\"3\",\"_source\":{\"title\":\"Third\"}}]}}]}");
         String sql = "/*+ overwrite_find_limit=2, overwrite_find_skip=1 */ POST /books/_msearch [{},{\"query\":{\"match_all\":{}}},{},{\"query\":{\"term\":{\"active\":true}}},{},{}]";
@@ -310,6 +311,6 @@ public class ElasticQueryCommandTest extends AbstractElasticCommandTest {
             assertEquals("2", result.getString("_ID"));
             assertFalse(result.next());
         }
-        assertArrayEquals(new String[0], cache.getRoot().list());
+        assertArrayEquals(new String[0], cache.toFile().list());
     }
 }

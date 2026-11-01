@@ -21,7 +21,7 @@ import net.hasor.dbvisitor.page.PageResult;
 import net.hasor.dbvisitor.session.dto.CorePreparedStatementExecuteMapper;
 import net.hasor.dbvisitor.session.dto.UserInfo;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class CorePreparedStatementExecuteTest {
     private void reinit(Connection con) throws SQLException, IOException {

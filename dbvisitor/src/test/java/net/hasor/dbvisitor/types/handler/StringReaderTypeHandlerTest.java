@@ -20,7 +20,7 @@ import net.hasor.dbvisitor.types.handler.io.NClobAsReaderTypeHandler;
 import net.hasor.dbvisitor.types.handler.io.NStringAsReaderTypeHandler;
 import net.hasor.dbvisitor.types.handler.io.StringAsReaderTypeHandler;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class StringReaderTypeHandlerTest {
     @Test

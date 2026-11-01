@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.SQLException;
 import java.util.Date;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
@@ -15,8 +14,8 @@ import net.hasor.dbvisitor.test.contract.feature.keygen.NumericKeyModel;
 import net.hasor.dbvisitor.test.contract.material.model.keygen.KeyAutoLongUser;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 /** AutoID uses a 64-bit key; preserve the common write/backfill assertions with a Long fixture. */
 public class MilvusDatabaseGeneratedKeyTest extends DatabaseGeneratedKeyCase {
@@ -28,7 +27,7 @@ public class MilvusDatabaseGeneratedKeyTest extends DatabaseGeneratedKeyCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = this.fixture.open();
         this.lambdaTemplate = new LambdaTemplate(this.jdbcTemplate);
@@ -72,7 +71,7 @@ public class MilvusDatabaseGeneratedKeyTest extends DatabaseGeneratedKeyCase {
         return user;
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws SQLException {
         this.fixture.close();
     }

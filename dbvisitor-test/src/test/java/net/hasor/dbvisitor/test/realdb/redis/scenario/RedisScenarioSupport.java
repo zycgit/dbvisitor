@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis.scenario;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -14,9 +13,9 @@ import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
-import org.junit.After;
-import org.junit.Before;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public abstract class RedisScenarioSupport {
     private final String       prefix = "nxn:redis:scenario:" + UUID.randomUUID() + ":";
@@ -24,7 +23,7 @@ public abstract class RedisScenarioSupport {
     protected     Session      session;
     private       JdbcTemplate jdbc;
 
-    @Before
+    @BeforeEach
     public void open() throws Exception {
         OneApiDataSourceManager.assumeCurrentDataSource("redis");
         this.session = new Configuration().newSession(OneApiDataSourceManager.getConnection("redis"));
@@ -43,10 +42,10 @@ public abstract class RedisScenarioSupport {
 
     protected void assertTtl(String key, int minimum, int maximum) throws Exception {
         Long ttl = this.jdbc.queryForLong("TTL ?", key);
-        assertTrue("TTL must be greater than " + minimum + " and at most " + maximum + ", got " + ttl, ttl != null && ttl > minimum && ttl <= maximum);
+        assertTrue(ttl != null && ttl > minimum && ttl <= maximum, "TTL must be greater than " + minimum + " and at most " + maximum + ", got " + ttl);
     }
 
-    @After
+    @AfterEach
     public void close() throws Exception {
         try {
             if (this.jdbc != null) {

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.hasor.autoconfig;
-
 import java.beans.PropertyDescriptor;
 import javax.sql.DataSource;
 import net.hasor.cobble.BeanUtils;

@@ -19,7 +19,7 @@ import net.hasor.dbvisitor.types.custom.LicenseOfCodeEnum;
 import net.hasor.dbvisitor.types.custom.LicenseOfValueEnum;
 import net.hasor.dbvisitor.types.handler.string.EnumTypeHandler;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class EnumTypeHandlerTest {
     @Test

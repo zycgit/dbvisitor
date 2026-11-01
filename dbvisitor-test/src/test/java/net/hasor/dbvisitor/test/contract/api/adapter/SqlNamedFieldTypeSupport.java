@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.adapter;
-
 import java.io.IOException;
 import java.sql.Date;
 import java.sql.SQLException;
@@ -14,14 +13,16 @@ import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.test.contract.feature.type.NativeNamedFieldTypeCase;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
-import org.junit.Assume;
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeEach;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /** Relational typed-column fixtures for the shared field-name reading contract. */
 public abstract class SqlNamedFieldTypeSupport extends NativeNamedFieldTypeCase {
     @Override
+    @BeforeEach
     public void setup() throws SQLException {
-        Assume.assumeTrue(profile().env().equals(OneApiDataSourceManager.getDbDialect()));
+        Assumptions.assumeTrue(profile().env().equals(OneApiDataSourceManager.getDbDialect()));
         try {
             dataSource = OneApiDataSourceManager.createDataSource();
         } catch (IOException e) {

@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -20,10 +19,10 @@ import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /** Checks special values and exact collection-query identities through the shared Mapper. */
 public class MilvusMapperParameterSqlTest extends AdapterCase {
@@ -36,13 +35,13 @@ public class MilvusMapperParameterSqlTest extends AdapterCase {
         return MilvusProfile.INSTANCE;
     }
 
-    @Before
+    @BeforeEach
     public void openMapper() throws Exception {
         this.session = new Configuration().newSession(this.fixture.open());
         this.mapper = this.session.createMapper(ParameterBindingMapper.class);
     }
 
-    @After
+    @AfterEach
     public void closeMapper() throws Exception {
         try {
             this.fixture.close();

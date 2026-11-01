@@ -6,14 +6,13 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.elastic7;
-
 import java.sql.*;
 import java.util.List;
 import java.util.UUID;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /** Native ES 7 dense_vector boundary; this is not another shared N×N capability. */
 public class Elastic7VectorNullBoundaryTest {
@@ -72,8 +71,8 @@ public class Elastic7VectorNullBoundaryTest {
         assertEquals("E400", error.getSQLState());
         assertNotNull(error.getCause());
         String response = error.getCause().getMessage();
-        assertTrue(response, response.contains("mapper_parsing_exception"));
-        assertTrue(response, response.contains("[VALUE_NUMBER]"));
-        assertTrue(response, response.contains("[END_OBJECT]"));
+        assertTrue(response.contains("mapper_parsing_exception"), response);
+        assertTrue(response.contains("[VALUE_NUMBER]"), response);
+        assertTrue(response.contains("[END_OBJECT]"), response);
     }
 }

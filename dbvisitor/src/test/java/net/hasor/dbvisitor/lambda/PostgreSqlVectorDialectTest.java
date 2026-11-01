@@ -17,8 +17,8 @@ import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.mapping.Table;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.handler.vector.PgVectorTypeHandler;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class PostgreSqlVectorDialectTest {
     @Test

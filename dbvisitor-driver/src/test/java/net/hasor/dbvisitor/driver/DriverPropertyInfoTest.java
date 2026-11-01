@@ -5,15 +5,15 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class DriverPropertyInfoTest {
     private final        JdbcDriver driver = new JdbcDriver();
     private static final String     URL    = "jdbc:dbvisitor:property-test://localhost";
 
-    @Before
+    @BeforeEach
     public void registerOfflineFactory() {
         AdapterManager.register("property-test", new MockAdapterFactory() {
             @Override
@@ -36,7 +36,7 @@ public class DriverPropertyInfoTest {
     private Map<String, DriverPropertyInfo> properties(String url, Properties input) {
         Map<String, DriverPropertyInfo> result = new LinkedHashMap<>();
         for (DriverPropertyInfo property : driver.getPropertyInfo(url, input)) {
-            assertNull("Duplicate property: " + property.name, result.put(property.name, property));
+            assertNull(result.put(property.name, property), "Duplicate property: " + property.name);
         }
         return result;
     }

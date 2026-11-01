@@ -6,15 +6,14 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.unit.milvus;
-
 import java.util.Map;
 import java.util.Properties;
 import net.hasor.dbvisitor.adapter.milvus.MilvusKeys;
 import net.hasor.dbvisitor.test.realdb.milvus_cloud.CloudTestSupport;
-import org.junit.AssumptionViolatedException;
-import org.junit.Test;
+import org.opentest4j.TestAbortedException;
+import org.junit.jupiter.api.Test;
 import static net.hasor.dbvisitor.test.realdb.milvus_cloud.CloudTestSupport.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CloudConfigurationTest {
     @Test
@@ -63,9 +62,9 @@ public class CloudConfigurationTest {
         String previous = System.getProperty("milvus.cloud");
         try {
             System.clearProperty("milvus.cloud");
-            assertThrows(AssumptionViolatedException.class, CloudTestSupport::requireExplicitOptIn);
+            assertThrows(TestAbortedException.class, CloudTestSupport::requireExplicitOptIn);
             System.setProperty("milvus.cloud", "false");
-            assertThrows(AssumptionViolatedException.class, CloudTestSupport::requireExplicitOptIn);
+            assertThrows(TestAbortedException.class, CloudTestSupport::requireExplicitOptIn);
             System.setProperty("milvus.cloud", "true");
             CloudTestSupport.requireExplicitOptIn();
         } finally {

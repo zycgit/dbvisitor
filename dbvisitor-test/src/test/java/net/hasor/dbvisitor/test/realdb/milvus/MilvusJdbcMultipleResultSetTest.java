@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -21,12 +20,12 @@ import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.config.OneApiDataSourceManager;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
-import org.junit.After;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Binds the unchanged public multi-result assertions to a Milvus collection fixture. */
 public class MilvusJdbcMultipleResultSetTest extends JdbcMultipleResultSetCase {
@@ -39,10 +38,10 @@ public class MilvusJdbcMultipleResultSetTest extends JdbcMultipleResultSetCase {
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         String env = OneApiDataSourceManager.getDbDialect();
-        Assume.assumeTrue("Milvus contract is not selected for " + env, profile().env().equals(env));
+        Assumptions.assumeTrue(profile().env().equals(env), "Milvus contract is not selected for " + env);
         this.connection = OneApiDataSourceManager.getConnection(profile().env());
         this.jdbcTemplate = new JdbcTemplate(this.connection);
         try (Statement statement = this.connection.createStatement()) {
@@ -52,7 +51,7 @@ public class MilvusJdbcMultipleResultSetTest extends JdbcMultipleResultSetCase {
         }
     }
 
-    @After
+    @AfterEach
     public void cleanupCollection() throws SQLException {
         if (this.connection != null) {
             try (Connection closing = this.connection; Statement statement = closing.createStatement()) {

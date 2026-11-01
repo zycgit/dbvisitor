@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class OracleTypesTest {
     protected void preTable(JdbcTemplate jdbc) throws SQLException, IOException {

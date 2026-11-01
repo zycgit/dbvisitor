@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.milvus;
-
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
@@ -22,8 +21,8 @@ import net.hasor.dbvisitor.test.contract.material.model.UserInfo;
 import net.hasor.dbvisitor.test.nxn.env.DataSourceProfile;
 import net.hasor.dbvisitor.test.nxn.env.MilvusProfile;
 import net.hasor.dbvisitor.test.nxn.junit.NxnConcurrent;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 /** Shared PageObject assertions with native vector ordering as the page fixture. */
 @NxnConcurrent
@@ -47,7 +46,7 @@ public class MilvusAnnotationMapperPaginationResultTest extends AnnotationMapper
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         this.jdbcTemplate = new JdbcTemplate(this.fixture.open(), new MappingRegistry(), null);
         this.jdbcTemplate.execute("""
@@ -72,7 +71,7 @@ public class MilvusAnnotationMapperPaginationResultTest extends AnnotationMapper
     }
 
     @Override
-    @Before
+    @BeforeEach
     public void createAnnotationMapper() throws Exception {
         this.session = newConfiguration().newSession(this.fixture.open());
         this.pageMapper = this.session.createMapper(NativePageMapper.class);
@@ -83,7 +82,7 @@ public class MilvusAnnotationMapperPaginationResultTest extends AnnotationMapper
         return this.pageMapper.selectPage(baseId() + 1, baseId() + 10, new float[] { 0, 0 }, page);
     }
 
-    @After
+    @AfterEach
     public void cleanupFixture() throws Exception {
         try {
             if (this.jdbcTemplate != null) {

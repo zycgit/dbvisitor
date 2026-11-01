@@ -7,9 +7,25 @@ configurations.shaded {
     canBeConsumed = false
     attributes.attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.JAVA_RUNTIME))
 }
-// In-repository project consumers use unshaded classes. Keep their SDK APIs and
-// runtimes available; the root publication removes embedded dependencies from POMs.
+// In-repository project consumers use unshaded classes with their SDK APIs and runtimes.
 configurations.api.extendsFrom(configurations.shaded)
+
+// Published drivers embed these libraries and exclude the ANTLR build tool.
+publishing.publications.named('mavenJava', MavenPublication) {
+    pom.withXml {
+        def excluded = new LinkedHashSet(configurations.shaded.dependencies)
+        excluded.addAll(configurations.antlr.dependencies)
+        def dependenciesNode = asNode().dependencies[0]
+        excluded.each { dep ->
+            def groupId = dep.group ?: project.group
+            dependenciesNode?.dependency?.findAll {
+                it.groupId.text() == groupId.toString() && it.artifactId.text() == dep.name
+            }?.each {
+                dependenciesNode.remove(it)
+            }
+        }
+    }
+}
 
 configurations {
     aloneRuntime {

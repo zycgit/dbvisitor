@@ -6,16 +6,15 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.adapter.milvus.commands;
-
 import static net.hasor.dbvisitor.adapter.milvus.MilvusTestResponses.v2Response;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.sql.*;
 import java.util.*;
 
-import org.junit.After;
-import org.junit.Test;
-import org.powermock.api.mockito.PowerMockito;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import io.milvus.grpc.*;
 import io.milvus.orm.iterator.SearchIteratorV2;
@@ -60,8 +59,8 @@ public class MilvusVectorArrayTest extends AbstractJdbcTest {
             }
             if ("searchIteratorV2".equals(method.getName())) {
                 captured.add(args[0]);
-                SearchIteratorV2 iterator = PowerMockito.mock(SearchIteratorV2.class);
-                PowerMockito.when(iterator.next()).thenReturn(Collections.emptyList());
+                SearchIteratorV2 iterator = Mockito.mock(SearchIteratorV2.class);
+                Mockito.when(iterator.next()).thenReturn(Collections.emptyList());
                 return v2Response(method.getName(), iterator);
             }
             if ("insert".equals(method.getName()) || "upsert".equals(method.getName())) {
@@ -76,7 +75,7 @@ public class MilvusVectorArrayTest extends AbstractJdbcTest {
         return new JdbcDriver().connect("jdbc:dbvisitor:milvus://test:19530", properties);
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         MilvusCommandInterceptor.resetInterceptor();
     }
@@ -162,7 +161,7 @@ public class MilvusVectorArrayTest extends AbstractJdbcTest {
                             ps.execute();
                             fail("Expected nested query vector rejection");
                         } catch (SQLException e) {
-                            assertTrue(e.getMessage(), e.getMessage().contains("single query vector"));
+                            assertTrue(e.getMessage().contains("single query vector"), e.getMessage());
                         }
                     }
                     assertTrue(captured.isEmpty());
@@ -179,7 +178,7 @@ public class MilvusVectorArrayTest extends AbstractJdbcTest {
                     stmt.executeQuery("SELECT * FROM t ORDER BY v <-> [[1, 1], [99, 99]]" + limit);
                     fail("Expected nested literal rejection");
                 } catch (SQLException e) {
-                    assertTrue(e.getMessage(), e.getMessage().contains("single query vector"));
+                    assertTrue(e.getMessage().contains("single query vector"), e.getMessage());
                 }
                 assertTrue(captured.isEmpty());
                 try (ResultSet rs = stmt.executeQuery("SELECT * FROM t ORDER BY v <-> [1, 1]" + limit)) {
@@ -201,7 +200,7 @@ public class MilvusVectorArrayTest extends AbstractJdbcTest {
                     ps.executeQuery();
                     fail("Expected nonnumeric array rejection");
                 } catch (SQLException e) {
-                    assertTrue(e.getMessage(), e.getMessage().contains("numeric primitive array"));
+                    assertTrue(e.getMessage().contains("numeric primitive array"), e.getMessage());
                 }
             }
             assertTrue(captured.isEmpty());

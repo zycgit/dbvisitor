@@ -11,9 +11,9 @@ import java.sql.Statement;
 import java.util.concurrent.atomic.AtomicInteger;
 import net.hasor.dbvisitor.adapter.redis.AbstractJdbcTest;
 import net.hasor.dbvisitor.adapter.redis.RedisCommandInterceptor;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import redis.clients.jedis.commands.StringCommands;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 public class RedisLeadingWhitespaceTest extends AbstractJdbcTest {
     @Test
     public void leadingEmptyLinesMustNotHideCommandBoundaries() throws Exception {

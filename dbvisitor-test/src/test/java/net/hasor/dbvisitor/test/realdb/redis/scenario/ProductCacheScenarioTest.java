@@ -6,11 +6,10 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.redis.scenario;
-
 import net.hasor.dbvisitor.test.realdb.redis.scenario.mapper.ProductCacheMapper;
 import net.hasor.dbvisitor.test.realdb.redis.scenario.model.ProductCache;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ProductCacheScenarioTest extends RedisScenarioSupport {
     @Test

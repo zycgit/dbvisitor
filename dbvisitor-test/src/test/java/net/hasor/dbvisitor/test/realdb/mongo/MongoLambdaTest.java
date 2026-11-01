@@ -6,7 +6,6 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.realdb.mongo;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
@@ -25,8 +24,8 @@ import net.hasor.dbvisitor.test.realdb.mongo.material.complex.ComplexOrder;
 import net.hasor.dbvisitor.test.realdb.mongo.material.complex.OrderItem;
 import net.hasor.dbvisitor.test.realdb.mongo.material.user.UserInfo1;
 import net.hasor.dbvisitor.test.realdb.mongo.material.user.UserInfo1BaseMapper;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MongoLambdaTest extends AdapterCase {
     @Override

@@ -6,13 +6,12 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 package net.hasor.dbvisitor.test.contract.api.jdbc;
-
 import java.sql.SQLException;
 import net.hasor.dbvisitor.test.nxn.capability.Capability;
 import net.hasor.dbvisitor.test.nxn.capability.CapabilityId;
 import net.hasor.dbvisitor.test.nxn.junit.NxnContract;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 @NxnContract
 public abstract class JdbcBatchErrorCase extends JdbcBatchSupport {
@@ -32,7 +31,7 @@ public abstract class JdbcBatchErrorCase extends JdbcBatchSupport {
         // JDBC drivers may stop, continue, or roll back their batch; no common atomicity is assumed.
         for (int id : new int[] { baseId() + 51, baseId() + 52 }) {
             Integer count = jdbcTemplate.queryForInt(countCommand(), new Object[] { id });
-            assertTrue("Each valid insert may appear at most once", count == 0 || count == 1);
+            assertTrue(count == 0 || count == 1, "Each valid insert may appear at most once");
         }
     }
 }

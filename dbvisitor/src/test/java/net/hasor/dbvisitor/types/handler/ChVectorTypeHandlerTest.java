@@ -9,8 +9,8 @@ package net.hasor.dbvisitor.types.handler;
 import java.sql.*;
 import java.util.List;
 import net.hasor.dbvisitor.types.handler.vector.ChVectorTypeHandler;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class ChVectorTypeHandlerTest {
