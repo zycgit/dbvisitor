@@ -26,7 +26,10 @@ public class Demo2ApplicationTests {
 
     @BeforeEach
     public void beforeTest() throws Exception {
-        application = new Boot().sources(DemoApplication.class).hconfigFile("multi-ds-test.properties").start();
+        Boot boot = new Boot()                  //
+                .sources(DemoApplication.class) //
+                .hconfigFile("multi-ds-test.properties");
+        application = boot.start();
         application.getAppContext().justInject(this);
     }
 
